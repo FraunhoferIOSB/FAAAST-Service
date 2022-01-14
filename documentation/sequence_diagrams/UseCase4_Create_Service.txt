@@ -1,0 +1,82 @@
+@startuml
+header Page Header
+footer Page %page% of %lastpage%
+frame Use Case 4 - Create Service
+entryspacing 0.9
+
+actor Admin
+
+box "App"
+participant "App" as app
+end box
+box "config"
+participant "config\n:Configuration" as config
+end box
+box "service"
+participant "service\n:Service" as service
+end box
+box "endpoint"
+participant "endpoint\n:HttpEndpoint" as endpoint
+end box
+box "httpdeserializer"
+participant "deserializer\n:HttpDeserializer" as httpdeserializer
+end box
+box "httpserializer"
+participant "serializer\n:HttpSerializer" as httpserializer
+end box
+box "OPCUAEndpoint"
+participant "endpoint\n:OPC UA Endpoint" as OPCUAEndpoint
+end box
+box "persistence"
+participant "persistence\n:InMemoryPersistence" as persistence
+end box
+box "messagebus"
+participant "messageBus\n:MessageBus" as messagebus
+end box
+
+box "AssetConnection"
+participant "assetconnection\n:AssetConnection" as assetconnection
+end box
+
+Admin -> app:<<create>>
+app -> config:<<create>>
+activate app
+activate config
+config -> config:loadPropertiesFromFile()
+config --> app: config
+deactivate config
+app ->service: <<create>> (config)
+activate service
+service -> endpoint:newInstance\n(config.getEndpointConfig()[0])
+activate endpoint
+endpoint -> httpdeserializer: <<create>>
+activate httpdeserializer
+httpdeserializer --> endpoint:deserializer
+deactivate httpdeserializer
+endpoint -> httpserializer: <<create>>
+activate httpserializer
+httpserializer --> endpoint:serializer
+deactivate httpserializer
+endpoint --> service: endpoint
+deactivate endpoint
+service ->OPCUAEndpoint:newInstance(config.getEndpointConfig()[1])
+activate OPCUAEndpoint
+OPCUAEndpoint ->service: endpoint
+deactivate OPCUAEndpoint
+service -> persistence:newInstance(config.getPersistenceConfig())
+activate persistence
+persistence --> service: persistence
+deactivate persistence
+service -> messagebus:newInstance(config.getMessageBusConfig())
+activate messagebus
+messagebus --> service: messageBus
+deactivate messagebus 
+service -> assetconnection:newInstance(config.getMessageBusConfig())
+activate assetconnection
+assetconnection --> service:assetconnection
+deactivate assetconnection 
+
+service --> app: service
+deactivate service
+deactivate app
+@end

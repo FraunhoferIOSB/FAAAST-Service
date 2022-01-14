@@ -1,0 +1,89 @@
+@startuml
+header Page Header
+footer Page %page% of %lastpage%
+frame Use Case 4 - Add new SubmodelElement via HTTP and retrieve via OPC
+entryspacing 0.9
+
+actor User
+
+box "service"
+participant "service\n:Service" as service
+end box
+box "endpoint"
+participant "endpoint\n:HttpEndpoint" as endpoint
+end box
+box "httpdeserializer"
+participant "deserializer\n:HttpDeserializer" as httpdeserializer
+end box
+box "httpserializer"
+participant "serializer\n:HttpSerializer" as httpserializer
+end box
+box "OPCUAEndpoint"
+participant "endpoint\n:OPC UA Endpoint" as OPCUAEndpoint
+end box
+box "persistence"
+participant "persistence\n:InMemoryPersistence" as persistence
+end box
+box "messagebus"
+participant "messageBus\n:MessageBus" as messagebus
+end box
+
+
+User -> service: start()
+activate service
+service -> OPCUAEndpoint: initialize()
+activate OPCUAEndpoint
+OPCUAEndpoint -> OPCUAEndpoint:createSubscriptionInfoForAllWriteEvents()
+OPCUAEndpoint ->messagebus: subscribe(SubscriptionInfo)
+activate messagebus
+messagebus --> OPCUAEndpoint:
+deactivate messagebus
+OPCUAEndpoint --> service:
+deactivate OPCUAEndpoint
+
+User -> endpoint: HTTP POST /aas/, Property2
+activate endpoint
+endpoint ->httpdeserializer: deserialize(payload)
+activate httpdeserializer
+httpdeserializer -->endpoint: Msg: PutSubmodelElementByPath
+deactivate httpdeserializer
+endpoint ->service: handle(msg)
+service -> service: handlePutSubmodelElement(msg)
+activate service
+service ->service: createSubmodelElement(msg)
+service ->service: parseReference(msg)
+service -> persistence: put(Reference, Property2)
+activate persistence
+persistence -->service: Property2: SubmodelElement
+deactivate persistence
+service ->messagebus: publish(new ElementCreateEventMessage(Property2))
+activate messagebus
+messagebus --> service:
+deactivate messagebus
+
+group #bbbbbb par
+service ->service: createGenericResponse
+service --> endpoint: genericResponse
+deactivate service
+endpoint ->httpserializer: serialize(genericResponse)
+activate httpserializer
+httpserializer -->endpoint: httpResponse
+deactivate httpserializer
+endpoint --> User: response
+deactivate endpoint
+
+==par==
+note over messagebus: Defined in Handler\nConsumer<EventMessage>\nin SubscriptionInfo
+messagebus -> OPCUAEndpoint: updateInternalModel(Referable)
+
+activate messagebus
+activate OPCUAEndpoint
+OPCUAEndpoint -->messagebus:
+deactivate messagebus
+end
+
+User -> OPCUAEndpoint: OPC UA read /aas/prop2/
+OPCUAEndpoint -> User: response
+deactivate OPCUAEndpoint
+deactivate service
+@end

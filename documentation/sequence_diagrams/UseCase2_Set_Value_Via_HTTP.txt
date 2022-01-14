@@ -1,0 +1,72 @@
+@startuml
+header Page Header
+footer Page %page% of %lastpage%
+frame Use Case 2 - Set Value via HTTP
+entryspacing 0.9
+
+actor User
+
+box "service"
+participant "service\n:Service" as service
+end box
+box "endpoint"
+participant "endpoint\n:HttpEndpoint" as endpoint
+end box
+box "httpdeserializer"
+participant "deserializer\n:HttpDeserializer" as httpdeserializer
+end box
+box "httpserializer"
+participant "serializer\n:HttpSerializer" as httpserializer
+end box
+box "persistence"
+participant "persistence\n:InMemoryPersistence" as persistence
+end box
+box "messagebus"
+participant "messageBus\n:MessageBus" as messagebus
+end box
+box "AssetConnection"
+participant "assetconnection\n:AssetConnection" as assetconnection
+end box
+
+User -> service: start()
+activate service
+User -> endpoint: HTTP PUT /aas/prop1/value, “newValue”
+activate endpoint
+endpoint ->httpdeserializer: deserialize(payload)
+activate httpdeserializer
+httpdeserializer --> endpoint: Msg: SetSubmodel\nElementValueByPath
+deactivate httpdeserializer
+endpoint -> service: handle(msg)
+service -> service: handleSetSubmodel\nElementValue(msg)
+activate service
+service -> service: parseReference(msg)
+service ->persistence: get(Reference, msg.OutputModifier)
+activate persistence
+persistence --> service: Property1: SubmodelElement
+deactivate persistence
+service -> service: setValue(Property1, “newValue”)
+service -> persistence: put(Reference, Property1)
+activate persistence
+persistence --> service:
+deactivate persistence
+service -> service: hasAssetConnection()
+group true
+service -> assetconnection: put(Reference, “newValue”)
+activate assetconnection
+assetconnection --> service:
+deactivate assetconnection
+deactivate service
+end 
+service -> messagebus: publish(new ValueChangeEventMessage(new PropertyValue(“test”), new PropertyValue(“newValue”)))
+activate messagebus
+messagebus --> service:
+deactivate messagebus
+service -> service: createResponse()
+service --> endpoint: response
+endpoint -> httpserializer:serialize(response)
+activate httpserializer
+httpserializer -> endpoint: httpResponse
+deactivate httpserializer
+endpoint --> User: response
+deactivate service
+@end

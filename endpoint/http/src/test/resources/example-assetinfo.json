@@ -1,0 +1,49 @@
+{
+    "assetKind": "INSTANCE",
+    "globalAssetId": {
+        "keys": [
+            {
+                "idType": "Iri",
+                "type": "Asset",
+                "value": "http://customer.com/assets/KHBVZJSQKIY"
+            }
+        ]
+    },
+    "specificAssetIds": [
+        {
+            "key": "EquipmentID",
+            "value": "538fd1b3-f99f-4a52-9c75-72e9fa921270",
+            "subjectId": {
+                "keys": [
+                    {
+                        "idType": "Iri",
+                        "type": "GlobalReference",
+                        "value": "http://customer.com/Systems/ERP/012"
+                    }
+                ]
+            }
+        },
+        {
+            "key": "DeviceID",
+            "value": "QjYgPggjwkiHk4RrQiYSLg==",
+            "subjectId": {
+                "keys": [
+                    {
+                        "idType": "Iri",
+                        "type": "GlobalReference",
+                        "value": "http://customer.com/Systems/IoT/1"
+                    }
+                ]
+            }
+        }
+    ],
+    "thumbnail": {
+        "modelType": {
+            "name": "File"
+        },
+        "mimeType": "image/png",
+        "value": "https://github.com/admin-shell/io/blob/master/verwaltungsschale-detail-part1.png",
+        "kind": "Instance",
+        "idShort": "thumbnail"
+    }
+}

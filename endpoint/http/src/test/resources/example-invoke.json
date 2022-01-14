@@ -1,0 +1,20 @@
+{
+    "inoutputArguments": [
+        {
+            "value": {
+                "mimeType": "string",
+                "value": "string"
+            }
+        }
+    ],
+    "inputArguments": [
+        {
+            "value": {
+                "mimeType": "string",
+                "value": "string"
+            }
+        }
+    ],
+    "requestId": "string",
+    "timeout": 0
+}

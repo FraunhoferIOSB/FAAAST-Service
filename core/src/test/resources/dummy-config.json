@@ -1,0 +1,25 @@
+
+{
+    "core":
+            {
+                "requestHandlerThreadPoolSize": 2
+            },
+    "assetConnections": [
+        {
+            "@class": "de.fraunhofer.iosb.ilt.faaast.service.config.fixtures.DummyAssetConnection",
+            "valueProviders":
+                    {
+                        "(Property)[ID_SHORT]Temperature":
+                                {
+                                    "nodeId": "some.opc.ua.node.id"
+                                }
+                    },
+            "host": "tcp://localhost",
+            "port": 1234
+        }
+    ],
+    "persistence":
+            {
+                "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence"
+            }
+}

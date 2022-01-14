@@ -1,0 +1,59 @@
+@startuml
+header Page Header
+footer Page %page% of %lastpage%
+frame Use Case 1 - Get Value via HTTP
+entryspacing 0.9
+
+actor User
+
+box "service"
+participant "service\n:Service" as service
+end box
+box "endpoint"
+participant "endpoint\n:HttpEndpoint" as endpoint
+end box
+box "httpdeserializer"
+participant "deserializer\n:HttpDeserializer" as httpdeserializer
+end box
+box "httpserializer"
+participant "serializer\n:HttpSerializer" as httpserializer
+end box
+box "persistence"
+participant "persistence\n:InMemoryPersistence" as persistence
+end box
+box "messagebus"
+participant "messageBus\n:MessageBus" as messagebus
+end box
+
+User -> service: start()
+activate service
+User -> endpoint: HTTP GET submodel/Elements/prop1?content=value,payload
+activate endpoint
+endpoint ->httpdeserializer: deserialize(payload)
+
+activate httpdeserializer
+httpdeserializer --> endpoint: msg: GetSubmodelElementByPath
+deactivate httpdeserializer
+endpoint -> service: handle(msg)
+service -> service:handleGetSubmodelElemenByPath()
+activate service
+service -> service: parseReference(msg)
+service ->persistence: get(Reference, msg.OutputModifier)
+activate persistence
+persistence --> service: Property1: SubmodelElement
+deactivate persistence
+service -> messagebus:publish(new ValueReadEventMessage(new PropertyValue("newValue"))
+activate messagebus
+messagebus --> service:
+deactivate messagebus
+service -> service: createResponse()
+service -->endpoint:response
+deactivate service
+endpoint ->httpserializer:serialize(response)
+activate httpserializer
+httpserializer -->endpoint: httpResponse
+deactivate httpserializer
+endpoint --> User: response
+deactivate endpoint
+deactivate service
+@end

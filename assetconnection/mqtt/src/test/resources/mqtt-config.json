@@ -1,0 +1,25 @@
+
+{
+    "core":
+            {
+                "serviceName": "ExampleAAS"
+            },
+    "assetConnections": [
+        {
+            "@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnection",
+            "subscriptionProviders":
+                    {
+                        "(Property)[ID_SHORT]Temperature":
+                                {
+                                    "topic": "some.mqtt.topic"
+                                }
+                    },
+            "host": "tcp://localhost",
+            "clientID": "FAST MQTT Client"
+        }
+    ],
+    "persistence":
+            {
+                "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence"
+            }
+}
