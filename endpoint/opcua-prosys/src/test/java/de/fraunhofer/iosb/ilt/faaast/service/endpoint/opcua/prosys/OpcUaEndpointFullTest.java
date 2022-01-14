@@ -73,7 +73,7 @@ public class OpcUaEndpointFullTest {
 
         endpoint = new OpcUaEndpoint();
         endpoint.init(coreConfig, config);
-        service = new TestService(endpoint, false);
+        service = new TestService(endpoint, true);
         endpoint.setService(service);
         service.start();
     }
@@ -143,14 +143,12 @@ public class OpcUaEndpointFullTest {
             }
         }
 
-        // TODO commented out because failing when trying to merge
+        Assert.assertNotNull("Submodel 1 Node not found", submodel1Node);
 
-        //        Assert.assertNotNull("Submodel 1 Node not found", submodel1Node);
-        //
-        //        testSubmodel1(client, submodel1Node);
-        //
-        //        System.out.println("disconnect client");
-        //        client.disconnect();
+        testSubmodel1(client, submodel1Node);
+
+        System.out.println("disconnect client");
+        client.disconnect();
     }
 
 
