@@ -1,0 +1,24 @@
+*~
+*.autosave
+
+### IntelliJ ###
+*.iml
+.idea/
+out/
+
+### Netbeans ###
+**/nbproject/*
+**/nb-configuration.xml
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+### Maven ###
+target/
+
+*.jar
+**/.flattend-pom.xml
+**/.flattened-pom.xml
+/endpoint/opcua-prosys/PKI
