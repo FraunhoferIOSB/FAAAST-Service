@@ -18,6 +18,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.AASXPackage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationHandle;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.PackageDescription;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -210,5 +212,26 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      * @return the package id of the created AASX package
      */
     public String save(Set<Identifier> aasIds, AASXPackage file, String fileName);
+
+
+    /**
+     * Get an OperationResult of an Operation if available. If not available returns null.
+     *
+     * @param handleId of the OperationResult
+     * @return the OperationResult if available else null
+     */
+    public OperationResult getOperationResult(String handleId);
+
+
+    /**
+     * Creates a new OperationHandle instance with a unique id if handleId is empty or null
+     * Otherwise updates the existing OperationHandle / OperationResult combination
+     *
+     * @param handleId of the OperationRequest - could be null if the OperationHandle still not exists
+     * @param requestId of the client
+     * @param operationResult of the Operation - if null a initial OperationResult will be created
+     * @return the belonging OperationHandleInstance or create a new one
+     */
+    public OperationHandle putOperationContext(String handleId, String requestId, OperationResult operationResult);
 
 }
