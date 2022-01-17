@@ -20,12 +20,12 @@ import java.util.Map;
 
 
 /**
- * Interface for asset connections, i.e. connecting assets to the AAS (a.k.a. lower DT interface).
- * An AssetConnection can support the following operations
- * - get/set data values from/to the asset (via AssetValueProvider)
- * - execute operations on the asset (via AssetOperationProvider)
- * - get values from the asset by subscribe to it (via AssetSubscriptionProvider)
- * 
+ * Interface for asset connections, i.e. connecting assets to the AAS (a.k.a.
+ * lower DT interface). An AssetConnection can support the following operations
+ * - get/set data values from/to the asset (via AssetValueProvider) - execute
+ * operations on the asset (via AssetOperationProvider) - get values from the
+ * asset by subscribe to it (via AssetSubscriptionProvider)
+ *
  * @param <T> corresponding config type
  * @param <V> type of value provider for this asset connection
  * @param <O> type of operation provider for this asset connection
@@ -35,60 +35,9 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
         extends Configurable<T> {
 
     /**
-     * Registers a value provider for this asset connection.
-     * 
-     * @param reference Reference to the AAS element that this provider will map to
-     * @param valueProvider AssetValueProvider instance to use
+     * Gracefully closes the asset connection.
      */
-    public void registerValueProvider(Reference reference, V valueProvider);
-
-
-    /**
-     * Registers an operation provider for this asset connection.
-     * 
-     * @param reference Reference to the AAS element that this provider will map to
-     * @param operationProvider AssetOperationProvider instance to use
-     */
-    public void registerOperationProvider(Reference reference, O operationProvider);
-
-
-    /**
-     * Registers a subscription provider for this asset connection.
-     * 
-     * @param reference Reference to the AAS element that this provider will map to
-     * @param subscriptionProvider AssetSubscriptionProvider instance to use
-     */
-    public void registerSubscriptionProvider(Reference reference, S subscriptionProvider);
-
-
-    /**
-     * Unregisters a value provider for this asset connection.
-     * 
-     * @param reference Reference to the AAS element that this provider should be unregistered for
-     * @param valueProvider AssetValueProvider instance to unregister
-     */
-    public void unregisterValueProvider(Reference reference, V valueProvider);
-
-
-    /**
-     * Unregisters an operation provider for this asset connection.
-     * 
-     * @param reference Reference to the AAS element that this provider should be unregistered for
-     * @param operationProvider AssetOperationProvider instance to unregister
-     */
-    public void unregisterOperationProvider(Reference reference, O operationProvider);
-
-
-    /**
-     * Unregisters a subscription provider for this asset connection.
-     * 
-     * @param reference Reference to the AAS element that this provider should be unregistered for
-     * @param subscriptionProvider AssetSubscriptionProvider instance to unregister
-     */
-    public void unregisterSubscriptionProvider(Reference reference, S subscriptionProvider);
-
-
-    public Map<Reference, AssetValueProvider> getValueProviders();
+    public void close();
 
 
     public Map<Reference, AssetOperationProvider> getOperationProviders();
@@ -97,11 +46,77 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
     public Map<Reference, AssetSubscriptionProvider> getSubscriptionProviders();
 
 
+    public Map<Reference, AssetValueProvider> getValueProviders();
+
+
     /**
-     * Compares two instances of AssetConnection if they are referencing the same asset connection.
-     * 
+     * Registers an operation provider for this asset connection.
+     *
+     * @param reference Reference to the AAS element that this provider will map
+     *            to
+     * @param operationProvider AssetOperationProvider instance to use
+     */
+    public void registerOperationProvider(Reference reference, O operationProvider);
+
+
+    /**
+     * Registers a subscription provider for this asset connection.
+     *
+     * @param reference Reference to the AAS element that this provider will map
+     *            to
+     * @param subscriptionProvider AssetSubscriptionProvider instance to use
+     */
+    public void registerSubscriptionProvider(Reference reference, S subscriptionProvider);
+
+
+    /**
+     * Registers a value provider for this asset connection.
+     *
+     * @param reference Reference to the AAS element that this provider will map
+     *            to
+     * @param valueProvider AssetValueProvider instance to use
+     */
+    public void registerValueProvider(Reference reference, V valueProvider);
+
+
+    /**
+     * Compares two instances of AssetConnection if they are referencing the
+     * same asset connection.
+     *
      * @param other other AssetConnection to compare to this.
      * @return true if other is the same as this.
      */
     public boolean sameAs(AssetConnection other);
+
+
+    /**
+     * Unregisters an operation provider for this asset connection.
+     *
+     * @param reference Reference to the AAS element that this provider should
+     *            be unregistered for
+     * @param operationProvider AssetOperationProvider instance to unregister
+     */
+    public void unregisterOperationProvider(Reference reference, O operationProvider);
+
+
+    /**
+     * Unregisters a subscription provider for this asset connection.
+     *
+     * @param reference Reference to the AAS element that this provider should
+     *            be unregistered for
+     * @param subscriptionProvider AssetSubscriptionProvider instance to
+     *            unregister
+     */
+    public void unregisterSubscriptionProvider(Reference reference, S subscriptionProvider);
+
+
+    /**
+     * Unregisters a value provider for this asset connection.
+     *
+     * @param reference Reference to the AAS element that this provider should
+     *            be unregistered for
+     * @param valueProvider AssetValueProvider instance to unregister
+     */
+    public void unregisterValueProvider(Reference reference, V valueProvider);
+
 }

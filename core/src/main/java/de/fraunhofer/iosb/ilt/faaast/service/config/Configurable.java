@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+
+
 /**
  * Superclass of all classes that can be created by a correspondig configuration class.
  * 
@@ -26,8 +29,9 @@ public interface Configurable<T extends Config> {
      * 
      * @param coreConfig coreConfig
      * @param config an instance of the corresponding configuration class
+     * @throws java.lang.Exception when initialization fails
      */
-    public void init(CoreConfig coreConfig, T config);
+    public void init(CoreConfig coreConfig, T config, ServiceContext context) throws Exception;
 
 
     /**

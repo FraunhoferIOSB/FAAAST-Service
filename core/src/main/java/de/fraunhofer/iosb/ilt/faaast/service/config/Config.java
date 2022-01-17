@@ -17,20 +17,19 @@ package de.fraunhofer.iosb.ilt.faaast.service.config;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.google.common.reflect.TypeToken;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.serialization.ConfigTypeResolver;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiationException;
 
 
 /**
- * Superclass of all config classes that are coupled with a concrete implementation class (via generics).
- * Each config class can be serialized to/parsed from JSON in the form of
- * {
- * "@class": "[implemenation class],
- * [normal JSON serialization of properties]
- * }
- * where [implemenation class] is the fully qualified class name of an implementation class (i.e. implementing the
- * interface Configurable) that can be configured with this configuration.
- * 
+ * Superclass of all config classes that are coupled with a concrete
+ * implementation class (via generics). Each config class can be serialized
+ * to/parsed from JSON in the form of { "@class": "[implemenation class],
+ * [normal JSON serialization of properties] } where [implemenation class] is
+ * the fully qualified class name of an implementation class (i.e. implementing
+ * the interface Configurable) that can be configured with this configuration.
+ *
  * @param <T> type of the implementation class configured by this configuration
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "@class", visible = true)
@@ -38,8 +37,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiatio
 public abstract class Config<T extends Configurable> {
 
     /**
-     * Utilify method to get the concrete type of the corresponding implementation.
-     * 
+     * Utilify method to get the concrete type of the corresponding
+     * implementation.
+     *
      * @return the type of the corresponding implementation
      */
     protected Class<T> getImplementationType() {
@@ -48,20 +48,25 @@ public abstract class Config<T extends Configurable> {
 
 
     /**
-     * Creates a new instance of the implementation class that is initialized with this configuration.
-     * 
-     * @param coreConfig the coreConfig to initialize the implementation class with
-     * @return a new instance of the implementation class that is initialized with this configuration
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiationException when creating a new
-     *             instance fails
+     * Creates a new instance of the implementation class that is initialized
+     * with this configuration.
+     *
+     * @param coreConfig the coreConfig to initialize the implementation class
+     *            with
+     * @param context context information about the service
+     * @return a new instance of the implementation class that is initialized
+     *         with this configuration
+     * @throws
+     * de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiationException
+     *             when creating a new instance fails
      */
-    public T newInstance(CoreConfig coreConfig) throws ConfigurationInstantiationException {
+    public T newInstance(CoreConfig coreConfig, ServiceContext context) throws ConfigurationInstantiationException {
         try {
             T result = getImplementationType().newInstance();
-            result.init(coreConfig, this);
+            result.init(coreConfig, this, context);
             return result;
         }
-        catch (InstantiationException | IllegalAccessException ex) {
+        catch (Exception ex) {
             throw new ConfigurationInstantiationException(ex);
         }
     }

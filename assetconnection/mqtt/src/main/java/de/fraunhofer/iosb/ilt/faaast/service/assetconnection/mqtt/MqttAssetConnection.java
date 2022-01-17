@@ -14,11 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentParserFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
+import io.adminshell.aas.v3.model.DataElement;
 import io.adminshell.aas.v3.model.Reference;
+import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
@@ -30,13 +33,39 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 public class MqttAssetConnection
         implements AssetConnection<MqttAssetConnectionConfig, MqttValueProviderConfig, MqttOperationProviderConfig, MqttSubscriptionProviderConfig> {
 
+    private MqttAssetConnectionConfig config;
     private Map<Reference, AssetValueProvider> valueProviders;
     private Map<Reference, AssetOperationProvider> operationProviders;
     private Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
     private MqttClient client;
+    private ServiceContext context;
+
+    public MqttAssetConnection() {
+        this.valueProviders = new HashMap<>();
+        this.operationProviders = new HashMap<>();
+        this.subscriptionProviders = new HashMap<>();
+    }
+
 
     @Override
-    public void init(CoreConfig coreConfig, MqttAssetConnectionConfig config) {
+    public void close() {
+        if (client != null && client.isConnected()) {
+            try {
+                client.disconnect();
+            }
+            catch (MqttException ex) {}
+            try {
+                client.close(true);
+            }
+            catch (MqttException ex) {}
+        }
+    }
+
+
+    @Override
+    public void init(CoreConfig coreConfig, MqttAssetConnectionConfig config, ServiceContext context) throws AssetConnectionException {
+        this.config = config;
+        this.context = context;
         try {
             client = new MqttClient(config.getServerURI(), config.getClientID(), new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
@@ -51,14 +80,17 @@ public class MqttAssetConnection
 
         }
         catch (MqttException ex) {
-            ex.printStackTrace();
+            throw new AssetConnectionException("initializaing MQTT asset connection failed", ex);
         }
+        config.getValueProviders().forEach((k, v) -> registerValueProvider(k, v));
+        config.getOperationProviders().forEach((k, v) -> registerOperationProvider(k, v));
+        config.getSubscriptionProviders().forEach((k, v) -> registerSubscriptionProvider(k, v));
     }
 
 
     @Override
     public MqttAssetConnectionConfig asConfig() {
-        return null;
+        return config;
     }
 
 
@@ -66,18 +98,18 @@ public class MqttAssetConnection
     public void registerValueProvider(Reference reference, MqttValueProviderConfig valueProviderConfig) {
         this.valueProviders.put(reference, new AssetValueProvider() {
             @Override
-            public DataElementValue getValue() {
+            public DataElementValue getValue() throws AssetConnectionException {
                 throw new UnsupportedOperationException("Not supported.");
             }
 
 
             @Override
-            public void setValue(DataElementValue value) {
+            public void setValue(DataElementValue value) throws AssetConnectionException {
                 try {
                     client.publish(valueProviderConfig.getTopic(), new MqttMessage(value.toString().getBytes()));
                 }
                 catch (MqttException ex) {
-                    ex.printStackTrace();
+                    throw new AssetConnectionException("writing value via MQTT asset connection failed", ex);
                 }
             }
         });
@@ -95,7 +127,6 @@ public class MqttAssetConnection
         this.subscriptionProviders.put(reference, new AssetSubscriptionProvider() {
             @Override
             public void addNewDataListener(NewDataListener listener) {
-                //define MqttCallback
                 client.setCallback(new MqttCallback() {
                     @Override
                     public void connectionLost(Throwable throwable) {}
@@ -103,21 +134,15 @@ public class MqttAssetConnection
 
                     @Override
                     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
-                        PropertyValue value = new PropertyValue();
-                        switch (subscriptionProviderConfig.getParser()) {
-                            case PLAIN:
-                                value.setValue(s);
-                                listener.newDataReceived(value);
-                                break;
-                            case XML:
-                                value.setValue(parseXML(s));
-                                listener.newDataReceived(value);
-                                break;
-                            case JSON:
-                                value.setValue(parseJSON(s));
-                                listener.newDataReceived(value);
-                                break;
+                        String mqttValue = new String(mqttMessage.getPayload());
+                        Class elementType = context.getElementType(reference);
+                        if (!DataElement.class.isAssignableFrom(elementType)) {
+                            throw new AssetConnectionException(String.format("unsupported submodel element type (%s)", elementType.getSimpleName()));
                         }
+                        DataElementValue newValue = ContentParserFactory
+                                .create(subscriptionProviderConfig.getContentFormat())
+                                .parseValue(mqttValue, elementType);
+                        listener.newDataReceived(newValue);
                     }
 
 
@@ -187,17 +212,5 @@ public class MqttAssetConnection
     @Override
     public boolean sameAs(AssetConnection other) {
         return false;
-    }
-
-
-    private String parseXML(String xml) {
-        //todo: handle XML
-        return xml;
-    }
-
-
-    private String parseJSON(String json) {
-        //todo: handle JSON
-        return json;
     }
 }

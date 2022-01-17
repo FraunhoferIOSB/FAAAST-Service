@@ -12,27 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.config.fixtures;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+public class AssetConnectionException extends Exception {
 
-
-public class DummyConfigurable implements Configurable<DummyConfig> {
-
-    private DummyConfig config;
-
-    @Override
-    public void init(CoreConfig coreConfig, DummyConfig config, ServiceContext context) {
-        this.config = config;
-        System.out.println("init called");
+    public AssetConnectionException(String msg) {
+        super(msg);
     }
 
 
-    @Override
-    public DummyConfig asConfig() {
-        return config;
+    public AssetConnectionException(Throwable err) {
+        super(err);
+    }
+
+
+    public AssetConnectionException(String msg, Throwable err) {
+        super(msg, err);
     }
 
 }

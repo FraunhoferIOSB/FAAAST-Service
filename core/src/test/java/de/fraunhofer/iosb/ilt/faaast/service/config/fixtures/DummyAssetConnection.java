@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.config.fixtures;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
@@ -34,6 +35,12 @@ public class DummyAssetConnection
     private final Map<Reference, AssetSubscriptionProvider> subscriptionProviders = new TreeMap<>();
     private String host;
     private int port;
+
+    @Override
+    public void close() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 
     @Override
     public void registerValueProvider(Reference reference, DummyNodeBasedProviderConfig valueProvider) {
@@ -66,7 +73,7 @@ public class DummyAssetConnection
 
 
     @Override
-    public void init(CoreConfig coreConfig, DummyAssetConnectionConfig config) {
+    public void init(CoreConfig coreConfig, DummyAssetConnectionConfig config, ServiceContext context) {
         this.host = config.getHost();
         this.port = config.getPort();
         this.coreConfig = coreConfig;

@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
@@ -29,10 +30,12 @@ public class AssetConnectionManager {
 
     private List<AssetConnection> connections = new ArrayList<>();
     private final CoreConfig coreConfig;
+    private final ServiceContext context;
 
-    public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections) throws ConfigurationException {
+    public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections, ServiceContext context) throws ConfigurationException {
         this.coreConfig = coreConfig;
         this.connections = connections;
+        this.context = context;
         validateConnections();
     }
 
@@ -46,7 +49,7 @@ public class AssetConnectionManager {
      */
     public void add(AssetConnectionConfig<? extends AssetConnection, ? extends AssetValueProviderConfig, ? extends AssetOperationProviderConfig, ? extends AssetSubscriptionProviderConfig> connectionConfig)
             throws ConfigurationException {
-        AssetConnection newConnection = (AssetConnection) connectionConfig.newInstance(coreConfig);
+        AssetConnection newConnection = (AssetConnection) connectionConfig.newInstance(coreConfig, context);
         if (connections.stream().anyMatch(x -> x.sameAs(newConnection))) {
             AssetConnection connection = connections.stream().filter(x -> x.sameAs(newConnection)).findFirst().get();
             connectionConfig.getValueProviders().forEach((k, v) -> connection.registerValueProvider(k, (AssetValueProviderConfig) v));

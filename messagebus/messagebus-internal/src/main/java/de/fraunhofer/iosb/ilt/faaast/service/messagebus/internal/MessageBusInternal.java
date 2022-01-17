@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
@@ -59,7 +60,7 @@ public class MessageBusInternal implements MessageBus<MessageBusConfig>, Runnabl
      *            class
      */
     @Override
-    public void init(CoreConfig coreConfig, MessageBusConfig config) {
+    public void init(CoreConfig coreConfig, MessageBusConfig config, ServiceContext context) {
         running.set(false);
     }
 

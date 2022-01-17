@@ -13,6 +13,7 @@
     <name>assetconnection-mqtt</name>
     <description>MQTT Asset Connection implementation of the FA³ST Service.</description>
     <properties>
+        <moquette.version>0.15</moquette.version>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>
@@ -22,9 +23,37 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>serialization-json</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.moquette</groupId>
+            <artifactId>moquette-broker</artifactId>
+            <version>${moquette.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.paho</groupId>
             <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
             <version>${paho.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray</id>
+            <url>https://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
 </project>

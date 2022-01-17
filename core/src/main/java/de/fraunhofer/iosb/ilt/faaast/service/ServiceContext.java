@@ -12,27 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.config.fixtures;
+package de.fraunhofer.iosb.ilt.faaast.service;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-
-
-public class DummyConfigurable implements Configurable<DummyConfig> {
-
-    private DummyConfig config;
-
-    @Override
-    public void init(CoreConfig coreConfig, DummyConfig config, ServiceContext context) {
-        this.config = config;
-        System.out.println("init called");
-    }
+import io.adminshell.aas.v3.model.Referable;
+import io.adminshell.aas.v3.model.Reference;
 
 
-    @Override
-    public DummyConfig asConfig() {
-        return config;
-    }
+public interface ServiceContext {
 
+    public Class<? extends Referable> getElementType(Reference reference);
 }

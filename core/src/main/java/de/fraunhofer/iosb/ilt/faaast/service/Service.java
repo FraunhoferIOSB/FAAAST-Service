@@ -26,7 +26,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.Referable;
+import io.adminshell.aas.v3.model.Reference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -34,7 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class Service {
+public class Service implements ServiceContext {
+
     private static Logger logger = LoggerFactory.getLogger(Service.class);
     private AssetAdministrationShellEnvironment aasEnvironment;
     private AssetConnectionManager assetConnectionManager;
@@ -88,6 +92,12 @@ public class Service {
     }
 
 
+    @Override
+    public Class<? extends Referable> getElementType(Reference reference) {
+        return AasUtils.resolve(reference, aasEnvironment).getClass();
+    }
+
+
     public AssetAdministrationShellEnvironment getEnvironment() {
         return aasEnvironment;
     }
@@ -138,18 +148,18 @@ public class Service {
         if (config.getPersistence() == null) {
             throw new IllegalArgumentException("config.persistence must be non-null");
         }
-        persistence = (Persistence) config.getPersistence().newInstance(config.getCore());
+        persistence = (Persistence) config.getPersistence().newInstance(config.getCore(), this);
         if (config.getMessageBus() == null) {
             throw new IllegalArgumentException("config.messagebus must be non-null");
         }
-        messageBus = (MessageBus) config.getMessageBus().newInstance(config.getCore());
+        messageBus = (MessageBus) config.getMessageBus().newInstance(config.getCore(), this);
         if (config.getAssetConnections() != null) {
             List<AssetConnection> assetConnections = new ArrayList<>();
             for (AssetConnectionConfig assetConnectionConfig: config.getAssetConnections()) {
-                assetConnections.add((AssetConnection) assetConnectionConfig.newInstance(config.getCore()));
+                assetConnections.add((AssetConnection) assetConnectionConfig.newInstance(config.getCore(), this));
             }
 
-            assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections);
+            assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         }
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
             // TODO maybe be less restrictive and only print warning
@@ -159,7 +169,7 @@ public class Service {
         else {
             endpoints = new ArrayList<>();
             for (EndpointConfig endpointConfig: config.getEndpoints()) {
-                Endpoint endpoint = (Endpoint) endpointConfig.newInstance(config.getCore());
+                Endpoint endpoint = (Endpoint) endpointConfig.newInstance(config.getCore(), this);
                 endpoint.setService(this);
                 endpoints.add(endpoint);
             }
