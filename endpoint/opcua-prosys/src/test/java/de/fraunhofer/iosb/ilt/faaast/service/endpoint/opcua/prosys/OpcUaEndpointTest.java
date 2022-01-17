@@ -148,7 +148,7 @@ public class OpcUaEndpointTest {
         // browse AAS Environment
         refs = client.getAddressSpace().browse(envNode);
         Assert.assertNotNull("Browse Environment Refs Null", refs);
-        Assert.assertTrue("Browse Environment Refs empty", refs.size() > 0);
+        Assert.assertTrue("Browse Environment Refs empty", !refs.isEmpty());
         NodeId aasNode = null;
         NodeId assetNode = null;
         NodeId submodelDocNode = null;
@@ -234,9 +234,9 @@ public class OpcUaEndpointTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_OPER_DATA_NODE_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.ROTATION_SPEED_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testWriteProperty Browse Result Null", bpres);
         Assert.assertTrue("testWriteProperty Browse Result: size doesn't match", bpres.length == 1);
         Assert.assertTrue("testWriteProperty Browse Result Good", bpres[0].getStatusCode().isGood());
@@ -312,9 +312,9 @@ public class OpcUaEndpointTest {
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_TECH_DATA_NODE_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.MAX_ROTATION_SPEED_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testPropertyChangeFromMessageBus Browse Result Null", bpres);
         Assert.assertTrue("testPropertyChangeFromMessageBus Browse Result: size doesn't match", bpres.length == 1);
         Assert.assertTrue("testPropertyChangeFromMessageBus Browse Result Good", bpres[0].getStatusCode().isGood());
@@ -535,9 +535,9 @@ public class OpcUaEndpointTest {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_REF_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testSubmodelRefs Browse Result Null", bpres);
         Assert.assertTrue("testSubmodelRefs Browse Result: size doesn't match", bpres.length == 1);
         Assert.assertTrue("testSubmodelRefs Browse Result Good", bpres[0].getStatusCode().isGood());

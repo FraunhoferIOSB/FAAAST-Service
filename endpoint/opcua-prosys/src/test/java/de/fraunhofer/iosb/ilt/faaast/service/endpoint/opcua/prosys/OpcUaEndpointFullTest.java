@@ -131,7 +131,7 @@ public class OpcUaEndpointFullTest {
         // browse AAS Environment
         refs = client.getAddressSpace().browse(envNode);
         Assert.assertNotNull("Browse Environment Refs Null", refs);
-        Assert.assertTrue("Browse Environment Refs empty", refs.size() > 0);
+        Assert.assertTrue("Browse Environment Refs empty", !refs.isEmpty());
 
         NodeId submodel1Node = null;
         for (ReferenceDescription ref: refs) {

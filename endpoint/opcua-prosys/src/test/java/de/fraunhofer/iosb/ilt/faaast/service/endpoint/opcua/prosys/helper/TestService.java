@@ -23,8 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,10 +32,11 @@ import org.slf4j.LoggerFactory;
  */
 public class TestService extends Service {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestService.class);
+    //private static final Logger logger = LoggerFactory.getLogger(TestService.class);
 
-    private MessageBusInternal messageBus;
-    private boolean useFullExample;
+    //private final boolean useFullExample;
+
+    //private MessageBusInternal messageBus;
 
     /**
      * Constructs a new TestService
@@ -45,6 +44,7 @@ public class TestService extends Service {
      * @param endpoint
      * @param full True if the full example is requested, otherwise the simple
      *            is used
+     * @throws ConfigurationException If the operation fails
      */
     public TestService(Endpoint endpoint, boolean full) throws ConfigurationException {
         super(
@@ -53,6 +53,6 @@ public class TestService extends Service {
                 mock(Persistence.class),
                 new MessageBusInternal(),
                 List.of(endpoint));
-        useFullExample = full;
+        //useFullExample = full;
     }
 }

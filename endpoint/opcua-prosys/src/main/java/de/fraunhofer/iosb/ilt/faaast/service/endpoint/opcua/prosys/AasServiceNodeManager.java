@@ -82,11 +82,9 @@ import io.adminshell.aas.v3.model.Entity;
 import io.adminshell.aas.v3.model.EntityType;
 import io.adminshell.aas.v3.model.Event;
 import io.adminshell.aas.v3.model.File;
-import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.LangString;
@@ -97,14 +95,12 @@ import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Qualifier;
 import io.adminshell.aas.v3.model.Range;
-import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.ReferenceElement;
 import io.adminshell.aas.v3.model.RelationshipElement;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -428,7 +424,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
                 // Assets
                 List<Asset> assets = aasEnvironment.getAssets();
-                if ((assets != null) && (assets.size() > 0)) {
+                if ((assets != null) && (!assets.isEmpty())) {
                     for (Asset asset: assets) {
                         addAsset(aasEnvironmentNode, asset);
                     }
@@ -436,7 +432,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
                 // Submodels
                 List<Submodel> submodels = aasEnvironment.getSubmodels();
-                if ((submodels != null) && (submodels.size() > 0)) {
+                if ((submodels != null) && (!submodels.isEmpty())) {
                     for (Submodel submodel: submodels) {
                         addSubmodel(aasEnvironmentNode, submodel);
                     }
@@ -889,44 +885,43 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         return retval;
     }
 
-
-    /**
-     * Creates a reference for the given Referable object and corresponding
-     * parent.
-     *
-     * @param object The desired object
-     * @param objectKeyElement The KeyElements type of the desired object
-     * @param parent The corresponding parent of the object
-     * @param parentKeyElement The KeyElements type of the parent
-     * @return The created reference
-     */
-    private Reference getReference(Referable object, KeyElements objectKeyElement, Identifiable parent, KeyElements parentKeyElement) {
-        if (object == null) {
-            throw new IllegalArgumentException("object is null");
-        }
-
-        Identifier parentIdentifier = parent.getIdentification();
-        if (parentIdentifier == null) {
-            throw new IllegalArgumentException("parentIdentifier is null");
-        }
-
-        Reference retval = null;
-
-        try {
-            List<Key> keys = new ArrayList<>();
-            keys.add(
-                    new DefaultKey.Builder().idType(getKeyTypeFromIdentifier(parentIdentifier.getIdType())).value(parentIdentifier.getIdentifier()).type(parentKeyElement).build());
-            keys.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).value(object.getIdShort()).type(objectKeyElement).build());
-
-            retval = new DefaultReference.Builder().keys(keys).build();
-        }
-        catch (Throwable ex) {
-            logger.error("getReference Exception", ex);
-            throw ex;
-        }
-
-        return retval;
-    }
+    //    /**
+    //     * Creates a reference for the given Referable object and corresponding
+    //     * parent.
+    //     *
+    //     * @param object The desired object
+    //     * @param objectKeyElement The KeyElements type of the desired object
+    //     * @param parent The corresponding parent of the object
+    //     * @param parentKeyElement The KeyElements type of the parent
+    //     * @return The created reference
+    //     */
+    //    private Reference getReference(Referable object, KeyElements objectKeyElement, Identifiable parent, KeyElements parentKeyElement) {
+    //        if (object == null) {
+    //            throw new IllegalArgumentException("object is null");
+    //        }
+    //
+    //        Identifier parentIdentifier = parent.getIdentification();
+    //        if (parentIdentifier == null) {
+    //            throw new IllegalArgumentException("parentIdentifier is null");
+    //        }
+    //
+    //        Reference retval = null;
+    //
+    //        try {
+    //            List<Key> keys = new ArrayList<>();
+    //            keys.add(
+    //                    new DefaultKey.Builder().idType(getKeyTypeFromIdentifier(parentIdentifier.getIdType())).value(parentIdentifier.getIdentifier()).type(parentKeyElement).build());
+    //            keys.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).value(object.getIdShort()).type(objectKeyElement).build());
+    //
+    //            retval = new DefaultReference.Builder().keys(keys).build();
+    //        }
+    //        catch (Throwable ex) {
+    //            logger.error("getReference Exception", ex);
+    //            throw ex;
+    //        }
+    //
+    //        return retval;
+    //    }
 
 
     /**
@@ -991,7 +986,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             if (VALUES_READ_ONLY) {
                 refNode.getKeysNode().setAccessLevel(AccessLevelType.CurrentRead);
             }
-            refNode.setKeys(keyList.toArray(new AASKeyDataType[0]));
+            refNode.setKeys(keyList.toArray(AASKeyDataType[]::new));
         }
         catch (Throwable ex) {
             logger.error("setAasReferenceData Exception", ex);
@@ -1358,7 +1353,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void addEmbeddedDataSpecifications(AASAssetAdministrationShellType aasNode, List<EmbeddedDataSpecification> list) throws StatusException {
         try {
-            if ((list != null) && (list.size() > 0)) {
+            if ((list != null) && (!list.isEmpty())) {
                 List<Reference> refList = new ArrayList<>();
                 for (EmbeddedDataSpecification eds: list) {
                     refList.add(eds.getDataSpecification());
@@ -1391,7 +1386,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void addEmbeddedDataSpecifications(AASAssetType assetNode, List<EmbeddedDataSpecification> list) throws StatusException {
         try {
-            if ((list != null) && (list.size() > 0)) {
+            if ((list != null) && (!list.isEmpty())) {
                 List<Reference> refList = new ArrayList<>();
                 for (EmbeddedDataSpecification eds: list) {
                     refList.add(eds.getDataSpecification());
@@ -1424,7 +1419,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void addEmbeddedDataSpecifications(AASSubmodelType submodelNode, List<EmbeddedDataSpecification> list) throws StatusException {
         try {
-            if ((list != null) && (list.size() > 0)) {
+            if ((list != null) && (!list.isEmpty())) {
                 List<Reference> refList = new ArrayList<>();
                 for (EmbeddedDataSpecification eds: list) {
                     refList.add(eds.getDataSpecification());
@@ -1457,7 +1452,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void addEmbeddedDataSpecifications(AASSubmodelElementType submodelElementNode, List<EmbeddedDataSpecification> list) throws StatusException {
         try {
-            if ((list != null) && (list.size() > 0)) {
+            if ((list != null) && (!list.isEmpty())) {
                 List<Reference> refList = new ArrayList<>();
                 for (EmbeddedDataSpecification eds: list) {
                     refList.add(eds.getDataSpecification());
@@ -1490,7 +1485,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void addEmbeddedDataSpecifications(AASReferenceList refListNode, List<Reference> refList) throws StatusException {
         try {
-            if ((refListNode != null) && (refList.size() > 0)) {
+            if ((refListNode != null) && (!refList.isEmpty())) {
                 int count = 0;
                 for (Reference ref: refList) {
                     count++;
@@ -1521,7 +1516,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void addDescriptions(UaNode node, List<LangString> descriptions) {
         try {
             if ((node != null) && (descriptions != null)) {
-                if (descriptions.size() > 0) {
+                if (!descriptions.isEmpty()) {
                     LangString desc = descriptions.get(0);
                     node.setDescription(new LocalizedText(desc.getValue(), desc.getLanguage()));
                 }
@@ -1543,7 +1538,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void addDescriptions(Argument arg, List<LangString> descriptions) {
         try {
             if ((arg != null) && (descriptions != null)) {
-                if (descriptions.size() > 0) {
+                if (!descriptions.isEmpty()) {
                     LangString desc = descriptions.get(0);
                     arg.setDescription(new LocalizedText(desc.getValue(), desc.getLanguage()));
                 }
@@ -3118,7 +3113,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 arr.add(new LocalizedText(ls.getValue(), ls.getLanguage()));
             });
 
-            retval = arr.toArray(new LocalizedText[0]);
+            retval = arr.toArray(LocalizedText[]::new);
         }
         catch (Throwable ex) {
             logger.error("getLocalizedTextFromLangStringSet Exception", ex);
@@ -3624,49 +3619,47 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
     }
 
+    //    /**
+    //     * Converts the given String value to KeyType
+    //     *
+    //     * @param stringValue The desired String
+    //     * @return The KeyType
+    //     */
+    //    private static KeyType stringToKeyType(String stringValue) {
+    //        KeyType retval;
+    //        if (keyTypeStringMap.containsKey(stringValue.toUpperCase())) {
+    //            retval = keyTypeStringMap.get(stringValue.toUpperCase());
+    //        }
+    //        else {
+    //            logger.warn("stringToKeyType: unknown value: " + stringValue);
+    //            retval = null;
+    //        }
+    //
+    //        return retval;
+    //    }
 
-    /**
-     * Converts the given String value to KeyType
-     *
-     * @param stringValue The desired String
-     * @return The KeyType
-     */
-    private static KeyType stringToKeyType(String stringValue) {
-        KeyType retval;
-        if (keyTypeStringMap.containsKey(stringValue.toUpperCase())) {
-            retval = keyTypeStringMap.get(stringValue.toUpperCase());
-        }
-        else {
-            logger.warn("stringToKeyType: unknown value: " + stringValue);
-            retval = null;
-        }
-
-        return retval;
-    }
-
-
-    /**
-     * Returns a KeyType from an IdentifierType
-     *
-     * @param identifier The desired IdentifierType
-     * @return The corresponding KeyType
-     */
-    private static KeyType getKeyTypeFromIdentifier(IdentifierType identifier) {
-        KeyType retval = null;
-
-        try {
-            retval = stringToKeyType(identifier.name());
-            if (retval == null) {
-                throw new IllegalArgumentException(identifier.name() + " not found in KeyType");
-            }
-        }
-        catch (Throwable ex) {
-            logger.error("getKeyTypeFromIdentifier Exception", ex);
-            throw ex;
-        }
-
-        return retval;
-    }
+    //    /**
+    //     * Returns a KeyType from an IdentifierType
+    //     *
+    //     * @param identifier The desired IdentifierType
+    //     * @return The corresponding KeyType
+    //     */
+    //    private static KeyType getKeyTypeFromIdentifier(IdentifierType identifier) {
+    //        KeyType retval = null;
+    //
+    //        try {
+    //            retval = stringToKeyType(identifier.name());
+    //            if (retval == null) {
+    //                throw new IllegalArgumentException(identifier.name() + " not found in KeyType");
+    //            }
+    //        }
+    //        catch (Throwable ex) {
+    //            logger.error("getKeyTypeFromIdentifier Exception", ex);
+    //            throw ex;
+    //        }
+    //
+    //        return retval;
+    //    }
 
 
     /**
@@ -4409,7 +4402,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private static String getSubmodelName(Reference submodelRef) {
         String retval = "";
         if (submodelRef != null) {
-            if (submodelRef.getKeys().size() > 0) {
+            if (!submodelRef.getKeys().isEmpty()) {
                 retval = submodelRef.getKeys().get(0).getValue();
             }
         }

@@ -44,7 +44,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
     private static final Logger logger = LoggerFactory.getLogger(OpcUaEndpoint.class);
 
-    private Service service;
+    //private Service service;
     private AssetAdministrationShellEnvironment aasEnvironment;
     private MessageBus messageBus;
     private OpcUaEndpointConfig currentConfig;
@@ -92,7 +92,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      */
     @Override
     public void setService(Service service) {
-        this.service = service;
+        //this.service = service;
         this.aasEnvironment = service.getEnvironment();
         this.messageBus = service.getMessageBus();
     }
