@@ -19,7 +19,7 @@
     <modules>
         <module>core</module>
         <module>model</module>
-        <!-- needs to be build sseparately because of proprietary dependency to prosys -->
+        <!-- needs to be build separately because of proprietary dependency to prosys -->
         <!--<module>endpoint/opcua-prosys</module>-->
         <module>endpoint/http</module>
         <module>messagebus/messagebus-internal</module>

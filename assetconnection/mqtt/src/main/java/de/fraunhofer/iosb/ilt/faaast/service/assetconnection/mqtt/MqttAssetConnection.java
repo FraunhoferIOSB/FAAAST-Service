@@ -14,11 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentParserFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
 import io.adminshell.aas.v3.model.DataElement;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.HashMap;
@@ -127,7 +129,13 @@ public class MqttAssetConnection
             @Override
             public void setValue(DataElementValue value) throws AssetConnectionException {
                 try {
-                    client.publish(valueProviderConfig.getTopic(), new MqttMessage(value.toString().getBytes()));
+                    //check that provided value is a PropertyValue
+                    if(!(value instanceof PropertyValue)) {
+                        throw new AssetConnectionException(String.format("unsupported value (%s)", value.getClass().getSimpleName()));
+                    }
+                    client.publish(valueProviderConfig.getTopic(), new MqttMessage(
+                            (((PropertyValue) value).getValue().getBytes())
+                    ));
                 }
                 catch (MqttException ex) {
                     throw new AssetConnectionException("writing value via MQTT asset connection failed", ex);

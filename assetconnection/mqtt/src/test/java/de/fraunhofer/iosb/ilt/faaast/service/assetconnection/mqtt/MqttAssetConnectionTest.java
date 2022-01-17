@@ -123,4 +123,46 @@ public class MqttAssetConnectionTest {
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         Assert.assertEquals(expected, response.get());
     }
+
+    @Test
+    public void testValueProvider() throws AssetConnectionException, InterruptedException {
+        final String topic = "some.mqtt.topic";
+        PropertyValue expected = new PropertyValue();
+        expected.setValue("hello world");
+        MqttAssetConnectionConfig config = new MqttAssetConnectionConfig();
+        config.setServerURI("tcp://" + LOCALHOST + ":" + mqttPort);
+        config.setClientID("FAST MQTT Client");
+        MqttValueProviderConfig valueConfig = new MqttValueProviderConfig();
+        valueConfig.setTopic(topic);
+        // TODO change ID_SHORT to IdShort once dataformat-core 1.2.1 hotfix is released
+        Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
+        config.getValueProviders().put(reference, valueConfig);
+        MqttAssetConnection assetConnection = new MqttAssetConnection();
+        ServiceContext serviceContext = mock(ServiceContext.class);
+        doReturn(Property.class).when(serviceContext).getElementType(reference);
+        assetConnection.init(CoreConfig.builder().build(), config, serviceContext);
+
+        MqttSubscriptionProviderConfig subscriptionConfig = new MqttSubscriptionProviderConfig();
+        subscriptionConfig.setTopic(topic);
+        config.getSubscriptionProviders().put(reference, subscriptionConfig);
+        MqttAssetConnection assetConnectionForSubscribe = new MqttAssetConnection();
+        config.setClientID("FAST MQTT Client Subscribe");
+        assetConnectionForSubscribe.init(CoreConfig.builder().build(), config, serviceContext);
+        final AtomicReference<DataElementValue> response = new AtomicReference<>();
+        CountDownLatch condition = new CountDownLatch(1);
+        assetConnectionForSubscribe.getSubscriptionProviders().get(reference).addNewDataListener(new NewDataListener() {
+            @Override
+            public void newDataReceived(DataElementValue data) {
+                // receive data from value provider
+                response.set(data);
+                condition.countDown();
+            }
+        });
+        // publish message with value provider
+        assetConnection.getValueProviders().get(reference).setValue(expected);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+        Assert.assertEquals(expected, response.get());
+
+
+    }
 }
