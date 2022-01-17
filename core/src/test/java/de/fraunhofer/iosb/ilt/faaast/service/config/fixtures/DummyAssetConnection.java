@@ -61,13 +61,13 @@ public class DummyAssetConnection
 
 
     @Override
-    public void unregisterOperationProvider(Reference reference, DummyNodeBasedProviderConfig operationProvider) {
+    public void unregisterOperationProvider(Reference reference) {
         operationProviders.remove(reference);
     }
 
 
     @Override
-    public void unregisterSubscriptionProvider(Reference reference, DummySubscriptionBasedProviderConfig subscriptionProvider) {
+    public void unregisterSubscriptionProvider(Reference reference) {
         subscriptionProviders.remove(reference);
     }
 
@@ -133,7 +133,7 @@ public class DummyAssetConnection
 
 
     @Override
-    public void unregisterValueProvider(Reference reference, DummyNodeBasedProviderConfig valueProvider) {
+    public void unregisterValueProvider(Reference reference) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

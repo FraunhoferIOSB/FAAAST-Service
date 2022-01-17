@@ -26,6 +26,8 @@ public class JsonContentParser extends JsonDeserializer implements ContentParser
     @Override
     public DataElementValue parseValue(String raw, Class<? extends DataElement> elementType) throws AssetConnectionException {
         try {
+            // TODO implement type mapping in  core (de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper)
+            // and mal elementType to DataElementValue
             return this.read(raw, DataElementValue.class);
         }
         catch (DeserializationException ex) {

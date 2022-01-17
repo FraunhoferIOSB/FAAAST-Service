@@ -56,7 +56,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      *            to
      * @param operationProvider AssetOperationProvider instance to use
      */
-    public void registerOperationProvider(Reference reference, O operationProvider);
+    public void registerOperationProvider(Reference reference, O operationProvider) throws AssetConnectionException;
 
 
     /**
@@ -66,7 +66,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      *            to
      * @param subscriptionProvider AssetSubscriptionProvider instance to use
      */
-    public void registerSubscriptionProvider(Reference reference, S subscriptionProvider);
+    public void registerSubscriptionProvider(Reference reference, S subscriptionProvider) throws AssetConnectionException;
 
 
     /**
@@ -76,7 +76,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      *            to
      * @param valueProvider AssetValueProvider instance to use
      */
-    public void registerValueProvider(Reference reference, V valueProvider);
+    public void registerValueProvider(Reference reference, V valueProvider) throws AssetConnectionException;
 
 
     /**
@@ -94,9 +94,8 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      *
      * @param reference Reference to the AAS element that this provider should
      *            be unregistered for
-     * @param operationProvider AssetOperationProvider instance to unregister
      */
-    public void unregisterOperationProvider(Reference reference, O operationProvider);
+    public void unregisterOperationProvider(Reference reference) throws AssetConnectionException;
 
 
     /**
@@ -104,10 +103,8 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      *
      * @param reference Reference to the AAS element that this provider should
      *            be unregistered for
-     * @param subscriptionProvider AssetSubscriptionProvider instance to
-     *            unregister
      */
-    public void unregisterSubscriptionProvider(Reference reference, S subscriptionProvider);
+    public void unregisterSubscriptionProvider(Reference reference) throws AssetConnectionException;
 
 
     /**
@@ -115,8 +112,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      *
      * @param reference Reference to the AAS element that this provider should
      *            be unregistered for
-     * @param valueProvider AssetValueProvider instance to unregister
      */
-    public void unregisterValueProvider(Reference reference, V valueProvider);
+    public void unregisterValueProvider(Reference reference) throws AssetConnectionException;
 
 }
