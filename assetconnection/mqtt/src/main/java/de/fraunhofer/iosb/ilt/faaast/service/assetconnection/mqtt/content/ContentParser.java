@@ -22,4 +22,6 @@ import io.adminshell.aas.v3.model.DataElement;
 public interface ContentParser {
 
     public DataElementValue parseValue(String raw, Class<? extends DataElement> elementType) throws AssetConnectionException;
+
+    public DataElementValue parseValueWithQuery(String raw, Class<? extends DataElement> elementType, String query) throws AssetConnectionException;
 }

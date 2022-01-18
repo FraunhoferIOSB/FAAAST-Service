@@ -32,4 +32,9 @@ public class PlainContentParser implements ContentParser {
         throw new UnsupportedOperationException(String.format("error parsing value - unsupported element type (%s)", elementType.getSimpleName()));
     }
 
+    @Override
+    public DataElementValue parseValueWithQuery(String raw, Class<? extends DataElement> elementType, String query) {
+        return parseValue(raw, elementType);
+    }
+
 }

@@ -22,9 +22,11 @@ public class MqttSubscriptionProviderConfig implements AssetSubscriptionProvider
 
     private ContentFormat contentFormat;
     private String topic;
+    private String query;
 
     public MqttSubscriptionProviderConfig() {
         this.contentFormat = ContentFormat.PLAIN;
+        this.query = "";
     }
 
 
@@ -47,4 +49,13 @@ public class MqttSubscriptionProviderConfig implements AssetSubscriptionProvider
         this.topic = topic;
     }
 
+
+    public String getQuery() {
+        return query;
+    }
+
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
 }

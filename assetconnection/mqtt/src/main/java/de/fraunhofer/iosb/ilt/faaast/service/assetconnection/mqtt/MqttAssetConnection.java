@@ -167,9 +167,18 @@ public class MqttAssetConnection
                         if (!DataElement.class.isAssignableFrom(elementType)) {
                             throw new AssetConnectionException(String.format("unsupported submodel element type (%s)", elementType.getSimpleName()));
                         }
-                        DataElementValue newValue = ContentParserFactory
-                                .create(subscriptionProviderConfig.getContentFormat())
-                                .parseValue(mqttValue, elementType);
+
+                        DataElementValue newValue;
+                        if(subscriptionProviderConfig.getQuery().isBlank()) {
+                            newValue = ContentParserFactory
+                                    .create(subscriptionProviderConfig.getContentFormat())
+                                    .parseValue(mqttValue, elementType);
+                        } else {
+                            newValue = ContentParserFactory
+                                    .create(subscriptionProviderConfig.getContentFormat())
+                                    .parseValueWithQuery(mqttValue, elementType, subscriptionProviderConfig.getQuery());
+                        }
+
                         listener.newDataReceived(newValue);
                     }
 

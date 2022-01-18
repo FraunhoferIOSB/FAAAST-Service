@@ -21,6 +21,7 @@ import static org.mockito.Mockito.mock;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
@@ -125,6 +126,44 @@ public class MqttAssetConnectionTest {
     }
 
     @Test
+    public void testSubscriptionProviderWithJsonPath() throws AssetConnectionException, InterruptedException {
+        final String topic = "some.mqtt.topic";
+        PropertyValue expected = new PropertyValue();
+        expected.setValue("{value1:5, value2:7}");
+        MqttAssetConnectionConfig config = new MqttAssetConnectionConfig();
+        config.setServerURI("tcp://" + LOCALHOST + ":" + mqttPort);
+        config.setClientID("FAST MQTT Client");
+        MqttSubscriptionProviderConfig subscriptionConfig = new MqttSubscriptionProviderConfig();
+        subscriptionConfig.setTopic(topic);
+        subscriptionConfig.setContentFormat(ContentFormat.JSON);
+        //extract value2 from json
+        subscriptionConfig.setQuery("$.value2");
+        // TODO change ID_SHORT to IdShort once dataformat-core 1.2.1 hotfix is released
+        Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
+        config.getSubscriptionProviders().put(reference, subscriptionConfig);
+        MqttAssetConnection assetConnection = new MqttAssetConnection();
+        ServiceContext serviceContext = mock(ServiceContext.class);
+        doReturn(Property.class).when(serviceContext).getElementType(reference);
+        assetConnection.init(CoreConfig.builder().build(), config, serviceContext);
+        CountDownLatch condition = new CountDownLatch(1);
+        final AtomicReference<DataElementValue> response = new AtomicReference<>();
+        assetConnection.getSubscriptionProviders().get(reference).addNewDataListener(new NewDataListener() {
+            @Override
+            public void newDataReceived(DataElementValue data) {
+                // we received data via MQTT
+                response.set(data);
+                condition.countDown();
+            }
+        });
+        // send message via MQTT
+        publishMqtt(topic, expected.getValue());
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+        PropertyValue extracted = new PropertyValue();
+        extracted.setValue("7");
+        Assert.assertEquals(extracted, response.get());
+    }
+
+    @Test
     public void testValueProvider() throws AssetConnectionException, InterruptedException {
         final String topic = "some.mqtt.topic";
         PropertyValue expected = new PropertyValue();
@@ -154,6 +193,7 @@ public class MqttAssetConnectionTest {
             @Override
             public void newDataReceived(DataElementValue data) {
                 // receive data from value provider
+                System.out.println(((PropertyValue) data).getValue());
                 response.set(data);
                 condition.countDown();
             }
