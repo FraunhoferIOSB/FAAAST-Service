@@ -21,6 +21,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.AASXPackage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationHandle;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.PackageDescription;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.aasx.PackagePersistenceManager;
@@ -35,7 +37,10 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -46,6 +51,8 @@ import java.util.Set;
 public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfig> {
 
     private AssetAdministrationShellEnvironment aasEnvironment;
+    private Map<String, OperationResult> operationResultMap = new ConcurrentHashMap<>();
+    private Map<String, OperationHandle> operationHandleMap = new ConcurrentHashMap<>();
     private final IdentifiablePersistenceManager identifiablePersistenceManager = new IdentifiablePersistenceManager();
     private final ReferablePersistenceManager referablePersistenceManager = new ReferablePersistenceManager();
     private final PackagePersistenceManager packagePersistenceManager = new PackagePersistenceManager();
@@ -225,4 +232,31 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         throw new UnsupportedOperationException();
     }
 
+
+    @Override
+    public OperationResult getOperationResult(String handleId) {
+        if (!empty(handleId)) {
+            return operationResultMap.getOrDefault(handleId, null);
+        }
+        return null;
+    }
+
+
+    @Override
+    public OperationHandle putOperationContext(String handleId, String requestId, OperationResult operationResult) {
+        if (empty(handleId)) {
+            OperationHandle operationHandle = new OperationHandle.Builder()
+                    .requestId(requestId)
+                    .handleId(UUID.randomUUID().toString())
+                    .build();
+            operationHandleMap.put(operationHandle.getHandleId(), operationHandle);
+            operationResultMap.putIfAbsent(handleId, operationResult);
+            return operationHandle;
+        }
+        else if (!empty(handleId)) {
+            operationResultMap.put(handleId, operationResult);
+        }
+
+        return null;
+    }
 }

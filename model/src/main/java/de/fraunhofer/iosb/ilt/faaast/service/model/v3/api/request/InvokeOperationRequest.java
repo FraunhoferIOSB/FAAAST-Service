@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public abstract class InvokeOperationRequest<T extends Response> extends BaseRequest {
+public abstract class InvokeOperationRequest<T extends Response> extends BaseRequest<T> {
     private static final long DEFAULT_TIMEOUT = 1000;
     protected Identifier id;
     protected Content content;

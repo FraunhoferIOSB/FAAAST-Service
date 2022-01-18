@@ -12,10 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.misc;
+package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.operation;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetOperationAsyncResultRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetOperationAsyncResultResponse;
@@ -35,9 +36,9 @@ public class GetOperationAsyncResultRequestHandler extends RequestHandler<GetOpe
         GetOperationAsyncResultResponse response = new GetOperationAsyncResultResponse();
 
         try {
-
-            //TODO: implement Serialization
-            response.setStatusCode(StatusCode.ServerInternalError);
+            OperationResult operationResult = persistence.getOperationResult(request.getHandleId());
+            response.setPayload(operationResult);
+            response.setStatusCode(StatusCode.Success);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

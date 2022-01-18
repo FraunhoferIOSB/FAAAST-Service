@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api;
 
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
@@ -55,5 +56,38 @@ public class OperationHandle {
     @Override
     public int hashCode() {
         return Objects.hash(requestId, handleId);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private static abstract class AbstractBuilder<T extends OperationHandle, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B requestId(String value) {
+            getBuildingInstance().setRequestId(value);
+            return getSelf();
+        }
+
+
+        public B handleId(String value) {
+            getBuildingInstance().setHandleId(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<OperationHandle, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected OperationHandle newBuildingInstance() {
+            return new OperationHandle();
+        }
     }
 }
