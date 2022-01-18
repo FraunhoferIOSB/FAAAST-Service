@@ -18,16 +18,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.SetSubmodelElementValueByPathRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
+import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Property;
+import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.Submodel;
+import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +49,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
     private static final Logger logger = LoggerFactory.getLogger(OpcUaEndpoint.class);
 
-    //private Service service;
+    private Service service;
     private AssetAdministrationShellEnvironment aasEnvironment;
     private MessageBus messageBus;
     private OpcUaEndpointConfig currentConfig;
@@ -92,7 +97,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      */
     @Override
     public void setService(Service service) {
-        //this.service = service;
+        this.service = service;
         this.aasEnvironment = service.getEnvironment();
         this.messageBus = service.getMessageBus();
     }
@@ -151,24 +156,36 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     /**
      * Writes the Value of the given Property into the service.
      *
-     * @param property The desired Property
-     * @param value The new value
+     * @param element The desired SubmodelElement including the new value
+     * @param submodel The corresponding submodel
      * @return True if the write succeeded, false otherwise
      */
-    public boolean writeValue(Property property, PropertyValue value) {
+    public boolean writeValue(SubmodelElement element, Submodel submodel) {
         boolean retval = false;
+        if (element == null) {
+            throw new IllegalArgumentException("element == null");
+        }
+        else if (submodel == null) {
+            throw new IllegalArgumentException("submodel == null");
+        }
 
         try {
             SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
 
             List<Key> path = new ArrayList<>();
-            path.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.PROPERTY).value(property.getIdShort()).build());
+            Reference ref = AasUtils.toReference(AasUtils.toReference(submodel), element);
+            path.addAll(ref.getKeys());
+            //path.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.PROPERTY).value(element.getIdShort()).build());
+            request.setId(submodel.getIdentification());
             request.setPath(path);
+            request.setValueParser(new OpcUaElementValueParser());
+            request.setRawValue(DataElementValueMapper.toDataElement(element));
 
-            // TODO set payload no longer available, solution tbd
-            //request.setPayload(value);
-            //service.execute
-            // TODO Method in Service not yet implemented
+            Response response = service.execute(request);
+            logger.info("writeValue: Submodel " + submodel.getIdentification().getIdentifier() + "; Element " + element.getIdShort() + "; Status: " + response.getStatusCode());
+            if (isSuccess(response.getStatusCode())) {
+                retval = true;
+            }
         }
         catch (Exception ex) {
             logger.error("writeValue error", ex);
@@ -202,5 +219,21 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         catch (Exception ex) {
             logger.error("callOperation error", ex);
         }
+    }
+
+
+    /**
+     * Returns a value indicating whether the given StatusCode is a success
+     * 
+     * @param code The desired StatusCode
+     * @return True if the StatusCode is a success, false otherweise
+     */
+    private static boolean isSuccess(StatusCode code) {
+        boolean retval = false;
+        if ((code == StatusCode.Success) || (code == StatusCode.SuccessCreated) || (code == StatusCode.SuccessNoContent)) {
+            retval = true;
+        }
+
+        return retval;
     }
 }

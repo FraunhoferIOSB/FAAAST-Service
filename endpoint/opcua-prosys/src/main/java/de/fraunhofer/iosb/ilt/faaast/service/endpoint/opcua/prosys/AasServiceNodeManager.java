@@ -35,10 +35,7 @@ import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
-import com.prosysopc.ua.stack.builtintypes.UnsignedByte;
 import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
-import com.prosysopc.ua.stack.builtintypes.UnsignedLong;
-import com.prosysopc.ua.stack.builtintypes.UnsignedShort;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Argument;
@@ -220,9 +217,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private final ReentrantLock submodelElementRefMapLock;
 
     /**
-     * Maps NodeIds to AAS References (e.g. Properties and operations)
+     * Maps NodeIds to AAS Data (e.g. Properties and operations)
      */
-    private final Map<NodeId, SubmodelElement> submodelElementAasMap;
+    private final Map<NodeId, SubmodelElementData> submodelElementAasMap;
 
     /**
      * Lock for the submodelElementAasMap
@@ -248,6 +245,16 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * Lock for the submodelOpcUAMap
      */
     private final ReentrantLock submodelOpcUAMapLock;
+
+    //    /**
+    //     * Maps NodeIds to the corresponding Submodels
+    //     */
+    //    private final Map<NodeId, Submodel> submodelMap;
+    //
+    //    /**
+    //     * Lock for the submodelMap
+    //     */
+    //    private final ReentrantLock submodelMapLock;
 
     /**
      * The MessageBus for signalling changes, e.g. changed values
@@ -286,6 +293,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         submodelElementOpcUAMapLock = new ReentrantLock();
         submodelOpcUAMap = new HashMap<>();
         submodelOpcUAMapLock = new ReentrantLock();
+        //submodelMap = new HashMap<>();
+        //submodelMapLock = new ReentrantLock();
 
         messageBus = ep.getMessageBus();
         subscriptions = new ArrayList<>();
@@ -331,13 +340,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Gets the SubmodelElement from the given NodeId.
+     * Gets the AAS Data from the given NodeId.
      *
      * @param node The desired NodeId
-     * @return The associated SubmodelElement, null if it was not found
+     * @return The associated AAS Data, null if it was not found
      */
-    public SubmodelElement getAasSubmodelElement(NodeId node) {
-        SubmodelElement retval = null;
+    public SubmodelElementData getAasData(NodeId node) {
+        SubmodelElementData retval = null;
 
         try {
             submodelElementAasMapLock.lock();
@@ -359,6 +368,35 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
         return retval;
     }
+
+    //    /**
+    //     * Gets the Submodel from the given SubmodelElement
+    //     * 
+    //     * @param node The desired Nodeid
+    //     * @return The corresponding Submodel, null if it was not found
+    //     */
+    //    public Submodel getAasSubmodel(NodeId node) {
+    //        Submodel retval = null;
+    //        try {
+    //            submodelMapLock.lock();
+    //            if (submodelMap.containsKey(node)) {
+    //                retval = submodelMap.get(node);
+    //                logger.debug("getAasSubmodel: Node " + node.toString() + "; Submodel " + retval.getIdentification().getIdentifier());
+    //            }
+    //            else {
+    //                logger.info("getAasSubmodel: Node " + node.toString() + " not found in submodelMap");
+    //            }
+    //        }
+    //        catch (Throwable ex) {
+    //            logger.error("getAasSubmodel Exception", ex);
+    //            throw ex;
+    //        }
+    //        finally {
+    //            submodelMapLock.unlock();
+    //        }
+    //
+    //        return retval;
+    //    }
 
 
     //    /**
@@ -1957,12 +1995,24 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                             submodelElementRefMap.put(getReference(elem, submodel), getReference(submodel));
                         }
                         catch (Throwable ex) {
-                            logger.error("addSubmodelElements Map Exception", ex);
+                            logger.error("addSubmodelElements RefMap Exception", ex);
                         }
                         finally {
                             submodelElementRefMapLock.unlock();
                         }
                     }
+
+                    //                    try {
+                    //                        submodelMapLock.lock();
+                    //                        logger.debug("addSubmodelElements: " + elem.toString() + "; Submodel " + submodel);
+                    //                        submodelMap.put(elem, submodel);
+                    //                    }
+                    //                    catch (Throwable ex) {
+                    //                        logger.error("addSubmodelElements submodelMap Exception", ex);
+                    //                    }
+                    //                    finally {
+                    //                        submodelMapLock.unlock();
+                    //                    }
 
                     if (elem instanceof DataElement) {
                         addAasDataElement(node, (DataElement) elem, submodel, ordered);
@@ -2026,7 +2076,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     addAasReferenceElement(node, (ReferenceElement) aasDataElement, ordered);
                 }
                 else if (aasDataElement instanceof Range) {
-                    addAasRange(node, (Range) aasDataElement, ordered);
+                    addAasRange(node, (Range) aasDataElement, submodel, ordered);
                 }
                 else if (aasDataElement instanceof MultiLanguageProperty) {
                     addAasMultiLanguageProperty(node, (MultiLanguageProperty) aasDataElement, ordered);
@@ -2060,6 +2110,18 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             NodeId nid = createNodeId(node, browseName);
             AASPropertyType prop = createInstance(AASPropertyType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(prop, aasProperty, name);
+
+            //            try {
+            //                submodelMapLock.lock();
+            //                logger.debug("addSubmodelElements: " + aasProperty.toString() + "; Submodel " + submodel);
+            //                submodelMap.put(prop.getValueNode(), submodel);
+            //            }
+            //            catch (Throwable ex) {
+            //                logger.error("addSubmodelElements submodelMap Exception", ex);
+            //            }
+            //            finally {
+            //                submodelMapLock.unlock();
+            //            }
 
             // ValueId
             Reference ref = aasProperty.getValueId();
@@ -2104,7 +2166,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             try {
                 submodelElementAasMapLock.lock();
-                submodelElementAasMap.put(myPropertyId, aasProperty);
+                submodelElementAasMap.put(myPropertyId, new SubmodelElementData(aasProperty, submodel, SubmodelElementData.Type.PROPERTY_VALUE));
                 logger.debug("setPropertyValueAndType: NodeId " + myPropertyId + "; Property: " + aasProperty);
             }
             catch (Exception ex2) {
@@ -2115,6 +2177,18 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
 
             if (submodel != null) {
+                //                try {
+                //                    submodelMapLock.lock();
+                //                    logger.debug("addSubmodelElements: " + aasProperty.toString() + "; Submodel " + submodel);
+                //                    submodelMap.put(myPropertyId, submodel);
+                //                }
+                //                catch (Throwable ex) {
+                //                    logger.error("addSubmodelElements submodelMap Exception", ex);
+                //                }
+                //                finally {
+                //                    submodelMapLock.unlock();
+                //                }
+
                 try {
                     Reference propRef = getReference(aasProperty, submodel);
                     submodelElementOpcUAMapLock.lock();
@@ -2131,7 +2205,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             AASValueTypeDataType valueDataType = ValueConverter.stringToValueType(aasProperty.getValueType());
             prop.setValueType(valueDataType);
 
-            // temoprary solution for the "Value is String" problem!
+            // temporary solution for the "Value is String" problem!
             PlainProperty<String> myStringProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
             myStringProperty.setDataTypeId(Identifiers.String);
             myStringProperty.setValue(stringVal);
@@ -2569,11 +2643,14 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      *
      * @param node The desired UA node
      * @param aasRange The corresponding AAS range object to add
+     * @param submodel The corresponding Submodel as parent object of the data
+     *            element
      * @param ordered Specifies whether the range should be added ordered (true)
      *            or unordered (false)
      * @throws StatusException If the operation fails
      */
-    private void addAasRange(UaNode node, Range aasRange, boolean ordered) throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
+    private void addAasRange(UaNode node, Range aasRange, Submodel submodel, boolean ordered)
+            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
         try {
             if ((node != null) && (aasRange != null)) {
                 String name = aasRange.getIdShort();
@@ -2582,7 +2659,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 AASRangeType rangeNode = createInstance(AASRangeType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(rangeNode, aasRange, name);
 
-                setRangeValueAndType(aasRange, rangeNode);
+                setRangeValueAndType(aasRange, rangeNode, submodel);
 
                 if (ordered) {
                     node.addReference(rangeNode, Identifiers.HasOrderedComponent, false);
@@ -2605,8 +2682,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      *
      * @param aasRange The AAS range object
      * @param range The corresponding UA range object
+     * @param submodel The corresponding submodel
      */
-    private void setRangeValueAndType(Range aasRange, AASRangeType range) {
+    private void setRangeValueAndType(Range aasRange, AASRangeType range, Submodel submodel) {
         try {
             String minValue = aasRange.getMin();
             String maxValue = aasRange.getMax();
@@ -2618,403 +2696,442 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             QualifiedName browseNameMax = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MAX).toQualifiedName(getNamespaceTable());
             LocalizedText displayNameMax = LocalizedText.english(AASRangeType.MAX);
 
+            try {
+                submodelElementAasMapLock.lock();
+                submodelElementAasMap.put(myPropertyIdMin, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MIN));
+                submodelElementAasMap.put(myPropertyIdMax, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MAX));
+            }
+            catch (Exception ex2) {
+                logger.warn("submodelElementAasMap problem", ex2);
+            }
+            finally {
+                submodelElementAasMapLock.unlock();
+            }
+
+            try {
+                Reference propRef = getReference(aasRange, submodel);
+                submodelElementOpcUAMapLock.lock();
+                submodelElementOpcUAMap.put(propRef, range);
+            }
+            catch (Exception ex3) {
+                logger.warn("submodelElementOpcUAMap problem", ex3);
+            }
+            finally {
+                submodelElementOpcUAMapLock.unlock();
+            }
+
             AASValueTypeDataType valueDataType = ValueConverter.stringToValueType(valueType);
             range.setValueType(valueDataType);
 
-            switch (valueDataType) {
-                //                case AnyURI:
-                //                    if (minVal != null) {
-                //                        PlainProperty<String> myUriProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                        myUriProperty.setDataTypeId(Identifiers.String);
-                //                        myUriProperty.setValue(((AnyUri)minVal).getValue().toString());
-                //                        myUriProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myUriProperty);
-                //                    }
-                //
-                //                    if (maxVal != null) {
-                //                        PlainProperty<String> myUriProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                        myUriProperty.setDataTypeId(Identifiers.String);
-                //                        myUriProperty.setValue(((AnyUri)maxVal).getValue().toString());
-                //                        myUriProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myUriProperty);
-                //                    }
-                //                    break;
-
-                case ByteString:
-                    if (minValue != null) {
-                        PlainProperty<ByteString> myBSProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myBSProperty.setDataTypeId(Identifiers.ByteString);
-                        // TODO integrate Range value
-                        //myBSProperty.setValue(((Base64Binary)minVal).getValue());
-                        myBSProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myBSProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<ByteString> myBSProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myBSProperty.setDataTypeId(Identifiers.ByteString);
-                        // TODO integrate Range value
-                        //myBSProperty.setValue(((Base64Binary)maxVal).getValue());
-                        myBSProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myBSProperty);
-                    }
-                    break;
-
-                case Boolean:
-                    if (minValue != null) {
-                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myBoolProperty.setDataTypeId(Identifiers.Boolean);
-                        // TODO integrate Range value
-                        //myBoolProperty.setValue(((BooleanValue)minVal).getValue());
-                        myBoolProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myBoolProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myBoolProperty.setDataTypeId(Identifiers.Boolean);
-                        // TODO integrate Range value
-                        //myBoolProperty.setValue(((BooleanValue)maxVal).getValue());
-                        myBoolProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myBoolProperty);
-                    }
-                    break;
-
-                case DateTime:
-                    if (minValue != null) {
-                        PlainProperty<DateTime> myDateProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myDateProperty.setDataTypeId(Identifiers.DateTime);
-                        // TODO integrate Range value
-                        //myDateProperty.setValue(new DateTime(((DateValue)minVal).getValue().toGregorianCalendar()));
-                        myDateProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myDateProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<DateTime> myDateProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myDateProperty.setDataTypeId(Identifiers.DateTime);
-                        // TODO integrate Range value
-                        //myDateProperty.setValue(new DateTime(((DateValue)maxVal).getValue().toGregorianCalendar()));
-                        myDateProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myDateProperty);
-                    }
-                    break;
-
-                //                case Decimal:
-                //                    if (minVal != null) {
-                //                        PlainProperty<Long> myDecProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                        myDecProperty.setDataTypeId(Identifiers.Int64);
-                //                        myDecProperty.setValue(((DecimalValue)minVal).getValue().longValue());
-                //                        myDecProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myDecProperty);
-                //                    }
-                //                    
-                //                    if (maxVal != null) {
-                //                        PlainProperty<Long> myDecProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                        myDecProperty.setDataTypeId(Identifiers.Int64);
-                //                        myDecProperty.setValue(((DecimalValue)maxVal).getValue().longValue());
-                //                        myDecProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myDecProperty);
-                //                    }
-                //                    break;
-                //                case Integer:
-                //                    if (minVal != null) {
-                //                        PlainProperty<Integer> myIntegerProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                        myIntegerProperty.setDataTypeId(Identifiers.Int64);
-                //                        myIntegerProperty.setValue(((IntegerValue)minVal).getValue().longValue());
-                //                        myIntegerProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myIntegerProperty);
-                //                    }
-                //                    
-                //                    if (maxVal != null) {
-                //                        PlainProperty<Integer> myIntegerProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                        myIntegerProperty.setDataTypeId(Identifiers.Int64);
-                //                        myIntegerProperty.setValue(((IntegerValue)maxVal).getValue().longValue());
-                //                        myIntegerProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myIntegerProperty);
-                //                    }
-                //                    break;
-                case Int32:
-                    if (minValue != null) {
-                        PlainProperty<Integer> myIntProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myIntProperty.setDataTypeId(Identifiers.Int32);
-                        // TODO integrate Range value
-                        //myIntProperty.setValue(((IntValue)minVal).getValue());
-                        myIntProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myIntProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Integer> myIntProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myIntProperty.setDataTypeId(Identifiers.Int32);
-                        // TODO integrate Range value
-                        //myIntProperty.setValue(((IntValue)maxVal).getValue());
-                        myIntProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myIntProperty);
-                    }
-                    break;
-
-                case UInt32:
-                    if (minValue != null) {
-                        PlainProperty<UnsignedInteger> myUIntProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myUIntProperty.setDataTypeId(Identifiers.UInt32);
-                        // TODO integrate Range value
-                        //myIntProperty.setValue(((IntValue)minVal).getValue());
-                        myUIntProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myUIntProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<UnsignedInteger> myUIntProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myUIntProperty.setDataTypeId(Identifiers.UInt32);
-                        // TODO integrate Range value
-                        //myIntProperty.setValue(((IntValue)maxVal).getValue());
-                        myUIntProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myUIntProperty);
-                    }
-                    break;
-
-                case Int64:
-                    if (minValue != null) {
-                        PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myLongProperty.setDataTypeId(Identifiers.Int64);
-                        // TODO integrate Range value
-                        //myLongProperty.setValue(((LongValue)minVal).getValue());
-                        myLongProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myLongProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myLongProperty.setDataTypeId(Identifiers.Int64);
-                        // TODO integrate Range value
-                        //myLongProperty.setValue(((LongValue)maxVal).getValue());
-                        myLongProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myLongProperty);
-                    }
-                    break;
-
-                case UInt64:
-                    if (minValue != null) {
-                        PlainProperty<UnsignedLong> myULongProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myULongProperty.setDataTypeId(Identifiers.UInt64);
-                        // TODO integrate Range value
-                        //myLongProperty.setValue(((LongValue)minVal).getValue());
-                        myULongProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myULongProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<UnsignedLong> myULongProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myULongProperty.setDataTypeId(Identifiers.UInt64);
-                        // TODO integrate Range value
-                        //myLongProperty.setValue(((LongValue)maxVal).getValue());
-                        myULongProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myULongProperty);
-                    }
-                    break;
-
-                case Int16:
-                    if (minValue != null) {
-                        PlainProperty<Short> myInt16Property = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myInt16Property.setDataTypeId(Identifiers.Int16);
-                        // TODO integrate Range value
-                        //myInt16Property.setValue(((ShortValue)minVal).getValue());
-                        myInt16Property.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myInt16Property);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Short> myInt16Property = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myInt16Property.setDataTypeId(Identifiers.Int16);
-                        // TODO integrate Range value
-                        //myInt16Property.setValue(((ShortValue)maxVal).getValue());
-                        myInt16Property.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myInt16Property);
-                    }
-                    break;
-
-                case UInt16:
-                    if (minValue != null) {
-                        PlainProperty<UnsignedShort> myUInt16Property = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myUInt16Property.setDataTypeId(Identifiers.UInt16);
-                        // TODO integrate Range value
-                        //myInt16Property.setValue(((ShortValue)minVal).getValue());
-                        myUInt16Property.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myUInt16Property);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<UnsignedShort> myUInt16Property = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myUInt16Property.setDataTypeId(Identifiers.UInt16);
-                        // TODO integrate Range value
-                        //myInt16Property.setValue(((ShortValue)maxVal).getValue());
-                        myUInt16Property.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myUInt16Property);
-                    }
-                    break;
-
-                case SByte:
-                    if (minValue != null) {
-                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        mySByteProperty.setDataTypeId(Identifiers.SByte);
-                        // TODO integrate Range value
-                        //myByteProperty.setValue(((ByteValue)minVal).getValue());
-                        mySByteProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(mySByteProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        mySByteProperty.setDataTypeId(Identifiers.SByte);
-                        // TODO integrate Range value
-                        //myByteProperty.setValue(((ByteValue)maxVal).getValue());
-                        mySByteProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(mySByteProperty);
-                    }
-                    break;
-
-                case Byte:
-                    if (minValue != null) {
-                        PlainProperty<UnsignedByte> myByteProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myByteProperty.setDataTypeId(Identifiers.Byte);
-                        // TODO integrate Range value
-                        //myByteProperty.setValue(((ByteValue)minVal).getValue());
-                        myByteProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myByteProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<UnsignedByte> myByteProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myByteProperty.setDataTypeId(Identifiers.Byte);
-                        // TODO integrate Range value
-                        //myByteProperty.setValue(((ByteValue)maxVal).getValue());
-                        myByteProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myByteProperty);
-                    }
-                    break;
-
-                case Double:
-                    if (minValue != null) {
-                        PlainProperty<Double> myDoubleProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myDoubleProperty.setDataTypeId(Identifiers.Double);
-                        // TODO integrate Range value
-                        //myDoubleProperty.setValue(((DoubleValue)minVal).getValue());
-                        myDoubleProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myDoubleProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Double> myDoubleProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myDoubleProperty.setDataTypeId(Identifiers.Double);
-                        // TODO integrate Range value
-                        //myDoubleProperty.setValue(((DoubleValue)maxVal).getValue());
-                        myDoubleProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myDoubleProperty);
-                    }
-                    break;
-
-                case Float:
-                    if (minValue != null) {
-                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myFloatProperty.setDataTypeId(Identifiers.Float);
-                        // TODO integrate Range value
-                        //myFloatProperty.setValue(((FloatValue)minVal).getValue());
-                        myFloatProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myFloatProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myFloatProperty.setDataTypeId(Identifiers.Float);
-                        // TODO integrate Range value
-                        //myFloatProperty.setValue(((FloatValue)maxVal).getValue());
-                        myFloatProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myFloatProperty);
-                    }
-                    break;
-
-                case LocalizedText:
-                    if (minValue != null) {
-                        PlainProperty<LocalizedText> myLTProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myLTProperty.setDataTypeId(Identifiers.String);
-                        // TODO integrate Range value
-                        //myLTProperty.setValue(((QNameValue)minVal).getValue().toString());
-                        myLTProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myLTProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<LocalizedText> myLTProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myLTProperty.setDataTypeId(Identifiers.LocalizedText);
-                        // TODO integrate Range value
-                        //myQNameProperty.setValue(((QNameValue)maxVal).getValue().toString());
-                        myLTProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myLTProperty);
-                    }
-                    break;
-
-                case String:
-                    if (minValue != null) {
-                        PlainProperty<String> myStringProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myStringProperty.setDataTypeId(Identifiers.String);
-                        // TODO integrate Range value
-                        //myStringProperty.setValue(((StringValue)minVal).getValue());
-                        myStringProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myStringProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<String> myStringProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myStringProperty.setDataTypeId(Identifiers.String);
-                        // TODO integrate Range value
-                        //myStringProperty.setValue(((StringValue)maxVal).getValue());
-                        myStringProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myStringProperty);
-                    }
-                    break;
-
-                case UtcTime:
-                    if (minValue != null) {
-                        PlainProperty<DateTime> myTimeProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                        myTimeProperty.setDataTypeId(Identifiers.DateTime);
-                        // TODO integrate Range value
-                        //myTimeProperty.setValue(new DateTime(((TimeValue)minVal).getValue().toGregorianCalendar()));
-                        myTimeProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myTimeProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<DateTime> myTimeProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                        myTimeProperty.setDataTypeId(Identifiers.DateTime);
-                        // TODO integrate Range value
-                        //myTimeProperty.setValue(new DateTime(((TimeValue)maxVal).getValue().toGregorianCalendar()));
-                        myTimeProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myTimeProperty);
-                    }
-                    break;
-
-                //                case Duration:
-                //                    if (minVal != null) {
-                //                        PlainProperty<String> myDurProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                        myDurProperty.setDataTypeId(Identifiers.String);
-                //                        myDurProperty.setValue(((DurationValue)minVal).getValue().toString());
-                //                        myDurProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myDurProperty);
-                //                    }
-                //                    
-                //                    if (maxVal != null) {
-                //                        PlainProperty<String> myDurProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                        myDurProperty.setDataTypeId(Identifiers.String);
-                //                        myDurProperty.setValue(((DurationValue)maxVal).getValue().toString());
-                //                        myDurProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myDurProperty);
-                //                    }
-                //                    break;
-                default:
-                    logger.warn("setRangeValueAndType: Range " + range.getBrowseName().getName() + ": Unknown type: " + valueType);
-                    break;
+            // temporary solution for the "Value is String" problem!
+            if (minValue != null) {
+                PlainProperty<String> myStringProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                myStringProperty.setDataTypeId(Identifiers.String);
+                myStringProperty.setValue(minValue);
+                myStringProperty.setDescription(new LocalizedText("", ""));
+                range.addProperty(myStringProperty);
             }
+
+            if (maxValue != null) {
+                PlainProperty<String> myStringProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                myStringProperty.setDataTypeId(Identifiers.String);
+                myStringProperty.setValue(maxValue);
+                myStringProperty.setDescription(new LocalizedText("", ""));
+                range.addProperty(myStringProperty);
+            }
+
+            //            switch (valueDataType) {
+            //                //                case AnyURI:
+            //                //                    if (minVal != null) {
+            //                //                        PlainProperty<String> myUriProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                //                        myUriProperty.setDataTypeId(Identifiers.String);
+            //                //                        myUriProperty.setValue(((AnyUri)minVal).getValue().toString());
+            //                //                        myUriProperty.setDescription(new LocalizedText("", ""));
+            //                //                        range.addProperty(myUriProperty);
+            //                //                    }
+            //                //
+            //                //                    if (maxVal != null) {
+            //                //                        PlainProperty<String> myUriProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                //                        myUriProperty.setDataTypeId(Identifiers.String);
+            //                //                        myUriProperty.setValue(((AnyUri)maxVal).getValue().toString());
+            //                //                        myUriProperty.setDescription(new LocalizedText("", ""));
+            //                //                        range.addProperty(myUriProperty);
+            //                //                    }
+            //                //                    break;
+            //
+            //                case ByteString:
+            //                    if (minValue != null) {
+            //                        PlainProperty<ByteString> myBSProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myBSProperty.setDataTypeId(Identifiers.ByteString);
+            //                        // TODO integrate Range value
+            //                        //myBSProperty.setValue(((Base64Binary)minVal).getValue());
+            //                        myBSProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myBSProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<ByteString> myBSProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myBSProperty.setDataTypeId(Identifiers.ByteString);
+            //                        // TODO integrate Range value
+            //                        //myBSProperty.setValue(((Base64Binary)maxVal).getValue());
+            //                        myBSProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myBSProperty);
+            //                    }
+            //                    break;
+            //
+            //                case Boolean:
+            //                    if (minValue != null) {
+            //                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myBoolProperty.setDataTypeId(Identifiers.Boolean);
+            //                        // TODO integrate Range value
+            //                        //myBoolProperty.setValue(((BooleanValue)minVal).getValue());
+            //                        myBoolProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myBoolProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myBoolProperty.setDataTypeId(Identifiers.Boolean);
+            //                        // TODO integrate Range value
+            //                        //myBoolProperty.setValue(((BooleanValue)maxVal).getValue());
+            //                        myBoolProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myBoolProperty);
+            //                    }
+            //                    break;
+            //
+            //                case DateTime:
+            //                    if (minValue != null) {
+            //                        PlainProperty<DateTime> myDateProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myDateProperty.setDataTypeId(Identifiers.DateTime);
+            //                        // TODO integrate Range value
+            //                        //myDateProperty.setValue(new DateTime(((DateValue)minVal).getValue().toGregorianCalendar()));
+            //                        myDateProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myDateProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<DateTime> myDateProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myDateProperty.setDataTypeId(Identifiers.DateTime);
+            //                        // TODO integrate Range value
+            //                        //myDateProperty.setValue(new DateTime(((DateValue)maxVal).getValue().toGregorianCalendar()));
+            //                        myDateProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myDateProperty);
+            //                    }
+            //                    break;
+            //
+            //                //                case Decimal:
+            //                //                    if (minVal != null) {
+            //                //                        PlainProperty<Long> myDecProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                //                        myDecProperty.setDataTypeId(Identifiers.Int64);
+            //                //                        myDecProperty.setValue(((DecimalValue)minVal).getValue().longValue());
+            //                //                        myDecProperty.setDescription(new LocalizedText("", ""));
+            //                //                        range.addProperty(myDecProperty);
+            //                //                    }
+            //                //                    
+            //                //                    if (maxVal != null) {
+            //                //                        PlainProperty<Long> myDecProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                //                        myDecProperty.setDataTypeId(Identifiers.Int64);
+            //                //                        myDecProperty.setValue(((DecimalValue)maxVal).getValue().longValue());
+            //                //                        myDecProperty.setDescription(new LocalizedText("", ""));
+            //                //                        range.addProperty(myDecProperty);
+            //                //                    }
+            //                //                    break;
+            //                //                case Integer:
+            //                //                    if (minVal != null) {
+            //                //                        PlainProperty<Integer> myIntegerProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                //                        myIntegerProperty.setDataTypeId(Identifiers.Int64);
+            //                //                        myIntegerProperty.setValue(((IntegerValue)minVal).getValue().longValue());
+            //                //                        myIntegerProperty.setDescription(new LocalizedText("", ""));
+            //                //                        range.addProperty(myIntegerProperty);
+            //                //                    }
+            //                //                    
+            //                //                    if (maxVal != null) {
+            //                //                        PlainProperty<Integer> myIntegerProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                //                        myIntegerProperty.setDataTypeId(Identifiers.Int64);
+            //                //                        myIntegerProperty.setValue(((IntegerValue)maxVal).getValue().longValue());
+            //                //                        myIntegerProperty.setDescription(new LocalizedText("", ""));
+            //                //                        range.addProperty(myIntegerProperty);
+            //                //                    }
+            //                //                    break;
+            //                case Int32:
+            //                    if (minValue != null) {
+            //                        PlainProperty<Integer> myIntProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myIntProperty.setDataTypeId(Identifiers.Int32);
+            //                        // TODO integrate Range value
+            //                        //myIntProperty.setValue(((IntValue)minVal).getValue());
+            //                        myIntProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myIntProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<Integer> myIntProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myIntProperty.setDataTypeId(Identifiers.Int32);
+            //                        // TODO integrate Range value
+            //                        //myIntProperty.setValue(((IntValue)maxVal).getValue());
+            //                        myIntProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myIntProperty);
+            //                    }
+            //                    break;
+            //
+            //                case UInt32:
+            //                    if (minValue != null) {
+            //                        PlainProperty<UnsignedInteger> myUIntProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myUIntProperty.setDataTypeId(Identifiers.UInt32);
+            //                        // TODO integrate Range value
+            //                        //myIntProperty.setValue(((IntValue)minVal).getValue());
+            //                        myUIntProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myUIntProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<UnsignedInteger> myUIntProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myUIntProperty.setDataTypeId(Identifiers.UInt32);
+            //                        // TODO integrate Range value
+            //                        //myIntProperty.setValue(((IntValue)maxVal).getValue());
+            //                        myUIntProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myUIntProperty);
+            //                    }
+            //                    break;
+            //
+            //                case Int64:
+            //                    if (minValue != null) {
+            //                        PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myLongProperty.setDataTypeId(Identifiers.Int64);
+            //                        // TODO integrate Range value
+            //                        //myLongProperty.setValue(((LongValue)minVal).getValue());
+            //                        myLongProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myLongProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myLongProperty.setDataTypeId(Identifiers.Int64);
+            //                        // TODO integrate Range value
+            //                        //myLongProperty.setValue(((LongValue)maxVal).getValue());
+            //                        myLongProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myLongProperty);
+            //                    }
+            //                    break;
+            //
+            //                case UInt64:
+            //                    if (minValue != null) {
+            //                        PlainProperty<UnsignedLong> myULongProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myULongProperty.setDataTypeId(Identifiers.UInt64);
+            //                        // TODO integrate Range value
+            //                        //myLongProperty.setValue(((LongValue)minVal).getValue());
+            //                        myULongProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myULongProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<UnsignedLong> myULongProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myULongProperty.setDataTypeId(Identifiers.UInt64);
+            //                        // TODO integrate Range value
+            //                        //myLongProperty.setValue(((LongValue)maxVal).getValue());
+            //                        myULongProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myULongProperty);
+            //                    }
+            //                    break;
+            //
+            //                case Int16:
+            //                    if (minValue != null) {
+            //                        PlainProperty<Short> myInt16Property = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myInt16Property.setDataTypeId(Identifiers.Int16);
+            //                        // TODO integrate Range value
+            //                        //myInt16Property.setValue(((ShortValue)minVal).getValue());
+            //                        myInt16Property.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myInt16Property);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<Short> myInt16Property = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myInt16Property.setDataTypeId(Identifiers.Int16);
+            //                        // TODO integrate Range value
+            //                        //myInt16Property.setValue(((ShortValue)maxVal).getValue());
+            //                        myInt16Property.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myInt16Property);
+            //                    }
+            //                    break;
+            //
+            //                case UInt16:
+            //                    if (minValue != null) {
+            //                        PlainProperty<UnsignedShort> myUInt16Property = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myUInt16Property.setDataTypeId(Identifiers.UInt16);
+            //                        // TODO integrate Range value
+            //                        //myInt16Property.setValue(((ShortValue)minVal).getValue());
+            //                        myUInt16Property.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myUInt16Property);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<UnsignedShort> myUInt16Property = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myUInt16Property.setDataTypeId(Identifiers.UInt16);
+            //                        // TODO integrate Range value
+            //                        //myInt16Property.setValue(((ShortValue)maxVal).getValue());
+            //                        myUInt16Property.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myUInt16Property);
+            //                    }
+            //                    break;
+            //
+            //                case SByte:
+            //                    if (minValue != null) {
+            //                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        mySByteProperty.setDataTypeId(Identifiers.SByte);
+            //                        // TODO integrate Range value
+            //                        //myByteProperty.setValue(((ByteValue)minVal).getValue());
+            //                        mySByteProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(mySByteProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        mySByteProperty.setDataTypeId(Identifiers.SByte);
+            //                        // TODO integrate Range value
+            //                        //myByteProperty.setValue(((ByteValue)maxVal).getValue());
+            //                        mySByteProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(mySByteProperty);
+            //                    }
+            //                    break;
+            //
+            //                case Byte:
+            //                    if (minValue != null) {
+            //                        PlainProperty<UnsignedByte> myByteProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myByteProperty.setDataTypeId(Identifiers.Byte);
+            //                        // TODO integrate Range value
+            //                        //myByteProperty.setValue(((ByteValue)minVal).getValue());
+            //                        myByteProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myByteProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<UnsignedByte> myByteProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myByteProperty.setDataTypeId(Identifiers.Byte);
+            //                        // TODO integrate Range value
+            //                        //myByteProperty.setValue(((ByteValue)maxVal).getValue());
+            //                        myByteProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myByteProperty);
+            //                    }
+            //                    break;
+            //
+            //                case Double:
+            //                    if (minValue != null) {
+            //                        PlainProperty<Double> myDoubleProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myDoubleProperty.setDataTypeId(Identifiers.Double);
+            //                        // TODO integrate Range value
+            //                        //myDoubleProperty.setValue(((DoubleValue)minVal).getValue());
+            //                        myDoubleProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myDoubleProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<Double> myDoubleProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myDoubleProperty.setDataTypeId(Identifiers.Double);
+            //                        // TODO integrate Range value
+            //                        //myDoubleProperty.setValue(((DoubleValue)maxVal).getValue());
+            //                        myDoubleProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myDoubleProperty);
+            //                    }
+            //                    break;
+            //
+            //                case Float:
+            //                    if (minValue != null) {
+            //                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myFloatProperty.setDataTypeId(Identifiers.Float);
+            //                        // TODO integrate Range value
+            //                        //myFloatProperty.setValue(((FloatValue)minVal).getValue());
+            //                        myFloatProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myFloatProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myFloatProperty.setDataTypeId(Identifiers.Float);
+            //                        // TODO integrate Range value
+            //                        //myFloatProperty.setValue(((FloatValue)maxVal).getValue());
+            //                        myFloatProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myFloatProperty);
+            //                    }
+            //                    break;
+            //
+            //                case LocalizedText:
+            //                    if (minValue != null) {
+            //                        PlainProperty<LocalizedText> myLTProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myLTProperty.setDataTypeId(Identifiers.String);
+            //                        // TODO integrate Range value
+            //                        //myLTProperty.setValue(((QNameValue)minVal).getValue().toString());
+            //                        myLTProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myLTProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<LocalizedText> myLTProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myLTProperty.setDataTypeId(Identifiers.LocalizedText);
+            //                        // TODO integrate Range value
+            //                        //myQNameProperty.setValue(((QNameValue)maxVal).getValue().toString());
+            //                        myLTProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myLTProperty);
+            //                    }
+            //                    break;
+            //
+            //                case String:
+            //                    if (minValue != null) {
+            //                        PlainProperty<String> myStringProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myStringProperty.setDataTypeId(Identifiers.String);
+            //                        myStringProperty.setValue(minValue);
+            //                        myStringProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myStringProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<String> myStringProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myStringProperty.setDataTypeId(Identifiers.String);
+            //                        myStringProperty.setValue(maxValue);
+            //                        myStringProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myStringProperty);
+            //                    }
+            //                    break;
+            //
+            //                case UtcTime:
+            //                    if (minValue != null) {
+            //                        PlainProperty<DateTime> myTimeProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                        myTimeProperty.setDataTypeId(Identifiers.DateTime);
+            //                        // TODO integrate Range value
+            //                        //myTimeProperty.setValue(new DateTime(((TimeValue)minVal).getValue().toGregorianCalendar()));
+            //                        myTimeProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myTimeProperty);
+            //                    }
+            //
+            //                    if (maxValue != null) {
+            //                        PlainProperty<DateTime> myTimeProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                        myTimeProperty.setDataTypeId(Identifiers.DateTime);
+            //                        // TODO integrate Range value
+            //                        //myTimeProperty.setValue(new DateTime(((TimeValue)maxVal).getValue().toGregorianCalendar()));
+            //                        myTimeProperty.setDescription(new LocalizedText("", ""));
+            //                        range.addProperty(myTimeProperty);
+            //                    }
+            //                    break;
+            //
+            //                //                case Duration:
+            //                //                    if (minVal != null) {
+            //                //                        PlainProperty<String> myDurProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+            //                //                        myDurProperty.setDataTypeId(Identifiers.String);
+            //                //                        myDurProperty.setValue(((DurationValue)minVal).getValue().toString());
+            //                //                        myDurProperty.setDescription(new LocalizedText("", ""));
+            //                //                        range.addProperty(myDurProperty);
+            //                //                    }
+            //                //                    
+            //                //                    if (maxVal != null) {
+            //                //                        PlainProperty<String> myDurProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+            //                //                        myDurProperty.setDataTypeId(Identifiers.String);
+            //                //                        myDurProperty.setValue(((DurationValue)maxVal).getValue().toString());
+            //                //                        myDurProperty.setDescription(new LocalizedText("", ""));
+            //                //                        range.addProperty(myDurProperty);
+            //                //                    }
+            //                //                    break;
+            //                default:
+            //                    logger.warn("setRangeValueAndType: Range " + range.getBrowseName().getName() + ": Unknown type: " + valueType);
+            //                    break;
+            //            }
         }
         catch (Throwable ex) {
             logger.error("setRangeValueAndType Exception", ex);
@@ -3237,7 +3354,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             try {
                 // for operations we put the corresponding operation object into the map
                 submodelElementAasMapLock.lock();
-                submodelElementAasMap.put(nid, aasOperation);
+                submodelElementAasMap.put(nid, new SubmodelElementData(aasOperation, submodel, SubmodelElementData.Type.OPERATION));
                 logger.debug("addAasOperation: NodeId " + nid + "; Property: " + aasOperation);
             }
             catch (Exception ex2) {
@@ -4179,8 +4296,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            range.setMin(value.getMin());
-            range.setMax(value.getMax());
+            range.setMin(((Double) value.getMin()).toString());
+            range.setMax(((Double) value.getMax()).toString());
         }
         catch (Throwable ex) {
             logger.error("setRangeValue Exception", ex);

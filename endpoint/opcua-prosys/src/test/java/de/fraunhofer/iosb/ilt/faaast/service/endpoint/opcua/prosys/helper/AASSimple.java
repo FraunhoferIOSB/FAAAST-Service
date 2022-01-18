@@ -39,6 +39,7 @@ import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import io.adminshell.aas.v3.model.impl.DefaultRange;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
@@ -284,6 +285,37 @@ public class AASSimple {
                         .category(SUBMODEL_OPERATIONAL_DATA_PROPERTY_CATEGORY)
                         .value(SUBMODEL_OPERATIONAL_DATA_PROPERTY_VALUE)
                         .valueType(SUBMODEL_OPERATIONAL_DATA_PROPERTY_VALUETYPE)
+                        .build())
+                .submodelElement(new DefaultProperty.Builder()
+                        .kind(ModelingKind.INSTANCE)
+                        .semanticId(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.CONCEPT_DESCRIPTION)
+                                        .value(SUBMODEL_OPERATIONAL_DATA_SEMANTIC_ID_PROPERTY)
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .build())
+                        .idShort("TestProperty")
+                        .category(SUBMODEL_OPERATIONAL_DATA_PROPERTY_CATEGORY)
+                        .value("50")
+                        .valueType("integer")
+                        .build())
+                .submodelElement(new DefaultRange.Builder()
+                        .idShort("TestRange")
+                        .kind(ModelingKind.INSTANCE)
+                        .category("Parameter")
+                        .description(new LangString("Example Range object", "en-us"))
+                        .description(new LangString("Beispiel Range Element", "de"))
+                        .semanticId(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.GLOBAL_REFERENCE)
+                                        .value("http://acplt.org/Ranges/ExampleRange")
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .build())
+                        .valueType("integer")
+                        .min("0")
+                        .max("100")
                         .build())
                 .build();
     }

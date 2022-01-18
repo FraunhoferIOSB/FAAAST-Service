@@ -28,6 +28,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>persistence-memory</artifactId>
+            <version>${revision}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.prosysopc.ua</groupId>
             <artifactId>prosys-opc-ua-sdk-client-server</artifactId>
             <version>4.6.2-1636</version>

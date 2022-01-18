@@ -14,14 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper;
 
-import static org.mockito.Mockito.mock;
-
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory;
 import java.util.List;
 
 
@@ -50,7 +48,7 @@ public class TestService extends Service {
         super(
                 CoreConfig.builder().build(),
                 full ? AASFull.ENVIRONMENT : AASSimple.ENVIRONMENT,
-                mock(Persistence.class),
+                new PersistenceInMemory(),
                 new MessageBusInternal(),
                 List.of(endpoint));
         //useFullExample = full;

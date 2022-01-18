@@ -97,7 +97,8 @@ public class AasServiceMethodManagerListener implements CallableListener {
                 // TODO implement method
                 //throw new UnsupportedOperationException("onCall not implemented");
 
-                Operation aasOper = (Operation) nodeManager.getAasSubmodelElement(objectId);
+                SubmodelElementData data = nodeManager.getAasData(objectId);
+                Operation aasOper = (Operation) data.getSubmodelElement();
                 if (aasOper != null) {
                     List<OperationVariable> inputVariables = aasOper.getInputVariables();
                     if (inputArguments.length < inputVariables.size()) {

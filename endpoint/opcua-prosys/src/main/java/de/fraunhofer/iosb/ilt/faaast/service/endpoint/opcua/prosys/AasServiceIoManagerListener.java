@@ -30,8 +30,8 @@ import com.prosysopc.ua.stack.core.AttributeWriteMask;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import com.prosysopc.ua.stack.core.TimestampsToReturn;
 import com.prosysopc.ua.stack.utils.NumericRange;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
 import io.adminshell.aas.v3.model.Property;
+import io.adminshell.aas.v3.model.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -262,12 +262,53 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                 //    oldValue = uvn.getValue().getValue().getValue().toString();
                 //}
 
-                Property aasProp = (Property) nodeManager.getAasSubmodelElement(nodeId);
-                if (aasProp != null) {
-                    String newValue = dv.getValue().getValue().toString();
-                    PropertyValue pv = new PropertyValue();
-                    pv.setValue(newValue);
-                    endpoint.writeValue(aasProp, pv);
+                boolean rv;
+                SubmodelElementData data = nodeManager.getAasData(nodeId);
+                if (data != null) {
+                    if (data.getType() == null) {
+                        logger.warn("onWriteValue: Node " + nodeId + ": unkown type");
+                        rv = false;
+                    }
+                    else
+                        switch (data.getType()) {
+                            case PROPERTY_VALUE: {
+                                Property aasProp = (Property) data.getSubmodelElement();
+                                String newValue = dv.getValue().getValue().toString();
+                                aasProp.setValue(newValue);
+                                rv = endpoint.writeValue(aasProp, data.getSubmodel());
+                                break;
+                            }
+                            case RANGE_MIN: {
+                                Range aasRange = (Range) data.getSubmodelElement();
+                                String newValue = dv.getValue().getValue().toString();
+                                aasRange.setMin(newValue);
+                                rv = endpoint.writeValue(aasRange, data.getSubmodel());
+                                break;
+                            }
+                            case RANGE_MAX: {
+                                Range aasRange = (Range) data.getSubmodelElement();
+                                String newValue = dv.getValue().getValue().toString();
+                                aasRange.setMax(newValue);
+                                rv = endpoint.writeValue(aasRange, data.getSubmodel());
+                                break;
+                            }
+                            default:
+                                logger.warn("onWriteValue: Node " + nodeId + ": unkown type");
+                                rv = false;
+                                break;
+                        }
+                }
+                else {
+                    logger.warn("onWriteValue: Node " + nodeId + ": SubmodelElementData not found");
+                    rv = false;
+                }
+
+                if (rv) {
+                    logger.debug("onWriteValue: NodeId " + nodeId.toString() + " written successfully");
+                }
+                else {
+                    logger.info("onWriteValue: NodeId " + nodeId.toString() + " write failed");
+                    throw new StatusException(StatusCodes.Bad_InternalError);
                 }
             }
         }
@@ -276,7 +317,9 @@ public class AasServiceIoManagerListener implements IoManagerListener {
             throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError);
         }
 
-        return false;
+        // We return true here. So, the value is not written to the node here. 
+        // The node is written in the callback from the MessageBus.
+        return true;
     }
 
 }

@@ -33,6 +33,9 @@ public class TestDefines {
     public static final String SUBMODEL_DOC_NAME = "http://i40.customer.com/type/1/1/1A7B62B529F19152";
     public static final String SUBMODEL_TECH_DATA_NAME = "http://i40.customer.com/type/1/1/7A7104BDAB57E184";
     public static final String SUBMODEL_OPER_DATA_NAME = "http://i40.customer.com/instance/1/1/AC69B1CB44F07935";
+    public static final String TEST_PROPERTY_NAME = "TestProperty";
+    public static final String TEST_RANGE_NAME = "TestRange";
+    public static final String RANGE_MAX_NAME = "Max";
 
     public static final String FULL_SUBMODEL_1_NAME = "Identification";
     public static final String FULL_SUBMODEL_1_ID = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
