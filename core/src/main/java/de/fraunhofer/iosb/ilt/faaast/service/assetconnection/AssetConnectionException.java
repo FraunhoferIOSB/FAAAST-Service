@@ -12,16 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
-public interface ElementValueParser<T> {
+public class AssetConnectionException extends Exception {
 
-    public static ElementValueParser<ElementValue> DEFAULT = new ElementValueParser<ElementValue>() {
-        @Override
-        public <U extends ElementValue> U parse(ElementValue raw, Class<U> type) {
-            return (U) raw;
-        }
-    };
+    public AssetConnectionException(String msg) {
+        super(msg);
+    }
 
-    public <U extends ElementValue> U parse(T raw, Class<U> type);
+
+    public AssetConnectionException(Throwable err) {
+        super(err);
+    }
+
+
+    public AssetConnectionException(String msg, Throwable err) {
+        super(msg, err);
+    }
+
 }

@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api;
 
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,6 +28,12 @@ public class OperationResult {
     private List<OperationVariable> inoutputArguments;
     private Result executionResult;
     private ExecutionState executionState;
+
+    public OperationResult() {
+        this.outputArguments = new ArrayList<>();
+        this.inoutputArguments = new ArrayList<>();
+    }
+
 
     public String getRequestId() {
         return requestId;
@@ -115,7 +122,7 @@ public class OperationResult {
 
 
         public B inoutputArguments(List<OperationVariable> value) {
-            getBuildingInstance().setOutputArguments(value);
+            getBuildingInstance().setInoutputArguments(value);
             return getSelf();
         }
 

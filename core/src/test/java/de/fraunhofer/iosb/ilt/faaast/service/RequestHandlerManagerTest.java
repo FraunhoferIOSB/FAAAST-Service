@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service;
 
 import static org.mockito.Mockito.*;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
@@ -24,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllAssetAdministrationShellsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationSyncRequest;
@@ -44,6 +46,7 @@ import org.junit.Test;
 
 
 public class RequestHandlerManagerTest {
+
     private static final long DEFAULT_TIMEOUT = 1000;
 
     @Test
@@ -123,7 +126,7 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    public void testInvokeOperationSyncRequest() throws ConfigurationException, InterruptedException {
+    public void testInvokeOperationSyncRequest() throws ConfigurationException, InterruptedException, AssetConnectionException {
         CoreConfig coreConfig = CoreConfig.builder().build();
         AssetAdministrationShellEnvironment environment = AASFull.createEnvironment();
         Persistence persistence = mock(Persistence.class);
@@ -155,6 +158,8 @@ public class RequestHandlerManagerTest {
         invokeOperationSyncRequest.setInputArguments(operation.getInputVariables());
 
         InvokeOperationSyncResponse response = manager.execute(invokeOperationSyncRequest);
+        Assert.assertEquals(StatusCode.Success, response.getStatusCode());
+        Assert.assertNotNull(response.getPayload());
         Assert.assertEquals(operation.getOutputVariables().get(0).getValue(), ((OperationResult) response.getPayload()).getOutputArguments().get(0).getValue());
 
     }

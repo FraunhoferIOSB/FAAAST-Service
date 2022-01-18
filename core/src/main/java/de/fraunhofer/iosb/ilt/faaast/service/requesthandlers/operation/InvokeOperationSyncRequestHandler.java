@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.ExecutionState;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationSyncRequest;
@@ -30,7 +29,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 
@@ -41,65 +48,69 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
     }
 
 
+    private List<ElementValue> toValues(List<OperationVariable> variables) {
+        return variables.stream()
+                .map(x -> DataElementValueMapper.<SubmodelElement, ElementValue> toDataElement(x.getValue()))
+                .collect(Collectors.toList());
+    }
+
+
     @Override
     public InvokeOperationSyncResponse process(InvokeOperationSyncRequest request) {
+        Reference reference = Util.toReference(request.getPath());
         InvokeOperationSyncResponse response = new InvokeOperationSyncResponse();
-
+        publishOperationInvokeEventMessage(reference, toValues(request.getInputArguments()), toValues(request.getInoutputArguments()));
         try {
-            Reference reference = Util.toReference(request.getPath());
-
             OperationResult operationResult = executeOperationSync(reference, request);
             response.setPayload(operationResult);
             response.setStatusCode(StatusCode.Success);
-            publishOperationInvokeEventMessage(reference,
-                    request.getInputArguments().stream()
-                            .map(x -> (ElementValue) DataElementValueMapper.toDataElement(x.getValue()))
-                            .collect(Collectors.toList()),
-                    request.getInoutputArguments().stream()
-                            .map(x -> (ElementValue) DataElementValueMapper.toDataElement(x.getValue()))
-                            .collect(Collectors.toList()));
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);
         }
+        publishOperationFinishEventMessage(reference, toValues(response.getPayload().getOutputArguments()), toValues(response.getPayload().getInoutputArguments()));
         return response;
     }
 
 
     public OperationResult executeOperationSync(Reference reference, InvokeOperationSyncRequest request) {
-
         if (assetConnectionManager.hasOperationProvider(reference)) {
-            OperationHandle operationHandle = this.persistence.putOperationContext(
-                    null,
-                    request.getRequestId(),
-                    new OperationResult.Builder()
-                            .requestId(request.getRequestId())
-                            .inoutputArguments(request.getInoutputArguments())
-                            .executionState(ExecutionState.Running)
-                            .build());
-
             AssetOperationProvider assetOperationProvider = assetConnectionManager.getOperationProvider(reference);
-
-            //TODO: Do async and abort after timeout
-            OperationVariable[] outputVariables = assetOperationProvider.invoke(
-                    request.getInputArguments().toArray(new OperationVariable[0]),
-                    request.getInoutputArguments().toArray(new OperationVariable[0]));
-
-            OperationResult operationResult = persistence.getOperationResult(operationHandle.getHandleId());
-            //TODO: What about Failed / Timeout ...?
-            operationResult.setExecutionState(ExecutionState.Completed);
-            operationResult.setOutputArguments(Arrays.asList(outputVariables));
-
-            persistence.putOperationContext(operationHandle.getHandleId(), operationHandle.getRequestId(), operationResult);
-            publishOperationFinishEventMessage(reference,
-                    Arrays.asList(outputVariables).stream()
-                            .map(z -> (ElementValue) DataElementValueMapper.toDataElement(z.getValue()))
-                            .collect(Collectors.toList()),
-                    request.getInoutputArguments().stream()
-                            .map(z -> (ElementValue) DataElementValueMapper.toDataElement(z.getValue()))
-                            .collect(Collectors.toList()));
-
-            return operationResult;
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<OperationVariable[]> future = executor.submit(new Callable<OperationVariable[]>() {
+                @Override
+                public OperationVariable[] call() throws Exception {
+                    return assetOperationProvider.invoke(
+                            request.getInputArguments().toArray(new OperationVariable[0]),
+                            request.getInoutputArguments().toArray(new OperationVariable[0]));
+                }
+            });
+            OperationResult result;
+            try {
+                OperationVariable[] outputVariables = future.get(request.getTimeout(), TimeUnit.MILLISECONDS);
+                result = OperationResult.builder()
+                        .executionState(ExecutionState.Completed)
+                        .inoutputArguments(request.getInoutputArguments())
+                        .outputArguments(Arrays.asList(outputVariables))
+                        .build();
+            }
+            catch (TimeoutException ex) {
+                future.cancel(true);
+                result = OperationResult.builder()
+                        .inoutputArguments(request.getInoutputArguments())
+                        .executionState(ExecutionState.Timeout)
+                        .build();
+            }
+            catch (Exception ex) {
+                result = OperationResult.builder()
+                        .inoutputArguments(request.getInoutputArguments())
+                        .executionState(ExecutionState.Failed)
+                        .build();
+            }
+            finally {
+                executor.shutdown();
+            }
+            return result;
         }
         else {
             throw new RuntimeException("No assetconnection available for running operation with request id" + request.getRequestId());

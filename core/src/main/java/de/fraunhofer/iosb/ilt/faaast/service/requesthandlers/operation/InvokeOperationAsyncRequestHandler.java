@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.operation;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -98,10 +99,23 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
             };
 
             AssetOperationProvider assetOperationProvider = assetConnectionManager.getOperationProvider(reference);
-            assetOperationProvider.invokeAsync(
-                    request.getInputArguments().toArray(new OperationVariable[0]),
-                    request.getInoutputArguments().toArray(new OperationVariable[0]),
-                    callback);
+            try {
+                assetOperationProvider.invokeAsync(
+                        request.getInputArguments().toArray(new OperationVariable[0]),
+                        request.getInoutputArguments().toArray(new OperationVariable[0]),
+                        callback);
+            }
+            catch (AssetConnectionException ex) {
+                OperationResult operationResult = persistence.getOperationResult(operationHandle.getHandleId());
+                operationResult.setExecutionState(ExecutionState.Failed);
+                operationResult.setInoutputArguments(request.getInoutputArguments());
+                persistence.putOperationContext(operationHandle.getHandleId(), operationHandle.getRequestId(), operationResult);
+                publishOperationFinishEventMessage(reference,
+                        Arrays.asList(),
+                        operationResult.getInoutputArguments().stream()
+                                .map(x -> (ElementValue) DataElementValueMapper.toDataElement(x.getValue()))
+                                .collect(Collectors.toList()));
+            }
             return operationHandle;
         }
         else {
