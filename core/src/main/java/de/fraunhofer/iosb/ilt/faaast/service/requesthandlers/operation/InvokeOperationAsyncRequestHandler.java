@@ -24,16 +24,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.InvokeOperationAsyncResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 
 public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
@@ -54,12 +52,8 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
             response.setPayload(operationHandle);
             response.setStatusCode(StatusCode.Success);
             publishOperationInvokeEventMessage(reference,
-                    request.getInputArguments().stream()
-                            .map(x -> (ElementValue) DataElementValueMapper.toDataElement(x.getValue()))
-                            .collect(Collectors.toList()),
-                    request.getInoutputArguments().stream()
-                            .map(x -> (ElementValue) DataElementValueMapper.toDataElement(x.getValue()))
-                            .collect(Collectors.toList()));
+                    Util.toValues(request.getInputArguments()),
+                    Util.toValues(request.getInoutputArguments()));
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);
@@ -82,20 +76,14 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
 
             BiConsumer<OperationVariable[], OperationVariable[]> callback = (x, y) -> {
                 OperationResult operationResult = persistence.getOperationResult(operationHandle.getHandleId());
-
-                //TODO: What about Failed ...?
                 operationResult.setExecutionState(ExecutionState.Completed);
                 operationResult.setOutputArguments(Arrays.asList(x));
                 operationResult.setInoutputArguments(Arrays.asList(y));
 
                 persistence.putOperationContext(operationHandle.getHandleId(), operationHandle.getRequestId(), operationResult);
                 publishOperationFinishEventMessage(reference,
-                        Arrays.asList(x).stream()
-                                .map(z -> (ElementValue) DataElementValueMapper.toDataElement(z.getValue()))
-                                .collect(Collectors.toList()),
-                        Arrays.asList(y).stream()
-                                .map(z -> (ElementValue) DataElementValueMapper.toDataElement(z.getValue()))
-                                .collect(Collectors.toList()));
+                        Util.toValues(Arrays.asList(x)),
+                        Util.toValues(Arrays.asList(y)));
             };
 
             AssetOperationProvider assetOperationProvider = assetConnectionManager.getOperationProvider(reference);
@@ -111,10 +99,8 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
                 operationResult.setInoutputArguments(request.getInoutputArguments());
                 persistence.putOperationContext(operationHandle.getHandleId(), operationHandle.getRequestId(), operationResult);
                 publishOperationFinishEventMessage(reference,
-                        Arrays.asList(),
-                        operationResult.getInoutputArguments().stream()
-                                .map(x -> (ElementValue) DataElementValueMapper.toDataElement(x.getValue()))
-                                .collect(Collectors.toList()));
+                        List.of(),
+                        Util.toValues(operationResult.getInoutputArguments()));
             }
             return operationHandle;
         }

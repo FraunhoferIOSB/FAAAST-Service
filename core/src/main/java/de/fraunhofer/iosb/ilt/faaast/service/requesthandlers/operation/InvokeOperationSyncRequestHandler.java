@@ -22,23 +22,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.InvokeOperationSyncResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 
 public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
@@ -48,18 +43,13 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
     }
 
 
-    private List<ElementValue> toValues(List<OperationVariable> variables) {
-        return variables.stream()
-                .map(x -> DataElementValueMapper.<SubmodelElement, ElementValue> toDataElement(x.getValue()))
-                .collect(Collectors.toList());
-    }
-
-
     @Override
     public InvokeOperationSyncResponse process(InvokeOperationSyncRequest request) {
         Reference reference = Util.toReference(request.getPath());
         InvokeOperationSyncResponse response = new InvokeOperationSyncResponse();
-        publishOperationInvokeEventMessage(reference, toValues(request.getInputArguments()), toValues(request.getInoutputArguments()));
+        publishOperationInvokeEventMessage(reference,
+                Util.toValues(request.getInputArguments()),
+                Util.toValues(request.getInoutputArguments()));
         try {
             OperationResult operationResult = executeOperationSync(reference, request);
             response.setPayload(operationResult);
@@ -68,7 +58,9 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);
         }
-        publishOperationFinishEventMessage(reference, toValues(response.getPayload().getOutputArguments()), toValues(response.getPayload().getInoutputArguments()));
+        publishOperationFinishEventMessage(reference,
+                Util.toValues(response.getPayload().getOutputArguments()),
+                Util.toValues(response.getPayload().getInoutputArguments()));
         return response;
     }
 
