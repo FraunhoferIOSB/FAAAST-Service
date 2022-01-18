@@ -2070,7 +2070,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     addAasFile(node, (File) aasDataElement, ordered, null);
                 }
                 else if (aasDataElement instanceof Blob) {
-                    addAasBlob(node, (Blob) aasDataElement, ordered);
+                    addAasBlob(node, (Blob) aasDataElement, submodel, ordered);
                 }
                 else if (aasDataElement instanceof ReferenceElement) {
                     addAasReferenceElement(node, (ReferenceElement) aasDataElement, ordered);
@@ -2079,7 +2079,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     addAasRange(node, (Range) aasDataElement, submodel, ordered);
                 }
                 else if (aasDataElement instanceof MultiLanguageProperty) {
-                    addAasMultiLanguageProperty(node, (MultiLanguageProperty) aasDataElement, ordered);
+                    addAasMultiLanguageProperty(node, (MultiLanguageProperty) aasDataElement, submodel, ordered);
                 }
                 else {
                     logger.warn("addAasDataElement: unknown DataElement: " + aasDataElement.getIdShort() + "; Class " + aasDataElement.getClass());
@@ -2533,11 +2533,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      *
      * @param node The desired UA node
      * @param aasBlob The AAS blob to add
+     * @param submodel The corresponding Submodel as parent object of the data
+     *            element
      * @param ordered Specifies whether the blob should be added ordered (true)
      *            or unordered (false)
      * @throws StatusException If the operation fails
      */
-    private void addAasBlob(UaNode node, Blob aasBlob, boolean ordered) throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
+    private void addAasBlob(UaNode node, Blob aasBlob, Submodel submodel, boolean ordered) throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
         try {
             if ((node != null) && (aasBlob != null)) {
                 String name = aasBlob.getIdShort();
@@ -2553,6 +2555,30 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 if (aasBlob.getValue() != null) {
                     if (blobNode.getValueNode() == null) {
                         addBlobValueNode(blobNode);
+                    }
+
+                    try {
+                        submodelElementAasMapLock.lock();
+                        submodelElementAasMap.put(blobNode.getValueNode().getNodeId(), new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE));
+                        logger.debug("addAasBlob: NodeId " + blobNode.getValueNode().getNodeId() + "; Blob: " + aasBlob);
+                    }
+                    catch (Exception ex2) {
+                        logger.warn("submodelElementAasMap problem", ex2);
+                    }
+                    finally {
+                        submodelElementAasMapLock.unlock();
+                    }
+
+                    try {
+                        Reference blobRef = getReference(aasBlob, submodel);
+                        submodelElementOpcUAMapLock.lock();
+                        submodelElementOpcUAMap.put(blobRef, blobNode);
+                    }
+                    catch (Exception ex3) {
+                        logger.warn("submodelElementOpcUAMap problem", ex3);
+                    }
+                    finally {
+                        submodelElementOpcUAMapLock.unlock();
                     }
 
                     blobNode.setValue(ByteString.valueOf(aasBlob.getValue()));
@@ -2587,9 +2613,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), AASBlobType.VALUE).toQualifiedName(getNamespaceTable()),
                     LocalizedText.english(AASBlobType.VALUE));
             myProperty.setDataTypeId(Identifiers.ByteString);
-            if (VALUES_READ_ONLY) {
-                myProperty.setAccessLevel(AccessLevelType.CurrentRead);
-            }
+            //if (VALUES_READ_ONLY) {
+            //    myProperty.setAccessLevel(AccessLevelType.CurrentRead);
+            //}
             myProperty.setDescription(new LocalizedText("", ""));
             node.addProperty(myProperty);
         }
@@ -3144,11 +3170,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      *
      * @param node The desired UA node
      * @param aasMultiLang The AAS Multi Language Property to add
+     * @param submodel The corresponding Submodel as parent object of the data
+     *            element
      * @param ordered Specifies whether the multi language property should be
      *            added ordered (true) or unordered (false)
      * @throws StatusException If the operation fails
      */
-    private void addAasMultiLanguageProperty(UaNode node, MultiLanguageProperty aasMultiLang, boolean ordered)
+    private void addAasMultiLanguageProperty(UaNode node, MultiLanguageProperty aasMultiLang, Submodel submodel, boolean ordered)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
         try {
             if ((node != null) && (aasMultiLang != null)) {
@@ -3164,11 +3192,36 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         addMultiLanguageValueNode(multiLangNode, values.size());
                     }
 
-                    multiLangNode.getValueNode().setValue(getLocalizedTextFromLangStringSet(values));
+                    multiLangNode.getValueNode().setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
                 }
 
                 if (aasMultiLang.getValueId() != null) {
                     addAasReferenceAasNS(multiLangNode, aasMultiLang.getValueId(), AASMultiLanguagePropertyType.VALUE_ID);
+                }
+
+                try {
+                    submodelElementAasMapLock.lock();
+                    submodelElementAasMap.put(multiLangNode.getValueNode().getNodeId(),
+                            new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE));
+                    logger.debug("addAasMultiLanguageProperty: NodeId " + multiLangNode.getValueNode().getNodeId() + "; Blob: " + aasMultiLang);
+                }
+                catch (Exception ex2) {
+                    logger.warn("submodelElementAasMap problem", ex2);
+                }
+                finally {
+                    submodelElementAasMapLock.unlock();
+                }
+
+                try {
+                    Reference blobRef = getReference(aasMultiLang, submodel);
+                    submodelElementOpcUAMapLock.lock();
+                    submodelElementOpcUAMap.put(blobRef, multiLangNode);
+                }
+                catch (Exception ex3) {
+                    logger.warn("submodelElementOpcUAMap problem", ex3);
+                }
+                finally {
+                    submodelElementOpcUAMapLock.unlock();
                 }
 
                 if (ordered) {
@@ -3212,32 +3265,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             logger.error("addMultiLanguageValueNode Exception", ex);
             throw ex;
         }
-    }
-
-
-    /**
-     * Gets a LocalizedText array from an AAS Lang String Set
-     *
-     * @param value The desired AAS Lang String
-     * @return The corresponding LocalizedText array
-     */
-    private LocalizedText[] getLocalizedTextFromLangStringSet(List<LangString> value) {
-        LocalizedText[] retval = null;
-
-        try {
-            ArrayList<LocalizedText> arr = new ArrayList<>();
-            value.forEach(ls -> {
-                arr.add(new LocalizedText(ls.getValue(), ls.getLanguage()));
-            });
-
-            retval = arr.toArray(LocalizedText[]::new);
-        }
-        catch (Throwable ex) {
-            logger.error("getLocalizedTextFromLangStringSet Exception", ex);
-            throw ex;
-        }
-
-        return retval;
     }
 
 
@@ -4173,7 +4200,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 setRangeValue((AASRangeType) node, (RangeValue) value);
             }
             else if ((node instanceof AASMultiLanguagePropertyType) && (value instanceof MultiLanguagePropertyValue)) {
-                setMultiLanguageProperty((AASMultiLanguagePropertyType) node, (MultiLanguagePropertyValue) value);
+                setMultiLanguagePropertyValue((AASMultiLanguagePropertyType) node, (MultiLanguagePropertyValue) value);
             }
             else {
                 logger.warn("addAasDataElement: unknown or invalid DataElement or value: " + node.getBrowseName().getName() + "; Class: " + node.getClass() + "; Value Class: "
@@ -4313,7 +4340,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param value The new value
      * @throws StatusException If the operation fails
      */
-    private void setMultiLanguageProperty(AASMultiLanguagePropertyType multiLangProp, MultiLanguagePropertyValue value) throws StatusException {
+    private void setMultiLanguagePropertyValue(AASMultiLanguagePropertyType multiLangProp, MultiLanguagePropertyValue value) throws StatusException {
         if (multiLangProp == null) {
             throw new IllegalArgumentException("multiLangProp is null");
         }
@@ -4327,10 +4354,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 addMultiLanguageValueNode(multiLangProp, values.size());
             }
 
-            multiLangProp.getValueNode().setValue(getLocalizedTextFromLangStringSet(values));
+            multiLangProp.getValueNode().setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
         }
         catch (Throwable ex) {
-            logger.error("setMultiLanguageProperty Exception", ex);
+            logger.error("setMultiLanguagePropertyValue Exception", ex);
             throw ex;
         }
     }

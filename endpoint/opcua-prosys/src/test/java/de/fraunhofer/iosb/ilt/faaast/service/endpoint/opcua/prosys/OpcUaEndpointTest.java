@@ -19,7 +19,9 @@ import com.prosysopc.ua.ServiceException;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.client.UaClient;
+import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
+import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.builtintypes.StatusCode;
@@ -49,6 +51,7 @@ import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -76,7 +79,6 @@ public class OpcUaEndpointTest {
 
     private static final int OPC_TCP_PORT = 18123;
     private static final long DEFAULT_TIMEOUT = 1000;
-    private static final long WRITE_TIMEOUT = 200;
 
     private static final String ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
 
@@ -328,7 +330,7 @@ public class OpcUaEndpointTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        writeNewValueIntern(client, writeNode, "50", "222");
+        TestUtils.writeNewValueIntern(client, writeNode, "50", "222");
 
         //        DataValue value = client.readValue(targets[0].getTargetId());
         //        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -454,7 +456,113 @@ public class OpcUaEndpointTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        writeNewValueIntern(client, writeNode, "100", "111.0");
+        TestUtils.writeNewValueIntern(client, writeNode, "100", "111.0");
+
+        System.out.println("disconnect client");
+        client.disconnect();
+    }
+
+
+    /**
+     * Test method for writing a range. Writes the property in the OPC UA
+     * Server and checks the new value in the server.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws InterruptedException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     */
+    @Test
+    public void testWriteBlobValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_OPER_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.TEST_BLOB_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testWriteBlobValue Browse Result Null", bpres);
+        Assert.assertTrue("testWriteBlobValue Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testWriteBlobValue Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testWriteBlobValue ValueType Null", targets);
+        Assert.assertTrue("testWriteBlobValue ValueType empty", targets.length > 0);
+
+        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        //byte[] oldValue = Base64.getDecoder().decode("AQIDBAU=");
+        ByteString oldValue = ByteString.valueOf(Base64.getDecoder().decode("AQIDBAU="));
+        ByteString newValue = ByteString.valueOf(Base64.getDecoder().decode("QUJDREU="));
+        TestUtils.writeNewValueIntern(client, writeNode, oldValue.toString(), newValue);
+
+        System.out.println("disconnect client");
+        client.disconnect();
+    }
+
+
+    /**
+     * Test method for writing a property. Writes the property in the OPC UA
+     * Server and checks the new value in the server.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws InterruptedException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     */
+    @Test
+    public void testWriteMultiLanguagePropertyValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_OPER_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.TEST_MULTI_LAN_PROP_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testWritePropertyValue Browse Result Null", bpres);
+        Assert.assertTrue("testWritePropertyValue Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testWritePropertyValue Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testWritePropertyValue ValueType Null", targets);
+        Assert.assertTrue("testWritePropertyValue ValueType empty", targets.length > 0);
+
+        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        List<LocalizedText> oldValue = new ArrayList<>();
+        oldValue.add(new LocalizedText("Example value of a MultiLanguageProperty element", "en-us"));
+        oldValue.add(new LocalizedText("Beispielswert für ein MulitLanguageProperty-Element", "de"));
+
+        // The DataElementValueMapper changes the order of the elements
+        List<LocalizedText> newValue = new ArrayList<>();
+        newValue.add(new LocalizedText("Beispielswert2 fuer ein anderes MulitLanguageProperty-Element", "de"));
+        newValue.add(new LocalizedText("Example value of a MultiLanguageProperty element", "en-us"));
+
+        TestUtils.writeNewValueLocalizedTextArray(client, writeNode, oldValue.toArray(LocalizedText[]::new), newValue.toArray(LocalizedText[]::new));
 
         System.out.println("disconnect client");
         client.disconnect();
@@ -663,33 +771,5 @@ public class OpcUaEndpointTest {
         TestUtils.checkSubmodelRef(client, refNode, aasns, TestDefines.SUBMODEL_DOC_NAME, submodelDocNode);
         TestUtils.checkSubmodelRef(client, refNode, aasns, TestDefines.SUBMODEL_OPER_DATA_NAME, submodelOperDataNode);
         TestUtils.checkSubmodelRef(client, refNode, aasns, TestDefines.SUBMODEL_TECH_DATA_NAME, submodelTechDataNode);
-    }
-
-
-    /**
-     * Writes the new value into the given node and checks whether the value was written correctly.
-     * 
-     * @param client The OPC UA Client.
-     * @param writeNode The node which should be written.
-     * @param oldValue The old value.
-     * @param newValue The new value.
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     */
-    private void writeNewValueIntern(UaClient client, NodeId writeNode, Object oldValue, Object newValue) throws ServiceException, StatusException, InterruptedException {
-        DataValue value = client.readValue(writeNode);
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue().toString());
-
-        client.writeValue(writeNode, newValue);
-
-        // wait until the write is finished completely
-        Thread.sleep(WRITE_TIMEOUT);
-
-        // read new value
-        value = client.readValue(writeNode);
-        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertEquals("new value not equal", newValue, value.getValue().getValue().toString());
     }
 }

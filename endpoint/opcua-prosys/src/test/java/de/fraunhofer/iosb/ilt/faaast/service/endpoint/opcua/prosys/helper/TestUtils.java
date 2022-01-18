@@ -68,6 +68,8 @@ import org.junit.Assert;
  */
 public class TestUtils {
 
+    private static final long WRITE_TIMEOUT = 200;
+
     /**
      * Define a minimal ApplicationIdentity.If you use secure connections, you
      * will also need to define the application instance certificate and manage
@@ -765,6 +767,63 @@ public class TestUtils {
         Assert.assertEquals(1, refs.size());
         NodeId smNode = client.getAddressSpace().getNamespaceTable().toNodeId(refs.get(0).getNodeId());
         Assert.assertEquals(smNode, submodelNode);
+    }
+
+
+    /**
+     * Writes the new value into the given node and checks whether the value was written correctly.
+     * 
+     * @param client The OPC UA Client.
+     * @param writeNode The node which should be written.
+     * @param oldValue The old value.
+     * @param newValue The new value.
+     * @throws ServiceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws InterruptedException If the operation fails
+     */
+    public static void writeNewValueIntern(UaClient client, NodeId writeNode, Object oldValue, Object newValue) throws ServiceException, StatusException, InterruptedException {
+        DataValue value = client.readValue(writeNode);
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue().toString());
+
+        client.writeValue(writeNode, newValue);
+
+        // wait until the write is finished completely
+        Thread.sleep(WRITE_TIMEOUT);
+
+        // read new value
+        value = client.readValue(writeNode);
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertEquals("new value not equal", newValue.toString(), value.getValue().getValue().toString());
+    }
+
+
+    /**
+     * Writes the new value (array) into the given node and checks whether the value was written correctly.
+     * 
+     * @param client The OPC UA Client.
+     * @param writeNode The node which should be written.
+     * @param oldValue The old value.
+     * @param newValue The new value.
+     * @throws ServiceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws InterruptedException If the operation fails
+     */
+    public static void writeNewValueLocalizedTextArray(UaClient client, NodeId writeNode, LocalizedText[] oldValue, LocalizedText[] newValue)
+            throws ServiceException, StatusException, InterruptedException {
+        DataValue value = client.readValue(writeNode);
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertArrayEquals("intial value not equal", oldValue, (LocalizedText[]) value.getValue().getValue());
+
+        client.writeValue(writeNode, newValue);
+
+        // wait until the write is finished completely
+        Thread.sleep(WRITE_TIMEOUT);
+
+        // read new value
+        value = client.readValue(writeNode);
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertArrayEquals("new value not equal", newValue, (LocalizedText[]) value.getValue().getValue());
     }
 
 

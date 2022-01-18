@@ -14,8 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
 
+import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.core.Identifiers;
+import io.adminshell.aas.v3.model.LangString;
+import java.util.ArrayList;
+import java.util.List;
 import opc.i4aas.AASValueTypeDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -414,6 +418,55 @@ public class ValueConverter {
         }
         catch (Throwable ex) {
             logger.error("stringToValueType Exception", ex);
+            throw ex;
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Gets a LocalizedText array from an AAS Lang String Set
+     *
+     * @param value The desired AAS Lang String
+     * @return The corresponding LocalizedText array
+     */
+    public static LocalizedText[] getLocalizedTextFromLangStringSet(List<LangString> value) {
+        LocalizedText[] retval = null;
+
+        try {
+            ArrayList<LocalizedText> arr = new ArrayList<>();
+            value.forEach(ls -> {
+                arr.add(new LocalizedText(ls.getValue(), ls.getLanguage()));
+            });
+
+            retval = arr.toArray(LocalizedText[]::new);
+        }
+        catch (Throwable ex) {
+            logger.error("getLocalizedTextFromLangStringSet Exception", ex);
+            throw ex;
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Gets AAS Lang String Set from a LocalizedText array.
+     * 
+     * @param value The desired Lang String Set
+     * @return The corresponding LocalizedText array
+     */
+    public static List<LangString> getLangStringSetFromLocalizedText(LocalizedText[] value) {
+        List<LangString> retval = new ArrayList<>();
+
+        try {
+            for (LocalizedText lt: value) {
+                retval.add(new LangString(lt.getText(), lt.getLocaleId()));
+            }
+        }
+        catch (Throwable ex) {
+            logger.error("getLangStringSetFromLocalizedText Exception", ex);
             throw ex;
         }
 

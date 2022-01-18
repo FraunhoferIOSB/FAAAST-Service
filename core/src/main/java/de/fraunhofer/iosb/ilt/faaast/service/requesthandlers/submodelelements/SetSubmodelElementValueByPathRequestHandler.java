@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodelelements;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.SetSubmodelElementValueByPathRequest;
@@ -41,7 +42,9 @@ public class SetSubmodelElementValueByPathRequestHandler extends RequestHandler<
         SetSubmodelElementValueByPathResponse response = new SetSubmodelElementValueByPathResponse();
         try {
             Reference reference = Util.toReference(request.getPath());
-            SubmodelElement submodelElement = persistence.get(reference, new OutputModifier());
+            OutputModifier modifier = new OutputModifier();
+            modifier.setExtend(Extend.WithBLOBValue);
+            SubmodelElement submodelElement = persistence.get(reference, modifier);
             ElementValue oldValue = DataElementValueMapper.toDataElement(submodelElement);
             ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
             DataElementValueMapper.setDataElementValue(submodelElement, newValue);

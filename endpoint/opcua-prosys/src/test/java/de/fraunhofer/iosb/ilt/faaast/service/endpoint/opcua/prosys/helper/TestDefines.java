@@ -36,6 +36,8 @@ public class TestDefines {
     public static final String TEST_PROPERTY_NAME = "TestProperty";
     public static final String TEST_RANGE_NAME = "TestRange";
     public static final String RANGE_MAX_NAME = "Max";
+    public static final String TEST_BLOB_NAME = "ExampleBlob";
+    public static final String TEST_MULTI_LAN_PROP_NAME = "ExampleMultiLanguageProperty";
 
     public static final String FULL_SUBMODEL_1_NAME = "Identification";
     public static final String FULL_SUBMODEL_1_ID = "http://acplt.org/Submodels/Assets/TestAsset/Identification";

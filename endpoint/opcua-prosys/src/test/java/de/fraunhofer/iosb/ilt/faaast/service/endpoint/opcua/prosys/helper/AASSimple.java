@@ -31,6 +31,7 @@ import io.adminshell.aas.v3.model.impl.DefaultAsset;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultAssetInformation;
+import io.adminshell.aas.v3.model.impl.DefaultBlob;
 import io.adminshell.aas.v3.model.impl.DefaultConceptDescription;
 import io.adminshell.aas.v3.model.impl.DefaultDataSpecificationIEC61360;
 import io.adminshell.aas.v3.model.impl.DefaultEmbeddedDataSpecification;
@@ -38,12 +39,14 @@ import io.adminshell.aas.v3.model.impl.DefaultFile;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.impl.DefaultMultiLanguageProperty;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultRange;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.util.Arrays;
+import java.util.Base64;
 
 
 /**
@@ -316,6 +319,35 @@ public class AASSimple {
                         .valueType("integer")
                         .min("0")
                         .max("100")
+                        .build())
+                .submodelElement(new DefaultBlob.Builder()
+                        .idShort("ExampleBlob")
+                        .category("Parameter")
+                        .description(new LangString("Example Blob object", "en-us"))
+                        .description(new LangString("Beispiel Blob Element", "de"))
+                        .semanticId(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder().type(KeyElements.GLOBAL_REFERENCE)
+                                        .value("http://acplt.org/Blobs/ExampleBlob")
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .build())
+                        .mimeType("application/pdf")
+                        .value(Base64.getDecoder().decode("AQIDBAU="))
+                        .build())
+                .submodelElement(new DefaultMultiLanguageProperty.Builder()
+                        .idShort("ExampleMultiLanguageProperty")
+                        .category("Constant")
+                        .description(new LangString("Example MultiLanguageProperty object", "en-us"))
+                        .description(new LangString("Beispiel MulitLanguageProperty Element", "de"))
+                        .semanticId(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.GLOBAL_REFERENCE)
+                                        .value("http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty")
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .build())
+                        .value(new LangString("Example value of a MultiLanguageProperty element", "en-us"))
+                        .value(new LangString("Beispielswert für ein MulitLanguageProperty-Element", "de"))
                         .build())
                 .build();
     }

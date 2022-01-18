@@ -76,6 +76,8 @@ public class SubmodelElementData {
         PROPERTY_VALUE,
         RANGE_MIN,
         RANGE_MAX,
-        OPERATION
+        OPERATION,
+        BLOB_VALUE,
+        MULTI_LANGUAGE_VALUE
     }
 }
