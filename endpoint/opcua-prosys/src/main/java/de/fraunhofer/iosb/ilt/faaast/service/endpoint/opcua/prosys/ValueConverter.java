@@ -17,18 +17,26 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.core.Identifiers;
+import io.adminshell.aas.v3.model.AssetKind;
+import io.adminshell.aas.v3.model.EntityType;
+import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.LangString;
+import io.adminshell.aas.v3.model.ModelingKind;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.List;
+import opc.i4aas.AASAssetKindDataType;
+import opc.i4aas.AASEntityTypeDataType;
+import opc.i4aas.AASIdentifierTypeDataType;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyElementsDataType;
 import opc.i4aas.AASKeyTypeDataType;
+import opc.i4aas.AASModelingKindDataType;
 import opc.i4aas.AASValueTypeDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -430,6 +438,99 @@ public class ValueConverter {
             throw ex;
         }
 
+        return retval;
+    }
+
+
+    /**
+     * Converts the given ModelingKind to the corresponding
+     * AASModelingKindDataType.
+     *
+     * @param value the desired ModelingKind
+     * @return The corresponding AASModelingKindDataType
+     */
+    public static AASModelingKindDataType convertModelingKind(ModelingKind value) {
+        AASModelingKindDataType retval;
+        if (value == null) {
+            logger.warn("convertModelingKind: value == null");
+            retval = AASModelingKindDataType.Instance;
+        }
+        else {
+            switch (value) {
+                case INSTANCE:
+                    retval = AASModelingKindDataType.Instance;
+                    break;
+                case TEMPLATE:
+                    retval = AASModelingKindDataType.Template;
+                    break;
+                default:
+                    logger.warn("convertModelingKind: unknown value " + value);
+                    throw new IllegalArgumentException("unknown ModelingKind: " + value);
+            }
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Converts the given IdentifierType to the corresponding
+     * AASIdentifierTypeDataType.
+     *
+     * @param value The desired IdentifierType
+     * @return The corresponding AASIdentifierTypeDataType.
+     */
+    public static AASIdentifierTypeDataType convertIdentifierType(IdentifierType value) {
+        AASIdentifierTypeDataType retval;
+        switch (value) {
+            case CUSTOM:
+                retval = AASIdentifierTypeDataType.Custom;
+                break;
+            case IRI:
+                retval = AASIdentifierTypeDataType.IRI;
+                break;
+            case IRDI:
+                retval = AASIdentifierTypeDataType.IRDI;
+                break;
+            default:
+                logger.warn("convertIdentifierType: unknown value " + value);
+                throw new IllegalArgumentException("unknown IdentifierType: " + value);
+        }
+        return retval;
+    }
+
+
+    /**
+     * Converts the given AssetKind to the corresponding AASAssetKindDataType.
+     *
+     * @param value The desired AssetKind
+     * @return The corresponding AASAssetKindDataType
+     */
+    public static AASAssetKindDataType convertAssetKind(AssetKind value) {
+        AASAssetKindDataType retval;
+        switch (value) {
+            case INSTANCE:
+                retval = AASAssetKindDataType.Instance;
+                break;
+            case TYPE:
+                retval = AASAssetKindDataType.Type;
+                break;
+            default:
+                logger.warn("convertAssetKind: unknown value " + value);
+                throw new IllegalArgumentException("unknown KeyType: " + value);
+        }
+        return retval;
+    }
+
+
+    /**
+     * Converts the given EntityType to the corresponding AASEntityTypeDataType.
+     *
+     * @param value The desired EntityType
+     * @return The corresponding AASEntityTypeDataType
+     */
+    public static AASEntityTypeDataType convertEntityType(EntityType value) {
+        AASEntityTypeDataType retval = AASEntityTypeDataType.valueOf(value.ordinal());
         return retval;
     }
 

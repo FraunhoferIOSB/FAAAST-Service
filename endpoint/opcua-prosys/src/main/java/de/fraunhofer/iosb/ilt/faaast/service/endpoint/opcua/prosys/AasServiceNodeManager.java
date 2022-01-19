@@ -31,7 +31,6 @@ import com.prosysopc.ua.server.instantiation.TypeDefinitionBasedNodeBuilderConfi
 import com.prosysopc.ua.server.nodes.PlainMethod;
 import com.prosysopc.ua.server.nodes.PlainProperty;
 import com.prosysopc.ua.stack.builtintypes.ByteString;
-import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
@@ -76,15 +75,12 @@ import io.adminshell.aas.v3.model.Constraint;
 import io.adminshell.aas.v3.model.DataElement;
 import io.adminshell.aas.v3.model.EmbeddedDataSpecification;
 import io.adminshell.aas.v3.model.Entity;
-import io.adminshell.aas.v3.model.EntityType;
 import io.adminshell.aas.v3.model.Event;
 import io.adminshell.aas.v3.model.File;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.ModelingKind;
 import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
@@ -109,24 +105,20 @@ import opc.i4aas.AASAdministrativeInformationType;
 import opc.i4aas.AASAnnotatedRelationshipElementType;
 import opc.i4aas.AASAssetAdministrationShellType;
 import opc.i4aas.AASAssetInformationType;
-import opc.i4aas.AASAssetKindDataType;
 import opc.i4aas.AASAssetType;
 import opc.i4aas.AASBlobType;
 import opc.i4aas.AASCapabilityType;
 import opc.i4aas.AASCustomConceptDescriptionType;
 import opc.i4aas.AASEntityType;
-import opc.i4aas.AASEntityTypeDataType;
 import opc.i4aas.AASEnvironmentType;
 import opc.i4aas.AASEventType;
 import opc.i4aas.AASFileType;
 import opc.i4aas.AASIdentifiableType;
 import opc.i4aas.AASIdentifierKeyValuePairList;
 import opc.i4aas.AASIdentifierKeyValuePairType;
-import opc.i4aas.AASIdentifierTypeDataType;
 import opc.i4aas.AASIrdiConceptDescriptionType;
 import opc.i4aas.AASIriConceptDescriptionType;
 import opc.i4aas.AASKeyDataType;
-import opc.i4aas.AASModelingKindDataType;
 import opc.i4aas.AASMultiLanguagePropertyType;
 import opc.i4aas.AASOperationType;
 import opc.i4aas.AASOrderedSubmodelElementCollectionType;
@@ -594,7 +586,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             if (identifier != null) {
                 identifiableNode.getIdentificationNode().setId(identifier.getIdentifier());
-                identifiableNode.getIdentificationNode().setIdType(convertIdentifierType(identifier.getIdType()));
+                identifiableNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
             }
 
             addAdminInformationProperties(identifiableNode.getAdministrationNode(), adminInfo);
@@ -637,7 +629,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             if (identifier != null) {
                 conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
-                conceptDescriptionNode.getIdentificationNode().setIdType(convertIdentifierType(identifier.getIdType()));
+                conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
             }
 
             addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo);
@@ -680,7 +672,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             if (identifier != null) {
                 conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
-                conceptDescriptionNode.getIdentificationNode().setIdType(convertIdentifierType(identifier.getIdType()));
+                conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
             }
 
             addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo);
@@ -723,7 +715,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             if (identifier != null) {
                 conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
-                conceptDescriptionNode.getIdentificationNode().setIdType(convertIdentifierType(identifier.getIdType()));
+                conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
             }
 
             addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo);
@@ -1074,7 +1066,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             if (assetInfoNode != null) {
                 // AssetKind
                 AssetKind assetKind = assetInformation.getAssetKind();
-                assetInfoNode.setAssetKind(convertAssetKind(assetKind));
+                assetInfoNode.setAssetKind(ValueConverter.convertAssetKind(assetKind));
 
                 // BillOfMaterials
                 List<Reference> assetBills = assetInformation.getBillOfMaterials();
@@ -1329,7 +1321,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
                 node.setCategory(category);
 
-                node.setModelingKind(convertModelingKind(element.getKind()));
+                node.setModelingKind(ValueConverter.convertModelingKind(element.getKind()));
 
                 // DataSpecifications
                 addEmbeddedDataSpecifications(node, element.getEmbeddedDataSpecifications());
@@ -1919,7 +1911,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 AASSubmodelType smNode = createInstance(AASSubmodelType.class, nid, browseName, LocalizedText.english(displayName));
 
                 // ModelingKind
-                smNode.setModelingKind(convertModelingKind(submodel.getKind()));
+                smNode.setModelingKind(ValueConverter.convertModelingKind(submodel.getKind()));
                 addIdentifiable(smNode, submodel.getIdentification(), submodel.getAdministration(), submodel.getCategory());
 
                 // DataSpecifications
@@ -2143,6 +2135,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             setPropertyValueAndType(aasProperty, submodel, prop);
 
             if (VALUES_READ_ONLY) {
+                // ValueType read-only
                 prop.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
             }
 
@@ -3357,7 +3350,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 addSubmodelElementBaseData(entityNode, aasEntity, name);
 
                 // EntityType
-                entityNode.setEntityType(convertEntityType(aasEntity.getEntityType()));
+                entityNode.setEntityType(ValueConverter.convertEntityType(aasEntity.getEntityType()));
 
                 // GlobalAssetId
                 if (aasEntity.getGlobalAssetId() != null) {
@@ -4292,7 +4285,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
         try {
             // EntityType
-            entity.setEntityType(convertEntityType(value.getEntityType()));
+            entity.setEntityType(ValueConverter.convertEntityType(value.getEntityType()));
 
             // GlobalAssetId
             if (value.getGlobalAssetId() != null) {
@@ -4321,99 +4314,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             logger.error("setEntityValue Exception", ex);
             throw ex;
         }
-    }
-
-
-    /**
-     * Converts the given EntityType to the corresponding AASEntityTypeDataType.
-     *
-     * @param value The desired EntityType
-     * @return The corresponding AASEntityTypeDataType
-     */
-    private static AASEntityTypeDataType convertEntityType(EntityType value) {
-        AASEntityTypeDataType retval = AASEntityTypeDataType.valueOf(value.ordinal());
-        return retval;
-    }
-
-
-    /**
-     * Converts the given ModelingKind to the corresponding
-     * AASModelingKindDataType.
-     *
-     * @param value the desired ModelingKind
-     * @return The corresponding AASModelingKindDataType
-     */
-    private static AASModelingKindDataType convertModelingKind(ModelingKind value) {
-        AASModelingKindDataType retval;
-        if (value == null) {
-            logger.warn("convertModelingKind: value == null");
-            retval = AASModelingKindDataType.Instance;
-        }
-        else {
-            switch (value) {
-                case INSTANCE:
-                    retval = AASModelingKindDataType.Instance;
-                    break;
-                case TEMPLATE:
-                    retval = AASModelingKindDataType.Template;
-                    break;
-                default:
-                    logger.warn("convertModelingKind: unknown value " + value);
-                    throw new IllegalArgumentException("unknown ModelingKind: " + value);
-            }
-        }
-
-        return retval;
-    }
-
-
-    /**
-     * Converts the given IdentifierType to the corresponding
-     * AASIdentifierTypeDataType.
-     *
-     * @param value The desired IdentifierType
-     * @return The corresponding AASIdentifierTypeDataType.
-     */
-    private static AASIdentifierTypeDataType convertIdentifierType(IdentifierType value) {
-        AASIdentifierTypeDataType retval;
-        switch (value) {
-            case CUSTOM:
-                retval = AASIdentifierTypeDataType.Custom;
-                break;
-            case IRI:
-                retval = AASIdentifierTypeDataType.IRI;
-                break;
-            case IRDI:
-                retval = AASIdentifierTypeDataType.IRDI;
-                break;
-            default:
-                logger.warn("convertIdentifierType: unknown value " + value);
-                throw new IllegalArgumentException("unknown IdentifierType: " + value);
-        }
-        return retval;
-    }
-
-
-    /**
-     * Converts the given AssetKind to the corresponding AASAssetKindDataType.
-     *
-     * @param value The desired AssetKind
-     * @return The corresponding AASAssetKindDataType
-     */
-    private static AASAssetKindDataType convertAssetKind(AssetKind value) {
-        AASAssetKindDataType retval;
-        switch (value) {
-            case INSTANCE:
-                retval = AASAssetKindDataType.Instance;
-                break;
-            case TYPE:
-                retval = AASAssetKindDataType.Type;
-                break;
-            default:
-                logger.warn("convertAssetKind: unknown value " + value);
-                throw new IllegalArgumentException("unknown KeyType: " + value);
-        }
-        return retval;
     }
 
 
