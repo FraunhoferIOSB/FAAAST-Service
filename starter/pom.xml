@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
+        <artifactId>service</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>starter</artifactId>
+    <version>${revision}</version>
+    <name>starter</name>
+    <description>Starter for the FA³ST Service.</description>
+    <properties>
+        <root.basedir>${project.parent.basedir}</root.basedir>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>core</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>${plugin.jib.version}</version>
+                <configuration>
+                    <to>
+                        <image>${container.image.name}:${container.image.tag}</image>
+                        <auth>
+                            <username>${env.DOCKER_USERNAME}</username>
+                            <password>${env.DOCKER_TOKEN}</password>
+                        </auth>
+                    </to>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
