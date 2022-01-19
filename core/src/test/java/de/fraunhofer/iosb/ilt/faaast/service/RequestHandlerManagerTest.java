@@ -41,6 +41,9 @@ import io.adminshell.aas.v3.model.OperationVariable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+
+import io.adminshell.aas.v3.model.Property;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -145,12 +148,8 @@ public class RequestHandlerManagerTest {
                 .filter(x -> x.getIdShort().equalsIgnoreCase(SUBMODEL_ELEMENT_IDSHORT))
                 .findFirst().get();
 
-        OperationHandle operationHandle = new OperationHandle.Builder().handleId("1").requestId("1").build();
-        when(persistence.putOperationContext(any(), any(), any())).thenReturn(operationHandle);
-        when(persistence.getOperationResult(any())).thenReturn(new OperationResult.Builder().requestId("1").build());
         when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
-        when(assetConnectionManager.getOperationProvider(any())).thenReturn(assetOperationProvider);
-        when(assetOperationProvider.invoke(any(), any())).thenReturn(operation.getOutputVariables().toArray(new OperationVariable[0]));
+        when(assetConnectionManager.getOperationProvider(any())).thenReturn(new CostumAssetOperationProvider());
 
         InvokeOperationSyncRequest invokeOperationSyncRequest = new InvokeOperationSyncRequest();
         invokeOperationSyncRequest.setRequestId("1");
@@ -160,7 +159,23 @@ public class RequestHandlerManagerTest {
         InvokeOperationSyncResponse response = manager.execute(invokeOperationSyncRequest);
         Assert.assertEquals(StatusCode.Success, response.getStatusCode());
         Assert.assertNotNull(response.getPayload());
-        Assert.assertEquals(operation.getOutputVariables().get(0).getValue(), ((OperationResult) response.getPayload()).getOutputArguments().get(0).getValue());
+        Assert.assertEquals(operation.getInputVariables().get(0).getValue(), ((OperationResult) response.getPayload()).getOutputArguments().get(0).getValue());
+        Assert.assertEquals("TestOutput", ((Property)((OperationResult) response.getPayload()).getInoutputArguments().get(0).getValue()).getValue());
 
+    }
+
+    class CostumAssetOperationProvider implements AssetOperationProvider{
+
+        @Override
+        public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
+            Property property = (Property) inoutput[0].getValue();
+            property.setValue("TestOutput");
+            return input;
+        }
+
+        @Override
+        public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callback) throws AssetConnectionException {
+
+        }
     }
 }
