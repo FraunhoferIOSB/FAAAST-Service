@@ -633,6 +633,17 @@ public class PersistenceInMemoryTest {
                 .filter(x -> x.getIdentification().equals(newIdentifier))
                 .findFirst().orElse(null));
 
+        newIdentifier.setIdentifier("http://newIdentifier_2.org");
+        newSubmodel.setIdentification(newIdentifier);
+        this.persistence.put(null, (Identifiable) newSubmodel);
+
+        shell = (AssetAdministrationShell) this.persistence.get(parentIdentifier, new QueryModifier());
+        Assert.assertFalse(shell.getSubmodels().stream().anyMatch(x -> x.getKeys().stream().anyMatch(y -> y.getValue().equalsIgnoreCase(newIdentifier.getIdentifier()))));
+
+        Assert.assertEquals(newSubmodel, this.environment.getSubmodels().stream()
+                .filter(x -> x.getIdentification().equals(newIdentifier))
+                .findFirst().orElse(null));
+
     }
 
 

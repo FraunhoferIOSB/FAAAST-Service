@@ -16,12 +16,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PostSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.PostSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.AssetAdministrationShell;
+import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 
 
@@ -37,8 +40,12 @@ public class PostSubmodelRequestHandler extends RequestHandler<PostSubmodelReque
         PostSubmodelResponse response = new PostSubmodelResponse();
 
         try {
-            //TODO: missing belonging AAS ID in request?
-            Submodel submodel = (Submodel) persistence.put(null, request.getSubmodel());
+            Reference reference = null;
+            if (request.getAasId() != null) {
+                AssetAdministrationShell assetAdministrationShell = (AssetAdministrationShell) persistence.get(request.getAasId(), new QueryModifier());
+                reference = AasUtils.toReference(assetAdministrationShell);
+            }
+            Submodel submodel = (Submodel) persistence.put(reference, request.getSubmodel());
             response.setPayload(submodel);
             response.setStatusCode(StatusCode.SuccessCreated);
             publishElementCreateEventMessage(AasUtils.toReference(submodel), submodel);

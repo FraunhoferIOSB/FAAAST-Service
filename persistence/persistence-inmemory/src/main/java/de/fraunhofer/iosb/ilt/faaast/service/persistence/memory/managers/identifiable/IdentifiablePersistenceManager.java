@@ -205,7 +205,7 @@ public class IdentifiablePersistenceManager {
 
 
     public Identifiable put(Reference parent, Identifiable identifiable) {
-        if (parent == null || identifiable == null || this.aasEnvironment == null) {
+        if (identifiable == null || this.aasEnvironment == null) {
             return null;
         }
         AssetAdministrationShell parentAAS = null;

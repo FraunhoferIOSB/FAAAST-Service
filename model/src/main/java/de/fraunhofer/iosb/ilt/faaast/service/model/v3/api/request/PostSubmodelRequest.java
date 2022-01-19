@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.PostSubmodelResponse;
+import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
@@ -25,7 +26,18 @@ import java.util.Objects;
  * Chapter 6.3.6
  */
 public class PostSubmodelRequest extends BaseRequest<PostSubmodelResponse> {
+    private Identifier aasId;
     private Submodel submodel;
+
+    public Identifier getAasId() {
+        return aasId;
+    }
+
+
+    public void setAasId(Identifier aasId) {
+        this.aasId = aasId;
+    }
+
 
     public Submodel getSubmodel() {
         return submodel;
@@ -61,6 +73,12 @@ public class PostSubmodelRequest extends BaseRequest<PostSubmodelResponse> {
     public static abstract class AbstractBuilder<T extends PostSubmodelRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
         public B submodel(Submodel value) {
             getBuildingInstance().setSubmodel(value);
+            return getSelf();
+        }
+
+
+        public B aasId(Identifier value) {
+            getBuildingInstance().setAasId(value);
             return getSelf();
         }
     }
