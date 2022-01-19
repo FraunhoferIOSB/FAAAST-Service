@@ -14,8 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util.applyQueryModifier;
-import static de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util.empty;
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util.*;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
@@ -100,6 +99,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (reference == null || reference.getKeys() == null || modifier == null || this.aasEnvironment == null) {
             return null;
         }
+        completeReference(reference, this.aasEnvironment);
         SubmodelElement submodelElement = referablePersistenceManager.getSubmodelElement(reference, modifier);
         applyQueryModifier(submodelElement, modifier);
         return submodelElement;
@@ -145,6 +145,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (reference == null || modifier == null) {
             return null;
         }
+        completeReference(reference, this.aasEnvironment);
 
         List<SubmodelElement> submodelElements = referablePersistenceManager.getSubmodelElements(reference, semanticId);
         if (submodelElements == null) {
@@ -172,6 +173,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (parent == null || submodelElement == null) {
             return null;
         }
+        completeReference(parent, this.aasEnvironment);
         return referablePersistenceManager.putSubmodelElement(parent, submodelElement);
     }
 
@@ -190,6 +192,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (reference == null) {
             return;
         }
+        completeReference(reference, this.aasEnvironment);
         referablePersistenceManager.remove(reference);
     }
 
@@ -199,6 +202,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (parent == null || identifiable == null) {
             return null;
         }
+        completeReference(parent, this.aasEnvironment);
         return identifiablePersistenceManager.put(parent, identifiable);
     }
 

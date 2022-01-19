@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.referable;
 
-import static de.fraunhofer.iosb.ilt.faaast.persistence.inmemory.managers.referable.Util.getGetListMethod;
 import static de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util.deepCopy;
+import static de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.referable.Util.getGetListMethod;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;

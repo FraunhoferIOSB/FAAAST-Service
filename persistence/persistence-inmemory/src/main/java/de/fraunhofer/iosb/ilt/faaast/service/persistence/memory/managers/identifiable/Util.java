@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 public class Util {
 
     public static Identifiable findIdentifiableInListsById(Identifier id, Collection<? extends Identifiable>... requiredCollections) {
-
         Stream<? extends Identifiable> combinedStream = requiredCollections[0].stream();
         for (int i = 1; i < requiredCollections.length; i++) {
             combinedStream = Stream.concat(combinedStream, requiredCollections[i].stream());
