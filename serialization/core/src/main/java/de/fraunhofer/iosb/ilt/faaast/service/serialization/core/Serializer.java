@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.core;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -29,55 +30,55 @@ public interface Serializer {
 
     public Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-    public String write(Object obj, Content content) throws SerializationException;
+    public String write(Object obj, OutputModifier modifier) throws SerializationException;
 
 
     public default String write(Object obj) throws SerializationException {
-        return write(obj, Content.DEFAULT);
+        return write(obj, OutputModifier.DEFAULT);
     }
 
 
-    public default void write(OutputStream out, Object obj, Content content) throws IOException, SerializationException {
-        write(out, DEFAULT_CHARSET, obj, content);
+    public default void write(OutputStream out, Object obj, OutputModifier modifier) throws IOException, SerializationException {
+        write(out, DEFAULT_CHARSET, obj, modifier);
     }
 
 
     public default void write(OutputStream out, Object obj) throws IOException, SerializationException {
-        write(out, obj, Content.DEFAULT);
+        write(out, obj, OutputModifier.DEFAULT);
     }
 
 
-    public default void write(OutputStream out, Charset charset, Object obj, Content content) throws IOException, SerializationException {
+    public default void write(OutputStream out, Charset charset, Object obj, OutputModifier modifier) throws IOException, SerializationException {
         try (OutputStreamWriter writer = new OutputStreamWriter(out, charset)) {
-            writer.write(write(obj, content));
+            writer.write(write(obj, modifier));
         }
     }
 
 
     public default void write(OutputStream out, Charset charset, Object obj) throws IOException, SerializationException {
-        write(out, charset, obj, Content.DEFAULT);
+        write(out, charset, obj, OutputModifier.DEFAULT);
     }
 
 
-    public default void write(File file, Charset charset, Object obj, Content content) throws FileNotFoundException, IOException, SerializationException {
+    public default void write(File file, Charset charset, Object obj, OutputModifier modifier) throws FileNotFoundException, IOException, SerializationException {
         try (OutputStream out = new FileOutputStream(file)) {
-            write(out, charset, obj, content);
+            write(out, charset, obj, modifier);
         }
     }
 
 
     public default void write(File file, Charset charset, Object obj) throws FileNotFoundException, IOException, SerializationException {
-        write(file, charset, obj, Content.DEFAULT);
+        write(file, charset, obj, OutputModifier.DEFAULT);
     }
 
 
-    public default void write(File file, Object obj, Content content) throws FileNotFoundException, IOException, SerializationException {
-        write(file, DEFAULT_CHARSET, obj, content);
+    public default void write(File file, Object obj, OutputModifier modifier) throws FileNotFoundException, IOException, SerializationException {
+        write(file, DEFAULT_CHARSET, obj, modifier);
     }
 
 
     public default void write(File file, Object obj) throws FileNotFoundException, IOException, SerializationException {
-        write(file, obj, Content.DEFAULT);
+        write(file, obj, OutputModifier.DEFAULT);
     }
 
 }

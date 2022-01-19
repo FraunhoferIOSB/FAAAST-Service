@@ -1,0 +1,21 @@
+{
+    "first": [
+        "http://customer.com/demo/aas/1/1/1234859590",
+        "http://customer.com/demo/aas/1/2/4567895050"
+    ],
+    "second": [
+        {
+            "type": "Submodel",
+            "value": "http://customer.com/demo/aas/1/1/1234859590"
+        }, 
+        {
+            "type": "Property",
+            "value": "MaxRotationSpeed"
+        }
+    ],
+    "annotation": [
+        {
+            "AppliedRule": "TechnicalCurrentFlowDirection"
+        }
+    ]
+}

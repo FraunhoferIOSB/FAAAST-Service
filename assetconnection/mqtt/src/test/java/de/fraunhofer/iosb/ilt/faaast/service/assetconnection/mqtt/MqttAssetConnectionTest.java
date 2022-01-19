@@ -46,7 +46,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
 public class MqttAssetConnectionTest {
 
     private static final long DEFAULT_TIMEOUT = 1000;
@@ -60,7 +59,6 @@ public class MqttAssetConnectionTest {
         mqttServer.stopServer();
     }
 
-
     @BeforeClass
     public static void init() throws IOException {
         // find free TCP port
@@ -68,8 +66,7 @@ public class MqttAssetConnectionTest {
             Assert.assertNotNull(serverSocket);
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
             mqttPort = serverSocket.getLocalPort();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("could not find free port");
         }
         // start embedded mqtt server
@@ -81,7 +78,6 @@ public class MqttAssetConnectionTest {
         mqttServer.startServer(mqttConfig, null);
     }
 
-
     private static void publishMqtt(String topic, String content) {
         mqttServer.internalPublish(MqttMessageBuilders.publish()
                 .topicName(topic)
@@ -90,7 +86,6 @@ public class MqttAssetConnectionTest {
                 .payload(Unpooled.copiedBuffer(content.getBytes(UTF_8))).build(),
                 "unit test " + UUID.randomUUID().toString().replace("-", ""));
     }
-
 
     @Test
     public void testSubscriptionProvider() throws AssetConnectionException, InterruptedException {
@@ -157,7 +152,7 @@ public class MqttAssetConnectionTest {
         });
         // send message via MQTT
         publishMqtt(topic, expected.getValue());
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.DAYS);
         PropertyValue extracted = new PropertyValue();
         extracted.setValue("7");
         Assert.assertEquals(extracted, response.get());
@@ -202,7 +197,6 @@ public class MqttAssetConnectionTest {
         assetConnection.getValueProviders().get(reference).setValue(expected);
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         Assert.assertEquals(expected, response.get());
-
 
     }
 }

@@ -14,10 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
 
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 public class RangeValue extends DataElementValue {
+
     private double min;
     private double max;
 
@@ -43,10 +45,12 @@ public class RangeValue extends DataElementValue {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         RangeValue that = (RangeValue) o;
         return Double.compare(that.min, min) == 0 && Double.compare(that.max, max) == 0;
     }
@@ -55,5 +59,39 @@ public class RangeValue extends DataElementValue {
     @Override
     public int hashCode() {
         return Objects.hash(min, max);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static abstract class AbstractBuilder<T extends RangeValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B min(double value) {
+            getBuildingInstance().setMin(value);
+            return getSelf();
+        }
+
+
+        public B max(double value) {
+            getBuildingInstance().setMax(value);
+            return getSelf();
+        }
+
+    }
+
+    public static class Builder extends AbstractBuilder<RangeValue, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected RangeValue newBuildingInstance() {
+            return new RangeValue();
+        }
     }
 }

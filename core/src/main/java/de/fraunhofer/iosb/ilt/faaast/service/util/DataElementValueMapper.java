@@ -70,7 +70,8 @@ public class DataElementValueMapper {
 
 
     /**
-     * Wraps the values of the SubmodelElement into a belonging DataElementValue instance
+     * Wraps the values of the SubmodelElement into a belonging DataElementValue
+     * instance
      *
      * @param submodelElement for which a DataElementValue should be created
      * @param <I> type of the input SubmodelElement
@@ -86,6 +87,27 @@ public class DataElementValueMapper {
             throw new RuntimeException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
         }
         return (O) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).toDataElementValue(submodelElement);
+    }
+
+
+    /**
+     * Utility function to determine equivalent ElementValue class for given
+     * SubmodelElement class
+     *
+     * @param elementType SubmodelElement type
+     * @return matching ElementValue class
+     */
+    public static Class<? extends ElementValue> getValueClass(Class<? extends SubmodelElement> elementType) {
+        init();
+        if (elementType == null) {
+            throw new IllegalArgumentException("elementType must be non-null");
+        }
+        if (!mappers.containsKey(ReflectionHelper.getAasInterface(elementType))) {
+            throw new RuntimeException("no mapper defined for elementType type " + elementType.getSimpleName());
+        }
+        return (Class<? extends ElementValue>) TypeToken.of(mappers.get(ReflectionHelper.getAasInterface(elementType)).getClass())
+                .resolveType(DataValueMapper.class.getTypeParameters()[1])
+                .getRawType();
     }
 
 

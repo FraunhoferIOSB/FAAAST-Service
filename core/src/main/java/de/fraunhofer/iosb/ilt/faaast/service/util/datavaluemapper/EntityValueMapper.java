@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
 import io.adminshell.aas.v3.model.Entity;
+import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class EntityValueMapper extends DataValueMapper<Entity, EntityValue> {
@@ -30,15 +30,11 @@ public class EntityValueMapper extends DataValueMapper<Entity, EntityValue> {
         if (submodelElement == null) {
             return null;
         }
-        EntityValue entityValue = new EntityValue();
-        entityValue.setEntityType(submodelElement.getEntityType());
-
-        //TODO: Is type List<ElementValue> of statements in entityValue correct?
-        List<ElementValue> elementValueList = new ArrayList<>();
-        submodelElement.getStatements().forEach(x -> elementValueList.add(DataElementValueMapper.toDataElement(x)));
-        entityValue.setStatements(elementValueList);
-        entityValue.setGlobalAssetId(submodelElement.getGlobalAssetId() != null ? submodelElement.getGlobalAssetId().getKeys() : null);
-        return entityValue;
+        return EntityValue.builder()
+                .entityType(submodelElement.getEntityType())
+                .statements(submodelElement.getStatements().stream().collect(Collectors.toMap(x -> x.getIdShort(), x -> DataElementValueMapper.toDataElement(x))))
+                .globalAssetId(submodelElement.getGlobalAssetId() != null ? submodelElement.getGlobalAssetId().getKeys() : List.of())
+                .build();
     }
 
 
@@ -47,9 +43,13 @@ public class EntityValueMapper extends DataValueMapper<Entity, EntityValue> {
         if (submodelElement == null || value == null) {
             return null;
         }
+        // TODO not only update but remove? how to handle new values?
+        for (SubmodelElement statement: submodelElement.getStatements()) {
+            if (value.getStatements().containsKey(statement.getIdShort())) {
+                DataElementValueMapper.setDataElementValue(statement, value.getStatements().get(statement.getIdShort()));
+            }
+        }
         submodelElement.setEntityType(value.getEntityType());
-        //TODO: Is type List<ElementValue> of statements in entityValue correct?
-        //submodelElement.setStatements(value.getStatements());
         submodelElement.setGlobalAssetId(value.getGlobalAssetId() != null ? new DefaultReference.Builder().keys(value.getGlobalAssetId()).build() : null);
         return submodelElement;
     }

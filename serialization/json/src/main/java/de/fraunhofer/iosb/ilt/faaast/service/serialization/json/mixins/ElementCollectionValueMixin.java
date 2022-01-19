@@ -15,13 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.mixins;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
+import java.util.Map;
 
-
-public abstract class PropertyValueMixin {
+public abstract class ElementCollectionValueMixin {
 
     @JsonValue
-    private String value;
-    //    
-    //    @JsonValue
-    //    public abstract String getValue();
+    private Map<String, ElementValue> values;
 }

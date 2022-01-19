@@ -15,11 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
 
 import io.adminshell.aas.v3.model.Key;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.List;
 import java.util.Objects;
 
 
 public class RelationshipElementValue extends DataElementValue {
+
     private List<Key> first;
     private List<Key> second;
 
@@ -45,10 +47,12 @@ public class RelationshipElementValue extends DataElementValue {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         RelationshipElementValue that = (RelationshipElementValue) o;
         return Objects.equals(first, that.first) && Objects.equals(second, that.second);
     }
@@ -57,5 +61,38 @@ public class RelationshipElementValue extends DataElementValue {
     @Override
     public int hashCode() {
         return Objects.hash(first, second);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static abstract class AbstractBuilder<T extends RelationshipElementValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B first(List<Key> value) {
+            getBuildingInstance().setFirst(value);
+            return getSelf();
+        }
+
+
+        public B second(List<Key> value) {
+            getBuildingInstance().setSecond(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<RelationshipElementValue, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected RelationshipElementValue newBuildingInstance() {
+            return new RelationshipElementValue();
+        }
     }
 }

@@ -25,6 +25,7 @@ public class XmlContentParser implements ContentParser {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+
     @Override
     public DataElementValue parseValueWithQuery(String raw, Class<? extends DataElement> elementType, String query) {
         throw new UnsupportedOperationException("Not supported yet.");

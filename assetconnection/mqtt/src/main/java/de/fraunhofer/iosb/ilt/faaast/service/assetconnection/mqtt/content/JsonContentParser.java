@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
 import io.adminshell.aas.v3.model.DataElement;
 
 
@@ -27,24 +28,23 @@ public class JsonContentParser extends JsonDeserializer implements ContentParser
     @Override
     public DataElementValue parseValue(String raw, Class<? extends DataElement> elementType) throws AssetConnectionException {
         try {
-            // TODO implement type mapping in  core (de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper)
-            // and mal elementType to DataElementValue
-            return this.read(raw, DataElementValue.class);
+            return this.read(raw, (Class<? extends DataElementValue>) DataElementValueMapper.getValueClass(elementType));
         }
         catch (DeserializationException ex) {
             throw new AssetConnectionException("parsing JSON value failed", ex);
         }
     }
 
+
     @Override
     public DataElementValue parseValueWithQuery(String raw, Class<? extends DataElement> elementType, String query) throws AssetConnectionException {
         try {
-            // TODO implement type mapping in  core (de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper)
-            // and mal elementType to DataElementValue
-            if(!query.isBlank()) {
-                return this.read(JsonPath.read(raw, query).toString(), DataElementValue.class);
-            } else {
-                return this.read(raw, DataElementValue.class);
+            Class<? extends DataElementValue> valueType = (Class<? extends DataElementValue>) DataElementValueMapper.getValueClass(elementType);
+            if (!query.isBlank()) {
+                return this.read(JsonPath.read(raw, query).toString(), valueType);
+            }
+            else {
+                return this.read(raw, valueType);
             }
         }
         catch (DeserializationException ex) {

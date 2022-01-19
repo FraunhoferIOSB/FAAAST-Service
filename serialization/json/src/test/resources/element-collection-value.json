@@ -1,0 +1,15 @@
+{
+    "exampleProperty": "foo",
+    "exampleRange": {
+        "min": 3,
+        "max": 5
+    },
+    "exampleEntity": {
+        "statements":
+                {
+                    "MaxRotationSpeed": "5000"
+                },
+        "entityType": "SelfManagedEntity",
+        "globalAssetId": ["http://customer.com/demo/asset/1/1/MySubAsset"]
+    }
+}

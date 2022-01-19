@@ -129,12 +129,11 @@ public class MqttAssetConnection
             public void setValue(DataElementValue value) throws AssetConnectionException {
                 try {
                     //check that provided value is a PropertyValue
-                    if(!(value instanceof PropertyValue)) {
+                    if (!(value instanceof PropertyValue)) {
                         throw new AssetConnectionException(String.format("unsupported value (%s)", value.getClass().getSimpleName()));
                     }
                     client.publish(valueProviderConfig.getTopic(), new MqttMessage(
-                            (((PropertyValue) value).getValue().getBytes())
-                    ));
+                            (((PropertyValue) value).getValue().getBytes())));
                 }
                 catch (MqttException ex) {
                     throw new AssetConnectionException("writing value via MQTT asset connection failed", ex);
@@ -169,11 +168,12 @@ public class MqttAssetConnection
                         }
 
                         DataElementValue newValue;
-                        if(subscriptionProviderConfig.getQuery().isBlank()) {
+                        if (subscriptionProviderConfig.getQuery().isBlank()) {
                             newValue = ContentParserFactory
                                     .create(subscriptionProviderConfig.getContentFormat())
                                     .parseValue(mqttValue, elementType);
-                        } else {
+                        }
+                        else {
                             newValue = ContentParserFactory
                                     .create(subscriptionProviderConfig.getContentFormat())
                                     .parseValueWithQuery(mqttValue, elementType, subscriptionProviderConfig.getQuery());

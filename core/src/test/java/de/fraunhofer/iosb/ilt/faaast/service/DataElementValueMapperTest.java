@@ -45,7 +45,9 @@ import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultRange;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -177,27 +179,30 @@ public class DataElementValueMapperTest {
 
     @Test
     public void testEntityMapping() {
-        SubmodelElement submodelElement = environment.getSubmodels().stream()
+        Entity entity = (Entity) environment.getSubmodels().stream()
                 .filter(x -> x.getIdShort().equalsIgnoreCase("BillOfMaterial"))
                 .findFirst().get().getSubmodelElements().stream()
                 .filter(x -> x.getIdShort().equalsIgnoreCase("ExampleEntity"))
                 .findFirst().get();
+        EntityValue expected = EntityValue.builder()
+                .entityType(entity.getEntityType())
+                .globalAssetId(entity.getGlobalAssetId() != null ? entity.getGlobalAssetId().getKeys() : List.of())
+                .statements(entity.getStatements().stream().collect(Collectors.toMap(
+                        x -> x.getIdShort(),
+                        x -> DataElementValueMapper.toDataElement(x))))
+                .build();
 
-        DataElementValue dataElementValue = DataElementValueMapper.toDataElement(submodelElement);
-        Assert.assertTrue(dataElementValue.getClass() == EntityValue.class);
-        Assert.assertTrue(((EntityValue) dataElementValue).getEntityType().equals(((Entity) submodelElement).getEntityType()));
-        Assert.assertTrue(((EntityValue) dataElementValue).getGlobalAssetId() == (((Entity) submodelElement).getGlobalAssetId()));
+        DataElementValue actual = DataElementValueMapper.toDataElement(entity);
+        Assert.assertEquals(expected, actual);
 
-        //TODO
-        //Assert.assertTrue(((EntityValue) dataElementValue).getStatements().equals(((Entity)submodelElement).getStatements()));
-
-        ((EntityValue) dataElementValue).setEntityType(EntityType.SELF_MANAGED_ENTITY);
-        ((EntityValue) dataElementValue).setStatements(List.of());
-        ((EntityValue) dataElementValue).setGlobalAssetId(List.of());
-        DataElementValueMapper.setDataElementValue(submodelElement, dataElementValue);
-        Assert.assertTrue(((Entity) submodelElement).getEntityType().equals(EntityType.SELF_MANAGED_ENTITY));
-        //Assert.assertTrue(((Entity) submodelElement).getStatements().equals(List.of()));
-        Assert.assertTrue(((Entity) submodelElement).getGlobalAssetId().getKeys().equals(List.of()));
+        expected.setEntityType(EntityType.SELF_MANAGED_ENTITY);
+        expected.setStatements(Map.of());
+        expected.setGlobalAssetId(List.of());
+        DataElementValueMapper.setDataElementValue(entity, expected);
+        Assert.assertEquals(expected.getEntityType(), entity.getEntityType());
+        // how to handle add/remove of values?
+        //Assert.assertEquals(expected.getStatements(), entity.getEntityType());
+        Assert.assertEquals(expected.getGlobalAssetId(), entity.getGlobalAssetId().getKeys());
     }
 
 
