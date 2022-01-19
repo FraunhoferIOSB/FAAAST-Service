@@ -20,6 +20,7 @@ import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.AssetKind;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.DataTypeIEC61360;
+import io.adminshell.aas.v3.model.EntityType;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
@@ -35,6 +36,7 @@ import io.adminshell.aas.v3.model.impl.DefaultBlob;
 import io.adminshell.aas.v3.model.impl.DefaultConceptDescription;
 import io.adminshell.aas.v3.model.impl.DefaultDataSpecificationIEC61360;
 import io.adminshell.aas.v3.model.impl.DefaultEmbeddedDataSpecification;
+import io.adminshell.aas.v3.model.impl.DefaultEntity;
 import io.adminshell.aas.v3.model.impl.DefaultFile;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
@@ -367,6 +369,67 @@ public class AASSimple {
                                         .value(SUBMODEL_TECHNICAL_DATA_PROPERTY_ID_SHORT)
                                         .build())
                                 .build())
+                        .build())
+                .submodelElement(new DefaultEntity.Builder()
+                        .idShort("ExampleEntity")
+                        .description(new LangString(
+                                "Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.",
+                                "en-us"))
+                        .description(new LangString(
+                                "Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das 'Inverkehrbringen' im eigenen Namen verantwortlich ist",
+                                "de"))
+                        .semanticId(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.GLOBAL_REFERENCE)
+                                        .value("http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber")
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .build())
+                        .statement(new DefaultProperty.Builder()
+                                .idShort("ExampleProperty2")
+                                .category("Constant")
+                                .description(new LangString("Example Property object", "en-us"))
+                                .description(new LangString("Beispiel Property Element", "de"))
+                                .semanticId(new DefaultReference.Builder()
+                                        .key(new DefaultKey.Builder()
+                                                .type(KeyElements.GLOBAL_REFERENCE)
+                                                .value("http://acplt.org/Properties/ExampleProperty")
+                                                .idType(KeyType.IRI)
+                                                .build())
+                                        .build())
+                                .value("http://acplt.org/ValueId/ExampleValue2")
+                                .valueId(new DefaultReference.Builder()
+                                        .key(new DefaultKey.Builder()
+                                                .type(KeyElements.GLOBAL_REFERENCE)
+                                                .idType(KeyType.IRI)
+                                                .value("http://acplt.org/ValueId/ExampleValue2")
+                                                .build())
+                                        .build())
+                                .valueType("string")
+                                .build())
+                        .statement(new DefaultProperty.Builder()
+                                .idShort("ExampleProperty")
+                                .category("Constant")
+                                .description(new LangString("Example Property object", "en-us"))
+                                .description(new LangString("Beispiel Property Element", "de"))
+                                .semanticId(new DefaultReference.Builder()
+                                        .key(new DefaultKey.Builder()
+                                                .type(KeyElements.GLOBAL_REFERENCE)
+                                                .value("http://acplt.org/Properties/ExampleProperty")
+                                                .idType(KeyType.IRI)
+                                                .build())
+                                        .build())
+                                .value("http://acplt.org/ValueId/ExampleValueId")
+                                .valueId(new DefaultReference.Builder()
+                                        .key(new DefaultKey.Builder()
+                                                .type(KeyElements.GLOBAL_REFERENCE)
+                                                .idType(KeyType.IRI)
+                                                .value("http://acplt.org/ValueId/ExampleValueId")
+                                                .build())
+                                        .build())
+                                .valueType("string")
+                                .build())
+                        .entityType(EntityType.CO_MANAGED_ENTITY)
                         .build())
                 .build();
     }

@@ -3398,7 +3398,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 Reference entityRef = AasUtils.toReference(parentRef, aasEntity);
 
                 // Statements
-                addSubmodelElements(entityNode, aasEntity.getStatements(), submodel, entityRef);
+                addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, entityRef);
 
                 if (VALUES_READ_ONLY) {
                     entityNode.getEntityTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
