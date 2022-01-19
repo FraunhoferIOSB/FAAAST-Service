@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
@@ -29,29 +30,54 @@ public class AssetConnectionManager {
 
     private List<AssetConnection> connections = new ArrayList<>();
     private final CoreConfig coreConfig;
+    private final ServiceContext context;
 
-    public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections) throws ConfigurationException {
+    public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections, ServiceContext context) throws ConfigurationException {
         this.coreConfig = coreConfig;
         this.connections = connections;
+        this.context = context;
         validateConnections();
     }
 
 
     /**
      * Adds a new AssetConnection created from an AssetConnectionConfig
-     * 
-     * @param connectionConfig the AssetConnectionConfig describing the AssetConnection to add
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException when provided connectionConfig
-     *             is invalid
+     *
+     * @param connectionConfig the AssetConnectionConfig describing the
+     *            AssetConnection to add
+     * @throws
+     * de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException
+     *             when provided connectionConfig is invalid
      */
     public void add(AssetConnectionConfig<? extends AssetConnection, ? extends AssetValueProviderConfig, ? extends AssetOperationProviderConfig, ? extends AssetSubscriptionProviderConfig> connectionConfig)
             throws ConfigurationException {
-        AssetConnection newConnection = (AssetConnection) connectionConfig.newInstance(coreConfig);
+        AssetConnection newConnection = (AssetConnection) connectionConfig.newInstance(coreConfig, context);
         if (connections.stream().anyMatch(x -> x.sameAs(newConnection))) {
             AssetConnection connection = connections.stream().filter(x -> x.sameAs(newConnection)).findFirst().get();
-            connectionConfig.getValueProviders().forEach((k, v) -> connection.registerValueProvider(k, (AssetValueProviderConfig) v));
-            connectionConfig.getOperationProviders().forEach((k, v) -> connection.registerOperationProvider(k, (AssetOperationProviderConfig) v));
-            connectionConfig.getSubscriptionProviders().forEach((k, v) -> connection.registerSubscriptionProvider(k, (AssetSubscriptionProviderConfig) v));
+            connectionConfig.getValueProviders().forEach((k, v) -> {
+                try {
+                    connection.registerValueProvider(k, (AssetValueProviderConfig) v);
+                }
+                catch (AssetConnectionException ex) {
+                    // TODO rethrow
+                }
+            });
+            connectionConfig.getOperationProviders().forEach((k, v) -> {
+                try {
+                    connection.registerOperationProvider(k, (AssetOperationProviderConfig) v);
+                }
+                catch (AssetConnectionException ex) {
+                    // TODO rethrow
+                }
+            });
+            connectionConfig.getSubscriptionProviders().forEach((k, v) -> {
+                try {
+                    connection.registerSubscriptionProvider(k, (AssetSubscriptionProviderConfig) v);
+                }
+                catch (AssetConnectionException ex) {
+                    // TODO rethrow
+                }
+            });
         }
         else {
             connections.add(newConnection);
@@ -73,9 +99,10 @@ public class AssetConnectionManager {
 
     /**
      * Gets the operation provider for the AAS element defined by reference
-     * 
+     *
      * @param reference AAS element
-     * @return operation provider for the AAS element defined by reference or null if there is none defined
+     * @return operation provider for the AAS element defined by reference or
+     *         null if there is none defined
      */
     public AssetOperationProvider getOperationProvider(Reference reference) {
         return connections.stream().filter(x -> x.getOperationProviders().containsKey(reference)).map(x -> (AssetOperationProvider) x.getOperationProviders().get(reference))
@@ -85,9 +112,10 @@ public class AssetConnectionManager {
 
     /**
      * Gets the subscription provider for the AAS element defined by reference
-     * 
+     *
      * @param reference AAS element
-     * @return subscription provider for the AAS element defined by reference or null if there is none defined
+     * @return subscription provider for the AAS element defined by reference or
+     *         null if there is none defined
      */
     public AssetSubscriptionProvider getSubscriptionProvider(Reference reference) {
         return connections.stream().filter(x -> x.getSubscriptionProviders().containsKey(reference))
@@ -99,7 +127,8 @@ public class AssetConnectionManager {
      * Gets the value provider for the AAS element defined by reference
      *
      * @param reference AAS element
-     * @return value provider for the AAS element defined by reference or null if there is none defined
+     * @return value provider for the AAS element defined by reference or null
+     *         if there is none defined
      */
     public AssetValueProvider getValueProvider(Reference reference) {
         return connections.stream().filter(x -> x.getValueProviders().containsKey(reference)).map(x -> (AssetValueProvider) x.getValueProviders().get(reference)).findFirst()
@@ -108,10 +137,12 @@ public class AssetConnectionManager {
 
 
     /**
-     * Returns whether there is a operation provider defined for the provided AAS element or not.
+     * Returns whether there is a operation provider defined for the provided
+     * AAS element or not.
      *
      * @param reference AAS element
-     * @return true if there is a operation provider defined for the provided AAS element, otherwise false
+     * @return true if there is a operation provider defined for the provided
+     *         AAS element, otherwise false
      */
     public boolean hasOperationProvider(Reference reference) {
         return connections.stream().anyMatch(x -> x.getOperationProviders().containsKey(reference));
@@ -119,10 +150,12 @@ public class AssetConnectionManager {
 
 
     /**
-     * Returns whether there is a subscription provider defined for the provided AAS element or not.
-     * 
+     * Returns whether there is a subscription provider defined for the provided
+     * AAS element or not.
+     *
      * @param reference AAS element
-     * @return true if there is a subscription provider defined for the provided AAS element, otherwise false
+     * @return true if there is a subscription provider defined for the provided
+     *         AAS element, otherwise false
      */
     public boolean hasSubscriptionProvider(Reference reference) {
         return connections.stream().anyMatch(x -> x.getSubscriptionProviders().containsKey(reference));
@@ -130,10 +163,12 @@ public class AssetConnectionManager {
 
 
     /**
-     * Returns whether there is a value provider defined for the provided AAS element or not.
+     * Returns whether there is a value provider defined for the provided AAS
+     * element or not.
      *
      * @param reference AAS element
-     * @return true if there is a value provider defined for the provided AAS element, otherwise false
+     * @return true if there is a value provider defined for the provided AAS
+     *         element, otherwise false
      */
     public boolean hasValueProvider(Reference reference) {
         return connections.stream().anyMatch(x -> x.getValueProviders().containsKey(reference));

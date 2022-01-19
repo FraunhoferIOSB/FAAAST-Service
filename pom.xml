@@ -19,7 +19,7 @@
     <modules>
         <module>core</module>
         <module>model</module>
-        <!-- needs to be build sseparately because of proprietary dependency to prosys -->
+        <!-- needs to be build separately because of proprietary dependency to prosys -->
         <!--<module>endpoint/opcua-prosys</module>-->
         <module>endpoint/http</module>
         <module>messagebus/messagebus-internal</module>
@@ -41,6 +41,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <milo.version>0.6.3</milo.version>
         <mockito.version>4.1.0</mockito.version>
+        <jsonpath.version>2.6.0</jsonpath.version>
         <paho.version>1.2.5</paho.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <revision>1.0.0-SNAPSHOT</revision>

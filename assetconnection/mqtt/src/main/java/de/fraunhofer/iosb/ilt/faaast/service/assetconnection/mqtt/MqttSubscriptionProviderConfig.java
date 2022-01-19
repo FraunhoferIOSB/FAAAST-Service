@@ -15,18 +15,30 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentFormat;
 
 
 public class MqttSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
 
-    public enum ParserValue {
-        PLAIN,
-        JSON,
-        XML
+    private ContentFormat contentFormat;
+    private String topic;
+    private String query;
+
+    public MqttSubscriptionProviderConfig() {
+        this.contentFormat = ContentFormat.PLAIN;
+        this.query = "";
     }
 
-    private ParserValue parser;
-    private String topic;
+
+    public ContentFormat getContentFormat() {
+        return contentFormat;
+    }
+
+
+    public void setContentFormat(ContentFormat contentFormat) {
+        this.contentFormat = contentFormat;
+    }
+
 
     public String getTopic() {
         return topic;
@@ -38,12 +50,12 @@ public class MqttSubscriptionProviderConfig implements AssetSubscriptionProvider
     }
 
 
-    public ParserValue getParser() {
-        return parser;
+    public String getQuery() {
+        return query;
     }
 
 
-    public void setParser(ParserValue parser) {
-        this.parser = parser;
+    public void setQuery(String query) {
+        this.query = query;
     }
 }

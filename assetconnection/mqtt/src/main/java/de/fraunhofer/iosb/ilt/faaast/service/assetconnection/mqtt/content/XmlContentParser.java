@@ -12,27 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.config.fixtures;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
+import io.adminshell.aas.v3.model.DataElement;
 
 
-public class DummyConfigurable implements Configurable<DummyConfig> {
-
-    private DummyConfig config;
+public class XmlContentParser implements ContentParser {
 
     @Override
-    public void init(CoreConfig coreConfig, DummyConfig config, ServiceContext context) {
-        this.config = config;
-        System.out.println("init called");
+    public DataElementValue parseValue(String raw, Class<? extends DataElement> elementType) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
     @Override
-    public DummyConfig asConfig() {
-        return config;
+    public DataElementValue parseValueWithQuery(String raw, Class<? extends DataElement> elementType, String query) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }
