@@ -282,28 +282,28 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                                 Property aasProp = (Property) data.getSubmodelElement();
                                 String newValue = dv.getValue().getValue().toString();
                                 aasProp.setValue(newValue);
-                                rv = endpoint.writeValue(aasProp, data.getSubmodel());
+                                rv = endpoint.writeValue(aasProp, data.getSubmodel(), data.getReference());
                                 break;
                             }
                             case RANGE_MIN: {
                                 Range aasRange = (Range) data.getSubmodelElement();
                                 String newValue = dv.getValue().getValue().toString();
                                 aasRange.setMin(newValue);
-                                rv = endpoint.writeValue(aasRange, data.getSubmodel());
+                                rv = endpoint.writeValue(aasRange, data.getSubmodel(), data.getReference());
                                 break;
                             }
                             case RANGE_MAX: {
                                 Range aasRange = (Range) data.getSubmodelElement();
                                 String newValue = dv.getValue().getValue().toString();
                                 aasRange.setMax(newValue);
-                                rv = endpoint.writeValue(aasRange, data.getSubmodel());
+                                rv = endpoint.writeValue(aasRange, data.getSubmodel(), data.getReference());
                                 break;
                             }
                             case BLOB_VALUE: {
                                 Blob aasBlob = (Blob) data.getSubmodelElement();
                                 ByteString bs = (ByteString) dv.getValue().getValue();
                                 aasBlob.setValue(ByteString.asByteArray(bs));
-                                rv = endpoint.writeValue(aasBlob, data.getSubmodel());
+                                rv = endpoint.writeValue(aasBlob, data.getSubmodel(), data.getReference());
                                 break;
                             }
                             case MULTI_LANGUAGE_VALUE: {
@@ -314,7 +314,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                                     aasMultiProp.setValues(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
                                 }
 
-                                rv = endpoint.writeValue(aasMultiProp, data.getSubmodel());
+                                rv = endpoint.writeValue(aasMultiProp, data.getSubmodel(), data.getReference());
                                 break;
                             }
                             case REFERENCE_ELEMENT_VALUE: {
@@ -324,7 +324,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                                     aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
                                 }
 
-                                rv = endpoint.writeValue(aasRefElem, data.getSubmodel());
+                                rv = endpoint.writeValue(aasRefElem, data.getSubmodel(), data.getReference());
                                 break;
                             }
                             default:

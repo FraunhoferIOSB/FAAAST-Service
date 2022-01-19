@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
@@ -158,9 +157,10 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      *
      * @param element The desired SubmodelElement including the new value
      * @param submodel The corresponding submodel
+     * @param refElement The reference to the SubmodelElement
      * @return True if the write succeeded, false otherwise
      */
-    public boolean writeValue(SubmodelElement element, Submodel submodel) {
+    public boolean writeValue(SubmodelElement element, Submodel submodel, Reference refElement) {
         boolean retval = false;
         if (element == null) {
             throw new IllegalArgumentException("element == null");
@@ -173,9 +173,9 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
 
             List<Key> path = new ArrayList<>();
-            Reference ref = AasUtils.toReference(AasUtils.toReference(submodel), element);
-            path.addAll(ref.getKeys());
-            //path.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.PROPERTY).value(element.getIdShort()).build());
+            //Reference ref = AasUtils.toReference(AasUtils.toReference(submodel), element);
+            path.addAll(refElement.getKeys());
+
             request.setId(submodel.getIdentification());
             request.setPath(path);
             request.setValueParser(new OpcUaElementValueParser());

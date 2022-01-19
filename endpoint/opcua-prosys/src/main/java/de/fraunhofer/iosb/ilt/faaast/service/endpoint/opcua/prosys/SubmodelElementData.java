@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
 
+import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 
@@ -26,17 +27,21 @@ public class SubmodelElementData {
     private final SubmodelElement submodelElement;
     private final Submodel submodel;
     private final Type type;
+    private final Reference reference;
 
     /**
      * Constructs a new SubmodelElementData
      * 
      * @param submodelElement The desired SubmodelElement
      * @param submodel The desired Submodel
+     * @param type The desired type
+     * @param reference The desired reference
      */
-    public SubmodelElementData(SubmodelElement submodelElement, Submodel submodel, Type type) {
+    public SubmodelElementData(SubmodelElement submodelElement, Submodel submodel, Type type, Reference reference) {
         this.submodelElement = submodelElement;
         this.submodel = submodel;
         this.type = type;
+        this.reference = reference;
     }
 
 
@@ -67,6 +72,16 @@ public class SubmodelElementData {
      */
     public Type getType() {
         return type;
+    }
+
+
+    /**
+     * Gets the reference
+     * 
+     * @return The reference
+     */
+    public Reference getReference() {
+        return reference;
     }
 
     /**
