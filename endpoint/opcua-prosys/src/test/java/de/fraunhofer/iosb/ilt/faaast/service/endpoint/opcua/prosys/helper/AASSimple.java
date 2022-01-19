@@ -43,6 +43,7 @@ import io.adminshell.aas.v3.model.impl.DefaultMultiLanguageProperty;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultRange;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import io.adminshell.aas.v3.model.impl.DefaultReferenceElement;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.util.Arrays;
@@ -348,6 +349,24 @@ public class AASSimple {
                                 .build())
                         .value(new LangString("Example value of a MultiLanguageProperty element", "en-us"))
                         .value(new LangString("Beispielswert für ein MulitLanguageProperty-Element", "de"))
+                        .build())
+                .submodelElement(new DefaultReferenceElement.Builder()
+                        .idShort("ExampleReferenceElement")
+                        .category("Parameter")
+                        .description(new LangString("Example Reference Element object", "en-us"))
+                        .description(new LangString("Beispiel Reference Element Element", "de"))
+                        .value(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.SUBMODEL)
+                                        .value(SUBMODEL_TECHNICAL_DATA_ID)
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.PROPERTY)
+                                        .idType(KeyType.ID_SHORT)
+                                        .value(SUBMODEL_TECHNICAL_DATA_PROPERTY_ID_SHORT)
+                                        .build())
+                                .build())
                         .build())
                 .build();
     }

@@ -17,9 +17,18 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.core.Identifiers;
+import io.adminshell.aas.v3.model.Key;
+import io.adminshell.aas.v3.model.KeyElements;
+import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.LangString;
+import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.List;
+import opc.i4aas.AASKeyDataType;
+import opc.i4aas.AASKeyElementsDataType;
+import opc.i4aas.AASKeyTypeDataType;
 import opc.i4aas.AASValueTypeDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -458,6 +467,10 @@ public class ValueConverter {
      * @return The corresponding LocalizedText array
      */
     public static List<LangString> getLangStringSetFromLocalizedText(LocalizedText[] value) {
+        if (value == null) {
+            throw new IllegalArgumentException("value is null");
+        }
+
         List<LangString> retval = new ArrayList<>();
 
         try {
@@ -467,6 +480,341 @@ public class ValueConverter {
         }
         catch (Throwable ex) {
             logger.error("getLangStringSetFromLocalizedText Exception", ex);
+            throw ex;
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Converts the given KeyElements value to AASKeyElementsDataType
+     *
+     * @param keyElement The desired KeyElements value.
+     * @return The converted AASKeyElementsDataType.
+     */
+    public static AASKeyElementsDataType getAasKeyElementsDataType(KeyElements keyElement) {
+        AASKeyElementsDataType retval = null;
+
+        try {
+            switch (keyElement) {
+                case ASSET:
+                    retval = AASKeyElementsDataType.Asset;
+                    break;
+
+                case ASSET_ADMINISTRATION_SHELL:
+                    retval = AASKeyElementsDataType.AssetAdministrationShell;
+                    break;
+
+                case CONCEPT_DESCRIPTION:
+                    retval = AASKeyElementsDataType.ConceptDescription;
+                    break;
+
+                case SUBMODEL:
+                    retval = AASKeyElementsDataType.Submodel;
+                    break;
+
+                case FRAGMENT_REFERENCE:
+                    retval = AASKeyElementsDataType.FragmentReference;
+                    break;
+
+                case GLOBAL_REFERENCE:
+                    retval = AASKeyElementsDataType.GlobalReference;
+                    break;
+
+                case ACCESS_PERMISSION_RULE:
+                    retval = AASKeyElementsDataType.AccessPermissionRule;
+                    break;
+
+                case ANNOTATED_RELATIONSHIP_ELEMENT:
+                    retval = AASKeyElementsDataType.AnnotatedRelationshipElement;
+                    break;
+
+                case BASIC_EVENT:
+                    logger.warn("getKeyElementsDataTypeFromKeyElements: BASIC_EVENT not available in AASKeyElementsDataType");
+                    throw new IllegalArgumentException("BASIC_EVENT not available in AASKeyElementsDataType");
+
+                case BLOB:
+                    retval = AASKeyElementsDataType.Blob;
+                    break;
+
+                case CAPABILITY:
+                    retval = AASKeyElementsDataType.Capability;
+                    break;
+
+                case CONCEPT_DICTIONARY:
+                    retval = AASKeyElementsDataType.ConceptDictionary;
+                    break;
+
+                case DATA_ELEMENT:
+                    retval = AASKeyElementsDataType.DataElement;
+                    break;
+
+                case ENTITY:
+                    retval = AASKeyElementsDataType.Entity;
+                    break;
+
+                case EVENT:
+                    retval = AASKeyElementsDataType.Event;
+                    break;
+
+                case FILE:
+                    retval = AASKeyElementsDataType.File;
+                    break;
+
+                case MULTI_LANGUAGE_PROPERTY:
+                    retval = AASKeyElementsDataType.MultiLanguageProperty;
+                    break;
+
+                case OPERATION:
+                    retval = AASKeyElementsDataType.Operation;
+                    break;
+
+                case PROPERTY:
+                    retval = AASKeyElementsDataType.Property;
+                    break;
+
+                case RANGE:
+                    retval = AASKeyElementsDataType.Range;
+                    break;
+
+                case REFERENCE_ELEMENT:
+                    retval = AASKeyElementsDataType.ReferenceElement;
+                    break;
+
+                case RELATIONSHIP_ELEMENT:
+                    retval = AASKeyElementsDataType.RelationshipElement;
+                    break;
+
+                case SUBMODEL_ELEMENT:
+                    retval = AASKeyElementsDataType.SubmodelElement;
+                    break;
+
+                case SUBMODEL_ELEMENT_COLLECTION:
+                    retval = AASKeyElementsDataType.SubmodelElementCollection;
+                    break;
+
+                case VIEW:
+                    retval = AASKeyElementsDataType.View;
+                    break;
+
+                default:
+                    logger.warn("getKeyElementsDataType: unknown KeyElement: " + keyElement);
+                    break;
+            }
+        }
+        catch (Throwable ex) {
+            logger.error("getKeyElementsDataType Exception", ex);
+            throw ex;
+        }
+
+        return retval;
+    }
+
+
+    public static KeyElements getKeyElements(AASKeyElementsDataType value) {
+        KeyElements retval = null;
+
+        try {
+            switch (value) {
+                case Asset:
+                    retval = KeyElements.ASSET;
+                    break;
+
+                case AssetAdministrationShell:
+                    retval = KeyElements.ASSET_ADMINISTRATION_SHELL;
+                    break;
+
+                case ConceptDescription:
+                    retval = KeyElements.CONCEPT_DESCRIPTION;
+                    break;
+
+                case Submodel:
+                    retval = KeyElements.SUBMODEL;
+                    break;
+
+                case FragmentReference:
+                    retval = KeyElements.FRAGMENT_REFERENCE;
+                    break;
+
+                case GlobalReference:
+                    retval = KeyElements.GLOBAL_REFERENCE;
+                    break;
+
+                case AccessPermissionRule:
+                    retval = KeyElements.ACCESS_PERMISSION_RULE;
+                    break;
+
+                case AnnotatedRelationshipElement:
+                    retval = KeyElements.ANNOTATED_RELATIONSHIP_ELEMENT;
+                    break;
+
+                //                case BASIC_EVENT:
+                //                    logger.warn("getKeyElementsDataTypeFromKeyElements: BASIC_EVENT not available in KeyElements");
+                //                    throw new IllegalArgumentException("BASIC_EVENT not available in KeyElements");
+
+                case Blob:
+                    retval = KeyElements.BLOB;
+                    break;
+
+                case Capability:
+                    retval = KeyElements.CAPABILITY;
+                    break;
+
+                case ConceptDictionary:
+                    retval = KeyElements.CONCEPT_DICTIONARY;
+                    break;
+
+                case DataElement:
+                    retval = KeyElements.DATA_ELEMENT;
+                    break;
+
+                case Entity:
+                    retval = KeyElements.ENTITY;
+                    break;
+
+                case Event:
+                    retval = KeyElements.EVENT;
+                    break;
+
+                case File:
+                    retval = KeyElements.FILE;
+                    break;
+
+                case MultiLanguageProperty:
+                    retval = KeyElements.MULTI_LANGUAGE_PROPERTY;
+                    break;
+
+                case Operation:
+                    retval = KeyElements.OPERATION;
+                    break;
+
+                case Property:
+                    retval = KeyElements.PROPERTY;
+                    break;
+
+                case Range:
+                    retval = KeyElements.RANGE;
+                    break;
+
+                case ReferenceElement:
+                    retval = KeyElements.REFERENCE_ELEMENT;
+                    break;
+
+                case RelationshipElement:
+                    retval = KeyElements.RELATIONSHIP_ELEMENT;
+                    break;
+
+                case SubmodelElement:
+                    retval = KeyElements.SUBMODEL_ELEMENT;
+                    break;
+
+                case SubmodelElementCollection:
+                    retval = KeyElements.SUBMODEL_ELEMENT_COLLECTION;
+                    break;
+
+                case View:
+                    retval = KeyElements.VIEW;
+                    break;
+
+                default:
+                    logger.warn("getKeyElements: unknown AASKeyElementsDataType: " + value);
+                    break;
+            }
+        }
+        catch (Throwable ex) {
+            logger.error("getKeyElements Exception", ex);
+            throw ex;
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Gets the corresponding AASKeyTypeDataType from the given KeyType.
+     *
+     * @param value The desired KeyType
+     * @return The corresponding AASKeyTypeDataType
+     */
+    public static AASKeyTypeDataType getAasKeyType(KeyType value) {
+        AASKeyTypeDataType retval;
+
+        switch (value) {
+            case CUSTOM:
+                retval = AASKeyTypeDataType.Custom;
+                break;
+            case FRAGMENT_ID:
+                retval = AASKeyTypeDataType.FragmentId;
+                break;
+            case ID_SHORT:
+                retval = AASKeyTypeDataType.IdShort;
+                break;
+            case IRDI:
+                retval = AASKeyTypeDataType.IRDI;
+                break;
+            case IRI:
+                retval = AASKeyTypeDataType.IRI;
+                break;
+            default:
+                logger.warn("getAasKeyType: unknown value " + value);
+                throw new IllegalArgumentException("unknown KeyType: " + value);
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Gets the corresponding KeyType from the given AASKeyTypeDataType.
+     *
+     * @param value The desired AASKeyTypeDataType
+     * @return The corresponding KeyType
+     */
+    public static KeyType getKeyType(AASKeyTypeDataType value) {
+        KeyType retval;
+
+        switch (value) {
+            case Custom:
+                retval = KeyType.CUSTOM;
+                break;
+            case FragmentId:
+                retval = KeyType.FRAGMENT_ID;
+                break;
+            case IdShort:
+                retval = KeyType.ID_SHORT;
+                break;
+            case IRDI:
+                retval = KeyType.IRDI;
+                break;
+            case IRI:
+                retval = KeyType.IRI;
+                break;
+            default:
+                logger.warn("getKeyType: unknown value " + value);
+                throw new IllegalArgumentException("unknown AASKeyTypeDataType: " + value);
+        }
+
+        return retval;
+    }
+
+
+    public static Reference getReferenceFromKeys(AASKeyDataType[] value) {
+        if (value == null) {
+            throw new IllegalArgumentException("value is null");
+        }
+
+        Reference retval = null;
+
+        try {
+            List<Key> keys = new ArrayList<>();
+            for (AASKeyDataType key: value) {
+                keys.add(new DefaultKey.Builder().type(getKeyElements(key.getType())).idType(getKeyType(key.getIdType())).value(key.getValue()).build());
+            }
+            retval = new DefaultReference.Builder().keys(keys).build();
+        }
+        catch (Throwable ex) {
+            logger.error("getReferenceFromKeys Exception", ex);
             throw ex;
         }
 

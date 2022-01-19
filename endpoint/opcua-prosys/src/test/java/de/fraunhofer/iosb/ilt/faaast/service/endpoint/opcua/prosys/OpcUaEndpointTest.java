@@ -57,6 +57,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import opc.i4aas.AASIdentifierTypeDataType;
+import opc.i4aas.AASKeyDataType;
+import opc.i4aas.AASKeyElementsDataType;
+import opc.i4aas.AASKeyTypeDataType;
 import opc.i4aas.AASModelingKindDataType;
 import opc.i4aas.AASValueTypeDataType;
 import opc.i4aas.VariableIds;
@@ -543,13 +546,13 @@ public class OpcUaEndpointTest {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("testWritePropertyValue Browse Result Null", bpres);
-        Assert.assertTrue("testWritePropertyValue Browse Result: size doesn't match", bpres.length == 1);
-        Assert.assertTrue("testWritePropertyValue Browse Result Good", bpres[0].getStatusCode().isGood());
+        Assert.assertNotNull("testWriteMultiLanguagePropertyValue Browse Result Null", bpres);
+        Assert.assertTrue("testWriteMultiLanguagePropertyValue Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testWriteMultiLanguagePropertyValue Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("testWritePropertyValue ValueType Null", targets);
-        Assert.assertTrue("testWritePropertyValue ValueType empty", targets.length > 0);
+        Assert.assertNotNull("testWriteMultiLanguagePropertyValue ValueType Null", targets);
+        Assert.assertTrue("testWriteMultiLanguagePropertyValue ValueType empty", targets.length > 0);
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
@@ -562,7 +565,64 @@ public class OpcUaEndpointTest {
         newValue.add(new LocalizedText("Beispielswert2 fuer ein anderes MulitLanguageProperty-Element", "de"));
         newValue.add(new LocalizedText("Example value of a MultiLanguageProperty element", "en-us"));
 
-        TestUtils.writeNewValueLocalizedTextArray(client, writeNode, oldValue.toArray(LocalizedText[]::new), newValue.toArray(LocalizedText[]::new));
+        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(LocalizedText[]::new), newValue.toArray(LocalizedText[]::new));
+
+        System.out.println("disconnect client");
+        client.disconnect();
+    }
+
+
+    /**
+     * Test method for writing a property. Writes the property in the OPC UA
+     * Server and checks the new value in the server.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws InterruptedException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     */
+    @Test
+    public void testWriteReferenceElementValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_OPER_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.TEST_REF_ELEM_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.KEYS_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testWriteReferenceElementValue Browse Result Null", bpres);
+        Assert.assertTrue("testWriteReferenceElementValue Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testWriteReferenceElementValue Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testWriteReferenceElementValue ValueType Null", targets);
+        Assert.assertTrue("testWriteReferenceElementValue ValueType empty", targets.length > 0);
+
+        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        List<AASKeyDataType> oldValue = new ArrayList<>();
+        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, TestDefines.SUBMODEL_TECH_DATA_NAME, AASKeyTypeDataType.IRI));
+        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.Property, TestDefines.MAX_ROTATION_SPEED_NAME, AASKeyTypeDataType.IdShort));
+
+        // The DataElementValueMapper changes the order of the elements
+        List<AASKeyDataType> newValue = new ArrayList<>();
+        newValue.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, TestDefines.SUBMODEL_TECH_DATA_NAME, AASKeyTypeDataType.IRI));
+        newValue.add(new AASKeyDataType(AASKeyElementsDataType.Property, "Another property", AASKeyTypeDataType.IdShort));
+
+        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
 
         System.out.println("disconnect client");
         client.disconnect();

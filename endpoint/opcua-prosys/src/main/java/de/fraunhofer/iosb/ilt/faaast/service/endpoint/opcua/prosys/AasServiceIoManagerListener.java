@@ -37,6 +37,8 @@ import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Range;
+import io.adminshell.aas.v3.model.ReferenceElement;
+import opc.i4aas.AASKeyDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -308,11 +310,21 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                                 MultiLanguageProperty aasMultiProp = (MultiLanguageProperty) data.getSubmodelElement();
                                 //String newValue = dv.getValue().getValue().toString();
                                 Variant variant = dv.getValue();
-                                if (variant.isArray()) {
+                                if (variant.isArray() && (variant.getValue() instanceof LocalizedText[])) {
                                     aasMultiProp.setValues(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
                                 }
 
                                 rv = endpoint.writeValue(aasMultiProp, data.getSubmodel());
+                                break;
+                            }
+                            case REFERENCE_ELEMENT_VALUE: {
+                                ReferenceElement aasRefElem = (ReferenceElement) data.getSubmodelElement();
+                                Variant variant = dv.getValue();
+                                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+                                    aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                                }
+
+                                rv = endpoint.writeValue(aasRefElem, data.getSubmodel());
                                 break;
                             }
                             default:

@@ -82,7 +82,6 @@ import io.adminshell.aas.v3.model.File;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
@@ -127,8 +126,6 @@ import opc.i4aas.AASIdentifierTypeDataType;
 import opc.i4aas.AASIrdiConceptDescriptionType;
 import opc.i4aas.AASIriConceptDescriptionType;
 import opc.i4aas.AASKeyDataType;
-import opc.i4aas.AASKeyElementsDataType;
-import opc.i4aas.AASKeyTypeDataType;
 import opc.i4aas.AASModelingKindDataType;
 import opc.i4aas.AASMultiLanguagePropertyType;
 import opc.i4aas.AASOperationType;
@@ -999,6 +996,19 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws StatusException If the operation fails
      */
     private void setAasReferenceData(Reference ref, AASReferenceType refNode) throws StatusException {
+        setAasReferenceData(ref, refNode, VALUES_READ_ONLY);
+    }
+
+
+    /**
+     * Sets the data in the given Reference node
+     *
+     * @param ref The desired UA reference object
+     * @param refNode The AAS Reference object with the source data
+     * @param readOnly True if the value should be read-only
+     * @throws StatusException If the operation fails
+     */
+    private void setAasReferenceData(Reference ref, AASReferenceType refNode, boolean readOnly) throws StatusException {
         if (refNode == null) {
             throw new IllegalArgumentException("refNode is null");
         }
@@ -1010,8 +1020,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             List<AASKeyDataType> keyList = new ArrayList<>();
             ref.getKeys().stream().map(k -> {
                 AASKeyDataType keyValue = new AASKeyDataType();
-                keyValue.setIdType(convertAASKeyType(k.getIdType()));
-                keyValue.setType(getKeyElementsDataTypeFromKeyElements(k.getType()));
+                keyValue.setIdType(ValueConverter.getAasKeyType(k.getIdType()));
+                keyValue.setType(ValueConverter.getAasKeyElementsDataType(k.getType()));
                 keyValue.setValue(k.getValue());
                 return keyValue;
             }).forEachOrdered(keyValue -> {
@@ -1021,7 +1031,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             refNode.getKeysNode().setArrayDimensions(new UnsignedInteger[] {
                     UnsignedInteger.valueOf(keyList.size())
             });
-            if (VALUES_READ_ONLY) {
+            if (readOnly) {
                 refNode.getKeysNode().setAccessLevel(AccessLevelType.CurrentRead);
             }
             refNode.setKeys(keyList.toArray(AASKeyDataType[]::new));
@@ -2073,7 +2083,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     addAasBlob(node, (Blob) aasDataElement, submodel, ordered);
                 }
                 else if (aasDataElement instanceof ReferenceElement) {
-                    addAasReferenceElement(node, (ReferenceElement) aasDataElement, ordered);
+                    addAasReferenceElement(node, (ReferenceElement) aasDataElement, submodel, ordered);
                 }
                 else if (aasDataElement instanceof Range) {
                     addAasRange(node, (Range) aasDataElement, submodel, ordered);
@@ -2631,11 +2641,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      *
      * @param node The desired UA node
      * @param aasRefElem The AAS reference element to add
+     * @param submodel The corresponding Submodel as parent object of the data
+     *            element
      * @param ordered Specifies whether the reference element should be added
      *            ordered (true) or unordered (false)
      * @throws StatusException If the operation fails
      */
-    private void addAasReferenceElement(UaNode node, ReferenceElement aasRefElem, boolean ordered)
+    private void addAasReferenceElement(UaNode node, ReferenceElement aasRefElem, Submodel submodel, boolean ordered)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
         try {
             if ((node != null) && (aasRefElem != null)) {
@@ -2646,7 +2658,32 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 addSubmodelElementBaseData(refElemNode, aasRefElem, name);
 
                 if (aasRefElem.getValue() != null) {
-                    setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode());
+                    setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
+                }
+
+                try {
+                    submodelElementAasMapLock.lock();
+                    submodelElementAasMap.put(refElemNode.getValueNode().getKeysNode().getNodeId(),
+                            new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE));
+                    //logger.debug("addAasMultiLanguageProperty: NodeId " + refElemNode.getValueNode().getNodeId() + "; ReferenceElement: " + aasRefElem);
+                }
+                catch (Exception ex2) {
+                    logger.warn("submodelElementAasMap problem", ex2);
+                }
+                finally {
+                    submodelElementAasMapLock.unlock();
+                }
+
+                try {
+                    Reference blobRef = getReference(aasRefElem, submodel);
+                    submodelElementOpcUAMapLock.lock();
+                    submodelElementOpcUAMap.put(blobRef, refElemNode);
+                }
+                catch (Exception ex3) {
+                    logger.warn("submodelElementOpcUAMap problem", ex3);
+                }
+                finally {
+                    submodelElementOpcUAMapLock.unlock();
                 }
 
                 if (ordered) {
@@ -3203,7 +3240,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     submodelElementAasMapLock.lock();
                     submodelElementAasMap.put(multiLangNode.getValueNode().getNodeId(),
                             new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE));
-                    logger.debug("addAasMultiLanguageProperty: NodeId " + multiLangNode.getValueNode().getNodeId() + "; Blob: " + aasMultiLang);
+                    //logger.debug("addAasMultiLanguageProperty: NodeId " + multiLangNode.getValueNode().getNodeId() + "; Blob: " + aasMultiLang);
                 }
                 catch (Exception ex2) {
                     logger.warn("submodelElementAasMap problem", ex2);
@@ -3807,131 +3844,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Converts the given KeyElements value to AASKeyElementsDataType
-     *
-     * @param keyElement The desired KeyElements value.
-     * @return The converted AASKeyElementsDataType.
-     */
-    private static AASKeyElementsDataType getKeyElementsDataTypeFromKeyElements(KeyElements keyElement) {
-        AASKeyElementsDataType retval = null;
-
-        try {
-            switch (keyElement) {
-                case ASSET:
-                    retval = AASKeyElementsDataType.Asset;
-                    break;
-
-                case ASSET_ADMINISTRATION_SHELL:
-                    retval = AASKeyElementsDataType.AssetAdministrationShell;
-                    break;
-
-                case CONCEPT_DESCRIPTION:
-                    retval = AASKeyElementsDataType.ConceptDescription;
-                    break;
-
-                case SUBMODEL:
-                    retval = AASKeyElementsDataType.Submodel;
-                    break;
-
-                case FRAGMENT_REFERENCE:
-                    retval = AASKeyElementsDataType.FragmentReference;
-                    break;
-
-                case GLOBAL_REFERENCE:
-                    retval = AASKeyElementsDataType.GlobalReference;
-                    break;
-
-                case ACCESS_PERMISSION_RULE:
-                    retval = AASKeyElementsDataType.AccessPermissionRule;
-                    break;
-
-                case ANNOTATED_RELATIONSHIP_ELEMENT:
-                    retval = AASKeyElementsDataType.AnnotatedRelationshipElement;
-                    break;
-
-                case BASIC_EVENT:
-                    logger.warn("getKeyElementsDataTypeFromKeyElements: BASIC_EVENT not available in AASKeyElementsDataType");
-                    throw new IllegalArgumentException("BASIC_EVENT not available in AASKeyElementsDataType");
-
-                case BLOB:
-                    retval = AASKeyElementsDataType.Blob;
-                    break;
-
-                case CAPABILITY:
-                    retval = AASKeyElementsDataType.Capability;
-                    break;
-
-                case CONCEPT_DICTIONARY:
-                    retval = AASKeyElementsDataType.ConceptDictionary;
-                    break;
-
-                case DATA_ELEMENT:
-                    retval = AASKeyElementsDataType.DataElement;
-                    break;
-
-                case ENTITY:
-                    retval = AASKeyElementsDataType.Entity;
-                    break;
-
-                case EVENT:
-                    retval = AASKeyElementsDataType.Event;
-                    break;
-
-                case FILE:
-                    retval = AASKeyElementsDataType.File;
-                    break;
-
-                case MULTI_LANGUAGE_PROPERTY:
-                    retval = AASKeyElementsDataType.MultiLanguageProperty;
-                    break;
-
-                case OPERATION:
-                    retval = AASKeyElementsDataType.Operation;
-                    break;
-
-                case PROPERTY:
-                    retval = AASKeyElementsDataType.Property;
-                    break;
-
-                case RANGE:
-                    retval = AASKeyElementsDataType.Range;
-                    break;
-
-                case REFERENCE_ELEMENT:
-                    retval = AASKeyElementsDataType.ReferenceElement;
-                    break;
-
-                case RELATIONSHIP_ELEMENT:
-                    retval = AASKeyElementsDataType.RelationshipElement;
-                    break;
-
-                case SUBMODEL_ELEMENT:
-                    retval = AASKeyElementsDataType.SubmodelElement;
-                    break;
-
-                case SUBMODEL_ELEMENT_COLLECTION:
-                    retval = AASKeyElementsDataType.SubmodelElementCollection;
-                    break;
-
-                case VIEW:
-                    retval = AASKeyElementsDataType.View;
-                    break;
-
-                default:
-                    logger.warn("getKeyElementsDataTypeFromKeyElements: unknown KeyElement: " + keyElement);
-                    break;
-            }
-        }
-        catch (Throwable ex) {
-            logger.error("getKeyElementsDataTypeFromKeyElements Exception", ex);
-            throw ex;
-        }
-
-        return retval;
-    }
-
-
-    /**
      * Subscribes to Events on the MessageBus (e.g. ValueChangeEvents).
      */
     private void subscribeMessageBus() {
@@ -4477,38 +4389,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             default:
                 logger.warn("convertIdentifierType: unknown value " + value);
                 throw new IllegalArgumentException("unknown IdentifierType: " + value);
-        }
-        return retval;
-    }
-
-
-    /**
-     * Converts the given KeyType to the corresponding AASKeyTypeDataType.
-     *
-     * @param value The desired KeyType
-     * @return The corresponding AASKeyTypeDataType
-     */
-    private static AASKeyTypeDataType convertAASKeyType(KeyType value) {
-        AASKeyTypeDataType retval;
-        switch (value) {
-            case CUSTOM:
-                retval = AASKeyTypeDataType.Custom;
-                break;
-            case FRAGMENT_ID:
-                retval = AASKeyTypeDataType.FragmentId;
-                break;
-            case ID_SHORT:
-                retval = AASKeyTypeDataType.IdShort;
-                break;
-            case IRDI:
-                retval = AASKeyTypeDataType.IRDI;
-                break;
-            case IRI:
-                retval = AASKeyTypeDataType.IRI;
-                break;
-            default:
-                logger.warn("convertAASKeyType: unknown value " + value);
-                throw new IllegalArgumentException("unknown KeyType: " + value);
         }
         return retval;
     }

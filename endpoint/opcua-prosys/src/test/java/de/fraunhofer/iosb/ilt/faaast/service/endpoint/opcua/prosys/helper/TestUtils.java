@@ -809,7 +809,7 @@ public class TestUtils {
      * @throws StatusException If the operation fails
      * @throws InterruptedException If the operation fails
      */
-    public static void writeNewValueLocalizedTextArray(UaClient client, NodeId writeNode, LocalizedText[] oldValue, LocalizedText[] newValue)
+    public static void writeNewValueArray(UaClient client, NodeId writeNode, LocalizedText[] oldValue, LocalizedText[] newValue)
             throws ServiceException, StatusException, InterruptedException {
         DataValue value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -824,6 +824,35 @@ public class TestUtils {
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertArrayEquals("new value not equal", newValue, (LocalizedText[]) value.getValue().getValue());
+    }
+
+
+    /**
+     * Writes the new value (array) into the given node and checks whether the value was written correctly.
+     * 
+     * @param client The OPC UA Client.
+     * @param writeNode The node which should be written.
+     * @param oldValue The old value.
+     * @param newValue The new value.
+     * @throws ServiceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws InterruptedException If the operation fails
+     */
+    public static void writeNewValueArray(UaClient client, NodeId writeNode, AASKeyDataType[] oldValue, AASKeyDataType[] newValue)
+            throws ServiceException, StatusException, InterruptedException {
+        DataValue value = client.readValue(writeNode);
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertArrayEquals("intial value not equal", oldValue, (AASKeyDataType[]) value.getValue().getValue());
+
+        client.writeValue(writeNode, newValue);
+
+        // wait until the write is finished completely
+        Thread.sleep(WRITE_TIMEOUT);
+
+        // read new value
+        value = client.readValue(writeNode);
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertArrayEquals("new value not equal", newValue, (AASKeyDataType[]) value.getValue().getValue());
     }
 
 

@@ -38,6 +38,7 @@ public class TestDefines {
     public static final String RANGE_MAX_NAME = "Max";
     public static final String TEST_BLOB_NAME = "ExampleBlob";
     public static final String TEST_MULTI_LAN_PROP_NAME = "ExampleMultiLanguageProperty";
+    public static final String TEST_REF_ELEM_NAME = "ExampleReferenceElement";
 
     public static final String FULL_SUBMODEL_1_NAME = "Identification";
     public static final String FULL_SUBMODEL_1_ID = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
@@ -63,6 +64,7 @@ public class TestDefines {
     public static final String SPECIFIC_ASSET_ID_NAME = "SpecificAssetId";
     public static final String ID_KEY_NAME = "Key";
     public static final String ID_VALUE_NAME = "Value";
+    public static final String KEYS_VALUE_NAME = "Keys";
 
     public static final int AAS_AAS_TYPE_ID = 1002;
     public static final int AAS_REFERENCE_TYPE_ID = 1004;
