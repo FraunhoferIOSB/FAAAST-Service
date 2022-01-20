@@ -27,7 +27,6 @@ import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import java.util.List;
@@ -204,31 +203,14 @@ public class IdentifiablePersistenceManager {
     }
 
 
-    public Identifiable put(Reference parent, Identifiable identifiable) {
+    public Identifiable put(Identifiable identifiable) {
         if (identifiable == null || this.aasEnvironment == null) {
             return null;
-        }
-        AssetAdministrationShell parentAAS = null;
-        Reference referenceOfIdentifiable = AasUtils.toReference(identifiable);
-
-        if (parent.getKeys() != null
-                && parent.getKeys().size() > 0) {
-            KeyElements lastKeyElementOfReference = parent.getKeys().get(parent.getKeys().size() - 1).getType();
-            Class clazz = AasUtils.keyTypeToClass(lastKeyElementOfReference);
-            Identifiable parentIdentifiable = (Identifiable) AasUtils.resolve(parent, this.aasEnvironment, clazz);
-            if (parentIdentifiable != null && AssetAdministrationShell.class.isAssignableFrom(parentIdentifiable.getClass())) {
-                parentAAS = (AssetAdministrationShell) parentIdentifiable;
-            }
         }
 
         if (Submodel.class.isAssignableFrom(identifiable.getClass())) {
             this.aasEnvironment.setSubmodels(
                     Util.updateIdentifiableList(Submodel.class, this.aasEnvironment.getSubmodels(), identifiable));
-
-            if (parentAAS != null && referenceOfIdentifiable != null) {
-                parentAAS.getSubmodels().remove(referenceOfIdentifiable);
-                parentAAS.getSubmodels().add(referenceOfIdentifiable);
-            }
             return identifiable;
         }
         else if (AssetAdministrationShell.class.isAssignableFrom(identifiable.getClass())) {

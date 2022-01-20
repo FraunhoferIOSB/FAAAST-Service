@@ -624,10 +624,7 @@ public class PersistenceInMemoryTest {
                 .filter(x -> x.getIdentification().equals(newIdentifier))
                 .findFirst().orElse(null));
 
-        this.persistence.put(parent, (Identifiable) newSubmodel);
-
-        AssetAdministrationShell shell = (AssetAdministrationShell) this.persistence.get(parentIdentifier, new QueryModifier());
-        Assert.assertTrue(shell.getSubmodels().stream().anyMatch(x -> x.getKeys().stream().anyMatch(y -> y.getValue().equalsIgnoreCase(newIdentifier.getIdentifier()))));
+        this.persistence.put((Identifiable) newSubmodel);
 
         Assert.assertEquals(newSubmodel, this.environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().equals(newIdentifier))
@@ -635,9 +632,9 @@ public class PersistenceInMemoryTest {
 
         newIdentifier.setIdentifier("http://newIdentifier_2.org");
         newSubmodel.setIdentification(newIdentifier);
-        this.persistence.put(null, (Identifiable) newSubmodel);
+        this.persistence.put((Identifiable) newSubmodel);
 
-        shell = (AssetAdministrationShell) this.persistence.get(parentIdentifier, new QueryModifier());
+        AssetAdministrationShell shell = (AssetAdministrationShell) this.persistence.get(parentIdentifier, new QueryModifier());
         Assert.assertFalse(shell.getSubmodels().stream().anyMatch(x -> x.getKeys().stream().anyMatch(y -> y.getValue().equalsIgnoreCase(newIdentifier.getIdentifier()))));
 
         Assert.assertEquals(newSubmodel, this.environment.getSubmodels().stream()
@@ -663,7 +660,7 @@ public class PersistenceInMemoryTest {
                         .build())
                 .build();
 
-        this.persistence.put(parent, (Identifiable) conceptDescription);
+        this.persistence.put((Identifiable) conceptDescription);
 
         Assert.assertEquals(category, this.persistence.get(conceptDescription.getIdentification(), new QueryModifier()).getCategory());
 

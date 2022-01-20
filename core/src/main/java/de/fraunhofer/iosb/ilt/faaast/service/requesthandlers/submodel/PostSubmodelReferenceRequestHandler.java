@@ -42,7 +42,7 @@ public class PostSubmodelReferenceRequestHandler extends RequestHandler<PostSubm
             if (!aas.getSubmodels().contains(request.getSubmodelRef())) {
                 aas.getSubmodels().add(request.getSubmodelRef());
             }
-            persistence.put(null, aas);
+            persistence.put(aas);
             response.setPayload(request.getSubmodelRef());
             response.setStatusCode(StatusCode.SuccessCreated);
             //TODO: how to add reference instead of referable

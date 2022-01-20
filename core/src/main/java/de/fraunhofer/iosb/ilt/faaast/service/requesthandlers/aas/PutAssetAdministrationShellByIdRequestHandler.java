@@ -37,7 +37,7 @@ public class PutAssetAdministrationShellByIdRequestHandler extends RequestHandle
         PutAssetAdministrationShellByIdResponse response = new PutAssetAdministrationShellByIdResponse();
 
         try {
-            AssetAdministrationShell shell = (AssetAdministrationShell) persistence.put(null, request.getAas());
+            AssetAdministrationShell shell = (AssetAdministrationShell) persistence.put(request.getAas());
             response.setPayload(shell);
             response.setStatusCode(StatusCode.Success);
             publishElementUpdateEventMessage(AasUtils.toReference(shell), shell);
