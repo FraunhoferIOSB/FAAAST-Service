@@ -26,8 +26,10 @@ import io.adminshell.aas.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
 import org.eclipse.milo.opcua.sdk.core.nodes.VariableNode;
+import org.eclipse.milo.opcua.stack.core.BuiltinDataType;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
+import org.eclipse.milo.opcua.stack.core.types.builtin.ExpandedNodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.sdk.client.AddressSpace;
@@ -36,6 +38,7 @@ import org.eclipse.milo.opcua.stack.core.types.structured.CallMethodRequest;
 import org.eclipse.milo.opcua.stack.core.types.structured.CallMethodResult;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
@@ -48,11 +51,18 @@ import java.util.stream.Stream;
 public class OpcUaAssetConnection
         implements AssetConnection<OpcUaAssetConnectionConfig, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig> {
 
+    private OpcUaAssetConnectionConfig config;
     private Map<Reference, AssetValueProvider> valueProviders;
     private Map<Reference, AssetOperationProvider> operationProviders;
     private Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
     private OpcUaClient client = null;
     private ServiceContext context;
+
+    public OpcUaAssetConnection() {
+        this.valueProviders = new HashMap<>();
+        this.operationProviders = new HashMap<>();
+        this.subscriptionProviders = new HashMap<>();
+    }
 
     @Override
     public void close() {
@@ -60,15 +70,35 @@ public class OpcUaAssetConnection
     }
 
     @Override
-    public void init(CoreConfig coreConfig, OpcUaAssetConnectionConfig config, ServiceContext context) {
+    public void init(CoreConfig coreConfig, OpcUaAssetConnectionConfig config, ServiceContext context) throws AssetConnectionException {
         try {
             this.context = context;
+            this.config = config;
             client = OpcUaUtils.createClient(config.getHost(), AnonymousProvider.INSTANCE);
             client.connect().get();
         }
         catch (UaException|InterruptedException|ExecutionException ex) {
             ex.printStackTrace();
         }
+
+        config.getValueProviders().forEach((k, v) -> {
+            try {
+                registerValueProvider(k, v);
+            } catch (AssetConnectionException e) {
+                e.printStackTrace();
+            }
+        });
+        config.getOperationProviders().forEach((k, v) -> {
+            registerOperationProvider(k, v);
+        });
+        config.getSubscriptionProviders().forEach((k, v) -> {
+            try {
+                registerSubscriptionProvider(k, v);
+            }
+            catch (AssetConnectionException ex) {
+                // TODO rethrow
+            }
+        });
     }
 
     @Override
@@ -78,15 +108,16 @@ public class OpcUaAssetConnection
 
 
     @Override
-    public void registerValueProvider(Reference reference, OpcUaValueProviderConfig valueProviderConfig) {
+    public void registerValueProvider(Reference reference, OpcUaValueProviderConfig valueProviderConfig) throws AssetConnectionException {
+        Class elementType = context.getElementType(reference);
+        if (!DataElement.class.isAssignableFrom(elementType)) {
+            throw new AssetConnectionException(String.format("unsupported submodel element type (%s)", elementType.getSimpleName()));
+        }
+
         this.valueProviders.put(reference, new AssetValueProvider() {
             @Override
-            public DataElementValue getValue() {
+            public DataElementValue getValue() throws AssetConnectionException {
                 try {
-                    Class elementType = context.getElementType(reference);
-                    if (!DataElement.class.isAssignableFrom(elementType)) {
-                        throw new AssetConnectionException(String.format("unsupported submodel element type (%s)", elementType.getSimpleName()));
-                    }
                     VariableNode node = client.getAddressSpace().getVariableNode(OpcUaUtils.parseNodeId(client, valueProviderConfig.getNodeId()));
 
                     DataElementValue newValue;
@@ -107,15 +138,28 @@ public class OpcUaAssetConnection
                 }
                 try {
                     VariableNode node = client.getAddressSpace().getVariableNode(OpcUaUtils.parseNodeId(client, valueProviderConfig.getNodeId()));
+                    String datatypeName = BuiltinDataType.getBackingClass(node.getDataType()).getSimpleName();
                     client.writeValue(node.getNodeId(), new DataValue(
                             new Variant(
-                                    ((PropertyValue) value).getValue()),
-                            null, null)).get();
+                                    castDatatype(value, datatypeName)
+                                    ),null, null)).get();
                 } catch (UaException | InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
             }
         });
+    }
+
+    //this is a workaround until DataElementValue can return proper types
+    private Object castDatatype(DataElementValue value, String datatypeName) {
+        String valueString = ((PropertyValue) value).getValue();
+        switch (datatypeName) {
+            case "Double":
+                return Double.valueOf(valueString);
+            case "String":
+                return valueString;
+        }
+        throw new UnsupportedOperationException("Datatype is not supported for writing to OPC.");
     }
 
 
@@ -177,7 +221,7 @@ public class OpcUaAssetConnection
                                 try {
                                     listener.newDataReceived(ContentParserFactory
                                             .create()
-                                            .parseValue(x.getValue().toString(), elementType));
+                                            .parseValue(x.getValue().getValue().toString(), elementType));
                                 } catch (AssetConnectionException e) {
                                     e.printStackTrace();
                                 }

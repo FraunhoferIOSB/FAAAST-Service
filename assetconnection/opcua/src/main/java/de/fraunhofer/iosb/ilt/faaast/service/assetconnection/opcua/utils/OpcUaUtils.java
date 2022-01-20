@@ -95,7 +95,7 @@ public class OpcUaUtils {
         );
     }
 
-    public static UaSubscription subscribe(OpcUaClient client, NodeId node, double interval, BiConsumer<UaMonitoredItem, DataValue> consumer) throws InterruptedException, ExecutionException {
+    public static UaSubscription subscribe(OpcUaClient client, NodeId node, double interval, Consumer<DataValue> consumer) throws InterruptedException, ExecutionException {
         UaSubscription result = null;
         List<UaMonitoredItem> items = null;
         ReadValueId readValueId = new ReadValueId(node, AttributeId.Value.uid(), null, null);
@@ -107,13 +107,9 @@ public class OpcUaUtils {
                 TimestampsToReturn.Both,
                 Arrays.asList(request),
                 (monitoredItem, id) -> {
-                    monitoredItem.setValueConsumer((UaMonitoredItem.ValueConsumer) consumer);
+                    monitoredItem.setValueConsumer(consumer);
                 }).get();
         return result;
-    }
-
-    public static UaSubscription subscribe(OpcUaClient client, NodeId node, double interval, Consumer<Variant> consumer) throws InterruptedException, ExecutionException {
-        return subscribe(client, node, interval, (x, y) -> consumer.accept(y.getValue()));
     }
 
     public static UaSubscription unsubscribe(OpcUaClient client, NodeId node, double interval) throws InterruptedException, ExecutionException {
