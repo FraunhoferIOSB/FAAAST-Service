@@ -138,13 +138,10 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      * Create or Update an Identifiable<br>
      *
      * @param identifiable to save<br>
-     * @param parent of the Identifiable, e.g. the owning AAS of a Submodel.
-     *            If this parameter is null, the Identifiable has no parent and is a stand alone Identifiable.<br>
-     *            This parameter is optional and may be null<br>
      * @param <T> the type of the Identifiable<br>
      * @return the saved Identifiable as confirmation
      */
-    public <T extends Identifiable> T put(Reference parent, T identifiable);
+    public <T extends Identifiable> T put(T identifiable);
 
 
     /**
@@ -158,7 +155,7 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
 
 
     /**
-     * Update an AASX package<br>
+     * Create or Update an AASX package<br>
      *
      * @param packageId of the existing AASX package<br>
      * @param aasIds the included AAS Ids<br>
@@ -211,7 +208,7 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      * @param fileName of the AASX package<br>
      * @return the package id of the created AASX package
      */
-    public String save(Set<Identifier> aasIds, AASXPackage file, String fileName);
+    public String put(Set<Identifier> aasIds, AASXPackage file, String fileName);
 
 
     /**

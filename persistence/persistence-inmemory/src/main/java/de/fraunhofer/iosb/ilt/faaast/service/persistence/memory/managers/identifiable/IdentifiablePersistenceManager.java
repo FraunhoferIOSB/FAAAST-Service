@@ -26,7 +26,6 @@ import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import java.util.List;
@@ -208,28 +207,14 @@ public class IdentifiablePersistenceManager {
     }
 
 
-    public Identifiable put(Reference parent, Identifiable identifiable) {
-        if (parent == null || identifiable == null || this.aasEnvironment == null) {
+    public Identifiable put(Identifiable identifiable) {
+        if (identifiable == null || this.aasEnvironment == null) {
             return null;
-        }
-        AssetAdministrationShell parentAAS = null;
-        Reference referenceOfIdentifiable = AasUtils.toReference(identifiable);
-
-        if (parent != null) {
-            Referable parentReferable = AasUtils.resolve(parent, this.aasEnvironment);
-            if (parentReferable != null && AssetAdministrationShell.class.isAssignableFrom(parentReferable.getClass())) {
-                parentAAS = (AssetAdministrationShell) parentReferable;
-            }
         }
 
         if (Submodel.class.isAssignableFrom(identifiable.getClass())) {
             this.aasEnvironment.setSubmodels(
                     Util.updateIdentifiableList(Submodel.class, this.aasEnvironment.getSubmodels(), identifiable));
-
-            if (parentAAS != null && referenceOfIdentifiable != null) {
-                parentAAS.getSubmodels().remove(referenceOfIdentifiable);
-                parentAAS.getSubmodels().add(referenceOfIdentifiable);
-            }
             return identifiable;
         }
         else if (AssetAdministrationShell.class.isAssignableFrom(identifiable.getClass())) {

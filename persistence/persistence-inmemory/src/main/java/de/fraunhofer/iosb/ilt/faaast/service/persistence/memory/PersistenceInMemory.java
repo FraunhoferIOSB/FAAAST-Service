@@ -198,12 +198,11 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public Identifiable put(Reference parent, Identifiable identifiable) {
-        if (parent == null || identifiable == null) {
+    public Identifiable put(Identifiable identifiable) {
+        if (identifiable == null) {
             return null;
         }
-        completeReference(parent, this.aasEnvironment);
-        return identifiablePersistenceManager.put(parent, identifiable);
+        return identifiablePersistenceManager.put(identifiable);
     }
 
 
@@ -220,6 +219,12 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
+    public String put(Set<Identifier> aasIds, AASXPackage file, String fileName) {
+        throw new UnsupportedOperationException();
+    }
+
+
+    @Override
     public void remove(String packageId) {
         throw new UnsupportedOperationException();
     }
@@ -227,12 +232,6 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
     @Override
     public AASXPackage put(String packageId, Set aasIds, AASXPackage file, String fileName) {
-        throw new UnsupportedOperationException();
-    }
-
-
-    @Override
-    public String save(Set aasIds, AASXPackage file, String fileName) {
         throw new UnsupportedOperationException();
     }
 
