@@ -19,8 +19,6 @@ import org.eclipse.milo.opcua.sdk.server.identity.CompositeValidator;
 import org.eclipse.milo.opcua.sdk.server.identity.IdentityValidator;
 import org.eclipse.milo.opcua.sdk.server.identity.X509IdentityValidator;
 import org.eclipse.milo.opcua.sdk.server.util.HostnameUtil;
-import org.eclipse.milo.opcua.stack.core.StatusCodes;
-import org.eclipse.milo.opcua.stack.core.UaRuntimeException;
 import org.eclipse.milo.opcua.stack.core.security.DefaultCertificateManager;
 import org.eclipse.milo.opcua.stack.core.security.DefaultTrustListManager;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
@@ -29,7 +27,6 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.DateTime;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.MessageSecurityMode;
 import org.eclipse.milo.opcua.stack.core.types.structured.BuildInfo;
-import org.eclipse.milo.opcua.stack.core.util.CertificateUtil;
 import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateGenerator;
 import org.eclipse.milo.opcua.stack.core.util.SelfSignedHttpsCertificateBuilder;
 import org.eclipse.milo.opcua.stack.server.EndpointConfiguration;
@@ -45,6 +42,7 @@ import org.slf4j.LoggerFactory;
 public class EmbeddedOpcUaServer {
 
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedOpcUaServer.class);
+    private int tcpPort;
 
     static {
         // Required for SecurityPolicy.Aes256_Sha256_RsaPss
@@ -53,7 +51,8 @@ public class EmbeddedOpcUaServer {
 
     private OpcUaServer server;
 
-    public EmbeddedOpcUaServer(IdentityValidator identityValidator) throws Exception {
+    public EmbeddedOpcUaServer(IdentityValidator identityValidator, int port) throws Exception {
+        this.tcpPort = port;
         File securityTempDir = new File(System.getProperty("java.io.tmpdir"), "security");
         if (!securityTempDir.exists() && !securityTempDir.mkdirs()) {
             throw new Exception("unable to create security temp dir: " + securityTempDir);
@@ -175,7 +174,7 @@ public class EmbeddedOpcUaServer {
     private EndpointConfiguration buildTcpEndpoint(EndpointConfiguration.Builder base) {
         return base.copy()
                 .setTransportProfile(TransportProfile.TCP_UASC_UABINARY)
-                .setBindPort(8081)
+                .setBindPort(this.tcpPort)
                 .build();
     }
 

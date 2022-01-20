@@ -28,6 +28,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -40,17 +42,27 @@ public class OpcUaAssetConnectionTest {
     private static final long DEFAULT_TIMEOUT = 1000;
     private static EmbeddedOpcUaServer server;
     private static String serverUrl;
+    private static int opcPort;
 
     @BeforeClass
     public static void init() {
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
+            Assert.assertNotNull(serverSocket);
+            Assert.assertTrue(serverSocket.getLocalPort() > 0);
+            opcPort = serverSocket.getLocalPort();
+        }
+        catch (IOException e) {
+            Assert.fail("could not find free port");
+        }
+
         try {
             server = new EmbeddedOpcUaServer(
-                    AnonymousIdentityValidator.INSTANCE);
+                    AnonymousIdentityValidator.INSTANCE, opcPort);
             server.startup().get();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        serverUrl = "opc.tcp://localhost:" + 8081 + "/milo";
+        serverUrl = "opc.tcp://localhost:" + opcPort + "/milo";
     }
 
     @Test
@@ -105,14 +117,7 @@ public class OpcUaAssetConnectionTest {
         //write value
         connection.getValueProviders().get(reference).setValue(expected);
 
-        PropertyValue actual;
-        actual = (PropertyValue) connection.getValueProviders().get(reference).getValue();
-        System.out.println("Value should be 3.1 but is: "+actual.getValue());
-
-        //the values are read at the time the provider is registered, so we have to init again to see the changed value
-        connection.init(CoreConfig.builder().build(), config, serviceContext);
-        actual = (PropertyValue) connection.getValueProviders().get(reference).getValue();
-        System.out.println("Value should be 3.1: "+actual.getValue());
+        //assert that new value is equal to written value
         Assert.assertEquals(expected, connection.getValueProviders().get(reference).getValue());
     }
 }

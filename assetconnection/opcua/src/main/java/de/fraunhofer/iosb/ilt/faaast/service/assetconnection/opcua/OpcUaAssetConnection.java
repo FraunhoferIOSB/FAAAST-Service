@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.content.ContentParserFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.utils.OpcUaUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
@@ -25,24 +24,32 @@ import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
+import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
+import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaMonitoredItem;
+import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
 import org.eclipse.milo.opcua.sdk.core.nodes.VariableNode;
+import org.eclipse.milo.opcua.stack.core.AttributeId;
 import org.eclipse.milo.opcua.stack.core.BuiltinDataType;
 import org.eclipse.milo.opcua.stack.core.UaException;
-import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
-import org.eclipse.milo.opcua.stack.core.types.builtin.ExpandedNodeId;
-import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
-import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
+import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
+import org.eclipse.milo.opcua.stack.core.types.builtin.*;
 import org.eclipse.milo.opcua.sdk.client.AddressSpace;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
+import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UShort;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.BrowseDirection;
-import org.eclipse.milo.opcua.stack.core.types.structured.CallMethodRequest;
-import org.eclipse.milo.opcua.stack.core.types.structured.CallMethodResult;
+import org.eclipse.milo.opcua.stack.core.types.enumerated.MonitoringMode;
+import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
+import org.eclipse.milo.opcua.stack.core.types.structured.*;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URI;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
+
+import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.uint;
 
 
 /**
@@ -55,8 +62,9 @@ public class OpcUaAssetConnection
     private Map<Reference, AssetValueProvider> valueProviders;
     private Map<Reference, AssetOperationProvider> operationProviders;
     private Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
-    private OpcUaClient client = null;
     private ServiceContext context;
+    private final String NODE_ID_SEPARATOR = ";";
+    private final String NS_PREFIX = "ns=";
 
     public OpcUaAssetConnection() {
         this.valueProviders = new HashMap<>();
@@ -66,20 +74,12 @@ public class OpcUaAssetConnection
 
     @Override
     public void close() {
-
     }
 
     @Override
     public void init(CoreConfig coreConfig, OpcUaAssetConnectionConfig config, ServiceContext context) throws AssetConnectionException {
-        try {
-            this.context = context;
-            this.config = config;
-            client = OpcUaUtils.createClient(config.getHost(), AnonymousProvider.INSTANCE);
-            client.connect().get();
-        }
-        catch (UaException|InterruptedException|ExecutionException ex) {
-            ex.printStackTrace();
-        }
+        this.context = context;
+        this.config = config;
 
         config.getValueProviders().forEach((k, v) -> {
             try {
@@ -109,23 +109,25 @@ public class OpcUaAssetConnection
 
     @Override
     public void registerValueProvider(Reference reference, OpcUaValueProviderConfig valueProviderConfig) throws AssetConnectionException {
-        Class elementType = context.getElementType(reference);
-        if (!DataElement.class.isAssignableFrom(elementType)) {
-            throw new AssetConnectionException(String.format("unsupported submodel element type (%s)", elementType.getSimpleName()));
-        }
-
         this.valueProviders.put(reference, new AssetValueProvider() {
             @Override
             public DataElementValue getValue() throws AssetConnectionException {
                 try {
-                    VariableNode node = client.getAddressSpace().getVariableNode(OpcUaUtils.parseNodeId(client, valueProviderConfig.getNodeId()));
-
-                    DataElementValue newValue;
+                    OpcUaClient client = createClient(config.getHost(), AnonymousProvider.INSTANCE);
+                    client.connect().get();
+                    NodeId valueNodeId = parseNodeId(client, valueProviderConfig.getNodeId());
+                    Object value = client.getAddressSpace().getVariableNode(valueNodeId).getValue().getValue().getValue();
+                    client.disconnect().get();
+                    DataElementValue newValue = null;
+                    Class elementType = context.getElementType(reference);
+                    if (!DataElement.class.isAssignableFrom(elementType)) {
+                        throw new AssetConnectionException(String.format("unsupported submodel element type (%s)", elementType.getSimpleName()));
+                    }
                     newValue = ContentParserFactory
                                 .create()
-                                .parseValue(node.getValue().getValue().getValue().toString(), elementType);
+                                .parseValue(value.toString(), elementType);
                     return newValue;
-                } catch (UaException | AssetConnectionException e) {
+                } catch (UaException | AssetConnectionException | InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                     return null;
                 }
@@ -137,12 +139,15 @@ public class OpcUaAssetConnection
                     throw new AssetConnectionException(String.format("unsupported value (%s)", value.getClass().getSimpleName()));
                 }
                 try {
-                    VariableNode node = client.getAddressSpace().getVariableNode(OpcUaUtils.parseNodeId(client, valueProviderConfig.getNodeId()));
+                    OpcUaClient client = createClient(config.getHost(), AnonymousProvider.INSTANCE);
+                    client.connect().get();
+                    VariableNode node = client.getAddressSpace().getVariableNode(parseNodeId(client, valueProviderConfig.getNodeId()));
                     String datatypeName = BuiltinDataType.getBackingClass(node.getDataType()).getSimpleName();
                     client.writeValue(node.getNodeId(), new DataValue(
                             new Variant(
                                     castDatatype(value, datatypeName)
                                     ),null, null)).get();
+                    client.disconnect().get();
                 } catch (UaException | InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
@@ -154,6 +159,14 @@ public class OpcUaAssetConnection
     private Object castDatatype(DataElementValue value, String datatypeName) {
         String valueString = ((PropertyValue) value).getValue();
         switch (datatypeName) {
+            case "Long":
+                return Long.valueOf(valueString);
+            case "Boolean":
+                return Boolean.valueOf(valueString);
+            case "Float":
+                return Float.valueOf(valueString);
+            case "Integer":
+                return Integer.valueOf(valueString);
             case "Double":
                 return Double.valueOf(valueString);
             case "String":
@@ -168,10 +181,12 @@ public class OpcUaAssetConnection
         this.operationProviders.put(reference, new AssetOperationProvider() {
             @Override
             public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-                NodeId methodId = OpcUaUtils.parseNodeId(client, operationProviderConfig.getNodeId());
                 // Automatically resolve parent node which is required for milo.
                 // Currently, two equal (but not Objects.equals!) objects are returned, using simply the first one
                 try {
+                    OpcUaClient client = createClient(config.getHost(), AnonymousProvider.INSTANCE);
+                    client.connect().get();
+                    NodeId methodId = parseNodeId(client, operationProviderConfig.getNodeId());
                     NodeId objectId = client.getAddressSpace()
                             .getNode(methodId)
                             .browseNodes(AddressSpace.BrowseOptions.builder()
@@ -187,10 +202,9 @@ public class OpcUaAssetConnection
                             methodId,
                             parameters
                     )).get();
-
                     //todo set output arguments
                     //methodResult.getOutputArguments()[i].getValue()
-
+                    client.disconnect().get();
                 } catch (UaException | InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
@@ -211,13 +225,26 @@ public class OpcUaAssetConnection
         if (!DataElement.class.isAssignableFrom(elementType)) {
             throw new AssetConnectionException(String.format("unsupported submodel element type (%s)", elementType.getSimpleName()));
         }
-
+        OpcUaClient client = null;
+        try {
+            client = createClient(config.getHost(), AnonymousProvider.INSTANCE);
+        } catch (UaException e) {
+            e.printStackTrace();
+        }
+        OpcUaClient finalClient = client;
+        try {
+            finalClient.connect().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
         this.subscriptionProviders.put(reference, new AssetSubscriptionProvider() {
             @Override
             public void addNewDataListener(NewDataListener listener) {
                 try {
-                    OpcUaUtils.subscribe(client,
-                            OpcUaUtils.parseNodeId(client, subscriptionProviderConfig.getNodeId()), subscriptionProviderConfig.getInterval(), x -> {
+                    subscribe(finalClient,
+                            parseNodeId(finalClient, subscriptionProviderConfig.getNodeId()), subscriptionProviderConfig.getInterval(), x -> {
                                 try {
                                     listener.newDataReceived(ContentParserFactory
                                             .create()
@@ -234,7 +261,8 @@ public class OpcUaAssetConnection
             @Override
             public void removeNewDataListener(NewDataListener listener) {
                 try {
-                    OpcUaUtils.unsubscribe(client, OpcUaUtils.parseNodeId(client, subscriptionProviderConfig.getNodeId()), subscriptionProviderConfig.getInterval());
+                    unsubscribe(finalClient, parseNodeId(finalClient, subscriptionProviderConfig.getNodeId()), subscriptionProviderConfig.getInterval());
+                    finalClient.disconnect().get();
                 } catch (InterruptedException|ExecutionException e) {
                     e.printStackTrace();
                 }
@@ -282,6 +310,89 @@ public class OpcUaAssetConnection
     @Override
     public boolean sameAs(AssetConnection other) {
         return false;
+    }
+
+    public NodeId parseNodeId(OpcUaClient client, String nodeId) {
+        Optional<String> ns = Stream.of(nodeId.split(NODE_ID_SEPARATOR))
+                .filter(x -> x.startsWith(NS_PREFIX))
+                .findFirst();
+        int namespaceIndex = 0;
+        if (ns.isPresent()) {
+            String namespace = ns.get().replace(NS_PREFIX, "");
+            try {
+                namespaceIndex = Integer.parseUnsignedInt(namespace);
+            } catch (NumberFormatException ex) {
+                UShort actualNamespaceIndex = client.getNamespaceTable().getIndex(namespace);
+                if (actualNamespaceIndex == null) {
+                    throw new RuntimeException(String.format("could not resolve namespace '%s'", namespace));
+                }
+                namespaceIndex = actualNamespaceIndex.intValue();
+            }
+        } else {
+            System.out.println("no namespace provided for node. Using default (ns=0)");
+        }
+        return NodeId.parse(nodeId.replace(ns.get(), NS_PREFIX + namespaceIndex));
+    }
+
+    public OpcUaClient createClient(String opcUrl, IdentityProvider identityProvider) throws UaException {
+        return createClient(URI.create(opcUrl), identityProvider);
+    }
+
+    public OpcUaClient createClient(URI opcUrl, IdentityProvider identityProvider) throws UaException {
+        return OpcUaClient.create(
+                opcUrl.toString(),
+                endpoints ->
+                        endpoints.stream()
+                                .filter(e -> e.getSecurityPolicyUri().equals(SecurityPolicy.None.getUri()))
+                                .findFirst(),
+                configBuilder
+                        -> configBuilder
+                        .setApplicationName(LocalizedText.english("AAS-Service"))
+                        .setApplicationUri("urn:de:fraunhofer:iosb:aas:service")
+                        .setIdentityProvider(identityProvider)
+                        .setRequestTimeout(uint(5000))
+                        .build()
+        );
+    }
+
+    public UaSubscription subscribe(OpcUaClient client, NodeId node, double interval, Consumer<DataValue> consumer) throws InterruptedException, ExecutionException {
+        UaSubscription result = null;
+        List<UaMonitoredItem> items = null;
+        ReadValueId readValueId = new ReadValueId(node, AttributeId.Value.uid(), null, null);
+        UInteger clientHandle = uint(new Random().nextInt((int) Math.min(UInteger.MAX.longValue(), (long) Integer.MAX_VALUE)));
+        MonitoringParameters monitorParameters = new MonitoringParameters(clientHandle, 1000.0, null, uint(10), true);
+        MonitoredItemCreateRequest request = new MonitoredItemCreateRequest(readValueId, MonitoringMode.Reporting, monitorParameters);
+        result = client.getSubscriptionManager().createSubscription(interval).get();
+        items = result.createMonitoredItems(
+                TimestampsToReturn.Both,
+                Arrays.asList(request),
+                (monitoredItem, id) -> {
+                    monitoredItem.setValueConsumer(consumer);
+                }).get();
+        return result;
+    }
+
+    public UaSubscription unsubscribe(OpcUaClient client, NodeId node, double interval) throws InterruptedException, ExecutionException {
+        UaSubscription result = null;
+        List<UaMonitoredItem> items = null;
+
+        ReadValueId readValueId = new ReadValueId(node, AttributeId.Value.uid(), null, null);
+        UInteger clientHandle = uint(new Random().nextInt((int) Math.min(UInteger.MAX.longValue(), (long) Integer.MAX_VALUE)));
+
+        for (UaSubscription u: client.getSubscriptionManager().getSubscriptions()
+        ) {
+            MonitoringParameters monitorParameters = new MonitoringParameters(clientHandle, interval, null, uint(10), true);
+            MonitoredItemCreateRequest request = new MonitoredItemCreateRequest(readValueId, MonitoringMode.Reporting, monitorParameters);
+
+            items = result.createMonitoredItems(
+                    TimestampsToReturn.Both,
+                    Arrays.asList(request)).get();
+
+            if(u.getMonitoredItems().contains(items)) {
+                u.deleteMonitoredItems(items).get();
+            }
+        }
+        return result;
     }
 
 }
