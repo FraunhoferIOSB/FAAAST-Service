@@ -12,15 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.referable;
-
-import static de.fraunhofer.iosb.ilt.faaast.persistence.inmemory.managers.referable.Util.getGetListMethod;
-import static de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util.deepCopy;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.Referable;
@@ -40,14 +37,7 @@ import java.util.stream.Collectors;
 /**
  * Class to handle referable elements
  */
-public class ReferablePersistenceManager {
-
-    private AssetAdministrationShellEnvironment aasEnvironment;
-
-    public void setAasEnvironment(AssetAdministrationShellEnvironment aasEnvironment) {
-        this.aasEnvironment = aasEnvironment;
-    }
-
+public class ReferablePersistenceManager extends PersistenceManager {
 
     public SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier) {
         if (reference == null || reference.getKeys() == null || modifier == null || this.aasEnvironment == null) {
@@ -62,7 +52,7 @@ public class ReferablePersistenceManager {
         if (submodelElement == null) {
             return null;
         }
-        return deepCopy(submodelElement, submodelElement.getClass());
+        return Util.deepCopy(submodelElement, submodelElement.getClass());
     }
 
 
@@ -81,7 +71,7 @@ public class ReferablePersistenceManager {
                 if (submodel == null) {
                     return null;
                 }
-                Submodel deepCopiedSubmodel = deepCopy(submodel, submodel.getClass());
+                Submodel deepCopiedSubmodel = Util.deepCopy(submodel, submodel.getClass());
                 submodelElements = deepCopiedSubmodel.getSubmodelElements();
 
             }
@@ -90,7 +80,7 @@ public class ReferablePersistenceManager {
                 if (submodelElementCollection == null) {
                     return null;
                 }
-                SubmodelElementCollection deepCopiedSubmodelElementCollection = deepCopy(submodelElementCollection, submodelElementCollection.getClass());
+                SubmodelElementCollection deepCopiedSubmodelElementCollection = Util.deepCopy(submodelElementCollection, submodelElementCollection.getClass());
                 submodelElements = new ArrayList<>(deepCopiedSubmodelElementCollection.getValues());
             }
 
@@ -168,7 +158,7 @@ public class ReferablePersistenceManager {
                         .build();
                 Referable parentReferable = AasUtils.resolve(parent, this.aasEnvironment);
 
-                Method method = getGetListMethod(clazz, parentReferable);
+                Method method = Util.getGetListMethod(clazz, parentReferable);
                 if (method != null) {
                     try {
                         List<Referable> referableList = (List<Referable>) method.invoke(parentReferable);

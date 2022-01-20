@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.aasx;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers;
 
 /**
  * Class to handle AASx packages and PackageDescriptions
  */
-public class PackagePersistenceManager {}
+public class PackagePersistenceManager extends PersistenceManager {}
