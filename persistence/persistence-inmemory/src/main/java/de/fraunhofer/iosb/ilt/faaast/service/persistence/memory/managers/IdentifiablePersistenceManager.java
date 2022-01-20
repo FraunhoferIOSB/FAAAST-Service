@@ -12,17 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.identifiable;
-
-import static de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util.*;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SpecificAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Asset;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Identifier;
@@ -36,14 +34,7 @@ import java.util.stream.Collectors;
 /**
  * Class to handle identifiable elements
  */
-public class IdentifiablePersistenceManager {
-
-    private AssetAdministrationShellEnvironment aasEnvironment;
-
-    public void setAasEnvironment(AssetAdministrationShellEnvironment aasEnvironment) {
-        this.aasEnvironment = aasEnvironment;
-    }
-
+public class IdentifiablePersistenceManager extends PersistenceManager {
 
     public <T extends Identifiable> T getIdentifiableById(Identifier id) {
         if (id == null || this.aasEnvironment == null) {
@@ -63,7 +54,7 @@ public class IdentifiablePersistenceManager {
         if (this.aasEnvironment == null) {
             return null;
         }
-        if (!empty(idShort)) {
+        if (!Util.empty(idShort)) {
             List<AssetAdministrationShell> shells = Util.getDeepCopiedShells(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
             return shells;
         }
@@ -101,14 +92,14 @@ public class IdentifiablePersistenceManager {
             return null;
         }
 
-        if (!empty(idShort)) {
+        if (!Util.empty(idShort)) {
             List<Submodel> submodels = Util.getDeepCopiedSubmodels(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
             return submodels;
         }
 
         if (semanticId != null) {
             List<Submodel> submodels = Util.getDeepCopiedSubmodels(x -> x.getSemanticId() != null
-                    && isEqualsIgnoringKeyType(x.getSemanticId(), semanticId), this.aasEnvironment);
+                    && Util.isEqualsIgnoringKeyType(x.getSemanticId(), semanticId), this.aasEnvironment);
             return submodels;
         }
 
@@ -125,14 +116,14 @@ public class IdentifiablePersistenceManager {
 
         List<ConceptDescription> conceptDescriptions = null;
 
-        if (!empty(idShort)) {
+        if (!Util.empty(idShort)) {
             conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream()
                     .filter(x -> x.getIdShort().equalsIgnoreCase(idShort))
                     .collect(Collectors.toList());
         }
 
         if (isCaseOf != null) {
-            Predicate<ConceptDescription> filter = x -> x.getIsCaseOfs().stream().anyMatch(y -> isEqualsIgnoringKeyType(y, isCaseOf));
+            Predicate<ConceptDescription> filter = x -> x.getIsCaseOfs().stream().anyMatch(y -> Util.isEqualsIgnoringKeyType(y, isCaseOf));
             if (conceptDescriptions == null) {
                 conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream()
                         .filter(filter)
@@ -148,7 +139,7 @@ public class IdentifiablePersistenceManager {
         if (dataSpecification != null) {
             Predicate<ConceptDescription> filter = x -> x.getEmbeddedDataSpecifications() != null
                     && x.getEmbeddedDataSpecifications().stream()
-                            .anyMatch(y -> y.getDataSpecification() != null && isEqualsIgnoringKeyType(y.getDataSpecification(), dataSpecification));
+                            .anyMatch(y -> y.getDataSpecification() != null && Util.isEqualsIgnoringKeyType(y.getDataSpecification(), dataSpecification));
             if (conceptDescriptions == null) {
                 conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream()
                         .filter(filter)
@@ -159,12 +150,12 @@ public class IdentifiablePersistenceManager {
             }
         }
 
-        if (empty(idShort) && isCaseOf == null && dataSpecification == null) {
+        if (Util.empty(idShort) && isCaseOf == null && dataSpecification == null) {
             conceptDescriptions = this.aasEnvironment.getConceptDescriptions();
         }
 
         Class conceptDescriptionClass = conceptDescriptions != null && conceptDescriptions.size() > 0 ? conceptDescriptions.get(0).getClass() : ConceptDescription.class;
-        return deepCopy(conceptDescriptions, conceptDescriptionClass);
+        return Util.deepCopy(conceptDescriptions, conceptDescriptionClass);
     }
 
 

@@ -14,13 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api;
 
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 
 public class Result {
     private boolean success;
-    private List<Message> message;
+    private List<Message> message = new ArrayList<>();
 
     public boolean getSuccess() {
         return success;
@@ -57,5 +59,45 @@ public class Result {
     @Override
     public int hashCode() {
         return Objects.hash(success, message);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private static abstract class AbstractBuilder<T extends Result, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B success(boolean value) {
+            getBuildingInstance().setSuccess(value);
+            return getSelf();
+        }
+
+
+        public B messages(List<Message> value) {
+            getBuildingInstance().setMessage(value);
+            return getSelf();
+        }
+
+
+        public B message(Message value) {
+            getBuildingInstance().getMessage().add(value);
+            return getSelf();
+        }
+
+    }
+
+    public static class Builder extends AbstractBuilder<Result, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected Result newBuildingInstance() {
+            return new Result();
+        }
     }
 }

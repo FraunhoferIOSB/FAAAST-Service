@@ -17,8 +17,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Message;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationHandle;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.dataformat.core.AASFull;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -730,6 +735,49 @@ public class PersistenceInMemoryTest {
         Submodel submodel = (Submodel) this.persistence.get(submodelId, queryModifier);
         Assert.assertEquals(null, ((SubmodelElementCollection) submodel.getSubmodelElements().stream()
                 .filter(x -> x.getIdShort().equalsIgnoreCase(SUBMODEL_ELEMENT_COLLECTION_IDSHORT)).findFirst().get()).getValues());
+    }
+
+
+    @Test
+    public void testOperationHandle() {
+        OperationResult expectedResult = new OperationResult.Builder()
+                .requestId("Test")
+                .executionState(ExecutionState.Initiated)
+                .build();
+
+        OperationHandle actualOperationHandle = this.persistence.putOperationContext(null, "Test", expectedResult);
+
+        OperationHandle expectedOperationHandle = new OperationHandle.Builder()
+                .handleId(actualOperationHandle.getHandleId())
+                .requestId("Test")
+                .build();
+
+        Assert.assertEquals(expectedOperationHandle, actualOperationHandle);
+
+    }
+
+
+    @Test
+    public void testUpdateOperationResult() {
+        OperationResult expectedResult = new OperationResult.Builder()
+                .requestId("Test")
+                .executionState(ExecutionState.Initiated)
+                .build();
+
+        OperationHandle actualOperationHandle = this.persistence.putOperationContext(null, "Test", expectedResult);
+
+        expectedResult.setExecutionState(ExecutionState.Completed);
+        expectedResult.setExecutionResult(new Result.Builder()
+                .message(new Message.Builder()
+                        .code("test")
+                        .build())
+                .success(true)
+                .build());
+        this.persistence.putOperationContext(actualOperationHandle.getHandleId(), null, expectedResult);
+
+        OperationResult actualResult = this.persistence.getOperationResult(actualOperationHandle.getHandleId());
+        Assert.assertEquals(expectedResult, actualResult);
+
     }
 
 }
