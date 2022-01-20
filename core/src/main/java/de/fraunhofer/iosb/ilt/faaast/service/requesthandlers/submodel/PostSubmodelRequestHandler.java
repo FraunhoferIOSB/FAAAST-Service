@@ -37,8 +37,7 @@ public class PostSubmodelRequestHandler extends RequestHandler<PostSubmodelReque
         PostSubmodelResponse response = new PostSubmodelResponse();
 
         try {
-            //TODO: missing belonging AAS ID in request?
-            Submodel submodel = (Submodel) persistence.put(null, request.getSubmodel());
+            Submodel submodel = (Submodel) persistence.put(request.getSubmodel());
             response.setPayload(submodel);
             response.setStatusCode(StatusCode.SuccessCreated);
             publishElementCreateEventMessage(AasUtils.toReference(submodel), submodel);

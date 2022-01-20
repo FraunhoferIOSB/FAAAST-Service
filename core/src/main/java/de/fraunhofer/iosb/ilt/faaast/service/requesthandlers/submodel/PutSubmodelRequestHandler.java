@@ -36,7 +36,7 @@ public class PutSubmodelRequestHandler extends RequestHandler<PutSubmodelRequest
     public PutSubmodelResponse process(PutSubmodelRequest request) {
         PutSubmodelResponse response = new PutSubmodelResponse();
         try {
-            Submodel submodel = (Submodel) persistence.put(null, request.getSubmodel());
+            Submodel submodel = (Submodel) persistence.put(request.getSubmodel());
             response.setPayload(submodel);
             response.setStatusCode(StatusCode.Success);
             publishElementUpdateEventMessage(AasUtils.toReference(submodel), submodel);

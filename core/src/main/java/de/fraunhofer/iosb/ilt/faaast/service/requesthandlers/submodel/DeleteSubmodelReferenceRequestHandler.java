@@ -40,7 +40,7 @@ public class DeleteSubmodelReferenceRequestHandler extends RequestHandler<Delete
         try {
             AssetAdministrationShell aas = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
             aas.getSubmodels().remove(request.getSubmodelRef());
-            persistence.put(null, aas);
+            persistence.put(aas);
             response.setStatusCode(StatusCode.Success);
             //TODO: how to publish reference deletion?
             publishElementDeleteEventMessage(AasUtils.toReference(aas), null);
