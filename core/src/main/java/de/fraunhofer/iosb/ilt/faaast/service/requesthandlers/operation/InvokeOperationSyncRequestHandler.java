@@ -81,6 +81,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
             try {
                 OperationVariable[] outputVariables = future.get(request.getTimeout(), TimeUnit.MILLISECONDS);
                 result = OperationResult.builder()
+                        .requestId(request.getRequestId())
                         .executionState(ExecutionState.Completed)
                         .inoutputArguments(request.getInoutputArguments())
                         .outputArguments(Arrays.asList(outputVariables))
@@ -89,12 +90,14 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
             catch (TimeoutException ex) {
                 future.cancel(true);
                 result = OperationResult.builder()
+                        .requestId(request.getRequestId())
                         .inoutputArguments(request.getInoutputArguments())
                         .executionState(ExecutionState.Timeout)
                         .build();
             }
             catch (Exception ex) {
                 result = OperationResult.builder()
+                        .requestId(request.getRequestId())
                         .inoutputArguments(request.getInoutputArguments())
                         .executionState(ExecutionState.Failed)
                         .build();
