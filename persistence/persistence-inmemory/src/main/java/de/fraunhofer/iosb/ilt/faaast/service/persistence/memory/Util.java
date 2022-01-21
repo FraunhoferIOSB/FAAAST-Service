@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
@@ -235,7 +236,10 @@ public class Util {
     }
 
 
-    public static void completeReference(Reference reference, AssetAdministrationShellEnvironment env) {
+    public static void completeReference(Reference reference, AssetAdministrationShellEnvironment env) throws ResourceNotFoundException {
+        if (reference == null) {
+            return;
+        }
         List<Key> keys = reference.getKeys();
         if (keys.stream().allMatch(x -> x.getType() != null)) {
             return;
@@ -249,29 +253,36 @@ public class Util {
                 k.setType(KeyElements.ASSET_ADMINISTRATION_SHELL);
                 continue;
             }
-            else if (env.getSubmodels().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue()) ||
-                    x.getIdShort().equalsIgnoreCase(k.getValue()))) {
-                k.setType(KeyElements.SUBMODEL);
+
+            env.getSubmodels().forEach(x -> {
+                if (x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue()) ||
+                        x.getIdShort().equalsIgnoreCase(k.getValue())) {
+                    k.setType(KeyElements.SUBMODEL);
+                    parent[0] = x;
+                }
+            });
+            if (k.getType() != null) {
                 continue;
             }
-            else if (env.getConceptDescriptions().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue()) ||
+
+            if (env.getConceptDescriptions().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue()) ||
                     x.getIdShort().equalsIgnoreCase(k.getValue()))) {
                 k.setType(KeyElements.CONCEPT_DESCRIPTION);
                 continue;
             }
-            else if (env.getAssets().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue()) ||
+            if (env.getAssets().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue()) ||
                     x.getIdShort().equalsIgnoreCase(k.getValue()))) {
                 k.setType(KeyElements.ASSET);
                 continue;
             }
-            if (parent[0] == null) {
-                env.getSubmodels().forEach(x -> x.getSubmodelElements()
-                        .forEach(y -> {
-                            if (y.getIdShort().equalsIgnoreCase(k.getValue())) {
-                                k.setType(AasUtils.referableToKeyType(y));
-                                parent[0] = y;
-                            }
-                        }));
+            if (parent[0] != null && Submodel.class.isAssignableFrom(parent[0].getClass())) {
+                Submodel submodel = (Submodel) parent[0];
+                submodel.getSubmodelElements().forEach(y -> {
+                    if (y.getIdShort().equalsIgnoreCase(k.getValue())) {
+                        k.setType(AasUtils.referableToKeyType(y));
+                        parent[0] = y;
+                    }
+                });
             }
             else if (SubmodelElementCollection.class.isAssignableFrom(parent[0].getClass())) {
                 ((SubmodelElementCollection) parent[0]).getValues().forEach(x -> {
@@ -282,24 +293,19 @@ public class Util {
                 });
             }
             else if (Operation.class.isAssignableFrom(parent[0].getClass())) {
-                ((Operation) parent[0]).getOutputVariables().forEach(x -> {
-                    if (x.getValue().getIdShort().equalsIgnoreCase(k.getValue())) {
-                        k.setType(AasUtils.referableToKeyType(x.getValue()));
-                        parent[0] = x.getValue();
-                    }
-                });
-                ((Operation) parent[0]).getInoutputVariables().forEach(x -> {
-                    if (x.getValue().getIdShort().equalsIgnoreCase(k.getValue())) {
-                        k.setType(AasUtils.referableToKeyType(x.getValue()));
-                        parent[0] = x.getValue();
-                    }
-                });
-                ((Operation) parent[0]).getInputVariables().forEach(x -> {
-                    if (x.getValue().getIdShort().equalsIgnoreCase(k.getValue())) {
-                        k.setType(AasUtils.referableToKeyType(x.getValue()));
-                        parent[0] = x.getValue();
-                    }
-                });
+                Operation operation = (Operation) parent[0];
+                Stream.concat(Stream.concat(operation.getInoutputVariables().stream(),
+                        operation.getInputVariables().stream()),
+                        operation.getOutputVariables().stream()).forEach(x -> {
+                            if (x.getValue().getIdShort().equalsIgnoreCase(k.getValue())) {
+                                k.setType(AasUtils.referableToKeyType(x.getValue()));
+                                parent[0] = x.getValue();
+                            }
+                        });
+            }
+
+            if (k.getType() == null) {
+                throw new ResourceNotFoundException("Resource with ID " + k.getValue() + " was not found!");
             }
         }
     }

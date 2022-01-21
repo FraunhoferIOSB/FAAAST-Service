@@ -15,7 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.PutAssetAdministrationShellByIdResponse;
@@ -37,10 +39,14 @@ public class PutAssetAdministrationShellByIdRequestHandler extends RequestHandle
         PutAssetAdministrationShellByIdResponse response = new PutAssetAdministrationShellByIdResponse();
 
         try {
-            AssetAdministrationShell shell = (AssetAdministrationShell) persistence.put(request.getAas());
+            AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getAas().getIdentification(), new OutputModifier());
+            shell = (AssetAdministrationShell) persistence.put(request.getAas());
             response.setPayload(shell);
             response.setStatusCode(StatusCode.Success);
             publishElementUpdateEventMessage(AasUtils.toReference(shell), shell);
+        }
+        catch (ResourceNotFoundException ex) {
+            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

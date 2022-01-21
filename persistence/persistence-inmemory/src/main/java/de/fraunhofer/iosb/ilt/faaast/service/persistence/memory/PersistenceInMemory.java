@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.AASXPackage;
@@ -83,7 +84,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier) {
+    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException {
         if (id == null || modifier == null) {
             return null;
         }
@@ -95,7 +96,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public SubmodelElement get(Reference reference, QueryModifier modifier) {
+    public SubmodelElement get(Reference reference, QueryModifier modifier) throws ResourceNotFoundException {
         if (reference == null || reference.getKeys() == null || modifier == null || this.aasEnvironment == null) {
             return null;
         }
@@ -141,7 +142,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) {
+    public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException {
         if (reference == null || modifier == null) {
             return null;
         }
@@ -169,17 +170,22 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public SubmodelElement put(Reference parent, SubmodelElement submodelElement) {
-        if (parent == null || submodelElement == null) {
+    public SubmodelElement put(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException {
+        if ((parent == null && referenceToSubmodelElement == null) || submodelElement == null) {
             return null;
         }
-        Util.completeReference(parent, this.aasEnvironment);
-        return referablePersistenceManager.putSubmodelElement(parent, submodelElement);
+        if (parent != null) {
+            Util.completeReference(parent, this.aasEnvironment);
+        }
+        if (referenceToSubmodelElement != null) {
+            Util.completeReference(referenceToSubmodelElement, this.aasEnvironment);
+        }
+        return referablePersistenceManager.putSubmodelElement(parent, referenceToSubmodelElement, submodelElement);
     }
 
 
     @Override
-    public void remove(Identifier id) {
+    public void remove(Identifier id) throws ResourceNotFoundException {
         if (id == null) {
             return;
         }
@@ -188,7 +194,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public void remove(Reference reference) {
+    public void remove(Reference reference) throws ResourceNotFoundException {
         if (reference == null) {
             return;
         }

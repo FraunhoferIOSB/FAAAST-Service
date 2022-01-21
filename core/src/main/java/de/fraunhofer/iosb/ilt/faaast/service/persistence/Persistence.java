@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.AASXPackage;
@@ -49,7 +50,7 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      * @param <T> defines the type of the requested Identifiable<br>
      * @return the Identifiable with the given Identifier
      */
-    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier);
+    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException;
 
 
     /**
@@ -59,7 +60,7 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      * @param modifier QueryModifier to define Level and Extent of the query<br>
      * @return the Submodel Element with the given Reference
      */
-    public SubmodelElement get(Reference reference, QueryModifier modifier);
+    public SubmodelElement get(Reference reference, QueryModifier modifier) throws ResourceNotFoundException;
 
 
     /**
@@ -100,7 +101,7 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      * @param modifier QueryModifier to define Level and Extent of the query<br>
      * @return List of Submodel Elements
      */
-    public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier);
+    public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException;
 
 
     /**
@@ -147,11 +148,12 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
     /**
      * Create or Update the Submodel Element on the given reference<br>
      *
-     * @param parent of the new Submodel Element
+     * @param parent of the new Submodel Element. Could be null if a direct reference to the submodelelement is set.
+     * @param referenceToSubmodelElement reference to the submodelelement which should be updated
      * @param submodelElement which should be added to the parent
      * @return the created Submodel Element
      */
-    public SubmodelElement put(Reference parent, SubmodelElement submodelElement);
+    public SubmodelElement put(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException;
 
 
     /**
@@ -171,7 +173,7 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      *
      * @param id of the Identifiable
      */
-    public void remove(Identifier id);
+    public void remove(Identifier id) throws ResourceNotFoundException;
 
 
     /**
@@ -179,7 +181,7 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      *
      * @param reference to the Referable
      */
-    public void remove(Reference reference);
+    public void remove(Reference reference) throws ResourceNotFoundException;
 
 
     /**

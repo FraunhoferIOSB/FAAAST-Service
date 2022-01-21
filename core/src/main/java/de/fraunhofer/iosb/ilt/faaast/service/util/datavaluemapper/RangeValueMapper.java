@@ -27,8 +27,12 @@ public class RangeValueMapper extends DataValueMapper<Range, RangeValue> {
         }
         RangeValue rangeValue = new RangeValue();
         //TODO: unsafe cast?
-        rangeValue.setMax(Double.valueOf(submodelElement.getMax()));
-        rangeValue.setMin(Double.valueOf(submodelElement.getMin()));
+        if (submodelElement.getMax() != null) {
+            rangeValue.setMax(Double.valueOf(submodelElement.getMax()));
+        }
+        if (submodelElement.getMin() != null) {
+            rangeValue.setMin(Double.valueOf(submodelElement.getMin()));
+        }
         return rangeValue;
     }
 
