@@ -17,22 +17,25 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.FileValue;
 import java.io.IOException;
 
-public class FileValueSerializer extends OutputModifierAwareSerializer<FileValue> {
+
+public class FileValueSerializer extends StdSerializer<FileValue> {
 
     public FileValueSerializer() {
         this(null);
     }
 
+
     public FileValueSerializer(Class<FileValue> type) {
         super(type);
     }
 
+
     @Override
-    public void serialize(FileValue value, JsonGenerator generator, SerializerProvider provider, OutputModifier modifier) throws IOException, JsonProcessingException {
+    public void serialize(FileValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
         if (value != null) {
             generator.writeStartObject();
             generator.writeStringField("mimeType", value.getMimeType());

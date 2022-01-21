@@ -15,36 +15,41 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.BlobValue;
 import java.io.IOException;
-import org.codehaus.plexus.util.Base64;
 
 
-public class BlobValueSerializer extends ModifierAwareSerializer<BlobValue> {
+public abstract class ModifierAwareSerializer<T> extends StdSerializer<T> {
 
-    public BlobValueSerializer() {
+    public static final String LEVEL = "level";
+    public static final String EXTEND = "extend";
+
+    protected ModifierAwareSerializer() {
         this(null);
     }
 
 
-    public BlobValueSerializer(Class<BlobValue> type) {
+    protected ModifierAwareSerializer(Class<T> type) {
         super(type);
     }
 
 
     @Override
-    public void serialize(BlobValue value, JsonGenerator generator, SerializerProvider provider, Level level, Extend extend) throws IOException, JsonProcessingException {
-        if (value != null) {
-            generator.writeStartObject();
-            generator.writeStringField("mimeType", value.getMimeType());
-            if (extend == Extend.WithBLOBValue) {
-                generator.writeStringField("value", new String(Base64.encodeBase64(value.getValue())));
-            }
-            generator.writeEndObject();
-        }
+    public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        serialize(value, gen, provider,
+                provider.getAttribute(LEVEL) != null && Level.class.isAssignableFrom(provider.getAttribute(LEVEL).getClass())
+                        ? (Level) provider.getAttribute(LEVEL)
+                        : Level.DEFAULT,
+                provider.getAttribute(EXTEND) != null && Extend.class.isAssignableFrom(provider.getAttribute(EXTEND).getClass())
+                        ? (Extend) provider.getAttribute(EXTEND)
+                        : Extend.DEFAULT);
+
     }
+
+
+    public abstract void serialize(T value, JsonGenerator gen, SerializerProvider provider, Level level, Extend extend) throws IOException;
+
 }

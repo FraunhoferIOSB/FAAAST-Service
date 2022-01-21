@@ -1,10 +1,5 @@
 {
-    "exampleProperty": "foo",
-    "exampleRange": {
-        "min": 3,
-        "max": 5
-    },
-    "exampleEntity": {
+    "entity1": {
         "statements":
                 {
                     "MaxRotationSpeed": "5000"

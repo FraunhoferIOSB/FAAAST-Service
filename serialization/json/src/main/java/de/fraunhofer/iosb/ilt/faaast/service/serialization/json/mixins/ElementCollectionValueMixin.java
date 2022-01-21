@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import java.util.Map;
 
+
 public abstract class ElementCollectionValueMixin {
 
     @JsonValue

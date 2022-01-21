@@ -43,7 +43,6 @@ public class EntityValueMapper extends DataValueMapper<Entity, EntityValue> {
         if (submodelElement == null || value == null) {
             return null;
         }
-        // TODO not only update but remove? how to handle new values?
         for (SubmodelElement statement: submodelElement.getStatements()) {
             if (value.getStatements().containsKey(statement.getIdShort())) {
                 DataElementValueMapper.setDataElementValue(statement, value.getStatements().get(statement.getIdShort()));

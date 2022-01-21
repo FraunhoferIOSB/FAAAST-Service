@@ -15,8 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.AnnotatedRelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
 import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import java.util.stream.Collectors;
 
 
 public class AnnotatedRelationshipElementValueMapper extends DataValueMapper<AnnotatedRelationshipElement, AnnotatedRelationshipElementValue> {
@@ -26,12 +28,13 @@ public class AnnotatedRelationshipElementValueMapper extends DataValueMapper<Ann
         if (submodelElement == null) {
             return null;
         }
-        AnnotatedRelationshipElementValue annotatedRelationshipElementValue = new AnnotatedRelationshipElementValue();
-        //TODO: Check type
-        // annotatedRelationshipElementValue.setAnnotation(submodelElement.getAnnotations());
-        annotatedRelationshipElementValue.setFirst(submodelElement.getFirst().getKeys());
-        annotatedRelationshipElementValue.setSecond(submodelElement.getSecond().getKeys());
-        return annotatedRelationshipElementValue;
+        AnnotatedRelationshipElementValue value = new AnnotatedRelationshipElementValue();
+        value.setAnnotations(submodelElement.getAnnotations().stream().collect(Collectors.toMap(
+                x -> x.getIdShort(),
+                x -> DataElementValueMapper.toDataElement(x))));
+        value.setFirst(submodelElement.getFirst().getKeys());
+        value.setSecond(submodelElement.getSecond().getKeys());
+        return value;
     }
 
 

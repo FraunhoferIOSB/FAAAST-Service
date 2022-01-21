@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.FileValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePropertyValue;
@@ -43,6 +44,7 @@ import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultRange;
+import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -207,6 +209,76 @@ public class DataElementValueMapperTest {
 
 
     @Test
+    public void testElementCollectioToValue() {
+        String idShortProperty1 = "property1";
+        String idShortRange1 = "range1";
+        ElementCollectionValue expected = ElementCollectionValue.builder()
+                .value(idShortProperty1, PropertyValue.builder()
+                        .value("foo")
+                        .build())
+                .value(idShortRange1, RangeValue.builder()
+                        .min(0)
+                        .max(2)
+                        .build())
+                .build();
+        SubmodelElementCollection input = new DefaultSubmodelElementCollection.Builder()
+                .value(new DefaultProperty.Builder()
+                        .idShort(idShortProperty1)
+                        .value("foo")
+                        .build())
+                .value(new DefaultRange.Builder()
+                        .idShort(idShortRange1)
+                        .min("0.0")
+                        .max("2.0")
+                        .build())
+                .build();
+        DataElementValue actual = DataElementValueMapper.toDataElement(input);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testElementCollectioSetValue() {
+        String idShortProperty1 = "property1";
+        String idShortRange1 = "range1";
+        SubmodelElementCollection expected = new DefaultSubmodelElementCollection.Builder()
+                .value(new DefaultProperty.Builder()
+                        .idShort(idShortProperty1)
+                        .value("bar")
+                        .build())
+                .value(new DefaultRange.Builder()
+                        .idShort(idShortRange1)
+                        .min("0.0")
+                        .max("10.0")
+                        .build())
+                .build();
+        SubmodelElementCollection input = new DefaultSubmodelElementCollection.Builder()
+                .value(new DefaultProperty.Builder()
+                        .idShort(idShortProperty1)
+                        .value("foo")
+                        .build())
+                .value(new DefaultRange.Builder()
+                        .idShort(idShortRange1)
+                        .min("0.0")
+                        .max("2.0")
+                        .build())
+                .build();
+        ElementCollectionValue newValue = ElementCollectionValue.builder()
+                .value(idShortProperty1, PropertyValue.builder()
+                        .value("bar")
+                        .build())
+                .value(idShortRange1, RangeValue.builder()
+                        .min(0)
+                        .max(10)
+                        .build())
+                .build();
+
+        SubmodelElementCollection actual = DataElementValueMapper.setDataElementValue(input, newValue);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
     public void testBlobValueMapping() {
         SubmodelElement submodelElement = ((SubmodelElementCollection) environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase("https://acplt.org/Test_Submodel"))
@@ -248,5 +320,4 @@ public class DataElementValueMapperTest {
         Assert.assertTrue(((AnnotatedRelationshipElement) submodelElement).getFirst().getKeys().get(0).getValue().equalsIgnoreCase("TestKey"));
         Assert.assertTrue(((AnnotatedRelationshipElement) submodelElement).getSecond().getKeys().get(0).getValue().equalsIgnoreCase("TestKey1"));
     }
-
 }

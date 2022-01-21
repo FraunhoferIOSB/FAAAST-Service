@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
@@ -25,23 +25,26 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import java.io.IOException;
 import java.util.Map;
 
-public class EntityValueSerializer extends OutputModifierAwareSerializer<EntityValue> {
+
+public class EntityValueSerializer extends StdSerializer<EntityValue> {
 
     public EntityValueSerializer() {
         this(null);
     }
 
+
     public EntityValueSerializer(Class<EntityValue> type) {
         super(type);
     }
 
+
     @Override
-    public void serialize(EntityValue value, JsonGenerator generator, SerializerProvider provider, OutputModifier modifier) throws IOException, JsonProcessingException {
+    public void serialize(EntityValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
         if (value != null) {
             generator.writeStartObject();
             generator.writeFieldName("statements");
             generator.writeStartObject();
-            for (Map.Entry<String, ElementValue> annotation : value.getStatements().entrySet()) {
+            for (Map.Entry<String, ElementValue> annotation: value.getStatements().entrySet()) {
                 provider.defaultSerializeField(annotation.getKey(), annotation.getValue(), generator);
             }
             generator.writeEndObject();

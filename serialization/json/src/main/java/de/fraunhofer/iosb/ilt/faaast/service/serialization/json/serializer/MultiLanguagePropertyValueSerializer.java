@@ -15,29 +15,30 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePropertyValue;
 import io.adminshell.aas.v3.model.LangString;
 import java.io.IOException;
 
-public class MultiLanguagePropertyValueSerializer extends OutputModifierAwareSerializer<MultiLanguagePropertyValue> {
+
+public class MultiLanguagePropertyValueSerializer extends StdSerializer<MultiLanguagePropertyValue> {
 
     public MultiLanguagePropertyValueSerializer() {
         this(null);
     }
 
+
     public MultiLanguagePropertyValueSerializer(Class<MultiLanguagePropertyValue> type) {
         super(type);
     }
 
+
     @Override
-    public void serialize(MultiLanguagePropertyValue value, JsonGenerator generator, SerializerProvider provider, OutputModifier modifier) throws IOException {
+    public void serialize(MultiLanguagePropertyValue value, JsonGenerator generator, SerializerProvider provider) throws IOException {
         if (value != null) {
             generator.writeStartObject();
-            for (LangString langString : value.getLangStringSet()) {
+            for (LangString langString: value.getLangStringSet()) {
                 generator.writeStringField(langString.getLanguage(), langString.getValue());
             }
             generator.writeEndObject();

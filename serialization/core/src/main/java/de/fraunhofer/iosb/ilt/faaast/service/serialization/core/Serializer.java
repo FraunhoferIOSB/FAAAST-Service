@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.core;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import java.io.File;
 import java.io.FileNotFoundException;

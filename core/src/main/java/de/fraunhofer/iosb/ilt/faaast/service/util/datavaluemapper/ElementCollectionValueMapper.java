@@ -41,10 +41,9 @@ public class ElementCollectionValueMapper extends DataValueMapper<SubmodelElemen
         if (elementCollection == null || value == null) {
             return elementCollection;
         }
-        // TODO not only update but remove? how to handle new values?
-        for (SubmodelElement statement: elementCollection.getValues()) {
-            if (value.getValues().containsKey(statement.getIdShort())) {
-                DataElementValueMapper.setDataElementValue(statement, value.getValues().get(statement.getIdShort()));
+        for (SubmodelElement element: elementCollection.getValues()) {
+            if (value.getValues().containsKey(element.getIdShort())) {
+                DataElementValueMapper.setDataElementValue(element, value.getValues().get(element.getIdShort()));
             }
         }
         return elementCollection;

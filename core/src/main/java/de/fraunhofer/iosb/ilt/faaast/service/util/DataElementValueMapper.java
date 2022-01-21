@@ -120,7 +120,7 @@ public class DataElementValueMapper {
      * @param <O> type of the input ElementValue
      * @return the SubmodelElement instance with the DataElementValue values set
      */
-    public static <I extends SubmodelElement, O extends ElementValue> I setDataElementValue(SubmodelElement submodelElement, ElementValue dataElementValue) {
+    public static <I extends SubmodelElement, O extends ElementValue> I setDataElementValue(I submodelElement, O dataElementValue) {
         init();
         if (submodelElement == null) {
             throw new IllegalArgumentException("submodelElement must be non-null");

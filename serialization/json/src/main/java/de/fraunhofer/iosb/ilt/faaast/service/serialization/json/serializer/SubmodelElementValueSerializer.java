@@ -15,36 +15,30 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.BlobValue;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
+import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.IOException;
-import org.codehaus.plexus.util.Base64;
 
 
-public class BlobValueSerializer extends ModifierAwareSerializer<BlobValue> {
+public class SubmodelElementValueSerializer extends StdSerializer<SubmodelElement> {
 
-    public BlobValueSerializer() {
+    public SubmodelElementValueSerializer() {
         this(null);
     }
 
 
-    public BlobValueSerializer(Class<BlobValue> type) {
+    public SubmodelElementValueSerializer(Class<SubmodelElement> type) {
         super(type);
     }
 
 
     @Override
-    public void serialize(BlobValue value, JsonGenerator generator, SerializerProvider provider, Level level, Extend extend) throws IOException, JsonProcessingException {
-        if (value != null) {
-            generator.writeStartObject();
-            generator.writeStringField("mimeType", value.getMimeType());
-            if (extend == Extend.WithBLOBValue) {
-                generator.writeStringField("value", new String(Base64.encodeBase64(value.getValue())));
-            }
-            generator.writeEndObject();
-        }
+    public void serialize(SubmodelElement value, JsonGenerator generator, SerializerProvider provider) throws IOException {
+        generator.writeStartObject();
+        provider.defaultSerializeField(value.getIdShort(), DataElementValueMapper.toDataElement(value), generator);
+        generator.writeEndObject();
     }
+
 }

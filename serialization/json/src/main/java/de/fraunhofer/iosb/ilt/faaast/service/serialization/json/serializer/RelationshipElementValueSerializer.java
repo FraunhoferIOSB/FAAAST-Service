@@ -17,27 +17,26 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RelationshipElementValue;
-import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.KeyElements;
 import java.io.IOException;
 
-public class RelationshipElementValueSerializer extends OutputModifierAwareSerializer<RelationshipElementValue> {
+
+public class RelationshipElementValueSerializer extends StdSerializer<RelationshipElementValue> {
 
     public RelationshipElementValueSerializer() {
         this(null);
     }
 
+
     public RelationshipElementValueSerializer(Class<RelationshipElementValue> type) {
         super(type);
     }
 
+
     @Override
-    public void serialize(RelationshipElementValue value, JsonGenerator generator, SerializerProvider provider, OutputModifier modifier) throws IOException, JsonProcessingException {
+    public void serialize(RelationshipElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
         if (value != null) {
             generator.writeStartObject();
             generator.writeFieldName("first");

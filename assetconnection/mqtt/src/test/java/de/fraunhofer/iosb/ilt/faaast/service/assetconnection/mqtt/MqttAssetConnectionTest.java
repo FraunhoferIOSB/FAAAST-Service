@@ -44,7 +44,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
+
 
 public class MqttAssetConnectionTest {
 
@@ -59,6 +61,7 @@ public class MqttAssetConnectionTest {
         mqttServer.stopServer();
     }
 
+
     @BeforeClass
     public static void init() throws IOException {
         // find free TCP port
@@ -66,7 +69,8 @@ public class MqttAssetConnectionTest {
             Assert.assertNotNull(serverSocket);
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
             mqttPort = serverSocket.getLocalPort();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             Assert.fail("could not find free port");
         }
         // start embedded mqtt server
@@ -78,6 +82,7 @@ public class MqttAssetConnectionTest {
         mqttServer.startServer(mqttConfig, null);
     }
 
+
     private static void publishMqtt(String topic, String content) {
         mqttServer.internalPublish(MqttMessageBuilders.publish()
                 .topicName(topic)
@@ -86,6 +91,7 @@ public class MqttAssetConnectionTest {
                 .payload(Unpooled.copiedBuffer(content.getBytes(UTF_8))).build(),
                 "unit test " + UUID.randomUUID().toString().replace("-", ""));
     }
+
 
     @Test
     public void testSubscriptionProvider() throws AssetConnectionException, InterruptedException {
@@ -120,6 +126,8 @@ public class MqttAssetConnectionTest {
         Assert.assertEquals(expected, response.get());
     }
 
+
+    @Ignore("missing JSON deserialization")
     @Test
     public void testSubscriptionProviderWithJsonPath() throws AssetConnectionException, InterruptedException {
         final String topic = "some.mqtt.topic";
@@ -145,18 +153,17 @@ public class MqttAssetConnectionTest {
         assetConnection.getSubscriptionProviders().get(reference).addNewDataListener(new NewDataListener() {
             @Override
             public void newDataReceived(DataElementValue data) {
-                // we received data via MQTT
                 response.set(data);
                 condition.countDown();
             }
         });
-        // send message via MQTT
         publishMqtt(topic, expected.getValue());
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.DAYS);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         PropertyValue extracted = new PropertyValue();
         extracted.setValue("7");
         Assert.assertEquals(extracted, response.get());
     }
+
 
     @Test
     public void testValueProvider() throws AssetConnectionException, InterruptedException {

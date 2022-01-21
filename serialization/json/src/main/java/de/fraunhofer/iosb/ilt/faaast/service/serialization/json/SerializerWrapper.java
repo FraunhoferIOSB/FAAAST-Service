@@ -12,21 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api;
+package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
-import java.util.stream.Stream;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import java.util.function.Consumer;
 
 
-public enum Extend {
-    WithoutBLOBValue,
-    WithBLOBValue;
+public class SerializerWrapper extends io.adminshell.aas.v3.dataformat.json.JsonSerializer {
 
-    public static final Extend DEFAULT = Extend.WithoutBLOBValue;
+    public SerializerWrapper() {
 
-    public static Extend fromString(String value) {
-        return Stream.of(Extend.values())
-                .filter(x -> x.name().equalsIgnoreCase(value))
-                .findAny()
-                .orElse(Extend.DEFAULT);
+    }
+
+
+    public SerializerWrapper(Consumer<JsonMapper> modifier) {
+        if (modifier != null) {
+            modifier.accept(mapper);
+        }
+    }
+
+
+    protected JsonMapper getMapper() {
+        return mapper;
     }
 }
