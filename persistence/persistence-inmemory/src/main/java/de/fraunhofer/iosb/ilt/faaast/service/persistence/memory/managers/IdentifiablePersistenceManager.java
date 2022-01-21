@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers;
 
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SpecificAssetIdentification;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
  */
 public class IdentifiablePersistenceManager extends PersistenceManager {
 
-    public <T extends Identifiable> T getIdentifiableById(Identifier id) {
+    public <T extends Identifiable> T getIdentifiableById(Identifier id) throws ResourceNotFoundException {
         if (id == null || this.aasEnvironment == null) {
             return null;
         }
@@ -45,6 +46,10 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
                 this.aasEnvironment.getSubmodels(),
                 this.aasEnvironment.getConceptDescriptions(),
                 this.aasEnvironment.getAssets());
+
+        if (identifiable == null) {
+            throw new ResourceNotFoundException("Resource not found with ID " + id.getIdentifier());
+        }
 
         return (T) identifiable;
     }
@@ -159,7 +164,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
     }
 
 
-    public void remove(Identifier id) {
+    public void remove(Identifier id) throws ResourceNotFoundException {
         if (id == null || this.aasEnvironment == null) {
             return;
         }

@@ -15,7 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.conceptdescriptions;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.PutConceptDescriptionByIdResponse;
@@ -37,10 +39,14 @@ public class PutConceptDescriptionByIdRequestHandler extends RequestHandler<PutC
         PutConceptDescriptionByIdResponse response = new PutConceptDescriptionByIdResponse();
 
         try {
-            ConceptDescription conceptDescription = (ConceptDescription) persistence.put(request.getConceptDescription());
+            ConceptDescription conceptDescription = (ConceptDescription) persistence.get(request.getConceptDescription().getIdentification(), new OutputModifier());
+            conceptDescription = (ConceptDescription) persistence.put(request.getConceptDescription());
             response.setPayload(conceptDescription);
             response.setStatusCode(StatusCode.Success);
             publishElementUpdateEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
+        }
+        catch (ResourceNotFoundException ex) {
+            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

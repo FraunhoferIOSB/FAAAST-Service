@@ -17,16 +17,19 @@ package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.operation;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.Arrays;
@@ -47,13 +50,17 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
 
         try {
             Reference reference = Util.toReference(request.getPath());
-
+            //Check if submodelelement does exist
+            Operation operation = (Operation) persistence.get(reference, new OutputModifier());
             OperationHandle operationHandle = executeOperationAsync(reference, request);
             response.setPayload(operationHandle);
             response.setStatusCode(StatusCode.Success);
             publishOperationInvokeEventMessage(reference,
                     Util.toValues(request.getInputArguments()),
                     Util.toValues(request.getInoutputArguments()));
+        }
+        catch (ResourceNotFoundException ex) {
+            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

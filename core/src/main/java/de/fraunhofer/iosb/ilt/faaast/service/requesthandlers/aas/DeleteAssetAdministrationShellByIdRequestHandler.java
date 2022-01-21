@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
@@ -42,6 +43,9 @@ public class DeleteAssetAdministrationShellByIdRequestHandler extends RequestHan
             persistence.remove(request.getId());
             response.setStatusCode(StatusCode.Success);
             publishElementDeleteEventMessage(AasUtils.toReference(shell), shell);
+        }
+        catch (ResourceNotFoundException ex) {
+            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);
