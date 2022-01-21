@@ -26,7 +26,7 @@ public class InvokeOperationAsyncRequest extends InvokeOperationRequest<InvokeOp
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<InvokeOperationRequest, Builder> {
+    public static class Builder extends AbstractBuilder<InvokeOperationAsyncRequest, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -35,7 +35,7 @@ public class InvokeOperationAsyncRequest extends InvokeOperationRequest<InvokeOp
 
 
         @Override
-        protected InvokeOperationRequest newBuildingInstance() {
+        protected InvokeOperationAsyncRequest newBuildingInstance() {
             return new InvokeOperationAsyncRequest();
         }
     }
