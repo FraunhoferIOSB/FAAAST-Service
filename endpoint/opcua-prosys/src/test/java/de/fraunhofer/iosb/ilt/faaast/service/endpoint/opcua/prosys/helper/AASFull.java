@@ -202,7 +202,7 @@ public class AASFull {
 
     public static AssetAdministrationShell createAAS4() {
         return new DefaultAssetAdministrationShell.Builder()
-                .idShort("TestAssetAdministrationShell")
+                .idShort("TestAssetAdministrationShell4")
                 .description(new LangString("An Example Asset Administration Shell for the test application", "en-us"))
                 .description(new LangString("Ein Beispiel-Verwaltungsschale für eine Test-Anwendung", "de"))
                 .identification(new DefaultIdentifier.Builder()
@@ -966,8 +966,8 @@ public class AASFull {
                         .value(new DefaultRange.Builder()
                                 .idShort("ExampleRange")
                                 .valueType("int")
-                                .min(null)
-                                .max(null)
+                                .min("1")
+                                .max("500")
                                 .build())
                         .ordered(true)
                         .build())
@@ -1009,7 +1009,7 @@ public class AASFull {
 
     public static Submodel createSubmodel6() {
         return new DefaultSubmodel.Builder()
-                .idShort("TestSubmodel")
+                .idShort("TestSubmodel6")
                 .description(new LangString("An example submodel for the test application", "en-us"))
                 .description(new LangString("Ein Beispiel-Teilmodell für eine Test-Anwendung", "de"))
                 .identification(new DefaultIdentifier.Builder()
@@ -1392,7 +1392,7 @@ public class AASFull {
 
     public static Submodel createSubmodel7() {
         return new DefaultSubmodel.Builder()
-                .idShort("TestSubmodel")
+                .idShort("TestSubmodel7")
                 .description(new LangString("An example submodel for the test application", "en-us"))
                 .description(new LangString("Ein Beispiel-Teilmodell für eine Test-Anwendung", "de"))
                 .identification(new DefaultIdentifier.Builder()

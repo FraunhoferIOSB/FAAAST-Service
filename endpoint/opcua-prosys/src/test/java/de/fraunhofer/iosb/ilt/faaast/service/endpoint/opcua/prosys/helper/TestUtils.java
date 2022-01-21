@@ -784,7 +784,12 @@ public class TestUtils {
     public static void writeNewValueIntern(UaClient client, NodeId writeNode, Object oldValue, Object newValue) throws ServiceException, StatusException, InterruptedException {
         DataValue value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue().toString());
+        if (oldValue == null) {
+            Assert.assertTrue("intial null value not equal", value.getValue().isEmpty());
+        }
+        else {
+            Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue().toString());
+        }
 
         client.writeValue(writeNode, newValue);
 

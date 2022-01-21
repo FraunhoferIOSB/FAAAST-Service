@@ -2576,8 +2576,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         addBlobValueNode(blobNode);
                     }
 
+                    Reference blobRef = AasUtils.toReference(parentRef, aasBlob);
                     try {
-                        Reference blobRef = AasUtils.toReference(parentRef, aasBlob);
                         submodelElementAasMapLock.lock();
                         submodelElementAasMap.put(blobNode.getValueNode().getNodeId(), new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE, blobRef));
                         logger.debug("addAasBlob: NodeId " + blobNode.getValueNode().getNodeId() + "; Blob: " + aasBlob);
@@ -2590,7 +2590,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     }
 
                     try {
-                        Reference blobRef = getReference(aasBlob, submodel);
+                        //Reference blobRef = getReference(aasBlob, submodel);
                         submodelElementOpcUAMapLock.lock();
                         submodelElementOpcUAMap.put(blobRef, blobNode);
                     }
@@ -2672,8 +2672,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
                 }
 
+                Reference refElemRef = AasUtils.toReference(parentRef, aasRefElem);
+
                 try {
-                    Reference refElemRef = AasUtils.toReference(parentRef, aasRefElem);
                     submodelElementAasMapLock.lock();
                     submodelElementAasMap.put(refElemNode.getValueNode().getKeysNode().getNodeId(),
                             new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
@@ -2687,9 +2688,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
 
                 try {
-                    Reference blobRef = getReference(aasRefElem, submodel);
+                    //Reference refElemRef = getReference(aasRefElem, submodel);
                     submodelElementOpcUAMapLock.lock();
-                    submodelElementOpcUAMap.put(blobRef, refElemNode);
+                    submodelElementOpcUAMap.put(refElemRef, refElemNode);
                 }
                 catch (Exception ex3) {
                     logger.warn("submodelElementOpcUAMap problem", ex3);
@@ -2787,9 +2788,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
 
             try {
-                Reference propRef = getReference(aasRange, submodel);
+                //Reference propRef = getReference(aasRange, submodel);
                 submodelElementOpcUAMapLock.lock();
-                submodelElementOpcUAMap.put(propRef, range);
+                submodelElementOpcUAMap.put(rangeRef, range);
             }
             catch (Exception ex3) {
                 logger.warn("submodelElementOpcUAMap problem", ex3);
@@ -3252,8 +3253,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     addAasReferenceAasNS(multiLangNode, aasMultiLang.getValueId(), AASMultiLanguagePropertyType.VALUE_ID);
                 }
 
+                Reference multiLangRef = AasUtils.toReference(parentRef, aasMultiLang);
                 try {
-                    Reference multiLangRef = AasUtils.toReference(parentRef, aasMultiLang);
                     submodelElementAasMapLock.lock();
                     submodelElementAasMap.put(multiLangNode.getValueNode().getNodeId(),
                             new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE, multiLangRef));
@@ -3267,9 +3268,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
 
                 try {
-                    Reference blobRef = getReference(aasMultiLang, submodel);
+                    //Reference blobRef = getReference(aasMultiLang, submodel);
                     submodelElementOpcUAMapLock.lock();
-                    submodelElementOpcUAMap.put(blobRef, multiLangNode);
+                    submodelElementOpcUAMap.put(multiLangRef, multiLangNode);
                 }
                 catch (Exception ex3) {
                     logger.warn("submodelElementOpcUAMap problem", ex3);
@@ -3641,9 +3642,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     }
 
                     try {
-                        Reference blobRef = getReference(aasRelElem, submodel);
+                        //Reference blobRef = getReference(aasRelElem, submodel);
                         submodelElementOpcUAMapLock.lock();
-                        submodelElementOpcUAMap.put(blobRef, relElemNode);
+                        submodelElementOpcUAMap.put(relElemRef, relElemNode);
                     }
                     catch (Exception ex3) {
                         logger.warn("submodelElementOpcUAMap problem", ex3);

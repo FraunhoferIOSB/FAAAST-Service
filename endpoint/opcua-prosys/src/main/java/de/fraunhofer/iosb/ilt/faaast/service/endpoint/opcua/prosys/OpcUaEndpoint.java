@@ -22,11 +22,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
+import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
@@ -179,7 +181,25 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             request.setId(submodel.getIdentification());
             request.setPath(path);
             request.setValueParser(new OpcUaElementValueParser());
+            if (element instanceof MultiLanguageProperty) {
+                MultiLanguageProperty mlp = (MultiLanguageProperty) element;
+                if ((mlp.getValues() != null) && (mlp.getValues().size() > 1)) {
+                    for (int i = 0; i < mlp.getValues().size(); i++) {
+                        logger.info("writeValue: MLP " + i + ": " + mlp.getValues().get(i).getValue());
+                    }
+                }
+            }
+
             request.setRawValue(DataElementValueMapper.toDataElement(element));
+
+            if (request.getRawValue() instanceof MultiLanguagePropertyValue) {
+                MultiLanguagePropertyValue mlpv = (MultiLanguagePropertyValue) request.getRawValue();
+                if ((mlpv.getLangStringSet() != null) && (mlpv.getLangStringSet().size() > 1)) {
+                    for (int i = 0; i < mlpv.getLangStringSet().size(); i++) {
+                        logger.info("writeValue: MLPV " + i + ": " + mlpv.getLangStringSet().toArray()[i]);
+                    }
+                }
+            }
 
             Response response = service.execute(request);
             logger.info("writeValue: Submodel " + submodel.getIdentification().getIdentifier() + "; Element " + element.getIdShort() + "; Status: " + response.getStatusCode());

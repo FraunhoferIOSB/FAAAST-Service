@@ -561,7 +561,7 @@ public class OpcUaEndpointTest {
         oldValue.add(new LocalizedText("Example value of a MultiLanguageProperty element", "en-us"));
         oldValue.add(new LocalizedText("Beispielswert für ein MulitLanguageProperty-Element", "de"));
 
-        // The DataElementValueMapper changes the order of the elements
+        // The DataElementValueMapper changes the order of the elements in some cases
         List<LocalizedText> newValue = new ArrayList<>();
         newValue.add(new LocalizedText("Beispielswert2 fuer ein anderes MulitLanguageProperty-Element", "de"));
         newValue.add(new LocalizedText("Example value of a MultiLanguageProperty element", "en-us"));

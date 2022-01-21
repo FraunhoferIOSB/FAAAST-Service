@@ -35,6 +35,7 @@ public class TestDefines {
     public static final String SUBMODEL_OPER_DATA_NAME = "http://i40.customer.com/instance/1/1/AC69B1CB44F07935";
     public static final String TEST_PROPERTY_NAME = "TestProperty";
     public static final String TEST_RANGE_NAME = "TestRange";
+    public static final String RANGE_MIN_NAME = "Min";
     public static final String RANGE_MAX_NAME = "Max";
     public static final String TEST_BLOB_NAME = "ExampleBlob";
     public static final String TEST_MULTI_LAN_PROP_NAME = "ExampleMultiLanguageProperty";
@@ -45,7 +46,13 @@ public class TestDefines {
     public static final String FULL_SUBMODEL_1_NAME = "Identification";
     public static final String FULL_SUBMODEL_1_ID = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
     public static final String FULL_SUBMODEL_4_NAME = "Test_Submodel_Mandatory";
+    public static final String FULL_SUBMODEL_6_NAME = "TestSubmodel6";
+    public static final String FULL_SUBMODEL_7_NAME = "TestSubmodel7";
     public static final String FULL_REL_ELEMENT_NAME = "ExampleRelationshipElement";
+    public static final String FULL_SM_ELEM_COLL_UO_NAME = "ExampleSubmodelCollectionUnordered";
+    public static final String FULL_SM_ELEM_COLL_O_NAME = "ExampleSubmodelCollectionOrdered";
+    public static final String FULL_SMEC_REL_ELEM_NAME = "ExampleReferenceElement";
+    public static final String FULL_SMEC_RANGE_NAME = "ExampleRange";
 
     public static final String MODELING_KIND_NAME = "ModelingKind";
     public static final String CATEGORY_NAME = "Category";
