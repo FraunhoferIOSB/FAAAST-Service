@@ -39,9 +39,13 @@ public class TestDefines {
     public static final String TEST_BLOB_NAME = "ExampleBlob";
     public static final String TEST_MULTI_LAN_PROP_NAME = "ExampleMultiLanguageProperty";
     public static final String TEST_REF_ELEM_NAME = "ExampleReferenceElement";
+    public static final String TEST_ENTITY_NAME = "ExampleEntity";
+    public static final String TEST_ENTITY_PROPERTY_NAME = "ExampleProperty";
 
     public static final String FULL_SUBMODEL_1_NAME = "Identification";
     public static final String FULL_SUBMODEL_1_ID = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
+    public static final String FULL_SUBMODEL_4_NAME = "Test_Submodel_Mandatory";
+    public static final String FULL_REL_ELEMENT_NAME = "ExampleRelationshipElement";
 
     public static final String MODELING_KIND_NAME = "ModelingKind";
     public static final String CATEGORY_NAME = "Category";

@@ -14,16 +14,22 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
 
+import com.prosysopc.ua.SecureIdentityException;
 import com.prosysopc.ua.ServiceException;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.client.UaClient;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
+import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.builtintypes.StatusCode;
 import com.prosysopc.ua.stack.common.ServiceResultException;
+import com.prosysopc.ua.stack.core.BrowsePathResult;
+import com.prosysopc.ua.stack.core.BrowsePathTarget;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.ReferenceDescription;
+import com.prosysopc.ua.stack.core.RelativePath;
+import com.prosysopc.ua.stack.core.RelativePathElement;
 import com.prosysopc.ua.stack.core.ServerState;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
@@ -32,10 +38,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.TestSe
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.TestUtils;
 import io.adminshell.aas.v3.model.Qualifier;
 import io.adminshell.aas.v3.model.impl.DefaultQualifier;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import opc.i4aas.AASIdentifierTypeDataType;
+import opc.i4aas.AASKeyDataType;
+import opc.i4aas.AASKeyElementsDataType;
+import opc.i4aas.AASKeyTypeDataType;
 import opc.i4aas.AASModelingKindDataType;
+import opc.i4aas.AASRelationshipElementType;
 import opc.i4aas.AASValueTypeDataType;
 import opc.i4aas.VariableIds;
 import org.junit.AfterClass;
@@ -146,6 +157,65 @@ public class OpcUaEndpointFullTest {
         Assert.assertNotNull("Submodel 1 Node not found", submodel1Node);
 
         testSubmodel1(client, submodel1Node);
+
+        System.out.println("disconnect client");
+        client.disconnect();
+    }
+
+
+    /**
+     * Test method for writing a RelationshipElement. Writes the property in the OPC UA
+     * Server and checks the new value in the server.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws InterruptedException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     */
+    @Test
+    public void testWriteRelationshipElementValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_SUBMODEL_4_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_REL_ELEMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, AASRelationshipElementType.SECOND)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.KEYS_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testWriteRelationshipElementValue Browse Result Null", bpres);
+        Assert.assertTrue("testWriteRelationshipElementValue Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testWriteRelationshipElementValue Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testWriteRelationshipElementValue ValueType Null", targets);
+        Assert.assertTrue("testWriteRelationshipElementValue ValueType empty", targets.length > 0);
+
+        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        List<AASKeyDataType> oldValue = new ArrayList<>();
+        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, "https://acplt.org/Test_Submodel_Mandatory", AASKeyTypeDataType.IRI));
+        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.SubmodelElementCollection, "ExampleSubmodelCollectionOrdered", AASKeyTypeDataType.IdShort));
+        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.MultiLanguageProperty, "ExampleMultiLanguageProperty", AASKeyTypeDataType.IdShort));
+
+        // The DataElementValueMapper changes the order of the elements
+        List<AASKeyDataType> newValue = new ArrayList<>();
+        newValue.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, "https://acplt.org/Test_Submodel_Mandatory", AASKeyTypeDataType.IRI));
+        newValue.add(new AASKeyDataType(AASKeyElementsDataType.SubmodelElementCollection, "ExampleSubmodelCollectionOrdered", AASKeyTypeDataType.IdShort));
+        newValue.add(new AASKeyDataType(AASKeyElementsDataType.Range, "ExampleRange", AASKeyTypeDataType.IdShort));
+
+        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
 
         System.out.println("disconnect client");
         client.disconnect();

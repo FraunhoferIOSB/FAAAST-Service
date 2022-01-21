@@ -3621,8 +3621,36 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 if (relElemNode != null) {
                     addSubmodelElementBaseData(relElemNode, aasRelElem, name);
 
-                    setAasReferenceData(aasRelElem.getFirst(), relElemNode.getFirstNode());
-                    setAasReferenceData(aasRelElem.getSecond(), relElemNode.getSecondNode());
+                    setAasReferenceData(aasRelElem.getFirst(), relElemNode.getFirstNode(), false);
+                    setAasReferenceData(aasRelElem.getSecond(), relElemNode.getSecondNode(), false);
+
+                    try {
+                        //Reference relElemRef = AasUtils.toReference(parentRef, aasRelElem);
+                        submodelElementAasMapLock.lock();
+                        submodelElementAasMap.put(relElemNode.getFirstNode().getKeysNode().getNodeId(),
+                                new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));
+                        submodelElementAasMap.put(relElemNode.getSecondNode().getKeysNode().getNodeId(),
+                                new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_SECOND, relElemRef));
+                        //logger.debug("addAasMultiLanguageProperty: NodeId " + refElemNode.getValueNode().getNodeId() + "; ReferenceElement: " + aasRefElem);
+                    }
+                    catch (Exception ex2) {
+                        logger.warn("submodelElementAasMap problem", ex2);
+                    }
+                    finally {
+                        submodelElementAasMapLock.unlock();
+                    }
+
+                    try {
+                        Reference blobRef = getReference(aasRelElem, submodel);
+                        submodelElementOpcUAMapLock.lock();
+                        submodelElementOpcUAMap.put(blobRef, relElemNode);
+                    }
+                    catch (Exception ex3) {
+                        logger.warn("submodelElementOpcUAMap problem", ex3);
+                    }
+                    finally {
+                        submodelElementOpcUAMapLock.unlock();
+                    }
 
                     if (ordered) {
                         node.addReference(relElemNode, Identifiers.HasOrderedComponent, false);
@@ -4044,14 +4072,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void setSubmodelElementValue(AASSubmodelElementType subElem, ElementValue value) throws StatusException {
         try {
             logger.debug("setSubmodelElementValue: " + subElem.getBrowseName().getName());
-            if (value instanceof DataElementValue) {
-                setDataElementValue(subElem, (DataElementValue) value);
-            }
-            else if ((value instanceof RelationshipElementValue) && (subElem instanceof AASRelationshipElementType)) {
+
+            // changed the order because of an error in the derivation hierarchy of ElementValue
+            // perhaps the order will be changed back to normal as soon as the error is fixed
+            if ((value instanceof RelationshipElementValue) && (subElem instanceof AASRelationshipElementType)) {
                 setRelationshipValue((AASRelationshipElementType) subElem, (RelationshipElementValue) value);
             }
             else if ((value instanceof EntityValue) && (subElem instanceof AASEntityType)) {
                 setEntityValue((AASEntityType) subElem, (EntityValue) value);
+            }
+            else if (value instanceof DataElementValue) {
+                setDataElementValue(subElem, (DataElementValue) value);
             }
             else {
                 logger.warn("SubmodelElement " + subElem.getBrowseName().getName() + " type not supported");
@@ -4080,6 +4111,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
+            Reference ref = new DefaultReference.Builder().keys(value.getFirst()).build();
+            setAasReferenceData(ref, aasElement.getFirstNode(), false);
+            ref = new DefaultReference.Builder().keys(value.getSecond()).build();
+            setAasReferenceData(ref, aasElement.getSecondNode(), false);
+
             if ((aasElement instanceof AASAnnotatedRelationshipElementType) && (value instanceof AnnotatedRelationshipElementValue)) {
                 AASAnnotatedRelationshipElementType annotatedElement = (AASAnnotatedRelationshipElementType) aasElement;
                 AnnotatedRelationshipElementValue annotatedValue = (AnnotatedRelationshipElementValue) value;
@@ -4094,11 +4130,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     setDataElementValue(annotationNodes[i], valueList.get(i));
                 }
 
-                DefaultReference ref = new DefaultReference.Builder().keys(value.getFirst()).build();
-                setAasReferenceData(ref, aasElement.getFirstNode());
+                //DefaultReference ref = new DefaultReference.Builder().keys(value.getFirst()).build();
+                //setAasReferenceData(ref, aasElement.getFirstNode());
 
-                ref = new DefaultReference.Builder().keys(value.getSecond()).build();
-                setAasReferenceData(ref, aasElement.getSecondNode());
+                //ref = new DefaultReference.Builder().keys(value.getSecond()).build();
+                //setAasReferenceData(ref, aasElement.getSecondNode());
             }
             else {
                 logger.info("setRelationshipValue: No AnnotatedRelationshipElement " + aasElement.getBrowseName().getName());

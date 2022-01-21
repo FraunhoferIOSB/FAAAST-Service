@@ -138,6 +138,8 @@ public class AASSimple {
     private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_CATEGORY = "Variable";
     private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_VALUE = "4370";
     private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_VALUETYPE = "integer";
+    private static final String SUBMODEL_OPERATIONAL_DATA_ENTITY_NAME = "ExampleEntity";
+    private static final String SUBMODEL_OPERATIONAL_DATA_ENTITY_PROPERTY_NAME = "ExampleProperty";
 
     public AASSimple() {}
 
@@ -371,7 +373,7 @@ public class AASSimple {
                                 .build())
                         .build())
                 .submodelElement(new DefaultEntity.Builder()
-                        .idShort("ExampleEntity")
+                        .idShort(SUBMODEL_OPERATIONAL_DATA_ENTITY_NAME)
                         .description(new LangString(
                                 "Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.",
                                 "en-us"))
@@ -408,7 +410,7 @@ public class AASSimple {
                                 .valueType("string")
                                 .build())
                         .statement(new DefaultProperty.Builder()
-                                .idShort("ExampleProperty")
+                                .idShort(SUBMODEL_OPERATIONAL_DATA_ENTITY_PROPERTY_NAME)
                                 .category("Constant")
                                 .description(new LangString("Example Property object", "en-us"))
                                 .description(new LangString("Beispiel Property Element", "de"))
@@ -431,6 +433,48 @@ public class AASSimple {
                                 .build())
                         .entityType(EntityType.CO_MANAGED_ENTITY)
                         .build())
+                //                .submodelElement(new DefaultRelationshipElement.Builder()
+                //                        .idShort("ExampleRelationshipElement")
+                //                        .category("Parameter")
+                //                        .description(new LangString("Example RelationshipElement object", "en-us"))
+                //                        .description(new LangString("Beispiel RelationshipElement Element", "de"))
+                //                        .semanticId(new DefaultReference.Builder()
+                //                                .key(new DefaultKey.Builder()
+                //                                        .type(KeyElements.GLOBAL_REFERENCE)
+                //                                        .value("http://acplt.org/RelationshipElements/ExampleRelationshipElement")
+                //                                        .idType(KeyType.IRI)
+                //                                        .build())
+                //                                .build())
+                //                        .first(new DefaultReference.Builder()
+                //                                .key(new DefaultKey.Builder()
+                //                                        .type(KeyElements.SUBMODEL)
+                //                                        .value(SUBMODEL_DOCUMENTATION_ID)
+                //                                        .idType(KeyType.IRI)
+                //                                        .build())
+                //                                .key(new DefaultKey.Builder()
+                //                                        .type(KeyElements.PROPERTY)
+                //                                        .value(SUBMODEL_DOCUMENTATION_PROPERTY_ID_SHORT)
+                //                                        .idType(KeyType.ID_SHORT)
+                //                                        .build())
+                //                                .build())
+                //                        .second(new DefaultReference.Builder()
+                //                                .key(new DefaultKey.Builder()
+                //                                        .type(KeyElements.SUBMODEL)
+                //                                        .value(SUBMODEL_OPERATIONAL_DATA_ID)
+                //                                        .idType(KeyType.IRI)
+                //                                        .build())
+                //                                .key(new DefaultKey.Builder()
+                //                                        .type(KeyElements.ENTITY)
+                //                                        .value(SUBMODEL_OPERATIONAL_DATA_ENTITY_NAME)
+                //                                        .idType(KeyType.ID_SHORT)
+                //                                        .build())
+                //                                .key(new DefaultKey.Builder()
+                //                                        .type(KeyElements.PROPERTY)
+                //                                        .value(SUBMODEL_OPERATIONAL_DATA_ENTITY_PROPERTY_NAME)
+                //                                        .idType(KeyType.ID_SHORT)
+                //                                        .build())
+                //                                .build())
+                //                        .build())
                 .build();
     }
 

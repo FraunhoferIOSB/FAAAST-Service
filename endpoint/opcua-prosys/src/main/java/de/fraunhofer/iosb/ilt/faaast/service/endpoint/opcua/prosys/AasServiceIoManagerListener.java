@@ -38,6 +38,7 @@ import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Range;
 import io.adminshell.aas.v3.model.ReferenceElement;
+import io.adminshell.aas.v3.model.RelationshipElement;
 import opc.i4aas.AASKeyDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -325,6 +326,26 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                                 }
 
                                 rv = endpoint.writeValue(aasRefElem, data.getSubmodel(), data.getReference());
+                                break;
+                            }
+                            case RELATIONSHIP_ELEMENT_FIRST: {
+                                RelationshipElement aasRelElem = (RelationshipElement) data.getSubmodelElement();
+                                Variant variant = dv.getValue();
+                                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+                                    aasRelElem.setFirst(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                                }
+
+                                rv = endpoint.writeValue(aasRelElem, data.getSubmodel(), data.getReference());
+                                break;
+                            }
+                            case RELATIONSHIP_ELEMENT_SECOND: {
+                                RelationshipElement aasRelElem = (RelationshipElement) data.getSubmodelElement();
+                                Variant variant = dv.getValue();
+                                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+                                    aasRelElem.setSecond(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                                }
+
+                                rv = endpoint.writeValue(aasRelElem, data.getSubmodel(), data.getReference());
                                 break;
                             }
                             default:

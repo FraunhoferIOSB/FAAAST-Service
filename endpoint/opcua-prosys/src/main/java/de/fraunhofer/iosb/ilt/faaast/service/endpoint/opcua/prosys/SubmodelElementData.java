@@ -94,6 +94,8 @@ public class SubmodelElementData {
         OPERATION,
         BLOB_VALUE,
         MULTI_LANGUAGE_VALUE,
-        REFERENCE_ELEMENT_VALUE
+        REFERENCE_ELEMENT_VALUE,
+        RELATIONSHIP_ELEMENT_FIRST,
+        RELATIONSHIP_ELEMENT_SECOND
     }
 }
