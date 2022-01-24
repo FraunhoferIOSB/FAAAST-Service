@@ -41,7 +41,7 @@
         <dependency>
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
-            <version>4.8.109</version>
+            <version>4.8.138</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-client</artifactId>
-            <version>11.0.6</version>
+            <version>11.0.7</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -67,7 +67,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>11.0.6</version>
+            <version>11.0.7</version>
         </dependency>
     </dependencies>
 </project>

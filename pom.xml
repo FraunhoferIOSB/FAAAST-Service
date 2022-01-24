@@ -32,12 +32,12 @@
     </modules>
     <properties>
         <aas.version>1.2.0</aas.version>
-        <classgraph.version>4.8.137</classgraph.version>
+        <classgraph.version>4.8.138</classgraph.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <flatten.version>1.2.7</flatten.version>
         <guava.version>31.0.1-jre</guava.version>
-        <jackson.version>2.13.0</jackson.version>
+        <jackson.version>2.13.1</jackson.version>
         <jsonassert.version>1.5.0</jsonassert.version>
         <junit.version>4.13.2</junit.version>
         <maven.compiler.source>11</maven.compiler.source>
@@ -52,14 +52,14 @@
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
         <milo.version>0.6.3</milo.version>
-        <mockito.version>4.1.0</mockito.version>
+        <mockito.version>4.3.0</mockito.version>
         <paho.version>1.2.5</paho.version>
-        <plugin.jib.version>3.1.4</plugin.jib.version>
+        <plugin.jib.version>3.2.0</plugin.jib.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <revision>1.0.0-SNAPSHOT</revision>
         <root.basedir>${project.basedir}</root.basedir>
-        <slf4j.version>1.7.32</slf4j.version>
-        <spotless.version>2.17.3</spotless.version>
+        <slf4j.version>1.7.33</slf4j.version>
+        <spotless.version>2.20.0</spotless.version>
     </properties>
     <dependencies>
         <dependency>
