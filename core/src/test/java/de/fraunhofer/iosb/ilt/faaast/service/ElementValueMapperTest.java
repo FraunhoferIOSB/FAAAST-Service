@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.BlobValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.FileValue;
@@ -29,8 +30,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.DoubleVal
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
-import io.adminshell.aas.v3.dataformat.core.AASFull;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.EntityType;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
@@ -46,6 +45,7 @@ import io.adminshell.aas.v3.model.impl.DefaultRange;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultReferenceElement;
 import io.adminshell.aas.v3.model.impl.DefaultRelationshipElement;
+import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -53,40 +53,14 @@ import org.junit.Test;
 
 public class ElementValueMapperTest {
 
-    AssetAdministrationShellEnvironment environment = AASFull.createEnvironment();
-
     @Test
-    public void testAnnotatedRelationshipElementFromValueMapping() throws ValueFormatException {
+    public void testAnnotatedRelationshipElementSetValueMapping() throws ValueFormatException {
         SubmodelElement actual = new DefaultAnnotatedRelationshipElement.Builder()
                 .annotation(new DefaultProperty.Builder()
                         .idShort("property")
                         .build())
                 .build();
-        AnnotatedRelationshipElementValue value = new AnnotatedRelationshipElementValue.Builder()
-                .first(List.of(
-                        new DefaultKey.Builder()
-                                .idType(KeyType.IRI)
-                                .type(KeyElements.SUBMODEL)
-                                .value("http://example.org/submodel/1")
-                                .build(),
-                        new DefaultKey.Builder()
-                                .idType(KeyType.ID_SHORT)
-                                .type(KeyElements.PROPERTY)
-                                .value("property1")
-                                .build()))
-                .second(List.of(
-                        new DefaultKey.Builder()
-                                .idType(KeyType.IRI)
-                                .type(KeyElements.SUBMODEL)
-                                .value("http://example.org/submodel/2")
-                                .build(),
-                        new DefaultKey.Builder()
-                                .idType(KeyType.ID_SHORT)
-                                .type(KeyElements.PROPERTY)
-                                .value("property2")
-                                .build()))
-                .annotation("property", PropertyValue.of(Datatype.String, "foo"))
-                .build();
+        AnnotatedRelationshipElementValue value = createAnnotatedRelationshipElementValue();
         SubmodelElement expected = new DefaultAnnotatedRelationshipElement.Builder()
                 .first(new DefaultReference.Builder()
                         .keys(value.getFirst())
@@ -107,7 +81,27 @@ public class ElementValueMapperTest {
 
     @Test
     public void testAnnotatedRelationshipElementToValueMapping() throws ValueFormatException {
-        AnnotatedRelationshipElementValue expected = new AnnotatedRelationshipElementValue.Builder()
+        AnnotatedRelationshipElementValue expected = createAnnotatedRelationshipElementValue();
+        SubmodelElement input = new DefaultAnnotatedRelationshipElement.Builder()
+                .first(new DefaultReference.Builder()
+                        .keys(expected.getFirst())
+                        .build())
+                .second(new DefaultReference.Builder()
+                        .keys(expected.getSecond())
+                        .build())
+                .annotation(new DefaultProperty.Builder()
+                        .idShort(expected.getAnnotations().keySet().iterator().next())
+                        .valueType(Datatype.String.getName())
+                        .value("foo")
+                        .build())
+                .build();
+        ElementValue actual = ElementValueMapper.toValue(input);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    private AnnotatedRelationshipElementValue createAnnotatedRelationshipElementValue() throws ValueFormatException {
+        return new AnnotatedRelationshipElementValue.Builder()
                 .first(List.of(
                         new DefaultKey.Builder()
                                 .idType(KeyType.IRI)
@@ -132,26 +126,11 @@ public class ElementValueMapperTest {
                                 .build()))
                 .annotation("property", PropertyValue.of(Datatype.String, "foo"))
                 .build();
-        SubmodelElement input = new DefaultAnnotatedRelationshipElement.Builder()
-                .first(new DefaultReference.Builder()
-                        .keys(expected.getFirst())
-                        .build())
-                .second(new DefaultReference.Builder()
-                        .keys(expected.getSecond())
-                        .build())
-                .annotation(new DefaultProperty.Builder()
-                        .idShort(expected.getAnnotations().keySet().iterator().next())
-                        .valueType(Datatype.String.getName())
-                        .value("foo")
-                        .build())
-                .build();
-        ElementValue actual = ElementValueMapper.toValue(input);
-        Assert.assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testBlobFromValueMapping() {
+    public void testBlobSetValueMapping() {
         SubmodelElement actual = new DefaultBlob.Builder()
                 .build();
         BlobValue value = BlobValue.builder()
@@ -183,7 +162,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testEntityFromValueMapping() throws ValueFormatException {
+    public void testEntitySetValueMapping() throws ValueFormatException {
         SubmodelElement actual = new DefaultEntity.Builder()
                 .statement(new DefaultProperty.Builder()
                         .idShort("property")
@@ -253,7 +232,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testFileFromValueMapping() {
+    public void testFileSetValueMapping() {
         SubmodelElement actual = new DefaultFile.Builder()
                 .build();
         FileValue value = FileValue.builder()
@@ -299,7 +278,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testMultilanguagePropertyFromValueMapping() {
+    public void testMultilanguagePropertySetValueMapping() {
         SubmodelElement actual = new DefaultMultiLanguageProperty.Builder()
                 .build();
         MultiLanguagePropertyValue value = MultiLanguagePropertyValue.builder()
@@ -315,7 +294,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testPropertyFromValueMapping() {
+    public void testPropertySetValueMapping() {
         PropertyValue value = new PropertyValue(new StringValue("foo"));
         SubmodelElement expected = new DefaultProperty.Builder()
                 .valueType(value.getValue().getDataType().getName())
@@ -343,7 +322,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testRangeFromValueMapping() {
+    public void testRangeSetValueMapping() {
         SubmodelElement actual = new DefaultRange.Builder()
                 .build();
         RangeValue value = RangeValue.builder()
@@ -377,7 +356,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testReferenceElementFromValueMapping() {
+    public void testReferenceElementSetValueMapping() {
         SubmodelElement actual = new DefaultReferenceElement.Builder()
                 .value(new DefaultReference.Builder()
                         .build())
@@ -413,7 +392,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testRelationshipElementFromValueMapping() throws ValueFormatException, ValueFormatException, ValueFormatException {
+    public void testRelationshipElementSetValueMapping() {
         SubmodelElement actual = new DefaultRelationshipElement.Builder()
                 .build();
         RelationshipElementValue value = RelationshipElementValue.builder()
@@ -488,6 +467,67 @@ public class ElementValueMapperTest {
                         .build())
                 .build();
         ElementValue actual = ElementValueMapper.toValue(input);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSubmodelElementCollectionToValueMapping() {
+        PropertyValue propertyValue = PropertyValue.builder().value(new StringValue("testValue")).build();
+        PropertyValue propertyValue2 = PropertyValue.builder().value(new StringValue("testValue2")).build();
+        ElementCollectionValue expected = ElementCollectionValue.builder()
+                .value("prop1", propertyValue)
+                .value("prop2", propertyValue2)
+                .build();
+
+        SubmodelElement input = new DefaultSubmodelElementCollection.Builder()
+                .value(new DefaultProperty.Builder()
+                        .idShort("prop1")
+                        .value("testValue")
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .idShort("prop2")
+                        .value("testValue2")
+                        .build())
+                .build();
+
+        ElementValue actual = ElementValueMapper.toValue(input);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSubmodelElementCollectionSetValueMapping() {
+        SubmodelElement actual = new DefaultSubmodelElementCollection.Builder()
+                .value(new DefaultProperty.Builder()
+                        .idShort("prop1")
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .idShort("prop2")
+                        .build())
+                .build();
+
+        PropertyValue propertyValue = PropertyValue.builder().value(new StringValue("testValue")).build();
+        PropertyValue propertyValue2 = PropertyValue.builder().value(new StringValue("testValue2")).build();
+        ElementCollectionValue value = ElementCollectionValue.builder()
+                .value("prop1", propertyValue)
+                .value("prop2", propertyValue2)
+                .build();
+
+        SubmodelElement expected = new DefaultSubmodelElementCollection.Builder()
+                .value(new DefaultProperty.Builder()
+                        .idShort("prop1")
+                        .value("testValue")
+                        .valueType("string")
+                        .build())
+                .value(new DefaultProperty.Builder()
+                        .idShort("prop2")
+                        .value("testValue2")
+                        .valueType("string")
+                        .build())
+                .build();
+
+        actual = ElementValueMapper.setValue(actual, value);
         Assert.assertEquals(expected, actual);
     }
 }

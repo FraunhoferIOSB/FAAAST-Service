@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class ElementCollectionValue extends DataElementValue {
@@ -35,6 +36,25 @@ public class ElementCollectionValue extends DataElementValue {
 
     public void setValues(Map<String, ElementValue> values) {
         this.values = values;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ElementCollectionValue that = (ElementCollectionValue) o;
+        return Objects.equals(values, that.values);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), values);
     }
 
 

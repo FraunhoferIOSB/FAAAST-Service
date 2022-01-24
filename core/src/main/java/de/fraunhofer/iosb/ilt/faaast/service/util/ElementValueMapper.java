@@ -54,12 +54,12 @@ public class ElementValueMapper {
                                     return constructor.newInstance();
                                 }
                                 catch (NoSuchMethodException | SecurityException ex) {
-                                    logger.warn("data-element-value mapper implementation could not be loaded, "
+                                    logger.warn("element-value mapper implementation could not be loaded, "
                                             + "reason: missing constructor (implementation class: {})",
                                             x.getName());
                                 }
                                 catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                                    logger.warn("data-element-value mapper implementation  could not be loaded, "
+                                    logger.warn("element-value mapper implementation  could not be loaded, "
                                             + "reason: calling constructor failed (implementation class: {}",
                                             x.getName());
                                 }
@@ -70,10 +70,10 @@ public class ElementValueMapper {
 
 
     /**
-     * Wraps the values of the SubmodelElement into a belonging DataElementValue
+     * Wraps the values of the SubmodelElement into a belonging ElementValue
      * instance
      *
-     * @param submodelElement for which a DataElementValue should be created
+     * @param submodelElement for which a ElementValue should be created
      * @param <I> type of the input SubmodelElement
      * @param <O> type of the output ElementValue
      * @return a DataElementValue for the given SubmodelElement
@@ -91,15 +91,15 @@ public class ElementValueMapper {
 
 
     /**
-     * Set the values of the DataElementValue to the SubmodelElement
+     * Set the values of the ElementValue to the SubmodelElement
      *
      * @param submodelElement for which the values will be set
-     * @param dataElementValue which contains the values for the SubmodelElement
+     * @param elementValue which contains the values for the SubmodelElement
      * @param <I> type of the input/output SubmodelElement
      * @param <O> type of the input ElementValue
-     * @return the SubmodelElement instance with the DataElementValue values set
+     * @return the SubmodelElement instance with the ElementValue values set
      */
-    public static <I extends SubmodelElement, O extends ElementValue> I setValue(SubmodelElement submodelElement, ElementValue dataElementValue) {
+    public static <I extends SubmodelElement, O extends ElementValue> I setValue(SubmodelElement submodelElement, ElementValue elementValue) {
         init();
         if (submodelElement == null) {
             throw new IllegalArgumentException("submodelElement must be non-null");
@@ -107,7 +107,7 @@ public class ElementValueMapper {
         if (!mappers.containsKey(ReflectionHelper.getAasInterface(submodelElement.getClass()))) {
             throw new RuntimeException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
         }
-        return (I) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).setValue(submodelElement, dataElementValue);
+        return (I) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).setValue(submodelElement, elementValue);
     }
 
 }

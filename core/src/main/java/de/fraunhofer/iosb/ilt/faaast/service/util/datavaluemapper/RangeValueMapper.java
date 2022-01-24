@@ -45,9 +45,15 @@ public class RangeValueMapper extends DataValueMapper<Range, RangeValue> {
         if (submodelElement == null || value == null) {
             return null;
         }
-        submodelElement.setValueType(value.getMin().getDataType().getName());
-        submodelElement.setMin(value.getMin().asString());
-        submodelElement.setMax(value.getMax().asString());
+        if (value.getMin() != null) {
+            submodelElement.setValueType(value.getMin().getDataType().getName());
+            submodelElement.setMin(value.getMin().asString());
+        }
+        if (value.getMax() != null) {
+            submodelElement.setValueType(value.getMax().getDataType().getName());
+            submodelElement.setMax(value.getMax().asString());
+        }
+
         return submodelElement;
     }
 
