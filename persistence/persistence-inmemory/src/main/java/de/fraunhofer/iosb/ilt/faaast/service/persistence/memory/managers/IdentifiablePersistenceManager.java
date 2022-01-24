@@ -12,22 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.identifiable;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util.deepCopy;
-import static de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util.empty;
-
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SpecificAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Asset;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import java.util.List;
@@ -38,16 +35,9 @@ import java.util.stream.Collectors;
 /**
  * Class to handle identifiable elements
  */
-public class IdentifiablePersistenceManager {
+public class IdentifiablePersistenceManager extends PersistenceManager {
 
-    private AssetAdministrationShellEnvironment aasEnvironment;
-
-    public void setAasEnvironment(AssetAdministrationShellEnvironment aasEnvironment) {
-        this.aasEnvironment = aasEnvironment;
-    }
-
-
-    public <T extends Identifiable> T getIdentifiableById(Identifier id) {
+    public <T extends Identifiable> T getIdentifiableById(Identifier id) throws ResourceNotFoundException {
         if (id == null || this.aasEnvironment == null) {
             return null;
         }
@@ -57,6 +47,10 @@ public class IdentifiablePersistenceManager {
                 this.aasEnvironment.getConceptDescriptions(),
                 this.aasEnvironment.getAssets());
 
+        if (identifiable == null) {
+            throw new ResourceNotFoundException("Resource not found with ID " + id.getIdentifier());
+        }
+
         return (T) identifiable;
     }
 
@@ -65,7 +59,7 @@ public class IdentifiablePersistenceManager {
         if (this.aasEnvironment == null) {
             return null;
         }
-        if (!empty(idShort)) {
+        if (!Util.empty(idShort)) {
             List<AssetAdministrationShell> shells = Util.getDeepCopiedShells(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
             return shells;
         }
@@ -103,14 +97,14 @@ public class IdentifiablePersistenceManager {
             return null;
         }
 
-        if (!empty(idShort)) {
+        if (!Util.empty(idShort)) {
             List<Submodel> submodels = Util.getDeepCopiedSubmodels(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
             return submodels;
         }
 
         if (semanticId != null) {
             List<Submodel> submodels = Util.getDeepCopiedSubmodels(x -> x.getSemanticId() != null
-                    && x.getSemanticId().equals(semanticId), this.aasEnvironment);
+                    && Util.isEqualsIgnoringKeyType(x.getSemanticId(), semanticId), this.aasEnvironment);
             return submodels;
         }
 
@@ -127,24 +121,30 @@ public class IdentifiablePersistenceManager {
 
         List<ConceptDescription> conceptDescriptions = null;
 
-        if (!empty(idShort)) {
-            conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream().filter(x -> x.getIdShort().equalsIgnoreCase(idShort)).collect(Collectors.toList());
+        if (!Util.empty(idShort)) {
+            conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream()
+                    .filter(x -> x.getIdShort().equalsIgnoreCase(idShort))
+                    .collect(Collectors.toList());
         }
 
         if (isCaseOf != null) {
-            Predicate<ConceptDescription> filter = x -> x.getIsCaseOfs().stream().anyMatch(y -> y.equals(isCaseOf));
+            Predicate<ConceptDescription> filter = x -> x.getIsCaseOfs().stream().anyMatch(y -> Util.isEqualsIgnoringKeyType(y, isCaseOf));
             if (conceptDescriptions == null) {
-                conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream().filter(filter).collect(Collectors.toList());
+                conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream()
+                        .filter(filter)
+                        .collect(Collectors.toList());
             }
             else {
-                conceptDescriptions = conceptDescriptions.stream().filter(filter).collect(Collectors.toList());
+                conceptDescriptions = conceptDescriptions.stream()
+                        .filter(filter)
+                        .collect(Collectors.toList());
             }
         }
 
         if (dataSpecification != null) {
             Predicate<ConceptDescription> filter = x -> x.getEmbeddedDataSpecifications() != null
                     && x.getEmbeddedDataSpecifications().stream()
-                            .anyMatch(y -> y.getDataSpecification() != null && y.getDataSpecification().equals(dataSpecification));
+                            .anyMatch(y -> y.getDataSpecification() != null && Util.isEqualsIgnoringKeyType(y.getDataSpecification(), dataSpecification));
             if (conceptDescriptions == null) {
                 conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream()
                         .filter(filter)
@@ -155,17 +155,16 @@ public class IdentifiablePersistenceManager {
             }
         }
 
-        if (empty(idShort) && isCaseOf == null && dataSpecification == null) {
+        if (Util.empty(idShort) && isCaseOf == null && dataSpecification == null) {
             conceptDescriptions = this.aasEnvironment.getConceptDescriptions();
         }
 
         Class conceptDescriptionClass = conceptDescriptions != null && conceptDescriptions.size() > 0 ? conceptDescriptions.get(0).getClass() : ConceptDescription.class;
-        List<ConceptDescription> deepCopiedConceptDescriptions = deepCopy(conceptDescriptions, conceptDescriptionClass);
-        return deepCopiedConceptDescriptions;
+        return Util.deepCopy(conceptDescriptions, conceptDescriptionClass);
     }
 
 
-    public void remove(Identifier id) {
+    public void remove(Identifier id) throws ResourceNotFoundException {
         if (id == null || this.aasEnvironment == null) {
             return;
         }
@@ -204,31 +203,14 @@ public class IdentifiablePersistenceManager {
     }
 
 
-    public Identifiable put(Reference parent, Identifiable identifiable) {
-        if (parent == null || identifiable == null || this.aasEnvironment == null) {
+    public Identifiable put(Identifiable identifiable) {
+        if (identifiable == null || this.aasEnvironment == null) {
             return null;
-        }
-        AssetAdministrationShell parentAAS = null;
-        Reference referenceOfIdentifiable = AasUtils.toReference(identifiable);
-
-        if (parent.getKeys() != null
-                && parent.getKeys().size() > 0) {
-            KeyElements lastKeyElementOfReference = parent.getKeys().get(parent.getKeys().size() - 1).getType();
-            Class clazz = AasUtils.keyTypeToClass(lastKeyElementOfReference);
-            Identifiable parentIdentifiable = (Identifiable) AasUtils.resolve(parent, this.aasEnvironment, clazz);
-            if (parentIdentifiable != null && AssetAdministrationShell.class.isAssignableFrom(parentIdentifiable.getClass())) {
-                parentAAS = (AssetAdministrationShell) parentIdentifiable;
-            }
         }
 
         if (Submodel.class.isAssignableFrom(identifiable.getClass())) {
             this.aasEnvironment.setSubmodels(
                     Util.updateIdentifiableList(Submodel.class, this.aasEnvironment.getSubmodels(), identifiable));
-
-            if (parentAAS != null && referenceOfIdentifiable != null) {
-                parentAAS.getSubmodels().remove(referenceOfIdentifiable);
-                parentAAS.getSubmodels().add(referenceOfIdentifiable);
-            }
             return identifiable;
         }
         else if (AssetAdministrationShell.class.isAssignableFrom(identifiable.getClass())) {

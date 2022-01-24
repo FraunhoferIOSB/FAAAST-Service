@@ -12,15 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.referable;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers;
 
-import static de.fraunhofer.iosb.ilt.faaast.persistence.inmemory.managers.referable.Util.getGetListMethod;
-import static de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util.deepCopy;
-
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.Referable;
@@ -40,16 +38,9 @@ import java.util.stream.Collectors;
 /**
  * Class to handle referable elements
  */
-public class ReferablePersistenceManager {
+public class ReferablePersistenceManager extends PersistenceManager {
 
-    private AssetAdministrationShellEnvironment aasEnvironment;
-
-    public void setAasEnvironment(AssetAdministrationShellEnvironment aasEnvironment) {
-        this.aasEnvironment = aasEnvironment;
-    }
-
-
-    public SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier) {
+    public SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier) throws ResourceNotFoundException {
         if (reference == null || reference.getKeys() == null || modifier == null || this.aasEnvironment == null) {
             return null;
         }
@@ -58,11 +49,14 @@ public class ReferablePersistenceManager {
                 return null;
             }
         }
-        SubmodelElement submodelElement = AasUtils.resolve(reference, this.aasEnvironment, SubmodelElement.class);
-        if (submodelElement == null) {
-            return null;
+
+        try {
+            SubmodelElement submodelElement = AasUtils.resolve(reference, this.aasEnvironment, SubmodelElement.class);
+            return Util.deepCopy(submodelElement, submodelElement.getClass());
         }
-        return deepCopy(submodelElement, submodelElement.getClass());
+        catch (IllegalArgumentException ex) {
+            throw new ResourceNotFoundException(reference);
+        }
     }
 
 
@@ -81,7 +75,7 @@ public class ReferablePersistenceManager {
                 if (submodel == null) {
                     return null;
                 }
-                Submodel deepCopiedSubmodel = deepCopy(submodel, submodel.getClass());
+                Submodel deepCopiedSubmodel = Util.deepCopy(submodel, submodel.getClass());
                 submodelElements = deepCopiedSubmodel.getSubmodelElements();
 
             }
@@ -90,7 +84,7 @@ public class ReferablePersistenceManager {
                 if (submodelElementCollection == null) {
                     return null;
                 }
-                SubmodelElementCollection deepCopiedSubmodelElementCollection = deepCopy(submodelElementCollection, submodelElementCollection.getClass());
+                SubmodelElementCollection deepCopiedSubmodelElementCollection = Util.deepCopy(submodelElementCollection, submodelElementCollection.getClass());
                 submodelElements = new ArrayList<>(deepCopiedSubmodelElementCollection.getValues());
             }
 
@@ -106,40 +100,52 @@ public class ReferablePersistenceManager {
     }
 
 
-    public SubmodelElement putSubmodelElement(Reference parent, SubmodelElement submodelElement) {
-        if (parent == null || submodelElement == null) {
+    public SubmodelElement putSubmodelElement(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) {
+        if ((parent == null && referenceToSubmodelElement == null) || submodelElement == null) {
+            return null;
+        }
+        KeyElements lastKeyElementOfParent;
+
+        if (parent != null
+                && parent.getKeys() != null
+                && parent.getKeys().size() > 0) {
+            lastKeyElementOfParent = parent.getKeys().get(parent.getKeys().size() - 1).getType();
+        }
+        else if (referenceToSubmodelElement != null
+                && referenceToSubmodelElement.getKeys() != null
+                && referenceToSubmodelElement.getKeys().size() > 1) {
+            lastKeyElementOfParent = referenceToSubmodelElement.getKeys().get(referenceToSubmodelElement.getKeys().size() - 2).getType();
+            parent = new DefaultReference.Builder()
+                    .keys(referenceToSubmodelElement.getKeys().subList(0, referenceToSubmodelElement.getKeys().size() - 1))
+                    .build();
+        }
+        else {
             return null;
         }
 
-        if (parent.getKeys() != null
-                && parent.getKeys().size() > 0) {
-            KeyElements lastKeyElementOfParent = parent.getKeys().get(parent.getKeys().size() - 1).getType();
+        Predicate<SubmodelElement> filter = x -> x.getIdShort().equalsIgnoreCase(submodelElement.getIdShort());
 
-            Predicate<SubmodelElement> filter = x -> x.getIdShort().equalsIgnoreCase(submodelElement.getIdShort());
-
-            if (lastKeyElementOfParent == KeyElements.SUBMODEL) {
-                Submodel submodel = AasUtils.resolve(parent, this.aasEnvironment, Submodel.class);
-                if (submodel == null) {
-                    return null;
-                }
-                submodel.getSubmodelElements().removeIf(filter);
-                submodel.getSubmodelElements().add(submodelElement);
-
-            }
-            else if (lastKeyElementOfParent == KeyElements.SUBMODEL_ELEMENT_COLLECTION) {
-                SubmodelElementCollection submodelElementCollection = AasUtils.resolve(parent, this.aasEnvironment, SubmodelElementCollection.class);
-                if (submodelElementCollection == null) {
-                    return null;
-                }
-                submodelElementCollection.getValues().removeIf(filter);
-                submodelElementCollection.getValues().add(submodelElement);
-            }
-            else {
+        if (lastKeyElementOfParent == KeyElements.SUBMODEL) {
+            Submodel submodel = AasUtils.resolve(parent, this.aasEnvironment, Submodel.class);
+            if (submodel == null) {
                 return null;
             }
-            return submodelElement;
+            submodel.getSubmodelElements().removeIf(filter);
+            submodel.getSubmodelElements().add(submodelElement);
+
         }
-        return null;
+        else if (lastKeyElementOfParent == KeyElements.SUBMODEL_ELEMENT_COLLECTION) {
+            SubmodelElementCollection submodelElementCollection = AasUtils.resolve(parent, this.aasEnvironment, SubmodelElementCollection.class);
+            if (submodelElementCollection == null) {
+                return null;
+            }
+            submodelElementCollection.getValues().removeIf(filter);
+            submodelElementCollection.getValues().add(submodelElement);
+        }
+        else {
+            return null;
+        }
+        return submodelElement;
     }
 
 
@@ -168,7 +174,7 @@ public class ReferablePersistenceManager {
                         .build();
                 Referable parentReferable = AasUtils.resolve(parent, this.aasEnvironment);
 
-                Method method = getGetListMethod(clazz, parentReferable);
+                Method method = Util.getGetListMethod(clazz, parentReferable);
                 if (method != null) {
                     try {
                         List<Referable> referableList = (List<Referable>) method.invoke(parentReferable);

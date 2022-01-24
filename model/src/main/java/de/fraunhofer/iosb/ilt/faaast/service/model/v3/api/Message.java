@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api;
 
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -22,8 +24,8 @@ import java.util.Objects;
 public class Message {
     private MessageType messageType;
     private String text;
-    private List<String> code;
-    private List<Date> timestamp;
+    private List<String> code = new ArrayList<>();
+    private List<Date> timestamp = new ArrayList<>();
 
     public MessageType getMessageType() {
         return messageType;
@@ -79,5 +81,63 @@ public class Message {
     @Override
     public int hashCode() {
         return Objects.hash(messageType, text, code, timestamp);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private static abstract class AbstractBuilder<T extends Message, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B success(MessageType value) {
+            getBuildingInstance().setMessageType(value);
+            return getSelf();
+        }
+
+
+        public B text(String value) {
+            getBuildingInstance().setText(value);
+            return getSelf();
+        }
+
+
+        public B codes(List<String> value) {
+            getBuildingInstance().setCode(value);
+            return getSelf();
+        }
+
+
+        public B code(String value) {
+            getBuildingInstance().getCode().add(value);
+            return getSelf();
+        }
+
+
+        public B timestamps(List<Date> value) {
+            getBuildingInstance().setTimestamp(value);
+            return getSelf();
+        }
+
+
+        public B timestamp(Date value) {
+            getBuildingInstance().getTimestamp().add(value);
+            return getSelf();
+        }
+
+    }
+
+    public static class Builder extends AbstractBuilder<Message, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected Message newBuildingInstance() {
+            return new Message();
+        }
     }
 }

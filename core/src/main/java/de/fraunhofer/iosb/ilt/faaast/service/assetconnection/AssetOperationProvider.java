@@ -19,29 +19,36 @@ import java.util.function.BiConsumer;
 
 
 /**
- * An AssetOperationProvider provides methods to invoke AAS operations on an asset; either synchronous or asynchronous
+ * An AssetOperationProvider provides methods to invoke AAS operations on an
+ * asset; either synchronous or asynchronous
  */
 public interface AssetOperationProvider extends AssetProvider {
 
     /**
      * Invokes as operation synchronously
-     * 
+     *
      * @param input input parameters
-     * @param inoutput inoutput parameters, i.e. parameters that are passed as input to the operation but can be modified
-     *            while execution
+     * @param inoutput inoutput parameters, i.e. parameters that are passed as
+     *            input to the operation but can be modified while execution
      * @return output variables of the operation
+     * @throws
+     * de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException
+     *             when invoking operation on asset connection fails
      */
-    public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput);
+    public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException;
 
 
     /**
      * Invokes as operation asynchronously
-     * 
+     *
      * @param input input parameters
-     * @param inoutput inoutput parameters, i.e. parameters that are passed as input to the operation but can be modified
-     *            while execution
-     * @param callback callback handler that is called when the operation is finished providing the result and inoutput
-     *            variables
+     * @param inoutput inoutput parameters, i.e. parameters that are passed as
+     *            input to the operation but can be modified while execution
+     * @param callback callback handler that is called when the operation is
+     *            finished providing the result and inoutput variables
+     * @throws
+     * de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException
+     *             when invoking operation on asset connection fails
      */
-    public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callback);
+    public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callback) throws AssetConnectionException;
 }

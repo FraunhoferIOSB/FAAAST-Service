@@ -15,9 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.AASXPackage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationHandle;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.PackageDescription;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -47,7 +50,7 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      * @param <T> defines the type of the requested Identifiable<br>
      * @return the Identifiable with the given Identifier
      */
-    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier);
+    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException;
 
 
     /**
@@ -57,7 +60,7 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      * @param modifier QueryModifier to define Level and Extent of the query<br>
      * @return the Submodel Element with the given Reference
      */
-    public SubmodelElement get(Reference reference, QueryModifier modifier);
+    public SubmodelElement get(Reference reference, QueryModifier modifier) throws ResourceNotFoundException;
 
 
     /**
@@ -98,7 +101,7 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      * @param modifier QueryModifier to define Level and Extent of the query<br>
      * @return List of Submodel Elements
      */
-    public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier);
+    public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException;
 
 
     /**
@@ -136,27 +139,25 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      * Create or Update an Identifiable<br>
      *
      * @param identifiable to save<br>
-     * @param parent of the Identifiable, e.g. the owning AAS of a Submodel.
-     *            If this parameter is null, the Identifiable has no parent and is a stand alone Identifiable.<br>
-     *            This parameter is optional and may be null<br>
      * @param <T> the type of the Identifiable<br>
      * @return the saved Identifiable as confirmation
      */
-    public <T extends Identifiable> T put(Reference parent, T identifiable);
+    public <T extends Identifiable> T put(T identifiable);
 
 
     /**
      * Create or Update the Submodel Element on the given reference<br>
      *
-     * @param parent of the new Submodel Element
+     * @param parent of the new Submodel Element. Could be null if a direct reference to the submodelelement is set.
+     * @param referenceToSubmodelElement reference to the submodelelement which should be updated
      * @param submodelElement which should be added to the parent
      * @return the created Submodel Element
      */
-    public SubmodelElement put(Reference parent, SubmodelElement submodelElement);
+    public SubmodelElement put(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException;
 
 
     /**
-     * Update an AASX package<br>
+     * Create or Update an AASX package<br>
      *
      * @param packageId of the existing AASX package<br>
      * @param aasIds the included AAS Ids<br>
@@ -172,7 +173,7 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      *
      * @param id of the Identifiable
      */
-    public void remove(Identifier id);
+    public void remove(Identifier id) throws ResourceNotFoundException;
 
 
     /**
@@ -180,7 +181,7 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      *
      * @param reference to the Referable
      */
-    public void remove(Reference reference);
+    public void remove(Reference reference) throws ResourceNotFoundException;
 
 
     /**
@@ -209,6 +210,27 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      * @param fileName of the AASX package<br>
      * @return the package id of the created AASX package
      */
-    public String save(Set<Identifier> aasIds, AASXPackage file, String fileName);
+    public String put(Set<Identifier> aasIds, AASXPackage file, String fileName);
+
+
+    /**
+     * Get an OperationResult of an Operation if available. If not available returns null.
+     *
+     * @param handleId of the OperationResult
+     * @return the OperationResult if available else null
+     */
+    public OperationResult getOperationResult(String handleId);
+
+
+    /**
+     * Creates a new OperationHandle instance with a unique id if handleId is empty or null
+     * Otherwise updates the existing OperationHandle / OperationResult combination
+     *
+     * @param handleId of the OperationRequest - could be null if the OperationHandle still not exists
+     * @param requestId of the client
+     * @param operationResult of the Operation - if null a initial OperationResult will be created
+     * @return the belonging OperationHandleInstance or create a new one
+     */
+    public OperationHandle putOperationContext(String handleId, String requestId, OperationResult operationResult);
 
 }

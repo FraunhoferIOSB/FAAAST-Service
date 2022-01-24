@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodelelements;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
@@ -42,14 +43,20 @@ public class SetSubmodelElementValueByPathRequestHandler extends RequestHandler<
         SetSubmodelElementValueByPathResponse response = new SetSubmodelElementValueByPathResponse();
         try {
             Reference reference = Util.toReference(request.getPath());
-            OutputModifier modifier = new OutputModifier();
-            modifier.setExtend(Extend.WithBLOBValue);
-            SubmodelElement submodelElement = persistence.get(reference, modifier);
+            SubmodelElement submodelElement = persistence.get(reference, new OutputModifier.Builder()
+                    .extend(Extend.WithBLOBValue)
+                    .build());
             ElementValue oldValue = DataElementValueMapper.toDataElement(submodelElement);
             ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
             DataElementValueMapper.setDataElementValue(submodelElement, newValue);
+
+            persistence.put(null, reference, submodelElement);
+
             response.setStatusCode(StatusCode.Success);
             publishValueChangeEventMessage(reference, oldValue, newValue);
+        }
+        catch (ResourceNotFoundException ex) {
+            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

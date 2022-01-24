@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api;
 
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
@@ -44,5 +45,12 @@ public abstract class BaseResponse implements Response {
     @Override
     public int hashCode() {
         return Objects.hash(statusCode);
+    }
+
+    public static abstract class AbstractBuilder<T extends BaseResponse, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+        public B statusCode(StatusCode value) {
+            getBuildingInstance().setStatusCode(value);
+            return getSelf();
+        }
     }
 }

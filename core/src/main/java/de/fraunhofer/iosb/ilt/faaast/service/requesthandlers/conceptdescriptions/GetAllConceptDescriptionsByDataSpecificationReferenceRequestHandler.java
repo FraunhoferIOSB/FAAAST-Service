@@ -46,6 +46,7 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestHandler
                 conceptDescriptions.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
             }
         }
+
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);
         }

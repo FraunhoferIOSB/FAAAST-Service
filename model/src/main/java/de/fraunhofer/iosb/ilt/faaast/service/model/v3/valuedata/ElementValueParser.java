@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
 
 public interface ElementValueParser<T> {
 
-    public static ElementValueParser<ElementValue> DEFAULT = new ElementValueParser<>() {
+    public static ElementValueParser<ElementValue> DEFAULT = new ElementValueParser<ElementValue>() {
         @Override
         public <U extends ElementValue> U parse(ElementValue raw, Class<U> type) {
             return (U) raw;
