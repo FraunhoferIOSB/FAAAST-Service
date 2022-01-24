@@ -14,38 +14,77 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 
 public class AnnotatedRelationshipElementValue extends RelationshipElementValue {
-    private List<DataElementValue> annotation;
 
-    public List<DataElementValue> getAnnotation() {
-        return annotation;
+    private Map<String, DataElementValue> annotations;
+
+    public AnnotatedRelationshipElementValue() {
+        this.annotations = new HashMap<>();
     }
 
 
-    public void setAnnotation(List<DataElementValue> annotation) {
-        this.annotation = annotation;
+    public Map<String, DataElementValue> getAnnotations() {
+        return annotations;
+    }
+
+
+    public void setAnnotations(Map<String, DataElementValue> annotations) {
+        this.annotations = annotations;
     }
 
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-        if (!super.equals(o))
+        }
+        if (!super.equals(o)) {
             return false;
+        }
         AnnotatedRelationshipElementValue that = (AnnotatedRelationshipElementValue) o;
-        return Objects.equals(annotation, that.annotation);
+        return Objects.equals(annotations, that.annotations);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), annotation);
+        return Objects.hash(super.hashCode(), annotations);
+    }
+
+    public static abstract class AbstractBuilder<T extends AnnotatedRelationshipElementValue, B extends AbstractBuilder<T, B>>
+            extends RelationshipElementValue.AbstractBuilder<T, B> {
+
+        public B annotations(Map<String, DataElementValue> value) {
+            getBuildingInstance().setAnnotations(value);
+            return getSelf();
+        }
+
+
+        public B annotation(String name, DataElementValue value) {
+            getBuildingInstance().getAnnotations().put(name, value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<AnnotatedRelationshipElementValue, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected AnnotatedRelationshipElementValue newBuildingInstance() {
+            return new AnnotatedRelationshipElementValue();
+        }
     }
 }

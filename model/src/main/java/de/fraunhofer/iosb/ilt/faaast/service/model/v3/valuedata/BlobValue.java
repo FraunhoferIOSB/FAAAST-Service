@@ -14,11 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
 
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Arrays;
 import java.util.Objects;
 
 
 public class BlobValue extends DataElementValue {
+
     private String mimeType;
     private byte[] value;
 
@@ -44,10 +46,12 @@ public class BlobValue extends DataElementValue {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         BlobValue blobValue = (BlobValue) o;
         return Objects.equals(mimeType, blobValue.mimeType) && Arrays.equals(value, blobValue.value);
     }
@@ -58,5 +62,45 @@ public class BlobValue extends DataElementValue {
         int result = Objects.hash(mimeType);
         result = 31 * result + Arrays.hashCode(value);
         return result;
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static abstract class AbstractBuilder<T extends BlobValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B mimeType(String value) {
+            getBuildingInstance().setMimeType(value);
+            return getSelf();
+        }
+
+
+        public B value(String value) {
+            getBuildingInstance().setValue(value.getBytes());
+            return getSelf();
+        }
+
+
+        public B value(byte[] value) {
+            getBuildingInstance().setValue(value);
+            return getSelf();
+        }
+
+    }
+
+    public static class Builder extends AbstractBuilder<BlobValue, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected BlobValue newBuildingInstance() {
+            return new BlobValue();
+        }
     }
 }

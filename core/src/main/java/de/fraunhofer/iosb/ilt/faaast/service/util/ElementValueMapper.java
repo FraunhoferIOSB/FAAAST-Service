@@ -32,16 +32,16 @@ import org.slf4j.LoggerFactory;
 /**
  * Finds available DataValue mappers and forward the request to the right class
  */
-public class DataElementValueMapper {
+public class ElementValueMapper {
 
-    private static Logger logger = LoggerFactory.getLogger(DataElementValueMapper.class);
+    private static Logger logger = LoggerFactory.getLogger(ElementValueMapper.class);
     private static Map<Class<? extends SubmodelElement>, ? extends DataValueMapper> mappers;
 
     private static void init() {
         if (mappers == null) {
             ScanResult scanResult = new ClassGraph()
                     .enableAllInfo()
-                    .acceptPackages(DataElementValueMapper.class.getPackageName())
+                    .acceptPackages(ElementValueMapper.class.getPackageName())
                     .scan();
 
             mappers = scanResult.getSubclasses(DataValueMapper.class).loadClasses().stream()
@@ -70,14 +70,15 @@ public class DataElementValueMapper {
 
 
     /**
-     * Wraps the values of the SubmodelElement into a belonging DataElementValue instance
+     * Wraps the values of the SubmodelElement into a belonging DataElementValue
+     * instance
      *
      * @param submodelElement for which a DataElementValue should be created
      * @param <I> type of the input SubmodelElement
      * @param <O> type of the output ElementValue
      * @return a DataElementValue for the given SubmodelElement
      */
-    public static <I extends SubmodelElement, O extends ElementValue> O toDataElement(SubmodelElement submodelElement) {
+    public static <I extends SubmodelElement, O extends ElementValue> O toValue(SubmodelElement submodelElement) {
         init();
         if (submodelElement == null) {
             throw new IllegalArgumentException("submodelElement must be non-null");
@@ -85,7 +86,7 @@ public class DataElementValueMapper {
         if (!mappers.containsKey(ReflectionHelper.getAasInterface(submodelElement.getClass()))) {
             throw new RuntimeException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
         }
-        return (O) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).toDataElementValue(submodelElement);
+        return (O) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).toValue(submodelElement);
     }
 
 
@@ -98,7 +99,7 @@ public class DataElementValueMapper {
      * @param <O> type of the input ElementValue
      * @return the SubmodelElement instance with the DataElementValue values set
      */
-    public static <I extends SubmodelElement, O extends ElementValue> I setDataElementValue(SubmodelElement submodelElement, ElementValue dataElementValue) {
+    public static <I extends SubmodelElement, O extends ElementValue> I setValue(SubmodelElement submodelElement, ElementValue dataElementValue) {
         init();
         if (submodelElement == null) {
             throw new IllegalArgumentException("submodelElement must be non-null");
@@ -106,7 +107,7 @@ public class DataElementValueMapper {
         if (!mappers.containsKey(ReflectionHelper.getAasInterface(submodelElement.getClass()))) {
             throw new RuntimeException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
         }
-        return (I) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).setDataElementValue(submodelElement, dataElementValue);
+        return (I) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).setValue(submodelElement, dataElementValue);
     }
 
 }

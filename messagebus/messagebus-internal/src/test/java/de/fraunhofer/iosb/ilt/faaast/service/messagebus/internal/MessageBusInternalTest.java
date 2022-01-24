@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Value
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorLevel;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.IntegerValue;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.Reference;
@@ -57,9 +58,9 @@ public class MessageBusInternalTest {
     public static void init() {
         valueChangeMessage = new ValueChangeEventMessage();
         PropertyValue propertyValue = new PropertyValue();
-        propertyValue.setValue("100");
+        propertyValue.setValue(new IntegerValue(100));
         valueChangeMessage.setOldValue(propertyValue);
-        propertyValue.setValue("123");
+        propertyValue.setValue(new IntegerValue(123));
         valueChangeMessage.setNewValue(propertyValue);
 
         errorMessage = new ErrorEventMessage();
