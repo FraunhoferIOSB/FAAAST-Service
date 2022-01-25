@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Identifier;
@@ -59,7 +59,7 @@ public class Util {
 
     public static List<ElementValue> toValues(List<OperationVariable> variables) {
         return variables.stream()
-                .map(x -> DataElementValueMapper.<SubmodelElement, ElementValue> toDataElement(x.getValue()))
+                .map(x -> ElementValueMapper.<SubmodelElement, ElementValue> toValue(x.getValue()))
                 .collect(Collectors.toList());
     }
 

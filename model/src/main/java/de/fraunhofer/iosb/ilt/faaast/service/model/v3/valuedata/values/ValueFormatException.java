@@ -12,17 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
+package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
-import io.adminshell.aas.v3.model.SubmodelElement;
+public class ValueFormatException extends Exception {
 
-
-public abstract class DataValueMapper<I extends SubmodelElement, O extends ElementValue> {
-
-    public abstract O toValue(I submodelElement);
+    public ValueFormatException(String message) {
+        super(message);
+    }
 
 
-    public abstract I setValue(I submodelElement, O value);
+    public ValueFormatException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
+
+    public ValueFormatException(Throwable cause) {
+        super(cause);
+    }
 }

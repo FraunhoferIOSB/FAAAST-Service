@@ -14,46 +14,95 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValue;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
-public class RangeValue extends DataElementValue {
-    private double min;
-    private double max;
+public class RangeValue<T> extends DataElementValue {
 
-    public double getMin() {
+    private TypedValue<T> min;
+    private TypedValue<T> max;
+
+    public RangeValue() {}
+
+
+    public RangeValue(TypedValue<T> min, TypedValue<T> max) {
+        this.min = min;
+        this.max = max;
+    }
+
+
+    public TypedValue<T> getMin() {
         return min;
     }
 
 
-    public void setMin(double min) {
+    public void setMin(TypedValue<T> min) {
         this.min = min;
     }
 
 
-    public double getMax() {
+    public TypedValue<T> getMax() {
         return max;
     }
 
 
-    public void setMax(double max) {
+    public void setMax(TypedValue<T> max) {
         this.max = max;
     }
 
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         RangeValue that = (RangeValue) o;
-        return Double.compare(that.min, min) == 0 && Double.compare(that.max, max) == 0;
+        return Objects.equals(that.min, min)
+                && Objects.equals(that.max, max);
     }
 
 
     @Override
     public int hashCode() {
         return Objects.hash(min, max);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static abstract class AbstractBuilder<T extends RangeValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B min(TypedValue value) {
+            getBuildingInstance().setMin(value);
+            return getSelf();
+        }
+
+
+        public B max(TypedValue value) {
+            getBuildingInstance().setMax(value);
+            return getSelf();
+        }
+
+    }
+
+    public static class Builder extends AbstractBuilder<RangeValue, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected RangeValue newBuildingInstance() {
+            return new RangeValue();
+        }
     }
 }

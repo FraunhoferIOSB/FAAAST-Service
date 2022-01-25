@@ -12,17 +12,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
+package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
-import io.adminshell.aas.v3.model.SubmodelElement;
+public class StringValue extends TypedValue<String> {
 
-
-public abstract class DataValueMapper<I extends SubmodelElement, O extends ElementValue> {
-
-    public abstract O toValue(I submodelElement);
+    public StringValue() {
+        super();
+    }
 
 
-    public abstract I setValue(I submodelElement, O value);
+    public StringValue(String value) {
+        super(value);
+    }
+
+
+    @Override
+    public void fromString(String value) {
+        this.value = value;
+    }
+
+
+    @Override
+    public String asString() {
+        return value;
+    }
+
+
+    @Override
+    public Datatype getDataType() {
+        return Datatype.String;
+    }
+
+
+    @Override
+    protected String getDefaultValue() {
+        return "";
+    }
 
 }
