@@ -173,8 +173,6 @@
                         <licenseMerge>Eclipse Public License - Version 2.0|EPL 2.0</licenseMerge>
                         <licenseMerge>Eclipse Distribution License - v 1.0|EDL 1.0</licenseMerge>
                     </licenseMerges>
-                    <includedScopes>compile</includedScopes>
-                    <excludedScopes>test|provided|runtime|system</excludedScopes>
                 </configuration>
                 <executions>
                     <execution>
