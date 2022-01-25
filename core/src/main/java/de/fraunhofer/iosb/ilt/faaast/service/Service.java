@@ -76,8 +76,8 @@ public class Service {
                 .build();
         this.persistence = persistence;
         this.messageBus = messageBus;
-        this.requestHandler = new RequestHandlerManager(this.config.getCore(), this.persistence, this.messageBus, this.assetConnectionManager);
         this.assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections);
+        this.requestHandler = new RequestHandlerManager(this.config.getCore(), this.persistence, this.messageBus, this.assetConnectionManager);
     }
 
 
