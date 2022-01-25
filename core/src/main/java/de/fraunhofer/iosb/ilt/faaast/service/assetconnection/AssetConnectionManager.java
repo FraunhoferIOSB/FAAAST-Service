@@ -27,22 +27,24 @@ import java.util.stream.Stream;
 
 public class AssetConnectionManager {
 
-    private List<AssetConnection> connections = new ArrayList<>();
+    private List<AssetConnection> connections;
     private final CoreConfig coreConfig;
 
     public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections) throws ConfigurationException {
         this.coreConfig = coreConfig;
-        this.connections = connections;
+        this.connections = connections != null ? connections : new ArrayList<>();
         validateConnections();
     }
 
 
     /**
      * Adds a new AssetConnection created from an AssetConnectionConfig
-     * 
-     * @param connectionConfig the AssetConnectionConfig describing the AssetConnection to add
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException when provided connectionConfig
-     *             is invalid
+     *
+     * @param connectionConfig the AssetConnectionConfig describing the
+     *            AssetConnection to add
+     * @throws
+     * de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException
+     *             when provided connectionConfig is invalid
      */
     public void add(AssetConnectionConfig<? extends AssetConnection, ? extends AssetValueProviderConfig, ? extends AssetOperationProviderConfig, ? extends AssetSubscriptionProviderConfig> connectionConfig)
             throws ConfigurationException {
@@ -73,9 +75,10 @@ public class AssetConnectionManager {
 
     /**
      * Gets the operation provider for the AAS element defined by reference
-     * 
+     *
      * @param reference AAS element
-     * @return operation provider for the AAS element defined by reference or null if there is none defined
+     * @return operation provider for the AAS element defined by reference or
+     *         null if there is none defined
      */
     public AssetOperationProvider getOperationProvider(Reference reference) {
         return connections.stream().filter(x -> x.getOperationProviders().containsKey(reference)).map(x -> (AssetOperationProvider) x.getOperationProviders().get(reference))
@@ -85,9 +88,10 @@ public class AssetConnectionManager {
 
     /**
      * Gets the subscription provider for the AAS element defined by reference
-     * 
+     *
      * @param reference AAS element
-     * @return subscription provider for the AAS element defined by reference or null if there is none defined
+     * @return subscription provider for the AAS element defined by reference or
+     *         null if there is none defined
      */
     public AssetSubscriptionProvider getSubscriptionProvider(Reference reference) {
         return connections.stream().filter(x -> x.getSubscriptionProviders().containsKey(reference))
@@ -99,7 +103,8 @@ public class AssetConnectionManager {
      * Gets the value provider for the AAS element defined by reference
      *
      * @param reference AAS element
-     * @return value provider for the AAS element defined by reference or null if there is none defined
+     * @return value provider for the AAS element defined by reference or null
+     *         if there is none defined
      */
     public AssetValueProvider getValueProvider(Reference reference) {
         return connections.stream().filter(x -> x.getValueProviders().containsKey(reference)).map(x -> (AssetValueProvider) x.getValueProviders().get(reference)).findFirst()
@@ -108,10 +113,12 @@ public class AssetConnectionManager {
 
 
     /**
-     * Returns whether there is a operation provider defined for the provided AAS element or not.
+     * Returns whether there is a operation provider defined for the provided
+     * AAS element or not.
      *
      * @param reference AAS element
-     * @return true if there is a operation provider defined for the provided AAS element, otherwise false
+     * @return true if there is a operation provider defined for the provided
+     *         AAS element, otherwise false
      */
     public boolean hasOperationProvider(Reference reference) {
         return connections.stream().anyMatch(x -> x.getOperationProviders().containsKey(reference));
@@ -119,10 +126,12 @@ public class AssetConnectionManager {
 
 
     /**
-     * Returns whether there is a subscription provider defined for the provided AAS element or not.
-     * 
+     * Returns whether there is a subscription provider defined for the provided
+     * AAS element or not.
+     *
      * @param reference AAS element
-     * @return true if there is a subscription provider defined for the provided AAS element, otherwise false
+     * @return true if there is a subscription provider defined for the provided
+     *         AAS element, otherwise false
      */
     public boolean hasSubscriptionProvider(Reference reference) {
         return connections.stream().anyMatch(x -> x.getSubscriptionProviders().containsKey(reference));
@@ -130,10 +139,12 @@ public class AssetConnectionManager {
 
 
     /**
-     * Returns whether there is a value provider defined for the provided AAS element or not.
+     * Returns whether there is a value provider defined for the provided AAS
+     * element or not.
      *
      * @param reference AAS element
-     * @return true if there is a value provider defined for the provided AAS element, otherwise false
+     * @return true if there is a value provider defined for the provided AAS
+     *         element, otherwise false
      */
     public boolean hasValueProvider(Reference reference) {
         return connections.stream().anyMatch(x -> x.getValueProviders().containsKey(reference));
@@ -141,27 +152,27 @@ public class AssetConnectionManager {
 
 
     private void validateConnections() throws ConfigurationException {
-        Map<String, List<AssetValueProvider>> valueProviders = connections.stream()
-                .flatMap(x -> (Stream<Map.Entry<String, AssetValueProvider>>) x.getValueProviders().entrySet().stream())
+        Map<Reference, List<AssetValueProvider>> valueProviders = connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetValueProvider>>) x.getValueProviders().entrySet().stream())
                 .collect(Collectors.groupingBy(x -> x.getKey(), Collectors.mapping(x -> x.getValue(), Collectors.toList()))).entrySet().stream()
                 .filter(x -> x.getValue().size() > 1).collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
-        for (String reference: valueProviders.keySet()) {
+        for (Reference reference: valueProviders.keySet()) {
             throw new InvalidConfigurationException(
                     String.format("found %d value connections for reference %s but maximum 1 allowed", valueProviders.get(reference).size(), reference));
         }
-        Map<String, List<AssetOperationProvider>> operationProviders = connections.stream()
-                .flatMap(x -> (Stream<Map.Entry<String, AssetOperationProvider>>) x.getOperationProviders().entrySet().stream())
+        Map<Reference, List<AssetOperationProvider>> operationProviders = connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetOperationProvider>>) x.getOperationProviders().entrySet().stream())
                 .collect(Collectors.groupingBy(x -> x.getKey(), Collectors.mapping(x -> x.getValue(), Collectors.toList()))).entrySet().stream()
                 .filter(x -> x.getValue().size() > 1).collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
-        for (String reference: operationProviders.keySet()) {
+        for (Reference reference: operationProviders.keySet()) {
             throw new InvalidConfigurationException(
                     String.format("found %d operation connections for reference %s but maximum 1 allowed", operationProviders.get(reference).size(), reference));
         }
-        Map<String, List<AssetSubscriptionProvider>> subscriptionProviders = connections.stream()
-                .flatMap(x -> (Stream<Map.Entry<String, AssetSubscriptionProvider>>) x.getSubscriptionProviders().entrySet().stream())
+        Map<Reference, List<AssetSubscriptionProvider>> subscriptionProviders = connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetSubscriptionProvider>>) x.getSubscriptionProviders().entrySet().stream())
                 .collect(Collectors.groupingBy(x -> x.getKey(), Collectors.mapping(x -> x.getValue(), Collectors.toList()))).entrySet().stream()
                 .filter(x -> x.getValue().size() > 1).collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
-        for (String reference: subscriptionProviders.keySet()) {
+        for (Reference reference: subscriptionProviders.keySet()) {
             throw new InvalidConfigurationException(
                     String.format("found %d subscription connections for reference %s but maximum 1 allowed", subscriptionProviders.get(reference).size(), reference));
         }
