@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.aastests.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
@@ -25,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
-import io.adminshell.aas.v3.dataformat.core.AASFull;
 import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Blob;
