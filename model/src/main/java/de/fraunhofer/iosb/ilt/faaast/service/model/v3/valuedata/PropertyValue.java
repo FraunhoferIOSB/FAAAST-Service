@@ -14,28 +14,44 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.ValueFormatException;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 public class PropertyValue extends DataElementValue {
-    private String value;
 
-    public String getValue() {
+    private TypedValue value;
+
+    public PropertyValue() {}
+
+
+    public PropertyValue(TypedValue value) {
+        this.value = value;
+    }
+
+
+    public TypedValue getValue() {
         return value;
     }
 
 
-    public void setValue(String value) {
+    public void setValue(TypedValue value) {
         this.value = value;
     }
 
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PropertyValue that = (PropertyValue) o;
         return Objects.equals(value, that.value);
     }
@@ -44,5 +60,42 @@ public class PropertyValue extends DataElementValue {
     @Override
     public int hashCode() {
         return Objects.hash(value);
+    }
+
+
+    public static PropertyValue of(String datatype, String value) throws ValueFormatException {
+        return new PropertyValue(TypedValueFactory.create(datatype, value));
+    }
+
+
+    public static PropertyValue of(Datatype datatype, String value) throws ValueFormatException {
+        return new PropertyValue(TypedValueFactory.create(datatype, value));
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static abstract class AbstractBuilder<T extends PropertyValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B value(TypedValue value) {
+            getBuildingInstance().setValue(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<PropertyValue, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected PropertyValue newBuildingInstance() {
+            return new PropertyValue();
+        }
     }
 }

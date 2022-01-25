@@ -14,11 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
 
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class ElementCollectionValue extends DataElementValue {
+
     private Map<String, ElementValue> values;
 
     public ElementCollectionValue() {
@@ -33,5 +36,57 @@ public class ElementCollectionValue extends DataElementValue {
 
     public void setValues(Map<String, ElementValue> values) {
         this.values = values;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ElementCollectionValue that = (ElementCollectionValue) o;
+        return Objects.equals(values, that.values);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), values);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static abstract class AbstractBuilder<T extends ElementCollectionValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B values(Map<String, ElementValue> value) {
+            getBuildingInstance().setValues(value);
+            return getSelf();
+        }
+
+
+        public B value(String name, ElementValue value) {
+            getBuildingInstance().getValues().put(name, value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<ElementCollectionValue, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected ElementCollectionValue newBuildingInstance() {
+            return new ElementCollectionValue();
+        }
     }
 }

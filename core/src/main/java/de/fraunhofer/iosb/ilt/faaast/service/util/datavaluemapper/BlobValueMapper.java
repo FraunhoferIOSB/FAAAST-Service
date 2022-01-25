@@ -21,7 +21,7 @@ import io.adminshell.aas.v3.model.Blob;
 public class BlobValueMapper extends DataValueMapper<Blob, BlobValue> {
 
     @Override
-    public BlobValue toDataElementValue(Blob submodelElement) {
+    public BlobValue toValue(Blob submodelElement) {
         if (submodelElement == null) {
             return null;
         }
@@ -33,7 +33,7 @@ public class BlobValueMapper extends DataValueMapper<Blob, BlobValue> {
 
 
     @Override
-    public Blob setDataElementValue(Blob submodelElement, BlobValue value) {
+    public Blob setValue(Blob submodelElement, BlobValue value) {
         if (submodelElement == null || value == null) {
             return null;
         }

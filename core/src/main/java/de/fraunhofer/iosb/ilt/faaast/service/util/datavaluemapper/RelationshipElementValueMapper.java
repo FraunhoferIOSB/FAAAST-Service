@@ -22,7 +22,7 @@ import io.adminshell.aas.v3.model.impl.DefaultReference;
 public class RelationshipElementValueMapper extends DataValueMapper<RelationshipElement, RelationshipElementValue> {
 
     @Override
-    public RelationshipElementValue toDataElementValue(RelationshipElement submodelElement) {
+    public RelationshipElementValue toValue(RelationshipElement submodelElement) {
         if (submodelElement == null) {
             return null;
         }
@@ -34,7 +34,7 @@ public class RelationshipElementValueMapper extends DataValueMapper<Relationship
 
 
     @Override
-    public RelationshipElement setDataElementValue(RelationshipElement submodelElement, RelationshipElementValue value) {
+    public RelationshipElement setValue(RelationshipElement submodelElement, RelationshipElementValue value) {
         if (submodelElement == null || value == null) {
             return null;
         }

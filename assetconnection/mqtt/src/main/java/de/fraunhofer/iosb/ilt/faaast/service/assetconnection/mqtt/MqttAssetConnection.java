@@ -18,6 +18,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.StringValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValue;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.Map;
 import org.eclipse.paho.client.mqttv3.*;
@@ -106,7 +108,7 @@ public class MqttAssetConnection
                         PropertyValue value = new PropertyValue();
                         switch (subscriptionProviderConfig.getParser()) {
                             case PLAIN:
-                                value.setValue(s);
+                                value.setValue(new StringValue(s));
                                 listener.newDataReceived(value);
                                 break;
                             case XML:
@@ -190,14 +192,14 @@ public class MqttAssetConnection
     }
 
 
-    private String parseXML(String xml) {
+    private TypedValue parseXML(String xml) {
         //todo: handle XML
-        return xml;
+        return new StringValue(xml);
     }
 
 
-    private String parseJSON(String json) {
+    private TypedValue parseJSON(String json) {
         //todo: handle JSON
-        return json;
+        return new StringValue(json);
     }
 }
