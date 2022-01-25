@@ -111,7 +111,7 @@ public class AASSimple {
     public static final String SUBMODEL_TECHNICAL_DATA_SEMANTIC_ID_PROPERTY = ID_0173_1_02_BAA120_008;
     public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_CATEGORY = "Parameter";
     public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUE = "5000";
-    public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUETYPE = "integer";
+    public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUETYPE = "int";
 
     // SUBMODEL_DOCUMENTATION
     private static final String SUBMODEL_DOCUMENTATION_ID_SHORT = "Documentation";
@@ -137,7 +137,7 @@ public class AASSimple {
     private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_ID_SHORT = ROTATION_SPEED;
     private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_CATEGORY = "Variable";
     private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_VALUE = "4370";
-    private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_VALUETYPE = "integer";
+    private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_VALUETYPE = "int";
     private static final String SUBMODEL_OPERATIONAL_DATA_ENTITY_NAME = "ExampleEntity";
     private static final String SUBMODEL_OPERATIONAL_DATA_ENTITY_PROPERTY_NAME = "ExampleProperty";
 
@@ -306,7 +306,7 @@ public class AASSimple {
                         .idShort("TestProperty")
                         .category(SUBMODEL_OPERATIONAL_DATA_PROPERTY_CATEGORY)
                         .value("50")
-                        .valueType("integer")
+                        .valueType("int")
                         .build())
                 .submodelElement(new DefaultRange.Builder()
                         .idShort("TestRange")
@@ -321,7 +321,7 @@ public class AASSimple {
                                         .idType(KeyType.IRI)
                                         .build())
                                 .build())
-                        .valueType("integer")
+                        .valueType("int")
                         .min("0")
                         .max("100")
                         .build())

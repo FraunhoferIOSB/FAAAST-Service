@@ -27,7 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperatio
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.MultiLanguageProperty;
@@ -191,7 +191,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
                 }
             }
 
-            request.setRawValue(DataElementValueMapper.toDataElement(element));
+            request.setRawValue(ElementValueMapper.toValue(element));
 
             if (request.getRawValue() instanceof MultiLanguagePropertyValue) {
                 MultiLanguagePropertyValue mlpv = (MultiLanguagePropertyValue) request.getRawValue();
@@ -223,7 +223,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      * @param inputVariables The input arguments
      * @param submodel The corresponding submodel
      * @param refElement The reference to the SubmodelElement
-     * @return The OutputArguments
+     * @return The OutputArguments The output arguments returned from the operation call
+     * @throws StatusException If the operation fails
      */
     public List<OperationVariable> callOperation(Operation operation, List<OperationVariable> inputVariables, Submodel submodel, Reference refElement) throws StatusException {
         List<OperationVariable> outputArguments;

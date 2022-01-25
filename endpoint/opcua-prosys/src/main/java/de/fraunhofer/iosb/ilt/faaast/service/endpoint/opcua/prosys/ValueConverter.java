@@ -22,6 +22,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.StatusCodes;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
 import io.adminshell.aas.v3.model.AssetKind;
 import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.EntityType;
@@ -449,6 +450,37 @@ public class ValueConverter {
         catch (Throwable ex) {
             logger.error("stringToValueType Exception", ex);
             throw ex;
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Converts the given datatype to the corresponding AASValueTypeDataType
+     * 
+     * @param type The desired datatype
+     * @return The corresponding AASValueTypeDataType
+     */
+    public static AASValueTypeDataType datatypeToValueType(Datatype type) {
+        AASValueTypeDataType retval;
+
+        switch (type) {
+            case Double:
+                retval = AASValueTypeDataType.Double;
+                break;
+
+            case Int:
+                retval = AASValueTypeDataType.Int32;
+                break;
+
+            case String:
+                retval = AASValueTypeDataType.String;
+                break;
+
+            default:
+                logger.warn("datatypeToValueType: unknown type: " + type);
+                throw new IllegalArgumentException("unknown type: " + type);
         }
 
         return retval;

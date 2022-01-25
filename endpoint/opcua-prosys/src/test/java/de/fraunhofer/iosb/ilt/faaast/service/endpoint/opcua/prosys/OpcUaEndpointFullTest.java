@@ -346,7 +346,7 @@ public class OpcUaEndpointFullTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        TestUtils.writeNewValueIntern(client, writeNode, "0", "4.0");
+        TestUtils.writeNewValueIntern(client, writeNode, 0, 4);
 
         System.out.println("disconnect client");
         client.disconnect();

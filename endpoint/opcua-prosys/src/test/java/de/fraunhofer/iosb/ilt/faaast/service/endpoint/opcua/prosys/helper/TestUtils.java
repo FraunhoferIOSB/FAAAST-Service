@@ -605,6 +605,76 @@ public class TestUtils {
 
 
     /**
+     * Checks the String Property with the given Name
+     *
+     * @param client The OPC UA Client
+     * @param node The Node where the desired property is located
+     * @param aasns The namespace index of the AAS namespace
+     * @param name The name of the desired property
+     * @param kind The expected ModelingKind
+     * @param category The expected Category
+     * @param valueType The expected ValueType
+     * @param propValue The expected Value
+     * @param qualifierList The list of qualifiers
+     * @throws ServiceException If the operation fails
+     * @throws AddressSpaceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     */
+    public static void checkAasPropertyObject(UaClient client, NodeId node, int aasns, String name, AASModelingKindDataType kind, String category, AASValueTypeDataType valueType,
+                                              Object propValue, List<Qualifier> qualifierList)
+            throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, name)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("checkAasPropertyString Browse Property Result Null", bpres);
+        Assert.assertTrue("checkAasPropertyString Browse Property Result: size doesn't match", bpres.length == 1);
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("checkAasPropertyString Property Null", targets);
+        Assert.assertTrue("checkAasPropertyString Property empty", targets.length > 0);
+        NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        checkDisplayName(client, propertyNode, name);
+        checkCategoryNode(client, propertyNode, aasns, category);
+        checkModelingKindNode(client, propertyNode, aasns, kind);
+        checkDataSpecificationNode(client, propertyNode, aasns);
+        checkQualifierNode(client, propertyNode, aasns, qualifierList);
+
+        relPath.clear();
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_TYPE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("checkAasPropertyString Browse Value & Type Result Null", bpres);
+        Assert.assertTrue("checkAasPropertyString Browse Value & Type Result: size doesn't match", bpres.length == 2);
+
+        targets = bpres[0].getTargets();
+        Assert.assertNotNull("checkAasPropertyString ValueType Null", targets);
+        Assert.assertTrue("checkAasPropertyString ValueType empty", targets.length > 0);
+        DataValue value = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertEquals(valueType.ordinal(), value.getValue().intValue());
+
+        targets = bpres[1].getTargets();
+        Assert.assertNotNull("checkAasPropertyString Value Null", targets);
+        Assert.assertTrue("checkAasPropertyString value empty", targets.length > 0);
+        value = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+
+        Variant var = new Variant(propValue);
+        Assert.assertEquals(var, value.getValue());
+    }
+
+
+    /**
      * Checks the File Property with the given Name.
      *
      * @param client The OPC UA Client
@@ -788,7 +858,7 @@ public class TestUtils {
             Assert.assertTrue("intial null value not equal", value.getValue().isEmpty());
         }
         else {
-            Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue().toString());
+            Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue());
         }
 
         client.writeValue(writeNode, newValue);
@@ -799,7 +869,7 @@ public class TestUtils {
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        Assert.assertEquals("new value not equal", newValue.toString(), value.getValue().getValue().toString());
+        Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
     }
 
 
