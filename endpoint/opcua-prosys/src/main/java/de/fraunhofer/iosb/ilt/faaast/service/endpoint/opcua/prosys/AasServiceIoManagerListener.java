@@ -21,25 +21,15 @@ import com.prosysopc.ua.nodes.UaValueNode;
 import com.prosysopc.ua.nodes.UaVariable;
 import com.prosysopc.ua.server.ServiceContext;
 import com.prosysopc.ua.server.io.IoManagerListener;
-import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
-import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
-import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.AttributeWriteMask;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import com.prosysopc.ua.stack.core.TimestampsToReturn;
 import com.prosysopc.ua.stack.utils.NumericRange;
-import io.adminshell.aas.v3.model.Blob;
-import io.adminshell.aas.v3.model.MultiLanguageProperty;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Range;
-import io.adminshell.aas.v3.model.ReferenceElement;
-import io.adminshell.aas.v3.model.RelationshipElement;
-import opc.i4aas.AASKeyDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -277,82 +267,86 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                         logger.warn("onWriteValue: Node " + nodeId + ": unkown type");
                         rv = false;
                     }
-                    else
-                        switch (data.getType()) {
-                            case PROPERTY_VALUE: {
-                                Property aasProp = (Property) data.getSubmodelElement();
-                                String newValue = dv.getValue().getValue().toString();
-                                aasProp.setValue(newValue);
-                                rv = endpoint.writeValue(aasProp, data.getSubmodel(), data.getReference());
-                                break;
-                            }
-                            case RANGE_MIN: {
-                                Range aasRange = (Range) data.getSubmodelElement();
-                                String newValue = dv.getValue().getValue().toString();
-                                aasRange.setMin(newValue);
-                                rv = endpoint.writeValue(aasRange, data.getSubmodel(), data.getReference());
-                                break;
-                            }
-                            case RANGE_MAX: {
-                                Range aasRange = (Range) data.getSubmodelElement();
-                                String newValue = dv.getValue().getValue().toString();
-                                aasRange.setMax(newValue);
-                                rv = endpoint.writeValue(aasRange, data.getSubmodel(), data.getReference());
-                                break;
-                            }
-                            case BLOB_VALUE: {
-                                Blob aasBlob = (Blob) data.getSubmodelElement();
-                                ByteString bs = (ByteString) dv.getValue().getValue();
-                                aasBlob.setValue(ByteString.asByteArray(bs));
-                                rv = endpoint.writeValue(aasBlob, data.getSubmodel(), data.getReference());
-                                break;
-                            }
-                            case MULTI_LANGUAGE_VALUE: {
-                                MultiLanguageProperty aasMultiProp = (MultiLanguageProperty) data.getSubmodelElement();
-                                //String newValue = dv.getValue().getValue().toString();
-                                Variant variant = dv.getValue();
-                                if (variant.isArray() && (variant.getValue() instanceof LocalizedText[])) {
-                                    aasMultiProp.setValues(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
-                                }
+                    else {
+                        ValueConverter.setSubmodelElementValue(data, dv);
+                        //                        switch (data.getType()) {
+                        //                            case PROPERTY_VALUE: {
+                        //                                Property aasProp = (Property) data.getSubmodelElement();
+                        //                                String newValue = dv.getValue().getValue().toString();
+                        //                                aasProp.setValue(newValue);
+                        //                                rv = endpoint.writeValue(aasProp, data.getSubmodel(), data.getReference());
+                        //                                break;
+                        //                            }
+                        //                            case RANGE_MIN: {
+                        //                                Range aasRange = (Range) data.getSubmodelElement();
+                        //                                String newValue = dv.getValue().getValue().toString();
+                        //                                aasRange.setMin(newValue);
+                        //                                rv = endpoint.writeValue(aasRange, data.getSubmodel(), data.getReference());
+                        //                                break;
+                        //                            }
+                        //                            case RANGE_MAX: {
+                        //                                Range aasRange = (Range) data.getSubmodelElement();
+                        //                                String newValue = dv.getValue().getValue().toString();
+                        //                                aasRange.setMax(newValue);
+                        //                                rv = endpoint.writeValue(aasRange, data.getSubmodel(), data.getReference());
+                        //                                break;
+                        //                            }
+                        //                            case BLOB_VALUE: {
+                        //                                Blob aasBlob = (Blob) data.getSubmodelElement();
+                        //                                ByteString bs = (ByteString) dv.getValue().getValue();
+                        //                                aasBlob.setValue(ByteString.asByteArray(bs));
+                        //                                rv = endpoint.writeValue(aasBlob, data.getSubmodel(), data.getReference());
+                        //                                break;
+                        //                            }
+                        //                            case MULTI_LANGUAGE_VALUE: {
+                        //                                MultiLanguageProperty aasMultiProp = (MultiLanguageProperty) data.getSubmodelElement();
+                        //                                //String newValue = dv.getValue().getValue().toString();
+                        //                                Variant variant = dv.getValue();
+                        //                                if (variant.isArray() && (variant.getValue() instanceof LocalizedText[])) {
+                        //                                    aasMultiProp.setValues(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
+                        //                                }
+                        //
+                        //                                rv = endpoint.writeValue(aasMultiProp, data.getSubmodel(), data.getReference());
+                        //                                break;
+                        //                            }
+                        //                            case REFERENCE_ELEMENT_VALUE: {
+                        //                                ReferenceElement aasRefElem = (ReferenceElement) data.getSubmodelElement();
+                        //                                Variant variant = dv.getValue();
+                        //                                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+                        //                                    aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                        //                                }
+                        //
+                        //                                rv = endpoint.writeValue(aasRefElem, data.getSubmodel(), data.getReference());
+                        //                                break;
+                        //                            }
+                        //                            case RELATIONSHIP_ELEMENT_FIRST: {
+                        //                                RelationshipElement aasRelElem = (RelationshipElement) data.getSubmodelElement();
+                        //                                Variant variant = dv.getValue();
+                        //                                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+                        //                                    aasRelElem.setFirst(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                        //                                }
+                        //
+                        //                                rv = endpoint.writeValue(aasRelElem, data.getSubmodel(), data.getReference());
+                        //                                break;
+                        //                            }
+                        //                            case RELATIONSHIP_ELEMENT_SECOND: {
+                        //                                RelationshipElement aasRelElem = (RelationshipElement) data.getSubmodelElement();
+                        //                                Variant variant = dv.getValue();
+                        //                                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+                        //                                    aasRelElem.setSecond(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                        //                                }
+                        //
+                        //                                rv = endpoint.writeValue(aasRelElem, data.getSubmodel(), data.getReference());
+                        //                                break;
+                        //                            }
+                        //                            default:
+                        //                                logger.warn("onWriteValue: Node " + nodeId + ": unkown type");
+                        //                                rv = false;
+                        //                                break;
+                        //                        }
 
-                                rv = endpoint.writeValue(aasMultiProp, data.getSubmodel(), data.getReference());
-                                break;
-                            }
-                            case REFERENCE_ELEMENT_VALUE: {
-                                ReferenceElement aasRefElem = (ReferenceElement) data.getSubmodelElement();
-                                Variant variant = dv.getValue();
-                                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
-                                    aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
-                                }
-
-                                rv = endpoint.writeValue(aasRefElem, data.getSubmodel(), data.getReference());
-                                break;
-                            }
-                            case RELATIONSHIP_ELEMENT_FIRST: {
-                                RelationshipElement aasRelElem = (RelationshipElement) data.getSubmodelElement();
-                                Variant variant = dv.getValue();
-                                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
-                                    aasRelElem.setFirst(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
-                                }
-
-                                rv = endpoint.writeValue(aasRelElem, data.getSubmodel(), data.getReference());
-                                break;
-                            }
-                            case RELATIONSHIP_ELEMENT_SECOND: {
-                                RelationshipElement aasRelElem = (RelationshipElement) data.getSubmodelElement();
-                                Variant variant = dv.getValue();
-                                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
-                                    aasRelElem.setSecond(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
-                                }
-
-                                rv = endpoint.writeValue(aasRelElem, data.getSubmodel(), data.getReference());
-                                break;
-                            }
-                            default:
-                                logger.warn("onWriteValue: Node " + nodeId + ": unkown type");
-                                rv = false;
-                                break;
-                        }
+                        rv = endpoint.writeValue(data.getSubmodelElement(), data.getSubmodel(), data.getReference());
+                    }
                 }
                 else {
                     logger.warn("onWriteValue: Node " + nodeId + ": SubmodelElementData not found");

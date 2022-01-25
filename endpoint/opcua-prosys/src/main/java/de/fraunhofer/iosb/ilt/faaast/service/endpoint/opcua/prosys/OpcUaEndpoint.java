@@ -14,27 +14,28 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
 
+import com.prosysopc.ua.StatusException;
+import com.prosysopc.ua.stack.core.StatusCodes;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -220,25 +221,50 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      *
      * @param operation The desired operation
      * @param inputVariables The input arguments
+     * @param submodel The corresponding submodel
+     * @param refElement The reference to the SubmodelElement
+     * @return The OutputArguments
      */
-    public void callOperation(Operation operation, List<OperationVariable> inputVariables) {
+    public List<OperationVariable> callOperation(Operation operation, List<OperationVariable> inputVariables, Submodel submodel, Reference refElement) throws StatusException {
+        List<OperationVariable> outputArguments;
         try {
             InvokeOperationSyncRequest request = new InvokeOperationSyncRequest();
 
             List<Key> path = new ArrayList<>();
-            path.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.OPERATION).value(operation.getIdShort()).build());
-            request.setPath(path);
+            //path.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.OPERATION).value(operation.getIdShort()).build());
+            //request.setPath(path);
+            path.addAll(refElement.getKeys());
 
+            request.setId(submodel.getIdentification());
+            request.setPath(path);
             request.setInputArguments(inputVariables);
+            request.setContent(Content.Normal);
 
             requestCounter++;
             request.setRequestId(Integer.toString(requestCounter));
 
-            // TODO Method in Service not yet implemented
+            // execute method
+            InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
+            if (isSuccess(response.getStatusCode())) {
+                logger.info("callOperation: Operation " + operation.getIdShort() + " executed successfully");
+            }
+            else if (response.getStatusCode() == StatusCode.ClientMethodNotAllowed) {
+                logger.warn("callOperation: Operation " + operation.getIdShort() + " error executing operation: " + response.getStatusCode());
+                throw new StatusException(StatusCodes.Bad_NotExecutable);
+            }
+            else {
+                logger.warn("callOperation: Operation " + operation.getIdShort() + " error executing operation: " + response.getStatusCode());
+                throw new StatusException(StatusCodes.Bad_UnexpectedError);
+            }
+
+            outputArguments = response.getPayload().getOutputArguments();
         }
         catch (Exception ex) {
             logger.error("callOperation error", ex);
+            throw ex;
         }
+
+        return outputArguments;
     }
 
 

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
@@ -40,17 +41,18 @@ public class TestService extends Service {
      * Constructs a new TestService
      *
      * @param endpoint
+     * @param assetConnection The desired AssetConnection
      * @param full True if the full example is requested, otherwise the simple
      *            is used
      * @throws ConfigurationException If the operation fails
      */
-    public TestService(Endpoint endpoint, boolean full) throws ConfigurationException {
+    public TestService(Endpoint endpoint, AssetConnection assetConnection, boolean full) throws ConfigurationException {
         super(
                 CoreConfig.builder().build(),
                 full ? AASFull.ENVIRONMENT : AASSimple.ENVIRONMENT,
                 new PersistenceInMemory(),
                 new MessageBusInternal(),
-                List.of(endpoint));
-        //useFullExample = full;
+                List.of(endpoint),
+                assetConnection != null ? List.of(assetConnection) : null);
     }
 }

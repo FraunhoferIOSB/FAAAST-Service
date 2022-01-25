@@ -100,7 +100,7 @@ public class OpcUaEndpointTest {
 
         endpoint = new OpcUaEndpoint();
         endpoint.init(coreConfig, config);
-        service = new TestService(endpoint, false);
+        service = new TestService(endpoint, null, false);
         endpoint.setService(service);
         service.start();
     }

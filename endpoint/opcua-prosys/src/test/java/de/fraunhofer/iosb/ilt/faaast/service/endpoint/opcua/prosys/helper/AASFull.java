@@ -444,12 +444,12 @@ public class AASFull {
 
     public static Submodel createSubmodel3() {
         return new DefaultSubmodel.Builder()
-                .idShort("TestSubmodel")
+                .idShort("TestSubmodel3")
                 .description(new LangString("An example submodel for the test application", "en-us"))
                 .description(new LangString("Ein Beispiel-Teilmodell für eine Test-Anwendung", "de"))
                 .identification(new DefaultIdentifier.Builder()
                         .idType(IdentifierType.IRI)
-                        .identifier("https://acplt.org/Test_Submodel")
+                        .identifier("https://acplt.org/Test_Submodel3")
                         .build())
                 .administration(new DefaultAdministrativeInformation.Builder()
                         .version("0.9")

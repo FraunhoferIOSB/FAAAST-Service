@@ -14,10 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
 
+import com.prosysopc.ua.StatusException;
+import com.prosysopc.ua.stack.builtintypes.ByteString;
+import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
+import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.Identifiers;
+import com.prosysopc.ua.stack.core.StatusCodes;
 import io.adminshell.aas.v3.model.AssetKind;
+import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.EntityType;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.Key;
@@ -25,7 +31,14 @@ import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
+import io.adminshell.aas.v3.model.MultiLanguageProperty;
+import io.adminshell.aas.v3.model.OperationVariable;
+import io.adminshell.aas.v3.model.Property;
+import io.adminshell.aas.v3.model.Range;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.ReferenceElement;
+import io.adminshell.aas.v3.model.RelationshipElement;
+import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
@@ -900,6 +913,12 @@ public class ValueConverter {
     }
 
 
+    /**
+     * Creates a reference from the given List of Keys.
+     * 
+     * @param value The desired list of Keys.
+     * @return The created reference.
+     */
     public static Reference getReferenceFromKeys(AASKeyDataType[] value) {
         if (value == null) {
             throw new IllegalArgumentException("value is null");
@@ -916,6 +935,162 @@ public class ValueConverter {
         }
         catch (Throwable ex) {
             logger.error("getReferenceFromKeys Exception", ex);
+            throw ex;
+        }
+
+        return retval;
+    }
+
+
+    /**
+     * Sets the given value in the given SubmodelElement.
+     * 
+     * @param data The desired SubmodelElementData.
+     * @param dv The desired Value.
+     */
+    public static void setSubmodelElementValue(SubmodelElementData data, DataValue dv) {
+        setSubmodelElementValue(data.getSubmodelElement(), data.getType(), dv.getValue());
+    }
+
+
+    public static void setOperationValues(List<OperationVariable> inputVariables, Variant[] inputArguments) throws StatusException {
+        if (inputArguments.length < inputVariables.size()) {
+            throw new StatusException(StatusCodes.Bad_ArgumentsMissing);
+        }
+        if (inputArguments.length > inputVariables.size()) {
+            throw new StatusException(StatusCodes.Bad_TooManyArguments);
+        }
+        else {
+            for (int i = 0; i < inputVariables.size(); i++) {
+                SubmodelElement smelem = inputVariables.get(i).getValue();
+                SubmodelElementData.Type type;
+                if (smelem instanceof Property) {
+                    type = SubmodelElementData.Type.PROPERTY_VALUE;
+                }
+                else {
+                    throw new StatusException(StatusCodes.Bad_InvalidArgument);
+                }
+
+                setSubmodelElementValue(smelem, type, inputArguments[i]);
+            }
+        }
+    }
+
+
+    public static void setOutputArguments(List<OperationVariable> outputVariables, Variant[] outputArguments) throws StatusException {
+        if (outputArguments.length != outputVariables.size()) {
+            throw new StatusException(StatusCodes.Bad_InvalidArgument);
+        }
+        else {
+            for (int i = 0; i < outputVariables.size(); i++) {
+                SubmodelElement smelem = outputVariables.get(i).getValue();
+                SubmodelElementData.Type type;
+                if (smelem instanceof Property) {
+                    type = SubmodelElementData.Type.PROPERTY_VALUE;
+                }
+                else {
+                    throw new StatusException(StatusCodes.Bad_InvalidArgument);
+                }
+
+                outputArguments[i] = getSubmodelElementValue(smelem, type);
+            }
+        }
+    }
+
+
+    /**
+     * Sets the given value in the given SubmodelElement.
+     * 
+     * @param submodelElement The desired SubmodelElement.
+     * @param type The desired type.
+     * @param variant The desired Value.
+     */
+    public static void setSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type, Variant variant) {
+        try {
+            switch (type) {
+                case PROPERTY_VALUE: {
+                    Property aasProp = (Property) submodelElement;
+                    String newValue = variant.getValue().toString();
+                    aasProp.setValue(newValue);
+                    break;
+                }
+                case RANGE_MIN: {
+                    Range aasRange = (Range) submodelElement;
+                    String newValue = variant.getValue().toString();
+                    aasRange.setMin(newValue);
+                    break;
+                }
+                case RANGE_MAX: {
+                    Range aasRange = (Range) submodelElement;
+                    String newValue = variant.getValue().toString();
+                    aasRange.setMax(newValue);
+                    break;
+                }
+                case BLOB_VALUE: {
+                    Blob aasBlob = (Blob) submodelElement;
+                    ByteString bs = (ByteString) variant.getValue();
+                    aasBlob.setValue(ByteString.asByteArray(bs));
+                    break;
+                }
+                case MULTI_LANGUAGE_VALUE: {
+                    MultiLanguageProperty aasMultiProp = (MultiLanguageProperty) submodelElement;
+                    //String newValue = variant.getValue().toString();
+                    if (variant.isArray() && (variant.getValue() instanceof LocalizedText[])) {
+                        aasMultiProp.setValues(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
+                    }
+                    break;
+                }
+                case REFERENCE_ELEMENT_VALUE: {
+                    ReferenceElement aasRefElem = (ReferenceElement) submodelElement;
+                    if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+                        aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                    }
+                    break;
+                }
+                case RELATIONSHIP_ELEMENT_FIRST: {
+                    RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
+                    if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+                        aasRelElem.setFirst(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                    }
+                    break;
+                }
+                case RELATIONSHIP_ELEMENT_SECOND: {
+                    RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
+                    if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+                        aasRelElem.setSecond(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                    }
+                    break;
+                }
+                default:
+                    logger.warn("setSubmodelElementValue: SubmodelElement " + submodelElement.getIdShort() + ": unkown type " + type);
+                    throw new IllegalArgumentException("unkown type " + type);
+            }
+        }
+        catch (Throwable ex) {
+            logger.error("setSubmodelElementValue Exception", ex);
+            throw ex;
+        }
+    }
+
+
+    public static Variant getSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type) {
+        Variant retval;
+
+        try {
+            switch (type) {
+                case PROPERTY_VALUE: {
+                    Property aasProp = (Property) submodelElement;
+                    retval = new Variant(aasProp.getValue());
+                    break;
+                }
+
+                default:
+                    logger.warn("getSubmodelElementValue: SubmodelElement " + submodelElement.getIdShort() + ": unkown or invalid type " + type);
+                    throw new IllegalArgumentException("unkown type " + type);
+            }
+        }
+        catch (Throwable ex) {
+            logger.error("getSubmodelElementValue Exception", ex);
             throw ex;
         }
 

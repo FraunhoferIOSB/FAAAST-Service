@@ -26,8 +26,6 @@ import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
@@ -101,24 +99,31 @@ public class AasServiceMethodManagerListener implements CallableListener {
                 Operation aasOper = (Operation) data.getSubmodelElement();
                 if (aasOper != null) {
                     List<OperationVariable> inputVariables = aasOper.getInputVariables();
-                    if (inputArguments.length < inputVariables.size()) {
-                        throw new StatusException(StatusCodes.Bad_ArgumentsMissing);
-                    }
-                    if (inputArguments.length > inputVariables.size()) {
-                        throw new StatusException(StatusCodes.Bad_TooManyArguments);
-                    }
-                    else {
-                        for (int i = 0; i < inputVariables.size(); i++) {
-                            SubmodelElement smelem = inputVariables.get(i).getValue();
-                            if (smelem instanceof Property) {
-                                ((Property) smelem).setValue(inputArguments[i].toString());
-                            }
+                    ValueConverter.setOperationValues(inputVariables, inputArguments);
+                    List<OperationVariable> outputVariables = endpoint.callOperation(aasOper, inputVariables, data.getSubmodel(), data.getReference());
 
-                            // TODO: set values for other SubmodelElement Types
-                        }
+                    ValueConverter.setOutputArguments(outputVariables, outputs);
+                    retval = true;
 
-                        endpoint.callOperation(aasOper, inputVariables);
-                    }
+                    //                    List<OperationVariable> inputVariables = aasOper.getInputVariables();
+                    //                    if (inputArguments.length < inputVariables.size()) {
+                    //                        throw new StatusException(StatusCodes.Bad_ArgumentsMissing);
+                    //                    }
+                    //                    if (inputArguments.length > inputVariables.size()) {
+                    //                        throw new StatusException(StatusCodes.Bad_TooManyArguments);
+                    //                    }
+                    //                    else {
+                    //                        for (int i = 0; i < inputVariables.size(); i++) {
+                    //                            SubmodelElement smelem = inputVariables.get(i).getValue();
+                    //                            if (smelem instanceof Property) {
+                    //                                ((Property) smelem).setValue(inputArguments[i].toString());
+                    //                            }
+                    //
+                    //                            // TODO: set values for other SubmodelElement Types
+                    //                        }
+                    //
+                    //                        endpoint.callOperation(aasOper, inputVariables, data.getSubmodel(), data.getReference());
+                    //                    }
 
                     //                    // search the corresponding submodel
                     //                    Reference smref = nodeManager.getSubmodelReference(aasOper.getReference());
