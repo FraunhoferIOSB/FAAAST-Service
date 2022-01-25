@@ -35,6 +35,7 @@ public class DoubleValue extends TypedValue<Double> {
     @Override
     public void fromString(String value) throws ValueFormatException {
         if (value == null) {
+            this.value = null;
             return;
         }
         try {

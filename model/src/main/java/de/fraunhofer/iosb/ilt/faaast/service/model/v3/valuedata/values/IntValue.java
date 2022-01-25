@@ -14,26 +14,30 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values;
 
-public class IntegerValue extends TypedValue<Integer> {
+public class IntValue extends TypedValue<Integer> {
 
-    public IntegerValue() {
+    public IntValue() {
         super();
     }
 
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Integer;
+        return Datatype.Int;
     }
 
 
-    public IntegerValue(Integer value) {
+    public IntValue(Integer value) {
         super(value);
     }
 
 
     @Override
     public void fromString(String value) throws ValueFormatException {
+        if (value == null) {
+            this.value = null;
+            return;
+        }
         try {
             this.value = Integer.parseInt(value);
         }
