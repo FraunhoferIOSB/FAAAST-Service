@@ -113,6 +113,9 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         if (server != null && server.isRunning()) {
             throw new IllegalStateException("OPC UA Endpoint cannot be started because it is already running");
         }
+        else if (currentConfig == null) {
+            throw new IllegalStateException("OPC UA Endpoint cannot be started because no configuration is available");
+        }
 
         try {
             server = new Server(currentConfig.getTcpPort(), aasEnvironment, this, currentConfig.getHttpsPort());
@@ -131,10 +134,14 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      */
     @Override
     public void stop() {
+        if (currentConfig == null) {
+            throw new IllegalStateException("OPC UA Endpoint cannot be stopped because no configuration is available");
+        }
+
         try {
             if (server != null) {
-                logger.info("stop server");
-                server.shutdown();
+                logger.info("stop server. Currently running: " + server.isRunning());
+                server.shutdown(currentConfig.getSecondsTillShutdown());
             }
         }
         catch (Exception ex) {

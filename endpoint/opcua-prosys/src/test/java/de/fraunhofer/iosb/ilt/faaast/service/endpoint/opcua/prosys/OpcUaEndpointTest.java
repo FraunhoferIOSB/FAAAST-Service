@@ -98,6 +98,7 @@ public class OpcUaEndpointTest {
 
         OpcUaEndpointConfig config = new OpcUaEndpointConfig();
         config.setTcpPort(OPC_TCP_PORT);
+        config.setSecondsTillShutdown(0);
 
         endpoint = new OpcUaEndpoint();
         endpoint.init(coreConfig, config);

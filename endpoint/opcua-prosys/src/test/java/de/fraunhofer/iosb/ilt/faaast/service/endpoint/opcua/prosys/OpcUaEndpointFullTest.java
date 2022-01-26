@@ -98,6 +98,7 @@ public class OpcUaEndpointFullTest {
 
         OpcUaEndpointConfig config = new OpcUaEndpointConfig();
         config.setTcpPort(OPC_TCP_PORT);
+        config.setSecondsTillShutdown(0);
 
         AssetConnection assetConnection = new TestAssetConnection();
 

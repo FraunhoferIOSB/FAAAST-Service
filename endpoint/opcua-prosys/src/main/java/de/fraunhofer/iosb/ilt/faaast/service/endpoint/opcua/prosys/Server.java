@@ -318,6 +318,8 @@ public class Server {
             createAddressSpace();
 
             server.start();
+
+            running = true;
         }
         catch (Throwable ex) {
             logger.error("startup Exception", ex);
@@ -327,10 +329,12 @@ public class Server {
 
     /**
      * Stops the OPC UA server
+     * 
+     * @param secondsTillShutdown The number of seconds until the server stops
      */
-    public void shutdown() {
+    public void shutdown(int secondsTillShutdown) {
         running = false;
-        server.shutdown(5, new LocalizedText("Server stopped", Locale.ENGLISH));
+        server.shutdown(secondsTillShutdown, new LocalizedText("Server stopped", Locale.ENGLISH));
     }
 
 

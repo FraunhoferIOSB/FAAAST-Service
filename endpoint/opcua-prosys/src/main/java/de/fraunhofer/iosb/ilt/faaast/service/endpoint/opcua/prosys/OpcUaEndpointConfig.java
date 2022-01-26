@@ -26,6 +26,7 @@ public class OpcUaEndpointConfig extends EndpointConfig {
 
     private int tcpPort;
     private int httpsPort;
+    private int secondsTillShutdown;
 
     /**
      * Gets the desired port for the OPC.TCP Endpoint
@@ -64,5 +65,25 @@ public class OpcUaEndpointConfig extends EndpointConfig {
      */
     public void setHttpsPort(int httpsPort) {
         this.httpsPort = httpsPort;
+    }
+
+
+    /**
+     * Gets the number of seconds until the server stops on shutdown
+     * 
+     * @return The desired number of seconds
+     */
+    public int getSecondsTillShutdown() {
+        return secondsTillShutdown;
+    }
+
+
+    /**
+     * Sets the number of seconds until the server stops on shutdown
+     * 
+     * @param value The desired number of seconds
+     */
+    public void setSecondsTillShutdown(int value) {
+        secondsTillShutdown = value;
     }
 }
