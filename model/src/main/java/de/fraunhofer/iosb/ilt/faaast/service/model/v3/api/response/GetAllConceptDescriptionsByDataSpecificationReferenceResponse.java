@@ -23,5 +23,28 @@ import java.util.List;
  * Chapter 6.4.6
  */
 public class GetAllConceptDescriptionsByDataSpecificationReferenceResponse extends BaseResponseWithPayload<List<ConceptDescription>> {
+    public static GetAllConceptDescriptionsByDataSpecificationReferenceResponse.Builder builder() {
+        return new GetAllConceptDescriptionsByDataSpecificationReferenceResponse.Builder();
+    }
 
+    public static class Builder
+            extends AbstractBuilder<GetAllConceptDescriptionsByDataSpecificationReferenceResponse, GetAllConceptDescriptionsByDataSpecificationReferenceResponse.Builder> {
+
+        @Override
+        protected GetAllConceptDescriptionsByDataSpecificationReferenceResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public GetAllConceptDescriptionsByDataSpecificationReferenceResponse.Builder payload(List<ConceptDescription> value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected GetAllConceptDescriptionsByDataSpecificationReferenceResponse newBuildingInstance() {
+            return new GetAllConceptDescriptionsByDataSpecificationReferenceResponse();
+        }
+    }
 }

@@ -23,5 +23,27 @@ import java.util.List;
  * Chapter 4.4.2
  */
 public class GenerateSerializationByIdsResponse extends BaseResponseWithPayload<List<AssetAdministrationShell>> {
+    public static GenerateSerializationByIdsResponse.Builder builder() {
+        return new GenerateSerializationByIdsResponse.Builder();
+    }
 
+    public static class Builder extends AbstractBuilder<GenerateSerializationByIdsResponse, GenerateSerializationByIdsResponse.Builder> {
+
+        @Override
+        protected GenerateSerializationByIdsResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public GenerateSerializationByIdsResponse.Builder payload(List<AssetAdministrationShell> value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected GenerateSerializationByIdsResponse newBuildingInstance() {
+            return new GenerateSerializationByIdsResponse();
+        }
+    }
 }

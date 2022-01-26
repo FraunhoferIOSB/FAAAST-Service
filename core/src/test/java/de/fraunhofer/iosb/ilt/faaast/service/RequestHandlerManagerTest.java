@@ -22,22 +22,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvi
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.ExecutionState;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationHandle;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.*;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllAssetAdministrationShellsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationSyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllAssetAdministrationShellsByAssetIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.dataformat.core.AASSimple;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.Operation;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Property;
+import io.adminshell.aas.v3.model.*;
 import io.adminshell.aas.v3.model.impl.DefaultOperation;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
@@ -47,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 
@@ -54,15 +51,26 @@ public class RequestHandlerManagerTest {
 
     private static final long DEFAULT_TIMEOUT = 1000;
 
+    private static CoreConfig coreConfig;
+    private static AssetAdministrationShellEnvironment environment;
+    private static MessageBus messageBus;
+    private static Persistence persistence;
+    private static AssetConnectionManager assetConnectionManager;
+    private static RequestHandlerManager manager;
+
+    @Before
+    public void createRequestHandlerManager() {
+        environment = AASSimple.createEnvironment();
+        coreConfig = CoreConfig.builder().build();
+        messageBus = mock(MessageBus.class);
+        persistence = mock(Persistence.class);
+        assetConnectionManager = mock(AssetConnectionManager.class);
+        manager = new RequestHandlerManager(coreConfig, persistence, messageBus, assetConnectionManager);
+    }
+
+
     @Test
     public void testGetAllAssetAdministrationShellRequest() {
-        CoreConfig coreConfig = CoreConfig.builder().build();
-        AssetAdministrationShellEnvironment environment = AASSimple.createEnvironment();
-        Persistence persistence = mock(Persistence.class);
-        MessageBus messageBus = mock(MessageBus.class);
-        AssetConnectionManager assetConnectionManager = mock(AssetConnectionManager.class);
-        RequestHandlerManager manager = new RequestHandlerManager(coreConfig, persistence, messageBus, assetConnectionManager);
-
         when(persistence.get(any(), argThat((AssetIdentification t) -> true), any()))
                 .thenReturn(environment.getAssetAdministrationShells());
         GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
@@ -72,21 +80,26 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShellRequestAsync() throws InterruptedException {
-        CoreConfig coreConfig = CoreConfig.builder().build();
-        AssetAdministrationShellEnvironment environment = AASSimple.createEnvironment();
-        Persistence persistence = mock(Persistence.class);
-        MessageBus messageBus = mock(MessageBus.class);
-        AssetConnectionManager assetConnectionManager = mock(AssetConnectionManager.class);
-        RequestHandlerManager manager = new RequestHandlerManager(coreConfig, persistence, messageBus, assetConnectionManager);
-
+    public void testGetAllAssetAdministrationShellsByAssetIdRequest() {
         when(persistence.get(any(), argThat((AssetIdentification t) -> true), any()))
                 .thenReturn(environment.getAssetAdministrationShells());
+        GetAllAssetAdministrationShellsByAssetIdRequest request = new GetAllAssetAdministrationShellsByAssetIdRequest();
+        GetAllAssetAdministrationShellsByAssetIdResponse response = manager.execute(request);
+        GetAllAssetAdministrationShellsByAssetIdResponse expected = new GetAllAssetAdministrationShellsByAssetIdResponse.Builder()
+                .payload(environment.getAssetAdministrationShells())
+                .statusCode(StatusCode.Success)
+                .build();
+        Assert.assertEquals(expected, response);
+    }
 
-        CountDownLatch condition = new CountDownLatch(1);
-        final AtomicReference<GetAllAssetAdministrationShellsResponse> response = new AtomicReference<>();
 
+    @Test
+    public void testGetAllAssetAdministrationShellRequestAsync() throws InterruptedException {
+        when(persistence.get(any(), argThat((AssetIdentification t) -> true), any()))
+                .thenReturn(environment.getAssetAdministrationShells());
         GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
+        final AtomicReference<GetAllAssetAdministrationShellsResponse> response = new AtomicReference<>();
+        CountDownLatch condition = new CountDownLatch(1);
         manager.executeAsync(request, x -> response.set(x));
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         Assert.assertEquals(environment.getAssetAdministrationShells(), response.get().getPayload());
@@ -155,7 +168,7 @@ public class RequestHandlerManagerTest {
         MessageBus messageBus = mock(MessageBus.class);
         AssetConnectionManager assetConnectionManager = mock(AssetConnectionManager.class);
         when(assetConnectionManager.hasOperationProvider(any())).thenReturn(true);
-        when(assetConnectionManager.getOperationProvider(any())).thenReturn(new CostumAssetOperationProvider());
+        when(assetConnectionManager.getOperationProvider(any())).thenReturn(new CustomAssetOperationProvider());
 
         RequestHandlerManager manager = new RequestHandlerManager(coreConfig, persistence, messageBus, assetConnectionManager);
         Operation operation = getTestOperation();
@@ -185,7 +198,7 @@ public class RequestHandlerManagerTest {
         Assert.assertEquals(expectedResponse, actualResponse);
     }
 
-    class CostumAssetOperationProvider implements AssetOperationProvider {
+    class CustomAssetOperationProvider implements AssetOperationProvider {
 
         @Override
         public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {

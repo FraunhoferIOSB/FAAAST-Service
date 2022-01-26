@@ -21,5 +21,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseResponse;
  * Chapter 4.2.8
  */
 public class PutAssetInformationResponse extends BaseResponse {
+    public static PutAssetInformationResponse.Builder builder() {
+        return new PutAssetInformationResponse.Builder();
+    }
 
+    public static class Builder extends AbstractBuilder<PutAssetInformationResponse, PutAssetInformationResponse.Builder> {
+
+        @Override
+        protected PutAssetInformationResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected PutAssetInformationResponse newBuildingInstance() {
+            return new PutAssetInformationResponse();
+        }
+    }
 }
