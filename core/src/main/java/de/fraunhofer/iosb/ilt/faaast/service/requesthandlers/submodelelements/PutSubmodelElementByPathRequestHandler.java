@@ -23,9 +23,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.PutSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
 
@@ -48,9 +50,16 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
                     .extend(Extend.WithoutBLOBValue)
                     .level(Level.Core)
                     .build());
+            ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
+            ElementValue newValue = ElementValueMapper.toValue(request.getSubmodelElement());
             submodelElement = persistence.put(null, reference, request.getSubmodelElement());
             response.setPayload(submodelElement);
             response.setStatusCode(StatusCode.Success);
+
+            if (oldValue != null && newValue != null && !oldValue.equals(newValue)) {
+                writeValueToAssetConnection(reference, ElementValueMapper.toValue(submodelElement));
+            }
+
             publishElementUpdateEventMessage(reference, submodelElement);
         }
         catch (ResourceNotFoundException ex) {

@@ -43,6 +43,7 @@ public class DeleteSubmodelElementByPathRequestHandler extends RequestHandler<De
             Reference reference = Util.toReference(request.getPath());
             SubmodelElement submodelElement = persistence.get(reference, new QueryModifier());
             persistence.remove(reference);
+            //TODO: Delete AssetConnection if exists?
             response.setStatusCode(StatusCode.Success);
             publishElementDeleteEventMessage(reference, submodelElement);
         }
