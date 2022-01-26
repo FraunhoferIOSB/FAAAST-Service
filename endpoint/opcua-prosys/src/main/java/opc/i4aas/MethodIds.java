@@ -18,20 +18,20 @@ import com.prosysopc.ua.stack.builtintypes.ExpandedNodeId;
 
 
 /**
- * Generated on 2021-12-15 11:39:02
+ * Generated on 2022-01-26 16:50:24
  */
 public interface MethodIds {
-    ExpandedNodeId AASFileType_File_SetPosition = MethodIdsInit.initAASFileType_File_SetPosition();
-
-    ExpandedNodeId AASFileType_File_Open = MethodIdsInit.initAASFileType_File_Open();
-
-    ExpandedNodeId AASFileType_File_Read = MethodIdsInit.initAASFileType_File_Read();
-
     ExpandedNodeId AASFileType_File_Close = MethodIdsInit.initAASFileType_File_Close();
 
     ExpandedNodeId AASFileType_File_GetPosition = MethodIdsInit.initAASFileType_File_GetPosition();
 
+    ExpandedNodeId AASFileType_File_Open = MethodIdsInit.initAASFileType_File_Open();
+
+    ExpandedNodeId AASFileType_File_SetPosition = MethodIdsInit.initAASFileType_File_SetPosition();
+
     ExpandedNodeId AASFileType_File_Write = MethodIdsInit.initAASFileType_File_Write();
+
+    ExpandedNodeId AASFileType_File_Read = MethodIdsInit.initAASFileType_File_Read();
 
     ExpandedNodeId AASOperationType_Operation = MethodIdsInit.initAASOperationType_Operation();
 }

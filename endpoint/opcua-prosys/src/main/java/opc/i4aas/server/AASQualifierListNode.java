@@ -22,7 +22,7 @@ import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 
 
 /**
- * Generated on 2021-12-15 11:39:02
+ * Generated on 2022-01-26 16:50:24
  */
 @TypeDefinitionId("nsu=http://opcfoundation.org/UA/I4AAS/V3/;i=1037")
 public class AASQualifierListNode extends AASQualifierListNodeBase {

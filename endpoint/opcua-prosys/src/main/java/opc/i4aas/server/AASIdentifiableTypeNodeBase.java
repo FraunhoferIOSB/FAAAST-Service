@@ -30,7 +30,7 @@ import opc.i4aas.AASIdentifiableType;
 
 
 /**
- * Generated on 2021-12-15 11:39:02
+ * Generated on 2022-01-26 16:50:24
  */
 @TypeDefinitionId("nsu=http://opcfoundation.org/UA/I4AAS/V3/;i=1007")
 public abstract class AASIdentifiableTypeNodeBase extends AASReferableTypeNode implements AASIdentifiableType {

@@ -18,7 +18,7 @@ import com.prosysopc.ua.stack.builtintypes.ExpandedNodeId;
 
 
 /**
- * Generated on 2021-12-15 11:39:02
+ * Generated on 2022-01-26 16:50:24
  */
 public interface VariableIds {
     ExpandedNodeId AASAssetKindDataType_EnumValues = VariableIdsInit.initAASAssetKindDataType_EnumValues();
@@ -45,11 +45,9 @@ public interface VariableIds {
 
     ExpandedNodeId AASKeyDataType_DefaultBinary_AASKeyDataType = VariableIdsInit.initAASKeyDataType_DefaultBinary_AASKeyDataType();
 
-    ExpandedNodeId AASAdministrativeInformationType_Version = VariableIdsInit.initAASAdministrativeInformationType_Version();
-
     ExpandedNodeId AASAdministrativeInformationType_Revision = VariableIdsInit.initAASAdministrativeInformationType_Revision();
 
-    ExpandedNodeId AASAssetInformationType_DefaultThumbnail_ModelingKind = VariableIdsInit.initAASAssetInformationType_DefaultThumbnail_ModelingKind();
+    ExpandedNodeId AASAdministrativeInformationType_Version = VariableIdsInit.initAASAdministrativeInformationType_Version();
 
     ExpandedNodeId AASAssetInformationType_AssetKind = VariableIdsInit.initAASAssetInformationType_AssetKind();
 
@@ -59,67 +57,69 @@ public interface VariableIds {
 
     ExpandedNodeId AASAssetInformationType_GlobalAssetId_Keys = VariableIdsInit.initAASAssetInformationType_GlobalAssetId_Keys();
 
-    ExpandedNodeId AASDataSpecificationIEC61360Type_Identification_Id = VariableIdsInit.initAASDataSpecificationIEC61360Type_Identification_Id();
-
-    ExpandedNodeId AASDataSpecificationIEC61360Type_DefaultInstanceBrowseName = VariableIdsInit.initAASDataSpecificationIEC61360Type_DefaultInstanceBrowseName();
-
-    ExpandedNodeId AASDataSpecificationIEC61360Type_SourceOfDefinition = VariableIdsInit.initAASDataSpecificationIEC61360Type_SourceOfDefinition();
-
-    ExpandedNodeId AASDataSpecificationIEC61360Type_PreferredName = VariableIdsInit.initAASDataSpecificationIEC61360Type_PreferredName();
-
-    ExpandedNodeId AASDataSpecificationIEC61360Type_LevelType = VariableIdsInit.initAASDataSpecificationIEC61360Type_LevelType();
-
-    ExpandedNodeId AASDataSpecificationIEC61360Type_Unit = VariableIdsInit.initAASDataSpecificationIEC61360Type_Unit();
-
-    ExpandedNodeId AASDataSpecificationIEC61360Type_ValueFormat = VariableIdsInit.initAASDataSpecificationIEC61360Type_ValueFormat();
-
-    ExpandedNodeId AASDataSpecificationIEC61360Type_UnitId_Keys = VariableIdsInit.initAASDataSpecificationIEC61360Type_UnitId_Keys();
-
-    ExpandedNodeId AASDataSpecificationIEC61360Type_Value = VariableIdsInit.initAASDataSpecificationIEC61360Type_Value();
-
-    ExpandedNodeId AASDataSpecificationIEC61360Type_Identification_IdType = VariableIdsInit.initAASDataSpecificationIEC61360Type_Identification_IdType();
-
-    ExpandedNodeId AASDataSpecificationIEC61360Type_ValueId_Keys = VariableIdsInit.initAASDataSpecificationIEC61360Type_ValueId_Keys();
+    ExpandedNodeId AASAssetInformationType_DefaultThumbnail_ModelingKind = VariableIdsInit.initAASAssetInformationType_DefaultThumbnail_ModelingKind();
 
     ExpandedNodeId AASDataSpecificationIEC61360Type_DataType = VariableIdsInit.initAASDataSpecificationIEC61360Type_DataType();
-
-    ExpandedNodeId AASDataSpecificationIEC61360Type_Definition = VariableIdsInit.initAASDataSpecificationIEC61360Type_Definition();
 
     ExpandedNodeId AASDataSpecificationIEC61360Type_ShortName = VariableIdsInit.initAASDataSpecificationIEC61360Type_ShortName();
 
     ExpandedNodeId AASDataSpecificationIEC61360Type_Symbol = VariableIdsInit.initAASDataSpecificationIEC61360Type_Symbol();
 
-    ExpandedNodeId AASIdentifierKeyValuePairType_ExternalSubjectId_Keys = VariableIdsInit.initAASIdentifierKeyValuePairType_ExternalSubjectId_Keys();
+    ExpandedNodeId AASDataSpecificationIEC61360Type_Value = VariableIdsInit.initAASDataSpecificationIEC61360Type_Value();
+
+    ExpandedNodeId AASDataSpecificationIEC61360Type_ValueId_Keys = VariableIdsInit.initAASDataSpecificationIEC61360Type_ValueId_Keys();
+
+    ExpandedNodeId AASDataSpecificationIEC61360Type_SourceOfDefinition = VariableIdsInit.initAASDataSpecificationIEC61360Type_SourceOfDefinition();
+
+    ExpandedNodeId AASDataSpecificationIEC61360Type_Identification_IdType = VariableIdsInit.initAASDataSpecificationIEC61360Type_Identification_IdType();
+
+    ExpandedNodeId AASDataSpecificationIEC61360Type_UnitId_Keys = VariableIdsInit.initAASDataSpecificationIEC61360Type_UnitId_Keys();
+
+    ExpandedNodeId AASDataSpecificationIEC61360Type_PreferredName = VariableIdsInit.initAASDataSpecificationIEC61360Type_PreferredName();
+
+    ExpandedNodeId AASDataSpecificationIEC61360Type_DefaultInstanceBrowseName = VariableIdsInit.initAASDataSpecificationIEC61360Type_DefaultInstanceBrowseName();
+
+    ExpandedNodeId AASDataSpecificationIEC61360Type_Identification_Id = VariableIdsInit.initAASDataSpecificationIEC61360Type_Identification_Id();
+
+    ExpandedNodeId AASDataSpecificationIEC61360Type_Definition = VariableIdsInit.initAASDataSpecificationIEC61360Type_Definition();
+
+    ExpandedNodeId AASDataSpecificationIEC61360Type_ValueFormat = VariableIdsInit.initAASDataSpecificationIEC61360Type_ValueFormat();
+
+    ExpandedNodeId AASDataSpecificationIEC61360Type_LevelType = VariableIdsInit.initAASDataSpecificationIEC61360Type_LevelType();
+
+    ExpandedNodeId AASDataSpecificationIEC61360Type_Unit = VariableIdsInit.initAASDataSpecificationIEC61360Type_Unit();
+
+    ExpandedNodeId AASIdentifierKeyValuePairType_Value = VariableIdsInit.initAASIdentifierKeyValuePairType_Value();
 
     ExpandedNodeId AASIdentifierKeyValuePairType_Key = VariableIdsInit.initAASIdentifierKeyValuePairType_Key();
 
-    ExpandedNodeId AASIdentifierKeyValuePairType_Value = VariableIdsInit.initAASIdentifierKeyValuePairType_Value();
+    ExpandedNodeId AASIdentifierKeyValuePairType_ExternalSubjectId_Keys = VariableIdsInit.initAASIdentifierKeyValuePairType_ExternalSubjectId_Keys();
 
     ExpandedNodeId AASIdentifierType_Id = VariableIdsInit.initAASIdentifierType_Id();
 
     ExpandedNodeId AASIdentifierType_IdType = VariableIdsInit.initAASIdentifierType_IdType();
 
-    ExpandedNodeId AASQualifierType_ValueId_Keys = VariableIdsInit.initAASQualifierType_ValueId_Keys();
+    ExpandedNodeId AASQualifierType_ValueType = VariableIdsInit.initAASQualifierType_ValueType();
 
     ExpandedNodeId AASQualifierType_Type = VariableIdsInit.initAASQualifierType_Type();
 
-    ExpandedNodeId AASQualifierType_Value = VariableIdsInit.initAASQualifierType_Value();
+    ExpandedNodeId AASQualifierType_ValueId_Keys = VariableIdsInit.initAASQualifierType_ValueId_Keys();
 
-    ExpandedNodeId AASQualifierType_ValueType = VariableIdsInit.initAASQualifierType_ValueType();
+    ExpandedNodeId AASQualifierType_Value = VariableIdsInit.initAASQualifierType_Value();
 
     ExpandedNodeId AASReferableType_Category = VariableIdsInit.initAASReferableType_Category();
 
-    ExpandedNodeId AASIdentifiableType_Identification_IdType = VariableIdsInit.initAASIdentifiableType_Identification_IdType();
-
     ExpandedNodeId AASIdentifiableType_Identification_Id = VariableIdsInit.initAASIdentifiableType_Identification_Id();
+
+    ExpandedNodeId AASIdentifiableType_Identification_IdType = VariableIdsInit.initAASIdentifiableType_Identification_IdType();
 
     ExpandedNodeId AASAssetAdministrationShellType_DerivedFrom_Keys = VariableIdsInit.initAASAssetAdministrationShellType_DerivedFrom_Keys();
 
     ExpandedNodeId AASAssetAdministrationShellType_AssetInformation_AssetKind = VariableIdsInit.initAASAssetAdministrationShellType_AssetInformation_AssetKind();
 
-    ExpandedNodeId AASSubmodelType_SubmodelElement_Category = VariableIdsInit.initAASSubmodelType_SubmodelElement_Category();
-
     ExpandedNodeId AASSubmodelType_SubmodelElement_ModelingKind = VariableIdsInit.initAASSubmodelType_SubmodelElement_ModelingKind();
+
+    ExpandedNodeId AASSubmodelType_SubmodelElement_Category = VariableIdsInit.initAASSubmodelType_SubmodelElement_Category();
 
     ExpandedNodeId AASSubmodelType_ModelingKind = VariableIdsInit.initAASSubmodelType_ModelingKind();
 
@@ -127,77 +127,77 @@ public interface VariableIds {
 
     ExpandedNodeId AASSubmodelElementType_ModelingKind = VariableIdsInit.initAASSubmodelElementType_ModelingKind();
 
-    ExpandedNodeId AASBlobType_Value = VariableIdsInit.initAASBlobType_Value();
-
     ExpandedNodeId AASBlobType_MimeType = VariableIdsInit.initAASBlobType_MimeType();
 
-    ExpandedNodeId AASEntityType_SpecificAssetId_Value = VariableIdsInit.initAASEntityType_SpecificAssetId_Value();
+    ExpandedNodeId AASBlobType_Value = VariableIdsInit.initAASBlobType_Value();
 
     ExpandedNodeId AASEntityType_EntityType = VariableIdsInit.initAASEntityType_EntityType();
 
-    ExpandedNodeId AASEntityType_GlobalAssetId_Keys = VariableIdsInit.initAASEntityType_GlobalAssetId_Keys();
+    ExpandedNodeId AASEntityType_SpecificAssetId_Value = VariableIdsInit.initAASEntityType_SpecificAssetId_Value();
 
     ExpandedNodeId AASEntityType_SpecificAssetId_Key = VariableIdsInit.initAASEntityType_SpecificAssetId_Key();
 
+    ExpandedNodeId AASEntityType_GlobalAssetId_Keys = VariableIdsInit.initAASEntityType_GlobalAssetId_Keys();
+
     ExpandedNodeId AASEntityType_SpecificAssetId_ExternalSubjectId_Keys = VariableIdsInit.initAASEntityType_SpecificAssetId_ExternalSubjectId_Keys();
-
-    ExpandedNodeId AASFileType_File_OpenCount = VariableIdsInit.initAASFileType_File_OpenCount();
-
-    ExpandedNodeId AASFileType_File_UserWritable = VariableIdsInit.initAASFileType_File_UserWritable();
-
-    ExpandedNodeId AASFileType_File_Writable = VariableIdsInit.initAASFileType_File_Writable();
-
-    ExpandedNodeId AASFileType_File_Open_InputArguments = VariableIdsInit.initAASFileType_File_Open_InputArguments();
 
     ExpandedNodeId AASFileType_File_Write_InputArguments = VariableIdsInit.initAASFileType_File_Write_InputArguments();
 
-    ExpandedNodeId AASFileType_Value = VariableIdsInit.initAASFileType_Value();
-
-    ExpandedNodeId AASFileType_File_Open_OutputArguments = VariableIdsInit.initAASFileType_File_Open_OutputArguments();
-
     ExpandedNodeId AASFileType_File_Size = VariableIdsInit.initAASFileType_File_Size();
-
-    ExpandedNodeId AASFileType_File_GetPosition_OutputArguments = VariableIdsInit.initAASFileType_File_GetPosition_OutputArguments();
-
-    ExpandedNodeId AASFileType_MimeType = VariableIdsInit.initAASFileType_MimeType();
-
-    ExpandedNodeId AASFileType_File_Read_InputArguments = VariableIdsInit.initAASFileType_File_Read_InputArguments();
-
-    ExpandedNodeId AASFileType_File_GetPosition_InputArguments = VariableIdsInit.initAASFileType_File_GetPosition_InputArguments();
 
     ExpandedNodeId AASFileType_File_SetPosition_InputArguments = VariableIdsInit.initAASFileType_File_SetPosition_InputArguments();
 
+    ExpandedNodeId AASFileType_MimeType = VariableIdsInit.initAASFileType_MimeType();
+
+    ExpandedNodeId AASFileType_File_Writable = VariableIdsInit.initAASFileType_File_Writable();
+
+    ExpandedNodeId AASFileType_File_Read_InputArguments = VariableIdsInit.initAASFileType_File_Read_InputArguments();
+
+    ExpandedNodeId AASFileType_File_Open_InputArguments = VariableIdsInit.initAASFileType_File_Open_InputArguments();
+
+    ExpandedNodeId AASFileType_File_UserWritable = VariableIdsInit.initAASFileType_File_UserWritable();
+
+    ExpandedNodeId AASFileType_File_OpenCount = VariableIdsInit.initAASFileType_File_OpenCount();
+
+    ExpandedNodeId AASFileType_File_Open_OutputArguments = VariableIdsInit.initAASFileType_File_Open_OutputArguments();
+
+    ExpandedNodeId AASFileType_File_GetPosition_OutputArguments = VariableIdsInit.initAASFileType_File_GetPosition_OutputArguments();
+
+    ExpandedNodeId AASFileType_File_GetPosition_InputArguments = VariableIdsInit.initAASFileType_File_GetPosition_InputArguments();
+
     ExpandedNodeId AASFileType_File_Read_OutputArguments = VariableIdsInit.initAASFileType_File_Read_OutputArguments();
+
+    ExpandedNodeId AASFileType_Value = VariableIdsInit.initAASFileType_Value();
 
     ExpandedNodeId AASFileType_File_Close_InputArguments = VariableIdsInit.initAASFileType_File_Close_InputArguments();
 
-    ExpandedNodeId AASMultiLanguagePropertyType_Value = VariableIdsInit.initAASMultiLanguagePropertyType_Value();
-
     ExpandedNodeId AASMultiLanguagePropertyType_ValueId_Keys = VariableIdsInit.initAASMultiLanguagePropertyType_ValueId_Keys();
 
-    ExpandedNodeId AASPropertyType_ValueId_Keys = VariableIdsInit.initAASPropertyType_ValueId_Keys();
+    ExpandedNodeId AASMultiLanguagePropertyType_Value = VariableIdsInit.initAASMultiLanguagePropertyType_Value();
 
     ExpandedNodeId AASPropertyType_Value = VariableIdsInit.initAASPropertyType_Value();
 
     ExpandedNodeId AASPropertyType_ValueType = VariableIdsInit.initAASPropertyType_ValueType();
 
-    ExpandedNodeId AASRangeType_Max = VariableIdsInit.initAASRangeType_Max();
+    ExpandedNodeId AASPropertyType_ValueId_Keys = VariableIdsInit.initAASPropertyType_ValueId_Keys();
 
     ExpandedNodeId AASRangeType_ValueType = VariableIdsInit.initAASRangeType_ValueType();
+
+    ExpandedNodeId AASRangeType_Max = VariableIdsInit.initAASRangeType_Max();
 
     ExpandedNodeId AASRangeType_Min = VariableIdsInit.initAASRangeType_Min();
 
     ExpandedNodeId AASReferenceElementType_Value_Keys = VariableIdsInit.initAASReferenceElementType_Value_Keys();
 
+    ExpandedNodeId AASRelationshipElementType_Second_Keys = VariableIdsInit.initAASRelationshipElementType_Second_Keys();
+
     ExpandedNodeId AASRelationshipElementType_First_Keys = VariableIdsInit.initAASRelationshipElementType_First_Keys();
 
-    ExpandedNodeId AASRelationshipElementType_Second_Keys = VariableIdsInit.initAASRelationshipElementType_Second_Keys();
+    ExpandedNodeId AASSubmodelElementCollectionType_SubmodelElement_Category = VariableIdsInit.initAASSubmodelElementCollectionType_SubmodelElement_Category();
 
     ExpandedNodeId AASSubmodelElementCollectionType_SubmodelElement_ModelingKind = VariableIdsInit.initAASSubmodelElementCollectionType_SubmodelElement_ModelingKind();
 
     ExpandedNodeId AASSubmodelElementCollectionType_AllowDuplicates = VariableIdsInit.initAASSubmodelElementCollectionType_AllowDuplicates();
-
-    ExpandedNodeId AASSubmodelElementCollectionType_SubmodelElement_Category = VariableIdsInit.initAASSubmodelElementCollectionType_SubmodelElement_Category();
 
     ExpandedNodeId AASOrderedSubmodelElementCollectionType_SubmodelElement_ModelingKind = VariableIdsInit
             .initAASOrderedSubmodelElementCollectionType_SubmodelElement_ModelingKind();
@@ -208,19 +208,19 @@ public interface VariableIds {
 
     ExpandedNodeId IAASReferableType_Category = VariableIdsInit.initIAASReferableType_Category();
 
-    ExpandedNodeId IAASIdentifiableType_Identification_IdType = VariableIdsInit.initIAASIdentifiableType_Identification_IdType();
-
     ExpandedNodeId IAASIdentifiableType_Identification_Id = VariableIdsInit.initIAASIdentifiableType_Identification_Id();
+
+    ExpandedNodeId IAASIdentifiableType_Identification_IdType = VariableIdsInit.initIAASIdentifiableType_Identification_IdType();
 
     ExpandedNodeId AASCustomConceptDescriptionType_Identification_Id = VariableIdsInit.initAASCustomConceptDescriptionType_Identification_Id();
 
-    ExpandedNodeId AASCustomConceptDescriptionType_Identification_IdType = VariableIdsInit.initAASCustomConceptDescriptionType_Identification_IdType();
-
     ExpandedNodeId AASCustomConceptDescriptionType_Category = VariableIdsInit.initAASCustomConceptDescriptionType_Category();
 
-    ExpandedNodeId AASIrdiConceptDescriptionType_Identification_Id = VariableIdsInit.initAASIrdiConceptDescriptionType_Identification_Id();
+    ExpandedNodeId AASCustomConceptDescriptionType_Identification_IdType = VariableIdsInit.initAASCustomConceptDescriptionType_Identification_IdType();
 
     ExpandedNodeId AASIrdiConceptDescriptionType_Identification_IdType = VariableIdsInit.initAASIrdiConceptDescriptionType_Identification_IdType();
+
+    ExpandedNodeId AASIrdiConceptDescriptionType_Identification_Id = VariableIdsInit.initAASIrdiConceptDescriptionType_Identification_Id();
 
     ExpandedNodeId AASIrdiConceptDescriptionType_Category = VariableIdsInit.initAASIrdiConceptDescriptionType_Category();
 
@@ -230,27 +230,27 @@ public interface VariableIds {
 
     ExpandedNodeId AASIriConceptDescriptionType_Category = VariableIdsInit.initAASIriConceptDescriptionType_Category();
 
-    ExpandedNodeId AASEnvironmentType_Asset_Identification_Id = VariableIdsInit.initAASEnvironmentType_Asset_Identification_Id();
-
     ExpandedNodeId AASEnvironmentType_Submodel_Identification_IdType = VariableIdsInit.initAASEnvironmentType_Submodel_Identification_IdType();
-
-    ExpandedNodeId AASEnvironmentType_Submodel_Identification_Id = VariableIdsInit.initAASEnvironmentType_Submodel_Identification_Id();
-
-    ExpandedNodeId AASEnvironmentType_Submodel_Category = VariableIdsInit.initAASEnvironmentType_Submodel_Category();
-
-    ExpandedNodeId AASEnvironmentType_AAS_Identification_Id = VariableIdsInit.initAASEnvironmentType_AAS_Identification_Id();
-
-    ExpandedNodeId AASEnvironmentType_AAS_AssetInformation_AssetKind = VariableIdsInit.initAASEnvironmentType_AAS_AssetInformation_AssetKind();
-
-    ExpandedNodeId AASEnvironmentType_AAS_Category = VariableIdsInit.initAASEnvironmentType_AAS_Category();
-
-    ExpandedNodeId AASEnvironmentType_Submodel_ModelingKind = VariableIdsInit.initAASEnvironmentType_Submodel_ModelingKind();
-
-    ExpandedNodeId AASEnvironmentType_AAS_Identification_IdType = VariableIdsInit.initAASEnvironmentType_AAS_Identification_IdType();
 
     ExpandedNodeId AASEnvironmentType_Asset_Identification_IdType = VariableIdsInit.initAASEnvironmentType_Asset_Identification_IdType();
 
+    ExpandedNodeId AASEnvironmentType_AAS_Identification_Id = VariableIdsInit.initAASEnvironmentType_AAS_Identification_Id();
+
+    ExpandedNodeId AASEnvironmentType_Submodel_Identification_Id = VariableIdsInit.initAASEnvironmentType_Submodel_Identification_Id();
+
     ExpandedNodeId AASEnvironmentType_Asset_Category = VariableIdsInit.initAASEnvironmentType_Asset_Category();
+
+    ExpandedNodeId AASEnvironmentType_Submodel_Category = VariableIdsInit.initAASEnvironmentType_Submodel_Category();
+
+    ExpandedNodeId AASEnvironmentType_Submodel_ModelingKind = VariableIdsInit.initAASEnvironmentType_Submodel_ModelingKind();
+
+    ExpandedNodeId AASEnvironmentType_Asset_Identification_Id = VariableIdsInit.initAASEnvironmentType_Asset_Identification_Id();
+
+    ExpandedNodeId AASEnvironmentType_AAS_Category = VariableIdsInit.initAASEnvironmentType_AAS_Category();
+
+    ExpandedNodeId AASEnvironmentType_AAS_AssetInformation_AssetKind = VariableIdsInit.initAASEnvironmentType_AAS_AssetInformation_AssetKind();
+
+    ExpandedNodeId AASEnvironmentType_AAS_Identification_IdType = VariableIdsInit.initAASEnvironmentType_AAS_Identification_IdType();
 
     ExpandedNodeId AASIdentifierKeyValuePairList_AASIdentifierKeyValuePair_Value = VariableIdsInit.initAASIdentifierKeyValuePairList_AASIdentifierKeyValuePair_Value();
 

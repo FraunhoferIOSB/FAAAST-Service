@@ -32,7 +32,7 @@ import opc.i4aas.Serializers;
 
 
 /**
- * Generated on 2021-12-15 11:39:02
+ * Generated on 2022-01-26 16:50:24
  */
 public class ClientInformationModel implements ClientCodegenModelProvider {
     public static final ClientCodegenModel MODEL;

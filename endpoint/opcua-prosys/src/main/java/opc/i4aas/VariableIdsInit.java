@@ -79,18 +79,13 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASAdministrativeInformationType_Version() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6083L));
-    }
-
-
     static ExpandedNodeId initAASAdministrativeInformationType_Revision() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6084L));
     }
 
 
-    static ExpandedNodeId initAASAssetInformationType_DefaultThumbnail_ModelingKind() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6446L));
+    static ExpandedNodeId initAASAdministrativeInformationType_Version() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6083L));
     }
 
 
@@ -114,68 +109,13 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASDataSpecificationIEC61360Type_Identification_Id() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6088L));
-    }
-
-
-    static ExpandedNodeId initAASDataSpecificationIEC61360Type_DefaultInstanceBrowseName() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6063L));
-    }
-
-
-    static ExpandedNodeId initAASDataSpecificationIEC61360Type_SourceOfDefinition() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6067L));
-    }
-
-
-    static ExpandedNodeId initAASDataSpecificationIEC61360Type_PreferredName() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6074L));
-    }
-
-
-    static ExpandedNodeId initAASDataSpecificationIEC61360Type_LevelType() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6075L));
-    }
-
-
-    static ExpandedNodeId initAASDataSpecificationIEC61360Type_Unit() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6069L));
-    }
-
-
-    static ExpandedNodeId initAASDataSpecificationIEC61360Type_ValueFormat() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6070L));
-    }
-
-
-    static ExpandedNodeId initAASDataSpecificationIEC61360Type_UnitId_Keys() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6076L));
-    }
-
-
-    static ExpandedNodeId initAASDataSpecificationIEC61360Type_Value() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6071L));
-    }
-
-
-    static ExpandedNodeId initAASDataSpecificationIEC61360Type_Identification_IdType() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6087L));
-    }
-
-
-    static ExpandedNodeId initAASDataSpecificationIEC61360Type_ValueId_Keys() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6077L));
+    static ExpandedNodeId initAASAssetInformationType_DefaultThumbnail_ModelingKind() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6446L));
     }
 
 
     static ExpandedNodeId initAASDataSpecificationIEC61360Type_DataType() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6072L));
-    }
-
-
-    static ExpandedNodeId initAASDataSpecificationIEC61360Type_Definition() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6073L));
     }
 
 
@@ -189,8 +129,68 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASIdentifierKeyValuePairType_ExternalSubjectId_Keys() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6449L));
+    static ExpandedNodeId initAASDataSpecificationIEC61360Type_Value() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6071L));
+    }
+
+
+    static ExpandedNodeId initAASDataSpecificationIEC61360Type_ValueId_Keys() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6077L));
+    }
+
+
+    static ExpandedNodeId initAASDataSpecificationIEC61360Type_SourceOfDefinition() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6067L));
+    }
+
+
+    static ExpandedNodeId initAASDataSpecificationIEC61360Type_Identification_IdType() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6087L));
+    }
+
+
+    static ExpandedNodeId initAASDataSpecificationIEC61360Type_UnitId_Keys() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6076L));
+    }
+
+
+    static ExpandedNodeId initAASDataSpecificationIEC61360Type_PreferredName() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6074L));
+    }
+
+
+    static ExpandedNodeId initAASDataSpecificationIEC61360Type_DefaultInstanceBrowseName() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6063L));
+    }
+
+
+    static ExpandedNodeId initAASDataSpecificationIEC61360Type_Identification_Id() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6088L));
+    }
+
+
+    static ExpandedNodeId initAASDataSpecificationIEC61360Type_Definition() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6073L));
+    }
+
+
+    static ExpandedNodeId initAASDataSpecificationIEC61360Type_ValueFormat() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6070L));
+    }
+
+
+    static ExpandedNodeId initAASDataSpecificationIEC61360Type_LevelType() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6075L));
+    }
+
+
+    static ExpandedNodeId initAASDataSpecificationIEC61360Type_Unit() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6069L));
+    }
+
+
+    static ExpandedNodeId initAASIdentifierKeyValuePairType_Value() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6448L));
     }
 
 
@@ -199,8 +199,8 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASIdentifierKeyValuePairType_Value() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6448L));
+    static ExpandedNodeId initAASIdentifierKeyValuePairType_ExternalSubjectId_Keys() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6449L));
     }
 
 
@@ -214,8 +214,8 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASQualifierType_ValueId_Keys() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6079L));
+    static ExpandedNodeId initAASQualifierType_ValueType() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6015L));
     }
 
 
@@ -224,13 +224,13 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASQualifierType_Value() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6078L));
+    static ExpandedNodeId initAASQualifierType_ValueId_Keys() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6079L));
     }
 
 
-    static ExpandedNodeId initAASQualifierType_ValueType() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6015L));
+    static ExpandedNodeId initAASQualifierType_Value() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6078L));
     }
 
 
@@ -239,13 +239,13 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASIdentifiableType_Identification_IdType() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6092L));
+    static ExpandedNodeId initAASIdentifiableType_Identification_Id() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6091L));
     }
 
 
-    static ExpandedNodeId initAASIdentifiableType_Identification_Id() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6091L));
+    static ExpandedNodeId initAASIdentifiableType_Identification_IdType() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6092L));
     }
 
 
@@ -259,13 +259,13 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASSubmodelType_SubmodelElement_Category() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6127L));
+    static ExpandedNodeId initAASSubmodelType_SubmodelElement_ModelingKind() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6014L));
     }
 
 
-    static ExpandedNodeId initAASSubmodelType_SubmodelElement_ModelingKind() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6014L));
+    static ExpandedNodeId initAASSubmodelType_SubmodelElement_Category() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6127L));
     }
 
 
@@ -284,18 +284,13 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASBlobType_Value() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6024L));
-    }
-
-
     static ExpandedNodeId initAASBlobType_MimeType() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6023L));
     }
 
 
-    static ExpandedNodeId initAASEntityType_SpecificAssetId_Value() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6455L));
+    static ExpandedNodeId initAASBlobType_Value() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6024L));
     }
 
 
@@ -304,8 +299,8 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASEntityType_GlobalAssetId_Keys() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6055L));
+    static ExpandedNodeId initAASEntityType_SpecificAssetId_Value() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6455L));
     }
 
 
@@ -314,28 +309,13 @@ class VariableIdsInit {
     }
 
 
+    static ExpandedNodeId initAASEntityType_GlobalAssetId_Keys() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6055L));
+    }
+
+
     static ExpandedNodeId initAASEntityType_SpecificAssetId_ExternalSubjectId_Keys() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6453L));
-    }
-
-
-    static ExpandedNodeId initAASFileType_File_OpenCount() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6043L));
-    }
-
-
-    static ExpandedNodeId initAASFileType_File_UserWritable() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6048L));
-    }
-
-
-    static ExpandedNodeId initAASFileType_File_Writable() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6049L));
-    }
-
-
-    static ExpandedNodeId initAASFileType_File_Open_InputArguments() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6041L));
     }
 
 
@@ -344,38 +324,8 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASFileType_Value() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6132L));
-    }
-
-
-    static ExpandedNodeId initAASFileType_File_Open_OutputArguments() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6042L));
-    }
-
-
     static ExpandedNodeId initAASFileType_File_Size() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6047L));
-    }
-
-
-    static ExpandedNodeId initAASFileType_File_GetPosition_OutputArguments() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6040L));
-    }
-
-
-    static ExpandedNodeId initAASFileType_MimeType() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6037L));
-    }
-
-
-    static ExpandedNodeId initAASFileType_File_Read_InputArguments() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6044L));
-    }
-
-
-    static ExpandedNodeId initAASFileType_File_GetPosition_InputArguments() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6039L));
     }
 
 
@@ -384,8 +334,58 @@ class VariableIdsInit {
     }
 
 
+    static ExpandedNodeId initAASFileType_MimeType() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6037L));
+    }
+
+
+    static ExpandedNodeId initAASFileType_File_Writable() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6049L));
+    }
+
+
+    static ExpandedNodeId initAASFileType_File_Read_InputArguments() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6044L));
+    }
+
+
+    static ExpandedNodeId initAASFileType_File_Open_InputArguments() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6041L));
+    }
+
+
+    static ExpandedNodeId initAASFileType_File_UserWritable() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6048L));
+    }
+
+
+    static ExpandedNodeId initAASFileType_File_OpenCount() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6043L));
+    }
+
+
+    static ExpandedNodeId initAASFileType_File_Open_OutputArguments() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6042L));
+    }
+
+
+    static ExpandedNodeId initAASFileType_File_GetPosition_OutputArguments() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6040L));
+    }
+
+
+    static ExpandedNodeId initAASFileType_File_GetPosition_InputArguments() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6039L));
+    }
+
+
     static ExpandedNodeId initAASFileType_File_Read_OutputArguments() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6045L));
+    }
+
+
+    static ExpandedNodeId initAASFileType_Value() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6132L));
     }
 
 
@@ -394,18 +394,13 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASMultiLanguagePropertyType_Value() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6019L));
-    }
-
-
     static ExpandedNodeId initAASMultiLanguagePropertyType_ValueId_Keys() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6018L));
     }
 
 
-    static ExpandedNodeId initAASPropertyType_ValueId_Keys() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6022L));
+    static ExpandedNodeId initAASMultiLanguagePropertyType_Value() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6019L));
     }
 
 
@@ -419,13 +414,18 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASRangeType_Max() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6059L));
+    static ExpandedNodeId initAASPropertyType_ValueId_Keys() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6022L));
     }
 
 
     static ExpandedNodeId initAASRangeType_ValueType() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6057L));
+    }
+
+
+    static ExpandedNodeId initAASRangeType_Max() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6059L));
     }
 
 
@@ -439,13 +439,18 @@ class VariableIdsInit {
     }
 
 
+    static ExpandedNodeId initAASRelationshipElementType_Second_Keys() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6052L));
+    }
+
+
     static ExpandedNodeId initAASRelationshipElementType_First_Keys() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6051L));
     }
 
 
-    static ExpandedNodeId initAASRelationshipElementType_Second_Keys() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6052L));
+    static ExpandedNodeId initAASSubmodelElementCollectionType_SubmodelElement_Category() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6128L));
     }
 
 
@@ -456,11 +461,6 @@ class VariableIdsInit {
 
     static ExpandedNodeId initAASSubmodelElementCollectionType_AllowDuplicates() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6017L));
-    }
-
-
-    static ExpandedNodeId initAASSubmodelElementCollectionType_SubmodelElement_Category() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6128L));
     }
 
 
@@ -484,13 +484,13 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initIAASIdentifiableType_Identification_IdType() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6089L));
+    static ExpandedNodeId initIAASIdentifiableType_Identification_Id() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6090L));
     }
 
 
-    static ExpandedNodeId initIAASIdentifiableType_Identification_Id() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6090L));
+    static ExpandedNodeId initIAASIdentifiableType_Identification_IdType() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6089L));
     }
 
 
@@ -499,23 +499,23 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASCustomConceptDescriptionType_Identification_IdType() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6027L));
-    }
-
-
     static ExpandedNodeId initAASCustomConceptDescriptionType_Category() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6025L));
     }
 
 
-    static ExpandedNodeId initAASIrdiConceptDescriptionType_Identification_Id() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6029L));
+    static ExpandedNodeId initAASCustomConceptDescriptionType_Identification_IdType() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6027L));
     }
 
 
     static ExpandedNodeId initAASIrdiConceptDescriptionType_Identification_IdType() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6030L));
+    }
+
+
+    static ExpandedNodeId initAASIrdiConceptDescriptionType_Identification_Id() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6029L));
     }
 
 
@@ -539,48 +539,8 @@ class VariableIdsInit {
     }
 
 
-    static ExpandedNodeId initAASEnvironmentType_Asset_Identification_Id() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6139L));
-    }
-
-
     static ExpandedNodeId initAASEnvironmentType_Submodel_Identification_IdType() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6144L));
-    }
-
-
-    static ExpandedNodeId initAASEnvironmentType_Submodel_Identification_Id() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6143L));
-    }
-
-
-    static ExpandedNodeId initAASEnvironmentType_Submodel_Category() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6145L));
-    }
-
-
-    static ExpandedNodeId initAASEnvironmentType_AAS_Identification_Id() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6008L));
-    }
-
-
-    static ExpandedNodeId initAASEnvironmentType_AAS_AssetInformation_AssetKind() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6121L));
-    }
-
-
-    static ExpandedNodeId initAASEnvironmentType_AAS_Category() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6137L));
-    }
-
-
-    static ExpandedNodeId initAASEnvironmentType_Submodel_ModelingKind() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6142L));
-    }
-
-
-    static ExpandedNodeId initAASEnvironmentType_AAS_Identification_IdType() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6011L));
     }
 
 
@@ -589,8 +549,48 @@ class VariableIdsInit {
     }
 
 
+    static ExpandedNodeId initAASEnvironmentType_AAS_Identification_Id() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6008L));
+    }
+
+
+    static ExpandedNodeId initAASEnvironmentType_Submodel_Identification_Id() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6143L));
+    }
+
+
     static ExpandedNodeId initAASEnvironmentType_Asset_Category() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6141L));
+    }
+
+
+    static ExpandedNodeId initAASEnvironmentType_Submodel_Category() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6145L));
+    }
+
+
+    static ExpandedNodeId initAASEnvironmentType_Submodel_ModelingKind() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6142L));
+    }
+
+
+    static ExpandedNodeId initAASEnvironmentType_Asset_Identification_Id() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6139L));
+    }
+
+
+    static ExpandedNodeId initAASEnvironmentType_AAS_Category() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6137L));
+    }
+
+
+    static ExpandedNodeId initAASEnvironmentType_AAS_AssetInformation_AssetKind() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6121L));
+    }
+
+
+    static ExpandedNodeId initAASEnvironmentType_AAS_Identification_IdType() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(6011L));
     }
 
 
