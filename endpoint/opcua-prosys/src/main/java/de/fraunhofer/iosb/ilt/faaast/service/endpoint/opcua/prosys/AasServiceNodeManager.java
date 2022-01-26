@@ -89,6 +89,7 @@ import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Qualifier;
 import io.adminshell.aas.v3.model.Range;
+import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.ReferenceElement;
 import io.adminshell.aas.v3.model.RelationshipElement;
@@ -4078,7 +4079,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
                 info = SubscriptionInfo.create(ElementCreateEventMessage.class, (x) -> {
                     try {
-                        elementCreated(x.getElement());
+                        elementCreated(x.getElement(), x.getValue());
                     }
                     catch (Exception ex3) {
                         logger.error("elementCreated Exception", ex3);
@@ -4089,7 +4090,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
                 info = SubscriptionInfo.create(ElementDeleteEventMessage.class, (x) -> {
                     try {
-                        elementDeleted(x.getElement());
+                        elementDeleted(x.getElement(), x.getValue());
                     }
                     catch (Exception ex3) {
                         logger.error("elementDeleted Exception", ex3);
@@ -4132,8 +4133,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * Handles an elementCreated event.
      *
      * @param element Reference to the created element.
+     * @param value The element that was added.
      */
-    private void elementCreated(Reference element) {
+    private void elementCreated(Reference element, Referable value) {
         if (element == null) {
             throw new IllegalArgumentException("element is null");
         }
@@ -4146,9 +4148,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Handles an elementDeleted event.
      *
-     * @param element Reference to the created element.
+     * @param element Reference to the deleted element.
+     * @param value The element that was deleted.
      */
-    private void elementDeleted(Reference element) {
+    private void elementDeleted(Reference element, Referable value) {
         if (element == null) {
             throw new IllegalArgumentException("element is null");
         }
