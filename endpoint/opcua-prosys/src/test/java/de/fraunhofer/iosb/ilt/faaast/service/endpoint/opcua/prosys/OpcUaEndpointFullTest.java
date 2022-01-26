@@ -57,6 +57,7 @@ import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import opc.i4aas.AASEntityType;
 import opc.i4aas.AASIdentifierTypeDataType;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyElementsDataType;
@@ -401,6 +402,61 @@ public class OpcUaEndpointFullTest {
         newValue.add(new LocalizedText("deutsches Test-Element", "de"));
 
         TestUtils.writeNewValueArray(client, writeNode, new ArrayList<>().toArray(LocalizedText[]::new), newValue.toArray(LocalizedText[]::new));
+
+        System.out.println("disconnect client");
+        client.disconnect();
+    }
+
+
+    /**
+     * Test method for writing a GlobalAssetId of an Entity. Writes the property in the OPC UA
+     * Server and checks the new value in the server.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws InterruptedException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     */
+    @Test
+    public void testWriteEntityGlobalAssetId()
+            throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("testWriteEntityGlobalAssetId: client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_SUBMODEL_2_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_ENTITY2_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, AASEntityType.GLOBAL_ASSET_ID)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.KEYS_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testWriteEntityGlobalAssetId Browse Result Null", bpres);
+        Assert.assertTrue("testWriteEntityGlobalAssetId Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testWriteEntityGlobalAssetId Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testWriteEntityGlobalAssetId ValueType Null", targets);
+        Assert.assertTrue("testWriteEntityGlobalAssetId ValueType empty", targets.length > 0);
+
+        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        List<AASKeyDataType> oldValue = new ArrayList<>();
+        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.Asset, "https://acplt.org/Test_Asset2", AASKeyTypeDataType.IRI));
+
+        List<AASKeyDataType> newValue = new ArrayList<>();
+        newValue.add(new AASKeyDataType(AASKeyElementsDataType.Asset, "https://acplt2.org/Test_Asset3", AASKeyTypeDataType.IRI));
+
+        TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
 
         System.out.println("disconnect client");
         client.disconnect();

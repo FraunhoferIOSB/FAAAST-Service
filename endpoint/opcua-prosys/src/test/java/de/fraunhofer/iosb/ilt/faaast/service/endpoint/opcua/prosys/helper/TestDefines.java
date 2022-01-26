@@ -45,6 +45,7 @@ public class TestDefines {
 
     public static final String FULL_SUBMODEL_1_NAME = "Identification";
     public static final String FULL_SUBMODEL_1_ID = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
+    public static final String FULL_SUBMODEL_2_NAME = "BillOfMaterial";
     public static final String FULL_SUBMODEL_3_NAME = "TestSubmodel3";
     public static final String FULL_SUBMODEL_4_NAME = "Test_Submodel_Mandatory";
     public static final String FULL_SUBMODEL_6_NAME = "TestSubmodel6";
@@ -55,6 +56,7 @@ public class TestDefines {
     public static final String FULL_SMEC_REL_ELEM_NAME = "ExampleReferenceElement";
     public static final String FULL_SMEC_RANGE_NAME = "ExampleRange";
     public static final String FULL_OPERATION_NAME = "ExampleOperation";
+    public static final String FULL_ENTITY2_NAME = "ExampleEntity2";
 
     public static final String MODELING_KIND_NAME = "ModelingKind";
     public static final String CATEGORY_NAME = "Category";
