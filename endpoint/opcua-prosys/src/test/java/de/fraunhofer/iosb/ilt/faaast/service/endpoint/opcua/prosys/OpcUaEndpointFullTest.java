@@ -407,6 +407,15 @@ public class OpcUaEndpointFullTest {
     }
 
 
+    /**
+     * Test method for successfully calling an operation.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     * @throws MethodCallStatusException If the operation fails
+     */
     @Test
     public void testCallOperationSuccess() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -463,6 +472,15 @@ public class OpcUaEndpointFullTest {
     }
 
 
+    /**
+     * Test method for calling an operation with not enough arguments.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     * @throws MethodCallStatusException If the operation fails
+     */
     @Test
     public void testCallOperationArgsMissing() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
         UaClient client = new UaClient(ENDPOINT_URL);

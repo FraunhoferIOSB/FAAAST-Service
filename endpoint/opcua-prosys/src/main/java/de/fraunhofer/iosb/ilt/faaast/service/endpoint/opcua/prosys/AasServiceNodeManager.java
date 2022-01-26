@@ -1135,7 +1135,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds an AAS Reference to the given node
+     * Adds an AAS Reference to the given node (read-only)
      *
      * @param node The node in which the object is created
      * @param ref The desired AAS reference object to add
@@ -1144,10 +1144,25 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws StatusException If the operation fails
      */
     private UaNode addAasReferenceAasNS(UaNode node, Reference ref, String name) throws StatusException {
+        return addAasReferenceAasNS(node, ref, name, true);
+    }
+
+
+    /**
+     * Adds an AAS Reference to the given node
+     *
+     * @param node The node in which the object is created
+     * @param ref The desired AAS reference object to add
+     * @param name The desired name
+     * @param readOnly True if the value should be read-only
+     * @return The created node
+     * @throws StatusException If the operation fails
+     */
+    private UaNode addAasReferenceAasNS(UaNode node, Reference ref, String name, boolean readOnly) throws StatusException {
         UaNode retval = null;
 
         try {
-            retval = addAasReference(node, ref, name, opc.i4aas.ObjectTypeIds.AASReferenceType.getNamespaceUri());
+            retval = addAasReference(node, ref, name, opc.i4aas.ObjectTypeIds.AASReferenceType.getNamespaceUri(), readOnly);
         }
         catch (Throwable ex) {
             logger.error("addAasReferenceAasNS Exception", ex);
@@ -1166,10 +1181,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param ref The desired AAS reference object to add
      * @param name The desired name
      * @param namespaceUri The desired namespace URI tu use
+     * @param readOnly True if the value should be read-only
      * @return The created node
      * @throws StatusException If the operation fails
      */
-    private UaNode addAasReference(UaNode node, Reference ref, String name, String namespaceUri) throws StatusException {
+    private UaNode addAasReference(UaNode node, Reference ref, String name, String namespaceUri, boolean readOnly) throws StatusException {
         UaNode retval = null;
 
         try {
@@ -1180,7 +1196,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
                 logger.debug("addAasReference: add Node " + nid + " to Node " + node.getNodeId());
 
-                setAasReferenceData(ref, nodeRef);
+                setAasReferenceData(ref, nodeRef, readOnly);
 
                 //nodeRef.addReference(nodeRef.getKeysNode().getNodeId(), getNamespaceTable().toNodeId(opc.i4aas.ReferenceTypeIds.AASReference), false);
                 node.addComponent(nodeRef);
@@ -1726,7 +1742,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             for (IdentifierKeyValuePair ikv: list) {
                 if (ikv != null) {
-                    addIdentifierKeyValuePair(listNode, ikv);
+                    addIdentifierKeyValuePair(listNode, ikv, ikv.getKey());
                 }
             }
 
@@ -1747,9 +1763,25 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param node The UA node in which the IdentifierKeyValuePair should be
      *            created
      * @param identifierPair The desired IdentifierKeyValuePair
+     * @param name The desired name of the IdentifierKeyValuePair node
      * @throws StatusException If the operation fails
      */
-    private void addIdentifierKeyValuePair(UaNode node, IdentifierKeyValuePair identifierPair) throws StatusException {
+    private void addIdentifierKeyValuePair(UaNode node, IdentifierKeyValuePair identifierPair, String name) throws StatusException {
+        addIdentifierKeyValuePair(node, identifierPair, name, VALUES_READ_ONLY);
+    }
+
+
+    /**
+     * Adds an IdentifierKeyValuePair to the given Node
+     *
+     * @param node The UA node in which the IdentifierKeyValuePair should be
+     *            created
+     * @param identifierPair The desired IdentifierKeyValuePair
+     * @param name The desired name of the IdentifierKeyValuePair node
+     * @param readOnly True if the value should be read-only
+     * @throws StatusException If the operation fails
+     */
+    private void addIdentifierKeyValuePair(UaNode node, IdentifierKeyValuePair identifierPair, String name, boolean readOnly) throws StatusException {
         if (node == null) {
             throw new IllegalArgumentException("node = null");
         }
@@ -1758,18 +1790,52 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            String name = identifierPair.getKey();
+            //String name = identifierPair.getKey();
             logger.info("addIdentifierKeyValuePair " + name + "; to Node: " + node.toString());
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASIdentifierKeyValuePairType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
             NodeId nid = createNodeId(node, browseName);
             AASIdentifierKeyValuePairType identifierPairNode = createInstance(AASIdentifierKeyValuePairType.class, nid, browseName, LocalizedText.english(name));
 
+            setIdentifierKeyValuePairData(identifierPairNode, identifierPair, readOnly);
+
+            node.addComponent(identifierPairNode);
+        }
+        catch (Throwable ex) {
+            logger.error("addIdentifierKeyValuePair Exception", ex);
+            throw ex;
+        }
+    }
+
+
+    /**
+     * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
+     * 
+     * @param identifierPairNode The desired IdentifierKeyValuePair Node
+     * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
+     * @throws StatusException If the operation fails
+     */
+    private void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, IdentifierKeyValuePair aasIdentifierPair) throws StatusException {
+        setIdentifierKeyValuePairData(identifierPairNode, aasIdentifierPair, VALUES_READ_ONLY);
+    }
+
+
+    /**
+     * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
+     * 
+     * @param identifierPairNode The desired IdentifierKeyValuePair Node
+     * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
+     * @param readOnly True if the value should be read-only
+     * @throws StatusException If the operation fails
+     */
+    private void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, IdentifierKeyValuePair aasIdentifierPair, boolean readOnly)
+            throws StatusException {
+        try {
             // ExternalSubjectId
-            Reference externalSubjectId = identifierPair.getExternalSubjectId();
+            Reference externalSubjectId = aasIdentifierPair.getExternalSubjectId();
             if (externalSubjectId != null) {
                 AASReferenceType extSubjectNode = identifierPairNode.getExternalSubjectIdNode();
                 if (extSubjectNode == null) {
-                    addAasReferenceAasNS(identifierPairNode, externalSubjectId, "ExternalSubjectId");
+                    addAasReferenceAasNS(identifierPairNode, externalSubjectId, AASIdentifierKeyValuePairType.EXTERNAL_SUBJECT_ID);
                 }
                 else {
                     setAasReferenceData(externalSubjectId, extSubjectNode);
@@ -1777,15 +1843,18 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
 
             // Key
-            identifierPairNode.setKey(identifierPair.getKey());
+            identifierPairNode.setKey(aasIdentifierPair.getKey());
 
             // Value
-            identifierPairNode.setValue(identifierPair.getValue());
+            identifierPairNode.setValue(aasIdentifierPair.getValue());
 
-            node.addComponent(identifierPairNode);
+            if (readOnly) {
+                identifierPairNode.getKeyNode().setAccessLevel(AccessLevelType.CurrentRead);
+                identifierPairNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
+            }
         }
         catch (Throwable ex) {
-            logger.error("addIdentifierKeyValuePair Exception", ex);
+            logger.error("setIdentifierKeyValuePairData Exception", ex);
             throw ex;
         }
     }
@@ -3422,33 +3491,73 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 AASEntityType entityNode = createInstance(AASEntityType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(entityNode, aasEntity, name);
 
+                Reference entityRef = AasUtils.toReference(parentRef, aasEntity);
+
                 // EntityType
-                entityNode.setEntityType(ValueConverter.convertEntityType(aasEntity.getEntityType()));
+                entityNode.setEntityType(ValueConverter.getAasEntityType(aasEntity.getEntityType()));
+
+                try {
+                    submodelElementAasMapLock.lock();
+                    submodelElementAasMap.put(entityNode.getEntityTypeNode().getNodeId(),
+                            new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_TYPE, entityRef));
+                }
+                catch (Exception ex2) {
+                    logger.warn("submodelElementAasMap problem", ex2);
+                }
+                finally {
+                    submodelElementAasMapLock.unlock();
+                }
 
                 // GlobalAssetId
                 if (aasEntity.getGlobalAssetId() != null) {
                     if (entityNode.getGlobalAssetIdNode() == null) {
-                        addAasReferenceAasNS(entityNode, aasEntity.getGlobalAssetId(), AASEntityType.GLOBAL_ASSET_ID);
+                        addAasReferenceAasNS(entityNode, aasEntity.getGlobalAssetId(), AASEntityType.GLOBAL_ASSET_ID, false);
                     }
                     else {
-                        setAasReferenceData(aasEntity.getGlobalAssetId(), entityNode.getGlobalAssetIdNode());
+                        setAasReferenceData(aasEntity.getGlobalAssetId(), entityNode.getGlobalAssetIdNode(), false);
+                    }
+
+                    try {
+                        submodelElementAasMapLock.lock();
+                        submodelElementAasMap.put(entityNode.getGlobalAssetIdNode().getKeysNode().getNodeId(),
+                                new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_GLOBAL_ASSET_ID, entityRef));
+                    }
+                    catch (Exception ex2) {
+                        logger.warn("submodelElementAasMap problem", ex2);
+                    }
+                    finally {
+                        submodelElementAasMapLock.unlock();
                     }
                 }
 
                 // SpecificAssetIds
                 IdentifierKeyValuePair specificAssetId = aasEntity.getSpecificAssetId();
                 if (specificAssetId != null) {
-                    addIdentifierKeyValuePair(entityNode, specificAssetId);
+                    if (entityNode.getSpecificAssetIdNode() == null) {
+                        addIdentifierKeyValuePair(entityNode, specificAssetId, AASEntityType.SPECIFIC_ASSET_ID);
+                    }
+                    else {
+                        setIdentifierKeyValuePairData(entityNode.getSpecificAssetIdNode(), specificAssetId);
+                    }
                 }
-
-                Reference entityRef = AasUtils.toReference(parentRef, aasEntity);
 
                 // Statements
                 addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, entityRef);
 
-                if (VALUES_READ_ONLY) {
-                    entityNode.getEntityTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                try {
+                    submodelElementOpcUAMapLock.lock();
+                    submodelElementOpcUAMap.put(entityRef, entityNode);
                 }
+                catch (Exception ex3) {
+                    logger.warn("submodelElementOpcUAMap problem", ex3);
+                }
+                finally {
+                    submodelElementOpcUAMapLock.unlock();
+                }
+
+                //if (VALUES_READ_ONLY) {
+                //    entityNode.getEntityTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                //}
 
                 if (ordered) {
                     node.addReference(entityNode, Identifiers.HasOrderedComponent, false);
@@ -4172,15 +4281,14 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
                 }
 
-                // TODO: Wofür ist der Key? Brauchen wir den?
-                List<DataElementValue> valueList = new ArrayList<>(valueMap.values());
-                for (int i = 0; i < annotationNodes.length; i++) {
-                    setDataElementValue(annotationNodes[i], valueList.get(i));
+                // Der Key der Map ist die IDShort des DataElements (in unserem Fall also der BrowseName)
+                for (UaNode annotationNode: annotationNodes) {
+                    if (valueMap.containsKey(annotationNode.getBrowseName().getName())) {
+                        setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()));
+                    }
                 }
-
                 //DefaultReference ref = new DefaultReference.Builder().keys(value.getFirst()).build();
                 //setAasReferenceData(ref, aasElement.getFirstNode());
-
                 //ref = new DefaultReference.Builder().keys(value.getSecond()).build();
                 //setAasReferenceData(ref, aasElement.getSecondNode());
             }
@@ -4408,28 +4516,30 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
         try {
             // EntityType
-            entity.setEntityType(ValueConverter.convertEntityType(value.getEntityType()));
+            entity.setEntityType(ValueConverter.getAasEntityType(value.getEntityType()));
 
             // GlobalAssetId
-            if (value.getGlobalAssetId() != null) {
+            if ((value.getGlobalAssetId() != null) && (value.getGlobalAssetId().size() > 0)) {
                 DefaultReference ref = new DefaultReference.Builder().keys(value.getGlobalAssetId()).build();
                 setAasReferenceData(ref, entity.getGlobalAssetIdNode());
             }
 
             // Statements
-            // TODO: Wofür ist der Key? Brauchen wir den?
-            List<ElementValue> valueList = new ArrayList<>(value.getStatements().values());
+            Map<String, ElementValue> valueMap = value.getStatements();
             AASSubmodelElementList statementNode = entity.getStatementNode();
             if (statementNode != null) {
                 UaNode[] statementNodes = statementNode.getComponents();
-                if (statementNodes.length != valueList.size()) {
-                    logger.warn("Size of Value (" + valueList.size() + ") doesn't match the number of StatementNodes (" + statementNodes.length + ")");
+                if (statementNodes.length != valueMap.size()) {
+                    logger.warn("Size of Value (" + valueMap.size() + ") doesn't match the number of StatementNodes (" + statementNodes.length + ")");
                     throw new IllegalArgumentException("Size of Value doesn't match the number of StatementNodes");
                 }
 
-                for (int i = 0; i < valueList.size(); i++) {
-                    if (statementNodes[i] instanceof AASSubmodelElementType) {
-                        setSubmodelElementValue((AASSubmodelElementType) statementNodes[i], value);
+                for (UaNode statementNode1: statementNodes) {
+                    if (statementNode1 instanceof AASSubmodelElementType) {
+                        // TODO
+                        if (value.getStatements().containsKey(statementNode1.getBrowseName().getName())) {
+                            setSubmodelElementValue((AASSubmodelElementType) statementNode1, value.getStatements().get(statementNode1.getBrowseName().getName()));
+                        }
                     }
                 }
             }

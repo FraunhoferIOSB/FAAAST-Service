@@ -25,6 +25,7 @@ import com.prosysopc.ua.stack.core.StatusCodes;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
 import io.adminshell.aas.v3.model.AssetKind;
 import io.adminshell.aas.v3.model.Blob;
+import io.adminshell.aas.v3.model.Entity;
 import io.adminshell.aas.v3.model.EntityType;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.Key;
@@ -574,8 +575,35 @@ public class ValueConverter {
      * @param value The desired EntityType
      * @return The corresponding AASEntityTypeDataType
      */
-    public static AASEntityTypeDataType convertEntityType(EntityType value) {
+    public static AASEntityTypeDataType getAasEntityType(EntityType value) {
         AASEntityTypeDataType retval = AASEntityTypeDataType.valueOf(value.ordinal());
+        return retval;
+    }
+
+
+    /**
+     * Converts the given AASEntityTypeDataType to the corresponding EntityType.
+     *
+     * @param value The desired AASEntityTypeDataType
+     * @return The corresponding EntityType
+     */
+    public static EntityType getEntityType(AASEntityTypeDataType value) {
+        EntityType retval;
+
+        switch (value) {
+            case CoManagedEntity:
+                retval = EntityType.CO_MANAGED_ENTITY;
+                break;
+
+            case SelfManagedEntity:
+                retval = EntityType.SELF_MANAGED_ENTITY;
+                break;
+
+            default:
+                logger.warn("getEntityType: unknown value: " + value);
+                throw new IllegalArgumentException("unknown value: " + value);
+        }
+
         return retval;
     }
 
@@ -985,51 +1013,6 @@ public class ValueConverter {
     }
 
 
-    public static void setOperationValues(List<OperationVariable> inputVariables, Variant[] inputArguments) throws StatusException {
-        if (inputArguments.length < inputVariables.size()) {
-            throw new StatusException(StatusCodes.Bad_ArgumentsMissing);
-        }
-        if (inputArguments.length > inputVariables.size()) {
-            throw new StatusException(StatusCodes.Bad_TooManyArguments);
-        }
-        else {
-            for (int i = 0; i < inputVariables.size(); i++) {
-                SubmodelElement smelem = inputVariables.get(i).getValue();
-                SubmodelElementData.Type type;
-                if (smelem instanceof Property) {
-                    type = SubmodelElementData.Type.PROPERTY_VALUE;
-                }
-                else {
-                    throw new StatusException(StatusCodes.Bad_InvalidArgument);
-                }
-
-                setSubmodelElementValue(smelem, type, inputArguments[i]);
-            }
-        }
-    }
-
-
-    public static void setOutputArguments(List<OperationVariable> outputVariables, Variant[] outputArguments) throws StatusException {
-        if (outputArguments.length != outputVariables.size()) {
-            throw new StatusException(StatusCodes.Bad_InvalidArgument);
-        }
-        else {
-            for (int i = 0; i < outputVariables.size(); i++) {
-                SubmodelElement smelem = outputVariables.get(i).getValue();
-                SubmodelElementData.Type type;
-                if (smelem instanceof Property) {
-                    type = SubmodelElementData.Type.PROPERTY_VALUE;
-                }
-                else {
-                    throw new StatusException(StatusCodes.Bad_InvalidArgument);
-                }
-
-                outputArguments[i] = getSubmodelElementValue(smelem, type);
-            }
-        }
-    }
-
-
     /**
      * Sets the given value in the given SubmodelElement.
      * 
@@ -1093,6 +1076,16 @@ public class ValueConverter {
                     }
                     break;
                 }
+                case ENTITY_GLOBAL_ASSET_ID: {
+                    Entity aasEntity = (Entity) submodelElement;
+                    aasEntity.setGlobalAssetId(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                    break;
+                }
+                case ENTITY_TYPE: {
+                    Entity aasEntity = (Entity) submodelElement;
+                    aasEntity.setEntityType(ValueConverter.getEntityType(AASEntityTypeDataType.valueOf((int) variant.getValue())));
+                    break;
+                }
                 default:
                     logger.warn("setSubmodelElementValue: SubmodelElement " + submodelElement.getIdShort() + ": unkown type " + type);
                     throw new IllegalArgumentException("unkown type " + type);
@@ -1105,6 +1098,72 @@ public class ValueConverter {
     }
 
 
+    /**
+     * Sets the input arguments for an operation into the given inputVariables.
+     * 
+     * @param inputVariables The desired inputVariables.
+     * @param inputArguments The desired inputArguments
+     * @throws StatusException
+     */
+    public static void setOperationValues(List<OperationVariable> inputVariables, Variant[] inputArguments) throws StatusException {
+        if (inputArguments.length < inputVariables.size()) {
+            throw new StatusException(StatusCodes.Bad_ArgumentsMissing);
+        }
+        else if (inputArguments.length > inputVariables.size()) {
+            throw new StatusException(StatusCodes.Bad_TooManyArguments);
+        }
+        else {
+            for (int i = 0; i < inputVariables.size(); i++) {
+                SubmodelElement smelem = inputVariables.get(i).getValue();
+                SubmodelElementData.Type type;
+                if (smelem instanceof Property) {
+                    type = SubmodelElementData.Type.PROPERTY_VALUE;
+                }
+                else {
+                    throw new StatusException(StatusCodes.Bad_InvalidArgument);
+                }
+
+                setSubmodelElementValue(smelem, type, inputArguments[i]);
+            }
+        }
+    }
+
+
+    /**
+     * Sets the output arguments for an operation from the given output variables.
+     * 
+     * @param outputVariables The desired output variables
+     * @param outputArguments The desired output arguments
+     * @throws StatusException If the operation fails
+     */
+    public static void setOutputArguments(List<OperationVariable> outputVariables, Variant[] outputArguments) throws StatusException {
+        if (outputArguments.length != outputVariables.size()) {
+            throw new StatusException(StatusCodes.Bad_InvalidArgument);
+        }
+        else {
+            for (int i = 0; i < outputVariables.size(); i++) {
+                SubmodelElement smelem = outputVariables.get(i).getValue();
+                SubmodelElementData.Type type;
+                if (smelem instanceof Property) {
+                    type = SubmodelElementData.Type.PROPERTY_VALUE;
+                }
+                else {
+                    throw new StatusException(StatusCodes.Bad_InvalidArgument);
+                }
+
+                outputArguments[i] = getSubmodelElementValue(smelem, type);
+            }
+        }
+    }
+
+
+    /**
+     * Gerts the corresponding value from a given SubmodelElement
+     * 
+     * @param submodelElement The desired SubmodelElement
+     * @param type The desired type
+     * @return The corresponding value
+     */
     public static Variant getSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type) {
         Variant retval;
 

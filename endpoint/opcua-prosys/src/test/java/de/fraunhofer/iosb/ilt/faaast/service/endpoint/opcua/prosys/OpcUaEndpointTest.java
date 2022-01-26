@@ -132,7 +132,7 @@ public class OpcUaEndpointTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        System.out.println("testOpcUaEndpoint: client connected");
 
         DataValue value = client.readValue(Identifiers.Server_ServerStatus_State);
         System.out.println(value);
@@ -232,7 +232,7 @@ public class OpcUaEndpointTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        System.out.println("testUpdatePropertyValue: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -312,7 +312,7 @@ public class OpcUaEndpointTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        System.out.println("testWritePropertyValue: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -337,22 +337,6 @@ public class OpcUaEndpointTest {
 
         TestUtils.writeNewValueIntern(client, writeNode, 50, 222);
 
-        //        DataValue value = client.readValue(targets[0].getTargetId());
-        //        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        //        String oldValue = "50";
-        //        Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue().toString());
-        //
-        //        String newValue = "222";
-        //        client.writeValue(writeNode, newValue);
-        //
-        //        // wait until the write is finished completely
-        //        Thread.sleep(WRITE_TIMEOUT);
-        //
-        //        // read new value
-        //        value = client.readValue(writeNode);
-        //        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
-        //        Assert.assertEquals("new value not equal", newValue, value.getValue().getValue().toString());
-
         System.out.println("disconnect client");
         client.disconnect();
     }
@@ -373,7 +357,7 @@ public class OpcUaEndpointTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        System.out.println("testPropertyChangeFromMessageBus: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -438,7 +422,7 @@ public class OpcUaEndpointTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        System.out.println("testWriteRangeValue: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -485,7 +469,7 @@ public class OpcUaEndpointTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        System.out.println("testWriteBlobValue: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -535,7 +519,7 @@ public class OpcUaEndpointTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        System.out.println("testWriteMultiLanguagePropertyValue: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -626,7 +610,7 @@ public class OpcUaEndpointTest {
 
         TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
 
-        System.out.println("disconnect client");
+        System.out.println("testWriteReferenceElementValue: disconnect client");
         client.disconnect();
     }
 
@@ -648,7 +632,7 @@ public class OpcUaEndpointTest {
         client.setSecurityMode(SecurityMode.NONE);
         TestUtils.initialize(client);
         client.connect();
-        System.out.println("client connected");
+        System.out.println("testWriteEntityPropertyValue: client connected");
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -674,6 +658,53 @@ public class OpcUaEndpointTest {
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         TestUtils.writeNewValueIntern(client, writeNode, "http://acplt.org/ValueId/ExampleValueId", "http://acplt.org/ValueId/AnotherValue");
+
+        System.out.println("disconnect client");
+        client.disconnect();
+    }
+
+
+    /**
+     * Test method for writing the type of an entity. Writes the property in the OPC UA
+     * Server and checks the new value in the server.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws InterruptedException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     */
+    @Test
+    public void testWriteEntityType() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("testWriteEntityType: client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_OPER_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.TEST_ENTITY_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, AASEntityType.ENTITY_TYPE)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testWriteEntityType Browse Result Null", bpres);
+        Assert.assertTrue("testWriteEntityType Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testWriteEntityType Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testWriteEntityType ValueType Null", targets);
+        Assert.assertTrue("testWriteEntityType ValueType empty", targets.length > 0);
+
+        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        TestUtils.writeNewValueIntern(client, writeNode, 0, 1);
 
         System.out.println("disconnect client");
         client.disconnect();
