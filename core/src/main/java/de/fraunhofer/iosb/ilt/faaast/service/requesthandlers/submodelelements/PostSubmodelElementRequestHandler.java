@@ -42,7 +42,7 @@ public class PostSubmodelElementRequestHandler extends RequestHandler<PostSubmod
             Reference reference = Util.toReference(request.getId(), Submodel.class);
             SubmodelElement submodelElement = persistence.put(reference, null, request.getSubmodelElement());
             response.setPayload(submodelElement);
-            response.setStatusCode(StatusCode.Success);
+            response.setStatusCode(StatusCode.SuccessCreated);
             publishElementCreateEventMessage(reference, submodelElement);
         }
         catch (ResourceNotFoundException ex) {

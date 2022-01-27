@@ -41,7 +41,7 @@ public class PostSubmodelElementByPathRequestHandler extends RequestHandler<Post
             Reference reference = Util.toReference(request.getPath());
             SubmodelElement submodelElement = persistence.put(reference, null, request.getSubmodelElement());
             response.setPayload(submodelElement);
-            response.setStatusCode(StatusCode.Success);
+            response.setStatusCode(StatusCode.SuccessCreated);
             publishElementCreateEventMessage(reference, submodelElement);
         }
         catch (ResourceNotFoundException ex) {
