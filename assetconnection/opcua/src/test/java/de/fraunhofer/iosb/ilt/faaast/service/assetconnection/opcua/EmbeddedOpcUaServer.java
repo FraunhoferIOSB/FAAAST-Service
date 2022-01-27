@@ -43,6 +43,7 @@ public class EmbeddedOpcUaServer {
 
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedOpcUaServer.class);
     private int tcpPort;
+    private int httpsPort;
 
     static {
         // Required for SecurityPolicy.Aes256_Sha256_RsaPss
@@ -51,8 +52,9 @@ public class EmbeddedOpcUaServer {
 
     private OpcUaServer server;
 
-    public EmbeddedOpcUaServer(IdentityValidator identityValidator, int port) throws Exception {
+    public EmbeddedOpcUaServer(IdentityValidator identityValidator, int port, int httpsPort) throws Exception {
         this.tcpPort = port;
+        this.httpsPort = httpsPort;
         File securityTempDir = new File(System.getProperty("java.io.tmpdir"), "security");
         if (!securityTempDir.exists() && !securityTempDir.mkdirs()) {
             throw new Exception("unable to create security temp dir: " + securityTempDir);
@@ -181,7 +183,7 @@ public class EmbeddedOpcUaServer {
     private EndpointConfiguration buildHttpsEndpoint(EndpointConfiguration.Builder base) {
         return base.copy()
                 .setTransportProfile(TransportProfile.HTTPS_UABINARY)
-                .setBindPort(8088)
+                .setBindPort(this.httpsPort)
                 .build();
     }
 

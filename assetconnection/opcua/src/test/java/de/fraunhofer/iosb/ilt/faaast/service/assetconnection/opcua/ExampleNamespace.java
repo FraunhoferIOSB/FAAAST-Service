@@ -14,7 +14,6 @@ import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-
 import org.eclipse.milo.opcua.sdk.core.AccessLevel;
 import org.eclipse.milo.opcua.sdk.core.Reference;
 import org.eclipse.milo.opcua.sdk.core.ValueRank;
@@ -519,20 +518,25 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
 
     private void addSqrtMethod(UaFolderNode folderNode) {
         UaMethodNode methodNode = UaMethodNode.builder(getNodeContext())
-            .setNodeId(newNodeId("HelloWorld/sqrt(x)"))
-            .setBrowseName(newQualifiedName("sqrt(x)"))
-            .setDisplayName(new LocalizedText(null, "sqrt(x)"))
-            .setDescription(
-                LocalizedText.english("Returns the correctly rounded positive square root of a double value."))
-            .build();
+                .setNodeId(newNodeId("HelloWorld/sqrt(x)"))
+                .setBrowseName(newQualifiedName("sqrt(x)"))
+                .setDisplayName(new LocalizedText(null, "sqrt(x)"))
+                .setDescription(
+                        LocalizedText.english("Returns the correctly rounded positive square root of a double value."))
+                .build();
+
+        SqrtMethod sqrtMethod = new SqrtMethod(methodNode);
+        methodNode.setInputArguments(sqrtMethod.getInputArguments());
+        methodNode.setOutputArguments(sqrtMethod.getOutputArguments());
+        methodNode.setInvocationHandler(sqrtMethod);
 
         getNodeManager().addNode(methodNode);
 
         methodNode.addReference(new Reference(
-            methodNode.getNodeId(),
-            Identifiers.HasComponent,
-            folderNode.getNodeId().expanded(),
-            false
+                methodNode.getNodeId(),
+                Identifiers.HasComponent,
+                folderNode.getNodeId().expanded(),
+                false
         ));
     }
 

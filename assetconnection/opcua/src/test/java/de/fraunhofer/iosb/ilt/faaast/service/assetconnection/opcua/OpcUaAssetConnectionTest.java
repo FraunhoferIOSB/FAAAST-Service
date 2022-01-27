@@ -21,8 +21,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.SubmodelElement;
+import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
+import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import org.eclipse.milo.opcua.sdk.server.identity.AnonymousIdentityValidator;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -43,6 +47,7 @@ public class OpcUaAssetConnectionTest {
     private static EmbeddedOpcUaServer server;
     private static String serverUrl;
     private static int opcPort;
+    private static int httpsPort;
 
     @BeforeClass
     public static void init() {
@@ -54,10 +59,17 @@ public class OpcUaAssetConnectionTest {
         catch (IOException e) {
             Assert.fail("could not find free port");
         }
-
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
+            Assert.assertNotNull(serverSocket);
+            Assert.assertTrue(serverSocket.getLocalPort() > 0);
+            httpsPort = serverSocket.getLocalPort();
+        }
+        catch (IOException e) {
+            Assert.fail("could not find free port");
+        }
         try {
             server = new EmbeddedOpcUaServer(
-                    AnonymousIdentityValidator.INSTANCE, opcPort);
+                    AnonymousIdentityValidator.INSTANCE, opcPort, httpsPort);
             server.startup().get();
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,5 +131,36 @@ public class OpcUaAssetConnectionTest {
 
         //assert that new value is equal to written value
         Assert.assertEquals(expected, connection.getValueProviders().get(reference).getValue());
+    }
+
+    @Test
+    public void testOperationProvider() throws AssetConnectionException, InterruptedException {
+        OpcUaAssetConnectionConfig config = new OpcUaAssetConnectionConfig();
+        config.setHost(serverUrl);
+        OpcUaOperationProviderConfig opProvider = new OpcUaOperationProviderConfig();
+        opProvider.setNodeId("ns=2;s=HelloWorld/sqrt(x)");
+
+        Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
+        ServiceContext serviceContext = mock(ServiceContext.class);
+        doReturn(Property.class).when(serviceContext).getElementType(reference);
+        config.getOperationProviders().put(reference, opProvider);
+
+        OpcUaAssetConnection connection = new OpcUaAssetConnection();
+        connection.init(CoreConfig.builder().build(), config, serviceContext);
+
+        DefaultOperationVariable x = new DefaultOperationVariable();
+        DefaultOperationVariable y = new DefaultOperationVariable();
+        DefaultProperty xProp = new DefaultProperty();
+        DefaultProperty yProp = new DefaultProperty();
+        xProp.setValue(String.valueOf(4));
+        x.setValue(xProp);
+        y.setValue(yProp);
+
+        OperationVariable[] output =
+        connection.getOperationProviders().get(reference).invoke(new OperationVariable[]{x}, new OperationVariable[]{y});
+        String expected = "2.0";
+        DefaultProperty actualProperty = (DefaultProperty) output[0].getValue();
+        String actual = actualProperty.getValue();
+        Assert.assertEquals(expected, actual);
     }
 }

@@ -22,11 +22,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
 import io.adminshell.aas.v3.model.DataElement;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
+import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaMonitoredItem;
 import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
+import org.eclipse.milo.opcua.sdk.client.nodes.UaMethodNode;
 import org.eclipse.milo.opcua.sdk.core.nodes.VariableNode;
 import org.eclipse.milo.opcua.stack.core.AttributeId;
 import org.eclipse.milo.opcua.stack.core.BuiltinDataType;
@@ -169,10 +172,27 @@ public class OpcUaAssetConnection
                 return Integer.valueOf(valueString);
             case "Double":
                 return Double.valueOf(valueString);
-            case "String":
+            default:
                 return valueString;
         }
-        throw new UnsupportedOperationException("Datatype is not supported for writing to OPC.");
+    }
+
+    //this is a workaround until DataElementValue can return proper types
+    private Object castDatatype(String value, String datatypeName) {
+        switch (datatypeName) {
+            case "Long":
+                return Long.valueOf(value);
+            case "Boolean":
+                return Boolean.valueOf(value);
+            case "Float":
+                return Float.valueOf(value);
+            case "Integer":
+                return Integer.valueOf(value);
+            case "Double":
+                return Double.valueOf(value);
+            default:
+                return value;
+        }
     }
 
 
@@ -187,6 +207,7 @@ public class OpcUaAssetConnection
                     OpcUaClient client = createClient(config.getHost(), AnonymousProvider.INSTANCE);
                     client.connect().get();
                     NodeId methodId = parseNodeId(client, operationProviderConfig.getNodeId());
+                    UaMethodNode methodNode = (UaMethodNode) client.getAddressSpace().getNode(methodId);
                     NodeId objectId = client.getAddressSpace()
                             .getNode(methodId)
                             .browseNodes(AddressSpace.BrowseOptions.builder()
@@ -194,16 +215,32 @@ public class OpcUaAssetConnection
                                     .build())
                             .get(0)
                             .getNodeId();
-                    Variant[] parameters = Stream.of(input)
-                            .map(x -> new Variant(x.getValue()))
-                            .toArray(Variant[]::new);
+
+                    //reading datatype of input arguments
+                    Argument[] argumentArray = methodNode.readInputArgumentsAsync().get();
+                    Variant[] parameters = new Variant[input.length];
+                    //creating parameters with correct datatype
+                    for(int i=0; i<input.length;i++) {
+                        String datatypeName = BuiltinDataType.getBackingClass(argumentArray[i].getDataType()).getSimpleName();
+                        parameters[i]=new Variant(
+                                castDatatype(
+                                        ((DefaultProperty)(input[i].getValue())).getValue(), datatypeName));
+                    }
+                    //calling method
                     CallMethodResult methodResult = client.call(new CallMethodRequest(
                             objectId,
                             methodId,
                             parameters
                     )).get();
-                    //todo set output arguments
-                    //methodResult.getOutputArguments()[i].getValue()
+
+                    //reading output arguments
+                    for(int i=0; i< methodResult.getOutputArguments().length;i++) {
+                        OperationVariable o = new DefaultOperationVariable();
+                        DefaultProperty p = new DefaultProperty();
+                        p.setValue(methodResult.getOutputArguments()[i].getValue().toString());
+                        o.setValue(p);
+                        inoutput[i] = o;
+                    }
                     client.disconnect().get();
                 } catch (UaException | InterruptedException | ExecutionException e) {
                     e.printStackTrace();
