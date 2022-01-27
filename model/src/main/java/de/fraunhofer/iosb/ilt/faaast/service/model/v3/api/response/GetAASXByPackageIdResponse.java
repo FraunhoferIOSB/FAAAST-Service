@@ -52,4 +52,29 @@ public class GetAASXByPackageIdResponse extends BaseResponseWithPayload<AASXPack
     public int hashCode() {
         return Objects.hash(super.hashCode(), filename);
     }
+
+
+    public static GetAASXByPackageIdResponse.Builder builder() {
+        return new GetAASXByPackageIdResponse.Builder();
+    }
+
+    public static class Builder extends AbstractBuilder<GetAASXByPackageIdResponse, GetAASXByPackageIdResponse.Builder> {
+
+        @Override
+        protected GetAASXByPackageIdResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public GetAASXByPackageIdResponse.Builder payload(AASXPackageBase value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected GetAASXByPackageIdResponse newBuildingInstance() {
+            return new GetAASXByPackageIdResponse();
+        }
+    }
 }

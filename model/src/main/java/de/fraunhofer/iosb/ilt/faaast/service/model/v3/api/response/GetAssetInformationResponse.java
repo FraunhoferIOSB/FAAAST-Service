@@ -22,5 +22,27 @@ import io.adminshell.aas.v3.model.AssetInformation;
  * Chapter 4.2.7
  */
 public class GetAssetInformationResponse extends BaseResponseWithPayload<AssetInformation> {
+    public static GetAssetInformationResponse.Builder builder() {
+        return new GetAssetInformationResponse.Builder();
+    }
 
+    public static class Builder extends AbstractBuilder<GetAssetInformationResponse, GetAssetInformationResponse.Builder> {
+
+        @Override
+        protected GetAssetInformationResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public GetAssetInformationResponse.Builder payload(AssetInformation value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected GetAssetInformationResponse newBuildingInstance() {
+            return new GetAssetInformationResponse();
+        }
+    }
 }

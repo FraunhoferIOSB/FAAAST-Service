@@ -22,4 +22,28 @@ import java.util.List;
 /**
  * Chapter 4.2.4
  */
-public class GetAllSubmodelReferencesResponse extends BaseResponseWithPayload<List<Identifier>> {}
+public class GetAllSubmodelReferencesResponse extends BaseResponseWithPayload<List<Identifier>> {
+    public static GetAllSubmodelReferencesResponse.Builder builder() {
+        return new GetAllSubmodelReferencesResponse.Builder();
+    }
+
+    public static class Builder extends AbstractBuilder<GetAllSubmodelReferencesResponse, GetAllSubmodelReferencesResponse.Builder> {
+
+        @Override
+        protected GetAllSubmodelReferencesResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public GetAllSubmodelReferencesResponse.Builder payload(List<Identifier> value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected GetAllSubmodelReferencesResponse newBuildingInstance() {
+            return new GetAllSubmodelReferencesResponse();
+        }
+    }
+}

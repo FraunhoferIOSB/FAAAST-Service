@@ -44,7 +44,7 @@ public class PostSubmodelElementByPathRequestHandler extends RequestHandler<Post
             Reference childReference = AasUtils.toReference(parentReference, request.getSubmodelElement());
             SubmodelElement submodelElement = persistence.put(parentReference, null, request.getSubmodelElement());
             response.setPayload(submodelElement);
-            response.setStatusCode(StatusCode.Success);
+            response.setStatusCode(StatusCode.SuccessCreated);
 
             writeValueToAssetConnection(childReference, ElementValueMapper.toValue(submodelElement));
             publishElementCreateEventMessage(parentReference, submodelElement);

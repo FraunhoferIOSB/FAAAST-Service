@@ -16,10 +16,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.utils.ElementPathUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.utils.EncodingUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.DeleteSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
 
 
