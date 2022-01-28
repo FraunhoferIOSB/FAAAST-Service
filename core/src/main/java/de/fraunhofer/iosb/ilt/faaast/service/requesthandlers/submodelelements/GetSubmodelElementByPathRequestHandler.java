@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
+import java.util.Objects;
 
 
 public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSubmodelElementByPathRequest, GetSubmodelElementByPathResponse> {
@@ -47,7 +48,8 @@ public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSu
             //read value from AssetConnection if one exist
             //and update value in persistence if differs
             ElementValue valueFromAssetConnection = readDataElementValueFromAssetConnection(reference);
-            if (valueFromAssetConnection != null && valueFromAssetConnection != oldValue) {
+            if (valueFromAssetConnection != null
+                    && !Objects.equals(valueFromAssetConnection, oldValue)) {
                 submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection);
                 submodelElement = persistence.put(null, reference, submodelElement);
                 publishElementUpdateEventMessage(reference, submodelElement);

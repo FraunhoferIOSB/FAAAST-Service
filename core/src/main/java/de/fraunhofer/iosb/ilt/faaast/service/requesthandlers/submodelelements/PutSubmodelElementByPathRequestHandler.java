@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
+import java.util.Objects;
 
 
 public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
@@ -56,7 +57,7 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
             response.setPayload(submodelElement);
             response.setStatusCode(StatusCode.Success);
 
-            if (oldValue != null && newValue != null && !oldValue.equals(newValue)) {
+            if (!Objects.equals(oldValue, newValue)) {
                 writeValueToAssetConnection(reference, ElementValueMapper.toValue(submodelElement));
             }
 

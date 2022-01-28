@@ -12,39 +12,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodelelements;
+package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.DeleteSubmodelElementByPathRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.DeleteSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllSubmodelReferencesRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllSubmodelReferencesResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
-import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.SubmodelElement;
+import java.util.List;
 
 
-public class DeleteSubmodelElementByPathRequestHandler extends RequestHandler<DeleteSubmodelElementByPathRequest, DeleteSubmodelElementByPathResponse> {
+public class GetAllSubmodelsReferencesRequestHandler extends RequestHandler<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
 
-    public DeleteSubmodelElementByPathRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+    public GetAllSubmodelsReferencesRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
     }
 
 
     @Override
-    public DeleteSubmodelElementByPathResponse process(DeleteSubmodelElementByPathRequest request) {
-        DeleteSubmodelElementByPathResponse response = new DeleteSubmodelElementByPathResponse();
-
+    public GetAllSubmodelReferencesResponse process(GetAllSubmodelReferencesRequest request) {
+        GetAllSubmodelReferencesResponse response = new GetAllSubmodelReferencesResponse();
         try {
-            Reference reference = Util.toReference(request.getPath());
-            SubmodelElement submodelElement = persistence.get(reference, new QueryModifier());
-            persistence.remove(reference);
+            AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), request.getOutputModifier());
+            List<Reference> submodelReferences = shell.getSubmodels();
+            response.setPayload(submodelReferences);
             response.setStatusCode(StatusCode.Success);
-            publishElementDeleteEventMessage(reference, submodelElement);
+            publishElementReadEventMessage(AasUtils.toReference(shell), shell);
         }
         catch (ResourceNotFoundException ex) {
             response.setStatusCode(StatusCode.ClientErrorResourceNotFound);

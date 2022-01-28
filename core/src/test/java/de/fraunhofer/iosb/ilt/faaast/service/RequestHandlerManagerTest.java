@@ -23,10 +23,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.*;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.*;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.*;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValueParser;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
@@ -37,7 +43,7 @@ import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.impl.DefaultOperation;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import java.util.Arrays;
+import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -91,19 +97,30 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllAssetAdministrationShellsByAssetIdRequest() {
-        // @TODO: GetAllAssetAdministrationShellsByAssetIdRequest not implemented yet
-        when(persistence.get(eq(GLOBAL_ASSET_ID), argThat((AssetIdentification t) -> true), any()))
-                .thenReturn(environment.getAssetAdministrationShells());
-        List<IdentifierKeyValuePair> assetIds = Arrays.asList(new DefaultIdentifierKeyValuePair.Builder()
-                .key(GLOBAL_ASSET_ID)
-                .value(AAS.getAssetInformation().getGlobalAssetId().getKeys().get(0).getValue())
-                .build());
+        GlobalAssetIdentification globalAssetIdentification = new GlobalAssetIdentification();
+        globalAssetIdentification.setReference(new DefaultReference.Builder().build());
+        SpecificAssetIdentification specificAssetIdentification = new SpecificAssetIdentification();
+        specificAssetIdentification.setValue("TestValue");
+        specificAssetIdentification.setKey("TestKey");
+        when(persistence.get(eq(null), eq(globalAssetIdentification), any()))
+                .thenReturn(List.of(environment.getAssetAdministrationShells().get(0)));
+        when(persistence.get(eq(null), eq(specificAssetIdentification), any()))
+                .thenReturn(List.of(environment.getAssetAdministrationShells().get(1)));
+
+        List<IdentifierKeyValuePair> assetIds = List.of(new DefaultIdentifierKeyValuePair.Builder()
+                .key("globalAssetId")
+                .externalSubjectId(new DefaultReference.Builder().build())
+                .build(),
+                new DefaultIdentifierKeyValuePair.Builder()
+                        .key("TestKey")
+                        .value("TestValue")
+                        .build());
         GetAllAssetAdministrationShellsByAssetIdRequest request = new GetAllAssetAdministrationShellsByAssetIdRequest.Builder()
                 .assetIds(assetIds)
                 .build();
         GetAllAssetAdministrationShellsByAssetIdResponse response = manager.execute(request);
         GetAllAssetAdministrationShellsByAssetIdResponse expected = new GetAllAssetAdministrationShellsByAssetIdResponse.Builder()
-                .payload(environment.getAssetAdministrationShells())
+                .payload(List.of(environment.getAssetAdministrationShells().get(0), environment.getAssetAdministrationShells().get(1)))
                 .statusCode(StatusCode.Success)
                 .build();
         Assert.assertEquals(expected, response);
@@ -261,9 +278,8 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    // @TODO: No Handler defined
     public void testGetAllSubmodelReferencesRequest() throws ResourceNotFoundException {
-        when(persistence.get(environment.getAssetAdministrationShells().get(0).getIdentification(), new QueryModifier()))
+        when(persistence.get(environment.getAssetAdministrationShells().get(0).getIdentification(), new OutputModifier()))
                 .thenReturn(environment.getAssetAdministrationShells().get(0));
         GetAllSubmodelReferencesRequest request = new GetAllSubmodelReferencesRequest.Builder()
                 .id(environment.getAssetAdministrationShells().get(0).getIdentification())
@@ -272,6 +288,7 @@ public class RequestHandlerManagerTest {
         GetAllSubmodelReferencesResponse response = manager.execute(request);
         GetAllSubmodelReferencesResponse expected = new GetAllSubmodelReferencesResponse.Builder()
                 .statusCode(StatusCode.Success)
+                .payload(environment.getAssetAdministrationShells().get(0).getSubmodels())
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -540,8 +557,11 @@ public class RequestHandlerManagerTest {
     public void testPutSubmodelElementByPathRequest() throws ResourceNotFoundException {
         when(persistence.put(any(), argThat((Reference t) -> true), any()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
+        when(persistence.get(argThat((Reference t) -> true), any()))
+                .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         PutSubmodelElementByPathRequest request = new PutSubmodelElementByPathRequest.Builder()
                 .id(environment.getSubmodels().get(0).getIdentification())
+                .submodelElement(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
                 .build();
         PutSubmodelElementByPathResponse response = manager.execute(request);
@@ -555,16 +575,23 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testSetSubmodelElementValueByPathRequest() throws ResourceNotFoundException {
-        when(persistence.put(any(), argThat((Reference t) -> true), any()))
+        when(persistence.get((Reference) any(), any()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
-        SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest.Builder<Integer>()
+        SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest.Builder<ElementValue>()
                 .id(environment.getSubmodels().get(0).getIdentification())
-                .value(123)
+                .value(new PropertyValue.Builder()
+                        .value(new StringValue("Test"))
+                        .build())
+                .valueParser(new ElementValueParser<ElementValue>() {
+                    @Override
+                    public <U extends ElementValue> U parse(ElementValue raw, Class<U> type) {
+                        return (U) raw;
+                    }
+                })
                 .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
                 .build();
-        SetSubmodelElementValueByPathResponse response = new SetSubmodelElementValueByPathResponse();
-        // @TODO: Type problem? Why?
-        //SetSubmodelElementValueByPathResponse response = manager.execute(request);
+
+        Response response = manager.execute(request);
         SetSubmodelElementValueByPathResponse expected = new SetSubmodelElementValueByPathResponse.Builder()
                 .statusCode(StatusCode.Success)
                 .build();

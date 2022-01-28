@@ -41,6 +41,7 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -304,7 +305,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
                                 .build());
                 ElementValue currentValue = ElementValueMapper.toValue(submodelElement);
                 ElementValue assetValue = this.assetConnectionManager.getValueProvider(reference).getValue();
-                if (assetValue != null && assetValue != currentValue) {
+                if (!Objects.equals(assetValue, currentValue)) {
                     submodelElement = ElementValueMapper.setValue(submodelElement, assetValue);
                     submodelElement = persistence.put(null, reference, submodelElement);
                     publishElementUpdateEventMessage(reference, submodelElement);
