@@ -41,14 +41,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.TestUt
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.IntValue;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
+import io.adminshell.aas.v3.model.ModelingKind;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -709,6 +712,55 @@ public class OpcUaEndpointTest {
 
         System.out.println("disconnect client");
         client.disconnect();
+    }
+
+
+    @Test
+    public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, Exception {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("testAddProperty: client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        String propName = "NewProperty99";
+
+        // make sure the element doesn't exist yet
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_TECH_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, propName)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
+        Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
+
+        // Send event to MessageBus
+        ElementCreateEventMessage msg = new ElementCreateEventMessage();
+        msg.setElement(new DefaultReference.Builder()
+                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("http://i40.customer.com/type/1/1/7A7104BDAB57E184").build()).build());
+        msg.setValue(new DefaultProperty.Builder()
+                .kind(ModelingKind.INSTANCE)
+                .idShort(propName)
+                .category("Variable")
+                .value("AZF45")
+                .valueType("string")
+                .build());
+        service.getMessageBus().publish(msg);
+
+        Thread.sleep(DEFAULT_TIMEOUT);
+
+        // check that the element is there now
+        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
+        Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testAddProperty Browse Result Good", bpres[0].getStatusCode().isGood());
     }
 
 

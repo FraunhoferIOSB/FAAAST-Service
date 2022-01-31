@@ -81,7 +81,6 @@ import io.adminshell.aas.v3.model.Event;
 import io.adminshell.aas.v3.model.File;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import io.adminshell.aas.v3.model.Operation;
@@ -168,11 +167,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private static final Logger logger = LoggerFactory.getLogger(AasServiceNodeManager.class);
 
     /**
-     * Maps String to KeyType values
-     */
-    private static final Map<String, KeyType> keyTypeStringMap = new HashMap<>();
-
-    /**
      * The AAS environment associated with this Node Manager
      */
     private final AssetAdministrationShellEnvironment aasEnvironment;
@@ -238,15 +232,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private final ReentrantLock submodelOpcUAMapLock;
 
-    //    /**
-    //     * Maps NodeIds to the corresponding Submodels
-    //     */
-    //    private final Map<NodeId, Submodel> submodelMap;
-    //
-    //    /**
-    //     * Lock for the submodelMap
-    //     */
-    //    private final ReentrantLock submodelMapLock;
+    /**
+     * Maps NodeIds to the corresponding Referable elements
+     */
+    private final Map<Reference, ObjectData> referableMap;
+
+    /**
+     * Lock for the referableMap
+     */
+    private final ReentrantLock referableMapLock;
 
     /**
      * The MessageBus for signalling changes, e.g. changed values
@@ -285,21 +279,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         submodelElementOpcUAMapLock = new ReentrantLock();
         submodelOpcUAMap = new HashMap<>();
         submodelOpcUAMapLock = new ReentrantLock();
-        //submodelMap = new HashMap<>();
-        //submodelMapLock = new ReentrantLock();
+        referableMap = new HashMap<>();
+        referableMapLock = new ReentrantLock();
 
         messageBus = ep.getMessageBus();
         subscriptions = new ArrayList<>();
     }
 
-    /**
-     * Initialize static maps
-     */
-    static {
-        for (KeyType keyType: KeyType.values()) {
-            keyTypeStringMap.put(keyType.name().toUpperCase(), keyType);
-        }
-    }
 
     /**
      * Initializes the Node Manager
@@ -468,50 +454,99 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     }
                 }
 
-                TypeDefinitionBasedNodeBuilderConfiguration.Builder conf = TypeDefinitionBasedNodeBuilderConfiguration.builder();
-                for (AssetAdministrationShell aas: aasEnvironment.getAssetAdministrationShells()) {
-                    Reference derivedFrom = aas.getDerivedFrom();
-                    if (derivedFrom != null) {
-                        UaBrowsePath bp = UaBrowsePath.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType,
-                                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAssetAdministrationShellType.DERIVED_FROM));
-                        conf.addOptional(bp);
-                    }
-
-                    this.setNodeBuilderConfiguration(conf.build());
-
-                    QualifiedName browseName = UaQualifiedName.from(NAMESPACE_URI, aas.getIdShort()).toQualifiedName(getNamespaceTable());
-                    String displayName = "AAS:" + aas.getIdShort();
-                    NodeId nid = new NodeId(getNamespaceIndex(), aas.getIdShort());
-                    if (findNode(nid) != null) {
-                        // The NodeId already exists
-                        nid = getDefaultNodeId();
-                    }
-
-                    AASAssetAdministrationShellType aasShell = createInstance(AASAssetAdministrationShellTypeNode.class, nid, browseName, LocalizedText.english(displayName));
-                    addIdentifiable(aasShell, aas.getIdentification(), aas.getAdministration(), aas.getCategory());
-
-                    // DataSpecifications
-                    addEmbeddedDataSpecifications(aasShell, aas.getEmbeddedDataSpecifications());
-
-                    // AssetInformation
-                    AssetInformation assetInformation = aas.getAssetInformation();
-                    if (assetInformation != null) {
-                        addAssetInformation(aasShell, assetInformation);
-                    }
-
-                    // submodel references
-                    List<Reference> submodelRefs = aas.getSubmodels();
-                    if ((submodelRefs != null) && (!submodelRefs.isEmpty())) {
-                        addSubmodelReferences(aasShell, submodelRefs);
-                    }
-
-                    // add AAS to Environment
-                    addNodeAndReference(aasEnvironmentNode, aasShell, Identifiers.Organizes);
-                }
+                addAssetAdministrationShells();
             }
         }
         catch (Throwable ex) {
             logger.error("createAasNodes Exception", ex);
+        }
+    }
+
+
+    /**
+     * Adds the AssetAdministrationShells of the current environment
+     * 
+     * @throws StatusException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws AddressSpaceException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     */
+    private void addAssetAdministrationShells() throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
+        try {
+            for (AssetAdministrationShell aas: aasEnvironment.getAssetAdministrationShells()) {
+                addAssetAdministrationShell(aas);
+            }
+        }
+        catch (Throwable ex) {
+            logger.error("addAssetAdministrationShells Exception", ex);
+            throw ex;
+        }
+    }
+
+
+    /**
+     * Adds the given AssetAdministrationShell
+     * 
+     * @throws StatusException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws AddressSpaceException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     */
+    private void addAssetAdministrationShell(AssetAdministrationShell aas) throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
+        try {
+            TypeDefinitionBasedNodeBuilderConfiguration.Builder conf = TypeDefinitionBasedNodeBuilderConfiguration.builder();
+            Reference derivedFrom = aas.getDerivedFrom();
+            if (derivedFrom != null) {
+                UaBrowsePath bp = UaBrowsePath.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType,
+                        UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAssetAdministrationShellType.DERIVED_FROM));
+                conf.addOptional(bp);
+            }
+
+            this.setNodeBuilderConfiguration(conf.build());
+
+            QualifiedName browseName = UaQualifiedName.from(NAMESPACE_URI, aas.getIdShort()).toQualifiedName(getNamespaceTable());
+            String displayName = "AAS:" + aas.getIdShort();
+            NodeId nid = new NodeId(getNamespaceIndex(), aas.getIdShort());
+            if (findNode(nid) != null) {
+                // The NodeId already exists
+                nid = getDefaultNodeId();
+            }
+
+            AASAssetAdministrationShellType aasShell = createInstance(AASAssetAdministrationShellTypeNode.class, nid, browseName, LocalizedText.english(displayName));
+            addIdentifiable(aasShell, aas.getIdentification(), aas.getAdministration(), aas.getCategory());
+
+            // DataSpecifications
+            addEmbeddedDataSpecifications(aasShell, aas.getEmbeddedDataSpecifications());
+
+            // AssetInformation
+            AssetInformation assetInformation = aas.getAssetInformation();
+            if (assetInformation != null) {
+                addAssetInformation(aasShell, assetInformation);
+            }
+
+            // submodel references
+            List<Reference> submodelRefs = aas.getSubmodels();
+            if ((submodelRefs != null) && (!submodelRefs.isEmpty())) {
+                addSubmodelReferences(aasShell, submodelRefs);
+            }
+
+            // add AAS to Environment
+            addNodeAndReference(aasEnvironmentNode, aasShell, Identifiers.Organizes);
+
+            try {
+                referableMapLock.lock();
+                referableMap.put(AasUtils.toReference(aas), new ObjectData(aas, aasShell));
+            }
+            catch (Exception ex2) {
+                logger.warn("referableMap problem", ex2);
+            }
+            finally {
+                referableMapLock.unlock();
+            }
+        }
+        catch (Throwable ex) {
+            logger.error("addAssetAdministrationShell Exception", ex);
+            throw ex;
         }
     }
 
@@ -537,6 +572,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             for (ConceptDescription c: descriptions) {
                 String name = c.getIdShort();
                 NodeId nid = createNodeId(dictionariesFolder, name);
+                DictionaryEntryType dictNode;
                 switch (c.getIdentification().getIdType()) {
                     case IRDI:
                         AASIrdiConceptDescriptionType irdiNode = createInstance(AASIrdiConceptDescriptionType.class, name, nid);
@@ -544,6 +580,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         addConceptDescriptionReference(irdiNode, getReference(c));
                         dictEntriesFolder.addComponent(irdiNode);
                         dictionaryMap.put(getReference(c), irdiNode);
+                        dictNode = irdiNode;
                         break;
 
                     case IRI:
@@ -552,6 +589,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         addConceptDescriptionReference(iriNode, getReference(c));
                         dictEntriesFolder.addComponent(iriNode);
                         dictionaryMap.put(getReference(c), iriNode);
+                        dictNode = iriNode;
                         break;
 
                     default:
@@ -560,7 +598,19 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         addConceptDescriptionReference(customNode, getReference(c));
                         dictEntriesFolder.addComponent(customNode);
                         dictionaryMap.put(getReference(c), customNode);
+                        dictNode = customNode;
                         break;
+                }
+
+                try {
+                    referableMapLock.lock();
+                    referableMap.put(AasUtils.toReference(c), new ObjectData(c, dictNode));
+                }
+                catch (Exception ex2) {
+                    logger.warn("referableMap problem", ex2);
+                }
+                finally {
+                    referableMapLock.unlock();
                 }
             }
         }
@@ -1081,7 +1131,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 // DefaultThumbnail
                 File thumbnail = assetInformation.getDefaultThumbnail();
                 if (thumbnail != null) {
-                    addAasFile(assetInfoNode, thumbnail, false, AASAssetInformationType.DEFAULT_THUMBNAIL);
+                    addAasFile(assetInfoNode, thumbnail, null, null, false, AASAssetInformationType.DEFAULT_THUMBNAIL);
                 }
 
                 // GlobalAssetId
@@ -1100,8 +1150,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     aasNode.addComponent(assetInfoNode);
                 }
             }
-
-            logger.error("Method addAssetInformation not implemented");
         }
         catch (Throwable ex) {
             logger.error("addAssetInformation Exception", ex);
@@ -1219,6 +1267,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      *
      * @param node The desired UA node
      * @param aasFile The AAS file object
+     * @param submodel The corresponding Submodel as parent object of the data
+     *            element
+     * @param parentRef The AAS reference to the parent node
      * @param ordered Specifies whether the file should be added ordered (true)
      *            or unordered (false)
      * @param nodeName The desired Name of the node. If this value is not set,
@@ -1228,7 +1279,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws AddressSpaceException If the operation fails
      * @throws ServiceResultException If the operation fails
      */
-    private void addAasFile(UaNode node, File aasFile, boolean ordered, String nodeName) throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
+    private void addAasFile(UaNode node, File aasFile, Submodel submodel, Reference parentRef, boolean ordered, String nodeName)
+            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
         try {
             if ((node != null) && (aasFile != null)) {
                 String name = aasFile.getIdShort();
@@ -1283,6 +1335,21 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
                 else {
                     node.addComponent(fileNode);
+                }
+
+                if (parentRef != null) {
+                    Reference fileRef = AasUtils.toReference(parentRef, aasFile);
+
+                    try {
+                        referableMapLock.lock();
+                        referableMap.put(fileRef, new ObjectData(aasFile, fileNode, submodel));
+                    }
+                    catch (Exception ex2) {
+                        logger.warn("referableMap problem", ex2);
+                    }
+                    finally {
+                        referableMapLock.unlock();
+                    }
                 }
             }
         }
@@ -1424,7 +1491,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     addAasReferenceList(aasNode, refList, AASAssetAdministrationShellType.DATA_SPECIFICATION);
                 }
                 else {
-                    addEmbeddedDataSpecifications(listNode, refList);
+                    addEmbeddedDataSpecificationsReferences(listNode, refList);
                 }
             }
         }
@@ -1457,7 +1524,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     addAasReferenceList(assetNode, refList, AASAssetType.DATA_SPECIFICATION);
                 }
                 else {
-                    addEmbeddedDataSpecifications(listNode, refList);
+                    addEmbeddedDataSpecificationsReferences(listNode, refList);
                 }
             }
         }
@@ -1490,7 +1557,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     addAasReferenceList(submodelNode, refList, AASSubmodelType.DATA_SPECIFICATION);
                 }
                 else {
-                    addEmbeddedDataSpecifications(listNode, refList);
+                    addEmbeddedDataSpecificationsReferences(listNode, refList);
                 }
             }
         }
@@ -1523,7 +1590,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     addAasReferenceList(submodelElementNode, refList, AASSubmodelElementType.DATA_SPECIFICATION);
                 }
                 else {
-                    addEmbeddedDataSpecifications(listNode, refList);
+                    addEmbeddedDataSpecificationsReferences(listNode, refList);
                 }
             }
         }
@@ -1542,7 +1609,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param ds The list of the desired Data Specifications
      * @throws StatusException If the operation fails
      */
-    private void addEmbeddedDataSpecifications(AASReferenceList refListNode, List<Reference> refList) throws StatusException {
+    private void addEmbeddedDataSpecificationsReferences(AASReferenceList refListNode, List<Reference> refList) throws StatusException {
         try {
             if ((refListNode != null) && (!refList.isEmpty())) {
                 int count = 0;
@@ -1949,6 +2016,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             addEmbeddedDataSpecifications(assetNode, asset.getEmbeddedDataSpecifications());
 
             node.addComponent(assetNode);
+
+            try {
+                referableMapLock.lock();
+                referableMap.put(AasUtils.toReference(asset), new ObjectData(asset, assetNode));
+            }
+            catch (Exception ex2) {
+                logger.warn("referableMap problem", ex2);
+            }
+            finally {
+                referableMapLock.unlock();
+            }
         }
         catch (Throwable ex) {
             logger.error("addAsset Exception", ex);
@@ -2021,11 +2099,24 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     submodelOpcUAMap.put(getReference(submodel), smNode);
                 }
                 catch (Exception e2) {
+                    logger.error("Error when adding to submodelOpcUAMap", e2);
+                }
+                finally {
                     submodelOpcUAMapLock.unlock();
-                    logger.error("Error when adding to submodelRefMap", e2);
                 }
 
                 node.addComponent(smNode);
+
+                try {
+                    referableMapLock.lock();
+                    referableMap.put(AasUtils.toReference(submodel), new ObjectData(submodel, smNode));
+                }
+                catch (Exception ex2) {
+                    logger.warn("referableMap problem", ex2);
+                }
+                finally {
+                    referableMapLock.unlock();
+                }
             }
             else {
                 logger.warn("addSubmodel: IdShort is empty!");
@@ -2096,7 +2187,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         addAasDataElement(node, (DataElement) elem, submodel, parentRef, ordered);
                     }
                     else if (elem instanceof Capability) {
-                        addAasCapability(node, (Capability) elem, ordered);
+                        addAasCapability(node, (Capability) elem, submodel, parentRef, ordered);
                     }
                     else if (elem instanceof Entity) {
                         addAasEntity(node, (Entity) elem, submodel, parentRef, ordered);
@@ -2105,7 +2196,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         addAasOperation(node, (Operation) elem, submodel, parentRef, ordered);
                     }
                     else if (elem instanceof Event) {
-                        addAasEvent(node, (Event) elem, ordered);
+                        addAasEvent(node, (Event) elem, submodel, parentRef, ordered);
                     }
                     else if (elem instanceof RelationshipElement) {
                         addAasRelationshipElement(node, (RelationshipElement) elem, submodel, parentRef, ordered);
@@ -2146,7 +2237,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     addAasProperty(node, (Property) aasDataElement, submodel, parentRef, ordered);
                 }
                 else if (aasDataElement instanceof File) {
-                    addAasFile(node, (File) aasDataElement, ordered, null);
+                    addAasFile(node, (File) aasDataElement, submodel, parentRef, ordered, null);
                 }
                 else if (aasDataElement instanceof Blob) {
                     addAasBlob(node, (Blob) aasDataElement, submodel, parentRef, ordered);
@@ -2224,11 +2315,24 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
             }
 
+            logger.info("addAasProperty: add Property " + nid.toString());
+
             if (ordered) {
                 node.addReference(prop, Identifiers.HasOrderedComponent, false);
             }
             else {
                 node.addComponent(prop);
+            }
+
+            try {
+                referableMapLock.lock();
+                referableMap.put(propRef, new ObjectData(aasProperty, prop, submodel));
+            }
+            catch (Exception ex2) {
+                logger.warn("referableMap problem", ex2);
+            }
+            finally {
+                referableMapLock.unlock();
             }
         }
         catch (Throwable ex) {
@@ -2652,13 +2756,14 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 // MimeType
                 blobNode.setMimeType(aasBlob.getMimeType());
 
+                Reference blobRef = AasUtils.toReference(parentRef, aasBlob);
+
                 // Value
                 if (aasBlob.getValue() != null) {
                     if (blobNode.getValueNode() == null) {
                         addBlobValueNode(blobNode);
                     }
 
-                    Reference blobRef = AasUtils.toReference(parentRef, aasBlob);
                     try {
                         submodelElementAasMapLock.lock();
                         submodelElementAasMap.put(blobNode.getValueNode().getNodeId(), new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE, blobRef));
@@ -2693,6 +2798,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
                 else {
                     node.addComponent(blobNode);
+                }
+
+                try {
+                    referableMapLock.lock();
+                    referableMap.put(blobRef, new ObjectData(aasBlob, blobNode, submodel));
+                }
+                catch (Exception ex2) {
+                    logger.warn("referableMap problem", ex2);
+                }
+                finally {
+                    referableMapLock.unlock();
                 }
             }
         }
@@ -2787,6 +2903,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 else {
                     node.addComponent(refElemNode);
                 }
+
+                try {
+                    referableMapLock.lock();
+                    referableMap.put(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
+                }
+                catch (Exception ex2) {
+                    logger.warn("referableMap problem", ex2);
+                }
+                finally {
+                    referableMapLock.unlock();
+                }
             }
         }
         catch (Throwable ex) {
@@ -2826,6 +2953,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
                 else {
                     node.addComponent(rangeNode);
+                }
+
+                try {
+                    referableMapLock.lock();
+                    referableMap.put(rangeRef, new ObjectData(aasRange, rangeNode, submodel));
+                }
+                catch (Exception ex2) {
+                    logger.warn("referableMap problem", ex2);
+                }
+                finally {
+                    referableMapLock.unlock();
                 }
             }
         }
@@ -3400,6 +3538,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 else {
                     node.addComponent(multiLangNode);
                 }
+
+                try {
+                    referableMapLock.lock();
+                    referableMap.put(multiLangRef, new ObjectData(aasMultiLang, multiLangNode, submodel));
+                }
+                catch (Exception ex2) {
+                    logger.warn("referableMap problem", ex2);
+                }
+                finally {
+                    referableMapLock.unlock();
+                }
             }
         }
         catch (Throwable ex) {
@@ -3443,11 +3592,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      *
      * @param node The desired UA node
      * @param aasCapability The corresponding AAS Capability to add
+     * @param submodel The corresponding Submodel as parent object of the data
+     *            element
+     * @param parentRef The AAS reference to the parent object
      * @param ordered Specifies whether the capability should be added ordered
      *            (true) or unordered (false)
      * @throws StatusException If the operation fails
      */
-    private void addAasCapability(UaNode node, Capability aasCapability, boolean ordered) throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
+    private void addAasCapability(UaNode node, Capability aasCapability, Submodel submodel, Reference parentRef, boolean ordered)
+            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
         try {
             if ((node != null) && (aasCapability != null)) {
                 String name = aasCapability.getIdShort();
@@ -3461,6 +3614,19 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
                 else {
                     node.addComponent(capabilityNode);
+                }
+
+                Reference capabilityRef = AasUtils.toReference(parentRef, aasCapability);
+
+                try {
+                    referableMapLock.lock();
+                    referableMap.put(capabilityRef, new ObjectData(aasCapability, capabilityNode, submodel));
+                }
+                catch (Exception ex2) {
+                    logger.warn("referableMap problem", ex2);
+                }
+                finally {
+                    referableMapLock.unlock();
                 }
             }
         }
@@ -3566,6 +3732,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 else {
                     node.addComponent(entityNode);
                 }
+
+                try {
+                    referableMapLock.lock();
+                    referableMap.put(entityRef, new ObjectData(aasEntity, entityNode, submodel));
+                }
+                catch (Exception ex2) {
+                    logger.warn("referableMap problem", ex2);
+                }
+                finally {
+                    referableMapLock.unlock();
+                }
             }
         }
         catch (Throwable ex) {
@@ -3594,9 +3771,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             AASOperationType oper = createInstance(AASOperationType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(oper, aasOperation, name);
 
-            try {
-                Reference operRef = AasUtils.toReference(parentRef, aasOperation);
+            Reference operRef = AasUtils.toReference(parentRef, aasOperation);
 
+            try {
                 // for operations we put the corresponding operation object into the map
                 submodelElementAasMapLock.lock();
                 submodelElementAasMap.put(nid, new SubmodelElementData(aasOperation, submodel, SubmodelElementData.Type.OPERATION, operRef));
@@ -3641,6 +3818,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
             else {
                 node.addComponent(oper);
+            }
+
+            try {
+                referableMapLock.lock();
+                referableMap.put(operRef, new ObjectData(aasOperation, oper, submodel));
+            }
+            catch (Exception ex2) {
+                logger.warn("referableMap problem", ex2);
+            }
+            finally {
+                referableMapLock.unlock();
             }
         }
         catch (Throwable ex) {
@@ -3693,11 +3881,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      *
      * @param node The desired UA node
      * @param aasEvent The AAS Event to add
+     * @param submodel The corresponding Submodel as parent object of the data
+     *            element
+     * @param parentRef The AAS reference to the parent object
      * @param ordered Specifies whether the entity should be added ordered
      *            (true) or unordered (false)
      * @throws StatusException If the operation fails
      */
-    private void addAasEvent(UaNode node, Event aasEvent, boolean ordered) throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
+    private void addAasEvent(UaNode node, Event aasEvent, Submodel submodel, Reference parentRef, boolean ordered)
+            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
         try {
             if ((node != null) && (aasEvent != null)) {
                 String name = aasEvent.getIdShort();
@@ -3710,11 +3902,24 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     setBasicEventData(eventNode, (BasicEvent) aasEvent);
                 }
 
+                Reference eventRef = AasUtils.toReference(parentRef, aasEvent);
+
                 if (ordered) {
                     node.addReference(eventNode, Identifiers.HasOrderedComponent, false);
                 }
                 else {
                     node.addComponent(eventNode);
+                }
+
+                try {
+                    referableMapLock.lock();
+                    referableMap.put(eventRef, new ObjectData(aasEvent, eventNode, submodel));
+                }
+                catch (Exception ex2) {
+                    logger.warn("referableMap problem", ex2);
+                }
+                finally {
+                    referableMapLock.unlock();
                 }
             }
         }
@@ -3734,7 +3939,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void setBasicEventData(AASEventType eventNode, BasicEvent aasEvent) {
         try {
             if (aasEvent.getObserved() != null) {
-                // TODO?
                 logger.warn("setBasicEventData: not implemented! Event: " + eventNode.getBrowseName().getName());
             }
         }
@@ -3813,6 +4017,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     }
                     else {
                         node.addComponent(relElemNode);
+                    }
+
+                    try {
+                        referableMapLock.lock();
+                        referableMap.put(relElemRef, new ObjectData(aasRelElem, relElemNode, submodel));
+                    }
+                    catch (Exception ex2) {
+                        logger.warn("referableMap problem", ex2);
+                    }
+                    finally {
+                        referableMapLock.unlock();
                     }
                 }
             }
@@ -3919,6 +4134,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 else {
                     node.addComponent(collNode);
                 }
+
+                try {
+                    referableMapLock.lock();
+                    referableMap.put(collRef, new ObjectData(aasColl, collNode, submodel));
+                }
+                catch (Exception ex2) {
+                    logger.warn("referableMap problem", ex2);
+                }
+                finally {
+                    referableMapLock.unlock();
+                }
             }
         }
         catch (Throwable ex) {
@@ -4016,48 +4242,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
     }
 
-    //    /**
-    //     * Converts the given String value to KeyType
-    //     *
-    //     * @param stringValue The desired String
-    //     * @return The KeyType
-    //     */
-    //    private static KeyType stringToKeyType(String stringValue) {
-    //        KeyType retval;
-    //        if (keyTypeStringMap.containsKey(stringValue.toUpperCase())) {
-    //            retval = keyTypeStringMap.get(stringValue.toUpperCase());
-    //        }
-    //        else {
-    //            logger.warn("stringToKeyType: unknown value: " + stringValue);
-    //            retval = null;
-    //        }
-    //
-    //        return retval;
-    //    }
-
-    //    /**
-    //     * Returns a KeyType from an IdentifierType
-    //     *
-    //     * @param identifier The desired IdentifierType
-    //     * @return The corresponding KeyType
-    //     */
-    //    private static KeyType getKeyTypeFromIdentifier(IdentifierType identifier) {
-    //        KeyType retval = null;
-    //
-    //        try {
-    //            retval = stringToKeyType(identifier.name());
-    //            if (retval == null) {
-    //                throw new IllegalArgumentException(identifier.name() + " not found in KeyType");
-    //            }
-    //        }
-    //        catch (Throwable ex) {
-    //            logger.error("getKeyTypeFromIdentifier Exception", ex);
-    //            throw ex;
-    //        }
-    //
-    //        return retval;
-    //    }
-
 
     /**
      * Subscribes to Events on the MessageBus (e.g. ValueChangeEvents).
@@ -4135,13 +4319,93 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param element Reference to the created element.
      * @param value The element that was added.
      */
-    private void elementCreated(Reference element, Referable value) {
+    private void elementCreated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
         if (element == null) {
             throw new IllegalArgumentException("element is null");
         }
+        else if (value == null) {
+            throw new IllegalArgumentException("value is null");
+        }
 
-        logger.info("elementCreated not implemented!");
-        // TODO: implement
+        try {
+            // The element is the parent object where the value is added
+            ObjectData parent = null;
+            try {
+                referableMapLock.lock();
+                if (referableMap.containsKey(element)) {
+                    parent = referableMap.get(element);
+                }
+            }
+            catch (Exception ex2) {
+                logger.warn("referableMap problem", ex2);
+            }
+            finally {
+                referableMapLock.unlock();
+            }
+
+            if (value instanceof ConceptDescription) {
+                addConceptDescriptions(List.of((ConceptDescription) value));
+            }
+            else if (value instanceof Asset) {
+                addAsset(aasEnvironmentNode, (Asset) value);
+            }
+            else if (value instanceof Submodel) {
+                addSubmodel(aasEnvironmentNode, (Submodel) value);
+            }
+            else if (value instanceof AssetAdministrationShell) {
+                addAssetAdministrationShell((AssetAdministrationShell) value);
+            }
+            else if (parent != null) {
+                if (value instanceof EmbeddedDataSpecification) {
+                    if (parent.getNode() instanceof AASAssetAdministrationShellType) {
+                        addEmbeddedDataSpecifications((AASAssetAdministrationShellType) parent.getNode(), List.of((EmbeddedDataSpecification) value));
+                    }
+                    else if (parent.getNode() instanceof AASSubmodelType) {
+                        addEmbeddedDataSpecifications((AASSubmodelType) parent.getNode(), List.of((EmbeddedDataSpecification) value));
+                    }
+                    else if (parent.getNode() instanceof AASSubmodelElementType) {
+                        addEmbeddedDataSpecifications((AASSubmodelElementType) parent.getNode(), List.of((EmbeddedDataSpecification) value));
+                    }
+                    else if (parent.getNode() instanceof AASAssetType) {
+                        addEmbeddedDataSpecifications((AASAssetType) parent.getNode(), List.of((EmbeddedDataSpecification) value));
+                    }
+                    else {
+                        logger.warn("elementCreated: EmbeddedDataSpecification parent class not found");
+                    }
+                }
+                else if (value instanceof Constraint) {
+                    if (parent.getNode() instanceof AASSubmodelType) {
+                        addQualifiers(((AASSubmodelType) parent.getNode()).getQualifierNode(), List.of((Constraint) value));
+                    }
+                    else if (parent.getNode() instanceof AASSubmodelElementType) {
+                        addQualifiers(((AASSubmodelElementType) parent.getNode()).getQualifierNode(), List.of((Constraint) value));
+                    }
+                    else {
+                        logger.warn("elementCreated: Constraint parent class not found");
+                    }
+                }
+                else if (value instanceof SubmodelElement) {
+                    if (parent.getNode() instanceof AASSubmodelType) {
+                        logger.info("elementCreated: call addSubmodelElements");
+                        addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), (Submodel) parent.getReferable(), element);
+                    }
+                    else if (parent.getNode() instanceof AASSubmodelElementType) {
+                        logger.info("elementCreated: call addSubmodelElements");
+                        addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), parent.getSubmodel(), element);
+                    }
+                    else {
+                        logger.warn("elementCreated: SubmodelElement parent class not found: " + parent.getNode().getNodeId().toString() + "; " + parent.getNode());
+                    }
+                }
+            }
+            else {
+                logger.warn("elementCreated: element not found: " + AasUtils.asString(element));
+            }
+        }
+        catch (Throwable ex) {
+            logger.error("elementCreated Exception", ex);
+            throw ex;
+        }
     }
 
 
@@ -4539,7 +4803,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
                 for (UaNode statementNode1: statementNodes) {
                     if (statementNode1 instanceof AASSubmodelElementType) {
-                        // TODO
                         if (value.getStatements().containsKey(statementNode1.getBrowseName().getName())) {
                             setSubmodelElementValue((AASSubmodelElementType) statementNode1, value.getStatements().get(statementNode1.getBrowseName().getName()));
                         }
