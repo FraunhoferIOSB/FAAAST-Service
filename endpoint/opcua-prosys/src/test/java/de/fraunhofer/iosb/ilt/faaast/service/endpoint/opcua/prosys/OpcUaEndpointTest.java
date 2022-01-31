@@ -45,14 +45,20 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.IntValue;
+import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
+import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.impl.DefaultAdministrativeInformation;
+import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import io.adminshell.aas.v3.model.impl.DefaultRelationshipElement;
+import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -66,6 +72,7 @@ import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyElementsDataType;
 import opc.i4aas.AASKeyTypeDataType;
 import opc.i4aas.AASModelingKindDataType;
+import opc.i4aas.AASRelationshipElementType;
 import opc.i4aas.AASValueTypeDataType;
 import opc.i4aas.VariableIds;
 import org.junit.AfterClass;
@@ -715,6 +722,14 @@ public class OpcUaEndpointTest {
     }
 
 
+    /**
+     * Test method for adding a new property to an existing submodel.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws Exception If the operation fails
+     */
     @Test
     public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -761,6 +776,117 @@ public class OpcUaEndpointTest {
         Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
         Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
         Assert.assertTrue("testAddProperty Browse Result Good", bpres[0].getStatusCode().isGood());
+    }
+
+
+    /**
+     * Test method for adding a complete submodel to an AAS.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws Exception If the operation fails
+     */
+    @Test
+    public void testAddSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("testAddProperty: client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        String submodelName = "NewSubmodelTest1";
+
+        // make sure the element doesn't exist yet
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, submodelName)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_REL_ELEMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, AASRelationshipElementType.SECOND)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.KEYS_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testAddSubmodel Browse Result Null", bpres);
+        Assert.assertTrue("testAddSubmodel Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testAddSubmodel Browse Result Bad", bpres[0].getStatusCode().isBad());
+
+        // Send event to MessageBus
+        ElementCreateEventMessage msg = new ElementCreateEventMessage();
+        msg.setElement(new DefaultReference.Builder()
+                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.ASSET_ADMINISTRATION_SHELL).value("http://customer.com/aas/9175_7013_7091_9168").build())
+                .build());
+        msg.setValue(new DefaultSubmodel.Builder()
+                .idShort(submodelName)
+                .identification(new DefaultIdentifier.Builder()
+                        .idType(IdentifierType.IRI)
+                        .identifier("https://acplt.org/NewSubmodelTest1")
+                        .build())
+                .administration(new DefaultAdministrativeInformation.Builder()
+                        .version("0.9")
+                        .revision("0")
+                        .build())
+                .kind(ModelingKind.INSTANCE)
+                .submodelElement(new DefaultRelationshipElement.Builder()
+                        .idShort("ExampleRelationshipElement")
+                        .category("Parameter")
+                        .description(new LangString("Example RelationshipElement object", "en-us"))
+                        .description(new LangString("Beispiel RelationshipElement Element", "de"))
+                        .semanticId(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.GLOBAL_REFERENCE)
+                                        .value("http://acplt.org/RelationshipElements/ExampleRelationshipElement")
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .build())
+                        .first(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.SUBMODEL)
+                                        .value("https://acplt.org/Test_Submodel")
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.SUBMODEL_ELEMENT_COLLECTION)
+                                        .value("ExampleSubmodelCollectionOrdered")
+                                        .idType(KeyType.ID_SHORT)
+                                        .build())
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.PROPERTY)
+                                        .value("ExampleProperty")
+                                        .idType(KeyType.ID_SHORT)
+                                        .build())
+                                .build())
+                        .second(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.SUBMODEL)
+                                        .value("http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial")
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.ENTITY)
+                                        .value("ExampleEntity")
+                                        .idType(KeyType.ID_SHORT)
+                                        .build())
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.PROPERTY)
+                                        .value("ExampleProperty2")
+                                        .idType(KeyType.ID_SHORT)
+                                        .build())
+                                .build())
+                        .build())
+                .build());
+        service.getMessageBus().publish(msg);
+
+        Thread.sleep(DEFAULT_TIMEOUT);
+
+        // check that the element is there now
+        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testAddSubmodel Browse Result Null", bpres);
+        Assert.assertTrue("testAddSubmodel Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testAddSubmodel Browse Result Good", bpres[0].getStatusCode().isGood());
     }
 
 

@@ -43,9 +43,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.TestSe
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.assetconnection.TestAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.assetconnection.TestOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
+import io.adminshell.aas.v3.model.ModelingKind;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Qualifier;
 import io.adminshell.aas.v3.model.Reference;
@@ -84,6 +86,7 @@ public class OpcUaEndpointFullTest {
     private static final Logger logger = LoggerFactory.getLogger(OpcUaEndpointFullTest.class);
 
     private static final int OPC_TCP_PORT = 18123;
+    private static final long DEFAULT_TIMEOUT = 1000;
 
     private static final String ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
 
@@ -590,6 +593,66 @@ public class OpcUaEndpointFullTest {
 
         System.out.println("disconnect client");
         client.disconnect();
+    }
+
+
+    /**
+     * Test method for adding a new property to an existing SubmodelElementCollection.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws Exception If the operation fails
+     */
+    @Test
+    public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, Exception {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("testAddProperty: client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        String propName = "NewProperty789";
+
+        // make sure the element doesn't exist yet
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_SUBMODEL_3_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_SM_ELEM_COLL_O_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, propName)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
+        Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
+
+        // Send event to MessageBus
+        ElementCreateEventMessage msg = new ElementCreateEventMessage();
+        msg.setElement(new DefaultReference.Builder()
+                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("https://acplt.org/Test_Submodel3").build())
+                .key(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.SUBMODEL_ELEMENT_COLLECTION).value(TestDefines.FULL_SM_ELEM_COLL_O_NAME).build())
+                .build());
+        msg.setValue(new DefaultProperty.Builder()
+                .kind(ModelingKind.INSTANCE)
+                .idShort(propName)
+                .category("Variable")
+                .value("3465")
+                .valueType("int")
+                .build());
+        service.getMessageBus().publish(msg);
+
+        Thread.sleep(DEFAULT_TIMEOUT);
+
+        // check that the element is there now
+        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
+        Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testAddProperty Browse Result Good", bpres[0].getStatusCode().isGood());
     }
 
 
