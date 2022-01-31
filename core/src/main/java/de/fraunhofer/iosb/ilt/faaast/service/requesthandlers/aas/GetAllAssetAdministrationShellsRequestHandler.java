@@ -38,7 +38,7 @@ public class GetAllAssetAdministrationShellsRequestHandler extends RequestHandle
     public GetAllAssetAdministrationShellsResponse process(GetAllAssetAdministrationShellsRequest request) {
         GetAllAssetAdministrationShellsResponse response = new GetAllAssetAdministrationShellsResponse();
         try {
-            List<AssetAdministrationShell> shells = persistence.get(null, (AssetIdentification) null, request.getOutputModifier());
+            List<AssetAdministrationShell> shells = persistence.get(null, (List<AssetIdentification>) null, request.getOutputModifier());
             response.setPayload(shells);
             response.setStatusCode(StatusCode.Success);
             if (shells != null) {

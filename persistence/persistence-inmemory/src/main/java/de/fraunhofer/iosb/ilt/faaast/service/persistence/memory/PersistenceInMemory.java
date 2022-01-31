@@ -108,11 +108,11 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public List<AssetAdministrationShell> get(String idShort, AssetIdentification assetId, QueryModifier modifier) {
-        if (modifier == null || (!Util.empty(idShort) && assetId != null)) {
+    public List<AssetAdministrationShell> get(String idShort, List<AssetIdentification> assetIds, QueryModifier modifier) {
+        if (modifier == null || (!Util.empty(idShort) && assetIds != null)) {
             return null;
         }
-        List<AssetAdministrationShell> shells = identifiablePersistenceManager.getAASs(idShort, assetId);
+        List<AssetAdministrationShell> shells = identifiablePersistenceManager.getAASs(idShort, assetIds);
         if (shells == null) {
             return null;
         }

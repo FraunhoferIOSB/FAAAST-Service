@@ -27,6 +27,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
+import io.adminshell.aas.v3.model.KeyElements;
+import io.adminshell.aas.v3.model.KeyType;
+import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,23 +47,30 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
     public GetAllAssetAdministrationShellsByAssetIdResponse process(GetAllAssetAdministrationShellsByAssetIdRequest request) {
         GetAllAssetAdministrationShellsByAssetIdResponse response = new GetAllAssetAdministrationShellsByAssetIdResponse();
         try {
-            List<AssetAdministrationShell> shells = new ArrayList<>();
+            List<AssetIdentification> assetIdentifications = new ArrayList<>();
             List<IdentifierKeyValuePair> identifierKeyValuePairs = request.getAssetIds();
-
             for (IdentifierKeyValuePair pair: identifierKeyValuePairs) {
                 AssetIdentification id = null;
                 if (pair.getKey().equalsIgnoreCase("globalAssetId")) {
-                    id = new GlobalAssetIdentification();
-                    ((GlobalAssetIdentification) id).setReference(pair.getExternalSubjectId());
+                    id = new GlobalAssetIdentification.Builder()
+                            .reference(new DefaultReference.Builder().key(new DefaultKey.Builder()
+                                    .idType(KeyType.IRI)
+                                    .type(KeyElements.GLOBAL_REFERENCE)
+                                    .value(pair.getValue())
+                                    .build())
+                                    .build())
+                            .build();
                 }
                 else {
-                    id = new SpecificAssetIdentification();
-                    ((SpecificAssetIdentification) id).setValue(pair.getValue());
-                    ((SpecificAssetIdentification) id).setKey(pair.getKey());
+                    id = new SpecificAssetIdentification.Builder()
+                            .value(pair.getValue())
+                            .key(pair.getKey())
+                            .build();
                 }
-                shells.addAll(persistence.get(null, id, request.getOutputModifier()));
+                assetIdentifications.add(id);
             }
 
+            List<AssetAdministrationShell> shells = new ArrayList<>(persistence.get(null, assetIdentifications, request.getOutputModifier()));
             response.setPayload(shells);
             response.setStatusCode(StatusCode.Success);
             shells.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));

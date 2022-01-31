@@ -40,6 +40,7 @@ import io.adminshell.aas.v3.dataformat.core.AASFull;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.*;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
+import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultOperation;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
@@ -83,7 +84,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllAssetAdministrationShellRequest() {
-        when(persistence.get(any(), argThat((AssetIdentification t) -> true), any()))
+        when(persistence.get(any(), argThat((List<AssetIdentification> t) -> true), any()))
                 .thenReturn(environment.getAssetAdministrationShells());
         GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
         GetAllAssetAdministrationShellsResponse response = manager.execute(request);
@@ -97,18 +98,24 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllAssetAdministrationShellsByAssetIdRequest() {
-        GlobalAssetIdentification globalAssetIdentification = new GlobalAssetIdentification();
-        globalAssetIdentification.setReference(new DefaultReference.Builder().build());
-        SpecificAssetIdentification specificAssetIdentification = new SpecificAssetIdentification();
-        specificAssetIdentification.setValue("TestValue");
-        specificAssetIdentification.setKey("TestKey");
-        when(persistence.get(eq(null), eq(globalAssetIdentification), any()))
-                .thenReturn(List.of(environment.getAssetAdministrationShells().get(0)));
-        when(persistence.get(eq(null), eq(specificAssetIdentification), any()))
-                .thenReturn(List.of(environment.getAssetAdministrationShells().get(1)));
+        GlobalAssetIdentification globalAssetIdentification = new GlobalAssetIdentification.Builder()
+                .reference(new DefaultReference.Builder().key(new DefaultKey.Builder()
+                        .idType(KeyType.IRI)
+                        .type(KeyElements.GLOBAL_REFERENCE)
+                        .value("TestValue")
+                        .build())
+                        .build())
+                .build();
+        SpecificAssetIdentification specificAssetIdentification = new SpecificAssetIdentification.Builder()
+                .value("TestValue")
+                .key("TestKey")
+                .build();
+        when(persistence.get(eq(null), eq(List.of(globalAssetIdentification, specificAssetIdentification)), any()))
+                .thenReturn(List.of(environment.getAssetAdministrationShells().get(0), environment.getAssetAdministrationShells().get(1)));
 
         List<IdentifierKeyValuePair> assetIds = List.of(new DefaultIdentifierKeyValuePair.Builder()
                 .key("globalAssetId")
+                .value("TestValue")
                 .externalSubjectId(new DefaultReference.Builder().build())
                 .build(),
                 new DefaultIdentifierKeyValuePair.Builder()
@@ -129,7 +136,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllAssetAdministrationShellsByIdShortRequest() {
-        when(persistence.get(eq("Test"), argThat((AssetIdentification t) -> true), any()))
+        when(persistence.get(eq("Test"), argThat((List<AssetIdentification> t) -> true), any()))
                 .thenReturn(environment.getAssetAdministrationShells());
         GetAllAssetAdministrationShellsByIdShortRequest request = new GetAllAssetAdministrationShellsByIdShortRequest.Builder()
                 .idShort("Test")
@@ -863,7 +870,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllAssetAdministrationShellRequestAsync() throws InterruptedException {
-        when(persistence.get(any(), argThat((AssetIdentification t) -> true), any()))
+        when(persistence.get(any(), argThat((List<AssetIdentification> t) -> true), any()))
                 .thenReturn(environment.getAssetAdministrationShells());
         GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
         final AtomicReference<GetAllAssetAdministrationShellsResponse> response = new AtomicReference<>();
