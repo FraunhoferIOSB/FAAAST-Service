@@ -47,13 +47,21 @@ public class SetSubmodelElementValueByPathRequestHandler extends RequestHandler<
                     .extend(Extend.WithBLOBValue)
                     .build());
             ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
-            ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
-            ElementValueMapper.setValue(submodelElement, newValue);
 
-            persistence.put(null, reference, submodelElement);
+            if (request.getValueParser() != null) {
+                ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
+                ElementValueMapper.setValue(submodelElement, newValue);
 
-            response.setStatusCode(StatusCode.Success);
-            publishValueChangeEventMessage(reference, oldValue, newValue);
+                writeValueToAssetConnection(reference, newValue);
+                persistence.put(null, reference, submodelElement);
+
+                response.setStatusCode(StatusCode.Success);
+                publishValueChangeEventMessage(reference, oldValue, newValue);
+            }
+            else {
+                throw new RuntimeException("Value parser of request must be non-null");
+            }
+
         }
         catch (ResourceNotFoundException ex) {
             response.setStatusCode(StatusCode.ClientErrorResourceNotFound);

@@ -20,11 +20,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
+import java.util.Objects;
 
 
 public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSubmodelElementByPathRequest, GetSubmodelElementByPathResponse> {
@@ -40,9 +43,22 @@ public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSu
         try {
             Reference reference = Util.toReference(request.getPath());
             SubmodelElement submodelElement = persistence.get(reference, request.getOutputModifier());
+            ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
+
+            //read value from AssetConnection if one exist
+            //and update value in persistence if differs
+            ElementValue valueFromAssetConnection = readDataElementValueFromAssetConnection(reference);
+            if (valueFromAssetConnection != null
+                    && !Objects.equals(valueFromAssetConnection, oldValue)) {
+                submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection);
+                persistence.put(null, reference, submodelElement);
+                publishElementUpdateEventMessage(reference, submodelElement);
+            }
+
             response.setPayload(submodelElement);
             response.setStatusCode(StatusCode.Success);
             publishElementReadEventMessage(reference, submodelElement);
+
         }
         catch (ResourceNotFoundException ex) {
             response.setStatusCode(StatusCode.ClientErrorResourceNotFound);

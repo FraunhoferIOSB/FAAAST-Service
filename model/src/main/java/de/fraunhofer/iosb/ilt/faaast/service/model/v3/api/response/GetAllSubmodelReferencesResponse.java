@@ -15,11 +15,35 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseResponseWithPayload;
-import io.adminshell.aas.v3.model.Identifier;
+import io.adminshell.aas.v3.model.Reference;
 import java.util.List;
 
 
 /**
  * Chapter 4.2.4
  */
-public class GetAllSubmodelReferencesResponse extends BaseResponseWithPayload<List<Identifier>> {}
+public class GetAllSubmodelReferencesResponse extends BaseResponseWithPayload<List<Reference>> {
+    public static GetAllSubmodelReferencesResponse.Builder builder() {
+        return new GetAllSubmodelReferencesResponse.Builder();
+    }
+
+    public static class Builder extends AbstractBuilder<GetAllSubmodelReferencesResponse, GetAllSubmodelReferencesResponse.Builder> {
+
+        @Override
+        protected GetAllSubmodelReferencesResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public GetAllSubmodelReferencesResponse.Builder payload(List<Reference> value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected GetAllSubmodelReferencesResponse newBuildingInstance() {
+            return new GetAllSubmodelReferencesResponse();
+        }
+    }
+}

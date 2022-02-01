@@ -39,7 +39,7 @@ public class GetAllAssetAdministrationShellsByIdShortRequestHandler
     public GetAllAssetAdministrationShellsByIdShortResponse process(GetAllAssetAdministrationShellsByIdShortRequest request) {
         GetAllAssetAdministrationShellsByIdShortResponse response = new GetAllAssetAdministrationShellsByIdShortResponse();
         try {
-            List<AssetAdministrationShell> shells = persistence.get(request.getIdShort(), (AssetIdentification) null, request.getOutputModifier());
+            List<AssetAdministrationShell> shells = persistence.get(request.getIdShort(), (List<AssetIdentification>) null, request.getOutputModifier());
             response.setPayload(shells);
             response.setStatusCode(StatusCode.Success);
             if (shells != null) {

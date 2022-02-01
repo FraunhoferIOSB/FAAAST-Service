@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.PutSubmodelRe
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 
 
@@ -49,7 +50,9 @@ public class PutSubmodelRequestHandler extends RequestHandler<PutSubmodelRequest
             submodel = (Submodel) persistence.put(request.getSubmodel());
             response.setPayload(submodel);
             response.setStatusCode(StatusCode.Success);
-            publishElementUpdateEventMessage(AasUtils.toReference(submodel), submodel);
+            Reference reference = AasUtils.toReference(submodel);
+            readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
+            publishElementUpdateEventMessage(reference, submodel);
         }
         catch (ResourceNotFoundException ex) {
             response.setStatusCode(StatusCode.ClientErrorResourceNotFound);

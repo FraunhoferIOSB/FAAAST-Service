@@ -22,5 +22,27 @@ import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
  * Chapter 7.2.3
  */
 public class GetAllAssetLinksByIdResponse extends BaseResponseWithPayload<IdentifierKeyValuePair> {
+    public static GetAllAssetLinksByIdResponse.Builder builder() {
+        return new GetAllAssetLinksByIdResponse.Builder();
+    }
 
+    public static class Builder extends AbstractBuilder<GetAllAssetLinksByIdResponse, GetAllAssetLinksByIdResponse.Builder> {
+
+        @Override
+        protected GetAllAssetLinksByIdResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public GetAllAssetLinksByIdResponse.Builder payload(IdentifierKeyValuePair value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected GetAllAssetLinksByIdResponse newBuildingInstance() {
+            return new GetAllAssetLinksByIdResponse();
+        }
+    }
 }

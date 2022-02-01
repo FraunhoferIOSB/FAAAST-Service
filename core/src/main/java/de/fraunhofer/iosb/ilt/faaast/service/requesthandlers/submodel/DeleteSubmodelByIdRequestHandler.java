@@ -42,6 +42,7 @@ public class DeleteSubmodelByIdRequestHandler extends RequestHandler<DeleteSubmo
             Submodel submodel = (Submodel) persistence.get(request.getId(), new QueryModifier());
             persistence.remove(request.getId());
             response.setStatusCode(StatusCode.Success);
+            //TODO: Delete AssetConnections of underlying submodel elements?
             publishElementDeleteEventMessage(AasUtils.toReference(submodel), submodel);
         }
         catch (ResourceNotFoundException ex) {

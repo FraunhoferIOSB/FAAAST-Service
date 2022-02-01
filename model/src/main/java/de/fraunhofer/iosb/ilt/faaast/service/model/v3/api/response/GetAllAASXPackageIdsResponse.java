@@ -23,5 +23,27 @@ import java.util.List;
  * Chapter 4.5.2
  */
 public class GetAllAASXPackageIdsResponse extends BaseResponseWithPayload<List<PackageDescription>> {
+    public static GetAllAASXPackageIdsResponse.Builder builder() {
+        return new GetAllAASXPackageIdsResponse.Builder();
+    }
 
+    public static class Builder extends AbstractBuilder<GetAllAASXPackageIdsResponse, GetAllAASXPackageIdsResponse.Builder> {
+
+        @Override
+        protected GetAllAASXPackageIdsResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public GetAllAASXPackageIdsResponse.Builder payload(List<PackageDescription> value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected GetAllAASXPackageIdsResponse newBuildingInstance() {
+            return new GetAllAASXPackageIdsResponse();
+        }
+    }
 }

@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model;
 
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
@@ -81,5 +82,37 @@ public class SpecificAssetIdentification implements AssetIdentification {
     @Override
     public int hashCode() {
         return Objects.hash(key, value);
+    }
+
+
+    public static GlobalAssetIdentification.Builder builder() {
+        return new GlobalAssetIdentification.Builder();
+    }
+
+    public static abstract class AbstractBuilder<T extends SpecificAssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+        public B key(String value) {
+            getBuildingInstance().setKey(value);
+            return getSelf();
+        }
+
+
+        public B value(String value) {
+            getBuildingInstance().setValue(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<SpecificAssetIdentification, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected SpecificAssetIdentification newBuildingInstance() {
+            return new SpecificAssetIdentification();
+        }
     }
 }

@@ -17,8 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.utils.ElementPathUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.utils.EncodingUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
@@ -74,6 +72,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutSubmodelEle
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.ConceptDescription;

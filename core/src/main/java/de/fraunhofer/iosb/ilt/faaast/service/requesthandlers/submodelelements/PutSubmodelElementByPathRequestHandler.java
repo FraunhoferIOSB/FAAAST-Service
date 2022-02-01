@@ -23,11 +23,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.PutSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
+import java.util.Objects;
 
 
 public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
@@ -44,14 +47,23 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
             Reference reference = Util.toReference(request.getPath());
 
             //Check if submodelelement does exist
-            SubmodelElement submodelElement = persistence.get(reference, new QueryModifier.Builder()
+            SubmodelElement currentSubmodelElement = persistence.get(reference, new QueryModifier.Builder()
                     .extend(Extend.WithoutBLOBValue)
                     .level(Level.Core)
                     .build());
-            submodelElement = persistence.put(null, reference, request.getSubmodelElement());
-            response.setPayload(submodelElement);
+            SubmodelElement newSubmodelElement = request.getSubmodelElement();
+
+            ElementValue oldValue = ElementValueMapper.toValue(currentSubmodelElement);
+            ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
+            currentSubmodelElement = persistence.put(null, reference, newSubmodelElement);
+            response.setPayload(currentSubmodelElement);
             response.setStatusCode(StatusCode.Success);
-            publishElementUpdateEventMessage(reference, submodelElement);
+
+            if (!Objects.equals(oldValue, newValue)) {
+                writeValueToAssetConnection(reference, ElementValueMapper.toValue(currentSubmodelElement));
+            }
+
+            publishElementUpdateEventMessage(reference, currentSubmodelElement);
         }
         catch (ResourceNotFoundException ex) {
             response.setStatusCode(StatusCode.ClientErrorResourceNotFound);

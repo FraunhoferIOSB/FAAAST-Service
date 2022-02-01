@@ -21,5 +21,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseResponse;
  * Chapter 6.4.9
  */
 public class DeleteConceptDescriptionByIdResponse extends BaseResponse {
+    public static DeleteConceptDescriptionByIdResponse.Builder builder() {
+        return new DeleteConceptDescriptionByIdResponse.Builder();
+    }
 
+    public static class Builder extends AbstractBuilder<DeleteConceptDescriptionByIdResponse, DeleteConceptDescriptionByIdResponse.Builder> {
+
+        @Override
+        protected DeleteConceptDescriptionByIdResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected DeleteConceptDescriptionByIdResponse newBuildingInstance() {
+            return new DeleteConceptDescriptionByIdResponse();
+        }
+    }
 }

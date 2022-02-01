@@ -70,15 +70,17 @@ public interface Persistence<T extends PersistenceConfig> extends Configurable<T
      *
      * @param idShort of the AssetAdministrationShells which should be considered. This parameter is optional and may be
      *            null<br>
-     * @param assetId Global asset id (use GlobalAssetIdentification.class) which refers to AssetInformation/globalAssetId
+     * @param assetIds A List of Global asset ids (use GlobalAssetIdentification.class) which refers to
+     *            AssetInformation/globalAssetId
      *            of a shell
-     *            or a specific asset id (use SpecificAssetIdentification.class) which refers to IdentifierKeyValuePair/key
+     *            and specific asset ids (use SpecificAssetIdentification.class) which refers to IdentifierKeyValuePair/key
      *            of a shell.
+     *            The given asset ids are combined with a logical "or".
      *            This parameter is optional and may be null<br>
      * @param modifier QueryModifier to define Level and Extent of the query<br>
      * @return List of AssetAdministrationShells
      */
-    public List<AssetAdministrationShell> get(String idShort, AssetIdentification assetId, QueryModifier modifier);
+    public List<AssetAdministrationShell> get(String idShort, List<AssetIdentification> assetIds, QueryModifier modifier);
 
 
     /**
