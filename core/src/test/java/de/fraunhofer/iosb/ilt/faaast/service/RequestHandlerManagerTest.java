@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.AASSimple;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationHandle;
@@ -33,7 +34,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllAssetAd
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.AASSimple;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;

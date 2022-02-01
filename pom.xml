@@ -54,6 +54,7 @@
         <milo.version>0.6.3</milo.version>
         <mockito.version>4.3.1</mockito.version>
         <paho.version>1.2.5</paho.version>
+        <plugin.jar.version>3.1.1</plugin.jar.version>
         <plugin.jib.version>3.2.0</plugin.jib.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <revision>1.0.0-SNAPSHOT</revision>
