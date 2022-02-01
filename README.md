@@ -101,6 +101,7 @@ maven package
 
 <!-- HOW TO DEVELOP -->
 ## Develop
+### Spotless
 The project uses *spotless:check* in the build cycle, which means the project only compiles if all code, *.pom and *.xml files are formatted according to the project's codestyle definitions (see details on [spotless](https://github.com/diffplug/spotless)).
 You can automatically format your code by running
 
@@ -109,6 +110,9 @@ You can automatically format your code by running
 Additionally, you can import the eclipse formating rules defined in */codestyle* into our IDE.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+### Licenses
+> mvn license:aggregate-third-party-report
 
 
 <!-- ROADMAP -->
