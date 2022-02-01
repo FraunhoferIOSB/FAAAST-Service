@@ -44,6 +44,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.TestUt
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.assetconnection.TestAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.assetconnection.TestOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
@@ -653,6 +654,115 @@ public class OpcUaEndpointFullTest {
         Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
         Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
         Assert.assertTrue("testAddProperty Browse Result Good", bpres[0].getStatusCode().isGood());
+    }
+
+
+    /**
+     * Test method for deleting a complete submodel.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws Exception If the operation fails
+     */
+    @Test
+    public void testDeleteSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("testDeleteSubmodel: client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        // make sure the element exists
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_SUBMODEL_5_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        // add more elements to the browse path
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.IDENTIFICATION_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "Id")));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testDeleteSubmodel Browse Result Null", bpres);
+        Assert.assertTrue("testDeleteSubmodel Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertTrue("testDeleteSubmodel Browse Result 1 Good", bpres[0].getStatusCode().isGood());
+        Assert.assertTrue("testDeleteSubmodel Browse Result 2 Good", bpres[1].getStatusCode().isGood());
+
+        // Send event to MessageBus
+        ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
+        msg.setElement(new DefaultReference.Builder()
+                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("https://acplt.org/Test_Submodel2_Mandatory").build())
+                .build());
+        service.getMessageBus().publish(msg);
+
+        Thread.sleep(DEFAULT_TIMEOUT);
+
+        // check that the element is not there anymore
+        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testDeleteSubmodel Browse Result Null", bpres);
+        Assert.assertTrue("testDeleteSubmodel Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertTrue("testDeleteSubmodel Browse Result 1 Bad", bpres[0].getStatusCode().isBad());
+        Assert.assertTrue("testDeleteSubmodel Browse Result 2 Bad", bpres[1].getStatusCode().isBad());
+    }
+
+
+    /**
+     * Test method for deleting a Capability.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws Exception If the operation fails
+     */
+    @Test
+    public void testDeleteCapability() throws SecureIdentityException, IOException, ServiceException, Exception {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("testDeleteCapability: client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        // make sure the element exists
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_SUBMODEL_7_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_CAPABILITY_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        // add more elements to the browse path
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.CATEGORY_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testDeleteCapability Browse Result Null", bpres);
+        Assert.assertTrue("testDeleteCapability Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertTrue("testDeleteCapability Browse Result 1 Good", bpres[0].getStatusCode().isGood());
+        Assert.assertTrue("testDeleteCapability Browse Result 2 Good", bpres[1].getStatusCode().isGood());
+
+        // Send event to MessageBus
+        ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
+        msg.setElement(new DefaultReference.Builder()
+                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("https://acplt.org/Test_Submodel_Template").build())
+                .key(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.CAPABILITY).value(TestDefines.FULL_CAPABILITY_NAME).build())
+                .build());
+        service.getMessageBus().publish(msg);
+
+        Thread.sleep(DEFAULT_TIMEOUT);
+
+        // check that the element is not there anymore
+        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testDeleteCapability Browse Result Null", bpres);
+        Assert.assertTrue("testDeleteCapability Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertTrue("testDeleteCapability Browse Result 1 Bad", bpres[0].getStatusCode().isBad());
+        Assert.assertTrue("testDeleteCapability Browse Result 2 Bad", bpres[1].getStatusCode().isBad());
     }
 
 

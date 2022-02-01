@@ -48,6 +48,7 @@ public class TestDefines {
     public static final String FULL_SUBMODEL_2_NAME = "BillOfMaterial";
     public static final String FULL_SUBMODEL_3_NAME = "TestSubmodel3";
     public static final String FULL_SUBMODEL_4_NAME = "Test_Submodel_Mandatory";
+    public static final String FULL_SUBMODEL_5_NAME = "Test_Submodel2_Mandatory";
     public static final String FULL_SUBMODEL_6_NAME = "TestSubmodel6";
     public static final String FULL_SUBMODEL_7_NAME = "TestSubmodel7";
     public static final String FULL_REL_ELEMENT_NAME = "ExampleRelationshipElement";
@@ -57,6 +58,7 @@ public class TestDefines {
     public static final String FULL_SMEC_RANGE_NAME = "ExampleRange";
     public static final String FULL_OPERATION_NAME = "ExampleOperation";
     public static final String FULL_ENTITY2_NAME = "ExampleEntity2";
+    public static final String FULL_CAPABILITY_NAME = "ExampleCapability";
 
     public static final String MODELING_KIND_NAME = "ModelingKind";
     public static final String CATEGORY_NAME = "Category";

@@ -4335,6 +4335,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 if (referableMap.containsKey(element)) {
                     parent = referableMap.get(element);
                 }
+                else {
+                    logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(element));
+                }
             }
             catch (Exception ex2) {
                 logger.warn("referableMap problem", ex2);
@@ -4414,14 +4417,41 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      *
      * @param element Reference to the deleted element.
      * @param value The element that was deleted.
+     * @throws StatusException If the operation fails
      */
-    private void elementDeleted(Reference element, Referable value) {
+    private void elementDeleted(Reference element, Referable value) throws StatusException {
         if (element == null) {
             throw new IllegalArgumentException("element is null");
         }
 
-        logger.info("elementDeleted not implemented!");
-        // TODO: implement
+        //logger.info("elementDeleted not implemented!");
+        try {
+            // The element is the parent object where the value is added
+            ObjectData parent = null;
+            try {
+                referableMapLock.lock();
+                if (referableMap.containsKey(element)) {
+                    parent = referableMap.get(element);
+                }
+                else {
+                    logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(element));
+                }
+            }
+            catch (Exception ex2) {
+                logger.warn("referableMap problem", ex2);
+            }
+            finally {
+                referableMapLock.unlock();
+            }
+
+            if (parent != null) {
+                deleteNode(parent.getNode(), true, true);
+            }
+        }
+        catch (Throwable ex) {
+            logger.error("elementDeleted Exception", ex);
+            throw ex;
+        }
     }
 
 
