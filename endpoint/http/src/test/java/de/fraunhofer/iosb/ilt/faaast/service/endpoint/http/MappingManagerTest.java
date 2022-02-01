@@ -17,8 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.utils.ElementPathUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.utils.EncodingUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
