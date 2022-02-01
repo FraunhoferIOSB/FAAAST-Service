@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.aastests.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
