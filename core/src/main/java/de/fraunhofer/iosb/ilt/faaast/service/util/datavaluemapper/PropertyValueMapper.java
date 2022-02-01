@@ -15,28 +15,37 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.ValueFormatException;
 import io.adminshell.aas.v3.model.Property;
 
 
 public class PropertyValueMapper extends DataValueMapper<Property, PropertyValue> {
 
     @Override
-    public PropertyValue toDataElementValue(Property submodelElement) {
+    public PropertyValue toValue(Property submodelElement) {
         if (submodelElement == null) {
             return null;
         }
         PropertyValue propertyValue = new PropertyValue();
-        propertyValue.setValue(submodelElement.getValue());
+        try {
+            propertyValue.setValue(TypedValueFactory.create(submodelElement.getValueType(), submodelElement.getValue()));
+        }
+        catch (ValueFormatException ex) {
+            // TODO properly throw?
+            throw new RuntimeException("invalid data value");
+        }
         return propertyValue;
     }
 
 
     @Override
-    public Property setDataElementValue(Property submodelElement, PropertyValue value) {
+    public Property setValue(Property submodelElement, PropertyValue value) {
         if (submodelElement == null || value == null) {
             return null;
         }
-        submodelElement.setValue(value.getValue());
+        submodelElement.setValueType(value.getValue().getDataType().getName());
+        submodelElement.setValue(value.getValue().asString());
         return submodelElement;
     }
 

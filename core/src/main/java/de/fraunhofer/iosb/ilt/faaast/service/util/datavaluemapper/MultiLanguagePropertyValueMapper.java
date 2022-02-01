@@ -23,7 +23,7 @@ import java.util.HashSet;
 public class MultiLanguagePropertyValueMapper extends DataValueMapper<MultiLanguageProperty, MultiLanguagePropertyValue> {
 
     @Override
-    public MultiLanguagePropertyValue toDataElementValue(MultiLanguageProperty submodelElement) {
+    public MultiLanguagePropertyValue toValue(MultiLanguageProperty submodelElement) {
         if (submodelElement == null) {
             return null;
         }
@@ -36,7 +36,7 @@ public class MultiLanguagePropertyValueMapper extends DataValueMapper<MultiLangu
 
 
     @Override
-    public MultiLanguageProperty setDataElementValue(MultiLanguageProperty submodelElement, MultiLanguagePropertyValue value) {
+    public MultiLanguageProperty setValue(MultiLanguageProperty submodelElement, MultiLanguagePropertyValue value) {
         if (submodelElement == null || value == null) {
             return null;
         }

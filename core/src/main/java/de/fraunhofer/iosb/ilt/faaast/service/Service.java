@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class Service {
+
     private static Logger logger = LoggerFactory.getLogger(Service.class);
     private AssetAdministrationShellEnvironment aasEnvironment;
     private AssetConnectionManager assetConnectionManager;
@@ -44,7 +45,12 @@ public class Service {
     private Persistence persistence;
     private RequestHandlerManager requestHandler;
 
-    public Service(CoreConfig coreConfig, AssetAdministrationShellEnvironment aasEnvironment, Persistence persistence, MessageBus messageBus, List<Endpoint> endpoints) {
+    public Service(CoreConfig coreConfig,
+            AssetAdministrationShellEnvironment aasEnvironment,
+            Persistence persistence,
+            MessageBus messageBus,
+            List<Endpoint> endpoints,
+            List<AssetConnection> assetConnections) throws ConfigurationException {
         if (coreConfig == null) {
             throw new IllegalArgumentException("coreConfig must be non-null");
         }
@@ -58,7 +64,11 @@ public class Service {
             throw new IllegalArgumentException("messageBus must be non-null");
         }
         if (endpoints == null) {
-            throw new IllegalArgumentException("endpoints must be non-null");
+            this.endpoints = new ArrayList<>();
+            logger.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
+        }
+        else {
+            this.endpoints = endpoints;
         }
         this.aasEnvironment = aasEnvironment;
         this.config = ServiceConfig.builder()
@@ -66,7 +76,7 @@ public class Service {
                 .build();
         this.persistence = persistence;
         this.messageBus = messageBus;
-        this.endpoints = endpoints;
+        this.assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections);
         this.requestHandler = new RequestHandlerManager(this.config.getCore(), this.persistence, this.messageBus, this.assetConnectionManager);
     }
 
