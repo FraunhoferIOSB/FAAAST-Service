@@ -19,6 +19,7 @@ import static org.mockito.Mockito.*;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -29,13 +30,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.*;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.*;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.*;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodel.DeleteSubmodelByIdRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.dataformat.core.AASFull;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.*;
@@ -44,7 +49,9 @@ import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultOperation;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import io.adminshell.aas.v3.model.impl.DefaultRange;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +66,6 @@ public class RequestHandlerManagerTest {
 
     private static final long DEFAULT_TIMEOUT = 1000;
     private static final AssetAdministrationShell AAS = AASFull.AAS_1;
-    private static final String GLOBAL_ASSET_ID = "globalAssetId";
     private static final Submodel SUBMODEL = AASFull.SUBMODEL_1;
     private static final SubmodelElement SUBMODEL_ELEMENT = AASFull.SUBMODEL_1.getSubmodelElements().get(0);
     private static final Reference SUBMODEL_ELEMENT_REF = AasUtils.toReference(AasUtils.toReference(SUBMODEL), SUBMODEL_ELEMENT);
@@ -70,6 +76,7 @@ public class RequestHandlerManagerTest {
     private static Persistence persistence;
     private static AssetConnectionManager assetConnectionManager;
     private static RequestHandlerManager manager;
+    private static AssetValueProvider assetValueProvider;
 
     @Before
     public void createRequestHandlerManager() {
@@ -79,6 +86,8 @@ public class RequestHandlerManagerTest {
         persistence = mock(Persistence.class);
         assetConnectionManager = mock(AssetConnectionManager.class);
         manager = new RequestHandlerManager(coreConfig, persistence, messageBus, assetConnectionManager);
+        assetValueProvider = mock(AssetValueProvider.class);
+        when(assetConnectionManager.getValueProvider(any())).thenReturn(assetValueProvider);
     }
 
 
@@ -333,7 +342,6 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.Success)
                 .build();
         Assert.assertEquals(expected, response);
-        //verify(persistence).remove(environment.getAssetAdministrationShells().get(0).getIdentification());
     }
 
 
@@ -341,6 +349,7 @@ public class RequestHandlerManagerTest {
     public void testGetAllSubmodelsRequest() throws ResourceNotFoundException {
         when(persistence.get(null, (Reference) null, new OutputModifier()))
                 .thenReturn(environment.getSubmodels());
+
         GetAllSubmodelsRequest request = new GetAllSubmodelsRequest.Builder()
                 .outputModifier(new OutputModifier())
                 .build();
@@ -526,17 +535,32 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    public void testGetSubmodelElementByPathRequest() throws ResourceNotFoundException {
-        when(persistence.get(Util.toReference(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF)), new OutputModifier()))
-                .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
+    public void testGetSubmodelElementByPathRequest() throws ResourceNotFoundException, AssetConnectionException {
+        Submodel submodel = environment.getSubmodels().get(0);
+        SubmodelElement cur_submodelElement = new DefaultProperty.Builder()
+                .idShort("testIdShort")
+                .value("testValue")
+                .build();
+        PropertyValue propertyValue = new PropertyValue.Builder().value(new StringValue("test")).build();
+        when(persistence.get(argThat((Reference t) -> true), eq(new OutputModifier())))
+                .thenReturn(cur_submodelElement);
+        when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
+        when(assetValueProvider.getValue()).thenReturn(propertyValue);
+
         GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder()
-                .id(environment.getSubmodels().get(0).getIdentification())
+                .id(submodel.getIdentification())
                 .outputModifier(new OutputModifier())
                 .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
                 .build();
         GetSubmodelElementByPathResponse response = manager.execute(request);
+
+        SubmodelElement expected_submodelElement = new DefaultProperty.Builder()
+                .idShort("testIdShort")
+                .value("test")
+                .valueType("string")
+                .build();
         GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
-                .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
+                .payload(expected_submodelElement)
                 .statusCode(StatusCode.Success)
                 .build();
         Assert.assertEquals(expected, response);
@@ -561,34 +585,48 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    public void testPutSubmodelElementByPathRequest() throws ResourceNotFoundException {
-        when(persistence.put(any(), argThat((Reference t) -> true), any()))
-                .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
+    public void testPutSubmodelElementByPathRequest() throws ResourceNotFoundException, AssetConnectionException {
+        SubmodelElement currentSubmodelElement = new DefaultProperty.Builder()
+                .idShort("TestIdshort")
+                .valueType("string")
+                .value("TestValue")
+                .build();
+        SubmodelElement newSubmodelElement = new DefaultProperty.Builder()
+                .idShort("TestIdshort")
+                .valueType("string")
+                .value("NewTestValue")
+                .build();
         when(persistence.get(argThat((Reference t) -> true), any()))
-                .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
+                .thenReturn(currentSubmodelElement);
+        when(persistence.put(any(), argThat((Reference t) -> true), any()))
+                .thenReturn(newSubmodelElement);
+        when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
+
         PutSubmodelElementByPathRequest request = new PutSubmodelElementByPathRequest.Builder()
                 .id(environment.getSubmodels().get(0).getIdentification())
-                .submodelElement(environment.getSubmodels().get(0).getSubmodelElements().get(0))
-                .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .submodelElement(newSubmodelElement)
                 .build();
         PutSubmodelElementByPathResponse response = manager.execute(request);
         PutSubmodelElementByPathResponse expected = new PutSubmodelElementByPathResponse.Builder()
-                .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
+                .payload(newSubmodelElement)
                 .statusCode(StatusCode.Success)
                 .build();
         Assert.assertEquals(expected, response);
+        verify(assetValueProvider).setValue(ElementValueMapper.toValue(newSubmodelElement));
     }
 
 
     @Test
-    public void testSetSubmodelElementValueByPathRequest() throws ResourceNotFoundException {
+    public void testSetSubmodelElementValueByPathRequest() throws ResourceNotFoundException, AssetConnectionException {
         when(persistence.get((Reference) any(), any()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
+        when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
+        PropertyValue propertyValue = new PropertyValue.Builder()
+                .value(new StringValue("Test"))
+                .build();
         SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest.Builder<ElementValue>()
                 .id(environment.getSubmodels().get(0).getIdentification())
-                .value(new PropertyValue.Builder()
-                        .value(new StringValue("Test"))
-                        .build())
+                .value(propertyValue)
                 .valueParser(new ElementValueParser<ElementValue>() {
                     @Override
                     public <U extends ElementValue> U parse(ElementValue raw, Class<U> type) {
@@ -603,6 +641,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.Success)
                 .build();
         Assert.assertEquals(expected, response);
+        verify(assetValueProvider).setValue(propertyValue);
     }
 
 
@@ -619,7 +658,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.Success)
                 .build();
         Assert.assertEquals(expected, response);
-        //verify(persistence).remove(environment.getSubmodels().get(0).getIdentification());
+        verify(persistence).remove(Util.toReference(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF)));
     }
 
 
@@ -865,8 +904,6 @@ public class RequestHandlerManagerTest {
         verify(persistence).remove(environment.getConceptDescriptions().get(0).getIdentification());
     }
 
-    //---------------------------------------------- Async?
-
 
     @Test
     public void testGetAllAssetAdministrationShellRequestAsync() throws InterruptedException {
@@ -879,4 +916,104 @@ public class RequestHandlerManagerTest {
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         Assert.assertEquals(environment.getAssetAdministrationShells(), response.get().getPayload());
     }
+
+
+    @Test
+    public void testReadValueFromAssetConnection() throws AssetConnectionException {
+        RequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(persistence, messageBus, assetConnectionManager);
+        PropertyValue expected = new PropertyValue.Builder()
+                .value(new StringValue("test"))
+                .build();
+        when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
+        when(assetValueProvider.getValue()).thenReturn(expected);
+        DataElementValue actual = requestHandler.readDataElementValueFromAssetConnection(new DefaultReference());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testWriteValueToAssetConnection() throws AssetConnectionException {
+        RequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(persistence, messageBus, assetConnectionManager);
+        PropertyValue expected = new PropertyValue.Builder()
+                .value(new StringValue("test"))
+                .build();
+        when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
+        requestHandler.writeValueToAssetConnection(new DefaultReference(), expected);
+        verify(assetValueProvider).setValue(expected);
+    }
+
+
+    @Test
+    public void testReadValueFromAssetConnectionAndUpdatePersistence() throws AssetConnectionException, ResourceNotFoundException {
+        RequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(persistence, messageBus, assetConnectionManager);
+        Reference parentRef = new DefaultReference.Builder()
+                .key(new DefaultKey.Builder()
+                        .value("sub")
+                        .idType(KeyType.IRI)
+                        .type(KeyElements.SUBMODEL)
+                        .build())
+                .build();
+        SubmodelElement prop1 = new DefaultProperty.Builder()
+                .idShort("prop1")
+                .value("test")
+                .valueType("string")
+                .build();
+        SubmodelElement range = new DefaultRange.Builder()
+                .idShort("range1")
+                .max("1.0")
+                .min("0")
+                .valueType("double")
+                .build();
+        SubmodelElement prop2 = new DefaultProperty.Builder()
+                .idShort("prop2")
+                .value("test")
+                .valueType("string")
+                .build();
+        SubmodelElementCollection collection = new DefaultSubmodelElementCollection.Builder()
+                .idShort("col1")
+                .value(prop2)
+                .build();
+
+        SubmodelElement prop1_new = new DefaultProperty.Builder()
+                .idShort("prop1")
+                .value("testNew")
+                .valueType("string")
+                .build();
+        SubmodelElement range_new = new DefaultRange.Builder()
+                .idShort("range1")
+                .max("1.0")
+                .min("0")
+                .valueType("double")
+                .build();
+        SubmodelElement prop2_new = new DefaultProperty.Builder()
+                .idShort("prop2")
+                .value("testNew")
+                .valueType("string")
+                .build();
+
+        List<SubmodelElement> submodelElements = List.of(prop1, range, collection);
+
+        AssetValueProvider provider_prop1 = mock(AssetValueProvider.class);
+        AssetValueProvider provider_prop2 = mock(AssetValueProvider.class);
+        AssetValueProvider provider_range1 = mock(AssetValueProvider.class);
+        when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
+
+        //mock value prop1
+        when(assetConnectionManager.getValueProvider(AasUtils.toReference(parentRef, prop1))).thenReturn(provider_prop1);
+        when(provider_prop1.getValue()).thenReturn(ElementValueMapper.toValue(prop1_new));
+        //mock value prop2
+        when(assetConnectionManager.getValueProvider(AasUtils.toReference(AasUtils.toReference(parentRef, collection), prop2))).thenReturn(provider_prop2);
+        when(provider_prop2.getValue()).thenReturn(ElementValueMapper.toValue(prop2_new));
+        //mock value range
+        when(assetConnectionManager.getValueProvider(AasUtils.toReference(parentRef, range))).thenReturn(provider_range1);
+        when(provider_range1.getValue()).thenReturn(ElementValueMapper.toValue(range_new));
+
+        requestHandler.readValueFromAssetConnectionAndUpdatePersistence(parentRef, submodelElements);
+        verify(persistence).put(null, AasUtils.toReference(parentRef, prop1), prop1_new);
+        verify(persistence).put(null, AasUtils.toReference(AasUtils.toReference(parentRef, collection), prop2), prop2_new);
+        Assert.assertEquals(prop1_new, prop1);
+        Assert.assertEquals(prop2_new, prop2);
+        Assert.assertEquals(range_new, range);
+    }
+
 }

@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
@@ -27,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
@@ -288,6 +286,10 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
     public void readValueFromAssetConnectionAndUpdatePersistence(Reference parentReference, List<SubmodelElement> submodelElements)
             throws ResourceNotFoundException, AssetConnectionException {
 
+        if (parentReference == null || submodelElements == null) {
+            return;
+        }
+
         for (SubmodelElement x: submodelElements) {
             Reference reference = AasUtils.toReference(parentReference, x);
             if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
@@ -299,17 +301,23 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
 
             }
             if (this.assetConnectionManager.hasValueProvider(reference)) {
-                SubmodelElement submodelElement = this.persistence.get(reference,
-                        new QueryModifier.Builder()
-                                .extend(Extend.WithBLOBValue)
-                                .build());
-                ElementValue currentValue = ElementValueMapper.toValue(submodelElement);
+                ElementValue currentValue = ElementValueMapper.toValue(x);
                 ElementValue assetValue = this.assetConnectionManager.getValueProvider(reference).getValue();
-                if (!Objects.equals(assetValue, currentValue)) {
-                    submodelElement = ElementValueMapper.setValue(submodelElement, assetValue);
-                    submodelElement = persistence.put(null, reference, submodelElement);
-                    publishElementUpdateEventMessage(reference, submodelElement);
+
+                try {
+                    if (currentValue != null && assetValue != null && !currentValue.getClass().isAssignableFrom(assetValue.getClass())) {
+                        throw new RuntimeException("Types are incompatible - " + currentValue.getClass().getSimpleName() + " -- " + assetValue.getClass().getSimpleName());
+                    }
+                    if (!Objects.equals(assetValue, currentValue)) {
+                        x = ElementValueMapper.setValue(x, assetValue);
+                        x = persistence.put(null, reference, x);
+                        publishElementUpdateEventMessage(reference, x);
+                    }
                 }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
         }
     }

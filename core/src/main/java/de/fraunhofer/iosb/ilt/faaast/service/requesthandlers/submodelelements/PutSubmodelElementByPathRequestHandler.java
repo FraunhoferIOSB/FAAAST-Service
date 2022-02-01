@@ -47,21 +47,23 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
             Reference reference = Util.toReference(request.getPath());
 
             //Check if submodelelement does exist
-            SubmodelElement submodelElement = persistence.get(reference, new QueryModifier.Builder()
+            SubmodelElement currentSubmodelElement = persistence.get(reference, new QueryModifier.Builder()
                     .extend(Extend.WithoutBLOBValue)
                     .level(Level.Core)
                     .build());
-            ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
-            ElementValue newValue = ElementValueMapper.toValue(request.getSubmodelElement());
-            submodelElement = persistence.put(null, reference, request.getSubmodelElement());
-            response.setPayload(submodelElement);
+            SubmodelElement newSubmodelElement = request.getSubmodelElement();
+
+            ElementValue oldValue = ElementValueMapper.toValue(currentSubmodelElement);
+            ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
+            currentSubmodelElement = persistence.put(null, reference, newSubmodelElement);
+            response.setPayload(currentSubmodelElement);
             response.setStatusCode(StatusCode.Success);
 
             if (!Objects.equals(oldValue, newValue)) {
-                writeValueToAssetConnection(reference, ElementValueMapper.toValue(submodelElement));
+                writeValueToAssetConnection(reference, ElementValueMapper.toValue(currentSubmodelElement));
             }
 
-            publishElementUpdateEventMessage(reference, submodelElement);
+            publishElementUpdateEventMessage(reference, currentSubmodelElement);
         }
         catch (ResourceNotFoundException ex) {
             response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
