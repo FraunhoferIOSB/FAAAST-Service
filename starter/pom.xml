@@ -20,6 +20,71 @@
             <artifactId>core</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>endpoint-http</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>messagebus-internal</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>model</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>persistence-memory</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.admin-shell.aas</groupId>
+            <artifactId>dataformat-aasx</artifactId>
+            <version>${aas.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.admin-shell.aas</groupId>
+            <artifactId>dataformat-aml</artifactId>
+            <version>${aas.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.admin-shell.aas</groupId>
+            <artifactId>dataformat-core</artifactId>
+            <version>${aas.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.admin-shell.aas</groupId>
+            <artifactId>dataformat-json</artifactId>
+            <version>${aas.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.admin-shell.aas</groupId>
+            <artifactId>dataformat-jsonld</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.admin-shell.aas</groupId>
+            <artifactId>dataformat-rdf</artifactId>
+            <version>${aas.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.admin-shell.aas</groupId>
+            <artifactId>dataformat-uanodeset</artifactId>
+            <version>${aas.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.admin-shell.aas</groupId>
+            <artifactId>dataformat-xml</artifactId>
+            <version>${aas.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -31,7 +96,9 @@
                     <to>
                         <image>${container.image.name}:${container.image.tag}</image>
                         <auth>
+                            <!--suppress UnresolvedMavenProperty -->
                             <username>${env.DOCKER_USERNAME}</username>
+                            <!--suppress UnresolvedMavenProperty -->
                             <password>${env.DOCKER_TOKEN}</password>
                         </auth>
                     </to>

@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.MappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseResponseWithPayload;
@@ -41,7 +40,7 @@ import org.eclipse.jetty.server.handler.ErrorHandler;
  * passes them to the service and expects a response object which is streamed as
  * json response to the http client
  */
-public class HttpEndpoint implements Endpoint<EndpointConfig> {
+public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
     private static final int DEFAULT_PORT = 8081;
     private Server server;
@@ -50,7 +49,7 @@ public class HttpEndpoint implements Endpoint<EndpointConfig> {
     Handler handler;
 
     @Override
-    public void init(CoreConfig core, EndpointConfig config) {}
+    public void init(CoreConfig core, HttpEndpointConfig config) {}
 
 
     public HttpEndpoint() {
@@ -102,7 +101,7 @@ public class HttpEndpoint implements Endpoint<EndpointConfig> {
 
 
     @Override
-    public EndpointConfig asConfig() {
+    public HttpEndpointConfig asConfig() {
         return null;
     }
 

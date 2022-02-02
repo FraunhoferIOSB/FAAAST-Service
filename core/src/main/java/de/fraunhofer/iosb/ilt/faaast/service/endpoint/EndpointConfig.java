@@ -26,6 +26,27 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ExtendableBuilder;
  */
 public class EndpointConfig<T extends Endpoint> extends Config<T> {
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        return true;
+    }
+
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+
     /**
      * Abstract builder class that should be used for builders of inheriting classes.
      * 

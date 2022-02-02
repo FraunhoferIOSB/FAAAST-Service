@@ -1,0 +1,14 @@
+{
+  "core" : {
+    "requestHandlerThreadPoolSize" : 99
+  },
+  "endpoints" : [ {
+    "@class" : "changeMe"
+  } ],
+  "persistence" : {
+    "@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+  },
+  "messageBus" : {
+    "@class" : "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
+  }
+}

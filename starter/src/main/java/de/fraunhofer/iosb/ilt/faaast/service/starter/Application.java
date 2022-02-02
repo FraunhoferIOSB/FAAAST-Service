@@ -14,9 +14,30 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
+import de.fraunhofer.iosb.ilt.faaast.service.Service;
+import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
+import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import org.apache.commons.cli.CommandLine;
+
+
 public class Application {
 
-    public static void main(String[] args) {
-        String foo = "bar";
+    public static final String DEFAULT_CONFIG_PATH = "/config.json";
+
+    public static void main(String[] args) throws Exception {
+        CommandLine cmd = CommandLineFactory.setCommandLineOptions(args);
+        cmd.getOptionProperties(CommandLineFactory.CMD_ENVIRONMENT_PARAMETER).forEach((x, y) -> print("Apply Config parameter: " + x.toString() + " = " + y.toString()));
+
+        ServiceConfig config = ConfigFactory.getServiceConfig(cmd);
+        AssetAdministrationShellEnvironment environment = AASEnvironmentFactory.getAASEnvironment(cmd);
+        Service service = new Service(config);
+        service.setAASEnvironment(environment);
+        service.start();
     }
+
+
+    protected static void print(String msg) {
+        System.out.println("[FA³ST] " + msg);
+    }
+
 }
