@@ -59,7 +59,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     private int requestCounter;
 
     /**
-     * Constructs a new OpcUaEndpoint
+     * Creates a new instance of OpcUaEndpoint
      */
     public OpcUaEndpoint() {
         aasEnvironment = null;
@@ -163,7 +163,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
 
     /**
-     * Writes the Value of the given Property into the service.
+     * Writes the Value of the given SubmodelElement into the service.
      *
      * @param element The desired SubmodelElement including the new value
      * @param submodel The corresponding submodel

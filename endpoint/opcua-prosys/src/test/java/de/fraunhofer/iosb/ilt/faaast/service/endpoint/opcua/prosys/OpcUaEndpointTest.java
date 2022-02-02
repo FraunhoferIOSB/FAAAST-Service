@@ -101,6 +101,12 @@ public class OpcUaEndpointTest {
     private static TestService service;
     private static int aasns;
 
+    /**
+     * Initialize and start the test.
+     * 
+     * @throws ConfigurationException If the operation fails
+     * @throws Exception If the operation fails
+     */
     @BeforeClass
     public static void startTest() throws ConfigurationException, Exception {
 
@@ -118,6 +124,9 @@ public class OpcUaEndpointTest {
     }
 
 
+    /**
+     * Stop the test.
+     */
     @AfterClass
     public static void stopTest() {
         logger.trace("stopTest");

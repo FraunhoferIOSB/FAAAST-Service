@@ -30,7 +30,7 @@ public class SubmodelElementData {
     private final Reference reference;
 
     /**
-     * Constructs a new SubmodelElementData
+     * Creates a new instance of SubmodelElementData
      * 
      * @param submodelElement The desired SubmodelElement
      * @param submodel The desired Submodel
@@ -76,7 +76,7 @@ public class SubmodelElementData {
 
 
     /**
-     * Gets the reference
+     * Gets the reference.
      * 
      * @return The reference
      */
@@ -85,7 +85,7 @@ public class SubmodelElementData {
     }
 
     /**
-     * The type of the data value
+     * The type of the data value.
      */
     public enum Type {
         PROPERTY_VALUE,

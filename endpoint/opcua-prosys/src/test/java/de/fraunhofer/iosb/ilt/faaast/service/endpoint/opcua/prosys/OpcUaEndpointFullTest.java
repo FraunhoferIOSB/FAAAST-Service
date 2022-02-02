@@ -95,6 +95,11 @@ public class OpcUaEndpointFullTest {
     private static TestService service;
     private static int aasns;
 
+    /**
+     * Initialize and start the test.
+     * 
+     * @throws Exception If the operation fails
+     */
     @BeforeClass
     public static void startTest() throws Exception {
 
@@ -123,6 +128,9 @@ public class OpcUaEndpointFullTest {
     }
 
 
+    /**
+     * Stop the test.
+     */
     @AfterClass
     public static void stopTest() {
         logger.trace("stopTest");

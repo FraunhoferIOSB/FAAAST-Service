@@ -28,7 +28,7 @@ public class OpcUaElementValueParser implements ElementValueParser {
     private static final Logger logger = LoggerFactory.getLogger(OpcUaElementValueParser.class);
 
     /**
-     * Constructs a new OpcUaElementValueParser
+     * Creates a new instance of OpcUaElementValueParser
      */
     public OpcUaElementValueParser() {}
 

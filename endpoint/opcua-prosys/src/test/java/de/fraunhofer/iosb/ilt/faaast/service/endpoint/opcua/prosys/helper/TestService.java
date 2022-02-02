@@ -38,7 +38,7 @@ public class TestService extends Service {
     //private MessageBusInternal messageBus;
 
     /**
-     * Constructs a new TestService
+     * Creates a new instance of TestService
      *
      * @param endpoint
      * @param assetConnection The desired AssetConnection

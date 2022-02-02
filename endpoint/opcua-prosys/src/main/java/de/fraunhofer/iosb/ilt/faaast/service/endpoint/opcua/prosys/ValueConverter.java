@@ -71,7 +71,6 @@ public class ValueConverter {
      */
     public ValueConverter() {}
 
-
     //    /**
     //     * Converts a value from the OPC UA type (DataValue) to its corresponding AAS Service Type (ValueDataType)
     //     * @param dv The OPC UA value to convert
@@ -263,6 +262,8 @@ public class ValueConverter {
     //        
     //        return retval;
     //    }
+
+
     /**
      * Converts the AAS DataTypeDef into the corresponding OPC UA type (NodeId)
      *
@@ -609,7 +610,7 @@ public class ValueConverter {
 
 
     /**
-     * Gets a LocalizedText array from an AAS Lang String Set
+     * Gets a LocalizedText array from an AAS LangString Set.
      *
      * @param value The desired AAS Lang String
      * @return The corresponding LocalizedText array
@@ -635,7 +636,7 @@ public class ValueConverter {
 
 
     /**
-     * Gets AAS Lang String Set from a LocalizedText array.
+     * Gets AAS LangString Set from a LocalizedText array.
      * 
      * @param value The desired Lang String Set
      * @return The corresponding LocalizedText array
@@ -662,7 +663,7 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given KeyElements value to AASKeyElementsDataType
+     * Converts the given KeyElements value to the corresponding AASKeyElementsDataType
      *
      * @param keyElement The desired KeyElements value.
      * @return The converted AASKeyElementsDataType.
@@ -786,6 +787,12 @@ public class ValueConverter {
     }
 
 
+    /**
+     * Converts the given AASKeyElementsDataType to the corresponding KeyElements
+     * 
+     * @param value The desired AASKeyElementsDataType
+     * @return The corresponding KeyElements type
+     */
     public static KeyElements getKeyElements(AASKeyElementsDataType value) {
         KeyElements retval = null;
 
@@ -1003,7 +1010,7 @@ public class ValueConverter {
 
 
     /**
-     * Sets the given value in the given SubmodelElement.
+     * Sets the desired value in the given SubmodelElement.
      * 
      * @param data The desired SubmodelElementData.
      * @param dv The desired Value.
@@ -1014,7 +1021,7 @@ public class ValueConverter {
 
 
     /**
-     * Sets the given value in the given SubmodelElement.
+     * Sets the desired value in the given SubmodelElement.
      * 
      * @param submodelElement The desired SubmodelElement.
      * @param type The desired type.
@@ -1103,7 +1110,7 @@ public class ValueConverter {
      * 
      * @param inputVariables The desired inputVariables.
      * @param inputArguments The desired inputArguments
-     * @throws StatusException
+     * @throws StatusException If the operation fails
      */
     public static void setOperationValues(List<OperationVariable> inputVariables, Variant[] inputArguments) throws StatusException {
         if (inputArguments.length < inputVariables.size()) {
@@ -1158,7 +1165,7 @@ public class ValueConverter {
 
 
     /**
-     * Gerts the corresponding value from a given SubmodelElement
+     * Gets the corresponding variant value from a given SubmodelElement
      * 
      * @param submodelElement The desired SubmodelElement
      * @param type The desired type

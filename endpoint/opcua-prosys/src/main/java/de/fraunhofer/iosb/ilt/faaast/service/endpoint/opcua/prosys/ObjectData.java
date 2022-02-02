@@ -40,7 +40,7 @@ public class ObjectData {
     private final Submodel submodel;
 
     /**
-     * Constructs a new ObjectData
+     * Creates a new instance of ObjectData.
      * 
      * @param referable The Referable
      * @param node The OPC UA Node
@@ -53,7 +53,7 @@ public class ObjectData {
 
 
     /**
-     * Constructs a new ObjectData
+     * Creates a new instance of ObjectData.
      * 
      * @param referable The Referable
      * @param node The OPC UA Node
