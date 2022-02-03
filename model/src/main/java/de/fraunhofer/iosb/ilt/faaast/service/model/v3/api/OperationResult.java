@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api;
 
 import io.adminshell.aas.v3.model.OperationVariable;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,6 +28,12 @@ public class OperationResult {
     private List<OperationVariable> inoutputArguments;
     private Result executionResult;
     private ExecutionState executionState;
+
+    public OperationResult() {
+        this.outputArguments = new ArrayList<>();
+        this.inoutputArguments = new ArrayList<>();
+    }
+
 
     public String getRequestId() {
         return requestId;
@@ -92,5 +100,56 @@ public class OperationResult {
     @Override
     public int hashCode() {
         return Objects.hash(requestId, outputArguments, inoutputArguments, executionResult, executionState);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private static abstract class AbstractBuilder<T extends OperationResult, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B requestId(String value) {
+            getBuildingInstance().setRequestId(value);
+            return getSelf();
+        }
+
+
+        public B outputArguments(List<OperationVariable> value) {
+            getBuildingInstance().setOutputArguments(value);
+            return getSelf();
+        }
+
+
+        public B inoutputArguments(List<OperationVariable> value) {
+            getBuildingInstance().setInoutputArguments(value);
+            return getSelf();
+        }
+
+
+        public B executionResult(Result value) {
+            getBuildingInstance().setExecutionResult(value);
+            return getSelf();
+        }
+
+
+        public B executionState(ExecutionState value) {
+            getBuildingInstance().setExecutionState(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<OperationResult, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected OperationResult newBuildingInstance() {
+            return new OperationResult();
+        }
     }
 }

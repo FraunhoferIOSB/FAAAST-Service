@@ -14,11 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service;
 
-import io.adminshell.aas.v3.model.Referable;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
 import io.adminshell.aas.v3.model.Reference;
 
 
 public interface ServiceContext {
 
-    public Class<? extends Referable> getElementType(Reference reference);
+    public TypeContext getTypeInfo(Reference reference);
 }

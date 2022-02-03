@@ -1,0 +1,63 @@
+name: Deploy to Maven Central
+
+on:
+  push:
+    tags:
+    - "v[0-9]+.[0-9]+.[0-9]+"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up GnuPG
+      env:
+        GPG_EXECUTABLE: gpg
+        GPG_SECRET_KEYS: ${{ secrets.GPG_SECRET_KEYS }}
+        GPG_OWNERTRUST: ${{ secrets.GPG_OWNERTRUST }}
+      run: |
+        mkdir -m 700 ~/.gnupg/
+        echo 'use-agent' > ~/.gnupg/gpg.conf
+        echo 'pinentry-mode loopback' >> ~/.gnupg/gpg.conf
+        echo 'allow-loopback-pinentry' > ~/.gnupg/gpg-agent.conf
+        echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE  --yes --batch --import
+        echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE  --yes --batch --import-ownertrust
+
+    - name: Checkout Source
+      uses: actions/checkout@v2.4.0
+
+    - name: Cache maven repository
+      uses: actions/cache@v2.1.7
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-dpl-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-dpl
+          ${{ runner.os }}-maven
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: 11
+
+    - name: Build and Deploy with Maven
+      env:
+        GPG_EXECUTABLE: gpg
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+      run: mvn -B deploy -P release --settings maven-ci-settings.xml
+
+    - name: Build and Push Docker Images
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+      run: |
+        export VERSION=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
+        # push version x.y.z
+        mvn -B jib:build -pl starter -Dcontainer.image.tag=${VERSION}
+        # push version x.y
+        mvn -B jib:build -pl starter -Dcontainer.image.tag=${VERSION%.*}

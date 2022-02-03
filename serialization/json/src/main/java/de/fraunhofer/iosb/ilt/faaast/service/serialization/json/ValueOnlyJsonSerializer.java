@@ -35,9 +35,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePro
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.mixins.ElementCollectionValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.mixins.PropertyValueMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.mixins.TypedValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer.AnnotatedRelationshipElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer.BlobValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer.EntityValueSerializer;
@@ -61,15 +63,34 @@ import java.util.List;
 
 public class ValueOnlyJsonSerializer {
 
-    private final SerializerWrapper wrapper;
-
-    public JsonMapper getMapper() {
-        return wrapper.getMapper();
+    public static boolean isJreType(Class<?> type) {
+        if (type.getClassLoader() == null || type.getClassLoader().getParent() == null) {
+            return true;
+        }
+        String pkg = type.getPackage().getName();
+        return pkg.startsWith("java.") || pkg.startsWith("com.sun") || pkg.startsWith("sun.");
     }
 
 
+    private static boolean isValueType(Class<?> type) {
+        return DataElement.class.isAssignableFrom(type)
+                || Submodel.class.isAssignableFrom(type)
+                || SubmodelElementCollection.class.isAssignableFrom(type)
+                || ReferenceElement.class.isAssignableFrom(type)
+                || RelationshipElement.class.isAssignableFrom(type)
+                || Entity.class.isAssignableFrom(type)
+                || ElementValue.class.isAssignableFrom(type);
+    }
+
+    private final SerializerWrapper wrapper;
+
     public ValueOnlyJsonSerializer() {
         this.wrapper = new SerializerWrapper(x -> modifyMapper(x));
+    }
+
+
+    public JsonMapper getMapper() {
+        return wrapper.getMapper();
     }
 
 
@@ -105,6 +126,7 @@ public class ValueOnlyJsonSerializer {
         mapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector());
         mapper.addMixIn(PropertyValue.class, PropertyValueMixin.class);
         mapper.addMixIn(ElementCollectionValue.class, ElementCollectionValueMixin.class);
+        mapper.addMixIn(TypedValue.class, TypedValueMixin.class);
         SimpleModule module = new SimpleModule();
         module.addSerializer(MultiLanguagePropertyValue.class, new MultiLanguagePropertyValueSerializer());
         module.addSerializer(ReferenceElementValue.class, new ReferenceElementValueSerializer());
@@ -147,23 +169,4 @@ public class ValueOnlyJsonSerializer {
         });
     }
 
-
-    private static boolean isValueType(Class<?> type) {
-        return DataElement.class.isAssignableFrom(type)
-                || Submodel.class.isAssignableFrom(type)
-                || SubmodelElementCollection.class.isAssignableFrom(type)
-                || ReferenceElement.class.isAssignableFrom(type)
-                || RelationshipElement.class.isAssignableFrom(type)
-                || Entity.class.isAssignableFrom(type)
-                || ElementValue.class.isAssignableFrom(type);
-    }
-
-
-    public static boolean isJreType(Class<?> type) {
-        if (type.getClassLoader() == null || type.getClassLoader().getParent() == null) {
-            return true;
-        }
-        String pkg = type.getPackage().getName();
-        return pkg.startsWith("java.") || pkg.startsWith("com.sun") || pkg.startsWith("sun.");
-    }
 }

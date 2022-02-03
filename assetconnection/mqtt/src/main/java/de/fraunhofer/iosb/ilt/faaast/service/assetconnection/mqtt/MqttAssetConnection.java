@@ -16,11 +16,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentParserFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentDeserializerFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentSerializerFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
-import io.adminshell.aas.v3.model.DataElement;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +68,7 @@ public class MqttAssetConnection
         this.config = config;
         this.context = context;
         try {
-            client = new MqttClient(config.getServerURI(), config.getClientID(), new MemoryPersistence());
+            client = new MqttClient(config.getServerUri(), config.getClientId(), new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);
 
@@ -132,8 +132,12 @@ public class MqttAssetConnection
                     if (!(value instanceof PropertyValue)) {
                         throw new AssetConnectionException(String.format("unsupported value (%s)", value.getClass().getSimpleName()));
                     }
-                    client.publish(valueProviderConfig.getTopic(), new MqttMessage(
-                            (((PropertyValue) value).getValue().getBytes())));
+                    client.publish(
+                            valueProviderConfig.getTopic(),
+                            new MqttMessage(ContentSerializerFactory
+                                    .create(valueProviderConfig.getContentFormat())
+                                    .write(value, valueProviderConfig.getQuery())
+                                    .getBytes()));
                 }
                 catch (MqttException ex) {
                     throw new AssetConnectionException("writing value via MQTT asset connection failed", ex);
@@ -161,25 +165,11 @@ public class MqttAssetConnection
 
                     @Override
                     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
-                        String mqttValue = new String(mqttMessage.getPayload());
-                        Class elementType = context.getElementType(reference);
-                        if (!DataElement.class.isAssignableFrom(elementType)) {
-                            throw new AssetConnectionException(String.format("unsupported submodel element type (%s)", elementType.getSimpleName()));
-                        }
-
-                        DataElementValue newValue;
-                        if (subscriptionProviderConfig.getQuery().isBlank()) {
-                            newValue = ContentParserFactory
-                                    .create(subscriptionProviderConfig.getContentFormat())
-                                    .parseValue(mqttValue, elementType);
-                        }
-                        else {
-                            newValue = ContentParserFactory
-                                    .create(subscriptionProviderConfig.getContentFormat())
-                                    .parseValueWithQuery(mqttValue, elementType, subscriptionProviderConfig.getQuery());
-                        }
-
-                        listener.newDataReceived(newValue);
+                        listener.newDataReceived(ContentDeserializerFactory
+                                .create(subscriptionProviderConfig.getContentFormat())
+                                .read(new String(mqttMessage.getPayload()),
+                                        subscriptionProviderConfig.getQuery(),
+                                        context.getTypeInfo(reference)));
                     }
 
 

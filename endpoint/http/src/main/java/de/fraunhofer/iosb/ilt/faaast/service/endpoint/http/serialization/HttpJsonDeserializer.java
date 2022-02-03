@@ -20,9 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperatio
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonDeserializer;
 
 
-/**
- * @author jab
- */
 public class HttpJsonDeserializer extends JsonDeserializer {
 
     @Override

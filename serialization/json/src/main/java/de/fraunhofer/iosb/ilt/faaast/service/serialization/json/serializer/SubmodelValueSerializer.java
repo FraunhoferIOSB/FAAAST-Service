@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.IOException;
@@ -39,7 +39,7 @@ public class SubmodelValueSerializer extends StdSerializer<Submodel> {
     public void serialize(Submodel value, JsonGenerator generator, SerializerProvider provider) throws IOException {
         generator.writeStartObject();
         for (SubmodelElement element: value.getSubmodelElements()) {
-            provider.defaultSerializeField(element.getIdShort(), DataElementValueMapper.toDataElement(element), generator);
+            provider.defaultSerializeField(element.getIdShort(), ElementValueMapper.toValue(element), generator);
         }
         generator.writeEndObject();
     }

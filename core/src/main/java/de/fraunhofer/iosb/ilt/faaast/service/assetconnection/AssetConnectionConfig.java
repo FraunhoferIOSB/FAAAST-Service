@@ -28,11 +28,13 @@ import java.util.Objects;
 
 /**
  * Base config class for all AssetConnection implementations/subclasses.
- * 
+ *
  * @param <T> type of the corresponding asset connection
  * @param <V> type of the value providers of the corresponding asset connection
- * @param <O> type of the operation providers of the corresponding asset connection
- * @param <S> type of the subscription providers of the corresponding asset connection
+ * @param <O> type of the operation providers of the corresponding asset
+ *            connection
+ * @param <S> type of the subscription providers of the corresponding asset
+ *            connection
  */
 public class AssetConnectionConfig<T extends AssetConnection, V extends AssetValueProviderConfig, O extends AssetOperationProviderConfig, S extends AssetSubscriptionProviderConfig>
         extends Config<T> {
@@ -57,19 +59,10 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
 
 
     /**
-     * Gets a new builder for this class.
-     * 
-     * @return a new builder for this class
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-
-    /**
      * Gets a map of all operation providers the references they are mapped to
-     * 
-     * @return a map of all operation providers the references they are mapped to
+     *
+     * @return a map of all operation providers the references they are mapped
+     *         to
      */
     public Map<Reference, O> getOperationProviders() {
         return operationProviders;
@@ -78,8 +71,9 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
 
     /**
      * Sets a map of all operation providers the references they are mapped to
-     * 
-     * @param operationProviders map of all operation providers the references they are mapped to
+     *
+     * @param operationProviders map of all operation providers the references
+     *            they are mapped to
      */
     public void setOperationProviders(Map<Reference, O> operationProviders) {
         this.operationProviders = operationProviders;
@@ -87,9 +81,11 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
 
 
     /**
-     * Gets a map of all subscription providers the references they are mapped to
-     * 
-     * @return a map of all subscription providers the references they are mapped to
+     * Gets a map of all subscription providers the references they are mapped
+     * to
+     *
+     * @return a map of all subscription providers the references they are
+     *         mapped to
      */
     public Map<Reference, S> getSubscriptionProviders() {
         return subscriptionProviders;
@@ -97,9 +93,11 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
 
 
     /**
-     * Sets a map of all subscription providers the references they are mapped to
-     * 
-     * @param subscriptionProviders map of all subscription providers the references they are mapped to
+     * Sets a map of all subscription providers the references they are mapped
+     * to
+     *
+     * @param subscriptionProviders map of all subscription providers the
+     *            references they are mapped to
      */
     public void setSubscriptionProviders(Map<Reference, S> subscriptionProviders) {
         this.subscriptionProviders = subscriptionProviders;
@@ -108,7 +106,7 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
 
     /**
      * Gets a map of all value providers the references they are mapped to
-     * 
+     *
      * @return a map of all value providers the references they are mapped to
      */
     public Map<Reference, V> getValueProviders() {
@@ -118,8 +116,9 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
 
     /**
      * Sets a map of all value providers the references they are mapped to
-     * 
-     * @param valueProviders map of all value providers the references they are mapped to
+     *
+     * @param valueProviders map of all value providers the references they are
+     *            mapped to
      */
     public void setValueProviders(Map<Reference, V> valueProviders) {
         this.valueProviders = valueProviders;
@@ -161,12 +160,16 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
     }
 
     /**
-     * Abstract builder class that should be used for builders of inheriting classes.
-     * 
+     * Abstract builder class that should be used for builders of inheriting
+     * classes.
+     *
      * @param <T> type of the asset connection of the config to build
-     * @param <V> type of the value providers of the corresponding asset connection
-     * @param <O> type of the operation providers of the corresponding asset connection
-     * @param <S> type of the subscription providers of the corresponding asset connection
+     * @param <V> type of the value providers of the corresponding asset
+     *            connection
+     * @param <O> type of the operation providers of the corresponding asset
+     *            connection
+     * @param <S> type of the subscription providers of the corresponding asset
+     *            connection
      * @param <C> type of the config to build
      * @param <B> type of this builder, needed for inheritance builder pattern
      */
@@ -212,11 +215,14 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
 
     /**
      * Builder for AssetConnectionConfig class.
-     * 
+     *
      * @param <T> type of the asset connection of the config to build
-     * @param <V> type of the value providers of the corresponding asset connection
-     * @param <O> type of the operation providers of the corresponding asset connection
-     * @param <S> type of the subscription providers of the corresponding asset connection
+     * @param <V> type of the value providers of the corresponding asset
+     *            connection
+     * @param <O> type of the operation providers of the corresponding asset
+     *            connection
+     * @param <S> type of the subscription providers of the corresponding asset
+     *            connection
      */
     public static class Builder<T extends AssetConnection, V extends AssetValueProviderConfig, O extends AssetOperationProviderConfig, S extends AssetSubscriptionProviderConfig>
             extends AbstractBuilder<T, V, O, S, AssetConnectionConfig<T, V, O, S>, Builder<T, V, O, S>> {

@@ -26,9 +26,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,12 @@ public class Service implements ServiceContext {
     private Persistence persistence;
     private RequestHandlerManager requestHandler;
 
-    public Service(CoreConfig coreConfig, AssetAdministrationShellEnvironment aasEnvironment, Persistence persistence, MessageBus messageBus, List<Endpoint> endpoints) {
+    public Service(CoreConfig coreConfig,
+            AssetAdministrationShellEnvironment aasEnvironment,
+            Persistence persistence,
+            MessageBus messageBus,
+            List<Endpoint> endpoints,
+            List<AssetConnection> assetConnections) throws ConfigurationException {
         if (coreConfig == null) {
             throw new IllegalArgumentException("coreConfig must be non-null");
         }
@@ -62,7 +68,11 @@ public class Service implements ServiceContext {
             throw new IllegalArgumentException("messageBus must be non-null");
         }
         if (endpoints == null) {
-            throw new IllegalArgumentException("endpoints must be non-null");
+            this.endpoints = new ArrayList<>();
+            logger.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
+        }
+        else {
+            this.endpoints = endpoints;
         }
         this.aasEnvironment = aasEnvironment;
         this.config = ServiceConfig.builder()
@@ -70,7 +80,7 @@ public class Service implements ServiceContext {
                 .build();
         this.persistence = persistence;
         this.messageBus = messageBus;
-        this.endpoints = endpoints;
+        this.assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         this.requestHandler = new RequestHandlerManager(this.config.getCore(), this.persistence, this.messageBus, this.assetConnectionManager);
     }
 
@@ -93,8 +103,8 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public Class<? extends Referable> getElementType(Reference reference) {
-        return AasUtils.resolve(reference, aasEnvironment).getClass();
+    public TypeContext getTypeInfo(Reference reference) {
+        return TypeExtractor.getTypeContext(AasUtils.resolve(reference, aasEnvironment));
     }
 
 

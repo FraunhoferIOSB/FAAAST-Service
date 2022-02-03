@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
 import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
@@ -26,21 +25,21 @@ import java.util.List;
 
 public class Utils {
 
-    public static Reference createReference(String aasIdentifier, String submodelIdentifier, String submodelElementIdshort, KeyElements submodelElementKeyElement) {
+    public static Reference createReference(String aasIdentifier, String submodelIdentifier, String submodelElementIdshort) {
         List<Key> keyList = new ArrayList<>();
         keyList.add(new DefaultKey.Builder()
                 .idType(KeyType.IRI)
-                .type(KeyElements.ASSET_ADMINISTRATION_SHELL)
+                .type(null)
                 .value(aasIdentifier)
                 .build());
         keyList.add(new DefaultKey.Builder()
                 .idType(KeyType.IRI)
-                .type(KeyElements.SUBMODEL)
+                .type(null)
                 .value(submodelIdentifier)
                 .build());
         keyList.add(new DefaultKey.Builder()
                 .idType(KeyType.ID_SHORT)
-                .type(submodelElementKeyElement)
+                .type(null)
                 .value(submodelElementIdshort)
                 .build());
 
@@ -51,12 +50,11 @@ public class Utils {
     }
 
 
-    public static Reference createReference(String aasIdentifier, String submodelIdentifier, String submodelElementCollectionIdshort, String submodelElementIdshort,
-                                            KeyElements submodelElementKeyElement) {
-        Reference reference = createReference(aasIdentifier, submodelIdentifier, submodelElementCollectionIdshort, KeyElements.SUBMODEL_ELEMENT_COLLECTION);
+    public static Reference createReference(String aasIdentifier, String submodelIdentifier, String submodelElementCollectionIdshort, String submodelElementIdshort) {
+        Reference reference = createReference(aasIdentifier, submodelIdentifier, submodelElementCollectionIdshort);
         reference.getKeys().add(new DefaultKey.Builder()
                 .idType(KeyType.ID_SHORT)
-                .type(submodelElementKeyElement)
+                .type(null)
                 .value(submodelElementIdshort)
                 .build());
         return reference;
@@ -67,12 +65,12 @@ public class Utils {
         List<Key> keyList = new ArrayList<>();
         keyList.add(new DefaultKey.Builder()
                 .idType(KeyType.IRI)
-                .type(KeyElements.ASSET_ADMINISTRATION_SHELL)
+                .type(null)
                 .value(aasIdentifier)
                 .build());
         keyList.add(new DefaultKey.Builder()
                 .idType(KeyType.IRI)
-                .type(KeyElements.SUBMODEL)
+                .type(null)
                 .value(submodelIdentifier)
                 .build());
         return new DefaultReference.Builder()

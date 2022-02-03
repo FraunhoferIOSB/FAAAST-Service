@@ -16,14 +16,44 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
 
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 
-public class RelationshipElementValue extends DataElementValue {
+public class RelationshipElementValue extends ElementValue {
+
+    public static Builder builder() {
+        return new Builder();
+    }
 
     private List<Key> first;
     private List<Key> second;
+
+    public RelationshipElementValue() {
+        this.first = new ArrayList<>();
+        this.second = new ArrayList<>();
+    }
+
+
+    public RelationshipElementValue(List<Key> first, List<Key> second) {
+        this.first = first;
+        this.second = second;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RelationshipElementValue that = (RelationshipElementValue) o;
+        return Objects.equals(first, that.first) && Objects.equals(second, that.second);
+    }
+
 
     public List<Key> getFirst() {
         return first;
@@ -46,26 +76,8 @@ public class RelationshipElementValue extends DataElementValue {
 
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        RelationshipElementValue that = (RelationshipElementValue) o;
-        return Objects.equals(first, that.first) && Objects.equals(second, that.second);
-    }
-
-
-    @Override
     public int hashCode() {
         return Objects.hash(first, second);
-    }
-
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     public static abstract class AbstractBuilder<T extends RelationshipElementValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

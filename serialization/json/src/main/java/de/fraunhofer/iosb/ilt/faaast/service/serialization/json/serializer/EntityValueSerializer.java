@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonFieldNames;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import java.io.IOException;
 import java.util.Map;
@@ -42,14 +43,14 @@ public class EntityValueSerializer extends StdSerializer<EntityValue> {
     public void serialize(EntityValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
         if (value != null) {
             generator.writeStartObject();
-            generator.writeFieldName("statements");
+            generator.writeFieldName(JsonFieldNames.ENTITY_VALUE_STATEMENTS);
             generator.writeStartObject();
             for (Map.Entry<String, ElementValue> annotation: value.getStatements().entrySet()) {
                 provider.defaultSerializeField(annotation.getKey(), annotation.getValue(), generator);
             }
             generator.writeEndObject();
-            generator.writeStringField("entityType", AasUtils.serializeEnumName(value.getEntityType().name()));
-            provider.defaultSerializeField("globalAssetId", ReferenceElementValue.builder()
+            generator.writeStringField(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE, AasUtils.serializeEnumName(value.getEntityType().name()));
+            provider.defaultSerializeField(JsonFieldNames.ENTITY_VALUE_GLOBAL_ASSET_ID, ReferenceElementValue.builder()
                     .keys(value.getGlobalAssetId())
                     .build(), generator);
             generator.writeEndObject();

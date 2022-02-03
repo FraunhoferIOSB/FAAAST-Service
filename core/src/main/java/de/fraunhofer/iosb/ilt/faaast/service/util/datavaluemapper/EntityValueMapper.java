@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.EntityValue;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.Entity;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
@@ -26,26 +26,26 @@ import java.util.stream.Collectors;
 public class EntityValueMapper extends DataValueMapper<Entity, EntityValue> {
 
     @Override
-    public EntityValue toDataElementValue(Entity submodelElement) {
+    public EntityValue toValue(Entity submodelElement) {
         if (submodelElement == null) {
             return null;
         }
         return EntityValue.builder()
                 .entityType(submodelElement.getEntityType())
-                .statements(submodelElement.getStatements().stream().collect(Collectors.toMap(x -> x.getIdShort(), x -> DataElementValueMapper.toDataElement(x))))
+                .statements(submodelElement.getStatements().stream().collect(Collectors.toMap(x -> x.getIdShort(), x -> ElementValueMapper.toValue(x))))
                 .globalAssetId(submodelElement.getGlobalAssetId() != null ? submodelElement.getGlobalAssetId().getKeys() : List.of())
                 .build();
     }
 
 
     @Override
-    public Entity setDataElementValue(Entity submodelElement, EntityValue value) {
+    public Entity setValue(Entity submodelElement, EntityValue value) {
         if (submodelElement == null || value == null) {
             return null;
         }
         for (SubmodelElement statement: submodelElement.getStatements()) {
             if (value.getStatements().containsKey(statement.getIdShort())) {
-                DataElementValueMapper.setDataElementValue(statement, value.getStatements().get(statement.getIdShort()));
+                ElementValueMapper.setValue(statement, value.getStatements().get(statement.getIdShort()));
             }
         }
         submodelElement.setEntityType(value.getEntityType());

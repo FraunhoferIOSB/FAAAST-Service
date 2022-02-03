@@ -15,7 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content;
 
 public enum ContentFormat {
-    PLAIN,
     JSON,
-    XML
+    XML;
+
+    public static ContentFormat DEFAULT = JSON;
 }

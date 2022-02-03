@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementCollectionValue;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.util.stream.Collectors;
@@ -24,26 +24,26 @@ import java.util.stream.Collectors;
 public class ElementCollectionValueMapper extends DataValueMapper<SubmodelElementCollection, ElementCollectionValue> {
 
     @Override
-    public ElementCollectionValue toDataElementValue(SubmodelElementCollection elementCollection) {
+    public ElementCollectionValue toValue(SubmodelElementCollection elementCollection) {
         if (elementCollection == null) {
             return null;
         }
         return ElementCollectionValue.builder()
                 .values(elementCollection.getValues().stream().collect(Collectors.toMap(
                         x -> x.getIdShort(),
-                        x -> DataElementValueMapper.toDataElement(x))))
+                        x -> ElementValueMapper.toValue(x))))
                 .build();
     }
 
 
     @Override
-    public SubmodelElementCollection setDataElementValue(SubmodelElementCollection elementCollection, ElementCollectionValue value) {
+    public SubmodelElementCollection setValue(SubmodelElementCollection elementCollection, ElementCollectionValue value) {
         if (elementCollection == null || value == null) {
             return elementCollection;
         }
         for (SubmodelElement element: elementCollection.getValues()) {
             if (value.getValues().containsKey(element.getIdShort())) {
-                DataElementValueMapper.setDataElementValue(element, value.getValues().get(element.getIdShort()));
+                ElementValueMapper.setValue(element, value.getValues().get(element.getIdShort()));
             }
         }
         return elementCollection;

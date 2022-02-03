@@ -14,16 +14,21 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
+import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class Util {
@@ -49,6 +54,13 @@ public class Util {
     public static KeyElements referableToKeyType(Class<?> clazz) {
         Class<?> aasInterface = ReflectionHelper.getAasInterface(clazz);
         return aasInterface != null ? KeyElements.valueOf(AasUtils.deserializeEnumName(aasInterface.getSimpleName())) : null;
+    }
+
+
+    public static List<ElementValue> toValues(List<OperationVariable> variables) {
+        return variables.stream()
+                .map(x -> ElementValueMapper.<SubmodelElement, ElementValue> toValue(x.getValue()))
+                .collect(Collectors.toList());
     }
 
 }

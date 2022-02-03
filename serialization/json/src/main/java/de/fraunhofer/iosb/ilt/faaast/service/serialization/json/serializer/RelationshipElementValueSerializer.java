@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonFieldNames;
 import java.io.IOException;
 
 
@@ -39,11 +40,11 @@ public class RelationshipElementValueSerializer extends StdSerializer<Relationsh
     public void serialize(RelationshipElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
         if (value != null) {
             generator.writeStartObject();
-            generator.writeFieldName("first");
+            generator.writeFieldName(JsonFieldNames.RELATIONSHIP_ELEMENT_FIRST);
             provider.defaultSerializeValue(ReferenceElementValue.builder()
                     .keys(value.getFirst())
                     .build(), generator);
-            generator.writeFieldName("second");
+            generator.writeFieldName(JsonFieldNames.RELATIONSHIP_ELEMENT_SECOND);
             provider.defaultSerializeValue(ReferenceElementValue.builder()
                     .keys(value.getSecond())
                     .build(), generator);

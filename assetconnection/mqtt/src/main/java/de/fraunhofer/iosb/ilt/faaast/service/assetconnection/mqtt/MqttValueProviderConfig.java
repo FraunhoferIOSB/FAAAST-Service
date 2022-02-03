@@ -15,11 +15,30 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentFormat;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 
 
 public class MqttValueProviderConfig implements AssetValueProviderConfig {
 
+    private ContentFormat contentFormat;
     private String topic;
+    private String query;
+
+    public MqttValueProviderConfig() {
+        this.contentFormat = ContentFormat.DEFAULT;
+    }
+
+
+    public ContentFormat getContentFormat() {
+        return contentFormat;
+    }
+
+
+    public void setContentFormat(ContentFormat contentFormat) {
+        this.contentFormat = contentFormat;
+    }
+
 
     public String getTopic() {
         return topic;
@@ -28,5 +47,54 @@ public class MqttValueProviderConfig implements AssetValueProviderConfig {
 
     public void setTopic(String topic) {
         this.topic = topic;
+    }
+
+
+    public String getQuery() {
+        return query;
+    }
+
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static abstract class AbstractBuilder<T extends MqttValueProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B query(String value) {
+            getBuildingInstance().setQuery(value);
+            return getSelf();
+        }
+
+
+        public B topic(String value) {
+            getBuildingInstance().setTopic(value);
+            return getSelf();
+        }
+
+
+        public B contentFormat(ContentFormat value) {
+            getBuildingInstance().setContentFormat(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<MqttValueProviderConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected MqttValueProviderConfig newBuildingInstance() {
+            return new MqttValueProviderConfig();
+        }
     }
 }

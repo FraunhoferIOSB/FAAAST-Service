@@ -40,7 +40,7 @@ public class PutAssetInformationRequestHandler extends RequestHandler<PutAssetIn
         try {
             AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
             shell.setAssetInformation(request.getAssetInformation());
-            persistence.put(null, shell);
+            persistence.put(shell);
             response.setStatusCode(StatusCode.Success);
             publishElementUpdateEventMessage(AasUtils.toReference(shell), shell);
         }

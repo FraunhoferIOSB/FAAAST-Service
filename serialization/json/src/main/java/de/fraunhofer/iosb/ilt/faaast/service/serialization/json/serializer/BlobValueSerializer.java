@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.BlobValue;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonFieldNames;
 import java.io.IOException;
 import org.codehaus.plexus.util.Base64;
 
@@ -40,9 +41,9 @@ public class BlobValueSerializer extends ModifierAwareSerializer<BlobValue> {
     public void serialize(BlobValue value, JsonGenerator generator, SerializerProvider provider, Level level, Extend extend) throws IOException, JsonProcessingException {
         if (value != null) {
             generator.writeStartObject();
-            generator.writeStringField("mimeType", value.getMimeType());
+            generator.writeStringField(JsonFieldNames.BLOB_VALUE_MIME_TYPE, value.getMimeType());
             if (extend == Extend.WithBLOBValue) {
-                generator.writeStringField("value", new String(Base64.encodeBase64(value.getValue())));
+                generator.writeStringField(JsonFieldNames.BLOB_VALUE_VALUE, new String(Base64.encodeBase64(value.getValue())));
             }
             generator.writeEndObject();
         }

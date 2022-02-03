@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonFieldNames;
 import java.io.IOException;
 import java.util.Map;
 
@@ -41,17 +42,17 @@ public class AnnotatedRelationshipElementValueSerializer extends StdSerializer<A
     public void serialize(AnnotatedRelationshipElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
         if (value != null) {
             generator.writeStartObject();
-            provider.defaultSerializeField("first", ReferenceElementValue.builder()
+            provider.defaultSerializeField(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST, ReferenceElementValue.builder()
                     .keys(value.getFirst())
                     .build(), generator);
-            provider.defaultSerializeField("second", ReferenceElementValue.builder()
+            provider.defaultSerializeField(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND, ReferenceElementValue.builder()
                     .keys(value.getSecond())
                     .build(), generator);
-            generator.writeFieldName("annotation");
+            generator.writeFieldName(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATION);
             generator.writeStartArray();
             for (Map.Entry<String, DataElementValue> annotation: value.getAnnotations().entrySet()) {
                 generator.writeStartObject();
-                provider.defaultSerializeField(annotation.getKey(), annotation.getValue(), generator);
+                generator.writeObjectField(annotation.getKey(), annotation.getValue());
                 generator.writeEndObject();
             }
             generator.writeEndArray();

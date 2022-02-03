@@ -14,20 +14,36 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.ValueFormatException;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 public class PropertyValue extends DataElementValue {
 
-    private String value;
-
-    public String getValue() {
-        return value;
+    public static Builder builder() {
+        return new Builder();
     }
 
 
-    public void setValue(String value) {
+    public static PropertyValue of(String datatype, String value) throws ValueFormatException {
+        return new PropertyValue(TypedValueFactory.create(datatype, value));
+    }
+
+
+    public static PropertyValue of(Datatype datatype, String value) throws ValueFormatException {
+        return new PropertyValue(TypedValueFactory.create(datatype, value));
+    }
+
+    private TypedValue value;
+
+    public PropertyValue() {}
+
+
+    public PropertyValue(TypedValue value) {
         this.value = value;
     }
 
@@ -45,19 +61,24 @@ public class PropertyValue extends DataElementValue {
     }
 
 
+    public TypedValue getValue() {
+        return value;
+    }
+
+
+    public void setValue(TypedValue value) {
+        this.value = value;
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(value);
     }
 
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
     public static abstract class AbstractBuilder<T extends PropertyValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B value(String value) {
+        public B value(TypedValue value) {
             getBuildingInstance().setValue(value);
             return getSelf();
         }

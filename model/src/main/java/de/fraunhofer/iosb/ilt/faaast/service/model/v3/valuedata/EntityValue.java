@@ -24,11 +24,15 @@ import java.util.Map;
 import java.util.Objects;
 
 
-public class EntityValue extends DataElementValue {
+public class EntityValue extends ElementValue {
 
-    private Map<String, ElementValue> statements;
+    public static Builder builder() {
+        return new Builder();
+    }
+
     private EntityType entityType;
     private List<Key> globalAssetId;
+    private Map<String, ElementValue> statements;
 
     public EntityValue() {
         this.statements = new HashMap<>();
@@ -36,13 +40,23 @@ public class EntityValue extends DataElementValue {
     }
 
 
-    public Map<String, ElementValue> getStatements() {
-        return statements;
+    public EntityValue(Map<String, ElementValue> statements, EntityType entityType, List<Key> globalAssetId) {
+        this.statements = statements;
+        this.entityType = entityType;
+        this.globalAssetId = globalAssetId;
     }
 
 
-    public void setStatements(Map<String, ElementValue> statements) {
-        this.statements = statements;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        EntityValue that = (EntityValue) o;
+        return Objects.equals(statements, that.statements) && entityType == that.entityType && Objects.equals(globalAssetId, that.globalAssetId);
     }
 
 
@@ -66,27 +80,19 @@ public class EntityValue extends DataElementValue {
     }
 
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        EntityValue that = (EntityValue) o;
-        return Objects.equals(statements, that.statements) && entityType == that.entityType && Objects.equals(globalAssetId, that.globalAssetId);
+    public Map<String, ElementValue> getStatements() {
+        return statements;
+    }
+
+
+    public void setStatements(Map<String, ElementValue> statements) {
+        this.statements = statements;
     }
 
 
     @Override
     public int hashCode() {
         return Objects.hash(statements, entityType, globalAssetId);
-    }
-
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     public static abstract class AbstractBuilder<T extends EntityValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

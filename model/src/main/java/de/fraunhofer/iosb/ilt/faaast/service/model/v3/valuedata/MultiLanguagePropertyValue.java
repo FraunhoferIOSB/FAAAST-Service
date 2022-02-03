@@ -19,24 +19,30 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class MultiLanguagePropertyValue extends DataElementValue {
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     private Set<LangString> langStringSet;
 
     public MultiLanguagePropertyValue() {
-        this.langStringSet = new HashSet();
+        this.langStringSet = new HashSet<>();
     }
 
 
-    public Set<LangString> getLangStringSet() {
-        return langStringSet;
-    }
-
-
-    public void setLangStringSet(Set<LangString> langStringSet) {
+    public MultiLanguagePropertyValue(Set<LangString> langStringSet) {
         this.langStringSet = langStringSet;
+    }
+
+
+    public MultiLanguagePropertyValue(LangString... langStringSet) {
+        this.langStringSet = Stream.of(langStringSet).collect(Collectors.toSet());
     }
 
 
@@ -53,14 +59,19 @@ public class MultiLanguagePropertyValue extends DataElementValue {
     }
 
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(langStringSet);
+    public Set<LangString> getLangStringSet() {
+        return langStringSet;
     }
 
 
-    public static Builder builder() {
-        return new Builder();
+    public void setLangStringSet(Set<LangString> langStringSet) {
+        this.langStringSet = langStringSet;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(langStringSet);
     }
 
     public static abstract class AbstractBuilder<T extends MultiLanguagePropertyValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

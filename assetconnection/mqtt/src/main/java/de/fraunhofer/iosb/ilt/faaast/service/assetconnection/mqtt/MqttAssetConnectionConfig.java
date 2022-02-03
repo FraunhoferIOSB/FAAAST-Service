@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
+import java.util.Objects;
+import java.util.UUID;
 
 
 /**
@@ -22,25 +24,93 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
  */
 public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetConnection, MqttValueProviderConfig, MqttOperationProviderConfig, MqttSubscriptionProviderConfig> {
 
-    private String serverURI;
-    private String clientID;
+    private String serverUri;
+    private String clientId;
 
-    public String getServerURI() {
-        return serverURI;
+    public MqttAssetConnectionConfig() {
+        clientId = UUID.randomUUID().toString();
     }
 
 
-    public void setServerURI(String serverURI) {
-        this.serverURI = serverURI;
+    public String getServerUri() {
+        return serverUri;
     }
 
 
-    public String getClientID() {
-        return clientID;
+    public void setServerUri(String serverUri) {
+        this.serverUri = serverUri;
     }
 
 
-    public void setClientID(String clientID) {
-        this.clientID = clientID;
+    public String getClientId() {
+        return clientId;
+    }
+
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(serverUri, clientId);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final MqttAssetConnectionConfig other = (MqttAssetConnectionConfig) obj;
+        if (!Objects.equals(this.serverUri, other.serverUri)) {
+            return false;
+        }
+        if (!Objects.equals(this.clientId, other.clientId)) {
+            return false;
+        }
+        return true;
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static abstract class AbstractBuilder<T extends MqttAssetConnectionConfig, B extends AbstractBuilder<T, B>>
+            extends AssetConnectionConfig.AbstractBuilder<MqttAssetConnection, MqttValueProviderConfig, MqttOperationProviderConfig, MqttSubscriptionProviderConfig, T, B> {
+
+        public B clientId(String value) {
+            getBuildingInstance().setClientId(value);
+            return getSelf();
+        }
+
+
+        public B serverUri(String value) {
+            getBuildingInstance().setServerUri(value);
+            return getSelf();
+        }
+
+    }
+
+    public static class Builder extends AbstractBuilder<MqttAssetConnectionConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected MqttAssetConnectionConfig newBuildingInstance() {
+            return new MqttAssetConnectionConfig();
+        }
     }
 }

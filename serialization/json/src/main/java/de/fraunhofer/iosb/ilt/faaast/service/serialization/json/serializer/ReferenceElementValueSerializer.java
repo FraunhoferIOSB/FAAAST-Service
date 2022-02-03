@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonFieldNames;
 import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Key;
@@ -50,15 +51,21 @@ public class ReferenceElementValueSerializer extends StdSerializer<ReferenceElem
                 generator.writeStartArray();
                 for (Key key: value.getKeys()) {
                     generator.writeStartObject();
-                    generator.writeFieldName("type");
+                    generator.writeFieldName(JsonFieldNames.REFERENCE_ELEMENT_VALUE_ID_TYPE);
+                    if (ReflectionHelper.ENUMS.contains(key.getIdType().getClass())) {
+                        generator.writeString(AasUtils.serializeEnumName(key.getIdType().name()));
+                    }
+                    else {
+                        provider.findValueSerializer(Enum.class).serialize(key.getIdType(), generator, provider);
+                    }
+                    generator.writeFieldName(JsonFieldNames.REFERENCE_ELEMENT_VALUE_TYPE);
                     if (ReflectionHelper.ENUMS.contains(key.getType().getClass())) {
                         generator.writeString(AasUtils.serializeEnumName(key.getType().name()));
                     }
                     else {
-                        provider.findValueSerializer(Enum.class).serialize(value, generator, provider);
+                        provider.findValueSerializer(Enum.class).serialize(key.getType(), generator, provider);
                     }
-                    //generator.writeStringField("type", AasUtils.serializeEnumName(key.getType()));
-                    generator.writeStringField("value", key.getValue());
+                    generator.writeStringField(JsonFieldNames.REFERENCE_ELEMENT_VALUE_VALUE, key.getValue());
                     generator.writeEndObject();
                 }
                 generator.writeEndArray();

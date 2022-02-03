@@ -20,11 +20,16 @@ import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 
 public class ReferenceElementValue extends DataElementValue {
+
+    public static Builder builder() {
+        return new Builder();
+    }
 
     private List<Key> keys;
 
@@ -33,13 +38,13 @@ public class ReferenceElementValue extends DataElementValue {
     }
 
 
-    public List<Key> getKeys() {
-        return keys;
+    public ReferenceElementValue(List<Key> keys) {
+        this.keys = keys;
     }
 
 
-    public void setKeys(List<Key> keys) {
-        this.keys = keys;
+    public ReferenceElementValue(Key... keys) {
+        this.keys = Arrays.asList(keys);
     }
 
 
@@ -56,14 +61,19 @@ public class ReferenceElementValue extends DataElementValue {
     }
 
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(keys);
+    public List<Key> getKeys() {
+        return keys;
     }
 
 
-    public static Builder builder() {
-        return new Builder();
+    public void setKeys(List<Key> keys) {
+        this.keys = keys;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(keys);
     }
 
     public static abstract class AbstractBuilder<T extends ReferenceElementValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
