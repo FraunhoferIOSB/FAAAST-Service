@@ -219,7 +219,7 @@
                     <!-- Text with the output list of all licenses. Just contains the list of projects and websites, does not contain the copyright notices -->
                     <licensesOutputFile>${root.basedir}/documentation/third_party_licenses_report/licenses-generated.xml</licensesOutputFile>
                     <!-- Folder with an output dump of all license text. Usually they contain the license template (for APL2) but not the copyright notices. -->
-                    <licensesOutputDirectory>${root.basedir}/documentation/third_party_licenses</licensesOutputDirectory>
+                    <licensesOutputDirectory>${project.basedir}/documentation/third_party_licenses</licensesOutputDirectory>
                     <licenseMerges>
                         <licenseMerge>Apache Software License, Version 2.0|The Apache Software License, Version 2.0|Apache License, Version 2.0|Apache Public License 2.0|Apache License Version 2.0</licenseMerge>
                         <licenseMerge>Apache Software License, Version 2.0|Apache 2.0|Apache2.0|Apache License 2.0|Apache Software License - Version 2.0</licenseMerge>
