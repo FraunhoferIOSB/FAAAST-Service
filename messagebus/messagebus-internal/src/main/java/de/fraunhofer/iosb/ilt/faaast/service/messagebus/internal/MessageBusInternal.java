@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
@@ -58,7 +59,7 @@ public class MessageBusInternal implements MessageBus<MessageBusInternalConfig>,
      *            class
      */
     @Override
-    public void init(CoreConfig coreConfig, MessageBusInternalConfig config) {
+    public void init(CoreConfig coreConfig, MessageBusInternalConfig config, ServiceContext context) {
         running.set(false);
     }
 

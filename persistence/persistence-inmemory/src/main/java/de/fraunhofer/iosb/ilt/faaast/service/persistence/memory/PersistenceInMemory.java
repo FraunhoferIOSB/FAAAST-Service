@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
@@ -57,7 +58,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     private final PackagePersistenceManager packagePersistenceManager = new PackagePersistenceManager();
 
     @Override
-    public void init(CoreConfig coreConfig, PersistenceInMemoryConfig config) {
+    public void init(CoreConfig coreConfig, PersistenceInMemoryConfig config, ServiceContext context) {
 
     }
 

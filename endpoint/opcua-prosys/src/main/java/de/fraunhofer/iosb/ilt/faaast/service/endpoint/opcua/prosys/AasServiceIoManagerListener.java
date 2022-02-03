@@ -265,9 +265,9 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                 Property aasProp = (Property) nodeManager.getAasSubmodelElement(nodeId);
                 if (aasProp != null) {
                     String newValue = dv.getValue().getValue().toString();
-                    PropertyValue pv = new PropertyValue();
-                    pv.setValue(newValue);
-                    endpoint.writeValue(aasProp, pv);
+                    // TODO potentially check type?
+                    PropertyValue newPropertyValue = PropertyValue.of(aasProp.getValueType(), newValue);
+                    endpoint.writeValue(aasProp, newPropertyValue);
                 }
             }
         }

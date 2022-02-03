@@ -23,6 +23,10 @@ import java.util.Objects;
 
 public class RelationshipElementValue extends ElementValue {
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     private List<Key> first;
     private List<Key> second;
 
@@ -35,6 +39,19 @@ public class RelationshipElementValue extends ElementValue {
     public RelationshipElementValue(List<Key> first, List<Key> second) {
         this.first = first;
         this.second = second;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RelationshipElementValue that = (RelationshipElementValue) o;
+        return Objects.equals(first, that.first) && Objects.equals(second, that.second);
     }
 
 
@@ -59,26 +76,8 @@ public class RelationshipElementValue extends ElementValue {
 
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        RelationshipElementValue that = (RelationshipElementValue) o;
-        return Objects.equals(first, that.first) && Objects.equals(second, that.second);
-    }
-
-
-    @Override
     public int hashCode() {
         return Objects.hash(first, second);
-    }
-
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     public static abstract class AbstractBuilder<T extends RelationshipElementValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

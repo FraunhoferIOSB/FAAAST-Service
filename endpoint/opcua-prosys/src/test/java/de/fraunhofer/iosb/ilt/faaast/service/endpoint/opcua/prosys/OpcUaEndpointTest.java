@@ -41,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
@@ -92,7 +93,7 @@ public class OpcUaEndpointTest {
         config.setTcpPort(OPC_TCP_PORT);
 
         endpoint = new OpcUaEndpoint();
-        endpoint.init(coreConfig, config);
+        endpoint.init(coreConfig, config, service);
         service = new TestService(endpoint, false);
         endpoint.setService(service);
         service.start();
@@ -265,11 +266,8 @@ public class OpcUaEndpointTest {
         Reference propRef = new DefaultReference.Builder().keys(keys).build();
         ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
         valueChangeMessage.setElement(propRef);
-        PropertyValue propertyValue = new PropertyValue();
-        propertyValue.setValue(oldValue);
-        valueChangeMessage.setOldValue(propertyValue);
-        propertyValue.setValue(newValue);
-        valueChangeMessage.setNewValue(propertyValue);
+        valueChangeMessage.setOldValue(PropertyValue.of(Datatype.String, oldValue));
+        valueChangeMessage.setNewValue(PropertyValue.of(Datatype.String, newValue));
         service.getMessageBus().publish(valueChangeMessage);
         Thread.sleep(100);
 
@@ -330,12 +328,9 @@ public class OpcUaEndpointTest {
 
         ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
         valueChangeMessage.setElement(propRef);
-        PropertyValue propertyValue = new PropertyValue();
-        propertyValue.setValue("5000");
-        valueChangeMessage.setOldValue(propertyValue);
+        valueChangeMessage.setOldValue(PropertyValue.of(Datatype.Int, "5000"));
         String newValue = "5005";
-        propertyValue.setValue(newValue);
-        valueChangeMessage.setNewValue(propertyValue);
+        valueChangeMessage.setNewValue(PropertyValue.of(Datatype.Int, newValue));
         service.getMessageBus().publish(valueChangeMessage);
 
         Thread.sleep(DEFAULT_TIMEOUT);

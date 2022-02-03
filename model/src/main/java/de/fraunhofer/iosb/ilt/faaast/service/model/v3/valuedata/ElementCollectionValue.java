@@ -47,14 +47,14 @@ public class ElementCollectionValue extends DataElementValue {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ElementCollectionValue that = (ElementCollectionValue) o;
-        return Objects.equals(values, that.values);
+        ElementCollectionValue elementCollectionValue = (ElementCollectionValue) o;
+        return Objects.equals(values, elementCollectionValue.values);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), values);
+        return Objects.hash(values);
     }
 
 

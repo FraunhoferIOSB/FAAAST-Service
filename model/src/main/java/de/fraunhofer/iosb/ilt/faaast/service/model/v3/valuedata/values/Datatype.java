@@ -17,13 +17,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values;
 import java.util.stream.Stream;
 
 
+// TODO implement all data types
 public enum Datatype {
     String("string", StringValue.class),
-    //    Boolean,
-    //    Decimal,
-    //    Integer,
+    Boolean("boolean", BooleanValue.class),
+    Decimal("decimal", DecimalValue.class),
+    Integer("integer", IntegerValue.class),
     Double("double", DoubleValue.class),
-    //    Float,
+    Float("float", FloatValue.class),
     //    Date,
     //    Time,
     //    DateTime,
@@ -35,10 +36,10 @@ public enum Datatype {
     //    Duration,
     //    YearMonthDuration,
     //    DayTimeDuration,
-    //    Byte,
-    //    Short,
+    Byte("byte", ByteValue.class),
+    Short("short", ShortValue.class),
     Int("int", IntValue.class),
-    //    Long,
+    Long("long", LongValue.class),
     //    UnsignedByte,
     //    UnsignedShort,
     //    UnsignedInt,
@@ -53,8 +54,17 @@ public enum Datatype {
     //    LangString
     ;
 
-    private final String name;
+    public static final Datatype DEFAULT = Datatype.String;
+
+    public static Datatype fromName(String name) {
+        return Stream.of(Datatype.values())
+                .filter(x -> x.getName().equals(name))
+                .findAny()
+                .orElse(Datatype.String);
+    }
+
     private final Class<? extends TypedValue> implementation;
+    private final String name;
 
     private Datatype(String name, Class<? extends TypedValue> implementation) {
         this.name = name;
@@ -69,14 +79,6 @@ public enum Datatype {
 
     protected Class<? extends TypedValue> getImplementation() {
         return implementation;
-    }
-
-
-    public static Datatype fromName(String name) {
-        return Stream.of(Datatype.values())
-                .filter(x -> x.getName().equals(name))
-                .findAny()
-                .orElse(Datatype.String);
     }
 
 }

@@ -21,10 +21,12 @@ public enum Level {
     Deep,
     Core;
 
+    public static final Level DEFAULT = Level.Core;
+
     public static Level fromString(String value) {
         return Stream.of(Level.values())
                 .filter(x -> x.name().equalsIgnoreCase(value))
                 .findAny()
-                .orElse(Level.Core);
+                .orElse(DEFAULT);
     }
 }

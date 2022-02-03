@@ -15,52 +15,46 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.deser.impl.PropertyValue;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.Serializer;
-import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.mixins.PropertyValueMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer.ModifierAwareSerializer;
+import java.util.function.Consumer;
 
 
-/**
- * @author jab
- */
 public class JsonSerializer implements Serializer {
 
+    private final ValueOnlyJsonSerializer valueOnlySerializer;
     private final SerializerWrapper wrapper;
 
     public JsonSerializer() {
         this.wrapper = new SerializerWrapper();
+        this.valueOnlySerializer = new ValueOnlyJsonSerializer();
+    }
+
+
+    public JsonSerializer(Consumer<JsonMapper> modifier) {
+        this.wrapper = new SerializerWrapper(modifier);
+        this.valueOnlySerializer = new ValueOnlyJsonSerializer();
     }
 
 
     @Override
-    public String write(Object obj, Content content) throws SerializationException {
+    public String write(Object obj, OutputModifier modifier) throws SerializationException {
+        if ((modifier != null && modifier.getContent() == Content.Value)
+                || (obj != null && ElementValue.class.isAssignableFrom(obj.getClass()))) {
+            return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());
+        }
         try {
-            return wrapper.getMapper().writeValueAsString(obj);
+            return wrapper.getMapper().writer()
+                    .withAttribute(ModifierAwareSerializer.LEVEL, modifier)
+                    .writeValueAsString(obj);
         }
         catch (JsonProcessingException ex) {
             throw new SerializationException("serialization failed", ex);
-        }
-    }
-
-
-    protected void modifyMapper(JsonMapper mapper) {
-        mapper.addMixIn(PropertyValue.class, PropertyValueMixin.class);
-    }
-
-    private class SerializerWrapper extends io.adminshell.aas.v3.dataformat.json.JsonSerializer {
-
-        @Override
-        protected void buildMapper() {
-            super.buildMapper();
-            modifyMapper(mapper);
-        }
-
-
-        protected JsonMapper getMapper() {
-            return mapper;
         }
     }
 

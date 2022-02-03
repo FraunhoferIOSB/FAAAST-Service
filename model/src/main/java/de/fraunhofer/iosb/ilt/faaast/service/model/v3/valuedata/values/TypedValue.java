@@ -26,26 +26,10 @@ public abstract class TypedValue<T> {
     }
 
 
-    protected TypedValue() {
-        this.value = getDefaultValue();
-    }
+    protected TypedValue() {}
 
 
-    public abstract void fromString(String value) throws ValueFormatException;
-
-
-    public T getValue() {
-        return value;
-    }
-
-
-    public abstract Datatype getDataType();
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(value);
-    }
+    public abstract String asString();
 
 
     @Override
@@ -64,9 +48,19 @@ public abstract class TypedValue<T> {
     }
 
 
-    protected abstract T getDefaultValue();
+    public abstract void fromString(String value) throws ValueFormatException;
 
 
-    public abstract String asString();
+    public abstract Datatype getDataType();
 
+
+    public T getValue() {
+        return value;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
 }

@@ -27,6 +27,10 @@ import java.util.Objects;
 
 public class ReferenceElementValue extends DataElementValue {
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     private List<Key> keys;
 
     public ReferenceElementValue() {
@@ -44,16 +48,6 @@ public class ReferenceElementValue extends DataElementValue {
     }
 
 
-    public List<Key> getKeys() {
-        return keys;
-    }
-
-
-    public void setKeys(List<Key> keys) {
-        this.keys = keys;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -67,14 +61,19 @@ public class ReferenceElementValue extends DataElementValue {
     }
 
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(keys);
+    public List<Key> getKeys() {
+        return keys;
     }
 
 
-    public static Builder builder() {
-        return new Builder();
+    public void setKeys(List<Key> keys) {
+        this.keys = keys;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(keys);
     }
 
     public static abstract class AbstractBuilder<T extends ReferenceElementValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

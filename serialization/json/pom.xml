@@ -17,6 +17,11 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>core</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>serialization-core</artifactId>
             <version>${revision}</version>
         </dependency>
@@ -24,6 +29,12 @@
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>dataformat-json</artifactId>
             <version>${aas.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <version>${jsonassert.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
