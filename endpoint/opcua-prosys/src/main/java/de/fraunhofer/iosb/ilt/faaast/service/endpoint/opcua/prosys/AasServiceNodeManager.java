@@ -39,6 +39,7 @@ import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Argument;
 import com.prosysopc.ua.stack.core.Identifiers;
+import com.prosysopc.ua.types.opcua.BaseObjectType;
 import com.prosysopc.ua.types.opcua.DictionaryEntryType;
 import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import com.prosysopc.ua.types.opcua.server.FolderTypeNode;
@@ -1247,7 +1248,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
                 setAasReferenceData(ref, nodeRef, readOnly);
 
-                //nodeRef.addReference(nodeRef.getKeysNode().getNodeId(), getNamespaceTable().toNodeId(opc.i4aas.ReferenceTypeIds.AASReference), false);
                 node.addComponent(nodeRef);
 
                 retval = nodeRef;
@@ -4460,6 +4460,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 referableMapLock.lock();
                 if (referableMap.containsKey(element)) {
                     parent = referableMap.get(element);
+
+                    // remove element from the map
+                    referableMap.remove(element);
                 }
                 else {
                     logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(element));
@@ -4473,6 +4476,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
 
             if (parent != null) {
+                removeFromMaps(parent.getNode(), element, parent.getReferable());
                 deleteNode(parent.getNode(), true, true);
             }
         }
@@ -4664,7 +4668,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 setMultiLanguagePropertyValue((AASMultiLanguagePropertyType) node, (MultiLanguagePropertyValue) value);
             }
             else {
-                logger.warn("addAasDataElement: unknown or invalid DataElement or value: " + node.getBrowseName().getName() + "; Class: " + node.getClass() + "; Value Class: "
+                logger.warn("setDataElementValue: unknown or invalid DataElement or value: " + node.getBrowseName().getName() + "; Class: " + node.getClass() + "; Value Class: "
                         + value.getClass());
             }
         }
@@ -4918,26 +4922,313 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     }
 
 
+    /**
+     * Gets the next availabe default NodeId.
+     * 
+     * @return The desired NodeId
+     */
     private NodeId getDefaultNodeId() {
         int nr = ++nodeIdCounter;
         return new NodeId(getNamespaceIndex(), nr);
     }
 
-    //    /**
-    //     * Checks if the given Node is of the desired type.
-    //     * 
-    //     * @param client The OPC UA Client
-    //     * @param node The desired Node
-    //     * @param typeNode The expected type.
-    //     * @throws ServiceException If the operation fails
-    //     * @throws AddressSpaceException If the operation fails
-    //     * @throws ServiceResultException If the operation fails
-    //     */
-    //    private boolean checkType(NodeId node, NodeId typeNode) throws ServiceException, AddressSpaceException, ServiceResultException {
-    //        boolean retval = false;
-    //        UaNode uanode = findNode(node);
-    //        UaReference ref = uanode.getReference(Identifiers.HasTypeDefinition, false);
-    //        retval = typeNode.equals(getNamespaceTable().toNodeId(ref.getTargetId()));
-    //        return retval;
-    //    }
+
+    /**
+     * Removes the given node (and all sub-nodes) from the maps.
+     * 
+     * @param node The desired node
+     * @param reference The reference to the desired SubmodelElement
+     * @param referable The corresponding referable
+     */
+    private void removeFromMaps(BaseObjectType node, Reference reference, Referable referable) {
+        if (node == null) {
+            throw new IllegalArgumentException("node is null");
+        }
+
+        try {
+            if (node instanceof AASSubmodelElementType) {
+                doRemoveFromMaps((AASSubmodelElementType) node, reference, referable);
+            }
+            else if (referable instanceof Submodel) {
+                doRemoveFromMaps(reference, (Submodel) referable);
+            }
+
+            // no special treatment necessary for other types like AssetAdministrationShell, Asset or others
+        }
+        catch (Throwable ex) {
+            // This exception is not thrown here. We ignore the error.
+            logger.error("removeFromMaps Exception", ex);
+        }
+    }
+
+
+    /**
+     * Removes the given SubmodelElement from the maps.
+     * 
+     * @param element The desired SubmodelElement
+     * @param reference The reference to the desired SubmodelElement
+     * @param referable The corresponding referable
+     */
+    private void doRemoveFromMaps(AASSubmodelElementType element, Reference reference, Referable referable) {
+        try {
+            logger.debug("doRemoveFromMaps: remove SubmodelElement " + AasUtils.asString(reference));
+
+            try {
+                submodelElementOpcUAMapLock.lock();
+                if (submodelElementOpcUAMap.containsKey(reference)) {
+                    submodelElementOpcUAMap.remove(reference);
+                    logger.debug("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: " + AasUtils.asString(reference));
+                }
+            }
+            catch (Exception ex3) {
+                logger.warn("submodelElementOpcUAMap problem", ex3);
+            }
+            finally {
+                submodelElementOpcUAMapLock.unlock();
+            }
+
+            if (element instanceof AASPropertyType) {
+                AASPropertyType prop = (AASPropertyType) element;
+                try {
+                    submodelElementAasMapLock.lock();
+                    if (submodelElementAasMap.containsKey(prop.getValueNode().getNodeId())) {
+                        submodelElementAasMap.remove(prop.getValueNode().getNodeId());
+                        logger.debug("doRemoveFromMaps: remove Property NodeId " + prop.getValueNode().getNodeId());
+                    }
+                }
+                catch (Exception ex2) {
+                    logger.warn("submodelElementAasMap problem", ex2);
+                }
+                finally {
+                    submodelElementAasMapLock.unlock();
+                }
+            }
+            else if (element instanceof AASRangeType) {
+                AASRangeType range = (AASRangeType) element;
+                try {
+                    submodelElementAasMapLock.lock();
+                    if (submodelElementAasMap.containsKey(range.getMinNode().getNodeId())) {
+                        submodelElementAasMap.remove(range.getMinNode().getNodeId());
+                        logger.debug("doRemoveFromMaps: remove Range Min NodeId " + range.getMinNode().getNodeId());
+                    }
+
+                    if (submodelElementAasMap.containsKey(range.getMaxNode().getNodeId())) {
+                        submodelElementAasMap.remove(range.getMaxNode().getNodeId());
+                        logger.debug("doRemoveFromMaps: remove Range Max NodeId " + range.getMaxNode().getNodeId());
+                    }
+                }
+                catch (Exception ex2) {
+                    logger.warn("submodelElementAasMap problem", ex2);
+                }
+                finally {
+                    submodelElementAasMapLock.unlock();
+                }
+            }
+            else if (element instanceof AASOperationType) {
+                AASOperationType oper = (AASOperationType) element;
+                try {
+                    submodelElementAasMapLock.lock();
+                    if (submodelElementAasMap.containsKey(oper.getOperationNode().getNodeId())) {
+                        submodelElementAasMap.remove(oper.getOperationNode().getNodeId());
+                        logger.debug("doRemoveFromMaps: remove Operation NodeId " + oper.getOperationNode().getNodeId());
+                    }
+                }
+                catch (Exception ex2) {
+                    logger.warn("submodelElementAasMap problem", ex2);
+                }
+                finally {
+                    submodelElementAasMapLock.unlock();
+                }
+            }
+            else if (element instanceof AASBlobType) {
+                AASBlobType blob = (AASBlobType) element;
+                try {
+                    submodelElementAasMapLock.lock();
+                    if (submodelElementAasMap.containsKey(blob.getValueNode().getNodeId())) {
+                        submodelElementAasMap.remove(blob.getValueNode().getNodeId());
+                        logger.debug("doRemoveFromMaps: remove Blob NodeId " + blob.getValueNode().getNodeId());
+                    }
+                }
+                catch (Exception ex2) {
+                    logger.warn("submodelElementAasMap problem", ex2);
+                }
+                finally {
+                    submodelElementAasMapLock.unlock();
+                }
+            }
+            else if (element instanceof AASMultiLanguagePropertyType) {
+                AASMultiLanguagePropertyType mlp = (AASMultiLanguagePropertyType) element;
+                try {
+                    submodelElementAasMapLock.lock();
+                    if (submodelElementAasMap.containsKey(mlp.getValueNode().getNodeId())) {
+                        submodelElementAasMap.remove(mlp.getValueNode().getNodeId());
+                        logger.debug("doRemoveFromMaps: remove AASMultiLanguageProperty NodeId " + mlp.getValueNode().getNodeId());
+                    }
+                }
+                catch (Exception ex2) {
+                    logger.warn("submodelElementAasMap problem", ex2);
+                }
+                finally {
+                    submodelElementAasMapLock.unlock();
+                }
+            }
+            else if (element instanceof AASReferenceElementType) {
+                AASReferenceElementType refElem = (AASReferenceElementType) element;
+                try {
+                    NodeId nid = refElem.getValueNode().getKeysNode().getNodeId();
+                    submodelElementAasMapLock.lock();
+                    if (submodelElementAasMap.containsKey(nid)) {
+                        submodelElementAasMap.remove(nid);
+                        logger.debug("doRemoveFromMaps: remove AASReferenceElement NodeId " + nid);
+                    }
+                }
+                catch (Exception ex2) {
+                    logger.warn("submodelElementAasMap problem", ex2);
+                }
+                finally {
+                    submodelElementAasMapLock.unlock();
+                }
+            }
+            else if (element instanceof AASRelationshipElementType) {
+                AASRelationshipElementType relElem = (AASRelationshipElementType) element;
+                try {
+                    submodelElementAasMapLock.lock();
+                    NodeId nid = relElem.getFirstNode().getKeysNode().getNodeId();
+                    if (submodelElementAasMap.containsKey(nid)) {
+                        submodelElementAasMap.remove(nid);
+                        logger.debug("doRemoveFromMaps: remove AASRelationshipElement First NodeId " + nid);
+                    }
+
+                    nid = relElem.getSecondNode().getKeysNode().getNodeId();
+                    if (submodelElementAasMap.containsKey(nid)) {
+                        submodelElementAasMap.remove(nid);
+                        logger.debug("doRemoveFromMaps: remove AASRelationshipElement Second NodeId " + nid);
+                    }
+
+                    if (relElem instanceof AASAnnotatedRelationshipElementType) {
+                        if (referable instanceof AnnotatedRelationshipElement) {
+                            AnnotatedRelationshipElement annRelElem = (AnnotatedRelationshipElement) referable;
+                            for (DataElement de: annRelElem.getAnnotations()) {
+                                doRemoveFromMaps(reference, de);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex2) {
+                    logger.warn("submodelElementAasMap problem", ex2);
+                }
+                finally {
+                    submodelElementAasMapLock.unlock();
+                }
+            }
+            else if (element instanceof AASEntityType) {
+                AASEntityType ent = (AASEntityType) element;
+                try {
+                    NodeId nid = ent.getGlobalAssetIdNode().getKeysNode().getNodeId();
+                    submodelElementAasMapLock.lock();
+                    if (submodelElementAasMap.containsKey(nid)) {
+                        submodelElementAasMap.remove(nid);
+                        logger.debug("doRemoveFromMaps: remove Entity GlobalAssetId NodeId " + nid);
+                    }
+
+                    if (submodelElementAasMap.containsKey(ent.getEntityTypeNode().getNodeId())) {
+                        submodelElementAasMap.remove(ent.getEntityTypeNode().getNodeId());
+                        logger.debug("doRemoveFromMaps: remove Entity EntityType NodeId " + ent.getEntityTypeNode().getNodeId());
+                    }
+                }
+                catch (Exception ex2) {
+                    logger.warn("submodelElementAasMap problem", ex2);
+                }
+                finally {
+                    submodelElementAasMapLock.unlock();
+                }
+            }
+            else if (referable instanceof SubmodelElementCollection) {
+                SubmodelElementCollection sec = (SubmodelElementCollection) referable;
+                for (SubmodelElement se: sec.getValues()) {
+                    doRemoveFromMaps(reference, se);
+                }
+            }
+
+            // Capability and File are currently not relevant here
+        }
+        catch (Throwable ex) {
+            logger.error("doRemoveFromMaps Exception", ex);
+            throw ex;
+        }
+    }
+
+
+    /**
+     * Removes the given SubmodelElement from the maps.
+     * 
+     * @param parent The reference to the parent element.
+     * @param de The desired SubmodelElement
+     */
+    private void doRemoveFromMaps(Reference parent, SubmodelElement de) {
+        try {
+            Reference ref = AasUtils.toReference(parent, de);
+            ObjectData element = null;
+            try {
+                referableMapLock.lock();
+                if (referableMap.containsKey(ref)) {
+                    element = referableMap.get(ref);
+
+                    if (element.getNode() instanceof AASSubmodelElementType) {
+                        doRemoveFromMaps((AASSubmodelElementType) element.getNode(), ref, de);
+                    }
+
+                    // remove element from the map
+                    referableMap.remove(ref);
+                }
+                else {
+                    logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(ref));
+                }
+            }
+            catch (Exception ex2) {
+                logger.warn("referableMap problem", ex2);
+            }
+            finally {
+                referableMapLock.unlock();
+            }
+        }
+        catch (Throwable ex) {
+            logger.error("doRemoveFromMaps Exception", ex);
+            throw ex;
+        }
+    }
+
+
+    /**
+     * Removes the given SubmodelElement from the maps.
+     * 
+     * @param reference The reference to the desired submodel.
+     * @param submodel The desired submodel
+     */
+    private void doRemoveFromMaps(Reference reference, Submodel submodel) {
+        try {
+            logger.debug("doRemoveFromMaps: remove submodel " + AasUtils.asString(reference));
+
+            for (SubmodelElement element: submodel.getSubmodelElements()) {
+                doRemoveFromMaps(reference, element);
+            }
+
+            try {
+                submodelOpcUAMapLock.lock();
+                if (submodelOpcUAMap.containsKey(reference)) {
+                    submodelOpcUAMap.remove(reference);
+                }
+            }
+            catch (Exception e2) {
+                logger.error("Error removing from submodelOpcUAMap", e2);
+            }
+            finally {
+                submodelOpcUAMapLock.unlock();
+            }
+        }
+        catch (Throwable ex) {
+            logger.error("doRemoveFromMaps (SM) Exception", ex);
+            throw ex;
+        }
+    }
 }
