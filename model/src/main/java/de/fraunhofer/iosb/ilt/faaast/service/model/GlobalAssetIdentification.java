@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model;
 
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
@@ -59,5 +60,31 @@ public class GlobalAssetIdentification implements AssetIdentification {
     @Override
     public int hashCode() {
         return Objects.hash(reference);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static abstract class AbstractBuilder<T extends GlobalAssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+        public B reference(Reference value) {
+            getBuildingInstance().setReference(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<GlobalAssetIdentification, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected GlobalAssetIdentification newBuildingInstance() {
+            return new GlobalAssetIdentification();
+        }
     }
 }

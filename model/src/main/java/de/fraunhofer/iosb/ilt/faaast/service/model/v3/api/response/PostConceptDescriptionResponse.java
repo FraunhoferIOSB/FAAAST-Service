@@ -22,5 +22,27 @@ import io.adminshell.aas.v3.model.ConceptDescription;
  * Chapter 6.4.7
  */
 public class PostConceptDescriptionResponse extends BaseResponseWithPayload<ConceptDescription> {
+    public static PostConceptDescriptionResponse.Builder builder() {
+        return new PostConceptDescriptionResponse.Builder();
+    }
 
+    public static class Builder extends AbstractBuilder<PostConceptDescriptionResponse, PostConceptDescriptionResponse.Builder> {
+
+        @Override
+        protected PostConceptDescriptionResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public PostConceptDescriptionResponse.Builder payload(ConceptDescription value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected PostConceptDescriptionResponse newBuildingInstance() {
+            return new PostConceptDescriptionResponse();
+        }
+    }
 }

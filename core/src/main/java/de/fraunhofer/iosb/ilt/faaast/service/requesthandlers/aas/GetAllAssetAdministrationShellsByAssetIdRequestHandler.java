@@ -16,11 +16,23 @@ package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.GlobalAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllAssetAdministrationShellsByAssetIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
+import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.AssetAdministrationShell;
+import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
+import io.adminshell.aas.v3.model.KeyElements;
+import io.adminshell.aas.v3.model.KeyType;
+import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.impl.DefaultReference;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
@@ -35,18 +47,33 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
     public GetAllAssetAdministrationShellsByAssetIdResponse process(GetAllAssetAdministrationShellsByAssetIdRequest request) {
         GetAllAssetAdministrationShellsByAssetIdResponse response = new GetAllAssetAdministrationShellsByAssetIdResponse();
         try {
-            //TODO: Unclear what to do here? GetAllAssetAdministrationShellsByAssetIdResponse should have an AssetIdentification attribute
-            //TODO: What about specific asset id?
-            //            GlobalAssetIdentification assetIdentification = new GlobalAssetIdentification();
-            //            assetIdentification.setReference(new DefaultReference.Builder()
-            //                    .key(AasUtils.parseKey(request.getKey()))
-            //                    .build());
-            //            List<AssetAdministrationShell> shells = persistence.get(null, assetIdentification, request.getOutputModifier());
-            //            response.setPayload(shells);
-            //            response.setStatusCode(StatusCode.Success);
-            //            if (shells != null) {
-            //                shells.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
-            //            }
+            List<AssetIdentification> assetIdentifications = new ArrayList<>();
+            List<IdentifierKeyValuePair> identifierKeyValuePairs = request.getAssetIds();
+            for (IdentifierKeyValuePair pair: identifierKeyValuePairs) {
+                AssetIdentification id = null;
+                if (pair.getKey().equalsIgnoreCase("globalAssetId")) {
+                    id = new GlobalAssetIdentification.Builder()
+                            .reference(new DefaultReference.Builder().key(new DefaultKey.Builder()
+                                    .idType(KeyType.IRI)
+                                    .type(KeyElements.GLOBAL_REFERENCE)
+                                    .value(pair.getValue())
+                                    .build())
+                                    .build())
+                            .build();
+                }
+                else {
+                    id = new SpecificAssetIdentification.Builder()
+                            .value(pair.getValue())
+                            .key(pair.getKey())
+                            .build();
+                }
+                assetIdentifications.add(id);
+            }
+
+            List<AssetAdministrationShell> shells = new ArrayList<>(persistence.get(null, assetIdentifications, request.getOutputModifier()));
+            response.setPayload(shells);
+            response.setStatusCode(StatusCode.Success);
+            shells.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

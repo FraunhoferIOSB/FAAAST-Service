@@ -11,12 +11,13 @@
 <p align="center">
 	Easy-to-use Asset Administration Shell Service
 	<br />
-	<a href="https://gitlab-ext.iosb.fraunhofer.de/faaast/service/-/tree/master/documentation"><strong>Explore the docs »</strong></a>
+	<a href="https://github.com/FraunhoferIOSB/FAAAST-Service/tree/main/documentation"><strong>Explore the docs »</strong></a>
 	<br />
-	<a href="https://gitlab-ext.iosb.fraunhofer.de/faaast/service/-/issues">Report Bug</a>
+	<a href="https://github.com/FraunhoferIOSB/FAAAST-Service/issues">Report Bug</a>
 	·
-	<a href="https://gitlab-ext.iosb.fraunhofer.de/faaast/service/-/issues">Request Feature</a>
+	<a href="https://github.com/FraunhoferIOSB/FAAAST-Service/issues">Request Feature</a>
 </p>
+
 </div>
 
 
@@ -82,7 +83,7 @@ This is an example of how to list things you need to use the software and how to
 
 1. Clone the repo
 ```sh
-git clone https://gitlab-ext.iosb.fraunhofer.de/faaast/service.git
+git clone https://github.com/FraunhoferIOSB/FAAAST-Service
 ```
 2. Install
 ```sh
@@ -101,6 +102,7 @@ maven package
 
 <!-- HOW TO DEVELOP -->
 ## Develop
+### Spotless
 The project uses *spotless:check* in the build cycle, which means the project only compiles if all code, *.pom and *.xml files are formatted according to the project's codestyle definitions (see details on [spotless](https://github.com/diffplug/spotless)).
 You can automatically format your code by running
 
@@ -111,11 +113,17 @@ Additionally, you can import the eclipse formating rules defined in */codestyle*
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
+### Third Party License Usage Report
+Generates a report of the licenses used in the subsystems (dependencies).
+The report is stored in the directory ./documentation/third_party_licenses as a html page.
+> mvn license:aggregate-third-party-report
+
+
 <!-- ROADMAP -->
 ## Roadmap
 
 
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/FraunhoferIOSB/FAAAST-Service/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

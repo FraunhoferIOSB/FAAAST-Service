@@ -22,5 +22,27 @@ import io.adminshell.aas.v3.model.SubmodelElement;
  * Chapter 4.3.7
  */
 public class PostSubmodelElementByPathResponse extends BaseResponseWithPayload<SubmodelElement> {
+    public static PostSubmodelElementByPathResponse.Builder builder() {
+        return new PostSubmodelElementByPathResponse.Builder();
+    }
 
+    public static class Builder extends AbstractBuilder<PostSubmodelElementByPathResponse, PostSubmodelElementByPathResponse.Builder> {
+
+        @Override
+        protected PostSubmodelElementByPathResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public PostSubmodelElementByPathResponse.Builder payload(SubmodelElement value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected PostSubmodelElementByPathResponse newBuildingInstance() {
+            return new PostSubmodelElementByPathResponse();
+        }
+    }
 }
