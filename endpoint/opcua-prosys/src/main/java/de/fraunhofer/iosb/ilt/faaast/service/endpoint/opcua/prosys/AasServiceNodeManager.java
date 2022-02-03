@@ -149,7 +149,6 @@ import opc.i4aas.AASReferenceList;
 import opc.i4aas.AASReferenceType;
 import opc.i4aas.AASRelationshipElementType;
 import opc.i4aas.AASSubmodelElementCollectionType;
-import opc.i4aas.AASSubmodelElementList;
 import opc.i4aas.AASSubmodelElementType;
 import opc.i4aas.AASSubmodelType;
 import opc.i4aas.AASValueTypeDataType;
@@ -4003,15 +4002,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 AASAnnotatedRelationshipElementType annotatedElement = (AASAnnotatedRelationshipElementType) aasElement;
                 AnnotatedRelationshipElementValue annotatedValue = (AnnotatedRelationshipElementValue) value;
                 UaNode[] annotationNodes = annotatedElement.getAnnotationNode().getComponents();
-                List<DataElementValue> valueList = annotatedValue.getAnnotation();
-                if (annotationNodes.length != valueList.size()) {
-                    logger.warn("Size of Value (" + valueList.size() + ") doesn't match the number of AnnotationNodes (" + annotationNodes.length + ")");
-                    throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
-                }
-
-                for (int i = 0; i < annotationNodes.length; i++) {
-                    setDataElementValue(annotationNodes[i], valueList.get(i));
-                }
+                // TODO annotatedValue.getAnnotations() now returns Map<String, DataElementValue>
+                // either make use of idShort or ignore and just use .values()
+                //                List<DataElementValue> valueList = annotatedValue.getAnnotation();
+                //                if (annotationNodes.length != valueList.size()) {
+                //                    logger.warn("Size of Value (" + valueList.size() + ") doesn't match the number of AnnotationNodes (" + annotationNodes.length + ")");
+                //                    throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
+                //                }
+                //
+                //                for (int i = 0; i < annotationNodes.length; i++) {
+                //                    setDataElementValue(annotationNodes[i], valueList.get(i));
+                //                }
 
                 DefaultReference ref = new DefaultReference.Builder().keys(value.getFirst()).build();
                 setAasReferenceData(ref, aasElement.getFirstNode());
@@ -4252,21 +4253,23 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
 
             // Statements
-            List<ElementValue> valueList = value.getStatements();
-            AASSubmodelElementList statementNode = entity.getStatementNode();
-            if (statementNode != null) {
-                UaNode[] statementNodes = statementNode.getComponents();
-                if (statementNodes.length != valueList.size()) {
-                    logger.warn("Size of Value (" + valueList.size() + ") doesn't match the number of StatementNodes (" + statementNodes.length + ")");
-                    throw new IllegalArgumentException("Size of Value doesn't match the number of StatementNodes");
-                }
-
-                for (int i = 0; i < valueList.size(); i++) {
-                    if (statementNodes[i] instanceof AASSubmodelElementType) {
-                        setSubmodelElementValue((AASSubmodelElementType) statementNodes[i], value);
-                    }
-                }
-            }
+            // TODO value.getStatements() is now Map<String, ElementValue>
+            // either make use of idShort or simply use .values()
+            //            List<ElementValue> valueList = value.getStatements();
+            //            AASSubmodelElementList statementNode = entity.getStatementNode();
+            //            if (statementNode != null) {
+            //                UaNode[] statementNodes = statementNode.getComponents();
+            //                if (statementNodes.length != valueList.size()) {
+            //                    logger.warn("Size of Value (" + valueList.size() + ") doesn't match the number of StatementNodes (" + statementNodes.length + ")");
+            //                    throw new IllegalArgumentException("Size of Value doesn't match the number of StatementNodes");
+            //                }
+            //
+            //                for (int i = 0; i < valueList.size(); i++) {
+            //                    if (statementNodes[i] instanceof AASSubmodelElementType) {
+            //                        setSubmodelElementValue((AASSubmodelElementType) statementNodes[i], value);
+            //                    }
+            //                }
+            //            }
         }
         catch (Throwable ex) {
             logger.error("setEntityValue Exception", ex);

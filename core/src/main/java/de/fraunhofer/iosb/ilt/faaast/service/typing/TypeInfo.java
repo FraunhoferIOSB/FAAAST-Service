@@ -30,7 +30,6 @@ public class TypeInfo {
     }
 
     private Datatype datatype;
-
     private List<String> idShortPath;
     private Class<? extends ElementValue> valueType;
 
