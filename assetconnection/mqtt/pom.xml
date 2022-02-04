@@ -28,6 +28,11 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>${jsonpath.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.moquette</groupId>
             <artifactId>moquette-broker</artifactId>
             <version>${moquette.version}</version>
@@ -44,9 +49,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
-            <version>${jsonpath.version}</version>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <version>${jsonassert.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <repositories>

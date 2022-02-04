@@ -21,5 +21,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseResponse;
  * Chapter 4.2.6
  */
 public class DeleteSubmodelReferenceResponse extends BaseResponse {
+    public static DeleteSubmodelReferenceResponse.Builder builder() {
+        return new DeleteSubmodelReferenceResponse.Builder();
+    }
 
+    public static class Builder extends AbstractBuilder<DeleteSubmodelReferenceResponse, DeleteSubmodelReferenceResponse.Builder> {
+
+        @Override
+        protected DeleteSubmodelReferenceResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected DeleteSubmodelReferenceResponse newBuildingInstance() {
+            return new DeleteSubmodelReferenceResponse();
+        }
+    }
 }

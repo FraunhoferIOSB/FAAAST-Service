@@ -48,4 +48,5 @@ public abstract class BaseResponseWithPayload<T> extends BaseResponse {
     public int hashCode() {
         return Objects.hash(super.hashCode(), payload);
     }
+
 }

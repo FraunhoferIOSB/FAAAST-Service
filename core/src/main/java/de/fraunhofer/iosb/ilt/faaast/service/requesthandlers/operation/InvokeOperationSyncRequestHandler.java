@@ -16,15 +16,18 @@ package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.operation;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.Arrays;
@@ -47,13 +50,19 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
     public InvokeOperationSyncResponse process(InvokeOperationSyncRequest request) {
         Reference reference = Util.toReference(request.getPath());
         InvokeOperationSyncResponse response = new InvokeOperationSyncResponse();
-        publishOperationInvokeEventMessage(reference,
-                Util.toValues(request.getInputArguments()),
-                Util.toValues(request.getInoutputArguments()));
         try {
+            //Check if submodelelement does exist
+            Operation operation = (Operation) persistence.get(reference, new OutputModifier());
+            publishOperationInvokeEventMessage(reference,
+                    Util.toValues(request.getInputArguments()),
+                    Util.toValues(request.getInoutputArguments()));
+
             OperationResult operationResult = executeOperationSync(reference, request);
             response.setPayload(operationResult);
             response.setStatusCode(StatusCode.Success);
+        }
+        catch (ResourceNotFoundException ex) {
+            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);
@@ -81,6 +90,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
             try {
                 OperationVariable[] outputVariables = future.get(request.getTimeout(), TimeUnit.MILLISECONDS);
                 result = OperationResult.builder()
+                        .requestId(request.getRequestId())
                         .executionState(ExecutionState.Completed)
                         .inoutputArguments(request.getInoutputArguments())
                         .outputArguments(Arrays.asList(outputVariables))
@@ -89,12 +99,14 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
             catch (TimeoutException ex) {
                 future.cancel(true);
                 result = OperationResult.builder()
+                        .requestId(request.getRequestId())
                         .inoutputArguments(request.getInoutputArguments())
                         .executionState(ExecutionState.Timeout)
                         .build();
             }
             catch (Exception ex) {
                 result = OperationResult.builder()
+                        .requestId(request.getRequestId())
                         .inoutputArguments(request.getInoutputArguments())
                         .executionState(ExecutionState.Failed)
                         .build();

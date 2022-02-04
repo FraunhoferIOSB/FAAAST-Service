@@ -37,9 +37,9 @@ public class PostConceptDescriptionRequestHandler extends RequestHandler<PostCon
         PostConceptDescriptionResponse response = new PostConceptDescriptionResponse();
 
         try {
-            ConceptDescription conceptDescription = (ConceptDescription) persistence.put(null, request.getConceptDescription());
+            ConceptDescription conceptDescription = (ConceptDescription) persistence.put(request.getConceptDescription());
             response.setPayload(conceptDescription);
-            response.setStatusCode(StatusCode.Success);
+            response.setStatusCode(StatusCode.SuccessCreated);
             publishElementCreateEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
         }
         catch (Exception ex) {

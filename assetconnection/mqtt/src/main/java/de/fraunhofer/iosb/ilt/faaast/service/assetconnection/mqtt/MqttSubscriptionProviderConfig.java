@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentFormat;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 
 
 public class MqttSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
@@ -25,8 +26,7 @@ public class MqttSubscriptionProviderConfig implements AssetSubscriptionProvider
     private String query;
 
     public MqttSubscriptionProviderConfig() {
-        this.contentFormat = ContentFormat.PLAIN;
-        this.query = "";
+        this.contentFormat = ContentFormat.DEFAULT;
     }
 
 
@@ -57,5 +57,44 @@ public class MqttSubscriptionProviderConfig implements AssetSubscriptionProvider
 
     public void setQuery(String query) {
         this.query = query;
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static abstract class AbstractBuilder<T extends MqttSubscriptionProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B query(String value) {
+            getBuildingInstance().setQuery(value);
+            return getSelf();
+        }
+
+
+        public B topic(String value) {
+            getBuildingInstance().setTopic(value);
+            return getSelf();
+        }
+
+
+        public B contentFormat(ContentFormat value) {
+            getBuildingInstance().setContentFormat(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<MqttSubscriptionProviderConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected MqttSubscriptionProviderConfig newBuildingInstance() {
+            return new MqttSubscriptionProviderConfig();
+        }
     }
 }

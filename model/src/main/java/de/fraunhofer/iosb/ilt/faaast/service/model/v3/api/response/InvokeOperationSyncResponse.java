@@ -23,4 +23,27 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
  */
 public class InvokeOperationSyncResponse extends BaseResponseWithPayload<OperationResult> {
 
+    public static InvokeOperationSyncResponse.Builder builder() {
+        return new InvokeOperationSyncResponse.Builder();
+    }
+
+    public static class Builder extends AbstractBuilder<InvokeOperationSyncResponse, InvokeOperationSyncResponse.Builder> {
+
+        @Override
+        protected InvokeOperationSyncResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public InvokeOperationSyncResponse.Builder payload(OperationResult value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected InvokeOperationSyncResponse newBuildingInstance() {
+            return new InvokeOperationSyncResponse();
+        }
+    }
 }

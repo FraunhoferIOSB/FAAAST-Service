@@ -1,0 +1,17 @@
+{
+    "collection1": {
+        "prop1": "foo",
+        "range1": {
+            "min": 3.0,
+            "max": 5.0
+        },
+        "entity1": {
+            "statements":
+                    {
+                        "MaxRotationSpeed": 5000
+                    },
+            "entityType": "SelfManagedEntity",
+            "globalAssetId": ["http://customer.com/demo/asset/1/1/MySubAsset"]
+        }
+    }
+}

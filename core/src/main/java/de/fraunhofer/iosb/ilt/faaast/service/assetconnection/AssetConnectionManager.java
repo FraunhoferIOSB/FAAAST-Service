@@ -28,13 +28,13 @@ import java.util.stream.Stream;
 
 public class AssetConnectionManager {
 
-    private List<AssetConnection> connections = new ArrayList<>();
+    private List<AssetConnection> connections;
     private final CoreConfig coreConfig;
     private final ServiceContext context;
 
     public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections, ServiceContext context) throws ConfigurationException {
         this.coreConfig = coreConfig;
-        this.connections = connections;
+        this.connections = connections != null ? connections : new ArrayList<>();
         this.context = context;
         validateConnections();
     }
@@ -176,27 +176,27 @@ public class AssetConnectionManager {
 
 
     private void validateConnections() throws ConfigurationException {
-        Map<String, List<AssetValueProvider>> valueProviders = connections.stream()
-                .flatMap(x -> (Stream<Map.Entry<String, AssetValueProvider>>) x.getValueProviders().entrySet().stream())
+        Map<Reference, List<AssetValueProvider>> valueProviders = connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetValueProvider>>) x.getValueProviders().entrySet().stream())
                 .collect(Collectors.groupingBy(x -> x.getKey(), Collectors.mapping(x -> x.getValue(), Collectors.toList()))).entrySet().stream()
                 .filter(x -> x.getValue().size() > 1).collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
-        for (String reference: valueProviders.keySet()) {
+        for (Reference reference: valueProviders.keySet()) {
             throw new InvalidConfigurationException(
                     String.format("found %d value connections for reference %s but maximum 1 allowed", valueProviders.get(reference).size(), reference));
         }
-        Map<String, List<AssetOperationProvider>> operationProviders = connections.stream()
-                .flatMap(x -> (Stream<Map.Entry<String, AssetOperationProvider>>) x.getOperationProviders().entrySet().stream())
+        Map<Reference, List<AssetOperationProvider>> operationProviders = connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetOperationProvider>>) x.getOperationProviders().entrySet().stream())
                 .collect(Collectors.groupingBy(x -> x.getKey(), Collectors.mapping(x -> x.getValue(), Collectors.toList()))).entrySet().stream()
                 .filter(x -> x.getValue().size() > 1).collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
-        for (String reference: operationProviders.keySet()) {
+        for (Reference reference: operationProviders.keySet()) {
             throw new InvalidConfigurationException(
                     String.format("found %d operation connections for reference %s but maximum 1 allowed", operationProviders.get(reference).size(), reference));
         }
-        Map<String, List<AssetSubscriptionProvider>> subscriptionProviders = connections.stream()
-                .flatMap(x -> (Stream<Map.Entry<String, AssetSubscriptionProvider>>) x.getSubscriptionProviders().entrySet().stream())
+        Map<Reference, List<AssetSubscriptionProvider>> subscriptionProviders = connections.stream()
+                .flatMap(x -> (Stream<Map.Entry<Reference, AssetSubscriptionProvider>>) x.getSubscriptionProviders().entrySet().stream())
                 .collect(Collectors.groupingBy(x -> x.getKey(), Collectors.mapping(x -> x.getValue(), Collectors.toList()))).entrySet().stream()
                 .filter(x -> x.getValue().size() > 1).collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
-        for (String reference: subscriptionProviders.keySet()) {
+        for (Reference reference: subscriptionProviders.keySet()) {
             throw new InvalidConfigurationException(
                     String.format("found %d subscription connections for reference %s but maximum 1 allowed", subscriptionProviders.get(reference).size(), reference));
         }

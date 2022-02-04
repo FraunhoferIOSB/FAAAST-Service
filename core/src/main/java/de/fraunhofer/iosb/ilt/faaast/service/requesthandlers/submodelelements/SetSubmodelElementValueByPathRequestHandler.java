@@ -15,7 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodelelements;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.SetSubmodelElementValueByPathRequest;
@@ -24,7 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DataElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
 
@@ -41,12 +43,28 @@ public class SetSubmodelElementValueByPathRequestHandler extends RequestHandler<
         SetSubmodelElementValueByPathResponse response = new SetSubmodelElementValueByPathResponse();
         try {
             Reference reference = Util.toReference(request.getPath());
-            SubmodelElement submodelElement = persistence.get(reference, new OutputModifier());
-            ElementValue oldValue = DataElementValueMapper.toDataElement(submodelElement);
-            ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
-            DataElementValueMapper.setDataElementValue(submodelElement, newValue);
-            response.setStatusCode(StatusCode.Success);
-            publishValueChangeEventMessage(reference, oldValue, newValue);
+            SubmodelElement submodelElement = persistence.get(reference, new OutputModifier.Builder()
+                    .extend(Extend.WithBLOBValue)
+                    .build());
+            ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
+
+            if (request.getValueParser() != null) {
+                ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
+                ElementValueMapper.setValue(submodelElement, newValue);
+
+                writeValueToAssetConnection(reference, newValue);
+                persistence.put(null, reference, submodelElement);
+
+                response.setStatusCode(StatusCode.Success);
+                publishValueChangeEventMessage(reference, oldValue, newValue);
+            }
+            else {
+                throw new RuntimeException("Value parser of request must be non-null");
+            }
+
+        }
+        catch (ResourceNotFoundException ex) {
+            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

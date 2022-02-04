@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetSubmodelByIdRequest;
@@ -22,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetSubmodelBy
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 
 
@@ -39,9 +41,14 @@ public class GetSubmodelByIdRequestHandler extends RequestHandler<GetSubmodelByI
             Submodel submodel = (Submodel) persistence.get(request.getId(), request.getOutputModifier());
             response.setPayload(submodel);
             response.setStatusCode(StatusCode.Success);
-            if (submodel != null) {
-                publishElementReadEventMessage(AasUtils.toReference(submodel), submodel);
-            }
+
+            Reference reference = AasUtils.toReference(submodel);
+            readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
+            publishElementReadEventMessage(reference, submodel);
+
+        }
+        catch (ResourceNotFoundException ex) {
+            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

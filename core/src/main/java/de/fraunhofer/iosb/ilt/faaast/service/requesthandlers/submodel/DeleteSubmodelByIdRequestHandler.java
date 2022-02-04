@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodel;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
@@ -41,7 +42,11 @@ public class DeleteSubmodelByIdRequestHandler extends RequestHandler<DeleteSubmo
             Submodel submodel = (Submodel) persistence.get(request.getId(), new QueryModifier());
             persistence.remove(request.getId());
             response.setStatusCode(StatusCode.Success);
+            //TODO: Delete AssetConnections of underlying submodel elements?
             publishElementDeleteEventMessage(AasUtils.toReference(submodel), submodel);
+        }
+        catch (ResourceNotFoundException ex) {
+            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

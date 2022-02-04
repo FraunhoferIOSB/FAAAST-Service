@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllSubmode
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import java.util.List;
 
@@ -41,7 +42,11 @@ public class GetAllSubmodelsBySemanticIdRequestHandler extends RequestHandler<Ge
             response.setPayload(submodels);
             response.setStatusCode(StatusCode.Success);
             if (submodels != null) {
-                submodels.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
+                for (Submodel submodel: submodels) {
+                    Reference reference = AasUtils.toReference(submodel);
+                    readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
+                    publishElementReadEventMessage(reference, submodel);
+                }
             }
         }
         catch (Exception ex) {

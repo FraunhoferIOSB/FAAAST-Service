@@ -42,7 +42,11 @@ public class GetAllSubmodelsRequestHandler extends RequestHandler<GetAllSubmodel
             response.setPayload(submodels);
             response.setStatusCode(StatusCode.Success);
             if (submodels != null) {
-                submodels.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
+                for (Submodel submodel: submodels) {
+                    Reference reference = AasUtils.toReference(submodel);
+                    readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
+                    publishElementReadEventMessage(reference, submodel);
+                }
             }
         }
         catch (Exception ex) {

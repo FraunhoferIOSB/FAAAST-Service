@@ -25,8 +25,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.Conten
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Reference;
 import io.moquette.BrokerConstants;
 import io.moquette.broker.Server;
@@ -41,19 +44,31 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.json.JSONException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 
 public class MqttAssetConnectionTest {
 
+    private static final Reference DEFAULT_REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
     private static final long DEFAULT_TIMEOUT = 1000;
+    private static final String DEFAULT_TOPIC = "some.mqtt.topic";
     private static final String LOCALHOST = "127.0.0.1";
-
     private static int mqttPort;
     private static Server mqttServer;
+    private static String mqttServerUri;
 
     @AfterClass
     public static void cleanup() throws IOException {
@@ -63,7 +78,7 @@ public class MqttAssetConnectionTest {
 
     @BeforeClass
     public static void init() throws IOException {
-        // find free TCP port
+        // find free TCP port as fixed port may not work on every machine
         try (ServerSocket serverSocket = new ServerSocket(0)) {
             Assert.assertNotNull(serverSocket);
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
@@ -72,13 +87,18 @@ public class MqttAssetConnectionTest {
         catch (IOException e) {
             Assert.fail("could not find free port");
         }
-        // start embedded mqtt server
         mqttServer = new Server();
         MemoryConfig mqttConfig = new MemoryConfig(new Properties());
         mqttConfig.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(mqttPort));
         mqttConfig.setProperty(BrokerConstants.HOST_PROPERTY_NAME, LOCALHOST);
         mqttConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(true));
         mqttServer.startServer(mqttConfig, null);
+        mqttServerUri = "tcp://" + LOCALHOST + ":" + mqttPort;
+    }
+
+
+    private static boolean isDebugging() {
+        return java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
     }
 
 
@@ -92,117 +112,152 @@ public class MqttAssetConnectionTest {
     }
 
 
-    @Test
-    public void testSubscriptionProvider() throws AssetConnectionException, InterruptedException {
-        final String topic = "some.mqtt.topic";
-        PropertyValue expected = new PropertyValue();
-        expected.setValue("hello world");
-        MqttAssetConnectionConfig config = new MqttAssetConnectionConfig();
-        config.setServerURI("tcp://" + LOCALHOST + ":" + mqttPort);
-        config.setClientID("FAST MQTT Client");
-        MqttSubscriptionProviderConfig subscriptionConfig = new MqttSubscriptionProviderConfig();
-        subscriptionConfig.setTopic(topic);
-        // TODO change ID_SHORT to IdShort once dataformat-core 1.2.1 hotfix is released
-        Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
-        config.getSubscriptionProviders().put(reference, subscriptionConfig);
-        MqttAssetConnection assetConnection = new MqttAssetConnection();
-        ServiceContext serviceContext = mock(ServiceContext.class);
-        doReturn(Property.class).when(serviceContext).getElementType(reference);
-        assetConnection.init(CoreConfig.builder().build(), config, serviceContext);
+    public String invokeValueProvider(ContentFormat contentFormat, DataElementValue newValue, String query) throws AssetConnectionException, InterruptedException, MqttException {
+        MqttAssetConnection assetConnection = newConnection(MqttValueProviderConfig.builder()
+                .contentFormat(contentFormat)
+                .query(query)
+                .build());
+        MqttClient client = newMqttClient();
+        final AtomicReference<String> response = new AtomicReference<>();
+        CountDownLatch condition = new CountDownLatch(1);
+        client.setCallback(new MqttCallback() {
+            @Override
+            public void connectionLost(Throwable throwable) {}
+
+
+            @Override
+            public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
+                response.set(new String(mqttMessage.getPayload()));
+                condition.countDown();
+            }
+
+
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {}
+        });
+        client.subscribe(DEFAULT_TOPIC);
+        assetConnection.getValueProviders().get(DEFAULT_REFERENCE).setValue(newValue);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+        return response.get();
+    }
+
+
+    public void testSubscriptionProvider(ContentFormat contentFormat, String message, PropertyValue expected)
+            throws AssetConnectionException, InterruptedException, ValueFormatException {
+        testSubscriptionProvider(contentFormat, message, null, expected);
+    }
+
+
+    public void testSubscriptionProvider(ContentFormat contentFormat, String message, String query, PropertyValue expected)
+            throws AssetConnectionException, InterruptedException, ValueFormatException {
+        MqttAssetConnection assetConnection = newConnection(
+                TypeContext.builder()
+                        .rootInfo(TypeInfo.builder()
+                                .datatype(expected.getValue().getDataType())
+                                .valueType(expected.getClass())
+                                .build())
+                        .build(),
+                MqttSubscriptionProviderConfig.builder()
+                        .contentFormat(contentFormat)
+                        .query(query)
+                        .build());
         CountDownLatch condition = new CountDownLatch(1);
         final AtomicReference<DataElementValue> response = new AtomicReference<>();
-        assetConnection.getSubscriptionProviders().get(reference).addNewDataListener(new NewDataListener() {
+        assetConnection.getSubscriptionProviders().get(DEFAULT_REFERENCE).addNewDataListener(new NewDataListener() {
             @Override
             public void newDataReceived(DataElementValue data) {
-                // we received data via MQTT
                 response.set(data);
                 condition.countDown();
             }
         });
-        // send message via MQTT
-        publishMqtt(topic, expected.getValue());
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+        publishMqtt(DEFAULT_TOPIC, message);
+        condition.await(DEFAULT_TIMEOUT, isDebugging() ? TimeUnit.SECONDS : TimeUnit.MILLISECONDS);
         Assert.assertEquals(expected, response.get());
     }
 
-    @Test
-    public void testSubscriptionProviderWithJsonPath() throws AssetConnectionException, InterruptedException {
-        final String topic = "some.mqtt.topic";
-        PropertyValue expected = new PropertyValue();
-        expected.setValue("{value1:5, value2:7}");
-        MqttAssetConnectionConfig config = new MqttAssetConnectionConfig();
-        config.setServerURI("tcp://" + LOCALHOST + ":" + mqttPort);
-        config.setClientID("FAST MQTT Client");
-        MqttSubscriptionProviderConfig subscriptionConfig = new MqttSubscriptionProviderConfig();
-        subscriptionConfig.setTopic(topic);
-        subscriptionConfig.setContentFormat(ContentFormat.JSON);
-        //extract value2 from json
-        subscriptionConfig.setQuery("$.value2");
-        // TODO change ID_SHORT to IdShort once dataformat-core 1.2.1 hotfix is released
-        Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
-        config.getSubscriptionProviders().put(reference, subscriptionConfig);
-        MqttAssetConnection assetConnection = new MqttAssetConnection();
-        ServiceContext serviceContext = mock(ServiceContext.class);
-        doReturn(Property.class).when(serviceContext).getElementType(reference);
-        assetConnection.init(CoreConfig.builder().build(), config, serviceContext);
-        CountDownLatch condition = new CountDownLatch(1);
-        final AtomicReference<DataElementValue> response = new AtomicReference<>();
-        assetConnection.getSubscriptionProviders().get(reference).addNewDataListener(new NewDataListener() {
-            @Override
-            public void newDataReceived(DataElementValue data) {
-                // we received data via MQTT
-                response.set(data);
-                condition.countDown();
-            }
-        });
-        // send message via MQTT
-        publishMqtt(topic, expected.getValue());
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-        PropertyValue extracted = new PropertyValue();
-        extracted.setValue("7");
-        Assert.assertEquals(extracted, response.get());
-    }
 
     @Test
-    public void testValueProvider() throws AssetConnectionException, InterruptedException {
-        final String topic = "some.mqtt.topic";
-        PropertyValue expected = new PropertyValue();
-        expected.setValue("hello world");
-        MqttAssetConnectionConfig config = new MqttAssetConnectionConfig();
-        config.setServerURI("tcp://" + LOCALHOST + ":" + mqttPort);
-        config.setClientID("FAST MQTT Client");
-        MqttValueProviderConfig valueConfig = new MqttValueProviderConfig();
-        valueConfig.setTopic(topic);
-        // TODO change ID_SHORT to IdShort once dataformat-core 1.2.1 hotfix is released
-        Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
-        config.getValueProviders().put(reference, valueConfig);
-        MqttAssetConnection assetConnection = new MqttAssetConnection();
-        ServiceContext serviceContext = mock(ServiceContext.class);
-        doReturn(Property.class).when(serviceContext).getElementType(reference);
-        assetConnection.init(CoreConfig.builder().build(), config, serviceContext);
-
-        MqttSubscriptionProviderConfig subscriptionConfig = new MqttSubscriptionProviderConfig();
-        subscriptionConfig.setTopic(topic);
-        config.getSubscriptionProviders().put(reference, subscriptionConfig);
-        MqttAssetConnection assetConnectionForSubscribe = new MqttAssetConnection();
-        config.setClientID("FAST MQTT Client Subscribe");
-        assetConnectionForSubscribe.init(CoreConfig.builder().build(), config, serviceContext);
-        final AtomicReference<DataElementValue> response = new AtomicReference<>();
-        CountDownLatch condition = new CountDownLatch(1);
-        assetConnectionForSubscribe.getSubscriptionProviders().get(reference).addNewDataListener(new NewDataListener() {
-            @Override
-            public void newDataReceived(DataElementValue data) {
-                // receive data from value provider
-                System.out.println(((PropertyValue) data).getValue());
-                response.set(data);
-                condition.countDown();
-            }
-        });
-        // publish message with value provider
-        assetConnection.getValueProviders().get(reference).setValue(expected);
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(expected, response.get());
-
-
+    public void testSubscriptionProviderJsonProperty() throws AssetConnectionException, InterruptedException, ValueFormatException {
+        testSubscriptionProvider(ContentFormat.JSON, "7", PropertyValue.of(Datatype.Int, "7"));
+        testSubscriptionProvider(ContentFormat.JSON, "\"hello world\"", PropertyValue.of(Datatype.String, "hello world"));
     }
+
+
+    @Test
+    public void testSubscriptionProviderJsonPropertyWithQuery() throws AssetConnectionException, InterruptedException, ValueFormatException {
+        testSubscriptionProvider(ContentFormat.JSON, "{\"foo\": 123, \"bar\": 7}", "$.bar", PropertyValue.of(Datatype.Int, "7"));
+        testSubscriptionProvider(ContentFormat.JSON, "{\"foo\": \"hello\", \"bar\": \"world\"}", "$.bar", PropertyValue.of(Datatype.String, "world"));
+    }
+
+
+    @Test
+    public void testValueProviderProperty() throws AssetConnectionException, InterruptedException, ValueFormatException, MqttException, JSONException {
+        String expected = "\"hello world\"";
+        String actual = invokeValueProvider(ContentFormat.JSON, PropertyValue.of(Datatype.String, "hello world"), null);
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
+    }
+
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testValueProviderPropertyWithQuery() throws AssetConnectionException, InterruptedException, ValueFormatException, MqttException, JSONException {
+        String expected = "{\"foo\": \"hello world\"}";
+        String actual = invokeValueProvider(ContentFormat.JSON, PropertyValue.of(Datatype.String, "hello world"), "$.foo");
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
+    }
+
+
+    private MqttAssetConnection newConnection(MqttValueProviderConfig valueProvider) throws AssetConnectionException {
+        return newConnection(DEFAULT_REFERENCE, null, valueProvider, null, null);
+    }
+
+
+    private MqttAssetConnection newConnection(TypeContext expectedTypeContext,
+                                              MqttSubscriptionProviderConfig subscriptionProvider)
+            throws AssetConnectionException {
+        return newConnection(DEFAULT_REFERENCE, expectedTypeContext, null, null, subscriptionProvider);
+    }
+
+
+    private MqttAssetConnection newConnection(Reference reference,
+                                              TypeContext expectedTypeContext,
+                                              MqttValueProviderConfig valueProvider,
+                                              MqttOperationProviderConfig operationProvider,
+                                              MqttSubscriptionProviderConfig subscriptionProvider)
+            throws AssetConnectionException {
+        MqttAssetConnectionConfig config = MqttAssetConnectionConfig.builder()
+                .serverUri(mqttServerUri)
+                .build();
+        if (valueProvider != null) {
+            if (valueProvider.getTopic() == null || valueProvider.getTopic().isEmpty()) {
+                valueProvider.setTopic(DEFAULT_TOPIC);
+            }
+            config.getValueProviders().put(reference, valueProvider);
+        }
+        if (operationProvider != null) {
+            config.getOperationProviders().put(reference, operationProvider);
+        }
+        if (subscriptionProvider != null) {
+            if (subscriptionProvider.getTopic() == null || subscriptionProvider.getTopic().isEmpty()) {
+                subscriptionProvider.setTopic(DEFAULT_TOPIC);
+            }
+            config.getSubscriptionProviders().put(reference, subscriptionProvider);
+        }
+        MqttAssetConnection result = new MqttAssetConnection();
+        ServiceContext serviceContext = mock(ServiceContext.class);
+        if (expectedTypeContext != null) {
+            doReturn(expectedTypeContext).when(serviceContext).getTypeInfo(reference);
+        }
+        result.init(CoreConfig.builder().build(), config, serviceContext);
+        return result;
+    }
+
+
+    private MqttClient newMqttClient() throws MqttException {
+        MqttClient client = new MqttClient(mqttServerUri, UUID.randomUUID().toString(), new MemoryPersistence());
+        MqttConnectOptions options = new MqttConnectOptions();
+        options.setCleanSession(true);
+        client.connect(options);
+        return client;
+    }
+
 }

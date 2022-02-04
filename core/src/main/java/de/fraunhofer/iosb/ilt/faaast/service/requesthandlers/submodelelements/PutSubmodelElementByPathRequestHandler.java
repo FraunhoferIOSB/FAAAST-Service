@@ -15,16 +15,22 @@
 package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodelelements;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.PutSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
+import java.util.Objects;
 
 
 public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
@@ -38,11 +44,29 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
     public PutSubmodelElementByPathResponse process(PutSubmodelElementByPathRequest request) {
         PutSubmodelElementByPathResponse response = new PutSubmodelElementByPathResponse();
         try {
-            Reference reference = Util.toReference(request.getId(), Submodel.class);
-            SubmodelElement submodelElement = persistence.put(reference, request.getSubmodelElement());
-            response.setPayload(submodelElement);
+            Reference reference = Util.toReference(request.getPath());
+
+            //Check if submodelelement does exist
+            SubmodelElement currentSubmodelElement = persistence.get(reference, new QueryModifier.Builder()
+                    .extend(Extend.WithoutBLOBValue)
+                    .level(Level.Core)
+                    .build());
+            SubmodelElement newSubmodelElement = request.getSubmodelElement();
+
+            ElementValue oldValue = ElementValueMapper.toValue(currentSubmodelElement);
+            ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
+            currentSubmodelElement = persistence.put(null, reference, newSubmodelElement);
+            response.setPayload(currentSubmodelElement);
             response.setStatusCode(StatusCode.Success);
-            publishElementUpdateEventMessage(reference, submodelElement);
+
+            if (!Objects.equals(oldValue, newValue)) {
+                writeValueToAssetConnection(reference, ElementValueMapper.toValue(currentSubmodelElement));
+            }
+
+            publishElementUpdateEventMessage(reference, currentSubmodelElement);
+        }
+        catch (ResourceNotFoundException ex) {
+            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

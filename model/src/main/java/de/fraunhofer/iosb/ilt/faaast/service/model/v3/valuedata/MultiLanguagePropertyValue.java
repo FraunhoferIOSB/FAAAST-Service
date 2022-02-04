@@ -15,12 +15,49 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
 
 import io.adminshell.aas.v3.model.LangString;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class MultiLanguagePropertyValue extends DataElementValue {
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     private Set<LangString> langStringSet;
+
+    public MultiLanguagePropertyValue() {
+        this.langStringSet = new HashSet<>();
+    }
+
+
+    public MultiLanguagePropertyValue(Set<LangString> langStringSet) {
+        this.langStringSet = langStringSet;
+    }
+
+
+    public MultiLanguagePropertyValue(LangString... langStringSet) {
+        this.langStringSet = Stream.of(langStringSet).collect(Collectors.toSet());
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        MultiLanguagePropertyValue that = (MultiLanguagePropertyValue) o;
+        return Objects.equals(langStringSet, that.langStringSet);
+    }
+
 
     public Set<LangString> getLangStringSet() {
         return langStringSet;
@@ -33,18 +70,44 @@ public class MultiLanguagePropertyValue extends DataElementValue {
 
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        MultiLanguagePropertyValue that = (MultiLanguagePropertyValue) o;
-        return Objects.equals(langStringSet, that.langStringSet);
-    }
-
-
-    @Override
     public int hashCode() {
         return Objects.hash(langStringSet);
+    }
+
+    public static abstract class AbstractBuilder<T extends MultiLanguagePropertyValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B values(Set<LangString> value) {
+            getBuildingInstance().setLangStringSet(value);
+            return getSelf();
+        }
+
+
+        public B value(LangString value) {
+            getBuildingInstance().getLangStringSet().add(value);
+            return getSelf();
+        }
+
+
+        public B value(String language, String value) {
+            LangString langString = new LangString();
+            langString.setLanguage(language);
+            langString.setValue(value);
+            getBuildingInstance().getLangStringSet().add(langString);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<MultiLanguagePropertyValue, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected MultiLanguagePropertyValue newBuildingInstance() {
+            return new MultiLanguagePropertyValue();
+        }
     }
 }

@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.mixins.InvokeOperationRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonSerializer;
@@ -22,9 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonSerializer;
 
 public class HttpJsonSerializer extends JsonSerializer {
 
-    @Override
-    protected void modifyMapper(JsonMapper mapper) {
-        super.modifyMapper(mapper);
-        mapper.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class);
+    public HttpJsonSerializer() {
+        super(x -> {
+            x.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class);
+        });
     }
 }

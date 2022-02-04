@@ -72,7 +72,7 @@ public class OpcUaEndpointFullTest {
         config.setTcpPort(OPC_TCP_PORT);
 
         endpoint = new OpcUaEndpoint();
-        endpoint.init(coreConfig, config);
+        endpoint.init(coreConfig, config, service);
         service = new TestService(endpoint, true);
         endpoint.setService(service);
         service.start();

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodelelements;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllSubmodelElementsRequest;
@@ -42,11 +43,16 @@ public class GetAllSubmodelElementsRequestHandler extends RequestHandler<GetAllS
         try {
             Reference reference = Util.toReference(request.getId(), Submodel.class);
             List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, null, request.getOutputModifier());
+            readValueFromAssetConnectionAndUpdatePersistence(reference, submodelElements);
             response.setPayload(submodelElements);
             response.setStatusCode(StatusCode.Success);
+
             if (submodelElements != null) {
                 submodelElements.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(reference, x), x));
             }
+        }
+        catch (ResourceNotFoundException ex) {
+            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

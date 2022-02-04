@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodelelements;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
@@ -44,6 +45,9 @@ public class DeleteSubmodelElementByPathRequestHandler extends RequestHandler<De
             persistence.remove(reference);
             response.setStatusCode(StatusCode.Success);
             publishElementDeleteEventMessage(reference, submodelElement);
+        }
+        catch (ResourceNotFoundException ex) {
+            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

@@ -52,7 +52,8 @@ public class TestService extends Service {
                 full ? AASFull.ENVIRONMENT : AASSimple.ENVIRONMENT,
                 mock(Persistence.class),
                 new MessageBusInternal(),
-                List.of(endpoint));
+                List.of(endpoint),
+                List.of());
         useFullExample = full;
     }
 }

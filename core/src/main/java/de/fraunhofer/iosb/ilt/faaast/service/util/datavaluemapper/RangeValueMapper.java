@@ -15,31 +15,51 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RangeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.ValueFormatException;
 import io.adminshell.aas.v3.model.Range;
 
 
 public class RangeValueMapper extends DataValueMapper<Range, RangeValue> {
 
     @Override
-    public RangeValue toDataElementValue(Range submodelElement) {
+    public RangeValue toValue(Range submodelElement) {
         if (submodelElement == null) {
             return null;
         }
         RangeValue rangeValue = new RangeValue();
-        //TODO: unsafe cast?
-        rangeValue.setMax(Double.valueOf(submodelElement.getMax()));
-        rangeValue.setMin(Double.valueOf(submodelElement.getMin()));
+        try {
+            rangeValue.setMin(TypedValueFactory.create(submodelElement.getValueType(), submodelElement.getMin()));
+            rangeValue.setMax(TypedValueFactory.create(submodelElement.getValueType(), submodelElement.getMax()));
+        }
+        catch (ValueFormatException ex) {
+            // TODO properly throw?
+            throw new RuntimeException("invalid data value");
+        }
         return rangeValue;
     }
 
 
     @Override
-    public Range setDataElementValue(Range submodelElement, RangeValue value) {
+    public Range setValue(Range submodelElement, RangeValue value) {
         if (submodelElement == null || value == null) {
             return null;
         }
-        submodelElement.setMax(String.valueOf(value.getMax()));
-        submodelElement.setMin(String.valueOf(value.getMin()));
+        if (value.getMin() != null) {
+            submodelElement.setValueType(value.getMin().getDataType().getName());
+            submodelElement.setMin(value.getMin().asString());
+        }
+        else {
+            submodelElement.setMin(null);
+        }
+        if (value.getMax() != null) {
+            submodelElement.setValueType(value.getMax().getDataType().getName());
+            submodelElement.setMax(value.getMax().asString());
+        }
+        else {
+            submodelElement.setMax(null);
+        }
+
         return submodelElement;
     }
 

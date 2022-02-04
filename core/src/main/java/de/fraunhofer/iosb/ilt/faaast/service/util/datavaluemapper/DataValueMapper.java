@@ -20,9 +20,9 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 
 public abstract class DataValueMapper<I extends SubmodelElement, O extends ElementValue> {
 
-    public abstract O toDataElementValue(I submodelElement);
+    public abstract O toValue(I submodelElement);
 
 
-    public abstract I setDataElementValue(I submodelElement, O value);
+    public abstract I setValue(I submodelElement, O value);
 
 }

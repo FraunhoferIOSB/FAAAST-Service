@@ -21,7 +21,7 @@ import io.adminshell.aas.v3.model.File;
 public class FileValueMapper extends DataValueMapper<File, FileValue> {
 
     @Override
-    public FileValue toDataElementValue(File submodelElement) {
+    public FileValue toValue(File submodelElement) {
         if (submodelElement == null) {
             return null;
         }
@@ -33,7 +33,7 @@ public class FileValueMapper extends DataValueMapper<File, FileValue> {
 
 
     @Override
-    public File setDataElementValue(File submodelElement, FileValue value) {
+    public File setValue(File submodelElement, FileValue value) {
         if (submodelElement == null || value == null) {
             return null;
         }

@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.PostSubmodelR
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 
 
@@ -37,11 +38,12 @@ public class PostSubmodelRequestHandler extends RequestHandler<PostSubmodelReque
         PostSubmodelResponse response = new PostSubmodelResponse();
 
         try {
-            //TODO: missing belonging AAS ID in request?
-            Submodel submodel = (Submodel) persistence.put(null, request.getSubmodel());
+            Submodel submodel = (Submodel) persistence.put(request.getSubmodel());
             response.setPayload(submodel);
             response.setStatusCode(StatusCode.SuccessCreated);
-            publishElementCreateEventMessage(AasUtils.toReference(submodel), submodel);
+            Reference reference = AasUtils.toReference(submodel);
+            readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
+            publishElementCreateEventMessage(reference, submodel);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

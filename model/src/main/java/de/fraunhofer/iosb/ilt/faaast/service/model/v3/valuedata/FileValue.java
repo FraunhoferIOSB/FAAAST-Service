@@ -14,12 +14,40 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata;
 
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 public class FileValue extends DataElementValue {
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     private String mimeType;
     private String value;
+
+    public FileValue() {}
+
+
+    public FileValue(String mimeType, String value) {
+        this.mimeType = mimeType;
+        this.value = value;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        FileValue fileValue = (FileValue) o;
+        return Objects.equals(mimeType, fileValue.mimeType) && Objects.equals(value, fileValue.value);
+    }
+
 
     public String getMimeType() {
         return mimeType;
@@ -42,18 +70,36 @@ public class FileValue extends DataElementValue {
 
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        FileValue fileValue = (FileValue) o;
-        return Objects.equals(mimeType, fileValue.mimeType) && Objects.equals(value, fileValue.value);
-    }
-
-
-    @Override
     public int hashCode() {
         return Objects.hash(mimeType, value);
+    }
+
+    public static abstract class AbstractBuilder<T extends FileValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B mimeType(String value) {
+            getBuildingInstance().setMimeType(value);
+            return getSelf();
+        }
+
+
+        public B value(String value) {
+            getBuildingInstance().setValue(value);
+            return getSelf();
+        }
+
+    }
+
+    public static class Builder extends AbstractBuilder<FileValue, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected FileValue newBuildingInstance() {
+            return new FileValue();
+        }
     }
 }
