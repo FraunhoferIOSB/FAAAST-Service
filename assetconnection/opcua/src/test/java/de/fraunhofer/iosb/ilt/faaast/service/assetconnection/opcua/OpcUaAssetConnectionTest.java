@@ -14,12 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.DoubleValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.StringValue;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Property;
@@ -87,7 +93,13 @@ public class OpcUaAssetConnectionTest {
 
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
-        doReturn(Property.class).when(serviceContext).getElementType(reference);
+        TypeContext contextExample = new TypeContext();
+        TypeInfo infoExample = new TypeInfo();
+        infoExample.setValueType(PropertyValue.class);
+        infoExample.setDatatype(Datatype.Double);
+        contextExample.setRootInfo(infoExample);
+        doReturn(contextExample).when(serviceContext).getTypeInfo(reference);
+
         config.getSubscriptionProviders().put(reference, subProvider);
 
         OpcUaAssetConnection connection = new OpcUaAssetConnection();
@@ -105,7 +117,7 @@ public class OpcUaAssetConnectionTest {
         });
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         PropertyValue expected = new PropertyValue();
-        expected.setValue("0.0");
+        expected.setValue(new DoubleValue(0.0));
         Assert.assertEquals(expected, response.get());
     }
 
@@ -118,14 +130,20 @@ public class OpcUaAssetConnectionTest {
 
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
-        doReturn(Property.class).when(serviceContext).getElementType(reference);
+        TypeContext contextExample = new TypeContext();
+        TypeInfo infoExample = new TypeInfo();
+        infoExample.setValueType(PropertyValue.class);
+        infoExample.setDatatype(Datatype.Double);
+        contextExample.setRootInfo(infoExample);
+        doReturn(contextExample).when(serviceContext).getTypeInfo(reference);
+
         config.getValueProviders().put(reference, valueProvider);
 
         OpcUaAssetConnection connection = new OpcUaAssetConnection();
         connection.init(CoreConfig.builder().build(), config, serviceContext);
 
         PropertyValue expected = new PropertyValue();
-        expected.setValue("3.1");
+        expected.setValue(new DoubleValue(3.1));
         //write value
         connection.getValueProviders().get(reference).setValue(expected);
 
@@ -142,7 +160,7 @@ public class OpcUaAssetConnectionTest {
 
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
-        doReturn(Property.class).when(serviceContext).getElementType(reference);
+
         config.getOperationProviders().put(reference, opProvider);
 
         OpcUaAssetConnection connection = new OpcUaAssetConnection();
@@ -152,7 +170,10 @@ public class OpcUaAssetConnectionTest {
         DefaultOperationVariable y = new DefaultOperationVariable();
         DefaultProperty xProp = new DefaultProperty();
         DefaultProperty yProp = new DefaultProperty();
+        //todo: need type safe operation variable
         xProp.setValue(String.valueOf(4));
+        //todo: is value type used for data types?
+        xProp.setValueType("Double");
         x.setValue(xProp);
         y.setValue(yProp);
 

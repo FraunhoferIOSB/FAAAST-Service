@@ -14,22 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.content;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
-import io.adminshell.aas.v3.model.DataElement;
-import io.adminshell.aas.v3.model.Property;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
 
 
-public class OpcContentParser implements ContentParser {
+public interface ContentDeserializer {
 
-    @Override
-    public DataElementValue parseValue(String raw, Class<? extends DataElement> elementType) {
-        if (Property.class.isAssignableFrom(elementType)) {
-            PropertyValue result = new PropertyValue();
-            result.setValue(raw);
-            return result;
-        }
-        throw new UnsupportedOperationException(String.format("error parsing value - unsupported element type (%s)", elementType.getSimpleName()));
-    }
-
+    public DataElementValue read(Object raw, TypeContext typeContext) throws AssetConnectionException;
 }

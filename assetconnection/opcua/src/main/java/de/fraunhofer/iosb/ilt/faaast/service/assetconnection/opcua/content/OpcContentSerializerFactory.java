@@ -14,14 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.content;
 
-public class ContentParserFactory {
+public class OpcContentSerializerFactory {
 
-    private ContentParserFactory() {
+    private OpcContentSerializerFactory() {
 
     }
 
-
-    public static ContentParser create() {
-        return new OpcContentParser();
+    public static ContentSerializer create() {
+        return new OpcContentSerializer();
     }
 }

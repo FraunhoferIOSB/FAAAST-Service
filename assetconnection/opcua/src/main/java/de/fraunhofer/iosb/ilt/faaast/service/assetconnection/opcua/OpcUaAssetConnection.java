@@ -15,11 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.content.ContentParserFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.content.OpcContentDeserializerFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.content.OpcContentSerializerFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
-import io.adminshell.aas.v3.model.DataElement;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
@@ -32,7 +33,6 @@ import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
 import org.eclipse.milo.opcua.sdk.client.nodes.UaMethodNode;
 import org.eclipse.milo.opcua.sdk.core.nodes.VariableNode;
 import org.eclipse.milo.opcua.stack.core.AttributeId;
-import org.eclipse.milo.opcua.stack.core.BuiltinDataType;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.builtin.*;
@@ -122,13 +122,11 @@ public class OpcUaAssetConnection
                     Object value = client.getAddressSpace().getVariableNode(valueNodeId).getValue().getValue().getValue();
                     client.disconnect().get();
                     DataElementValue newValue = null;
-                    Class elementType = context.getElementType(reference);
-                    if (!DataElement.class.isAssignableFrom(elementType)) {
-                        throw new AssetConnectionException(String.format("unsupported submodel element type (%s)", elementType.getSimpleName()));
-                    }
-                    newValue = ContentParserFactory
+                    TypeContext elementType = context.getTypeInfo(reference);
+
+                    newValue = OpcContentDeserializerFactory
                                 .create()
-                                .parseValue(value.toString(), elementType);
+                                .read(value, elementType);
                     return newValue;
                 } catch (UaException | AssetConnectionException | InterruptedException | ExecutionException e) {
                     e.printStackTrace();
@@ -145,10 +143,8 @@ public class OpcUaAssetConnection
                     OpcUaClient client = createClient(config.getHost(), AnonymousProvider.INSTANCE);
                     client.connect().get();
                     VariableNode node = client.getAddressSpace().getVariableNode(parseNodeId(client, valueProviderConfig.getNodeId()));
-                    String datatypeName = BuiltinDataType.getBackingClass(node.getDataType()).getSimpleName();
                     client.writeValue(node.getNodeId(), new DataValue(
-                            new Variant(
-                                    castDatatype(value, datatypeName)
+                            new Variant(((PropertyValue) value).getValue().getValue()
                                     ),null, null)).get();
                     client.disconnect().get();
                 } catch (UaException | InterruptedException | ExecutionException e) {
@@ -156,43 +152,6 @@ public class OpcUaAssetConnection
                 }
             }
         });
-    }
-
-    //this is a workaround until DataElementValue can return proper types
-    private Object castDatatype(DataElementValue value, String datatypeName) {
-        String valueString = ((PropertyValue) value).getValue();
-        switch (datatypeName) {
-            case "Long":
-                return Long.valueOf(valueString);
-            case "Boolean":
-                return Boolean.valueOf(valueString);
-            case "Float":
-                return Float.valueOf(valueString);
-            case "Integer":
-                return Integer.valueOf(valueString);
-            case "Double":
-                return Double.valueOf(valueString);
-            default:
-                return valueString;
-        }
-    }
-
-    //this is a workaround until DataElementValue can return proper types
-    private Object castDatatype(String value, String datatypeName) {
-        switch (datatypeName) {
-            case "Long":
-                return Long.valueOf(value);
-            case "Boolean":
-                return Boolean.valueOf(value);
-            case "Float":
-                return Float.valueOf(value);
-            case "Integer":
-                return Integer.valueOf(value);
-            case "Double":
-                return Double.valueOf(value);
-            default:
-                return value;
-        }
     }
 
 
@@ -216,21 +175,22 @@ public class OpcUaAssetConnection
                             .get(0)
                             .getNodeId();
 
-                    //reading datatype of input arguments
-                    Argument[] argumentArray = methodNode.readInputArgumentsAsync().get();
-                    Variant[] parameters = new Variant[input.length];
-                    //creating parameters with correct datatype
-                    for(int i=0; i<input.length;i++) {
-                        String datatypeName = BuiltinDataType.getBackingClass(argumentArray[i].getDataType()).getSimpleName();
-                        parameters[i]=new Variant(
-                                castDatatype(
-                                        ((DefaultProperty)(input[i].getValue())).getValue(), datatypeName));
+                    //Argument[] argumentArray = methodNode.readInputArgumentsAsync().get();
+                    List<Variant> parameters = new ArrayList<Variant>();
+                    //todo: type safe DefaultProperty / OperationVariable
+                    for (OperationVariable p: input
+                         ) {
+                        DefaultProperty prop = (DefaultProperty) p.getValue();
+                        parameters.add(new Variant( OpcContentSerializerFactory.create().write(prop)));
                     }
+                    //create new empty array
+                    Variant[] parameterArray = new Variant[ parameters.size() ];
+
                     //calling method
                     CallMethodResult methodResult = client.call(new CallMethodRequest(
                             objectId,
                             methodId,
-                            parameters
+                            parameters.toArray(parameterArray)
                     )).get();
 
                     //reading output arguments
@@ -258,10 +218,7 @@ public class OpcUaAssetConnection
 
     @Override
     public void registerSubscriptionProvider(Reference reference, OpcUaSubscriptionProviderConfig subscriptionProviderConfig) throws AssetConnectionException {
-        Class elementType = context.getElementType(reference);
-        if (!DataElement.class.isAssignableFrom(elementType)) {
-            throw new AssetConnectionException(String.format("unsupported submodel element type (%s)", elementType.getSimpleName()));
-        }
+        TypeContext elementContext = context.getTypeInfo(reference);
         OpcUaClient client = null;
         try {
             client = createClient(config.getHost(), AnonymousProvider.INSTANCE);
@@ -283,9 +240,9 @@ public class OpcUaAssetConnection
                     subscribe(finalClient,
                             parseNodeId(finalClient, subscriptionProviderConfig.getNodeId()), subscriptionProviderConfig.getInterval(), x -> {
                                 try {
-                                    listener.newDataReceived(ContentParserFactory
+                                    listener.newDataReceived(OpcContentDeserializerFactory
                                             .create()
-                                            .parseValue(x.getValue().getValue().toString(), elementType));
+                                            .read(x.getValue().getValue(), elementContext));
                                 } catch (AssetConnectionException e) {
                                     e.printStackTrace();
                                 }

@@ -15,12 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.content;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
-import io.adminshell.aas.v3.model.DataElement;
+import io.adminshell.aas.v3.model.impl.DefaultProperty;
 
 
-public interface ContentParser {
+public interface ContentSerializer {
 
-    public DataElementValue parseValue(String raw, Class<? extends DataElement> elementType) throws AssetConnectionException;
-
+    public Object write(DefaultProperty value) throws AssetConnectionException;
 }
