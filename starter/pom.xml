@@ -46,6 +46,11 @@
             <version>1.5.0</version>
         </dependency>
         <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.6.2</version>
+        </dependency>
+        <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>dataformat-aasx</artifactId>
             <version>${aas.version}</version>

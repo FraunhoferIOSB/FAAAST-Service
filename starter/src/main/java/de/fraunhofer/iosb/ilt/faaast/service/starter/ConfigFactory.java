@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,51 +27,28 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import org.apache.commons.cli.CommandLine;
 
 
 public class ConfigFactory {
 
-    private static final String DEFAULT_CONFIG_JSON = "default-config.json";
+    public static final String DEFAULT_CONFIG_JSON = "default-config.json";
 
     private static ObjectMapper mapper = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
-    protected static ServiceConfig getServiceConfig(CommandLine cmd) throws IOException {
-        ServiceConfig config;
-        if (cmd.hasOption(CommandLineFactory.CMD_CONFIG_PARAMETER)) {
-            config = ConfigFactory.toServiceConfig(cmd.getOptionValue(CommandLineFactory.CMD_CONFIG_PARAMETER),
-                    cmd.hasOption(CommandLineFactory.CMD_COMPLETE_CONFIGURATION_PARAMETER),
-                    cmd.getOptionProperties(CommandLineFactory.CMD_ENVIRONMENT_PARAMETER));
-            Application.print("Using " + cmd.getOptionValue(CommandLineFactory.CMD_CONFIG_PARAMETER) + " as config file");
-        }
-        else if (new File(Application.DEFAULT_CONFIG_PATH).exists()) {
-            config = ConfigFactory.toServiceConfig(Application.DEFAULT_CONFIG_PATH,
-                    cmd.hasOption(CommandLineFactory.CMD_COMPLETE_CONFIGURATION_PARAMETER),
-                    cmd.getOptionProperties(CommandLineFactory.CMD_ENVIRONMENT_PARAMETER));
-            Application.print("Using " + Application.DEFAULT_CONFIG_PATH + " as config file");
-        }
-        else {
-            config = ConfigFactory.getDefaultServiceConfig(cmd.getOptionProperties(CommandLineFactory.CMD_ENVIRONMENT_PARAMETER));
-            Application.print("No config file was found - using default config");
-        }
-        return config;
+    public static ServiceConfig getDefaultServiceConfig() throws StarterConfigurationException {
+        return getDefaultServiceConfig(new HashMap<>());
     }
 
 
-    public static ServiceConfig getDefaultServiceConfig() throws JsonProcessingException {
-        return getDefaultServiceConfig(new Properties());
-    }
-
-
-    public static ServiceConfig getDefaultServiceConfig(Properties properties) throws JsonProcessingException {
+    public static ServiceConfig getDefaultServiceConfig(Map<String, Object> properties) throws StarterConfigurationException {
         if (properties == null) {
-            properties = new Properties();
+            properties = new HashMap<>();
         }
         try {
             JsonNode configNode = readDefaultConfigFile();
@@ -82,24 +58,23 @@ public class ConfigFactory {
             return config;
         }
         catch (IOException e) {
-            Application.print("Configuration Error: " + e.getMessage());
-            System.exit(1);
+            throw new StarterConfigurationException("Configuration Error: " + e.getMessage());
         }
-        return null;
     }
 
 
-    public static ServiceConfig toServiceConfig(File configFile) throws IOException {
+    public static ServiceConfig toServiceConfig(File configFile) throws StarterConfigurationException, IOException {
         return toServiceConfig(Files.readString(configFile.toPath()));
     }
 
 
-    public static ServiceConfig toServiceConfig(String pathToConfigFile) throws IOException {
-        return toServiceConfig(pathToConfigFile, false, new Properties());
+    public static ServiceConfig toServiceConfig(String pathToConfigFile) throws IOException, StarterConfigurationException {
+        return toServiceConfig(pathToConfigFile, Application.autoCompleteConfiguration, new HashMap<>());
     }
 
 
-    public static ServiceConfig toServiceConfig(String pathToConfigFile, boolean autoCompleteConfiguration, Properties commandLineProperties) {
+    public static ServiceConfig toServiceConfig(String pathToConfigFile, boolean autoCompleteConfiguration, Map<String, Object> commandLineProperties)
+            throws StarterConfigurationException {
         try {
             JsonNode configNode = mapper.readTree(Files.readString(Path.of(pathToConfigFile)));
             if (commandLineProperties != null && !commandLineProperties.isEmpty()) {
@@ -125,21 +100,17 @@ public class ConfigFactory {
             return serviceConfig;
         }
         catch (NoSuchFileException ex) {
-            Application.print("Configuration Error - Could not find configuration file: " + ex.getMessage());
-            System.exit(1);
+            throw new StarterConfigurationException("Configuration Error - Could not find configuration file: " + ex.getMessage());
         }
         catch (IOException ex) {
-            Application.print("Configuration Error: " + ex.getMessage());
-            ex.printStackTrace();
-            System.exit(1);
+            throw new StarterConfigurationException("Configuration Error: " + ex.getMessage());
         }
-        return null;
     }
 
 
-    private static void applyCommandlineProperties(Properties properties, JsonNode configNode) {
-        for (Map.Entry<Object, Object> prop: properties.entrySet()) {
-            List<String> pathList = List.of(prop.getKey().toString().split("\\."));
+    private static void applyCommandlineProperties(Map<String, Object> properties, JsonNode configNode) throws StarterConfigurationException {
+        for (Map.Entry<String, Object> prop: properties.entrySet()) {
+            List<String> pathList = List.of(prop.getKey().split("\\."));
             JsonNode jsonNode = configNode;
             for (int i = 0; i < pathList.size() - 1; i++) {
                 String path = pathList.get(i);
@@ -151,8 +122,7 @@ public class ConfigFactory {
                 }
             }
             if (MissingNode.class.isAssignableFrom(jsonNode.getClass())) {
-                Application.print("Configuration Error: Could not find attribute with path '" + prop.getKey() + "' in config file");
-                System.exit(1);
+                throw new StarterConfigurationException("Configuration Error: Could not find attribute with path '" + prop.getKey() + "' in config file");
             }
             ((ObjectNode) jsonNode).put(pathList.get(pathList.size() - 1), prop.getValue().toString());
         }

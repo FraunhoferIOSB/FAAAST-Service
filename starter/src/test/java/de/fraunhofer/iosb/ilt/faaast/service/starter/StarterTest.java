@@ -29,11 +29,10 @@ import io.adminshell.aas.v3.dataformat.xml.XmlDeserializer;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Properties;
-import org.apache.commons.cli.CommandLine;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -47,7 +46,7 @@ public class StarterTest {
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
     @Test
-    public void testCreateConfig() throws IOException {
+    public void testCreateConfig() throws IOException, StarterConfigurationException {
         ServiceConfig expected = mapper.readValue(new File("src/test/resources/test-config-expected.json"), ServiceConfig.class);
         ServiceConfig actual = ConfigFactory.toServiceConfig("src/test/resources/test-config-expected.json");
 
@@ -56,8 +55,8 @@ public class StarterTest {
 
 
     @Test
-    public void testCreateConfigWithProperties() throws IOException {
-        Properties properties = new Properties();
+    public void testCreateConfigWithProperties() throws IOException, StarterConfigurationException {
+        Map<String, Object> properties = new HashMap<>();
         properties.put("core.requestHandlerThreadPoolSize", 2);
         properties.put("endpoints.0.@class", "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpEndpoint");
         ServiceConfig expected = mapper.readValue(new File("src/test/resources/test-config-expected.json"), ServiceConfig.class);
@@ -68,7 +67,7 @@ public class StarterTest {
 
 
     @Test
-    public void testGetDefaultConfig() throws IOException {
+    public void testGetDefaultConfig() throws IOException, StarterConfigurationException {
         ServiceConfig expected = mapper.readValue(new File("src/main/resources/default-config.json"), ServiceConfig.class);
         ServiceConfig actual = ConfigFactory.getDefaultServiceConfig();
 
@@ -77,8 +76,8 @@ public class StarterTest {
 
 
     @Test
-    public void testGetDefaultConfigWithProperties() throws IOException {
-        Properties properties = new Properties();
+    public void testGetDefaultConfigWithProperties() throws IOException, StarterConfigurationException {
+        Map<String, Object> properties = new HashMap<>();
         properties.put("core.requestHandlerThreadPoolSize", 10);
 
         ServiceConfig expected = mapper.readValue(new File("src/main/resources/default-config.json"), ServiceConfig.class);
@@ -92,23 +91,22 @@ public class StarterTest {
 
 
     @Test
-    public void testGetAASEnvironmentDefault() throws IOException, DeserializationException {
-        CommandLine cmd = CommandLineFactory.setCommandLineOptions(new String[] {});
+    public void testGetAASEnvironmentDefault() {
         AssetAdministrationShellEnvironment expected = new DefaultAssetAdministrationShellEnvironment();
-        AssetAdministrationShellEnvironment actual = AASEnvironmentFactory.getAASEnvironment(cmd);
+        AssetAdministrationShellEnvironment actual = AASEnvironmentFactory.getEmptyAASEnvironment();
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testGetAASEnvironmentFromFileJSON() throws IOException, DeserializationException {
+    public void testGetAASEnvironmentFromFileJSON() throws IOException, DeserializationException, StarterConfigurationException {
         String filePath = "src/test/resources/AASFull.json";
         testAASEnvironment(filePath, new JsonDeserializer());
     }
 
 
     @Test
-    public void testGetAASEnvironmentFromFileXML() throws IOException, DeserializationException {
+    public void testGetAASEnvironmentFromFileXML() throws IOException, DeserializationException, StarterConfigurationException {
         String filePath = "src/test/resources/AASFull.xml";
         testAASEnvironment(filePath, new XmlDeserializer());
     }
@@ -116,14 +114,14 @@ public class StarterTest {
 
     @Test
     @Ignore
-    public void testGetAASEnvironmentFromFileAML() throws IOException, DeserializationException {
+    public void testGetAASEnvironmentFromFileAML() throws IOException, DeserializationException, StarterConfigurationException {
         String filePath = "src/test/resources/AASFull.aml";
         testAASEnvironment(filePath, new AmlDeserializer());
     }
 
 
     @Test
-    public void testGetAASEnvironmentFromFileOPCUA() throws IOException, DeserializationException {
+    public void testGetAASEnvironmentFromFileOPCUA() throws IOException, DeserializationException, StarterConfigurationException {
         String filePath = "src/test/resources/AASSimple.xml";
         testAASEnvironment(filePath, new I4AASDeserializer());
     }
@@ -131,20 +129,29 @@ public class StarterTest {
 
     @Test
     @Ignore
-    public void testGetAASEnvironmentFromFileRDF() throws IOException, DeserializationException {
+    public void testGetAASEnvironmentFromFileRDF() throws IOException, DeserializationException, StarterConfigurationException {
         String filePath = "src/test/resources/AASFull.rdf";
         testAASEnvironment(filePath, new I4AASDeserializer());
     }
 
 
-    private void testAASEnvironment(String filePath, Deserializer deserializer) throws DeserializationException, IOException {
-        String[] args = new String[] {
-                "-" + CommandLineFactory.CMD_AASENVIRONMENT_FILEPATH_PARAMETER + " " + filePath
-        };
-        CommandLine cmd = CommandLineFactory.setCommandLineOptions(args);
+    private void testAASEnvironment(String filePath, Deserializer deserializer) throws StarterConfigurationException, FileNotFoundException, DeserializationException {
         AssetAdministrationShellEnvironment expected = deserializer.read(new File(filePath));
-        AssetAdministrationShellEnvironment actual = AASEnvironmentFactory.getAASEnvironment(cmd, Files.readString(Path.of(filePath)));
+        AssetAdministrationShellEnvironment actual = AASEnvironmentFactory.getAASEnvironment(filePath);
         Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testGetAASEnvironmentFail() throws IOException, DeserializationException, StarterConfigurationException {
+        String filePath = "src/test/resources/AASSimple.xmasl";
+        try {
+            AASEnvironmentFactory.getAASEnvironment(filePath);
+        }
+        catch (StarterConfigurationException e) {
+            System.out.println(e.getMessage());
+        }
+        Assert.assertThrows(StarterConfigurationException.class, () -> AASEnvironmentFactory.getAASEnvironment(filePath));
     }
 
 }
