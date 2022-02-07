@@ -18,66 +18,76 @@ import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 
-public class Application {
+@Command(name = "FA³ST_Starter", mixinStandardHelpOptions = true, version = "0.1", description = "Starts a FA³ST Service")
+public class Application implements Runnable {
 
-    public static final String DEFAULT_CONFIG_PATH = "/config.json";
-    public static final String DEFAULT_AASENV_PATH = "/aasenvironment.*";
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
+    public static final String DEFAULT_CONFIG_PATH = "config.json";
+    public static final String DEFAULT_AASENV_PATH = "aasenvironment.*";
 
-    @picocli.CommandLine.Option(names = {
+    @Option(names = {
             "-c",
             "--configFile"
     }, description = "The config file path. Default Value = ${DEFAULT-VALUE}", defaultValue = DEFAULT_CONFIG_PATH)
-    static String configFilePath;
+    private String configFilePath;
 
-    @picocli.CommandLine.Option(names = {
+    @Option(names = {
             "-e",
             "--aasEnvironment"
     }, description = "Asset Administration Shell Environment FilePath. Default Value = ${DEFAULT-VALUE}", defaultValue = DEFAULT_AASENV_PATH)
-    static String aasEnvironmentFilePath;
+    private String aasEnvironmentFilePath;
 
-    @picocli.CommandLine.Option(names = {
+    @Option(names = {
             "--no-autoCompleteConfig"
     }, negatable = true, description = "Autocompletes the configuration with default values for required configuration sections. True by default")
     public static boolean autoCompleteConfiguration = true;
 
-    @picocli.CommandLine.Option(names = {
+    @Option(names = {
             "--emptyEnvironment"
     }, description = "Starts the FA³ST service with an empty Asset Administration Shell Environment. False by default")
-    public static boolean useEmptyAASEnvironment = false;
+    private boolean useEmptyAASEnvironment = false;
 
-    @picocli.CommandLine.Option(names = "-D")
-    static Map<String, Object> properties;
+    @Option(names = {
+            "-D",
+            "--property"
+    }, paramLabel = "KEY=VALUE")
+    private Map<String, Object> properties;
 
     public static void main(String[] args) throws Exception {
-        properties.entrySet().stream().forEach(x -> print("Apply Config parameter: " + x.getKey() + " = " + x.getValue().toString()));
+        LOGGER.info("Start configuration of FAAAST Service");
+        new CommandLine(new Application()).execute(args);
+    }
 
-        ServiceConfig config = null;
-        AssetAdministrationShellEnvironment environment = null;
 
+    @Override
+    public void run() {
         try {
-            config = ConfigFactory.toServiceConfig(configFilePath);
+            ServiceConfig config = ConfigFactory.toServiceConfig(configFilePath, autoCompleteConfiguration, properties);
+            AssetAdministrationShellEnvironment environment = null;
             if (useEmptyAASEnvironment) {
+                LOGGER.info("Using empty Asset Administration Shell Environment");
                 environment = AASEnvironmentFactory.getEmptyAASEnvironment();
             }
             else {
                 environment = AASEnvironmentFactory.getAASEnvironment(aasEnvironmentFilePath);
+                LOGGER.info("Successfully parsed Asset Administration Shell Environment");
             }
-
+            Service service = new Service(config);
+            service.setAASEnvironment(environment);
+            service.start();
+            LOGGER.info("FAAAST Service is running!");
         }
-        catch (StarterConfigurationException ex) {
-            print(ex.getMessage());
-            System.exit(1);
+        catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+            LOGGER.error("Abort starting FAAAST Service");
         }
-        Service service = new Service(config);
-        service.setAASEnvironment(environment);
-        service.start();
+
     }
-
-
-    protected static void print(String msg) {
-        System.out.println("[FA³ST] " + msg);
-    }
-
 }

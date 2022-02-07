@@ -50,7 +50,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
     Handler handler;
 
     @Override
-    public void init(CoreConfig core,  HttpEndpointConfig config, ServiceContext context) {}
+    public void init(CoreConfig core, HttpEndpointConfig config, ServiceContext context) {}
 
 
     public HttpEndpoint() {
