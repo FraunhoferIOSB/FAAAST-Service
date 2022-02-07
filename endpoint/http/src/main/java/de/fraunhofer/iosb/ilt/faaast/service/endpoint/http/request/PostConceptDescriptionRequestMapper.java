@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
@@ -29,11 +31,16 @@ public class PostConceptDescriptionRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
     private static final String PATTERN = "^concept-descriptions$";
 
+    public PostConceptDescriptionRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        PostConceptDescriptionRequest request = new PostConceptDescriptionRequest();
-        request.setConceptDescription(parseBody(httpRequest, ConceptDescription.class));
-        return request;
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+        return PostConceptDescriptionRequest.builder()
+                .conceptDescription(parseBody(httpRequest, ConceptDescription.class))
+                .build();
     }
 
 

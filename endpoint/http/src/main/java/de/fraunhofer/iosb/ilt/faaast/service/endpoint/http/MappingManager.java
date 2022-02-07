@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
@@ -35,8 +37,10 @@ public class MappingManager {
 
     private static Logger logger = LoggerFactory.getLogger(MappingManager.class);
     private List<RequestMapper> mappers;
+    protected ServiceContext serviceContext;
 
-    public MappingManager() {
+    public MappingManager(ServiceContext serviceContext) {
+        this.serviceContext = serviceContext;
         init();
     }
 
@@ -48,12 +52,13 @@ public class MappingManager {
                 .scan()) {
             mappers = scanResult
                     .getSubclasses(RequestMapper.class.getName())
+                    .filter(x -> !x.isAbstract() && !x.isInterface())
                     .loadClasses(RequestMapper.class)
                     .stream()
                     .map(x -> {
                         try {
-                            Constructor<RequestMapper> constructor = x.getConstructor();
-                            return constructor.newInstance();
+                            Constructor<RequestMapper> constructor = x.getConstructor(ServiceContext.class);
+                            return constructor.newInstance(serviceContext);
                         }
                         catch (NoSuchMethodException | SecurityException ex) {
                             logger.warn("request mapper implementation could not be loaded, "
@@ -65,8 +70,10 @@ public class MappingManager {
                                     + "reason: calling constructor failed (implementation class: {}, constructor arguments: {}",
                                     x.getName());
                         }
+                        logger.debug("unable to instantiate class {}", x.getName());
                         return null;
                     })
+                    .filter(x -> x != null)
                     .collect(Collectors.toList());
 
             // filter out all which are null
@@ -77,7 +84,7 @@ public class MappingManager {
     }
 
 
-    public Request map(HttpRequest httpRequest) {
+    public Request map(HttpRequest httpRequest) throws InvalidRequestException {
         if (httpRequest == null) {
             throw new IllegalArgumentException("httpRequest must be non-null");
         }
@@ -85,7 +92,7 @@ public class MappingManager {
                 .filter(request -> request.matches(httpRequest))
                 .findAny();
         if (mapper.isEmpty()) {
-            throw new IllegalArgumentException("no matching request mapper found");
+            throw new InvalidRequestException("no matching request mapper found");
         }
         return mapper.get().parse(httpRequest);
     }

@@ -14,39 +14,72 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpEndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllAssetAdministrationShellsResponse;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.List;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Assert;
 
 
 public class HttpTest {
 
+    private static int findFreePort() throws IOException {
+        ServerSocket serverSocket = new ServerSocket(0);
+        Assert.assertNotNull(serverSocket);
+        Assert.assertTrue(serverSocket.getLocalPort() > 0);
+        return serverSocket.getLocalPort();
+    }
+
+
     @org.junit.Test
     public void testServerBasics() throws Exception {
-        final String URL1 = "http://127.0.0.1:8081/shellsXXX";
-        final String URL2 = "http://127.0.0.1:8081/shells";
+        int port = findFreePort();
+        final String URL1 = "http://127.0.0.1:" + port + "/shellsXXX";
+        final String URL2 = "http://127.0.0.1:" + port + "/shells";
 
-        HttpEndpoint httpEndpoint = new HttpEndpoint(8081);
-        httpEndpoint.setService(null);
-        httpEndpoint.start();
+        HttpEndpointConfig endpointConfig = new HttpEndpointConfig();
+        endpointConfig.setPort(port);
+        ServiceContext serviceContext = mock(ServiceContext.class);
+        HttpEndpoint endpoint = new HttpEndpoint();
+        endpoint.init(CoreConfig.builder()
+                .build(),
+                endpointConfig,
+                serviceContext);
+        endpoint.start();
 
-        HttpClient httpClient = new HttpClient();
-        httpClient.start();
+        HttpClient client = new HttpClient();
+        client.start();
 
         // incorrect URL
         // but we have no service yet
         // should get us a http/404 when service is finally present
-        ContentResponse response = httpClient.GET(URL1);
-        Assert.assertTrue(response.getStatus() == 500);
+        ContentResponse response = client.GET(URL1);
+        Assert.assertTrue(response.getStatus() == HttpStatus.BAD_REQUEST_400);
 
+        when(serviceContext.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
+                .statusCode(StatusCode.Success)
+                .payload(List.of(AASFull.AAS_1))
+                .build());
         // correct URL, but we have no service yet
         // should get us a http/200 when service is finally present
-        response = httpClient.GET(URL2);
-        Assert.assertTrue(response.getStatus() == 500);
+        response = client.GET(URL2);
+        Assert.assertTrue(response.getStatus() == HttpStatus.OK_200);
 
-        httpClient.stop();
+        client.stop();
 
-        httpEndpoint.stop();
+        endpoint.stop();
     }
 }

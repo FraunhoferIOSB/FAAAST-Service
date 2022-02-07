@@ -14,15 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutAssetAdministrationShellRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
 
 
 /**
@@ -33,22 +33,17 @@ public class PutAssetAdministrationShellRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
     private static final String PATTERN = "^shells/(.*)/aas/?$";
 
+    public PutAssetAdministrationShellRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 3) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    PutAssetAdministrationShellRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        PutAssetAdministrationShellRequest request = new PutAssetAdministrationShellRequest();
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        try {
-            AssetAdministrationShell shell = deserializer.read(httpRequest.getBody(), DefaultAssetAdministrationShell.class);
-            request.setAas(shell);
-            return request;
-        }
-        catch (DeserializationException e) {}
-        return request;
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+        return PutAssetAdministrationShellRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .aas(parseBody(httpRequest, AssetAdministrationShell.class))
+                .build();
     }
 
 

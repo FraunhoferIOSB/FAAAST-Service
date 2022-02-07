@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
@@ -26,18 +27,23 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 /**
  * class to map HTTP-GET-Request path: submodels
  */
-public class GetAllSubmodelsBySemanticIdRequestMapper extends RequestMapper {
+public class GetAllSubmodelsBySemanticIdRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^submodels$";
     private static final String QUERYPARAM = "semanticId";
 
+    public GetAllSubmodelsBySemanticIdRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        GetAllSubmodelsBySemanticIdRequest request = new GetAllSubmodelsBySemanticIdRequest();
-        request.setOutputModifier(new OutputModifier());
-        request.setSemanticId(AasUtils.parseReference(EncodingUtils.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM))));
-        return request;
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+        return GetAllSubmodelsBySemanticIdRequest.builder()
+                .semanticId(AasUtils.parseReference(EncodingUtils.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM))))
+                .outputModifier(outputModifier)
+                .build();
     }
 
 

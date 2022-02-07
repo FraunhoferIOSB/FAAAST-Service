@@ -12,18 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
-import io.adminshell.aas.v3.model.Reference;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 
 
-public interface ServiceContext {
+public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
-    public TypeContext getTypeInfo(Reference reference);
+    public static final int DEFAULT_PORT = 8080;
+    private int port;
+
+    public HttpEndpointConfig() {
+        this.port = DEFAULT_PORT;
+    }
 
 
-    public Response execute(Request request);
+    public int getPort() {
+        return port;
+    }
+
+
+    public void setPort(int port) {
+        this.port = port;
+    }
 }

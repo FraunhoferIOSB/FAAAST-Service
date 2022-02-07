@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
@@ -26,22 +27,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
 /**
  * class to map HTTP-GET-Request path: submodels{submodelIdentifier}
  */
-public class GetSubmodelByIdRequestMapper extends RequestMapper {
+public class GetSubmodelByIdRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "(?!.*/submodel)^submodels/(.*)";
 
+    public GetSubmodelByIdRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 2) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    GetSubmodelByIdRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        GetSubmodelByIdRequest request = new GetSubmodelByIdRequest();
-        request.setOutputModifier(new OutputModifier());
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        return request;
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+        return GetSubmodelByIdRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .outputModifier(outputModifier)
+                .build();
     }
 
 

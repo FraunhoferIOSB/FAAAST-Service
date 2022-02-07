@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAssetAdministrationShellRequest;
@@ -27,25 +27,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
 /**
  * class to map HTTP-GET-Request path: shells/{aasIdentifier}/aas
  */
-public class GetAssetAdministrationShellRequestMapper extends RequestMapper {
+public class GetAssetAdministrationShellRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^shells/(.*)/aas$";
-    private static final String QUERYPARAM = "content";
+
+    public GetAssetAdministrationShellRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 3) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    GetAssetAdministrationShellRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        GetAssetAdministrationShellRequest request = new GetAssetAdministrationShellRequest();
-        OutputModifier outputModifier = new OutputModifier();
-        outputModifier.setContent(Content.fromString(httpRequest.getQueryParameters().get(QUERYPARAM)));
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        request.setOutputModifier(outputModifier);
-        return request;
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+        return GetAssetAdministrationShellRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .outputModifier(outputModifier)
+                .build();
     }
 
 

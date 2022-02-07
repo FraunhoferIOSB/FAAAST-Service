@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
@@ -32,17 +34,17 @@ public class PutAssetInformationRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
     private static final String PATTERN = "^shells/(.*)/aas/asset-information$";
 
+    public PutAssetInformationRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 4) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    PutAssetInformationRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        PutAssetInformationRequest request = new PutAssetInformationRequest();
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        request.setAssetInformation(parseBody(httpRequest, AssetInformation.class));
-        return request;
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+        return PutAssetInformationRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .assetInformation(parseBody(httpRequest, AssetInformation.class))
+                .build();
     }
 
 

@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
@@ -27,23 +29,23 @@ import io.adminshell.aas.v3.model.Submodel;
 /**
  * class to map HTTP-PUT-Request path: submodels/{submodelIdentifier}/submodel
  */
-public class PutSubmodelRequestMapper extends RequestMapper {
+public class PutSubmodelRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
     private static final String PATTERN = "^submodels/(.*?)/submodel$";
 
+    public PutSubmodelRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 3) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    PutSubmodelRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        PutSubmodelRequest request = new PutSubmodelRequest();
-        request.setOutputModifier(new OutputModifier());
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        request.setSubmodel(parseBody(httpRequest, Submodel.class));
-        return request;
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException {
+        return PutSubmodelRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .submodel(parseBody(httpRequest, Submodel.class))
+                .outputModifier(outputModifier)
+                .build();
     }
 
 

@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
@@ -26,18 +27,23 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 /**
  * class to map HTTP-GET-Request path: concept-descriptions
  */
-public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper extends RequestMapper {
+public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^concept-descriptions$";
     private static final String QUERYPARAM1 = "dataSpecificationRef";
 
+    public GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        GetAllConceptDescriptionsByDataSpecificationReferenceRequest request = new GetAllConceptDescriptionsByDataSpecificationReferenceRequest();
-        request.setDataSpecificationReference(AasUtils.parseReference(EncodingUtils.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM1))));
-        request.setOutputModifier(new OutputModifier());
-        return request;
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+        return GetAllConceptDescriptionsByDataSpecificationReferenceRequest.builder()
+                .dataSpecification(AasUtils.parseReference(EncodingUtils.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM1))))
+                .outputModifier(outputModifier)
+                .build();
     }
 
 

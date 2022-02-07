@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
@@ -31,17 +33,17 @@ public class PutConceptDescriptionByIdRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
     private static final String PATTERN = "^concept-descriptions/(.*)$";
 
+    public PutConceptDescriptionByIdRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 2) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    PutConceptDescriptionByIdRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        PutConceptDescriptionByIdRequest request = new PutConceptDescriptionByIdRequest();
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        request.setConceptDescription(parseBody(httpRequest, ConceptDescription.class));
-        return request;
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+        return PutConceptDescriptionByIdRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .conceptDescription(parseBody(httpRequest, ConceptDescription.class))
+                .build();
     }
 
 

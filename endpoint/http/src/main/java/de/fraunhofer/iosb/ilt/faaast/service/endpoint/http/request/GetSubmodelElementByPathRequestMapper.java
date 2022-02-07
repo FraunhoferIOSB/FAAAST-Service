@@ -14,11 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetSubmodelElementByPathRequest;
@@ -31,30 +29,23 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
  * class to map HTTP-GET-Request path:
  * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
  */
-public class GetSubmodelElementByPathRequestMapper extends RequestMapper {
+public class GetSubmodelElementByPathRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "(?!.*/operation-results)^submodels/(.*?)/submodel/submodel-elements/(.*?)$";
-    private static final String QUERYPARAM1 = "level";
-    private static final String QUERYPARAM2 = "content";
-    private static final String QUERYPARAM3 = "extend";
+
+    public GetSubmodelElementByPathRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 5) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    GetSubmodelElementByPathRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest();
-        OutputModifier outputModifier = new OutputModifier();
-        outputModifier.setLevel(Level.fromString(httpRequest.getQueryParameters().get(QUERYPARAM1)));
-        outputModifier.setContent(Content.fromString(httpRequest.getQueryParameters().get(QUERYPARAM2)));
-        outputModifier.setExtend(Extend.fromString(httpRequest.getQueryParameters().get(QUERYPARAM3)));
-        request.setOutputModifier(outputModifier);
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        request.setPath(ElementPathUtils.toKeys(EncodingUtils.urlDecode(httpRequest.getPathElements().get(4))));
-        return request;
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+        return GetSubmodelElementByPathRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .path(ElementPathUtils.toKeys(EncodingUtils.urlDecode(httpRequest.getPathElements().get(4))))
+                .outputModifier(outputModifier)
+                .build();
     }
 
 

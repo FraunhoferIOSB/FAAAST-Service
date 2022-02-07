@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
@@ -24,18 +25,23 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllConceptD
 /**
  * class to map HTTP-GET-Request path: concept-descriptions
  */
-public class GetAllConceptDescriptionsByIdShortRequestMapper extends RequestMapper {
+public class GetAllConceptDescriptionsByIdShortRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^concept-descriptions$";
     private static final String QUERYPARAM1 = "idShort";
 
+    public GetAllConceptDescriptionsByIdShortRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        GetAllConceptDescriptionsByIdShortRequest request = new GetAllConceptDescriptionsByIdShortRequest();
-        request.setIdShort(httpRequest.getQueryParameters().get(QUERYPARAM1));
-        request.setOutputModifier(new OutputModifier());
-        return request;
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+        return GetAllConceptDescriptionsByIdShortRequest.builder()
+                .idShort(httpRequest.getQueryParameters().get(QUERYPARAM1))
+                .outputModifier(outputModifier)
+                .build();
     }
 
 

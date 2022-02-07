@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
@@ -30,16 +31,16 @@ public class DeleteConceptDescriptionByIdRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.DELETE;
     private static final String PATTERN = "^concept-descriptions/(.*)$";
 
+    public DeleteConceptDescriptionByIdRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
     public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 2) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    DeleteConceptDescriptionByIdRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        DeleteConceptDescriptionByIdRequest request = new DeleteConceptDescriptionByIdRequest();
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        return request;
+        return DeleteConceptDescriptionByIdRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .build();
     }
 
 

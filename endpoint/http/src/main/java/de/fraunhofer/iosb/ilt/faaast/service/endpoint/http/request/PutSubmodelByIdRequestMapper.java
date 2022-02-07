@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
@@ -31,17 +33,17 @@ public class PutSubmodelByIdRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
     private static final String PATTERN = "(?!.*/submodel)^submodels/(.*)$";
 
+    public PutSubmodelByIdRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 2) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    PutSubmodelByIdRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        PutSubmodelByIdRequest request = new PutSubmodelByIdRequest();
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        request.setSubmodel(parseBody(httpRequest, Submodel.class));
-        return request;
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+        return PutSubmodelByIdRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .submodel(parseBody(httpRequest, Submodel.class))
+                .build();
     }
 
 

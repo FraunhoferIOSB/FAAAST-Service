@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
@@ -32,17 +33,17 @@ public class DeleteSubmodelElementByPathRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.DELETE;
     private static final String PATTERN = "^submodels/(.*?)/submodel/submodel-elements/(.*)$";
 
+    public DeleteSubmodelElementByPathRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
     public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 5) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    DeleteSubmodelElementByPathRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        DeleteSubmodelElementByPathRequest request = new DeleteSubmodelElementByPathRequest();
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        request.setPath(ElementPathUtils.toKeys(EncodingUtils.urlDecode(httpRequest.getPathElements().get(4))));
-        return request;
+        return DeleteSubmodelElementByPathRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .path(ElementPathUtils.toKeys(EncodingUtils.urlDecode(httpRequest.getPathElements().get(4))))
+                .build();
     }
 
 

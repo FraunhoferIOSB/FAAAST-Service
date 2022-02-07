@@ -14,13 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PostSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 
 
@@ -32,18 +33,17 @@ public class PostSubmodelReferenceRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
     private static final String PATTERN = "^shells/(.*)/aas/submodels$";
 
+    public PostSubmodelReferenceRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 4) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    PostSubmodelReferenceRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        PostSubmodelReferenceRequest request = new PostSubmodelReferenceRequest();
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        AasUtils.parseReference(httpRequest.getBody());
-        request.setSubmodelRef(parseBody(httpRequest, Reference.class));
-        return request;
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+        return PostSubmodelReferenceRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .submodelRef(parseBody(httpRequest, Reference.class))
+                .build();
     }
 
 

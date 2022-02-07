@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
@@ -29,16 +30,16 @@ public class GetAASXByPackageIdRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^packages/(.*)$";
 
+    public GetAASXByPackageIdRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
     public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 2) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    GetAASXByPackageIdRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        GetAASXByPackageIdRequest request = new GetAASXByPackageIdRequest();
-        request.setPackageId(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1)));
-        return request;
+        return GetAASXByPackageIdRequest.builder()
+                .packageId(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1)))
+                .build();
     }
 
 

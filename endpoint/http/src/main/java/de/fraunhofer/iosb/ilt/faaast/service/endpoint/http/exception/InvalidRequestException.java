@@ -12,18 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
-import io.adminshell.aas.v3.model.Reference;
+public class InvalidRequestException extends Exception {
 
-
-public interface ServiceContext {
-
-    public TypeContext getTypeInfo(Reference reference);
+    public InvalidRequestException(String message) {
+        super(message);
+    }
 
 
-    public Response execute(Request request);
+    public InvalidRequestException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+
+    public InvalidRequestException(Throwable cause) {
+        super(cause);
+    }
+
 }

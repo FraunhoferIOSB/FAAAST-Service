@@ -180,7 +180,6 @@ public class Service implements ServiceContext {
             endpoints = new ArrayList<>();
             for (EndpointConfig endpointConfig: config.getEndpoints()) {
                 Endpoint endpoint = (Endpoint) endpointConfig.newInstance(config.getCore(), this);
-                endpoint.setService(this);
                 endpoints.add(endpoint);
             }
         }

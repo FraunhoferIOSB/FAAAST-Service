@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
@@ -32,19 +34,23 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestMapper extends R
     private static final String PATTERN = "^lookup/shells$";
     private static final String QUERYPARAM = "assetIds";
 
+    public GetAllAssetAdministrationShellIdsByAssetLinkRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        GetAllAssetAdministrationShellIdsByAssetLinkRequest request = new GetAllAssetAdministrationShellIdsByAssetLinkRequest();
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
         try {
-            request.setAssetIdentifierPairs(
-                    deserializer.readList(
+            return GetAllAssetAdministrationShellIdsByAssetLinkRequest.builder()
+                    .assetIdentifierPairs(deserializer.readList(
                             EncodingUtils.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM)),
-                            IdentifierKeyValuePair.class));
+                            IdentifierKeyValuePair.class))
+                    .build();
         }
         catch (DeserializationException ex) {
-            throw new IllegalArgumentException(String.format("error deserializing %s", QUERYPARAM));
+            throw new InvalidRequestException(String.format("error deserializing %s", QUERYPARAM));
         }
-        return request;
     }
 
 

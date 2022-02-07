@@ -14,13 +14,22 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValueParser;
+import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
+import io.adminshell.aas.v3.model.Key;
+import io.adminshell.aas.v3.model.SubmodelElement;
+import java.util.List;
 
 
 /**
@@ -34,26 +43,34 @@ public class SetSubmodelElementValueByPathRequestMapper extends RequestMapper {
     private static final String QUERYPARAM1 = "content";
     private static final String QUERYVALUE1 = "value";
 
+    public SetSubmodelElementValueByPathRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
     public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 5) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    SetSubmodelElementValueByPathRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        request.setPath(ElementPathUtils.toKeys(EncodingUtils.urlDecode(httpRequest.getPathElements().get(4))));
-        // approach: pass formatter down to execution of request
-
-        // TODO converting/parsing string to ElementValue not implemented yet but required here
-        // value parsing depends on type of property but this should not be resolved this early?!!?
-        // see https://app.swaggerhub.com/domains/Plattform_i40/Shared-Domain-Models/Final-Draft#/components/schemas/SubmodelElementValue
-        // theoretically could be determined via structure by Jackson which class to use
-        // to be on safe side/deterministic, we would need to resolve idShortPath and lookup datatype
-        // alternative, forward unparsed data (as JsonNode) and parse later
-        //request.setPayload(IdGenerator.parseValue(httpRequest.getBody()));
-        return request;
+        final List<Key> path = ElementPathUtils.toKeys(EncodingUtils.urlDecode(httpRequest.getPathElements().get(4)));
+        return SetSubmodelElementValueByPathRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .path(path)
+                .value(httpRequest.getBody())
+                .valueParser(new ElementValueParser<Object>() {
+                    @Override
+                    public <U extends ElementValue> U parse(Object raw, Class<U> type) throws DeserializationException {
+                        if (ElementValue.class.isAssignableFrom(type)) {
+                            return deserializer.readValue(raw.toString(), serviceContext.getTypeInfo(Util.toReference(path)));
+                        }
+                        else if (SubmodelElement.class.isAssignableFrom(type)) {
+                            SubmodelElement submodelElement = (SubmodelElement) deserializer.read(raw.toString(), type);
+                            return ElementValueMapper.toValue(submodelElement);
+                        }
+                        throw new DeserializationException(
+                                String.format("error deserializing payload - invalid type '%s' (must be either instance of ElementValue or SubmodelElement",
+                                        type.getSimpleName()));
+                    }
+                })
+                .build();
     }
 
 

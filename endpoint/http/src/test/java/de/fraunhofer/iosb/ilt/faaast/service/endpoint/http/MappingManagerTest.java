@@ -14,6 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
@@ -71,8 +77,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutSubmodelByI
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
@@ -114,15 +123,17 @@ public class MappingManagerTest {
     private static final Reference SUBMODEL_ELEMENT_REF = AasUtils.toReference(AasUtils.toReference(SUBMODEL), SUBMODEL_ELEMENT);
     private final MappingManager mappingManager;
     private final HttpJsonSerializer serializer;
+    private final ServiceContext serviceContext;
 
     public MappingManagerTest() {
-        this.serializer = new HttpJsonSerializer();
-        this.mappingManager = new MappingManager();
+        serializer = new HttpJsonSerializer();
+        serviceContext = mock(ServiceContext.class);
+        mappingManager = new MappingManager(serviceContext);
     }
 
 
     @Test
-    public void testDeleteAASXPackageByIdRequest() {
+    public void testDeleteAASXPackageByIdRequest() throws InvalidRequestException {
         Request expected = DeleteAASXPackageByIdRequest.builder()
                 .packageId(AASX_PACKAGE_ID)
                 .build();
@@ -135,7 +146,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testDeleteAllAssetLinksByIdRequest() {
+    public void testDeleteAllAssetLinksByIdRequest() throws InvalidRequestException {
         Request expected = DeleteAllAssetLinksByIdRequest.builder()
                 .aasIdentifier(AAS.getIdentification().getIdentifier())
                 .build();
@@ -148,7 +159,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testDeleteAssetAdministrationShellById() {
+    public void testDeleteAssetAdministrationShellById() throws InvalidRequestException {
         Request expected = DeleteAssetAdministrationShellByIdRequest.builder()
                 .id(AAS.getIdentification())
                 .build();
@@ -161,7 +172,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testDeleteConceptDescriptionById() {
+    public void testDeleteConceptDescriptionById() throws InvalidRequestException {
         Request expected = DeleteConceptDescriptionByIdRequest.builder()
                 .id(CONCEPT_DESCRIPTION.getIdentification())
                 .build();
@@ -174,7 +185,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testDeleteSubmodelById() {
+    public void testDeleteSubmodelById() throws InvalidRequestException {
         Request expected = DeleteSubmodelByIdRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .build();
@@ -187,7 +198,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testDeleteSubmodelElementByPath() throws SerializationException {
+    public void testDeleteSubmodelElementByPath() throws SerializationException, InvalidRequestException {
         Request expected = DeleteSubmodelElementByPathRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
@@ -202,7 +213,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testDeleteSubmodelReference() {
+    public void testDeleteSubmodelReference() throws InvalidRequestException {
         Reference submodelRef = AasUtils.toReference(SUBMODEL);
         Request expected = DeleteSubmodelReferenceRequest.builder()
                 .id(AAS.getIdentification())
@@ -218,7 +229,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAASXByPackageIdRequest() {
+    public void testGetAASXByPackageIdRequest() throws InvalidRequestException {
         Request expected = GetAASXByPackageIdRequest.builder()
                 .packageId(AASX_PACKAGE_ID)
                 .build();
@@ -231,7 +242,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllAASXPackageIdsRequest() {
+    public void testGetAllAASXPackageIdsRequest() throws InvalidRequestException {
         Request expected = GetAllAASXPackageIdsRequest.builder()
                 .aasId(AAS.getIdentification())
                 .build();
@@ -245,7 +256,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShellIdsByAssetLinkRequest() throws SerializationException {
+    public void testGetAllAssetAdministrationShellIdsByAssetLinkRequest() throws SerializationException, InvalidRequestException {
         Request expected = GetAllAssetAdministrationShellIdsByAssetLinkRequest.builder()
                 .assetIdentifierPairs(ASSET_IDENTIFIERS)
                 .build();
@@ -259,7 +270,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShellsByAssetId() throws SerializationException {
+    public void testGetAllAssetAdministrationShellsByAssetId() throws SerializationException, InvalidRequestException {
         List<IdentifierKeyValuePair> assetIds = Arrays.asList(new DefaultIdentifierKeyValuePair.Builder()
                 .key(GLOBAL_ASSET_ID)
                 .value(AAS.getAssetInformation().getGlobalAssetId().getKeys().get(0).getValue())
@@ -279,7 +290,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShellsByIdShort() {
+    public void testGetAllAssetAdministrationShellsByIdShort() throws InvalidRequestException {
         String idShort = AAS.getIdShort();
         Request expected = GetAllAssetAdministrationShellsByIdShortRequest.builder()
                 .outputModifier(OutputModifier.DEFAULT)
@@ -295,7 +306,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShellsRequest() {
+    public void testGetAllAssetAdministrationShellsRequest() throws InvalidRequestException {
         Request expected = GetAllAssetAdministrationShellsRequest.builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
@@ -308,7 +319,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllAssetLinksByIdRequest() {
+    public void testGetAllAssetLinksByIdRequest() throws InvalidRequestException {
         Request expected = GetAllAssetLinksByIdRequest.builder()
                 .aasIdentifier(AAS.getIdentification().getIdentifier())
                 .build();
@@ -321,7 +332,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllConceptDescriptions() {
+    public void testGetAllConceptDescriptions() throws InvalidRequestException {
         Request expected = GetAllConceptDescriptionsRequest.builder()
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -333,7 +344,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllConceptDescriptionsByDataSpecificationReference() {
+    public void testGetAllConceptDescriptionsByDataSpecificationReference() throws InvalidRequestException {
         Reference dataSpecificationRef = AasUtils.toReference(CONCEPT_DESCRIPTION);
         Request expected = GetAllConceptDescriptionsByDataSpecificationReferenceRequest.builder()
                 .dataSpecification(dataSpecificationRef)
@@ -348,7 +359,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllConceptDescriptionsByIdShort() {
+    public void testGetAllConceptDescriptionsByIdShort() throws InvalidRequestException {
         Request expected = GetAllConceptDescriptionsByIdShortRequest.builder()
                 .idShort(CONCEPT_DESCRIPTION.getIdShort())
                 .build();
@@ -362,7 +373,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllConceptDescriptionsByIsCaseOf() {
+    public void testGetAllConceptDescriptionsByIsCaseOf() throws InvalidRequestException {
         Reference isCaseOf = CONCEPT_DESCRIPTION.getIsCaseOfs().get(0);
         Request expected = GetAllConceptDescriptionsByIsCaseOfRequest.builder()
                 .isCaseOf(isCaseOf)
@@ -377,7 +388,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllSubmodelElements() {
+    public void testGetAllSubmodelElements() throws InvalidRequestException {
         Request expected = GetAllSubmodelElementsRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .outputModifier(new OutputModifier.Builder()
@@ -394,7 +405,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllSubmodels() {
+    public void testGetAllSubmodels() throws InvalidRequestException {
         Request expected = GetAllSubmodelsRequest.builder()
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -406,7 +417,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllSubmodelsByIdShort() {
+    public void testGetAllSubmodelsByIdShort() throws InvalidRequestException {
         Request expected = GetAllSubmodelsByIdShortRequest.builder()
                 .idShort(SUBMODEL.getIdShort())
                 .build();
@@ -420,7 +431,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAllSubmodelsBySemanticId() {
+    public void testGetAllSubmodelsBySemanticId() throws InvalidRequestException {
         Request expected = GetAllSubmodelsBySemanticIdRequest.builder()
                 .semanticId(SUBMODEL.getSemanticId())
                 .build();
@@ -434,7 +445,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAssetAdministrationShell() {
+    public void testGetAssetAdministrationShell() throws InvalidRequestException {
         Request expected = GetAssetAdministrationShellRequest.builder()
                 .id(AAS.getIdentification())
                 .outputModifier(new OutputModifier.Builder()
@@ -451,7 +462,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAssetAdministrationShellById() {
+    public void testGetAssetAdministrationShellById() throws InvalidRequestException {
         Request expected = GetAssetAdministrationShellByIdRequest.builder()
                 .id(AAS.getIdentification())
                 .build();
@@ -464,7 +475,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetAssetInformationRequest() {
+    public void testGetAssetInformationRequest() throws InvalidRequestException {
         Request expected = GetAssetInformationRequest.builder()
                 .id(AAS.getIdentification())
                 .build();
@@ -477,7 +488,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetConceptDescriptionById() {
+    public void testGetConceptDescriptionById() throws InvalidRequestException {
         Request expected = GetConceptDescriptionByIdRequest.builder()
                 .id(CONCEPT_DESCRIPTION.getIdentification())
                 .build();
@@ -490,13 +501,12 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetOperationAsyncResult() {
+    public void testGetOperationAsyncResult() throws InvalidRequestException {
         final String handleId = UUID.randomUUID().toString();
         Request expected = GetOperationAsyncResultRequest.builder()
                 .handleId(handleId)
                 .path(ElementPathUtils.extractElementPath(OPERATION_REF))
                 .build();
-
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("submodels/" + EncodingUtils.base64UrlEncode(SUBMODEL.getIdentification().getIdentifier()) + "/submodel/submodel-elements/"
@@ -508,7 +518,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetSubmodel() {
+    public void testGetSubmodel() throws InvalidRequestException {
         Request expected = GetSubmodelRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .build();
@@ -521,7 +531,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetSubmodelByIdRequest() {
+    public void testGetSubmodelByIdRequest() throws InvalidRequestException {
         Request expected = GetSubmodelByIdRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .build();
@@ -534,7 +544,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testGetSubmodelElementByPath() {
+    public void testGetSubmodelElementByPath() throws InvalidRequestException {
         Request expected = GetSubmodelElementByPathRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
@@ -567,7 +577,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testInvokeOperationAsync_Normal() throws SerializationException {
+    public void testInvokeOperationAsync_Normal() throws SerializationException, InvalidRequestException {
         Request expected = InvokeOperationAsyncRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ElementPathUtils.extractElementPath(OPERATION_REF))
@@ -589,9 +599,7 @@ public class MappingManagerTest {
 
 
     @Test
-    @Ignore
-    public void testInvokeOperationAsync_Value() throws SerializationException {
-        Assert.fail("not implemented");
+    public void testInvokeOperationAsync_Value() throws SerializationException, InvalidRequestException {
         Request expected = InvokeOperationAsyncRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ElementPathUtils.extractElementPath(OPERATION_REF))
@@ -613,7 +621,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testInvokeOperationSync_Normal() throws SerializationException {
+    public void testInvokeOperationSync_Normal() throws SerializationException, InvalidRequestException {
         Request expected = InvokeOperationSyncRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ElementPathUtils.extractElementPath(OPERATION_REF))
@@ -634,9 +642,7 @@ public class MappingManagerTest {
 
 
     @Test
-    @Ignore
-    public void testInvokeOperationSync_Value() throws SerializationException {
-        Assert.fail("not implemented");
+    public void testInvokeOperationSync_Value() throws SerializationException, InvalidRequestException {
         Request expected = InvokeOperationSyncRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ElementPathUtils.extractElementPath(OPERATION_REF))
@@ -658,7 +664,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testMappingGetAllSubmodelReferences() {
+    public void testMappingGetAllSubmodelReferences() throws InvalidRequestException {
         Request expected = GetAllSubmodelReferencesRequest.builder()
                 .id(AAS.getIdentification())
                 .build();
@@ -672,7 +678,7 @@ public class MappingManagerTest {
 
     @Test
     @Ignore
-    public void testPostAASXPackageRequest() throws IOException {
+    public void testPostAASXPackageRequest() throws IOException, InvalidRequestException {
         Assert.fail("not implemented (multipart HTTP message");
         Request expected = PostAASXPackageRequest.builder()
                 .aasId(AAS.getIdentification())
@@ -693,7 +699,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPostAllAssetLinksByIdRequest() throws SerializationException {
+    public void testPostAllAssetLinksByIdRequest() throws SerializationException, InvalidRequestException {
         Request expected = PostAllAssetLinksByIdRequest.builder()
                 .aasIdentifier(AAS.getIdentification().getIdentifier())
                 .assetLinks(ASSET_IDENTIFIERS)
@@ -708,7 +714,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPostAssetAdministrationShell() throws SerializationException {
+    public void testPostAssetAdministrationShell() throws SerializationException, InvalidRequestException {
         Request expected = PostAssetAdministrationShellRequest.builder()
                 .aas(AAS)
                 .build();
@@ -722,7 +728,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPostConceptDescription() throws SerializationException {
+    public void testPostConceptDescription() throws SerializationException, InvalidRequestException {
         Request expected = PostConceptDescriptionRequest.builder()
                 .conceptDescription(CONCEPT_DESCRIPTION)
                 .build();
@@ -736,7 +742,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPostSubmodel() throws SerializationException {
+    public void testPostSubmodel() throws SerializationException, InvalidRequestException {
         Request expected = PostSubmodelRequest.builder()
                 .submodel(SUBMODEL)
                 .build();
@@ -750,7 +756,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPostSubmodelElement() throws SerializationException {
+    public void testPostSubmodelElement() throws SerializationException, InvalidRequestException {
         Request expected = PostSubmodelElementRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .submodelElement(SUBMODEL_ELEMENT)
@@ -765,7 +771,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPostSubmodelElementByPath() throws SerializationException {
+    public void testPostSubmodelElementByPath() throws SerializationException, InvalidRequestException {
         Request expected = PostSubmodelElementByPathRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
@@ -782,7 +788,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPostSubmodelReference() throws SerializationException {
+    public void testPostSubmodelReference() throws SerializationException, InvalidRequestException {
         Reference submodelRef = AasUtils.toReference(SUBMODEL);
         Request expected = PostSubmodelReferenceRequest.builder()
                 .id(AAS.getIdentification())
@@ -799,7 +805,7 @@ public class MappingManagerTest {
 
     @Test
     @Ignore
-    public void testPutAASXPackageByIdRequest() throws IOException {
+    public void testPutAASXPackageByIdRequest() throws IOException, InvalidRequestException {
         Assert.fail("not implemented (requires multipart HTTP)");
         Request expected = GetAASXByPackageIdRequest.builder()
                 .packageId(AASX_PACKAGE_ID)
@@ -813,7 +819,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPutAssetAdministrationShell() throws SerializationException {
+    public void testPutAssetAdministrationShell() throws SerializationException, InvalidRequestException {
         Request expected = PutAssetAdministrationShellRequest.builder()
                 .id(AAS.getIdentification())
                 .aas(AAS)
@@ -828,7 +834,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPutAssetAdministrationShellById() throws SerializationException {
+    public void testPutAssetAdministrationShellById() throws SerializationException, InvalidRequestException {
         Request expected = PutAssetAdministrationShellByIdRequest.builder()
                 .id(AAS.getIdentification())
                 .aas(AAS)
@@ -843,7 +849,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPutAssetInformationRequest() throws SerializationException {
+    public void testPutAssetInformationRequest() throws SerializationException, InvalidRequestException {
         Request expected = PutAssetInformationRequest.builder()
                 .id(AAS.getIdentification())
                 .assetInformation(AAS.getAssetInformation())
@@ -858,7 +864,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPutConceptDescriptionById() throws SerializationException {
+    public void testPutConceptDescriptionById() throws SerializationException, InvalidRequestException {
         Request expected = PutConceptDescriptionByIdRequest.builder()
                 .id(CONCEPT_DESCRIPTION.getIdentification())
                 .conceptDescription(CONCEPT_DESCRIPTION)
@@ -873,7 +879,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPutSubmodel() throws SerializationException {
+    public void testPutSubmodel() throws SerializationException, InvalidRequestException {
         Request expected = PutSubmodelRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .submodel(SUBMODEL)
@@ -888,7 +894,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPutSubmodelById() throws SerializationException {
+    public void testPutSubmodelById() throws SerializationException, InvalidRequestException {
         Request expected = PutSubmodelByIdRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .submodel(SUBMODEL)
@@ -903,7 +909,7 @@ public class MappingManagerTest {
 
 
     @Test
-    public void testPutSubmodelElementByPath() throws SerializationException {
+    public void testPutSubmodelElementByPath() throws SerializationException, InvalidRequestException {
         Request expected = PutSubmodelElementByPathRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
@@ -920,33 +926,49 @@ public class MappingManagerTest {
 
 
     @Test
-    @Ignore
-    public void testSetSubmodelElementValueByPath() throws SerializationException {
-        Request expected = SetSubmodelElementValueByPathRequest.<String> builder()
+    public void testSetSubmodelElementValueByPath_ContentNormal() throws SerializationException, InvalidRequestException, Exception {
+        SetSubmodelElementValueByPathRequest expected = SetSubmodelElementValueByPathRequest.<String> builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
                 .build();
-        Request actual = mappingManager.map(HttpRequest.builder()
+        when(serviceContext.getTypeInfo(any())).thenReturn(TypeExtractor.getTypeContext(SUBMODEL_ELEMENT));
+        Request temp = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
                 .path("submodels/" + EncodingUtils.base64UrlEncode(SUBMODEL.getIdentification().getIdentifier()) + "/submodel/submodel-elements/"
                         + ElementPathUtils.toElementPath(SUBMODEL_ELEMENT_REF))
                 .query("content=value")
                 .body(serializer.write(SUBMODEL_ELEMENT))
                 .build());
-        Assert.assertEquals(expected, actual);
-
-        Assert.fail("not implemented");
-        //        File example = new File("src/test/resources/example-submodel-element.json");
-        //        execute(HttpMethod.PUT,
-        //                "submodels/bXktYWFzLXRlc3QtaWRlbnRpZmllcg==/submodel/submodel-elements/MySubmodelElementStruct.MySubSubmodelElementList%5B1%5D",
-        //                "content=value",
-        //                Files.readString(example.toPath()),
-        //                SetSubmodelElementValueByPathRequest.class);
+        SetSubmodelElementValueByPathRequest actual = (SetSubmodelElementValueByPathRequest) temp;
+        Assert.assertEquals(expected.getId(), actual.getId());
+        Assert.assertEquals(expected.getPath(), actual.getPath());
+        Assert.assertEquals(ElementValueMapper.toValue(SUBMODEL_ELEMENT), actual.getValueParser().parse(actual.getRawValue(), SubmodelElement.class));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testUnknownPath() {
+    @Test
+    public void testSetSubmodelElementValueByPath_ContentValueOnly() throws SerializationException, InvalidRequestException, Exception {
+        SetSubmodelElementValueByPathRequest expected = SetSubmodelElementValueByPathRequest.<String> builder()
+                .id(SUBMODEL.getIdentification())
+                .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .build();
+        when(serviceContext.getTypeInfo(any())).thenReturn(TypeExtractor.getTypeContext(SUBMODEL_ELEMENT));
+        Request temp = mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.PUT)
+                .path("submodels/" + EncodingUtils.base64UrlEncode(SUBMODEL.getIdentification().getIdentifier()) + "/submodel/submodel-elements/"
+                        + ElementPathUtils.toElementPath(SUBMODEL_ELEMENT_REF))
+                .query("content=value")
+                .body(serializer.write(ElementValueMapper.toValue(SUBMODEL_ELEMENT)))
+                .build());
+        SetSubmodelElementValueByPathRequest actual = (SetSubmodelElementValueByPathRequest) temp;
+        Assert.assertEquals(expected.getId(), actual.getId());
+        Assert.assertEquals(expected.getPath(), actual.getPath());
+        Assert.assertEquals(ElementValueMapper.toValue(SUBMODEL_ELEMENT), actual.getValueParser().parse(actual.getRawValue(), ElementValue.class));
+    }
+
+
+    @Test(expected = InvalidRequestException.class)
+    public void testUnknownPath() throws InvalidRequestException {
         mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("foo")

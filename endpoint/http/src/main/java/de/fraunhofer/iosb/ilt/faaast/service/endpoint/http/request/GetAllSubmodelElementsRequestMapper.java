@@ -14,11 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllSubmodelElementsRequest;
@@ -30,30 +28,23 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
  * class to map HTTP-GET-Request path:
  * submodels/{submodelIdentifier}/submodel/submodel-elements
  */
-public class GetAllSubmodelElementsRequestMapper extends RequestMapper {
+public class GetAllSubmodelElementsRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^submodels/(.*?)/submodel/submodel-elements$";
     private static final String QUERYPARAM1 = "parentPath";
-    private static final String QUERYPARAM2 = "level";
-    private static final String QUERYPARAM3 = "content";
-    private static final String QUERYPARAM4 = "extend";
+
+    public GetAllSubmodelElementsRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 4) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    GetAllSubmodelElementsRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        GetAllSubmodelElementsRequest request = new GetAllSubmodelElementsRequest();
-        OutputModifier outputModifier = new OutputModifier();
-        outputModifier.setLevel(Level.fromString(httpRequest.getQueryParameters().get(QUERYPARAM2)));
-        outputModifier.setContent(Content.fromString(httpRequest.getQueryParameters().get(QUERYPARAM3)));
-        outputModifier.setExtend(Extend.fromString(httpRequest.getQueryParameters().get(QUERYPARAM4)));
-        request.setOutputModifier(outputModifier);
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        return request;
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+        return GetAllSubmodelElementsRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .outputModifier(outputModifier)
+                .build();
     }
 
 

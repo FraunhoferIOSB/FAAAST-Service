@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
@@ -24,19 +25,23 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllSubmodel
 /**
  * class to map HTTP-Request path: submodels
  */
-public class GetAllSubmodelsByIdShortRequestMapper extends RequestMapper {
+public class GetAllSubmodelsByIdShortRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^submodels$";
     private static final String QUERYPARAM = "idShort";
 
+    public GetAllSubmodelsByIdShortRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        GetAllSubmodelsByIdShortRequest request = new GetAllSubmodelsByIdShortRequest();
-        request.setOutputModifier(new OutputModifier());
-        String idShort = httpRequest.getQueryParameters().get(QUERYPARAM);
-        request.setIdShort(idShort);
-        return request;
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+        return GetAllSubmodelsByIdShortRequest.builder()
+                .idShort(httpRequest.getQueryParameters().get(QUERYPARAM))
+                .outputModifier(outputModifier)
+                .build();
     }
 
 
