@@ -19,7 +19,7 @@ import com.prosysopc.ua.typedictionary.GeneratedDataTypeDictionary;
 
 
 /**
- * Generated on 2022-01-26 16:50:24
+ * Generated on 2022-02-08 12:58:54
  */
 public class DataTypeDictionaryHelper {
     public static GeneratedDataTypeDictionary createDataTypeDictionary() {

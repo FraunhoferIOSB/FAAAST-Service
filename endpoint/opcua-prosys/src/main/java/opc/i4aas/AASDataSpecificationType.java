@@ -19,7 +19,7 @@ import com.prosysopc.ua.types.opcua.BaseObjectType;
 
 
 /**
- * Generated on 2022-01-26 16:50:24
+ * Generated on 2022-02-08 12:58:54
  */
 @TypeDefinitionId("nsu=http://opcfoundation.org/UA/I4AAS/V3/;i=1027")
 public interface AASDataSpecificationType extends BaseObjectType {}

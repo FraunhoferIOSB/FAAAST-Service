@@ -18,7 +18,7 @@ import com.prosysopc.ua.stack.builtintypes.ExpandedNodeId;
 
 
 /**
- * Generated on 2022-01-26 16:50:24
+ * Generated on 2022-02-08 12:58:54
  */
 public interface ObjectTypeIds {
     ExpandedNodeId AASAdministrativeInformationType = ObjectTypeIdsInit.initAASAdministrativeInformationType();

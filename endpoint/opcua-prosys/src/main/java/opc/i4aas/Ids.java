@@ -15,6 +15,6 @@
 package opc.i4aas;
 
 /**
- * Generated on 2022-01-26 16:50:24
+ * Generated on 2022-02-08 12:58:54
  */
-public interface Ids extends DataTypeIds, VariableIds, ObjectIds, ObjectTypeIds, MethodIds {}
+public interface Ids extends VariableIds, DataTypeIds, ObjectIds, ObjectTypeIds, MethodIds {}

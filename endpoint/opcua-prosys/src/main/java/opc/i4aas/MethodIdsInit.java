@@ -19,13 +19,13 @@ import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 
 
 class MethodIdsInit {
-    static ExpandedNodeId initAASFileType_File_Close() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(7008L));
+    static ExpandedNodeId initAASFileType_File_Write() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(7013L));
     }
 
 
-    static ExpandedNodeId initAASFileType_File_GetPosition() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(7009L));
+    static ExpandedNodeId initAASFileType_File_Read() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(7011L));
     }
 
 
@@ -34,18 +34,18 @@ class MethodIdsInit {
     }
 
 
+    static ExpandedNodeId initAASFileType_File_Close() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(7008L));
+    }
+
+
     static ExpandedNodeId initAASFileType_File_SetPosition() {
         return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(7012L));
     }
 
 
-    static ExpandedNodeId initAASFileType_File_Write() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(7013L));
-    }
-
-
-    static ExpandedNodeId initAASFileType_File_Read() {
-        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(7011L));
+    static ExpandedNodeId initAASFileType_File_GetPosition() {
+        return new ExpandedNodeId("http://opcfoundation.org/UA/I4AAS/V3/", UnsignedInteger.valueOf(7009L));
     }
 
 
