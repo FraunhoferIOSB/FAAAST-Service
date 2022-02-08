@@ -239,18 +239,6 @@
                             <goal>aggregate-third-party-report</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>download-licenses</id>
-                        <goals>
-                            <goal>download-licenses</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>aggregate-download-licenses</id>
-                        <goals>
-                            <goal>aggregate-download-licenses</goal>
-                        </goals>
-                    </execution>
                 </executions>
             </plugin>
         </plugins>
