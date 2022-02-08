@@ -59,7 +59,6 @@ public class OpcUaEndpoint2Test {
 
     private static OpcUaEndpoint endpoint;
     private static TestService service;
-    private static int aasns;
 
     /**
      * Initialize and start the test.
@@ -117,7 +116,7 @@ public class OpcUaEndpoint2Test {
         client.connect();
         System.out.println("testDeleteSubmodel: client connected");
 
-        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        int aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
         // make sure the element exists
         List<RelativePath> relPath = new ArrayList<>();
