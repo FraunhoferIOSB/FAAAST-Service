@@ -34,22 +34,38 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Class for creating the service configuration
+ */
 public class ConfigFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigFactory.class);
     public static final String DEFAULT_CONFIG_JSON = "default-config.json";
 
-    private static ObjectMapper mapper = new ObjectMapper()
+    private ObjectMapper mapper = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
-    public static ServiceConfig getDefaultServiceConfig() throws Exception {
+    /**
+     * Get the default Service Configuration
+     * 
+     * @return the default Service Configuration
+     * @throws Exception
+     */
+    public ServiceConfig getDefaultServiceConfig() throws Exception {
         return getDefaultServiceConfig(new HashMap<>());
     }
 
 
-    public static ServiceConfig getDefaultServiceConfig(Map<String, Object> properties) throws Exception {
+    /**
+     * Get the default Service Configuration with adjustments
+     *
+     * @param properties the adjustments for the default configuration file.
+     * @return the adjusted default configuration
+     * @throws Exception
+     */
+    public ServiceConfig getDefaultServiceConfig(Map<String, Object> properties) throws Exception {
         if (properties == null) {
             properties = new HashMap<>();
         }
@@ -64,17 +80,42 @@ public class ConfigFactory {
     }
 
 
-    public static ServiceConfig toServiceConfig(File configFile) throws Exception {
+    /**
+     * Parses a given file to a ServiceConfig object
+     *
+     * @param configFile
+     * @return the parsed ServiceConfig object
+     * @throws Exception
+     */
+    public ServiceConfig toServiceConfig(File configFile) throws Exception {
         return toServiceConfig(Files.readString(configFile.toPath()));
     }
 
 
-    public static ServiceConfig toServiceConfig(String pathToConfigFile) throws Exception {
+    /**
+     * Parses a given file path to a ServiceConfig object
+     *
+     * @param pathToConfigFile
+     * @return the parsed ServiceConfig object
+     * @throws Exception
+     */
+    public ServiceConfig toServiceConfig(String pathToConfigFile) throws Exception {
         return toServiceConfig(pathToConfigFile, Application.autoCompleteConfiguration, new HashMap<>());
     }
 
 
-    public static ServiceConfig toServiceConfig(String pathToConfigFile, boolean autoCompleteConfiguration, Map<String, Object> commandLineProperties)
+    /**
+     * Parses a given file path to a ServiceConfig object.
+     * Adjust it with the given properties.
+     *
+     * @param pathToConfigFile
+     * @param autoCompleteConfiguration if yes then missing components in the given config file are added
+     *            with default values
+     * @param commandLineProperties the adjustments for the default configuration file.
+     * @return the parsed ServiceConfig object
+     * @throws Exception
+     */
+    public ServiceConfig toServiceConfig(String pathToConfigFile, boolean autoCompleteConfiguration, Map<String, Object> commandLineProperties)
             throws Exception {
         try {
             JsonNode configNode = mapper.readTree(Files.readString(Path.of(pathToConfigFile)));
@@ -84,38 +125,20 @@ public class ConfigFactory {
                 applyCommandlineProperties(commandLineProperties, configNode);
             }
             ServiceConfig serviceConfig = mapper.readValue(mapper.writeValueAsString(configNode), ServiceConfig.class);
-            LOGGER.debug("Used configuration file\n" + mapper.writeValueAsString(serviceConfig));
             LOGGER.info("Successfully read config file");
             if (autoCompleteConfiguration) {
-                ServiceConfig defaultConfig = getDefaultServiceConfig();
-                if (serviceConfig.getCore() == null) {
-                    serviceConfig.setCore(defaultConfig.getCore());
-                    LOGGER.debug("No configuration for core was found");
-                    LOGGER.debug("Using default configuration for core");
-                }
-                if (serviceConfig.getEndpoints() == null || serviceConfig.getEndpoints().size() == 0) {
-                    serviceConfig.setEndpoints(defaultConfig.getEndpoints());
-                    LOGGER.debug("No configuration for endpoints was found");
-                    LOGGER.debug("Using default configuration for endpoints");
-                }
-                if (serviceConfig.getPersistence() == null) {
-                    serviceConfig.setPersistence(defaultConfig.getPersistence());
-                    LOGGER.debug("No configuration for persistence was found");
-                    LOGGER.debug("Using default configuration for persistence");
-                }
-                if (serviceConfig.getMessageBus() == null) {
-                    serviceConfig.setMessageBus(defaultConfig.getMessageBus());
-                    LOGGER.debug("No configuration for messagebus was found");
-                    LOGGER.debug("Using default configuration for messagebus");
-                }
+                autocompleteServiceConfiguration(serviceConfig);
             }
+            LOGGER.debug("Used configuration file\n" + mapper.writeValueAsString(serviceConfig));
             return serviceConfig;
         }
         catch (NoSuchFileException ex) {
             if (pathToConfigFile.equalsIgnoreCase(Application.DEFAULT_CONFIG_PATH)) {
                 LOGGER.info("No custom configuration file was found");
                 LOGGER.info("Using default configuration file");
-                return getDefaultServiceConfig(commandLineProperties);
+                ServiceConfig serviceConfig = getDefaultServiceConfig(commandLineProperties);
+                LOGGER.debug("Used configuration file\n" + mapper.writeValueAsString(serviceConfig));
+                return serviceConfig;
             }
             else {
                 throw new Exception("Configuration Error - Could not find configuration file: " + pathToConfigFile);
@@ -128,7 +151,32 @@ public class ConfigFactory {
     }
 
 
-    private static void applyCommandlineProperties(Map<String, Object> properties, JsonNode configNode) throws Exception {
+    private void autocompleteServiceConfiguration(ServiceConfig serviceConfig) throws Exception {
+        ServiceConfig defaultConfig = getDefaultServiceConfig();
+        if (serviceConfig.getCore() == null) {
+            serviceConfig.setCore(defaultConfig.getCore());
+            LOGGER.debug("No configuration for core was found");
+            LOGGER.debug("Using default configuration for core");
+        }
+        if (serviceConfig.getEndpoints() == null || serviceConfig.getEndpoints().size() == 0) {
+            serviceConfig.setEndpoints(defaultConfig.getEndpoints());
+            LOGGER.debug("No configuration for endpoints was found");
+            LOGGER.debug("Using default configuration for endpoints");
+        }
+        if (serviceConfig.getPersistence() == null) {
+            serviceConfig.setPersistence(defaultConfig.getPersistence());
+            LOGGER.debug("No configuration for persistence was found");
+            LOGGER.debug("Using default configuration for persistence");
+        }
+        if (serviceConfig.getMessageBus() == null) {
+            serviceConfig.setMessageBus(defaultConfig.getMessageBus());
+            LOGGER.debug("No configuration for messagebus was found");
+            LOGGER.debug("Using default configuration for messagebus");
+        }
+    }
+
+
+    private void applyCommandlineProperties(Map<String, Object> properties, JsonNode configNode) throws Exception {
         for (Map.Entry<String, Object> prop: properties.entrySet()) {
             List<String> pathList = List.of(prop.getKey().split("\\."));
             JsonNode jsonNode = configNode;
@@ -141,7 +189,7 @@ public class ConfigFactory {
                     jsonNode = jsonNode.path(path);
                 }
             }
-            if (MissingNode.class.isAssignableFrom(jsonNode.getClass())) {
+            if (MissingNode.class.isAssignableFrom(jsonNode.getClass()) || !jsonNode.has(pathList.get(pathList.size() - 1))) {
                 throw new Exception("Configuration Error: Could not find attribute with path '" + prop.getKey() + "' in config file");
             }
             ((ObjectNode) jsonNode).put(pathList.get(pathList.size() - 1), prop.getValue().toString());
@@ -150,14 +198,14 @@ public class ConfigFactory {
     }
 
 
-    private static JsonNode readDefaultConfigFile() throws IOException {
+    private JsonNode readDefaultConfigFile() throws IOException {
         //LOGGER.info("Read default config file '" + DEFAULT_CONFIG_JSON + "'");
         JsonNode configNode = mapper.readTree(ConfigFactory.class.getClassLoader().getResource(DEFAULT_CONFIG_JSON));
         return configNode;
     }
 
 
-    private static boolean isNumeric(String s) {
+    private boolean isNumeric(String s) {
         if (s == null || s.equalsIgnoreCase("")) {
             return false;
         }

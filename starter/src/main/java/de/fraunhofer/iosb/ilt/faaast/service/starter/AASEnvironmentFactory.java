@@ -34,14 +34,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Class for creating the Asset Administration Shell Environment
+ */
 public class AASEnvironmentFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AASEnvironmentFactory.class);
-    private static Map<String, Deserializer> deserializer;
+    private Map<String, Deserializer> deserializer;
 
-    private static List<String> supportedAASEnvFileSuffixes = List.of("json", "aml", "xml", "rdf");
+    private List<String> supportedAASEnvFileSuffixes = List.of("json", "json-ld", "aml", "xml", "rdf");
 
-    private static void initDeserializer() {
+    private void initDeserializer() {
         //TODO: AASX Deserializer seems to be a little bit different since it needs an input in constructor
         deserializer = new HashMap<>();
         deserializer.put("JSON", new JsonDeserializer());
@@ -53,24 +56,70 @@ public class AASEnvironmentFactory {
     }
 
 
-    public static AssetAdministrationShellEnvironment getAASEnvironment(File env) throws Exception {
-        return getAASEnvironment(getFileContent(env.getPath()));
+    /**
+     * Get the Asset Administration Shell Environment from a file
+     *
+     * @param file
+     * @return the parsed Asset Administration Shell Environment object
+     * @throws Exception
+     */
+    public AssetAdministrationShellEnvironment getAASEnvironment(File file) throws Exception {
+        return getAASEnvironment(getFileContent(file.getPath()));
     }
 
 
-    public static AssetAdministrationShellEnvironment getEmptyAASEnvironment() {
+    /**
+     * Get an empty Asset Administration Shell Environment object
+     *
+     * @return an empty Asset Administration Shell Environment
+     */
+    public AssetAdministrationShellEnvironment getEmptyAASEnvironment() {
         return new DefaultAssetAdministrationShellEnvironment.Builder().build();
     }
 
 
-    public static AssetAdministrationShellEnvironment getAASEnvironment(String envFilePath) throws Exception {
+    /**
+     * Parses the content in the given file path to an Asset Administration Shell Environment.
+     * Supported formats of the file:
+     * - json
+     * - aml
+     * - xml
+     * - opcua nodeset (also as .xml)
+     * - rdf
+     * - json-ld
+     * The method retrieves the right deserializer and parses the content to an Asset Administration Shell Environment.
+     *
+     * @param envFilePath of the file which contains the Asset Administration Shell Environment
+     * @return the parsed Asset Administration Shell Environment object
+     * @throws Exception
+     */
+    public AssetAdministrationShellEnvironment getAASEnvironment(String envFilePath) throws Exception {
         initDeserializer();
         String env = getFileContent(envFilePath);
-        String fileEnding = envFilePath.split("\\.")[1];
-
         LOGGER.info("Try to resolve Asset Administration Shell Environment from file '" + envFilePath + "'");
+        AssetAdministrationShellEnvironment parsedEnvironment = guessDeserializerAndTryToParse(envFilePath, env);
+        if (parsedEnvironment != null) {
+            return parsedEnvironment;
+        }
 
+        //else try every deserializer
+        String formats = "";
+        for (Map.Entry<String, Deserializer> deserializer: deserializer.entrySet()) {
+            try {
+                LOGGER.debug("Try resolving with '" + deserializer.getValue().getClass().getSimpleName() + "'");
+                formats += "\t" + deserializer.getKey() + "\n";
+                return deserializer.getValue().read(env);
+            }
+            catch (DeserializationException ex) {}
+        }
+        throw new Exception(
+                "Could not deserialize content to an Asset Administration Shell Environment. Used File: " + envFilePath + "\nSupported Formats:\n" + formats);
+    }
+
+
+    private AssetAdministrationShellEnvironment guessDeserializerAndTryToParse(String envFilePath, String env) {
         Deserializer approxDeserializer = null;
+        String fileEnding = envFilePath.split("\\.")[1];
         if (!envFilePath.equalsIgnoreCase(Application.DEFAULT_AASENV_PATH)) {
             LOGGER.debug("Looking for Deserializer for file ending '" + fileEnding + "'");
             approxDeserializer = deserializer.getOrDefault(
@@ -88,29 +137,18 @@ public class AASEnvironmentFactory {
                 //OPC UA nodeset file is also a xml file and deserializer doesn´t throw a DeserializationException
                 //but returns an empty AASEnvironment
                 if (!Objects.equals(environment, new DefaultAssetAdministrationShellEnvironment())) {
-                    return approxDeserializer.read(env);
+                    return environment;
                 }
             }
             catch (Exception ignored) {
                 LOGGER.debug("Resolving with '" + approxDeserializer.getClass().getSimpleName() + "' was not successfull. Try other Deserializers.");
             }
         }
-
-        String formats = "";
-        for (Map.Entry<String, Deserializer> deserializer: deserializer.entrySet()) {
-            try {
-                LOGGER.debug("Try resolving with '" + deserializer.getValue().getClass().getSimpleName() + "'");
-                formats += "\t" + deserializer.getKey() + "\n";
-                return deserializer.getValue().read(env);
-            }
-            catch (DeserializationException ex) {}
-        }
-        throw new Exception(
-                "Could not deserialize content to an Asset Administration Shell Environment. Used File: " + envFilePath + "\nSupported Formats:\n" + formats);
+        return null;
     }
 
 
-    private static String getFileContent(String filePath) throws Exception {
+    private String getFileContent(String filePath) throws Exception {
 
         if (filePath.equalsIgnoreCase(Application.DEFAULT_AASENV_PATH)) {
             try {

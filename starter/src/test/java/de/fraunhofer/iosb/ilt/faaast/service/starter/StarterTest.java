@@ -45,10 +45,13 @@ public class StarterTest {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
+    ConfigFactory configFactory = new ConfigFactory();
+    AASEnvironmentFactory environmentFactory = new AASEnvironmentFactory();
+
     @Test
     public void testCreateConfig() throws IOException, Exception {
         ServiceConfig expected = mapper.readValue(new File("src/test/resources/test-config-expected.json"), ServiceConfig.class);
-        ServiceConfig actual = ConfigFactory.toServiceConfig("src/test/resources/test-config-expected.json");
+        ServiceConfig actual = configFactory.toServiceConfig("src/test/resources/test-config-expected.json");
 
         Assert.assertEquals(expected, actual);
     }
@@ -60,7 +63,7 @@ public class StarterTest {
         properties.put("core.requestHandlerThreadPoolSize", 2);
         properties.put("endpoints.0.@class", "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpEndpoint");
         ServiceConfig expected = mapper.readValue(new File("src/test/resources/test-config-expected.json"), ServiceConfig.class);
-        ServiceConfig actual = ConfigFactory.toServiceConfig("src/test/resources/test-config.json", false, properties);
+        ServiceConfig actual = configFactory.toServiceConfig("src/test/resources/test-config.json", false, properties);
 
         Assert.assertEquals(expected, actual);
     }
@@ -69,7 +72,7 @@ public class StarterTest {
     @Test
     public void testGetDefaultConfig() throws IOException, Exception {
         ServiceConfig expected = mapper.readValue(new File("src/main/resources/default-config.json"), ServiceConfig.class);
-        ServiceConfig actual = ConfigFactory.getDefaultServiceConfig();
+        ServiceConfig actual = configFactory.getDefaultServiceConfig();
 
         Assert.assertEquals(expected, actual);
     }
@@ -84,7 +87,7 @@ public class StarterTest {
         CoreConfig coreConfig = expected.getCore();
         coreConfig.setRequestHandlerThreadPoolSize(10);
 
-        ServiceConfig actual = ConfigFactory.getDefaultServiceConfig(properties);
+        ServiceConfig actual = configFactory.getDefaultServiceConfig(properties);
 
         Assert.assertEquals(expected, actual);
     }
@@ -93,7 +96,7 @@ public class StarterTest {
     @Test
     public void testGetAASEnvironmentDefault() {
         AssetAdministrationShellEnvironment expected = new DefaultAssetAdministrationShellEnvironment();
-        AssetAdministrationShellEnvironment actual = AASEnvironmentFactory.getEmptyAASEnvironment();
+        AssetAdministrationShellEnvironment actual = environmentFactory.getEmptyAASEnvironment();
         Assert.assertEquals(expected, actual);
     }
 
@@ -137,7 +140,7 @@ public class StarterTest {
 
     private void testAASEnvironment(String filePath, Deserializer deserializer) throws Exception, FileNotFoundException, DeserializationException {
         AssetAdministrationShellEnvironment expected = deserializer.read(new File(filePath));
-        AssetAdministrationShellEnvironment actual = AASEnvironmentFactory.getAASEnvironment(filePath);
+        AssetAdministrationShellEnvironment actual = environmentFactory.getAASEnvironment(filePath);
         Assert.assertEquals(expected, actual);
     }
 
@@ -146,12 +149,12 @@ public class StarterTest {
     public void testGetAASEnvironmentFail() throws IOException, DeserializationException, Exception {
         String filePath = "src/test/resources/AASSimple.xmasl";
         try {
-            AASEnvironmentFactory.getAASEnvironment(filePath);
+            environmentFactory.getAASEnvironment(filePath);
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        Assert.assertThrows(Exception.class, () -> AASEnvironmentFactory.getAASEnvironment(filePath));
+        Assert.assertThrows(Exception.class, () -> environmentFactory.getAASEnvironment(filePath));
     }
 
 }
