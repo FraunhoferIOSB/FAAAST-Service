@@ -12,12 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import org.eclipse.jetty.server.*;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
@@ -28,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(HttpEndpoint.class);
+    private static Logger logger = LoggerFactory.getLogger(HttpEndpoint.class);
     private HttpEndpointConfig config;
     private ServiceContext serviceContext;
     private Server server;

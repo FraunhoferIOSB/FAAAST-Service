@@ -12,12 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
@@ -33,13 +32,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Finds available RequestMappings
  */
-public class MappingManager {
+public class RequestMappingManager {
 
-    private static Logger logger = LoggerFactory.getLogger(MappingManager.class);
+    private static Logger logger = LoggerFactory.getLogger(RequestMappingManager.class);
     private List<RequestMapper> mappers;
     protected ServiceContext serviceContext;
 
-    public MappingManager(ServiceContext serviceContext) {
+    public RequestMappingManager(ServiceContext serviceContext) {
         this.serviceContext = serviceContext;
         init();
     }

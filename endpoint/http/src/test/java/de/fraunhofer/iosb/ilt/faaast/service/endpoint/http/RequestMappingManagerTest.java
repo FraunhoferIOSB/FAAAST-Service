@@ -20,8 +20,9 @@ import static org.mockito.Mockito.when;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
@@ -101,7 +102,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 
-public class MappingManagerTest {
+public class RequestMappingManagerTest {
 
     private static final AssetAdministrationShell AAS = AASFull.AAS_1;
     private static final String AASX_PACKAGE_ID = "examplePackageId";
@@ -121,14 +122,14 @@ public class MappingManagerTest {
     private static final Reference OPERATION_REF = AasUtils.toReference(AasUtils.toReference(SUBMODEL), OPERATION);
     private static final SubmodelElement SUBMODEL_ELEMENT = AASFull.SUBMODEL_3.getSubmodelElements().get(0);
     private static final Reference SUBMODEL_ELEMENT_REF = AasUtils.toReference(AasUtils.toReference(SUBMODEL), SUBMODEL_ELEMENT);
-    private final MappingManager mappingManager;
+    private final RequestMappingManager mappingManager;
     private final HttpJsonSerializer serializer;
     private final ServiceContext serviceContext;
 
-    public MappingManagerTest() {
+    public RequestMappingManagerTest() {
         serializer = new HttpJsonSerializer();
         serviceContext = mock(ServiceContext.class);
-        mappingManager = new MappingManager(serviceContext);
+        mappingManager = new RequestMappingManager(serviceContext);
     }
 
 

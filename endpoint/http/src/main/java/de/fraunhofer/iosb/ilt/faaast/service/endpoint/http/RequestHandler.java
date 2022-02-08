@@ -12,12 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.MappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseResponseWithPayload;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
@@ -36,7 +39,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 public class RequestHandler extends AbstractHandler {
 
     private ServiceContext serviceContext;
-    private MappingManager mappingManager;
+    private RequestMappingManager mappingManager;
     private HttpJsonSerializer serializer;
 
     public RequestHandler(ServiceContext serviceContext) {
@@ -44,7 +47,7 @@ public class RequestHandler extends AbstractHandler {
             throw new IllegalArgumentException("serviceContext must be non-null");
         }
         this.serviceContext = serviceContext;
-        this.mappingManager = new MappingManager(serviceContext);
+        this.mappingManager = new RequestMappingManager(serviceContext);
         this.serializer = new HttpJsonSerializer();
     }
 
@@ -84,7 +87,7 @@ public class RequestHandler extends AbstractHandler {
             send(response, HttpStatus.INTERNAL_SERVER_ERROR_500);
             return;
         }
-        int statusCode = HttpStatusCode.getHttpStatusCode(apiResponse.getStatusCode());
+        int statusCode = HttpUtils.toHttpStatusCode(apiResponse.getStatusCode());
         if (BaseResponseWithPayload.class.isAssignableFrom(apiResponse.getClass())) {
             try {
                 sendJson(response, statusCode, serializer.write(((BaseResponseWithPayload) apiResponse).getPayload()));
@@ -119,7 +122,6 @@ public class RequestHandler extends AbstractHandler {
         if (content != null) {
             PrintWriter out = response.getWriter();
             response.setContentType(contentType);
-            response.setCharacterEncoding("UTF-8");
             out.print(content);
             out.flush();
         }

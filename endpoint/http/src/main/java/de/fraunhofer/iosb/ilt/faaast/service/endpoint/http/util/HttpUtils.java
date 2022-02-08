@@ -12,18 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import org.eclipse.jetty.http.HttpStatus;
 
 
-public class HttpStatusCode {
+public class HttpUtils {
 
-    private HttpStatusCode() {}
+    private HttpUtils() {}
 
 
-    public static int getHttpStatusCode(StatusCode statusCode) {
+    public static int toHttpStatusCode(StatusCode statusCode) {
         switch (statusCode) {
             case Success:
                 return HttpStatus.OK_200;
