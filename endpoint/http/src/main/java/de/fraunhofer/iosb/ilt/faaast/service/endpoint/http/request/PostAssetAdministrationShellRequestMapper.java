@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PostAssetAdministrationShellRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
 
 
 /**
@@ -31,16 +31,16 @@ public class PostAssetAdministrationShellRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
     private static final String PATTERN = "^shells$";
 
+    public PostAssetAdministrationShellRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        PostAssetAdministrationShellRequest request = new PostAssetAdministrationShellRequest();
-        try {
-            AssetAdministrationShell shell = deserializer.read(httpRequest.getBody(), DefaultAssetAdministrationShell.class);
-            request.setAas(shell);
-            return request;
-        }
-        catch (DeserializationException e) {}
-        return null;
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+        return PostAssetAdministrationShellRequest.builder()
+                .aas(parseBody(httpRequest, AssetAdministrationShell.class))
+                .build();
     }
 
 

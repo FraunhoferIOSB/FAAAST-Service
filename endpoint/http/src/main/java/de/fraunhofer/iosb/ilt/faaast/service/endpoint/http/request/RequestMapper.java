@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException;
@@ -26,35 +28,37 @@ import java.util.List;
  */
 public abstract class RequestMapper {
 
+    protected ServiceContext serviceContext;
     protected HttpJsonDeserializer deserializer;
 
-    protected RequestMapper() {
+    protected RequestMapper(ServiceContext serviceContext) {
         deserializer = new HttpJsonDeserializer();
+        this.serviceContext = serviceContext;
     }
 
 
     public abstract boolean matches(HttpRequest httpRequest);
 
 
-    public abstract Request parse(HttpRequest httpRequest);
+    public abstract Request parse(HttpRequest httpRequest) throws InvalidRequestException;
 
 
-    protected <T> T parseBody(HttpRequest httpRequest, Class<T> type) {
+    protected <T> T parseBody(HttpRequest httpRequest, Class<T> type) throws InvalidRequestException {
         try {
             return deserializer.read(httpRequest.getBody(), type);
         }
         catch (DeserializationException ex) {
-            throw new RuntimeException("error parsing body", ex);
+            throw new InvalidRequestException("error parsing body", ex);
         }
     }
 
 
-    protected <T> List<T> parseBodyAsList(HttpRequest httpRequest, Class<T> type) {
+    protected <T> List<T> parseBodyAsList(HttpRequest httpRequest, Class<T> type) throws InvalidRequestException {
         try {
             return deserializer.readList(httpRequest.getBody(), type);
         }
         catch (DeserializationException ex) {
-            throw new RuntimeException("error parsing body", ex);
+            throw new InvalidRequestException("error parsing body", ex);
         }
     }
 

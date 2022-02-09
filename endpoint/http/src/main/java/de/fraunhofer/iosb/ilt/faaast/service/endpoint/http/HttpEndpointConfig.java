@@ -12,11 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
-public enum HttpMethod {
-    GET,
-    PUT,
-    DELETE,
-    POST;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+
+
+public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
+
+    public static final int DEFAULT_PORT = 8080;
+    private int port;
+
+    public HttpEndpointConfig() {
+        this.port = DEFAULT_PORT;
+    }
+
+
+    public int getPort() {
+        return port;
+    }
+
+
+    public void setPort(int port) {
+        this.port = port;
+    }
 }

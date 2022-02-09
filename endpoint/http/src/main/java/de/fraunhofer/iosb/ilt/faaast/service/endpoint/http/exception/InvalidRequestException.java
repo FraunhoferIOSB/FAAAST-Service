@@ -12,9 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+public class InvalidRequestException extends Exception {
+
+    public InvalidRequestException(String message) {
+        super(message);
+    }
 
 
-public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {}
+    public InvalidRequestException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+
+    public InvalidRequestException(Throwable cause) {
+        super(cause);
+    }
+
+}

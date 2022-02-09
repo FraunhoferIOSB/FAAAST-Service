@@ -19,8 +19,9 @@ import java.util.Objects;
 
 
 public class OutputModifier extends QueryModifier {
+
     public static final OutputModifier DEFAULT = new OutputModifier();
-    private Content content;
+    protected Content content;
 
     /**
      * Constructor using enum default values
@@ -35,17 +36,14 @@ public class OutputModifier extends QueryModifier {
     }
 
 
-    public void setContent(Content content) {
-        this.content = content;
-    }
-
-
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         OutputModifier that = (OutputModifier) o;
         return content == that.content;
     }
@@ -57,8 +55,9 @@ public class OutputModifier extends QueryModifier {
     }
 
     public static abstract class AbstractBuilder<T extends OutputModifier, B extends AbstractBuilder<T, B>> extends QueryModifier.AbstractBuilder<T, B> {
+
         public B content(Content value) {
-            getBuildingInstance().setContent(value);
+            getBuildingInstance().content = value;
             return getSelf();
         }
     }

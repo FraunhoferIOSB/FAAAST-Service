@@ -15,28 +15,16 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api;
 
 /**
- * Enum StatusCode
- * Also maps internal status enum to http status code
+ * Enum StatusCode Also maps internal status enum to http status code
  */
 public enum StatusCode {
-    Success(200),
-    SuccessCreated(201),
-    SuccessNoContent(204),
-    ClientForbidden(403),
-    ClientErrorBadRequest(400),
-    ClientMethodNotAllowed(405),
-    ClientErrorResourceNotFound(404),
-    ServerInternalError(500),
-    ServerErrorBadGateway(502);
-
-    int statusCode;
-
-    StatusCode(int statusCode) {
-        this.statusCode = statusCode;
-    }
-
-
-    public int getStatusCode() {
-        return this.statusCode;
-    }
+    Success,
+    SuccessCreated,
+    SuccessNoContent,
+    ClientForbidden,
+    ClientErrorBadRequest,
+    ClientMethodNotAllowed,
+    ClientErrorResourceNotFound,
+    ServerInternalError,
+    ServerErrorBadGateway;
 }

@@ -23,5 +23,5 @@ public interface ElementValueParser<T> {
         }
     };
 
-    public <U extends ElementValue> U parse(T raw, Class<U> type);
+    public <U extends ElementValue> U parse(T raw, Class<U> type) throws Exception;
 }

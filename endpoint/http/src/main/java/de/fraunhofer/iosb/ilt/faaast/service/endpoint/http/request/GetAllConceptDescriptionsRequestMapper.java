@@ -14,8 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllConceptDescriptionsRequest;
@@ -24,7 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllConceptD
 /**
  * class to map HTTP-GET-Request path: concept-descriptions
  */
-public class GetAllConceptDescriptionsRequestMapper extends RequestMapper {
+public class GetAllConceptDescriptionsRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^concept-descriptions$";
@@ -32,11 +33,16 @@ public class GetAllConceptDescriptionsRequestMapper extends RequestMapper {
     private static final String QUERYPARAM2 = "isCaseOf";
     private static final String QUERYPARAM3 = "dataSpecificationRef";
 
+    public GetAllConceptDescriptionsRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        GetAllConceptDescriptionsRequest request = new GetAllConceptDescriptionsRequest();
-        request.setOutputModifier(new OutputModifier());
-        return request;
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+        return GetAllConceptDescriptionsRequest.builder()
+                .outputModifier(outputModifier)
+                .build();
     }
 
 
