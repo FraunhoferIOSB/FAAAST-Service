@@ -24,10 +24,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJso
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllAssetAdministrationShellsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAssetAdministrationShellResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.PostSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import java.net.ServerSocket;
 import java.util.List;
 import java.util.Map;
+
+import io.adminshell.aas.v3.model.Identifier;
+import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
@@ -107,6 +114,7 @@ public class HttpEndpointTest {
 
     public ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters, String body, String contentType) throws Exception {
         Request request = client.newRequest(HOST, port)
+                .method(method)
                 .path(path);
         if (parameters != null) {
             for (Map.Entry<String, String> parameter: parameters.entrySet()) {
@@ -133,6 +141,97 @@ public class HttpEndpointTest {
 
 
     @Test
+    public void testParamContentNormal() throws Exception {
+        Identifier id = new DefaultIdentifier();
+        when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+                .statusCode(StatusCode.Success)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingUtils.base64UrlEncode(id.toString()) + "/aas?content=normal");
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+    }
+
+    @Test
+    public void testParamContentTrimmed() throws Exception {
+        Identifier id = new DefaultIdentifier();
+        when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+                .statusCode(StatusCode.Success)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingUtils.base64UrlEncode(id.toString()) + "/aas?content=trimmed");
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+    }
+
+    @Test
+    public void testParamContentReference() throws Exception {
+        Identifier id = new DefaultIdentifier();
+        when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+                .statusCode(StatusCode.Success)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingUtils.base64UrlEncode(id.toString()) + "/aas?content=reference");
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+    }
+
+    @Test
+    public void testParamContentLevelBogus() throws Exception {
+        Identifier id = new DefaultIdentifier();
+        when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+                .statusCode(StatusCode.Success)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingUtils.base64UrlEncode(id.toString()) + "/aas?content=bogus&level=bogus");
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+    }
+
+    @Test
+    public void testInvalidAASIdentifier() throws Exception {
+        when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+                .statusCode(StatusCode.Success)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/shells/bogus/aas");
+        Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+    }
+
+    @Test
+    public void testInvalidBase64Param() throws Exception {
+        ContentResponse response = execute(HttpMethod.GET, "/concept-descriptions/InvalidBase64");
+        Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+    }
+
+
+    @Test
+    public void testNonExistentId() throws Exception {
+        String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
+        when(serviceContext.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
+                .statusCode(StatusCode.ClientErrorResourceNotFound)
+                .payload(null)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingUtils.base64UrlEncode(idShort));
+        Assert.assertEquals(HttpStatus.NOT_FOUND_404, response.getStatus());
+    }
+
+
+    @Test
+    public void testWrongResponse() throws Exception {
+        when(serviceContext.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
+                .statusCode(StatusCode.Success)
+                .payload(null)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/GetAllSubmodels");
+        // TODO: Discuss which status code is applicable 400/500 ?
+        Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+    }
+
+
+    @Test
+    public void testPostSubmodelNoData() throws Exception {
+        when(serviceContext.execute(any())).thenReturn(PostSubmodelResponse.builder()
+                .statusCode(StatusCode.Success)
+                .payload(null)
+                .build());
+        ContentResponse response = execute(HttpMethod.POST, "/submodels");
+        Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+    }
+
+
+    @Test
     public void testGetAllAssetAdministrationShells() throws Exception {
         List<AssetAdministrationShell> expectedPayload = List.of(AASFull.AAS_1);
         when(serviceContext.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
@@ -141,7 +240,7 @@ public class HttpEndpointTest {
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/shells");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        // server not returning character encoding
+        // TODO: server not returning character encoding
         List<AssetAdministrationShell> actualPayload = deserializer.readList(new String(response.getContent()), AssetAdministrationShell.class);
         Assert.assertEquals(expectedPayload, actualPayload);
     }

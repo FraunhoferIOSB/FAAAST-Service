@@ -68,7 +68,7 @@ public class RequestHandler extends AbstractHandler {
         try {
             apiRequest = mappingManager.map(httpRequest);
         }
-        catch (InvalidRequestException ex) {
+        catch (InvalidRequestException | IllegalArgumentException ex) {
             send(response, HttpStatus.BAD_REQUEST_400, ex.getMessage());
         }
         //TODO more differentiated error codes (must be generated in mappingManager)
