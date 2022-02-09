@@ -44,7 +44,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.IntValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
@@ -117,7 +117,7 @@ public class OpcUaEndpointTest {
         config.setSecondsTillShutdown(0);
 
         endpoint = new OpcUaEndpoint();
-        endpoint.init(coreConfig, config);
+        endpoint.init(coreConfig, config, service);
         service = new TestService(endpoint, null, false);
         endpoint.setService(service);
         service.start();
@@ -293,11 +293,11 @@ public class OpcUaEndpointTest {
         Reference propRef = new DefaultReference.Builder().keys(keys).build();
         ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
         valueChangeMessage.setElement(propRef);
-        PropertyValue propertyValue = new PropertyValue();
-        propertyValue.setValue(new IntValue(oldValue));
-        valueChangeMessage.setOldValue(propertyValue);
-        propertyValue.setValue(new IntValue(newValue));
-        valueChangeMessage.setNewValue(propertyValue);
+        //PropertyValue propertyValue = new PropertyValue();
+        //propertyValue.setValue(new IntValue(oldValue));
+        valueChangeMessage.setOldValue(PropertyValue.of(Datatype.Int, oldValue.toString()));
+        //propertyValue.setValue(new IntValue(newValue));
+        valueChangeMessage.setNewValue(PropertyValue.of(Datatype.Int, newValue.toString()));
         service.getMessageBus().publish(valueChangeMessage);
         Thread.sleep(100);
 
@@ -405,12 +405,9 @@ public class OpcUaEndpointTest {
 
         ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
         valueChangeMessage.setElement(propRef);
-        PropertyValue propertyValue = new PropertyValue();
-        propertyValue.setValue(new IntValue(5000));
-        valueChangeMessage.setOldValue(propertyValue);
+        valueChangeMessage.setOldValue(PropertyValue.of(Datatype.Int, "5000"));
         Integer newValue = 5005;
-        propertyValue.setValue(new IntValue(newValue));
-        valueChangeMessage.setNewValue(propertyValue);
+        valueChangeMessage.setNewValue(PropertyValue.of(Datatype.Int, newValue.toString()));
         service.getMessageBus().publish(valueChangeMessage);
 
         Thread.sleep(DEFAULT_TIMEOUT);

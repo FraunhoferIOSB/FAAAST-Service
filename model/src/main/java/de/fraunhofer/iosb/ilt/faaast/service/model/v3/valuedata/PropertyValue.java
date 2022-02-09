@@ -24,22 +24,26 @@ import java.util.Objects;
 
 public class PropertyValue extends DataElementValue {
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+
+    public static PropertyValue of(String datatype, String value) throws ValueFormatException {
+        return new PropertyValue(TypedValueFactory.create(datatype, value));
+    }
+
+
+    public static PropertyValue of(Datatype datatype, String value) throws ValueFormatException {
+        return new PropertyValue(TypedValueFactory.create(datatype, value));
+    }
+
     private TypedValue value;
 
     public PropertyValue() {}
 
 
     public PropertyValue(TypedValue value) {
-        this.value = value;
-    }
-
-
-    public TypedValue getValue() {
-        return value;
-    }
-
-
-    public void setValue(TypedValue value) {
         this.value = value;
     }
 
@@ -57,24 +61,19 @@ public class PropertyValue extends DataElementValue {
     }
 
 
+    public TypedValue getValue() {
+        return value;
+    }
+
+
+    public void setValue(TypedValue value) {
+        this.value = value;
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(value);
-    }
-
-
-    public static PropertyValue of(String datatype, String value) throws ValueFormatException {
-        return new PropertyValue(TypedValueFactory.create(datatype, value));
-    }
-
-
-    public static PropertyValue of(Datatype datatype, String value) throws ValueFormatException {
-        return new PropertyValue(TypedValueFactory.create(datatype, value));
-    }
-
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     public static abstract class AbstractBuilder<T extends PropertyValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

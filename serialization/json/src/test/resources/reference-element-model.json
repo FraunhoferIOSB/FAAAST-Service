@@ -1,0 +1,14 @@
+{
+    "referenceModel": [
+        {
+            "idType": "Iri",
+            "type": "Submodel",
+            "value": "http://customer.com/demo/aas/1/1/1234859590"
+        }, 
+        {
+            "idType": "IdShort",
+            "type": "Property",
+            "value": "MaxRotationSpeed"
+        }
+    ]
+}

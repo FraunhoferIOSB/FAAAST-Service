@@ -21,10 +21,12 @@ public enum Extend {
     WithoutBLOBValue,
     WithBLOBValue;
 
+    public static final Extend DEFAULT = Extend.WithoutBLOBValue;
+
     public static Extend fromString(String value) {
         return Stream.of(Extend.values())
                 .filter(x -> x.name().equalsIgnoreCase(value))
                 .findAny()
-                .orElse(Extend.WithoutBLOBValue);
+                .orElse(Extend.DEFAULT);
     }
 }

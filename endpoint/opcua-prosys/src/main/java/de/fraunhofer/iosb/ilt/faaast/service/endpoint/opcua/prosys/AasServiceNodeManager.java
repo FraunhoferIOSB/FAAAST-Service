@@ -4610,7 +4610,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
                 }
 
-                // Der Key der Map ist die IDShort des DataElements (in unserem Fall also der BrowseName)
+                // The Key of the Map is the IDShort of the DataElement (in our case the BrowseName)
                 for (UaNode annotationNode: annotationNodes) {
                     if (valueMap.containsKey(annotationNode.getBrowseName().getName())) {
                         setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()));

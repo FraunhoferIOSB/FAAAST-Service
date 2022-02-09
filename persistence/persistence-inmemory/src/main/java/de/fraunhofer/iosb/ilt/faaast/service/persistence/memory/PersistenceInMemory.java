@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
@@ -57,7 +58,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     private final PackagePersistenceManager packagePersistenceManager = new PackagePersistenceManager();
 
     @Override
-    public void init(CoreConfig coreConfig, PersistenceInMemoryConfig config) {
+    public void init(CoreConfig coreConfig, PersistenceInMemoryConfig config, ServiceContext context) {
 
     }
 
@@ -108,11 +109,11 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public List<AssetAdministrationShell> get(String idShort, AssetIdentification assetId, QueryModifier modifier) {
-        if (modifier == null || (!Util.empty(idShort) && assetId != null)) {
+    public List<AssetAdministrationShell> get(String idShort, List<AssetIdentification> assetIds, QueryModifier modifier) {
+        if (modifier == null || (!Util.empty(idShort) && assetIds != null)) {
             return null;
         }
-        List<AssetAdministrationShell> shells = identifiablePersistenceManager.getAASs(idShort, assetId);
+        List<AssetAdministrationShell> shells = identifiablePersistenceManager.getAASs(idShort, assetIds);
         if (shells == null) {
             return null;
         }

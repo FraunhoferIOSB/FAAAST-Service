@@ -15,23 +15,40 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.deser.impl.PropertyValue;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.AnnotatedRelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.EntityValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.Deserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.AnnotatedRelationshipElementValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.ContextAwareElementValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.EntityValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.MultiLanguagePropertyValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.PropertyValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.ReferenceElementValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.RelationshipElementValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.SubmodelElementCollectionValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.TypedValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.mixins.PropertyValueMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
+import java.io.IOException;
 import java.util.List;
 
 
-/**
- * @author jab
- */
 public class JsonDeserializer implements Deserializer {
 
     private final DeserializerWrapper wrapper;
 
     public JsonDeserializer() {
-        this.wrapper = new DeserializerWrapper();
+        this.wrapper = new DeserializerWrapper(x -> modifyMapper(x));
     }
 
 
@@ -58,6 +75,36 @@ public class JsonDeserializer implements Deserializer {
 
 
     @Override
+    public <T extends ElementValue> T readValue(String json, TypeContext context) throws DeserializationException {
+        if (context == null) {
+            throw new IllegalArgumentException("context must be non-null");
+        }
+        if (context.getRootInfo().getValueType() == null) {
+            throw new DeserializationException("missing root type information");
+        }
+        try {
+            return (T) wrapper.getMapper().reader()
+                    .withAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, context)
+                    .readValue(json, context.getRootInfo().getValueType());
+        }
+        catch (IOException ex) {
+            throw new DeserializationException("deserialization failed", ex);
+        }
+    }
+
+
+    @Override
+    public <T extends ElementValue> T readValue(String json, Class<T> type) throws DeserializationException {
+        try {
+            return wrapper.getMapper().readValue(json, type);
+        }
+        catch (JsonProcessingException ex) {
+            throw new DeserializationException("deserialization failed", ex);
+        }
+    }
+
+
+    @Override
     public <T> void useImplementation(Class<T> interfaceType, Class<? extends T> implementationType) {
         wrapper.useImplementation(interfaceType, implementationType);
     }
@@ -65,20 +112,16 @@ public class JsonDeserializer implements Deserializer {
 
     protected void modifyMapper(JsonMapper mapper) {
         mapper.addMixIn(PropertyValue.class, PropertyValueMixin.class);
-    }
-
-    private class DeserializerWrapper extends io.adminshell.aas.v3.dataformat.json.JsonDeserializer {
-
-        @Override
-        protected void buildMapper() {
-            super.buildMapper();
-            modifyMapper(mapper);
-        }
-
-
-        protected JsonMapper getMapper() {
-            return mapper;
-        }
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(TypedValue.class, new TypedValueDeserializer());
+        module.addDeserializer(PropertyValue.class, new PropertyValueDeserializer());
+        module.addDeserializer(AnnotatedRelationshipElementValue.class, new AnnotatedRelationshipElementValueDeserializer());
+        module.addDeserializer(RelationshipElementValue.class, new RelationshipElementValueDeserializer());
+        module.addDeserializer(ElementCollectionValue.class, new SubmodelElementCollectionValueDeserializer());
+        module.addDeserializer(MultiLanguagePropertyValue.class, new MultiLanguagePropertyValueDeserializer());
+        module.addDeserializer(ReferenceElementValue.class, new ReferenceElementValueDeserializer());
+        module.addDeserializer(EntityValue.class, new EntityValueDeserializer());
+        mapper.registerModule(module);
     }
 
 }

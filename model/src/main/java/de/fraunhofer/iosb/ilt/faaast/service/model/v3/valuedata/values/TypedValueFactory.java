@@ -20,9 +20,6 @@ import java.lang.reflect.InvocationTargetException;
 
 public class TypedValueFactory {
 
-    private TypedValueFactory() {}
-
-
     public static TypedValue<?> create(String datatypeName, String value) throws ValueFormatException {
         return create(Datatype.fromName(datatypeName), value);
     }
@@ -44,5 +41,8 @@ public class TypedValueFactory {
         }
 
     }
+
+
+    private TypedValueFactory() {}
 
 }

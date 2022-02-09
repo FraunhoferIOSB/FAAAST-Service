@@ -54,5 +54,6 @@ public class TestService extends Service {
                 new MessageBusInternal(),
                 List.of(endpoint),
                 assetConnection != null ? List.of(assetConnection) : null);
+        //useFullExample = full;
     }
 }

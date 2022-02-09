@@ -25,6 +25,10 @@ import java.util.stream.Stream;
 
 public class MultiLanguagePropertyValue extends DataElementValue {
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     private Set<LangString> langStringSet;
 
     public MultiLanguagePropertyValue() {
@@ -42,16 +46,6 @@ public class MultiLanguagePropertyValue extends DataElementValue {
     }
 
 
-    public Set<LangString> getLangStringSet() {
-        return langStringSet;
-    }
-
-
-    public void setLangStringSet(Set<LangString> langStringSet) {
-        this.langStringSet = langStringSet;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -65,14 +59,19 @@ public class MultiLanguagePropertyValue extends DataElementValue {
     }
 
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(langStringSet);
+    public Set<LangString> getLangStringSet() {
+        return langStringSet;
     }
 
 
-    public static Builder builder() {
-        return new Builder();
+    public void setLangStringSet(Set<LangString> langStringSet) {
+        this.langStringSet = langStringSet;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(langStringSet);
     }
 
     public static abstract class AbstractBuilder<T extends MultiLanguagePropertyValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

@@ -43,8 +43,10 @@ public class GetAllSubmodelElementsRequestHandler extends RequestHandler<GetAllS
         try {
             Reference reference = Util.toReference(request.getId(), Submodel.class);
             List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, null, request.getOutputModifier());
+            readValueFromAssetConnectionAndUpdatePersistence(reference, submodelElements);
             response.setPayload(submodelElements);
             response.setStatusCode(StatusCode.Success);
+
             if (submodelElements != null) {
                 submodelElements.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(reference, x), x));
             }

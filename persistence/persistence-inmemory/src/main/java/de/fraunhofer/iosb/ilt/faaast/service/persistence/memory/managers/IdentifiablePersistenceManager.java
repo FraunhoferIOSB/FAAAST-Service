@@ -27,6 +27,7 @@ import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -55,35 +56,35 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
     }
 
 
-    public List<AssetAdministrationShell> getAASs(String idShort, AssetIdentification assetId) {
+    public List<AssetAdministrationShell> getAASs(String idShort, List<AssetIdentification> assetIds) {
         if (this.aasEnvironment == null) {
             return null;
         }
         if (!Util.empty(idShort)) {
-            List<AssetAdministrationShell> shells = Util.getDeepCopiedShells(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
-            return shells;
+            return Util.getDeepCopiedShells(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
         }
 
-        if (assetId != null) {
-            if (GlobalAssetIdentification.class.isAssignableFrom(assetId.getClass())) {
-                List<AssetAdministrationShell> shells = Util.getDeepCopiedShells(
-                        x -> x.getAssetInformation() != null
-                                && x.getAssetInformation().getGlobalAssetId() != null
-                                && x.getAssetInformation().getGlobalAssetId().equals(((GlobalAssetIdentification) assetId).getReference()),
-                        this.aasEnvironment);
-                return shells;
-            }
+        if (assetIds != null) {
+            List<AssetAdministrationShell> shells = new ArrayList<>();
+            for (AssetIdentification assetId: assetIds) {
+                if (GlobalAssetIdentification.class.isAssignableFrom(assetId.getClass())) {
+                    shells.addAll(Util.getDeepCopiedShells(
+                            x -> x.getAssetInformation() != null
+                                    && x.getAssetInformation().getGlobalAssetId() != null
+                                    && x.getAssetInformation().getGlobalAssetId().equals(((GlobalAssetIdentification) assetId).getReference()),
+                            this.aasEnvironment));
+                }
 
-            if (SpecificAssetIdentification.class.isAssignableFrom(assetId.getClass())) {
-                List<AssetAdministrationShell> shells = Util.getDeepCopiedShells(
-                        x -> x.getAssetInformation() != null
-                                && x.getAssetInformation().getSpecificAssetIds().stream()
-                                        .anyMatch(y -> y.getKey().equalsIgnoreCase(((SpecificAssetIdentification) assetId).getKey())
-                                                && y.getValue().equalsIgnoreCase(((SpecificAssetIdentification) assetId).getValue())),
-                        this.aasEnvironment);
-                return shells;
+                if (SpecificAssetIdentification.class.isAssignableFrom(assetId.getClass())) {
+                    shells.addAll(Util.getDeepCopiedShells(
+                            x -> x.getAssetInformation() != null
+                                    && x.getAssetInformation().getSpecificAssetIds().stream()
+                                            .anyMatch(y -> y.getKey().equalsIgnoreCase(((SpecificAssetIdentification) assetId).getKey())
+                                                    && y.getValue().equalsIgnoreCase(((SpecificAssetIdentification) assetId).getValue())),
+                            this.aasEnvironment));
+                }
             }
-            return null;
+            return shells;
         }
 
         //return all

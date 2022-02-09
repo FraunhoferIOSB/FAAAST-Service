@@ -23,5 +23,27 @@ import java.util.List;
  * Chapter 4.3.3
  */
 public class GetAllSubmodelElementsResponse extends BaseResponseWithPayload<List<SubmodelElement>> {
+    public static GetAllSubmodelElementsResponse.Builder builder() {
+        return new GetAllSubmodelElementsResponse.Builder();
+    }
 
+    public static class Builder extends AbstractBuilder<GetAllSubmodelElementsResponse, GetAllSubmodelElementsResponse.Builder> {
+
+        @Override
+        protected GetAllSubmodelElementsResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public GetAllSubmodelElementsResponse.Builder payload(List<SubmodelElement> value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected GetAllSubmodelElementsResponse newBuildingInstance() {
+            return new GetAllSubmodelElementsResponse();
+        }
+    }
 }

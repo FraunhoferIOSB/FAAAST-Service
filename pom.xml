@@ -19,7 +19,7 @@
     <modules>
         <module>core</module>
         <module>model</module>
-        <!-- needs to be build sseparately because of proprietary dependency to prosys -->
+        <!-- needs to be build separately because of proprietary dependency to prosys -->
         <!--<module>endpoint/opcua-prosys</module>-->
         <module>endpoint/http</module>
         <module>messagebus/messagebus-internal</module>
@@ -39,6 +39,7 @@
         <guava.version>31.0.1-jre</guava.version>
         <jackson.version>2.13.1</jackson.version>
         <jsonassert.version>1.5.0</jsonassert.version>
+        <jsonpath.version>2.7.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -52,14 +53,15 @@
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
         <milo.version>0.6.3</milo.version>
-        <mockito.version>4.3.0</mockito.version>
+        <mockito.version>4.3.1</mockito.version>
         <paho.version>1.2.5</paho.version>
+        <plugin.jar.version>3.2.2</plugin.jar.version>
         <plugin.jib.version>3.2.0</plugin.jib.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <revision>1.0.0-SNAPSHOT</revision>
         <root.basedir>${project.basedir}</root.basedir>
-        <slf4j.version>1.7.33</slf4j.version>
-        <spotless.version>2.20.0</spotless.version>
+        <slf4j.version>1.7.35</slf4j.version>
+        <spotless.version>2.20.1</spotless.version>
     </properties>
     <dependencies>
         <dependency>
@@ -116,7 +118,6 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
                 <version>${flatten.version}</version>
-                <configuration></configuration>
                 <executions>
                     <execution>
                         <id>flatten</id>
@@ -206,6 +207,49 @@
                             <goal>check</goal>
                         </goals>
                         <phase>compile</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>2.0.0</version>
+                <configuration>
+                    <!-- Output folder -->
+                    <outputDirectory>${root.basedir}/documentation/third_party_licenses_report</outputDirectory>
+                    <!-- Text with the output list of all licenses. Just contains the list of projects and websites, does not contain the copyright notices -->
+                    <licensesOutputFile>${root.basedir}/documentation/third_party_licenses_report/licenses-generated.xml</licensesOutputFile>
+                    <!-- Folder with an output dump of all license text. Usually they contain the license template (for APL2) but not the copyright notices. -->
+                    <licensesOutputDirectory>${project.basedir}/documentation/third_party_licenses</licensesOutputDirectory>
+                    <licenseMerges>
+                        <licenseMerge>Apache Software License, Version 2.0|The Apache Software License, Version 2.0|Apache License, Version 2.0|Apache Public License 2.0|Apache License Version 2.0</licenseMerge>
+                        <licenseMerge>Apache Software License, Version 2.0|Apache 2.0|Apache2.0|Apache License 2.0|Apache Software License - Version 2.0|The Apache License, Version 2.0</licenseMerge>
+                        <licenseMerge>The MIT License (MIT)|The MIT License|MIT License|MIT license|MIT</licenseMerge>
+                        <licenseMerge>Eclipse Public License - Version 2.0|EPL 2.0</licenseMerge>
+                        <licenseMerge>Eclipse Distribution License - v 1.0|EDL 1.0</licenseMerge>
+                        <licenseMerge>GPL2 w/ CPE|GNU General Public License, version 2 (GPL2), with the classpath exception</licenseMerge>
+                        <licenseMerge>BSD License 2.0|New BSD License</licenseMerge>
+                        <licenseMerge>BSD 3-Clause|BSD License 3.0</licenseMerge>
+                    </licenseMerges>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>aggregate-third-party-report</id>
+                        <goals>
+                            <goal>aggregate-third-party-report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>download-licenses</id>
+                        <goals>
+                            <goal>download-licenses</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>aggregate-download-licenses</id>
+                        <goals>
+                            <goal>aggregate-download-licenses</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

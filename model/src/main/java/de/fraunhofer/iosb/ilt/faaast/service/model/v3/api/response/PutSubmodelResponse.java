@@ -22,5 +22,27 @@ import io.adminshell.aas.v3.model.Submodel;
  * Chapter 4.3.5
  */
 public class PutSubmodelResponse extends BaseResponseWithPayload<Submodel> {
+    public static PutSubmodelResponse.Builder builder() {
+        return new PutSubmodelResponse.Builder();
+    }
 
+    public static class Builder extends AbstractBuilder<PutSubmodelResponse, PutSubmodelResponse.Builder> {
+
+        @Override
+        protected PutSubmodelResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public PutSubmodelResponse.Builder payload(Submodel value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected PutSubmodelResponse newBuildingInstance() {
+            return new PutSubmodelResponse();
+        }
+    }
 }

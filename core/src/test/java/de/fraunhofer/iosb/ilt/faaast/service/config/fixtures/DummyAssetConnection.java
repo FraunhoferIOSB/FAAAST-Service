@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.config.fixtures;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
@@ -36,6 +37,12 @@ public class DummyAssetConnection
     private int port;
 
     @Override
+    public void close() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+
+    @Override
     public void registerValueProvider(Reference reference, DummyNodeBasedProviderConfig valueProvider) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -54,19 +61,19 @@ public class DummyAssetConnection
 
 
     @Override
-    public void unregisterOperationProvider(Reference reference, DummyNodeBasedProviderConfig operationProvider) {
+    public void unregisterOperationProvider(Reference reference) {
         operationProviders.remove(reference);
     }
 
 
     @Override
-    public void unregisterSubscriptionProvider(Reference reference, DummySubscriptionBasedProviderConfig subscriptionProvider) {
+    public void unregisterSubscriptionProvider(Reference reference) {
         subscriptionProviders.remove(reference);
     }
 
 
     @Override
-    public void init(CoreConfig coreConfig, DummyAssetConnectionConfig config) {
+    public void init(CoreConfig coreConfig, DummyAssetConnectionConfig config, ServiceContext context) {
         this.host = config.getHost();
         this.port = config.getPort();
         this.coreConfig = coreConfig;
@@ -126,7 +133,7 @@ public class DummyAssetConnection
 
 
     @Override
-    public void unregisterValueProvider(Reference reference, DummyNodeBasedProviderConfig valueProvider) {
+    public void unregisterValueProvider(Reference reference) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

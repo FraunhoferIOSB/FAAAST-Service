@@ -21,14 +21,14 @@ public class DoubleValue extends TypedValue<Double> {
     }
 
 
-    @Override
-    public Datatype getDataType() {
-        return Datatype.Double;
+    public DoubleValue(Double value) {
+        super(value);
     }
 
 
-    public DoubleValue(Double value) {
-        super(value);
+    @Override
+    public String asString() {
+        return Double.toString(value);
     }
 
 
@@ -48,14 +48,8 @@ public class DoubleValue extends TypedValue<Double> {
 
 
     @Override
-    public String asString() {
-        return Double.toString(value);
-    }
-
-
-    @Override
-    protected Double getDefaultValue() {
-        return Double.NaN;
+    public Datatype getDataType() {
+        return Datatype.Double;
     }
 
 }

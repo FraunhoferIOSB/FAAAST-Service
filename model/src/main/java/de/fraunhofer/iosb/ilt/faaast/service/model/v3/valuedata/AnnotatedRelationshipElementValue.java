@@ -28,16 +28,6 @@ public class AnnotatedRelationshipElementValue extends RelationshipElementValue 
     }
 
 
-    public Map<String, DataElementValue> getAnnotations() {
-        return annotations;
-    }
-
-
-    public void setAnnotations(Map<String, DataElementValue> annotations) {
-        this.annotations = annotations;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -51,6 +41,16 @@ public class AnnotatedRelationshipElementValue extends RelationshipElementValue 
         }
         AnnotatedRelationshipElementValue that = (AnnotatedRelationshipElementValue) o;
         return Objects.equals(annotations, that.annotations);
+    }
+
+
+    public Map<String, DataElementValue> getAnnotations() {
+        return annotations;
+    }
+
+
+    public void setAnnotations(Map<String, DataElementValue> annotations) {
+        this.annotations = annotations;
     }
 
 

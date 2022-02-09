@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
@@ -27,7 +28,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.AASFull;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;
@@ -165,7 +165,7 @@ public class PersistenceInMemoryTest {
     @Test
     public void getShellsNullTest() {
         String AAS_IDSHORT = "Test_AssetAdministrationShell_Mandatory";
-        List<AssetAdministrationShell> actualAASList = persistence.get(AAS_IDSHORT, new GlobalAssetIdentification(), new QueryModifier());
+        List<AssetAdministrationShell> actualAASList = persistence.get(AAS_IDSHORT, List.of(new GlobalAssetIdentification()), new QueryModifier());
         List<AssetAdministrationShell> expectedAASList = null;
         Assert.assertEquals(expectedAASList, actualAASList);
     }
@@ -173,7 +173,7 @@ public class PersistenceInMemoryTest {
 
     @Test
     public void getShellsAllTest() {
-        List<AssetAdministrationShell> actualAASList = persistence.get("", (AssetIdentification) null, new QueryModifier());
+        List<AssetAdministrationShell> actualAASList = persistence.get("", (List<AssetIdentification>) null, new QueryModifier());
         List<AssetAdministrationShell> expectedAASList = environment.getAssetAdministrationShells();
         Assert.assertEquals(expectedAASList, actualAASList);
     }
@@ -182,7 +182,7 @@ public class PersistenceInMemoryTest {
     @Test
     public void getShellsWithIdShortTest() {
         String AAS_IDSHORT = "Test_AssetAdministrationShell_Mandatory";
-        List<AssetAdministrationShell> actualAASList = persistence.get(AAS_IDSHORT, (AssetIdentification) null, new QueryModifier());
+        List<AssetAdministrationShell> actualAASList = persistence.get(AAS_IDSHORT, (List<AssetIdentification>) null, new QueryModifier());
         List<AssetAdministrationShell> expectedAASList = environment.getAssetAdministrationShells().stream().filter(
                 x -> x.getIdShort().equalsIgnoreCase(AAS_IDSHORT)).collect(Collectors.toList());
         Assert.assertEquals(expectedAASList, actualAASList);
@@ -199,7 +199,7 @@ public class PersistenceInMemoryTest {
                         .value("https://acplt.org/Test_Asset_Mandatory")
                         .build())
                 .build());
-        List<AssetAdministrationShell> actualAASList = persistence.get(null, globalAssetIdentification, new QueryModifier());
+        List<AssetAdministrationShell> actualAASList = persistence.get(null, List.of(globalAssetIdentification), new QueryModifier());
         List<AssetAdministrationShell> expectedAASList = environment.getAssetAdministrationShells().stream().filter(
                 x -> x.getAssetInformation().getGlobalAssetId().equals(globalAssetIdentification.getReference())).collect(Collectors.toList());
         Assert.assertEquals(expectedAASList, actualAASList);

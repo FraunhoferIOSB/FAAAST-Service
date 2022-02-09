@@ -77,7 +77,7 @@ public class OpcUaEndpoint2Test {
         config.setSecondsTillShutdown(0);
 
         endpoint = new OpcUaEndpoint();
-        endpoint.init(coreConfig, config);
+        endpoint.init(coreConfig, config, service);
         service = new TestService(endpoint, null, false);
         endpoint.setService(service);
         service.start();

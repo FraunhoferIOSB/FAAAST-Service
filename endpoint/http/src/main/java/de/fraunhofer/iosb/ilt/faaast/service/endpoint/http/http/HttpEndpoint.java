@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
@@ -50,7 +51,7 @@ public class HttpEndpoint implements Endpoint<EndpointConfig> {
     Handler handler;
 
     @Override
-    public void init(CoreConfig core, EndpointConfig config) {}
+    public void init(CoreConfig core, EndpointConfig config, ServiceContext context) {}
 
 
     public HttpEndpoint() {

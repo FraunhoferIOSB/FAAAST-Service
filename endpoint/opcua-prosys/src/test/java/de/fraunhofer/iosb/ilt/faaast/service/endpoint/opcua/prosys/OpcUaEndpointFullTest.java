@@ -121,7 +121,7 @@ public class OpcUaEndpointFullTest {
         assetConnection.registerOperationProvider(ref, new TestOperationProviderConfig(outputArgs));
 
         endpoint = new OpcUaEndpoint();
-        endpoint.init(coreConfig, config);
+        endpoint.init(coreConfig, config, service);
         service = new TestService(endpoint, assetConnection, true);
         endpoint.setService(service);
         service.start();

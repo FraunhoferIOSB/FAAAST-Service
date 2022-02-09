@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.config.fixtures;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 
@@ -23,7 +24,7 @@ public class DummyConfigurable implements Configurable<DummyConfig> {
     private DummyConfig config;
 
     @Override
-    public void init(CoreConfig coreConfig, DummyConfig config) {
+    public void init(CoreConfig coreConfig, DummyConfig config, ServiceContext context) {
         this.config = config;
         System.out.println("init called");
     }

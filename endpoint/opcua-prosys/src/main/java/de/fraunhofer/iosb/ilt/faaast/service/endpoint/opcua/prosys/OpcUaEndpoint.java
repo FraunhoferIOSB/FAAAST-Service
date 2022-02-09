@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -87,7 +88,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      * @param config The desired OPC UA Configuration
      */
     @Override
-    public void init(CoreConfig core, OpcUaEndpointConfig config) {
+    public void init(CoreConfig core, OpcUaEndpointConfig config, ServiceContext context) {
         currentConfig = config;
     }
 

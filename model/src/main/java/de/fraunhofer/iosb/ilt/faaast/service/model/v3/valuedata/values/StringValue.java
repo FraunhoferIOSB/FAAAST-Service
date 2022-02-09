@@ -27,14 +27,14 @@ public class StringValue extends TypedValue<String> {
 
 
     @Override
-    public void fromString(String value) {
-        this.value = value;
+    public String asString() {
+        return value;
     }
 
 
     @Override
-    public String asString() {
-        return value;
+    public void fromString(String value) {
+        this.value = value;
     }
 
 
@@ -42,11 +42,4 @@ public class StringValue extends TypedValue<String> {
     public Datatype getDataType() {
         return Datatype.String;
     }
-
-
-    @Override
-    protected String getDefaultValue() {
-        return "";
-    }
-
 }

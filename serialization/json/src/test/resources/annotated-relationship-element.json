@@ -1,0 +1,25 @@
+{
+    "annotatedRelationship1": {
+        "first": [
+            "http://customer.com/demo/aas/1/1/1234859590",
+            "http://customer.com/demo/aas/1/2/4567895050"
+        ],
+        "second": [
+            {
+                "idType": "Iri",
+                "type": "Submodel",
+                "value": "http://customer.com/demo/aas/1/1/1234859590"
+            }, 
+            {
+                "idType": "IdShort",
+                "type": "Property",
+                "value": "MaxRotationSpeed"
+            }
+        ],
+        "annotation": [
+            {
+                "AppliedRule": "TechnicalCurrentFlowDirection"
+            }
+        ]
+    }
+}

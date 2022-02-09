@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.assetconnection;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
@@ -85,24 +86,6 @@ public class TestAssetConnection implements AssetConnection<TestAssetConnectionC
 
 
     @Override
-    public void unregisterValueProvider(Reference reference, TestValueProviderConfig valueProvider) {
-        this.subscriptionProviders.remove(reference, valueProvider);
-    }
-
-
-    @Override
-    public void unregisterOperationProvider(Reference reference, TestOperationProviderConfig operationProvider) {
-        this.subscriptionProviders.remove(reference, operationProvider);
-    }
-
-
-    @Override
-    public void unregisterSubscriptionProvider(Reference reference, TestSubscriptionProviderConfig subscriptionProvider) {
-        this.subscriptionProviders.remove(reference, subscriptionProvider);
-    }
-
-
-    @Override
     public Map<Reference, AssetValueProvider> getValueProviders() {
         return this.valueProviders;
     }
@@ -127,13 +110,37 @@ public class TestAssetConnection implements AssetConnection<TestAssetConnectionC
 
 
     @Override
-    public void init(CoreConfig coreConfig, TestAssetConnectionConfig config) {
-        logger.info("init called");
+    public TestAssetConnectionConfig asConfig() {
+        return null;
     }
 
 
     @Override
-    public TestAssetConnectionConfig asConfig() {
-        return null;
+    public void close() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+
+    @Override
+    public void unregisterOperationProvider(Reference reference) throws AssetConnectionException {
+        this.subscriptionProviders.remove(reference);
+    }
+
+
+    @Override
+    public void unregisterSubscriptionProvider(Reference reference) throws AssetConnectionException {
+        this.subscriptionProviders.remove(reference);
+    }
+
+
+    @Override
+    public void unregisterValueProvider(Reference reference) throws AssetConnectionException {
+        this.subscriptionProviders.remove(reference);
+    }
+
+
+    @Override
+    public void init(CoreConfig coreConfig, TestAssetConnectionConfig config, ServiceContext context) throws Exception {
+        logger.info("init called");
     }
 }

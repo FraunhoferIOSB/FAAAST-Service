@@ -21,34 +21,18 @@ import java.util.Objects;
 
 public class RangeValue<T> extends DataElementValue {
 
-    private TypedValue<T> min;
+    public static Builder builder() {
+        return new Builder();
+    }
+
     private TypedValue<T> max;
+    private TypedValue<T> min;
 
     public RangeValue() {}
 
 
     public RangeValue(TypedValue<T> min, TypedValue<T> max) {
         this.min = min;
-        this.max = max;
-    }
-
-
-    public TypedValue<T> getMin() {
-        return min;
-    }
-
-
-    public void setMin(TypedValue<T> min) {
-        this.min = min;
-    }
-
-
-    public TypedValue<T> getMax() {
-        return max;
-    }
-
-
-    public void setMax(TypedValue<T> max) {
         this.max = max;
     }
 
@@ -67,14 +51,29 @@ public class RangeValue<T> extends DataElementValue {
     }
 
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(min, max);
+    public TypedValue<T> getMax() {
+        return max;
     }
 
 
-    public static Builder builder() {
-        return new Builder();
+    public void setMax(TypedValue<T> max) {
+        this.max = max;
+    }
+
+
+    public TypedValue<T> getMin() {
+        return min;
+    }
+
+
+    public void setMin(TypedValue<T> min) {
+        this.min = min;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(min, max);
     }
 
     public static abstract class AbstractBuilder<T extends RangeValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

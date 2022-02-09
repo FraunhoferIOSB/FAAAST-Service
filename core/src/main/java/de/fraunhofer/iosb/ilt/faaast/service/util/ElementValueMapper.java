@@ -92,6 +92,28 @@ public class ElementValueMapper {
 
     /**
      * Set the values of the ElementValue to the SubmodelElement
+     * Utility function to determine equivalent ElementValue class for given
+     * SubmodelElement class
+     *
+     * @param elementType SubmodelElement type
+     * @return matching ElementValue class
+     */
+    public static Class<? extends ElementValue> getValueClass(Class<? extends SubmodelElement> elementType) {
+        init();
+        if (elementType == null) {
+            throw new IllegalArgumentException("elementType must be non-null");
+        }
+        if (!mappers.containsKey(ReflectionHelper.getAasInterface(elementType))) {
+            throw new RuntimeException("no mapper defined for elementType type " + elementType.getSimpleName());
+        }
+        return (Class<? extends ElementValue>) TypeToken.of(mappers.get(ReflectionHelper.getAasInterface(elementType)).getClass())
+                .resolveType(DataValueMapper.class.getTypeParameters()[1])
+                .getRawType();
+    }
+
+
+    /**
+     * Set the values of the DataElementValue to the SubmodelElement
      *
      * @param submodelElement for which the values will be set
      * @param elementValue which contains the values for the SubmodelElement

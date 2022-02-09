@@ -20,6 +20,10 @@ import java.util.Objects;
 
 public class FileValue extends DataElementValue {
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     private String mimeType;
     private String value;
 
@@ -29,6 +33,19 @@ public class FileValue extends DataElementValue {
     public FileValue(String mimeType, String value) {
         this.mimeType = mimeType;
         this.value = value;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        FileValue fileValue = (FileValue) o;
+        return Objects.equals(mimeType, fileValue.mimeType) && Objects.equals(value, fileValue.value);
     }
 
 
@@ -53,26 +70,8 @@ public class FileValue extends DataElementValue {
 
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        FileValue fileValue = (FileValue) o;
-        return Objects.equals(mimeType, fileValue.mimeType) && Objects.equals(value, fileValue.value);
-    }
-
-
-    @Override
     public int hashCode() {
         return Objects.hash(mimeType, value);
-    }
-
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     public static abstract class AbstractBuilder<T extends FileValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

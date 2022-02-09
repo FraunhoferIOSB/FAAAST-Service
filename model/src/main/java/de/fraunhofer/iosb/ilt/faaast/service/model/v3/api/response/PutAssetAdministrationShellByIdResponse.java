@@ -22,5 +22,27 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  * Chapter 6.2.7
  */
 public class PutAssetAdministrationShellByIdResponse extends BaseResponseWithPayload<AssetAdministrationShell> {
+    public static PutAssetAdministrationShellByIdResponse.Builder builder() {
+        return new PutAssetAdministrationShellByIdResponse.Builder();
+    }
 
+    public static class Builder extends AbstractBuilder<PutAssetAdministrationShellByIdResponse, PutAssetAdministrationShellByIdResponse.Builder> {
+
+        @Override
+        protected PutAssetAdministrationShellByIdResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public PutAssetAdministrationShellByIdResponse.Builder payload(AssetAdministrationShell value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected PutAssetAdministrationShellByIdResponse newBuildingInstance() {
+            return new PutAssetAdministrationShellByIdResponse();
+        }
+    }
 }

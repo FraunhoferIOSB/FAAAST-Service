@@ -21,14 +21,14 @@ public class IntValue extends TypedValue<Integer> {
     }
 
 
-    @Override
-    public Datatype getDataType() {
-        return Datatype.Int;
+    public IntValue(Integer value) {
+        super(value);
     }
 
 
-    public IntValue(Integer value) {
-        super(value);
+    @Override
+    public String asString() {
+        return Integer.toString(value);
     }
 
 
@@ -48,14 +48,7 @@ public class IntValue extends TypedValue<Integer> {
 
 
     @Override
-    public String asString() {
-        return Integer.toString(value);
+    public Datatype getDataType() {
+        return Datatype.Int;
     }
-
-
-    @Override
-    protected Integer getDefaultValue() {
-        return 0;
-    }
-
 }
