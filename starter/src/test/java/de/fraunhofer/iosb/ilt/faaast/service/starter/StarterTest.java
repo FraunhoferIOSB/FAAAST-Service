@@ -63,7 +63,7 @@ public class StarterTest {
         properties.put("core.requestHandlerThreadPoolSize", 2);
         properties.put("endpoints.0.@class", "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpEndpoint");
         ServiceConfig expected = mapper.readValue(new File("src/test/resources/test-config-expected.json"), ServiceConfig.class);
-        ServiceConfig actual = configFactory.toServiceConfig("src/test/resources/test-config.json", false, properties);
+        ServiceConfig actual = configFactory.toServiceConfig("src/test/resources/test-config.json", true, properties, null);
 
         Assert.assertEquals(expected, actual);
     }

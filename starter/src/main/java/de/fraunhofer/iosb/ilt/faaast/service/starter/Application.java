@@ -15,12 +15,20 @@
 package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
+import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpEndpointConfig;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.validator.ShaclValidator;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.jena.shacl.ValidationReport;
+import org.apache.jena.shacl.lib.ShLib;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -31,16 +39,24 @@ import picocli.CommandLine.Option;
 /**
  * Class for configuring and starting a FA³ST Service
  */
-@Command(name = "FA³ST_Starter", mixinStandardHelpOptions = true, version = "0.1", description = "Starts a FA³ST Service")
+@Command(name = "FAAAST_Starter", mixinStandardHelpOptions = true, version = "0.1", description = "Starts a FAAAST Service")
 public class Application implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
     public static final String DEFAULT_CONFIG_PATH = "config.json";
     public static final String DEFAULT_AASENV_PATH = "aasenvironment.*";
-    private static final String ENV_PREFIX = "fa3st.configParameter.";
 
-    private final String CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE = "fa3st.configFilePath";
-    private final String AASENV_FILE_PATH_ENVIRONMENT_VARIABLE = "fa3st.aasEnvFilePath";
+    private static final String FAAAST_PREFIX = "faaast.";
+    private static final String ENV_PREFIX = FAAAST_PREFIX + "configParameter.";
+
+    private final String CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE = FAAAST_PREFIX + "configFilePath";
+    private final String AASENV_FILE_PATH_ENVIRONMENT_VARIABLE = FAAAST_PREFIX + "aasEnvFilePath";
+
+    private final Map<String, Class<? extends EndpointConfig>> availableEndpoints = new HashMap<>() {
+        {
+            put("http", HttpEndpointConfig.class);
+        }
+    };
 
     @Option(names = {
             "-c",
@@ -50,14 +66,19 @@ public class Application implements Runnable {
 
     @Option(names = {
             "-e",
-            "--aasEnvironment"
+            "--environmentFile"
     }, description = "Asset Administration Shell Environment FilePath. Default Value = ${DEFAULT-VALUE}", defaultValue = DEFAULT_AASENV_PATH)
     private String aasEnvironmentFilePath;
 
     @Option(names = {
             "--no-autoCompleteConfig"
     }, negatable = true, description = "Autocompletes the configuration with default values for required configuration sections. True by default")
-    public static boolean autoCompleteConfiguration = true;
+    private boolean autoCompleteConfiguration = true;
+
+    @Option(names = {
+            "--no-modelValidation"
+    }, negatable = true, description = "Validates the AAS Environment. True by default")
+    private boolean validateAASEnv = true;
 
     @Option(names = {
             "--emptyEnvironment"
@@ -69,6 +90,9 @@ public class Application implements Runnable {
             "--property"
     }, paramLabel = "KEY=VALUE")
     private Map<String, Object> properties = new HashMap<>();
+
+    @Option(names = "--endpoints", arity = "0..*")
+    private List<String> endpoints;
 
     public static void main(String[] args) throws Exception {
         LOGGER.info("Start configuration of FAAAST Service");
@@ -85,7 +109,9 @@ public class Application implements Runnable {
             readConfigurationParametersOverEnvironmentVariables();
             readFilePathsOverEnvironmentVariables();
 
-            ServiceConfig config = configFactory.toServiceConfig(configFilePath, autoCompleteConfiguration, properties);
+            List<Config> customConfigComponents = getCustomConfigComponents();
+
+            ServiceConfig config = configFactory.toServiceConfig(configFilePath, autoCompleteConfiguration, properties, customConfigComponents);
             AssetAdministrationShellEnvironment environment = null;
             if (useEmptyAASEnvironment) {
                 LOGGER.info("Using empty Asset Administration Shell Environment");
@@ -94,6 +120,9 @@ public class Application implements Runnable {
             else {
                 environment = environmentFactory.getAASEnvironment(aasEnvironmentFilePath);
                 LOGGER.info("Successfully parsed Asset Administration Shell Environment");
+            }
+            if (validateAASEnv) {
+                validate(environment);
             }
             Service service = new Service(config);
             service.setAASEnvironment(environment);
@@ -105,6 +134,22 @@ public class Application implements Runnable {
             LOGGER.error("Abort starting FAAAST Service");
         }
 
+    }
+
+
+    private List<Config> getCustomConfigComponents() throws Exception {
+        List<Config> customConfigs = new ArrayList<>();
+        if (!endpoints.isEmpty()) {
+            for (String endpoint: endpoints) {
+                if (availableEndpoints.containsKey(endpoint.toLowerCase())) {
+                    customConfigs.add(availableEndpoints.get(endpoint.toLowerCase()).getDeclaredConstructor().newInstance());
+                }
+                else {
+                    throw new Exception("Endpoint '" + endpoint + "' is not supported. Supported endpoints: " + availableEndpoints.keySet());
+                }
+            }
+        }
+        return customConfigs;
     }
 
 
@@ -131,5 +176,19 @@ public class Application implements Runnable {
             aasEnvironmentFilePath = System.getenv(AASENV_FILE_PATH_ENVIRONMENT_VARIABLE);
             LOGGER.info("Read environment variable '" + AASENV_FILE_PATH_ENVIRONMENT_VARIABLE + "=" + aasEnvironmentFilePath + "'");
         }
+    }
+
+
+    private boolean validate(AssetAdministrationShellEnvironment aasEnv) throws Exception {
+        LOGGER.debug("Validate Asset Administration Shell Environment model");
+        ShaclValidator shaclValidator = ShaclValidator.getInstance();
+        ValidationReport report = shaclValidator.validateGetReport(aasEnv);
+        if (report.conforms()) {
+            LOGGER.info("Valid Asset Administration Shell Environment model");
+            return true;
+        }
+        LOGGER.error("Invalid Asset Administration Shell Environment model. Found '" + report.getEntries().size() + "' failures");
+        ShLib.printReport(report);
+        throw new Exception("Invalid Asset Administration Shell Environment model.");
     }
 }

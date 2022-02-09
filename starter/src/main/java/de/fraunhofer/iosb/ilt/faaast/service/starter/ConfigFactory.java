@@ -21,12 +21,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpEndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +59,7 @@ public class ConfigFactory {
 
     /**
      * Get the default Service Configuration
-     * 
+     *
      * @return the default Service Configuration
      * @throws Exception
      */
@@ -70,9 +80,7 @@ public class ConfigFactory {
             properties = new HashMap<>();
         }
         try {
-            JsonNode configNode = readDefaultConfigFile();
-            applyCommandlineProperties(properties, configNode);
-            return mapper.readValue(mapper.writeValueAsString(configNode), ServiceConfig.class);
+            return applyCommandlineProperties(properties, getDefaultConfig());
         }
         catch (IOException e) {
             throw new Exception("Configuration Error: " + e.getMessage());
@@ -100,7 +108,7 @@ public class ConfigFactory {
      * @throws Exception
      */
     public ServiceConfig toServiceConfig(String pathToConfigFile) throws Exception {
-        return toServiceConfig(pathToConfigFile, Application.autoCompleteConfiguration, new HashMap<>());
+        return toServiceConfig(pathToConfigFile, true, new HashMap<>(), null);
     }
 
 
@@ -115,20 +123,29 @@ public class ConfigFactory {
      * @return the parsed ServiceConfig object
      * @throws Exception
      */
-    public ServiceConfig toServiceConfig(String pathToConfigFile, boolean autoCompleteConfiguration, Map<String, Object> commandLineProperties)
+    public ServiceConfig toServiceConfig(String pathToConfigFile,
+                                         boolean autoCompleteConfiguration,
+                                         Map<String, Object> commandLineProperties,
+                                         List<Config> costumConfigs)
             throws Exception {
         try {
             JsonNode configNode = mapper.readTree(Files.readString(Path.of(pathToConfigFile)));
-            LOGGER.info("Read config file '" + pathToConfigFile + "'");
-            if (commandLineProperties != null && !commandLineProperties.isEmpty()) {
-                LOGGER.debug("Applying properties to config file");
-                applyCommandlineProperties(commandLineProperties, configNode);
-            }
             ServiceConfig serviceConfig = mapper.readValue(mapper.writeValueAsString(configNode), ServiceConfig.class);
-            LOGGER.info("Successfully read config file");
+            LOGGER.info("Read config file '" + pathToConfigFile + "'");
             if (autoCompleteConfiguration) {
                 autocompleteServiceConfiguration(serviceConfig);
             }
+            if (costumConfigs != null && !costumConfigs.isEmpty()) {
+                LOGGER.debug("Applying costum config components to config file");
+                applyToServiceConfig(serviceConfig, costumConfigs);
+            }
+
+            if (commandLineProperties != null && !commandLineProperties.isEmpty()) {
+                LOGGER.debug("Applying properties to config file");
+                serviceConfig = applyCommandlineProperties(commandLineProperties, serviceConfig);
+            }
+
+            LOGGER.info("Successfully read config file");
             LOGGER.debug("Used configuration file\n" + mapper.writeValueAsString(serviceConfig));
             return serviceConfig;
         }
@@ -137,6 +154,7 @@ public class ConfigFactory {
                 LOGGER.info("No custom configuration file was found");
                 LOGGER.info("Using default configuration file");
                 ServiceConfig serviceConfig = getDefaultServiceConfig(commandLineProperties);
+                applyToServiceConfig(serviceConfig, costumConfigs);
                 LOGGER.debug("Used configuration file\n" + mapper.writeValueAsString(serviceConfig));
                 return serviceConfig;
             }
@@ -176,7 +194,8 @@ public class ConfigFactory {
     }
 
 
-    private void applyCommandlineProperties(Map<String, Object> properties, JsonNode configNode) throws Exception {
+    private ServiceConfig applyCommandlineProperties(Map<String, Object> properties, ServiceConfig serviceConfig) throws Exception {
+        JsonNode configNode = mapper.readTree(mapper.writeValueAsString(serviceConfig));
         for (Map.Entry<String, Object> prop: properties.entrySet()) {
             List<String> pathList = List.of(prop.getKey().split("\\."));
             JsonNode jsonNode = configNode;
@@ -195,13 +214,66 @@ public class ConfigFactory {
             ((ObjectNode) jsonNode).put(pathList.get(pathList.size() - 1), prop.getValue().toString());
             LOGGER.debug("Apply config property '" + prop.getKey() + "' with value '" + prop.getValue().toString() + "'");
         }
+        return mapper.readValue(mapper.writeValueAsString(configNode), ServiceConfig.class);
     }
 
 
-    private JsonNode readDefaultConfigFile() throws IOException {
-        //LOGGER.info("Read default config file '" + DEFAULT_CONFIG_JSON + "'");
-        JsonNode configNode = mapper.readTree(ConfigFactory.class.getClassLoader().getResource(DEFAULT_CONFIG_JSON));
-        return configNode;
+    private ServiceConfig getDefaultConfig() throws IOException {
+        return getDefaultConfigWithCustomConfig(null, null, null, null, null);
+    }
+
+
+    private ServiceConfig getDefaultConfigWithCustomConfig(List<EndpointConfig> endpointConfig,
+                                                           MessageBusConfig messageBusConfig,
+                                                           PersistenceConfig persistenceConfig,
+                                                           CoreConfig coreConfig,
+                                                           List<AssetConnectionConfig> assetConnectionConfigs)
+            throws IOException {
+        ServiceConfig serviceConfig = new ServiceConfig.Builder()
+                .core(coreConfig != null ? coreConfig : new CoreConfig.Builder().requestHandlerThreadPoolSize(2).build())
+                .endpoints(endpointConfig != null ? endpointConfig : List.of(new HttpEndpointConfig()))
+                .persistence(persistenceConfig != null ? persistenceConfig : new PersistenceInMemoryConfig())
+                .messageBus(messageBusConfig != null ? messageBusConfig : new MessageBusInternalConfig())
+                .assetConnections(assetConnectionConfigs)
+                .build();
+        return serviceConfig;
+    }
+
+
+    private void applyToServiceConfig(ServiceConfig serviceConfig, List<Config> configs) throws Exception {
+        boolean isEndpointAlreadySet = false;
+        for (Config c: configs) {
+            LOGGER.debug("Apply custom config parameter '" + c.getClass().getSimpleName() + "'");
+            if (EndpointConfig.class.isAssignableFrom(c.getClass())) {
+                //if yet no endpoint was set remove old enpoints (most likely default endpoint) and set new endpoint
+                //else add the new endpoint to the existing list of endpoints
+                serviceConfig.setEndpoints(!isEndpointAlreadySet ? new ArrayList<>() {
+                    {
+                        add((EndpointConfig) c);
+                    }
+                } : new ArrayList<>() {
+                    {
+                        addAll(serviceConfig.getEndpoints());
+                        add((EndpointConfig) c);
+                    }
+                });
+                isEndpointAlreadySet = true;
+                continue;
+            }
+            if (PersistenceConfig.class.isAssignableFrom(c.getClass())) {
+                serviceConfig.setPersistence((PersistenceConfig) c);
+                continue;
+            }
+            if (MessageBusConfig.class.isAssignableFrom(c.getClass())) {
+                serviceConfig.setMessageBus((MessageBusConfig) c);
+                continue;
+            }
+            if (AssetConnectionConfig.class.isAssignableFrom(c.getClass())) {
+                serviceConfig.getAssetConnections().add((AssetConnectionConfig) c);
+                continue;
+            }
+            throw new Exception("Cannot set config component '" + c.getClass().getSimpleName() + "'");
+        }
     }
 
 

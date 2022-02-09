@@ -51,6 +51,11 @@
             <version>${logback.version}</version>
         </dependency>
         <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.15</version>
+        </dependency>
+        <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>${picoli-plugin-version}</version>
@@ -93,6 +98,11 @@
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>dataformat-xml</artifactId>
+            <version>${aas.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.admin-shell.aas</groupId>
+            <artifactId>validator</artifactId>
             <version>${aas.version}</version>
         </dependency>
     </dependencies>
