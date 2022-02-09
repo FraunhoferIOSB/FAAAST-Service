@@ -29,12 +29,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetSubmodelBy
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.PostSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
+import io.adminshell.aas.v3.model.Identifier;
+import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import java.net.ServerSocket;
 import java.util.List;
 import java.util.Map;
-
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
@@ -150,6 +149,7 @@ public class HttpEndpointTest {
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
+
     @Test
     public void testParamContentTrimmed() throws Exception {
         Identifier id = new DefaultIdentifier();
@@ -159,6 +159,7 @@ public class HttpEndpointTest {
         ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingUtils.base64UrlEncode(id.toString()) + "/aas?content=trimmed");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
+
 
     @Test
     public void testParamContentReference() throws Exception {
@@ -170,6 +171,7 @@ public class HttpEndpointTest {
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
+
     @Test
     public void testParamContentLevelBogus() throws Exception {
         Identifier id = new DefaultIdentifier();
@@ -180,6 +182,7 @@ public class HttpEndpointTest {
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
+
     @Test
     public void testInvalidAASIdentifier() throws Exception {
         when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
@@ -188,6 +191,7 @@ public class HttpEndpointTest {
         ContentResponse response = execute(HttpMethod.GET, "/shells/bogus/aas");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
     }
+
 
     @Test
     public void testInvalidBase64Param() throws Exception {
