@@ -30,7 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
 public class GetAssetAdministrationShellByIdRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "(?!.*/aas)^shells/(.*)";
+    private static final String PATTERN = "(?!.*/aas)^shells/(.*?)$";
 
     public GetAssetAdministrationShellByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext);
@@ -49,6 +49,7 @@ public class GetAssetAdministrationShellByIdRequestMapper extends RequestMapperW
     @Override
     public boolean matches(HttpRequest httpRequest) {
         return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
+                && httpRequest.getPath().matches(PATTERN)
+                && (httpRequest.getPathElements().size() == 2); // TODO: not nice, needs hotfix
     }
 }
