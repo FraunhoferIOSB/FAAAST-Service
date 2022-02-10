@@ -662,6 +662,9 @@ public class OpcUaEndpointFullTest {
         Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
         Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
         Assert.assertTrue("testAddProperty Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        System.out.println("disconnect client");
+        client.disconnect();
     }
 
 
@@ -716,6 +719,9 @@ public class OpcUaEndpointFullTest {
         Assert.assertTrue("testDeleteSubmodel Browse Result: size doesn't match", bpres.length == 2);
         Assert.assertTrue("testDeleteSubmodel Browse Result 1 Bad", bpres[0].getStatusCode().isBad());
         Assert.assertTrue("testDeleteSubmodel Browse Result 2 Bad", bpres[1].getStatusCode().isBad());
+
+        System.out.println("disconnect client");
+        client.disconnect();
     }
 
 
@@ -771,6 +777,9 @@ public class OpcUaEndpointFullTest {
         Assert.assertTrue("testDeleteCapability Browse Result: size doesn't match", bpres.length == 2);
         Assert.assertTrue("testDeleteCapability Browse Result 1 Bad", bpres[0].getStatusCode().isBad());
         Assert.assertTrue("testDeleteCapability Browse Result 2 Bad", bpres[1].getStatusCode().isBad());
+
+        System.out.println("disconnect client");
+        client.disconnect();
     }
 
 

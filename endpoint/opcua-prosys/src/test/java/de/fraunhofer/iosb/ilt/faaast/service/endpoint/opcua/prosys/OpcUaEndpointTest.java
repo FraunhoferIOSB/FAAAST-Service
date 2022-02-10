@@ -782,6 +782,9 @@ public class OpcUaEndpointTest {
         Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
         Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
         Assert.assertTrue("testAddProperty Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        System.out.println("disconnect client");
+        client.disconnect();
     }
 
 
@@ -893,6 +896,9 @@ public class OpcUaEndpointTest {
         Assert.assertNotNull("testAddSubmodel Browse Result Null", bpres);
         Assert.assertTrue("testAddSubmodel Browse Result: size doesn't match", bpres.length == 1);
         Assert.assertTrue("testAddSubmodel Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        System.out.println("disconnect client");
+        client.disconnect();
     }
 
 

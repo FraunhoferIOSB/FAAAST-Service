@@ -48,6 +48,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.BlobValue;
@@ -4307,6 +4308,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 });
                 rv = messageBus.subscribe(info);
                 subscriptions.add(rv);
+
+                info = SubscriptionInfo.create(ElementUpdateEventMessage.class, (x) -> {
+                    try {
+                        elementUpdated(x.getElement(), x.getValue());
+                    }
+                    catch (Exception ex3) {
+                        logger.error("elementUpdated Exception", ex3);
+                    }
+                });
+                rv = messageBus.subscribe(info);
+                subscriptions.add(rv);
             }
             else {
                 logger.warn("MessageBus not available!");
@@ -4357,6 +4369,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
+            logger.debug("elementCreated called. Reference " + AasUtils.asString(element));
+
             // The element is the parent object where the value is added
             ObjectData parent = null;
             try {
@@ -4452,8 +4466,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             throw new IllegalArgumentException("element is null");
         }
 
-        //logger.info("elementDeleted not implemented!");
         try {
+            logger.debug("elementDeleted called. Reference " + AasUtils.asString(element));
+
             // The element is the parent object where the value is added
             ObjectData parent = null;
             try {
@@ -4482,6 +4497,38 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Throwable ex) {
             logger.error("elementDeleted Exception", ex);
+            throw ex;
+        }
+    }
+
+
+    /**
+     * Handles an elementUpdated event.
+     *
+     * @param element Reference to the updated element.
+     * @param value The element that was updated.
+     * @throws StatusException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws AddressSpaceException If the operation fails
+     */
+    private void elementUpdated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
+        if (element == null) {
+            throw new IllegalArgumentException("element is null");
+        }
+        else if (value == null) {
+            throw new IllegalArgumentException("value is null");
+        }
+
+        try {
+            logger.debug("elementUpdated called. Reference " + AasUtils.asString(element));
+
+            // Currently we implement update as delete and create. 
+            elementDeleted(element);
+            elementCreated(element, value);
+        }
+        catch (Throwable ex) {
+            logger.error("elementUpdated Exception", ex);
             throw ex;
         }
     }

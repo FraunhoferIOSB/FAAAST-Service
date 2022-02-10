@@ -131,8 +131,8 @@ public class AASSimple {
     public static final String SUBMODEL_DOCUMENTATION_REVISION = "159";
 
     // SUBMODEL_OPERATIONAL_DATA
+    public static final String SUBMODEL_OPERATIONAL_DATA_ID = "http://i40.customer.com/instance/1/1/AC69B1CB44F07935";
     private static final String SUBMODEL_OPERATIONAL_DATA_ID_SHORT = "OperationalData";
-    private static final String SUBMODEL_OPERATIONAL_DATA_ID = "http://i40.customer.com/instance/1/1/AC69B1CB44F07935";
     private static final String SUBMODEL_OPERATIONAL_DATA_SEMANTIC_ID_PROPERTY = HTTP_CUSTOMER_COM_CD_1_1_18EBD56F6B43D895;
     private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_ID_SHORT = ROTATION_SPEED;
     private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_CATEGORY = "Variable";
