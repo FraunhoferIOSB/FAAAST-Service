@@ -26,7 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpEndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
@@ -120,13 +120,14 @@ public class ConfigFactory {
      * @param autoCompleteConfiguration if yes then missing components in the given config file are added
      *            with default values
      * @param commandLineProperties the adjustments for the default configuration file.
+     * @param customConfigs list of custom configuration which should be applied
      * @return the parsed ServiceConfig object
      * @throws Exception
      */
     public ServiceConfig toServiceConfig(String pathToConfigFile,
                                          boolean autoCompleteConfiguration,
                                          Map<String, Object> commandLineProperties,
-                                         List<Config> costumConfigs)
+                                         List<Config> customConfigs)
             throws Exception {
         try {
             JsonNode configNode = mapper.readTree(Files.readString(Path.of(pathToConfigFile)));
@@ -135,9 +136,9 @@ public class ConfigFactory {
             if (autoCompleteConfiguration) {
                 autocompleteServiceConfiguration(serviceConfig);
             }
-            if (costumConfigs != null && !costumConfigs.isEmpty()) {
+            if (customConfigs != null && !customConfigs.isEmpty()) {
                 LOGGER.debug("Applying costum config components to config file");
-                applyToServiceConfig(serviceConfig, costumConfigs);
+                applyToServiceConfig(serviceConfig, customConfigs);
             }
 
             if (commandLineProperties != null && !commandLineProperties.isEmpty()) {
@@ -154,7 +155,7 @@ public class ConfigFactory {
                 LOGGER.info("No custom configuration file was found");
                 LOGGER.info("Using default configuration file");
                 ServiceConfig serviceConfig = getDefaultServiceConfig(commandLineProperties);
-                applyToServiceConfig(serviceConfig, costumConfigs);
+                applyToServiceConfig(serviceConfig, customConfigs);
                 LOGGER.debug("Used configuration file\n" + mapper.writeValueAsString(serviceConfig));
                 return serviceConfig;
             }
