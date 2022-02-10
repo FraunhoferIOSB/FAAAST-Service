@@ -111,7 +111,7 @@ To start a FA³ST Service from the command line:
 	java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
 	```
 
-Currently we supporting following formats of the Asset Administration Shell Environment model: 
+Currently we supporting following formats of the Asset Administration Shell Environment model:
 - json
 - json-ld
 - aml
