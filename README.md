@@ -115,7 +115,7 @@ Additionally, you can import the eclipse formating rules defined in */codestyle*
 
 ### Third Party License Usage Report
 Generates a report of the licenses used in the subsystems (dependencies).
-The report is stored in the directory ./documentation/third_party_licenses as a html page.
+The report is stored in the directory ./documentation/third_party_licenses_report as a html page.
 > mvn license:aggregate-third-party-report
 
 
@@ -148,10 +148,13 @@ Don't forget to give the project a star! Thanks again!
 <!-- LICENSE -->
 ## License
 
-Distributed under the Apacche2.0 License. See `LICENSE` for more information.
+Distributed under the Apache 2.0 License. See `LICENSE` for more information.
+
+Copyright (C) 2022 Fraunhofer Institut IOSB, Fraunhoferstr. 1, D 76131 Karlsruhe, Germany.
+
+You should have received a copy of the Apache 2.0 License along with this program. If not, see https://www.apache.org/licenses/LICENSE-2.0.html.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
 
 
 <!-- CONTACT -->
