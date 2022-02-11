@@ -81,11 +81,12 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
 
     /**
-     * Initializes the OPC UA Endpoint with the given Configurations. This is
-     * the first call.
+     * Initializes the OPC UA Endpoint with the given Configurations.
+     * This is the first call.
      *
      * @param core The desired Core Configuration
      * @param config The desired OPC UA Configuration
+     * @param context The desired ServiceContext
      */
     @Override
     public void init(CoreConfig core, OpcUaEndpointConfig config, ServiceContext context) {
@@ -94,7 +95,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
 
     /**
-     * Sets the given Service. This is the second call.
+     * Sets the given Service.
+     * This is the second call.
      *
      * @param service The current Service
      */
@@ -107,7 +109,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
 
     /**
-     * Starts the Endpoint. This is the third call.
+     * Starts the Endpoint.
+     * This is the third call.
      */
     @Override
     public void start() {

@@ -92,9 +92,6 @@ public class AasServiceMethodManagerListener implements CallableListener {
                 logger.warn("onCall: no Endpoint available");
             }
             else {
-                // TODO implement method
-                //throw new UnsupportedOperationException("onCall not implemented");
-
                 SubmodelElementData data = nodeManager.getAasData(objectId);
                 Operation aasOper = (Operation) data.getSubmodelElement();
                 if (aasOper != null) {

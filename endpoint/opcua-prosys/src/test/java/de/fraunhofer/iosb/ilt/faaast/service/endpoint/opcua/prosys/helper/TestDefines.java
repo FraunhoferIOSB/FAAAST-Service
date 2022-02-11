@@ -97,5 +97,4 @@ public class TestDefines {
     public static final int AAS_QUALIFIER_LIST_ID = 1037;
     public static final int AAS_ID_KEY_VALUE_PAIR_LIST_ID = 1039;
     public static final int AAS_KEY_DATA_TYPE_ID = 3011;
-
 }
