@@ -784,6 +784,98 @@ public class OpcUaEndpointFullTest {
 
 
     /**
+     * Test method for an OrderedSubmodelElementCollection.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     * @throws AddressSpaceException If the operation fails
+     */
+    @Test
+    public void testOrderedSubmodelElementCollection() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_SUBMODEL_6_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_SM_ELEM_COLL_O_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testOrderedSubmodelElementCollection Browse Result Null", bpres);
+        Assert.assertTrue("testOrderedSubmodelElementCollection Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testOrderedSubmodelElementCollection Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testOrderedSubmodelElementCollection ValueType Null", targets);
+        Assert.assertTrue("testOrderedSubmodelElementCollection ValueType empty", targets.length > 0);
+
+        NodeId smNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        Assert.assertNotNull("testOrderedSubmodelElementCollection Node Null", smNode);
+
+        TestUtils.checkType(client, smNode, new NodeId(aasns, TestDefines.AAS_OREDER_SM_ELEM_COLL_TYPE_ID));
+
+        System.out.println("disconnect client");
+        client.disconnect();
+    }
+
+
+    /**
+     * Test method for an UnorderedSubmodelElementCollection.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     * @throws AddressSpaceException If the operation fails
+     */
+    @Test
+    public void testUnorderedSubmodelElementCollection() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_SUBMODEL_6_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_SM_ELEM_COLL_UO_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testUnorderedSubmodelElementCollection Browse Result Null", bpres);
+        Assert.assertTrue("testUnorderedSubmodelElementCollection Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertTrue("testUnorderedSubmodelElementCollection Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testUnorderedSubmodelElementCollection ValueType Null", targets);
+        Assert.assertTrue("testUnorderedSubmodelElementCollection ValueType empty", targets.length > 0);
+
+        NodeId smNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        Assert.assertNotNull("testUnorderedSubmodelElementCollection Node Null", smNode);
+
+        TestUtils.checkType(client, smNode, new NodeId(aasns, TestDefines.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
+
+        System.out.println("disconnect client");
+        client.disconnect();
+    }
+
+
+    /**
      * Tests the submodel 1 (Identification).
      *
      * @param client The OPC UA Client.
