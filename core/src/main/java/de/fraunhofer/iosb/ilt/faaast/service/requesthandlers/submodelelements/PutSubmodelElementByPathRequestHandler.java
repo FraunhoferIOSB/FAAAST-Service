@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Objects;
 
@@ -44,7 +45,7 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
     public PutSubmodelElementByPathResponse process(PutSubmodelElementByPathRequest request) {
         PutSubmodelElementByPathResponse response = new PutSubmodelElementByPathResponse();
         try {
-            Reference reference = Util.toReference(request.getPath());
+            Reference reference = Util.toReference(request.getPath(), request.getId(), Submodel.class);
 
             //Check if submodelelement does exist
             SubmodelElement currentSubmodelElement = persistence.get(reference, new QueryModifier.Builder()

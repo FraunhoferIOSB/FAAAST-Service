@@ -241,7 +241,7 @@ public class Util {
             return;
         }
         List<Key> keys = reference.getKeys();
-        if (keys.stream().allMatch(x -> x.getType() != null)) {
+        if (keys.stream().allMatch(x -> x.getType() != null && x.getType() != KeyElements.SUBMODEL_ELEMENT)) {
             return;
         }
         final Referable[] parent = {
@@ -261,7 +261,7 @@ public class Util {
                     parent[0] = x;
                 }
             });
-            if (k.getType() != null) {
+            if (k.getType() != null && k.getType() != KeyElements.SUBMODEL_ELEMENT) {
                 continue;
             }
 
