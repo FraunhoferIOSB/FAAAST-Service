@@ -3140,12 +3140,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds an AAS Multi Language Property to the given UA node
+     * Adds an AAS Multi Language Property to the given node.
      *
      * @param node The desired UA node
      * @param aasMultiLang The AAS Multi Language Property to add
-     * @param submodel The corresponding Submodel as parent object of the data
-     *            element
+     * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
      * @param ordered Specifies whether the multi language property should be
      *            added ordered (true) or unordered (false)
@@ -3182,7 +3181,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     submodelElementAasMapLock.lock();
                     submodelElementAasMap.put(multiLangNode.getValueNode().getNodeId(),
                             new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE, multiLangRef));
-                    //logger.debug("addAasMultiLanguageProperty: NodeId " + multiLangNode.getValueNode().getNodeId() + "; Blob: " + aasMultiLang);
                 }
                 catch (Exception ex2) {
                     logger.warn("submodelElementAasMap problem", ex2);
@@ -3230,7 +3228,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds the Value Node for the MultiLanguageProperty
+     * Adds the Value Node for the MultiLanguageProperty.
      *
      * @param node The desired MultiLanguageProperty Node
      * @param arraySize The desired Array Size.
@@ -3248,7 +3246,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     UnsignedInteger.valueOf(arraySize)
             });
             node.addProperty(myLTProperty);
-            //myLTProperty.setCurrentValue(getLocalizedTextFromLangStringSet(values));
             myLTProperty.setDescription(new LocalizedText("", ""));
         }
         catch (Throwable ex) {
@@ -3259,12 +3256,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds an AAS Capability to the given UA node
+     * Adds an AAS Capability to the given node.
      *
      * @param node The desired UA node
      * @param aasCapability The corresponding AAS Capability to add
-     * @param submodel The corresponding Submodel as parent object of the data
-     *            element
+     * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
      * @param ordered Specifies whether the capability should be added ordered
      *            (true) or unordered (false)
@@ -3312,7 +3308,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds an AAS entity to the given UA node
+     * Adds an AAS entity to the given node.
      *
      * @param node The desired UA node
      * @param aasEntity The AAS entity to add
@@ -3399,10 +3395,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     submodelElementOpcUAMapLock.unlock();
                 }
 
-                //if (VALUES_READ_ONLY) {
-                //    entityNode.getEntityTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                //}
-
                 if (ordered) {
                     node.addReference(entityNode, Identifiers.HasOrderedComponent, false);
                 }
@@ -3430,12 +3422,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds an AAS Operation to the given node
+     * Adds an AAS Operation to the given node.
      *
      * @param node The desired UA node
      * @param aasOperation The corresponding AAS operation to add
-     * @param submodel The corresponding Submodel as parent object of the data
-     *            element
+     * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The reference to the parent object
      * @param ordered Specifies whether the operation should be added ordered
      *            (true) or unordered (false)
@@ -3515,7 +3506,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Sets the arguments for the given Operation Variable
+     * Sets the arguments for the given Operation Variable.
      *
      * @param arg The UA argument
      * @param var The corresponding Operation Variable
@@ -3554,12 +3545,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds an AAS Event to the given UA node
+     * Adds an AAS Event to the given node.
      *
      * @param node The desired UA node
      * @param aasEvent The AAS Event to add
-     * @param submodel The corresponding Submodel as parent object of the data
-     *            element
+     * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
      * @param ordered Specifies whether the entity should be added ordered
      *            (true) or unordered (false)
@@ -3611,7 +3601,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Sets the Basic event data
+     * Sets the Basic event data.
      *
      * @param eventNode The desired UA event node
      * @param aasEvent The corresponding AAS BasicEvent
@@ -3630,12 +3620,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds an AAS Relationship Element to the given UA node
+     * Adds an AAS Relationship Element to the given node.
      *
      * @param node The desired UA node
      * @param aasRelElem The corresponding AAS Relationship Element
-     * @param submodel The corresponding Submodel as parent object of the data
-     *            element
+     * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
      * @param ordered Specifies whether the entity should be added ordered
      *            (true) or unordered (false)
@@ -3668,13 +3657,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     setAasReferenceData(aasRelElem.getSecond(), relElemNode.getSecondNode(), false);
 
                     try {
-                        //Reference relElemRef = AasUtils.toReference(parentRef, aasRelElem);
                         submodelElementAasMapLock.lock();
                         submodelElementAasMap.put(relElemNode.getFirstNode().getKeysNode().getNodeId(),
                                 new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));
                         submodelElementAasMap.put(relElemNode.getSecondNode().getKeysNode().getNodeId(),
                                 new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_SECOND, relElemRef));
-                        //logger.debug("addAasMultiLanguageProperty: NodeId " + refElemNode.getValueNode().getNodeId() + "; ReferenceElement: " + aasRefElem);
                     }
                     catch (Exception ex2) {
                         logger.warn("submodelElementAasMap problem", ex2);
@@ -3684,7 +3671,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     }
 
                     try {
-                        //Reference blobRef = getReference(aasRelElem, submodel);
                         submodelElementOpcUAMapLock.lock();
                         submodelElementOpcUAMap.put(relElemRef, relElemNode);
                     }
@@ -3723,11 +3709,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Creates an Annotated Relationship Element
+     * Creates an Annotated Relationship Element.
      *
      * @param aasRelElem The AAS Annotated Relationship Element
-     * @param submodel The corresponding Submodel as parent object of the data
-     *            element
+     * @param submodel The corresponding Submodel as parent object of the data element
      * @param relElemRef The AAS reference to the AnnotatedRelationshipElement
      * @param nodeId The desired NodeId for the node to be created
      * @return The create UA Annotated Relationship Element
@@ -3763,12 +3748,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds a SubmodelElementCollection to the given UA node
+     * Adds a SubmodelElementCollection to the given node.
      *
      * @param node The desired UA node
      * @param aasColl The corresponding SubmodelElementCollection to add
-     * @param submodel The corresponding Submodel as parent object of the data
-     *            element
+     * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
      * @param ordered Specifies whether the entity should be added ordered
      *            (true) or unordered (false)
@@ -3844,7 +3828,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Creates an AAS Ordered Submodel Element Collection
+     * Creates an AAS Ordered Submodel Element Collection.
      *
      * @param name The desired name
      * @param nid The desired NodeId
@@ -3870,7 +3854,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds the given submodel references to the given node
+     * Adds the given submodel references to the given node.
      *
      * @param node The desired UA node in which the objects should be created
      * @param submodelRefs The desired submodel references
@@ -4221,7 +4205,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Update the value of a SubmodelElement
+     * Update the value of a SubmodelElement.
      *
      * @param reference The reference of the desired SubmodelElement
      * @param newValue The new value of the SubmodelElement
@@ -4327,10 +4311,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()));
                     }
                 }
-                //DefaultReference ref = new DefaultReference.Builder().keys(value.getFirst()).build();
-                //setAasReferenceData(ref, aasElement.getFirstNode());
-                //ref = new DefaultReference.Builder().keys(value.getSecond()).build();
-                //setAasReferenceData(ref, aasElement.getSecondNode());
             }
             else {
                 logger.info("setRelationshipValue: No AnnotatedRelationshipElement " + aasElement.getBrowseName().getName());
@@ -4591,7 +4571,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Extracts the name from the given Submodel Reference
+     * Extracts the name from the given Submodel Reference.
      *
      * @param submodelRef The submodel reference
      * @return The Name of the Submodel
