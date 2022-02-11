@@ -291,14 +291,15 @@ public class ValueConverter {
                     retval = Identifiers.DateTime;
                     break;
 
-                //                    case Decimal:
-                //                        retval = Identifiers.Int64;
-                //                        break;
-                //                    case Integer:
-                //                        retval = Identifiers.Int64;
-                //                        break;
-                case "int":
+                case "decimal":
+                    retval = Identifiers.Decimal;
+                    break;
+
                 case "integer":
+                    retval = Identifiers.Integer;
+                    break;
+
+                case "int":
                     retval = Identifiers.Int32;
                     break;
 
@@ -400,8 +401,12 @@ public class ValueConverter {
                     break;
 
                 case "int":
-                case "integer":
                     retval = AASValueTypeDataType.Int32;
+                    break;
+
+                case "integer":
+                    logger.warn("stringToValueType: Integer not supported");
+                    retval = AASValueTypeDataType.Int64;
                     break;
 
                 case "unsignedint":
@@ -444,6 +449,11 @@ public class ValueConverter {
                     retval = AASValueTypeDataType.UtcTime;
                     break;
 
+                case "decimal":
+                    logger.warn("stringToValueType: Decimal not supported!");
+                    retval = AASValueTypeDataType.Double;
+                    break;
+
                 default:
                     logger.warn("stringToValueType: unknown value: " + value);
                     throw new IllegalArgumentException("unknown value: " + value);
@@ -459,7 +469,7 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given datatype to the corresponding AASValueTypeDataType
+     * Converts the given datatype to the corresponding AASValueTypeDataType.
      * 
      * @param type The desired datatype
      * @return The corresponding AASValueTypeDataType
@@ -478,6 +488,36 @@ public class ValueConverter {
 
             case String:
                 retval = AASValueTypeDataType.String;
+                break;
+
+            case Boolean:
+                retval = AASValueTypeDataType.Boolean;
+                break;
+
+            case Byte:
+                retval = AASValueTypeDataType.SByte;
+                break;
+
+            case Decimal:
+                logger.warn("datatypeToValueType: Decimal not supported!");
+                retval = AASValueTypeDataType.Double;
+                break;
+
+            case Float:
+                retval = AASValueTypeDataType.Float;
+                break;
+
+            case Integer:
+                logger.warn("datatypeToValueType: Integer not supported - map to Long!");
+                retval = AASValueTypeDataType.Int64;
+                break;
+
+            case Long:
+                retval = AASValueTypeDataType.Int64;
+                break;
+
+            case Short:
+                retval = AASValueTypeDataType.Int16;
                 break;
 
             default:

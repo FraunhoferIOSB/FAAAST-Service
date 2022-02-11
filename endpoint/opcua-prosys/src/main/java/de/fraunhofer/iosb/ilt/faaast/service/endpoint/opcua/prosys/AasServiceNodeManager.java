@@ -2117,16 +2117,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                    prop.addProperty(myBSProperty);
                 //                    break;
                 //
-                //                case Boolean:
-                //                    PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                    myBoolProperty.setDataTypeId(Identifiers.Boolean);
-                //                    // TODO integrate Property value
-                //                    //if (val != null) {
-                //                    //    myBoolProperty.setValue(((BooleanValue)val).getValue());
-                //                    //}
-                //                    prop.addProperty(myBoolProperty);
-                //                    break;
-                //
+                case Boolean:
+                    PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
+                    myBoolProperty.setDataTypeId(Identifiers.Boolean);
+                    if ((typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+                        myBoolProperty.setValue(typedValue.getValue().getValue());
+                    }
+                    prop.addProperty(myBoolProperty);
+                    break;
+
                 //                case DateTime:
                 //                    PlainProperty<DateTime> myDateProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
                 //                    myDateProperty.setDataTypeId(Identifiers.DateTime);
@@ -2165,16 +2164,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                    prop.addProperty(myUIntProperty);
                 //                    break;
                 //
-                //                case Int64:
-                //                    PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                    myLongProperty.setDataTypeId(Identifiers.Int64);
-                //                    // TODO integrate Property value
-                //                    //if (val != null) {
-                //                    //    myLongProperty.setValue(((LongValue)val).getValue());
-                //                    //}
-                //                    prop.addProperty(myLongProperty);
-                //                    break;
-                //
+                case Int64:
+                    PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
+                    myLongProperty.setDataTypeId(Identifiers.Int64);
+                    if ((typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+                        myLongProperty.setValue(typedValue.getValue().getValue());
+                    }
+                    prop.addProperty(myLongProperty);
+                    break;
+
                 //                case UInt64:
                 //                    PlainProperty<UnsignedLong> myULongProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
                 //                    myULongProperty.setDataTypeId(Identifiers.UInt64);
@@ -2185,16 +2183,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                    prop.addProperty(myULongProperty);
                 //                    break;
                 //
-                //                case Int16:
-                //                    PlainProperty<Short> myInt16Property = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                    myInt16Property.setDataTypeId(Identifiers.Int16);
-                //                    // TODO integrate Property value
-                //                    //if (val != null) {
-                //                    //    myInt16Property.setValue(((ShortValue)val).getValue());
-                //                    //}
-                //                    prop.addProperty(myInt16Property);
-                //                    break;
-                //
+                case Int16:
+                    PlainProperty<Short> myInt16Property = new PlainProperty<>(this, myPropertyId, browseName, displayName);
+                    myInt16Property.setDataTypeId(Identifiers.Int16);
+                    if ((typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+                        myInt16Property.setValue(typedValue.getValue().getValue());
+                    }
+                    prop.addProperty(myInt16Property);
+                    break;
+
                 //                case UInt16:
                 //                    PlainProperty<UnsignedShort> myUInt16Property = new PlainProperty<>(this, myPropertyId, browseName, displayName);
                 //                    myUInt16Property.setDataTypeId(Identifiers.UInt16);
@@ -2215,16 +2212,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                    prop.addProperty(myByteProperty);
                 //                    break;
                 //
-                //                case SByte:
-                //                    PlainProperty<Byte> mySByteProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                    mySByteProperty.setDataTypeId(Identifiers.SByte);
-                //                    // TODO integrate Property value
-                //                    //if (val != null) {
-                //                    //    myByteProperty.setValue(((ByteValue)val).getValue());
-                //                    //}
-                //                    prop.addProperty(mySByteProperty);
-                //                    break;
-                //
+                case SByte:
+                    PlainProperty<Byte> mySByteProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
+                    mySByteProperty.setDataTypeId(Identifiers.SByte);
+                    if ((typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+                        mySByteProperty.setValue(typedValue.getValue().getValue());
+                    }
+                    prop.addProperty(mySByteProperty);
+                    break;
+
                 case Double:
                     PlainProperty<Double> myDoubleProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
                     myDoubleProperty.setDataTypeId(Identifiers.Double);
@@ -2233,17 +2229,16 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     }
                     prop.addProperty(myDoubleProperty);
                     break;
-                //
-                //                case Float:
-                //                    PlainProperty<Float> myFloatProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                    myFloatProperty.setDataTypeId(Identifiers.Float);
-                //                    // TODO integrate Property value
-                //                    //if (val != null) {
-                //                    //    myFloatProperty.setValue(((FloatValue)val).getValue());
-                //                    //}
-                //                    prop.addProperty(myFloatProperty);
-                //                    break;
-                //
+
+                case Float:
+                    PlainProperty<Float> myFloatProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
+                    myFloatProperty.setDataTypeId(Identifiers.Float);
+                    if ((typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+                        myFloatProperty.setValue(typedValue.getValue().getValue());
+                    }
+                    prop.addProperty(myFloatProperty);
+                    break;
+
                 //                case LocalizedText:
                 //                    PlainProperty<LocalizedText> myLTProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
                 //                    myLTProperty.setDataTypeId(Identifiers.LocalizedText);
@@ -2416,12 +2411,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds an AAS Blob to the given UA node
+     * Adds an AAS Blob to the given UA node.
      *
      * @param node The desired UA node
      * @param aasBlob The AAS blob to add
-     * @param submodel The corresponding Submodel as parent object of the data
-     *            element
+     * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef Tne reference to the parent object
      * @param ordered Specifies whether the blob should be added ordered (true)
      *            or unordered (false)
