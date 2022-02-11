@@ -39,6 +39,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.Sub
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.TypedValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.mixins.PropertyValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
+import io.adminshell.aas.v3.dataformat.json.modeltype.ModelTypeProcessor;
 import java.io.IOException;
 import java.util.List;
 
@@ -55,7 +56,8 @@ public class JsonDeserializer implements Deserializer {
     @Override
     public <T> T read(String json, Class<T> type) throws DeserializationException {
         try {
-            return wrapper.getMapper().readValue(json, type);
+            String parsed = wrapper.getMapper().writeValueAsString(ModelTypeProcessor.preprocess(json));
+            return wrapper.getMapper().readValue(parsed, type);
         }
         catch (JsonProcessingException ex) {
             throw new DeserializationException("deserialization failed", ex);
@@ -66,7 +68,8 @@ public class JsonDeserializer implements Deserializer {
     @Override
     public <T> List<T> readList(String json, Class<T> type) throws DeserializationException {
         try {
-            return wrapper.getMapper().readValue(json, wrapper.getMapper().getTypeFactory().constructCollectionType(List.class, type));
+            String parsed = wrapper.getMapper().writeValueAsString(ModelTypeProcessor.preprocess(json));
+            return wrapper.getMapper().readValue(parsed, wrapper.getMapper().getTypeFactory().constructCollectionType(List.class, type));
         }
         catch (JsonProcessingException ex) {
             throw new DeserializationException("deserialization failed", ex);
