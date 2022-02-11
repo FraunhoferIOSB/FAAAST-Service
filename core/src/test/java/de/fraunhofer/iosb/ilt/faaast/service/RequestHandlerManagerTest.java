@@ -47,6 +47,7 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
+import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.Operation;
@@ -56,6 +57,7 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultOperation;
@@ -719,6 +721,10 @@ public class RequestHandlerManagerTest {
 
         InvokeOperationAsyncRequest invokeOperationAsyncRequest = new InvokeOperationAsyncRequest.Builder()
                 .requestId("1")
+                .id(new DefaultIdentifier.Builder()
+                        .idType(IdentifierType.IRI)
+                        .identifier("http://example.org")
+                        .build())
                 .inoutputArguments(operation.getInoutputVariables())
                 .inputArguments(operation.getInputVariables())
                 .build();
@@ -745,6 +751,10 @@ public class RequestHandlerManagerTest {
                 .requestId("1")
                 .inoutputArguments(operation.getInoutputVariables())
                 .inputArguments(operation.getInputVariables())
+                .id(new DefaultIdentifier.Builder()
+                        .idType(IdentifierType.IRI)
+                        .identifier("http://example.org")
+                        .build())
                 .build();
 
         InvokeOperationSyncResponse actualResponse = manager.execute(invokeOperationSyncRequest);
