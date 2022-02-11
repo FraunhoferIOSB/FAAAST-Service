@@ -2707,23 +2707,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             range.setValueType(valueDataType);
 
-            //            // temporary solution for the "Value is String" problem!
-            //            if (minValue != null) {
-            //                PlainProperty<String> myStringProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-            //                myStringProperty.setDataTypeId(Identifiers.String);
-            //                myStringProperty.setValue(minValue);
-            //                myStringProperty.setDescription(new LocalizedText("", ""));
-            //                range.addProperty(myStringProperty);
-            //            }
-            //
-            //            if (maxValue != null) {
-            //                PlainProperty<String> myStringProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-            //                myStringProperty.setDataTypeId(Identifiers.String);
-            //                myStringProperty.setValue(maxValue);
-            //                myStringProperty.setDescription(new LocalizedText("", ""));
-            //                range.addProperty(myStringProperty);
-            //            }
-
             switch (valueDataType) {
                 //                //                case AnyURI:
                 //                //                    if (minVal != null) {
@@ -2763,26 +2746,28 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                    }
                 //                    break;
                 //
-                //                case Boolean:
-                //                    if (minValue != null) {
-                //                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                        myBoolProperty.setDataTypeId(Identifiers.Boolean);
-                //                        // TODO integrate Range value
-                //                        //myBoolProperty.setValue(((BooleanValue)minVal).getValue());
-                //                        myBoolProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myBoolProperty);
-                //                    }
-                //
-                //                    if (maxValue != null) {
-                //                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                        myBoolProperty.setDataTypeId(Identifiers.Boolean);
-                //                        // TODO integrate Range value
-                //                        //myBoolProperty.setValue(((BooleanValue)maxVal).getValue());
-                //                        myBoolProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myBoolProperty);
-                //                    }
-                //                    break;
-                //
+                case Boolean:
+                    if (minValue != null) {
+                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                        myBoolProperty.setDataTypeId(Identifiers.Boolean);
+                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                            myBoolProperty.setValue(minTypedValue.getValue());
+                        }
+                        myBoolProperty.setDescription(new LocalizedText("", ""));
+                        range.addProperty(myBoolProperty);
+                    }
+
+                    if (maxValue != null) {
+                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                        myBoolProperty.setDataTypeId(Identifiers.Boolean);
+                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                            myBoolProperty.setValue(maxTypedValue.getValue());
+                        }
+                        myBoolProperty.setDescription(new LocalizedText("", ""));
+                        range.addProperty(myBoolProperty);
+                    }
+                    break;
+
                 //                case DateTime:
                 //                    if (minValue != null) {
                 //                        PlainProperty<DateTime> myDateProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
@@ -2878,27 +2863,29 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                        range.addProperty(myUIntProperty);
                 //                    }
                 //                    break;
-                //
-                //                case Int64:
-                //                    if (minValue != null) {
-                //                        PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                        myLongProperty.setDataTypeId(Identifiers.Int64);
-                //                        // TODO integrate Range value
-                //                        //myLongProperty.setValue(((LongValue)minVal).getValue());
-                //                        myLongProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myLongProperty);
-                //                    }
-                //
-                //                    if (maxValue != null) {
-                //                        PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                        myLongProperty.setDataTypeId(Identifiers.Int64);
-                //                        // TODO integrate Range value
-                //                        //myLongProperty.setValue(((LongValue)maxVal).getValue());
-                //                        myLongProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myLongProperty);
-                //                    }
-                //                    break;
-                //
+
+                case Int64:
+                    if (minValue != null) {
+                        PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                        myLongProperty.setDataTypeId(Identifiers.Int64);
+                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                            myLongProperty.setValue(minTypedValue.getValue());
+                        }
+                        myLongProperty.setDescription(new LocalizedText("", ""));
+                        range.addProperty(myLongProperty);
+                    }
+
+                    if (maxValue != null) {
+                        PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                        myLongProperty.setDataTypeId(Identifiers.Int64);
+                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                            myLongProperty.setValue(maxTypedValue.getValue());
+                        }
+                        myLongProperty.setDescription(new LocalizedText("", ""));
+                        range.addProperty(myLongProperty);
+                    }
+                    break;
+
                 //                case UInt64:
                 //                    if (minValue != null) {
                 //                        PlainProperty<UnsignedLong> myULongProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
@@ -2918,27 +2905,29 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                        range.addProperty(myULongProperty);
                 //                    }
                 //                    break;
-                //
-                //                case Int16:
-                //                    if (minValue != null) {
-                //                        PlainProperty<Short> myInt16Property = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                        myInt16Property.setDataTypeId(Identifiers.Int16);
-                //                        // TODO integrate Range value
-                //                        //myInt16Property.setValue(((ShortValue)minVal).getValue());
-                //                        myInt16Property.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myInt16Property);
-                //                    }
-                //
-                //                    if (maxValue != null) {
-                //                        PlainProperty<Short> myInt16Property = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                        myInt16Property.setDataTypeId(Identifiers.Int16);
-                //                        // TODO integrate Range value
-                //                        //myInt16Property.setValue(((ShortValue)maxVal).getValue());
-                //                        myInt16Property.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myInt16Property);
-                //                    }
-                //                    break;
-                //
+
+                case Int16:
+                    if (minValue != null) {
+                        PlainProperty<Short> myInt16Property = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                        myInt16Property.setDataTypeId(Identifiers.Int16);
+                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                            myInt16Property.setValue(minTypedValue.getValue());
+                        }
+                        myInt16Property.setDescription(new LocalizedText("", ""));
+                        range.addProperty(myInt16Property);
+                    }
+
+                    if (maxValue != null) {
+                        PlainProperty<Short> myInt16Property = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                        myInt16Property.setDataTypeId(Identifiers.Int16);
+                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                            myInt16Property.setValue(maxTypedValue.getValue());
+                        }
+                        myInt16Property.setDescription(new LocalizedText("", ""));
+                        range.addProperty(myInt16Property);
+                    }
+                    break;
+
                 //                case UInt16:
                 //                    if (minValue != null) {
                 //                        PlainProperty<UnsignedShort> myUInt16Property = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
@@ -2958,27 +2947,29 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                        range.addProperty(myUInt16Property);
                 //                    }
                 //                    break;
-                //
-                //                case SByte:
-                //                    if (minValue != null) {
-                //                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                        mySByteProperty.setDataTypeId(Identifiers.SByte);
-                //                        // TODO integrate Range value
-                //                        //myByteProperty.setValue(((ByteValue)minVal).getValue());
-                //                        mySByteProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(mySByteProperty);
-                //                    }
-                //
-                //                    if (maxValue != null) {
-                //                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                        mySByteProperty.setDataTypeId(Identifiers.SByte);
-                //                        // TODO integrate Range value
-                //                        //myByteProperty.setValue(((ByteValue)maxVal).getValue());
-                //                        mySByteProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(mySByteProperty);
-                //                    }
-                //                    break;
-                //
+
+                case SByte:
+                    if (minValue != null) {
+                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                        mySByteProperty.setDataTypeId(Identifiers.SByte);
+                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                            mySByteProperty.setValue(minTypedValue.getValue());
+                        }
+                        mySByteProperty.setDescription(new LocalizedText("", ""));
+                        range.addProperty(mySByteProperty);
+                    }
+
+                    if (maxValue != null) {
+                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                        mySByteProperty.setDataTypeId(Identifiers.SByte);
+                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                            mySByteProperty.setValue(maxTypedValue.getValue());
+                        }
+                        mySByteProperty.setDescription(new LocalizedText("", ""));
+                        range.addProperty(mySByteProperty);
+                    }
+                    break;
+
                 //                case Byte:
                 //                    if (minValue != null) {
                 //                        PlainProperty<UnsignedByte> myByteProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
@@ -3021,26 +3012,28 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     }
                     break;
 
-                //                case Float:
-                //                    if (minValue != null) {
-                //                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                        myFloatProperty.setDataTypeId(Identifiers.Float);
-                //                        // TODO integrate Range value
-                //                        //myFloatProperty.setValue(((FloatValue)minVal).getValue());
-                //                        myFloatProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myFloatProperty);
-                //                    }
-                //
-                //                    if (maxValue != null) {
-                //                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                        myFloatProperty.setDataTypeId(Identifiers.Float);
-                //                        // TODO integrate Range value
-                //                        //myFloatProperty.setValue(((FloatValue)maxVal).getValue());
-                //                        myFloatProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myFloatProperty);
-                //                    }
-                //                    break;
-                //
+                case Float:
+                    if (minValue != null) {
+                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                        myFloatProperty.setDataTypeId(Identifiers.Float);
+                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                            myFloatProperty.setValue(minTypedValue.getValue());
+                        }
+                        myFloatProperty.setDescription(new LocalizedText("", ""));
+                        range.addProperty(myFloatProperty);
+                    }
+
+                    if (maxValue != null) {
+                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                        myFloatProperty.setDataTypeId(Identifiers.Float);
+                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                            myFloatProperty.setValue(maxTypedValue.getValue());
+                        }
+                        myFloatProperty.setDescription(new LocalizedText("", ""));
+                        range.addProperty(myFloatProperty);
+                    }
+                    break;
+
                 //                case LocalizedText:
                 //                    if (minValue != null) {
                 //                        PlainProperty<LocalizedText> myLTProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
