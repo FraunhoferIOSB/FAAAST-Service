@@ -51,9 +51,12 @@ public class Util {
 
 
     public static Reference toReference(Reference parentReference, Reference childReference) {
-        List<Key> keys = new ArrayList<>();
-        keys.addAll(parentReference.getKeys());
-        keys.addAll(childReference.getKeys());
+        List<Key> keys = new ArrayList<>(parentReference.getKeys());
+        childReference.getKeys().forEach(x -> {
+            if (!keys.contains(x)) {
+                keys.add(x);
+            }
+        });
         return new DefaultReference.Builder()
                 .keys(keys)
                 .build();
