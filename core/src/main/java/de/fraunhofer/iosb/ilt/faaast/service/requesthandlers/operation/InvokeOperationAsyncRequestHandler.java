@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.Submodel;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -49,7 +50,7 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
         InvokeOperationAsyncResponse response = new InvokeOperationAsyncResponse();
 
         try {
-            Reference reference = Util.toReference(request.getPath());
+            Reference reference = Util.toReference(request.getPath(), request.getId(), Submodel.class);
             //Check if submodelelement does exist
             Operation operation = (Operation) persistence.get(reference, new OutputModifier());
             OperationHandle operationHandle = executeOperationAsync(reference, request);
