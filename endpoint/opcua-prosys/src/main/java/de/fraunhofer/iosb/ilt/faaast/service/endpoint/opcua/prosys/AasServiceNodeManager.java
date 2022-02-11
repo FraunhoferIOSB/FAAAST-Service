@@ -61,6 +61,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.DecimalValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.IntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValueFactory;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -2168,7 +2170,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
                     myLongProperty.setDataTypeId(Identifiers.Int64);
                     if ((typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-                        myLongProperty.setValue(typedValue.getValue().getValue());
+                        Object obj = typedValue.getValue().getValue();
+                        if (!(obj instanceof Long)) {
+                            obj = Long.parseLong(obj.toString());
+                        }
+                        myLongProperty.setValue(obj);
                     }
                     prop.addProperty(myLongProperty);
                     break;
@@ -2316,7 +2322,14 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         logger.debug("setPropertyValue: " + property.getBrowseName().getName() + " to " + value.getValue());
 
         try {
-            property.setValue(value.getValue().getValue());
+            // special treatment for some not directly supported types
+            TypedValue tv = value.getValue();
+            Object obj = tv.getValue();
+            if ((tv instanceof DecimalValue) || (tv instanceof IntegerValue)) {
+                obj = Long.parseLong(obj.toString());
+            }
+            property.setValue(obj);
+
             //            switch (property.getValueType()) {
             //                case ByteString:
             //                    // TODO integrate Property value
@@ -2869,7 +2882,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
                         myLongProperty.setDataTypeId(Identifiers.Int64);
                         if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                            myLongProperty.setValue(minTypedValue.getValue());
+                            Object obj = minTypedValue.getValue();
+                            if (!(obj instanceof Long)) {
+                                obj = Long.parseLong(obj.toString());
+                            }
+                            myLongProperty.setValue(obj);
                         }
                         myLongProperty.setDescription(new LocalizedText("", ""));
                         range.addProperty(myLongProperty);
@@ -2879,7 +2896,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
                         myLongProperty.setDataTypeId(Identifiers.Int64);
                         if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                            myLongProperty.setValue(maxTypedValue.getValue());
+                            Object obj = maxTypedValue.getValue();
+                            if (!(obj instanceof Long)) {
+                                obj = Long.parseLong(obj.toString());
+                            }
+                            myLongProperty.setValue(obj);
                         }
                         myLongProperty.setDescription(new LocalizedText("", ""));
                         range.addProperty(myLongProperty);
@@ -4479,8 +4500,21 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            range.setMin(value.getMin().getValue());
-            range.setMax(value.getMax().getValue());
+            // special treatment for some not directly supported types
+            TypedValue tvmin = value.getMin();
+            Object objmin = tvmin.getValue();
+            if ((tvmin instanceof DecimalValue) || (tvmin instanceof IntegerValue)) {
+                objmin = Long.parseLong(objmin.toString());
+            }
+
+            TypedValue tvmax = value.getMax();
+            Object objmax = tvmax.getValue();
+            if ((tvmax instanceof DecimalValue) || (tvmax instanceof IntegerValue)) {
+                objmax = Long.parseLong(objmax.toString());
+            }
+
+            range.setMin(objmin);
+            range.setMax(objmax);
         }
         catch (Throwable ex) {
             logger.error("setRangeValue Exception", ex);

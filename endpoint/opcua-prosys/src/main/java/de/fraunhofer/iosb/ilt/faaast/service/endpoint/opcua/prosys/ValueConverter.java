@@ -451,7 +451,7 @@ public class ValueConverter {
 
                 case "decimal":
                     logger.warn("stringToValueType: Decimal not supported!");
-                    retval = AASValueTypeDataType.Double;
+                    retval = AASValueTypeDataType.Int64;
                     break;
 
                 default:
@@ -500,7 +500,7 @@ public class ValueConverter {
 
             case Decimal:
                 logger.warn("datatypeToValueType: Decimal not supported!");
-                retval = AASValueTypeDataType.Double;
+                retval = AASValueTypeDataType.Int64;
                 break;
 
             case Float:

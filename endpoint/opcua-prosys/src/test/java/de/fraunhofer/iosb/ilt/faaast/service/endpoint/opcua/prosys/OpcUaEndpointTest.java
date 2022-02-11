@@ -1039,6 +1039,8 @@ public class OpcUaEndpointTest {
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
         TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestDefines.MAX_ROTATION_SPEED_NAME, AASModelingKindDataType.Instance, "Parameter",
                 AASValueTypeDataType.Int32, 5000, new ArrayList<>());
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestDefines.DECIMAL_PROPERTY, AASModelingKindDataType.Instance, "Parameter",
+                AASValueTypeDataType.Int64, Long.valueOf(123456), new ArrayList<>());
     }
 
 

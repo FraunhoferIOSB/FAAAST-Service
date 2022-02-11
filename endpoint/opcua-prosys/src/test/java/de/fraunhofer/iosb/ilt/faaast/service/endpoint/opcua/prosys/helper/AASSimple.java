@@ -112,6 +112,9 @@ public class AASSimple {
     public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_CATEGORY = "Parameter";
     public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUE = "5000";
     public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUETYPE = "int";
+    public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY2_ID_SHORT = "DecimalProperty";
+    public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY2_VALUE = "123456";
+    public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY2_VALUETYPE = "decimal";
 
     // SUBMODEL_DOCUMENTATION
     private static final String SUBMODEL_DOCUMENTATION_ID_SHORT = "Documentation";
@@ -267,6 +270,13 @@ public class AASSimple {
                         .category(SUBMODEL_TECHNICAL_DATA_PROPERTY_CATEGORY)
                         .value(SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUE)
                         .valueType(SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUETYPE)
+                        .build())
+                .submodelElement(new DefaultProperty.Builder()
+                        .kind(ModelingKind.INSTANCE)
+                        .idShort(SUBMODEL_TECHNICAL_DATA_PROPERTY2_ID_SHORT)
+                        .category(SUBMODEL_TECHNICAL_DATA_PROPERTY_CATEGORY)
+                        .value(SUBMODEL_TECHNICAL_DATA_PROPERTY2_VALUE)
+                        .valueType(SUBMODEL_TECHNICAL_DATA_PROPERTY2_VALUETYPE)
                         .build())
                 .build();
     }
