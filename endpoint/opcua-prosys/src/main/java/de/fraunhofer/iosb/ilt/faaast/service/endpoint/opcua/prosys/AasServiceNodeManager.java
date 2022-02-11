@@ -2458,7 +2458,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     }
 
                     try {
-                        //Reference blobRef = getReference(aasBlob, submodel);
                         submodelElementOpcUAMapLock.lock();
                         submodelElementOpcUAMap.put(blobRef, blobNode);
                     }
@@ -2470,8 +2469,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     }
 
                     blobNode.setValue(ByteString.valueOf(aasBlob.getValue()));
-                    //blobNode.getFileNode().setMimeType(aasBlob.getMimeType().getValue());
-                    //blobNode.getFileNode().setSize(UnsignedLong.valueOf(aasBlob.getValue().getValue().length));
                 }
 
                 if (ordered) {
@@ -2512,9 +2509,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), AASBlobType.VALUE).toQualifiedName(getNamespaceTable()),
                     LocalizedText.english(AASBlobType.VALUE));
             myProperty.setDataTypeId(Identifiers.ByteString);
-            //if (VALUES_READ_ONLY) {
-            //    myProperty.setAccessLevel(AccessLevelType.CurrentRead);
-            //}
             myProperty.setDescription(new LocalizedText("", ""));
             node.addProperty(myProperty);
         }
@@ -2526,12 +2520,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds an AAS reference element to the given UA node
+     * Adds an AAS reference element to the given node.
      *
      * @param node The desired UA node
      * @param aasRefElem The AAS reference element to add
-     * @param submodel The corresponding Submodel as parent object of the data
-     *            element
+     * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The reference to the parent object
      * @param ordered Specifies whether the reference element should be added
      *            ordered (true) or unordered (false)
@@ -2560,7 +2553,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     submodelElementAasMapLock.lock();
                     submodelElementAasMap.put(refElemNode.getValueNode().getKeysNode().getNodeId(),
                             new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
-                    //logger.debug("addAasMultiLanguageProperty: NodeId " + refElemNode.getValueNode().getNodeId() + "; ReferenceElement: " + aasRefElem);
                 }
                 catch (Exception ex2) {
                     logger.warn("submodelElementAasMap problem", ex2);
@@ -2608,12 +2600,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds an AAS range object to the given UA node
+     * Adds an AAS range object to the given node.
      *
      * @param node The desired UA node
      * @param aasRange The corresponding AAS range object to add
-     * @param submodel The corresponding Submodel as parent object of the data
-     *            element
+     * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The reference to the parent object
      * @param ordered Specifies whether the range should be added ordered (true)
      *            or unordered (false)
@@ -2662,8 +2653,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds the min and max properties to the UA range object and sets the
-     * values
+     * Adds the min and max properties to the UA range object and sets the values
      *
      * @param aasRange The AAS range object
      * @param range The corresponding UA range object
@@ -2695,7 +2685,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
 
             try {
-                //Reference propRef = getReference(aasRange, submodel);
                 submodelElementOpcUAMapLock.lock();
                 submodelElementOpcUAMap.put(rangeRef, range);
             }
@@ -2709,7 +2698,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             TypedValue minTypedValue = TypedValueFactory.create(valueType, minValue);
             TypedValue maxTypedValue = TypedValueFactory.create(valueType, maxValue);
             AASValueTypeDataType valueDataType;
-            //if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
             if (minTypedValue != null) {
                 valueDataType = ValueConverter.datatypeToValueType(minTypedValue.getDataType());
             }
