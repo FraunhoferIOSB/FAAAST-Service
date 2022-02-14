@@ -48,7 +48,7 @@
         <maven.plugin.gpg.version>3.0.1</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.7</maven.plugin.jacoco.version>
         <maven.plugin.javadoc.version>3.3.2</maven.plugin.javadoc.version>
-        <maven.plugin.nexus-staging.version>1.6.8</maven.plugin.nexus-staging.version>
+        <maven.plugin.nexus-staging.version>1.6.10</maven.plugin.nexus-staging.version>
         <maven.plugin.owasp.version>6.5.3</maven.plugin.owasp.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
