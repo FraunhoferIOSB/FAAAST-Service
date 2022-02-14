@@ -32,7 +32,7 @@
     </modules>
     <properties>
         <aas.version>1.2.0</aas.version>
-        <classgraph.version>4.8.138</classgraph.version>
+        <classgraph.version>4.8.139</classgraph.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <flatten.version>1.2.7</flatten.version>
