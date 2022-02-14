@@ -2100,15 +2100,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             prop.setValueType(valueDataType);
 
             switch (valueDataType) {
-                //                //                case AnyURI:
-                //                //                    PlainProperty<String> myUriProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                //                    myUriProperty.setDataTypeId(Identifiers.String);
-                //                //                    if (val != null) {
-                //                //                        myUriProperty.setValue(((AnyUri)val).getValue().toString());
-                //                //                    }
-                //                //                    prop.addProperty(myUriProperty);
-                //                //                    break;
-                //
                 //                case ByteString:
                 //                    PlainProperty<ByteString> myBSProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
                 //                    myBSProperty.setDataTypeId(Identifiers.ByteString);
@@ -2137,15 +2128,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                    //}
                 //                    prop.addProperty(myDateProperty);
                 //                    break;
-                //
-                //                //                case Decimal:
-                //                //                    PlainProperty<Long> myDecProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                //                    myDecProperty.setDataTypeId(Identifiers.Int64);
-                //                //                    if (val != null) {
-                //                //                        myDecProperty.setValue(((DecimalValue)val).getValue().longValue());
-                //                //                    }
-                //                //                    prop.addProperty(myDecProperty);
-                //                //                    break;
                 //
                 case Int32:
                     PlainProperty<Integer> myIntProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
@@ -2721,24 +2703,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             range.setValueType(valueDataType);
 
             switch (valueDataType) {
-                //                //                case AnyURI:
-                //                //                    if (minVal != null) {
-                //                //                        PlainProperty<String> myUriProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                //                        myUriProperty.setDataTypeId(Identifiers.String);
-                //                //                        myUriProperty.setValue(((AnyUri)minVal).getValue().toString());
-                //                //                        myUriProperty.setDescription(new LocalizedText("", ""));
-                //                //                        range.addProperty(myUriProperty);
-                //                //                    }
-                //                //
-                //                //                    if (maxVal != null) {
-                //                //                        PlainProperty<String> myUriProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                //                        myUriProperty.setDataTypeId(Identifiers.String);
-                //                //                        myUriProperty.setValue(((AnyUri)maxVal).getValue().toString());
-                //                //                        myUriProperty.setDescription(new LocalizedText("", ""));
-                //                //                        range.addProperty(myUriProperty);
-                //                //                    }
-                //                //                    break;
-                //
                 //                case ByteString:
                 //                    if (minValue != null) {
                 //                        PlainProperty<ByteString> myBSProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
@@ -2800,41 +2764,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                        range.addProperty(myDateProperty);
                 //                    }
                 //                    break;
-                //
-                //                //                case Decimal:
-                //                //                    if (minVal != null) {
-                //                //                        PlainProperty<Long> myDecProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                //                        myDecProperty.setDataTypeId(Identifiers.Int64);
-                //                //                        myDecProperty.setValue(((DecimalValue)minVal).getValue().longValue());
-                //                //                        myDecProperty.setDescription(new LocalizedText("", ""));
-                //                //                        range.addProperty(myDecProperty);
-                //                //                    }
-                //                //                    
-                //                //                    if (maxVal != null) {
-                //                //                        PlainProperty<Long> myDecProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                //                        myDecProperty.setDataTypeId(Identifiers.Int64);
-                //                //                        myDecProperty.setValue(((DecimalValue)maxVal).getValue().longValue());
-                //                //                        myDecProperty.setDescription(new LocalizedText("", ""));
-                //                //                        range.addProperty(myDecProperty);
-                //                //                    }
-                //                //                    break;
-                //                //                case Integer:
-                //                //                    if (minVal != null) {
-                //                //                        PlainProperty<Integer> myIntegerProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                //                        myIntegerProperty.setDataTypeId(Identifiers.Int64);
-                //                //                        myIntegerProperty.setValue(((IntegerValue)minVal).getValue().longValue());
-                //                //                        myIntegerProperty.setDescription(new LocalizedText("", ""));
-                //                //                        range.addProperty(myIntegerProperty);
-                //                //                    }
-                //                //                    
-                //                //                    if (maxVal != null) {
-                //                //                        PlainProperty<Integer> myIntegerProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                //                        myIntegerProperty.setDataTypeId(Identifiers.Int64);
-                //                //                        myIntegerProperty.setValue(((IntegerValue)maxVal).getValue().longValue());
-                //                //                        myIntegerProperty.setDescription(new LocalizedText("", ""));
-                //                //                        range.addProperty(myIntegerProperty);
-                //                //                    }
-                //                //                    break;
                 case Int32:
                     if (minValue != null) {
                         PlainProperty<Integer> myIntProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
@@ -3116,24 +3045,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                        range.addProperty(myTimeProperty);
                 //                    }
                 //                    break;
-                //
-                //                //                case Duration:
-                //                //                    if (minVal != null) {
-                //                //                        PlainProperty<String> myDurProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                //                        myDurProperty.setDataTypeId(Identifiers.String);
-                //                //                        myDurProperty.setValue(((DurationValue)minVal).getValue().toString());
-                //                //                        myDurProperty.setDescription(new LocalizedText("", ""));
-                //                //                        range.addProperty(myDurProperty);
-                //                //                    }
-                //                //                    
-                //                //                    if (maxVal != null) {
-                //                //                        PlainProperty<String> myDurProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                //                        myDurProperty.setDataTypeId(Identifiers.String);
-                //                //                        myDurProperty.setValue(((DurationValue)maxVal).getValue().toString());
-                //                //                        myDurProperty.setDescription(new LocalizedText("", ""));
-                //                //                        range.addProperty(myDurProperty);
-                //                //                    }
-                //                //                    break;
                 default:
                     logger.warn("setRangeValueAndType: Range " + range.getBrowseName().getName() + ": Unknown type: " + valueType + "; use string as default");
                     if (minValue != null) {
