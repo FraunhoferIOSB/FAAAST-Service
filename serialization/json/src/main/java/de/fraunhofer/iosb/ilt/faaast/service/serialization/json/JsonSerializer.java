@@ -18,7 +18,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.Serializer;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer.ModifierAwareSerializer;
@@ -44,8 +43,8 @@ public class JsonSerializer implements Serializer {
 
     @Override
     public String write(Object obj, OutputModifier modifier) throws SerializationException {
-        if ((modifier != null && modifier.getContent() == Content.Value)
-                || (obj != null && ElementValue.class.isAssignableFrom(obj.getClass()))) {
+        // if content=value && can value --> convert to value if needed
+        if (modifier != null && modifier.getContent() == Content.Value) {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());
         }
         try {

@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -28,7 +29,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementCollectionValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.FileValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePropertyValue;
@@ -50,13 +50,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer.Refer
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer.RelationshipElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer.SubmodelElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer.SubmodelValueSerializer;
-import io.adminshell.aas.v3.model.DataElement;
-import io.adminshell.aas.v3.model.Entity;
-import io.adminshell.aas.v3.model.ReferenceElement;
-import io.adminshell.aas.v3.model.RelationshipElement;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,17 +65,6 @@ public class ValueOnlyJsonSerializer {
         }
         String pkg = type.getPackage().getName();
         return pkg.startsWith("java.") || pkg.startsWith("com.sun") || pkg.startsWith("sun.");
-    }
-
-
-    private static boolean isValueType(Class<?> type) {
-        return DataElement.class.isAssignableFrom(type)
-                || Submodel.class.isAssignableFrom(type)
-                || SubmodelElementCollection.class.isAssignableFrom(type)
-                || ReferenceElement.class.isAssignableFrom(type)
-                || RelationshipElement.class.isAssignableFrom(type)
-                || Entity.class.isAssignableFrom(type)
-                || ElementValue.class.isAssignableFrom(type);
     }
 
     private final SerializerWrapper wrapper;
@@ -110,6 +95,10 @@ public class ValueOnlyJsonSerializer {
 
 
     public String write(Object obj, Level level, Extend extend) throws SerializationException {
+        if (!ElementValueHelper.isValueOnlySupported(obj)) {
+            throw new SerializationException(
+                    "Provided element is not supported by value-only serialization. Supported types are: all subtypes of DataElement, SubmodelElementCollection, ReferenceElement, RelationshipElement, AnnotatedRelationshipElement, and Entity as well as all subtypes of ElementValue");
+        }
         try {
             return wrapper.getMapper().writer()
                     .withAttribute(ModifierAwareSerializer.LEVEL, level)
@@ -122,7 +111,7 @@ public class ValueOnlyJsonSerializer {
     }
 
 
-    protected void modifyMapper(JsonMapper mapper) {
+    protected JsonMapper modifyMapper(JsonMapper mapper) {
         mapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector());
         mapper.addMixIn(PropertyValue.class, PropertyValueMixin.class);
         mapper.addMixIn(ElementCollectionValue.class, ElementCollectionValueMixin.class);
@@ -137,8 +126,8 @@ public class ValueOnlyJsonSerializer {
         module.addSerializer(EntityValue.class, new EntityValueSerializer());
         module.addSerializer(SubmodelElement.class, new SubmodelElementValueSerializer());
         module.addSerializer(Submodel.class, new SubmodelValueSerializer());
-        mapper.registerModule(module);
-        mapper.registerModule(new SimpleModule() {
+        ObjectMapper result = mapper.registerModule(module);
+        result = result.registerModule(new SimpleModule() {
             @Override
             public void setupModule(SetupContext context) {
                 super.setupModule(context);
@@ -160,13 +149,14 @@ public class ValueOnlyJsonSerializer {
                                     usedTypes.addAll(type.getBindings().getTypeParameters());
                                 }
                             }
-                            return !usedTypes.stream().allMatch(x -> isJreType(x.getRawClass()) || isValueType(x.getRawClass()));
+                            return !usedTypes.stream().allMatch(x -> isJreType(x.getRawClass()) || ElementValueHelper.isValueOnlySupported(x.getRawClass()));
                         });
                         return beanProperties;
                     }
                 });
             }
         });
+        return (JsonMapper) result;
     }
 
 }

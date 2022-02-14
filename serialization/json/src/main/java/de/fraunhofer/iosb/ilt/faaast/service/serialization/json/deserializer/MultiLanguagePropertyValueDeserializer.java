@@ -22,9 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePro
 import io.adminshell.aas.v3.model.LangString;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 public class MultiLanguagePropertyValueDeserializer extends StdDeserializer<MultiLanguagePropertyValue> {
@@ -42,9 +40,15 @@ public class MultiLanguagePropertyValueDeserializer extends StdDeserializer<Mult
     @Override
     public MultiLanguagePropertyValue deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
         return MultiLanguagePropertyValue.builder()
-                .values(((Stream<Entry<?, ?>>) parser.readValueAs(Map.class).entrySet().stream())
-                        .map(x -> new LangString(x.getValue().toString(), x.getKey().toString()))
-                        .collect(Collectors.toSet()))
+                .values(((Map<String, String>) context.readValue(
+                        parser,
+                        context.getTypeFactory().constructMapType(
+                                Map.class,
+                                String.class,
+                                String.class)))
+                                        .entrySet().stream()
+                                        .map(x -> new LangString(x.getValue(), x.getKey()))
+                                        .collect(Collectors.toSet()))
                 .build();
     }
 

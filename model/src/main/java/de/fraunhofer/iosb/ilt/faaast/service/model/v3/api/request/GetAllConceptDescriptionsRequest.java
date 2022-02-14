@@ -14,48 +14,31 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllConceptDescriptionsResponse;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 /**
  * Chapter 6.4.2
  */
-public class GetAllConceptDescriptionsRequest extends BaseRequest<GetAllConceptDescriptionsResponse> {
-    private OutputModifier outputModifier;
-
-    public GetAllConceptDescriptionsRequest() {
-        this.outputModifier = OutputModifier.DEFAULT;
-    }
-
-
-    public OutputModifier getOutputModifier() {
-        return outputModifier;
-    }
-
-
-    public void setOutputModifier(OutputModifier outputModifier) {
-        this.outputModifier = outputModifier;
-    }
-
+public class GetAllConceptDescriptionsRequest extends RequestWithModifier<GetAllConceptDescriptionsResponse> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         GetAllConceptDescriptionsRequest that = (GetAllConceptDescriptionsRequest) o;
-        return Objects.equals(outputModifier, that.outputModifier);
+        return super.equals(that);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(outputModifier);
+        return Objects.hash(super.hashCode());
     }
 
 
@@ -63,12 +46,7 @@ public class GetAllConceptDescriptionsRequest extends BaseRequest<GetAllConceptD
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllConceptDescriptionsRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-        public B outputModifier(OutputModifier value) {
-            getBuildingInstance().setOutputModifier(value);
-            return getSelf();
-        }
-    }
+    public static abstract class AbstractBuilder<T extends GetAllConceptDescriptionsRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {}
 
     public static class Builder extends AbstractBuilder<GetAllConceptDescriptionsRequest, Builder> {
 

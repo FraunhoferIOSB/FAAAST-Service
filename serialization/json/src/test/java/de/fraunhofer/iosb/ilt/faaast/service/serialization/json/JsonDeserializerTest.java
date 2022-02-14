@@ -20,12 +20,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.PropertyValues;
-import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -49,6 +55,110 @@ public class JsonDeserializerTest {
     @Test
     public void testFile() throws DeserializationException, FileNotFoundException, IOException {
         compareValue(PropertyValues.FILE, PropertyValues.FILE_FILE);
+    }
+
+
+    @Test
+    public void testList() throws DeserializationException, FileNotFoundException, IOException {
+        compareValueList(Map.of(
+                PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
+                PropertyValues.PROPERTY_INT, PropertyValues.PROPERTY_INT_FILE,
+                PropertyValues.PROPERTY_DOUBLE, PropertyValues.PROPERTY_DOUBLE_FILE));
+
+        compareValueList(Map.of(
+                PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
+                PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT, PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT_FILE,
+                PropertyValues.ENTITY, PropertyValues.ENTITY_FILE));
+    }
+
+
+    @Test
+    public void testArray() throws DeserializationException, FileNotFoundException, IOException {
+        compareValueArray(Map.of(
+                PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
+                PropertyValues.PROPERTY_INT, PropertyValues.PROPERTY_INT_FILE,
+                PropertyValues.PROPERTY_DOUBLE, PropertyValues.PROPERTY_DOUBLE_FILE));
+
+        compareValueArray(Map.of(
+                PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
+                PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT, PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT_FILE,
+                PropertyValues.ENTITY, PropertyValues.ENTITY_FILE));
+    }
+
+
+    @Test
+    public void testMap() throws DeserializationException, FileNotFoundException, IOException {
+        compareValueMap(Map.of(
+                PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
+                PropertyValues.PROPERTY_INT, PropertyValues.PROPERTY_INT_FILE,
+                PropertyValues.PROPERTY_DOUBLE, PropertyValues.PROPERTY_DOUBLE_FILE));
+
+        compareValueMap(Map.of(
+                PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
+                PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT, PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT_FILE,
+                PropertyValues.ENTITY, PropertyValues.ENTITY_FILE));
+    }
+
+
+    private String filesAsJsonArray(Map<SubmodelElement, File> input) {
+        return input.entrySet().stream()
+                .map(x -> {
+                    try {
+                        return TestUtils.extractValueJson(x.getValue(), x.getKey());
+                    }
+                    catch (IOException ex) {
+                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    return null;
+                })
+                .collect(Collectors.joining(",", "[", "]"));
+    }
+
+
+    private String filesAsJsonObject(Map<SubmodelElement, File> input) {
+        return input.entrySet().stream()
+                .map(x -> {
+                    try {
+                        return String.format("\"%s\": %s",
+                                x.getKey().getIdShort(),
+                                TestUtils.extractValueJson(x.getValue(), x.getKey()));
+                    }
+                    catch (IOException ex) {
+                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    return null;
+                })
+                .collect(Collectors.joining(",", "{", "}"));
+    }
+
+
+    private void compareValueList(Map<SubmodelElement, File> input) throws DeserializationException, IOException {
+        List<Object> expected = input.keySet().stream().map(x -> ElementValueMapper.toValue(x))
+                .collect(Collectors.toList());
+        TypeInfo typeInfo = TypeExtractor.extractTypeInfo(input.keySet());
+        List<ElementValue> actual = deserializer.readValueList(filesAsJsonArray(input), typeInfo);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    private void compareValueMap(Map<SubmodelElement, File> input) throws DeserializationException, IOException {
+        Map<Object, ElementValue> expected = input.keySet().stream().collect(Collectors.toMap(
+                x -> x.getIdShort(),
+                x -> ElementValueMapper.toValue(x)));
+        TypeInfo typeInfo = TypeExtractor.extractTypeInfo(input.keySet().stream().collect(Collectors.toMap(
+                x -> x.getIdShort(),
+                x -> x)));
+        Map<Object, ElementValue> actual = deserializer.readValueMap(filesAsJsonObject(input), typeInfo);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    private void compareValueArray(Map<SubmodelElement, File> input) throws DeserializationException, IOException {
+        Object[] expected = input.keySet().stream().map(x -> ElementValueMapper.toValue(x))
+                .toArray();
+        TypeInfo typeInfo = TypeExtractor.extractTypeInfo(input.keySet().toArray());
+        ElementValue[] actual = deserializer.readValueArray(filesAsJsonArray(input), typeInfo);
+        Assert.assertEquals(expected, actual);
     }
 
 
@@ -99,8 +209,8 @@ public class JsonDeserializerTest {
 
     private void compareValue(SubmodelElement element, File file) throws DeserializationException, IOException {
         ElementValue expected = ElementValueMapper.toValue(element);
-        TypeContext context = TypeContext.fromElement(element);
-        ElementValue actual = deserializer.readValue(TestUtils.extractValueJson(file, element), context);
+        TypeInfo typeInfo = TypeExtractor.extractTypeInfo(element);
+        ElementValue actual = deserializer.readValue(TestUtils.extractValueJson(file, element), typeInfo);
         Assert.assertEquals(expected, actual);
     }
 

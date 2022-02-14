@@ -17,54 +17,22 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.google.common.base.Objects;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Stack;
 
 
 public abstract class ContextAwareElementValueDeserializer<T extends ElementValue> extends StdDeserializer<T> {
 
-    public static final String CURRENT_ELEMENT_PATH = "currentElementPath";
     public static final String VALUE_TYPE_CONTEXT = "valueDeserializationContext";
 
-    protected static Stack<String> getCurrentElementPath(DeserializationContext context) {
-        if (context.getAttribute(CURRENT_ELEMENT_PATH) == null || !Stack.class.isAssignableFrom(context.getAttribute(CURRENT_ELEMENT_PATH).getClass())) {
-            context.setAttribute(CURRENT_ELEMENT_PATH, new Stack<String>());
-        }
-        return (Stack<String>) context.getAttribute(CURRENT_ELEMENT_PATH);
-    }
-
-
-    protected static TypeInfo getCurrentTypeInfo(DeserializationContext context) {
-        TypeContext valueContext = getValueContext(context);
-        Stack<String> currentElementPath = getCurrentElementPath(context);
-        if (currentElementPath.isEmpty()) {
-            return valueContext.getRootInfo();
-        }
-        List<String> path = new ArrayList<>(currentElementPath);
-        Optional<TypeInfo> elementType = valueContext.getTypeInfos().stream()
-                .filter(x -> Objects.equal(x.getIdShortPath(), path))
-                .findFirst();
-        if (elementType.isPresent()) {
-            return elementType.get();
-        }
-        throw new IllegalStateException(String.format("missing type information for element path '%s'", String.join(".", path)));
-    }
-
-
-    protected static TypeContext getValueContext(DeserializationContext context) {
-        return context.getAttribute(VALUE_TYPE_CONTEXT) != null && TypeContext.class.isAssignableFrom(context.getAttribute(VALUE_TYPE_CONTEXT).getClass())
-                ? (TypeContext) context.getAttribute(VALUE_TYPE_CONTEXT)
-                : TypeContext.builder().build();
+    protected static TypeInfo getTypeInfo(DeserializationContext context) {
+        return context.getAttribute(VALUE_TYPE_CONTEXT) != null && TypeInfo.class.isAssignableFrom(context.getAttribute(VALUE_TYPE_CONTEXT).getClass())
+                ? (TypeInfo) context.getAttribute(VALUE_TYPE_CONTEXT)
+                : null;
     }
 
 
@@ -83,6 +51,7 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
         if (node == null) {
             return result;
         }
+        TypeInfo typeInfo = getTypeInfo(context);
         Map<String, JsonNode> childNodes = new HashMap<>();
         if (node.isObject()) {
             node.fields().forEachRemaining(x -> childNodes.put(x.getKey(), x.getValue()));
@@ -94,19 +63,16 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
                 childNodes.put(child.getKey(), child.getValue());
             }
         }
-        TypeContext valueContext = getValueContext(context);
         for (Map.Entry<String, JsonNode> childNode: childNodes.entrySet()) {
-            Stack<String> currentElementPath = getCurrentElementPath(context);
-            currentElementPath.push(childNode.getKey());
-            TypeInfo childTypeInfo = valueContext.getTypeInfoByPath(currentElementPath);
-            if (childTypeInfo != null && ElementValue.class.isAssignableFrom(childTypeInfo.getValueType())) {
-                result.put(childNode.getKey(), (T) context.readTreeAsValue(childNode.getValue(), childTypeInfo.getValueType()));
+            TypeInfo childTypeInfo = (TypeInfo) typeInfo.getElements().get(childNode.getKey());
+            if (childTypeInfo == null || childTypeInfo.getType() == null) {
+                throw new RuntimeException(String.format("no type information found for element (idShort: %s)", childNode.getKey()));
             }
-            else {
-                result.put(childNode.getKey(), context.readTreeAsValue(childNode.getValue(), type));
-            }
-            currentElementPath.pop();
+            result.put(childNode.getKey(), (T) context.setAttribute(VALUE_TYPE_CONTEXT, childTypeInfo)
+                    .readTreeAsValue(childNode.getValue(), childTypeInfo.getType()));
+
         }
+        // TODO check if resetting typeInfo is required
         return result;
     }
 }

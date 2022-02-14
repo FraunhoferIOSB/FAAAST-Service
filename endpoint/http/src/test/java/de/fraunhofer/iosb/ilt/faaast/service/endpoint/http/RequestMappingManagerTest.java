@@ -932,7 +932,7 @@ public class RequestMappingManagerTest {
                 .id(SUBMODEL.getIdentification())
                 .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
                 .build();
-        when(serviceContext.getTypeInfo(any())).thenReturn(TypeExtractor.getTypeContext(SUBMODEL_ELEMENT));
+        when(serviceContext.getTypeInfo(any())).thenReturn(TypeExtractor.extractTypeInfo(SUBMODEL_ELEMENT));
         Request temp = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
                 .path("submodels/" + EncodingUtils.base64UrlEncode(SUBMODEL.getIdentification().getIdentifier()) + "/submodel/submodel-elements/"
@@ -953,7 +953,7 @@ public class RequestMappingManagerTest {
                 .id(SUBMODEL.getIdentification())
                 .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
                 .build();
-        when(serviceContext.getTypeInfo(any())).thenReturn(TypeExtractor.getTypeContext(SUBMODEL_ELEMENT));
+        when(serviceContext.getTypeInfo(any())).thenReturn(TypeExtractor.extractTypeInfo(SUBMODEL_ELEMENT));
         Request temp = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PUT)
                 .path("submodels/" + EncodingUtils.base64UrlEncode(SUBMODEL.getIdentification().getIdentifier()) + "/submodel/submodel-elements/"

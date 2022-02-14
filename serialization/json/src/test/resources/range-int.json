@@ -1,5 +1,5 @@
 {
-    "range1": {
+    "rangeInt": {
         "min": 17,
         "max": 42
     }
