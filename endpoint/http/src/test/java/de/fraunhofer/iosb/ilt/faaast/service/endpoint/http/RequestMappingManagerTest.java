@@ -975,4 +975,13 @@ public class RequestMappingManagerTest {
                 .path("foo")
                 .build());
     }
+
+
+    @Test(expected = InvalidRequestException.class)
+    public void testInvalidSubURL() throws InvalidRequestException {
+        mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("shells/" + EncodingUtils.base64UrlEncode(AAS.getIdentification().getIdentifier()) + "/bogus")
+                .build());
+    }
 }
