@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
@@ -22,6 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.Serializer;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer.ModifierAwareSerializer;
+import io.adminshell.aas.v3.dataformat.json.modeltype.ModelTypeProcessor;
+import java.util.List;
 import java.util.function.Consumer;
 
 
@@ -49,9 +52,19 @@ public class JsonSerializer implements Serializer {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());
         }
         try {
-            return wrapper.getMapper().writer()
-                    .withAttribute(ModifierAwareSerializer.LEVEL, modifier)
-                    .writeValueAsString(obj);
+            JsonMapper mapper = wrapper.getMapper();
+            if (List.class.isAssignableFrom(obj.getClass())) {
+                ObjectWriter objectWriter = mapper.writerFor(mapper.getTypeFactory()
+                        .constructCollectionType(List.class, ((List<Object>) obj).get(0).getClass()))
+                        .withAttribute(ModifierAwareSerializer.LEVEL, modifier);
+                return mapper.writeValueAsString(ModelTypeProcessor.postprocess(
+                        mapper.readTree(objectWriter.writeValueAsString(obj))));
+            }
+            else {
+                return mapper.writer()
+                        .withAttribute(ModifierAwareSerializer.LEVEL, modifier)
+                        .writeValueAsString(ModelTypeProcessor.postprocess(wrapper.getMapper().valueToTree(obj)));
+            }
         }
         catch (JsonProcessingException ex) {
             throw new SerializationException("serialization failed", ex);
