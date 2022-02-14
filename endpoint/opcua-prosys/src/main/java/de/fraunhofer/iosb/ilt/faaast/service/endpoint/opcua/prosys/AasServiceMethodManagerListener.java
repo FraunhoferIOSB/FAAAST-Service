@@ -101,57 +101,6 @@ public class AasServiceMethodManagerListener implements CallableListener {
 
                     ValueConverter.setOutputArguments(outputVariables, outputs);
                     retval = true;
-
-                    //                    List<OperationVariable> inputVariables = aasOper.getInputVariables();
-                    //                    if (inputArguments.length < inputVariables.size()) {
-                    //                        throw new StatusException(StatusCodes.Bad_ArgumentsMissing);
-                    //                    }
-                    //                    if (inputArguments.length > inputVariables.size()) {
-                    //                        throw new StatusException(StatusCodes.Bad_TooManyArguments);
-                    //                    }
-                    //                    else {
-                    //                        for (int i = 0; i < inputVariables.size(); i++) {
-                    //                            SubmodelElement smelem = inputVariables.get(i).getValue();
-                    //                            if (smelem instanceof Property) {
-                    //                                ((Property) smelem).setValue(inputArguments[i].toString());
-                    //                            }
-                    //
-                    //                            // TODO: set values for other SubmodelElement Types
-                    //                        }
-                    //
-                    //                        endpoint.callOperation(aasOper, inputVariables, data.getSubmodel(), data.getReference());
-                    //                    }
-
-                    //                    // search the corresponding submodel
-                    //                    Reference smref = nodeManager.getSubmodelReference(aasOper.getReference());
-                    //                    if (smref != null) {
-                    //                        Argument[] arguments = new Argument[inputArguments.length];
-                    //                        List<OperationVariable> aasInputVariables = aasOper.getInputVariables();
-                    //                        for (int i = 0; i < arguments.length; i++) {
-                    //                            arguments[0] = Argument.of(aasInputVariables.get(i).getValue().getIdShort(), inputArguments[i].toString());
-                    //                        }
-                    //                        
-                    //                        OpcUaResponse response = endpoint.callOperation(smref, aasOper, arguments);
-                    //                        if ((response == null) || (!response.isSuccess())) {
-                    //                            throw new StatusException(StatusCodes.Bad_UnexpectedError);
-                    //                        }
-                    //                        
-                    //                        if (response.getResult() != null) {
-                    //                            if (Argument[].class.isAssignableFrom(response.getResult().getClass())) {
-                    //                                Argument[] outputArgs = (Argument[])response.getResult();
-                    //                                for (int i = 0; i < outputArgs.length; i++) {
-                    //                                    Property outprop = (Property)aasOper.getOutputVariables().get(i).getValue();
-                    //
-                    //                                    outputs[i] = nodeManager.getServer().getAddressSpace().getDataTypeConverter().parseVariant(outputArgs[i].getValue(), ValueConverter.convertAasDataTypeToNodeId(outprop.getValueType()));
-                    //                                }
-                    //                                
-                    //                                retval = true;
-                    //                            }
-                    //                            else {
-                    //                                logger.warn("onCall: result wrong type: " + response.getResult());
-                    //                            }
-                    //                        }
-                    //                    }
                 }
                 else {
                     logger.info("onCall: Property for " + objectId.toString() + " not found");

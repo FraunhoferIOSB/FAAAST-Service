@@ -255,11 +255,6 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                 logger.warn("onWriteValue: StatusCode not good");
             }
             else {
-                //String oldValue = "";
-                //if (uvn.getValue().getStatusCode().isGood()) {
-                //    oldValue = uvn.getValue().getValue().getValue().toString();
-                //}
-
                 boolean rv;
                 SubmodelElementData data = nodeManager.getAasData(nodeId);
                 if (data != null) {
