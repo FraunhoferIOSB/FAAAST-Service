@@ -3,6 +3,7 @@
 
 
 <!-- PROJECT LOGO -->
+![FA³ST Service Logo](./documentation/images/Fa3st-Service_positiv.png)
 <br />
 <div align="center">
 
@@ -53,7 +54,7 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-FA³ST Service implements the Asset Administration specification from the Plattform Industrie4.0 and built up an easy-to-use AAS Service based on a custom AAS model instance.
+FA³ST Service implements the Asset Administration specification from the platform Industrie4.0 and built up an easy-to-use AAS Service based on a custom AAS model instance.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -108,14 +109,14 @@ You can automatically format your code by running
 
 > mvn spotless:apply
 
-Additionally, you can import the eclipse formating rules defined in */codestyle* into our IDE.
+Additionally, you can import the eclipse formatting rules defined in */codestyle* into our IDE.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
 ### Third Party License Usage Report
 Generates a report of the licenses used in the subsystems (dependencies).
-The report is stored in the directory ./documentation/third_party_licenses as a html page.
+The report is stored in the directory ./documentation/third_party_licenses_report as a html page.
 > mvn license:aggregate-third-party-report
 
 
@@ -148,10 +149,13 @@ Don't forget to give the project a star! Thanks again!
 <!-- LICENSE -->
 ## License
 
-Distributed under the Apacche2.0 License. See `LICENSE` for more information.
+Distributed under the Apache 2.0 License. See `LICENSE` for more information.
+
+Copyright (C) 2022 Fraunhofer Institut IOSB, Fraunhoferstr. 1, D 76131 Karlsruhe, Germany.
+
+You should have received a copy of the Apache 2.0 License along with this program. If not, see https://www.apache.org/licenses/LICENSE-2.0.html.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
 
 
 <!-- CONTACT -->
