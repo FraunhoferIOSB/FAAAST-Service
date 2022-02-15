@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer;
 
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -27,7 +29,7 @@ import java.util.Map;
 
 public abstract class ContextAwareElementValueDeserializer<T extends ElementValue> extends StdDeserializer<T> {
 
-    public static final String VALUE_TYPE_CONTEXT = "valueDeserializationContext";
+    public static final String VALUE_TYPE_CONTEXT = "typeInfoContext";
 
     protected static TypeInfo getTypeInfo(DeserializationContext context) {
         return context.getAttribute(VALUE_TYPE_CONTEXT) != null && TypeInfo.class.isAssignableFrom(context.getAttribute(VALUE_TYPE_CONTEXT).getClass())
@@ -44,6 +46,31 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
     public ContextAwareElementValueDeserializer(Class<T> type) {
         super(type);
     }
+
+
+    @Override
+    public T deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
+        JsonNode node = context.readTree(parser);
+        if (isWrapped(node)) {
+            return deserializeValue(unwrap(node), context);
+        }
+        return deserializeValue(node, context);
+    }
+
+
+    protected boolean isWrapped(JsonNode node) {
+        return node != null
+                && node.isObject()
+                && node.size() == 1;
+    }
+
+
+    protected JsonNode unwrap(JsonNode node) {
+        return node.iterator().next();
+    }
+
+
+    public abstract T deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException;
 
 
     protected <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) throws IOException {
@@ -72,7 +99,6 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
                     .readTreeAsValue(childNode.getValue(), childTypeInfo.getType()));
 
         }
-        // TODO check if resetting typeInfo is required
         return result;
     }
 }

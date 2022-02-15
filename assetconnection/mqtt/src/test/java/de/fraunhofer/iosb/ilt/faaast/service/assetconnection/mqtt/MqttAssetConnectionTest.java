@@ -27,7 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.ValueFormatException;
-import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
@@ -151,11 +151,9 @@ public class MqttAssetConnectionTest {
     public void testSubscriptionProvider(ContentFormat contentFormat, String message, String query, PropertyValue expected)
             throws AssetConnectionException, InterruptedException, ValueFormatException {
         MqttAssetConnection assetConnection = newConnection(
-                TypeContext.builder()
-                        .rootInfo(TypeInfo.builder()
-                                .datatype(expected.getValue().getDataType())
-                                .valueType(expected.getClass())
-                                .build())
+                ElementValueTypeInfo.builder()
+                        .datatype(expected.getValue().getDataType())
+                        .type(expected.getClass())
                         .build(),
                 MqttSubscriptionProviderConfig.builder()
                         .contentFormat(contentFormat)
@@ -211,15 +209,15 @@ public class MqttAssetConnectionTest {
     }
 
 
-    private MqttAssetConnection newConnection(TypeContext expectedTypeContext,
+    private MqttAssetConnection newConnection(TypeInfo expectedTypeInfo,
                                               MqttSubscriptionProviderConfig subscriptionProvider)
             throws AssetConnectionException {
-        return newConnection(DEFAULT_REFERENCE, expectedTypeContext, null, null, subscriptionProvider);
+        return newConnection(DEFAULT_REFERENCE, expectedTypeInfo, null, null, subscriptionProvider);
     }
 
 
     private MqttAssetConnection newConnection(Reference reference,
-                                              TypeContext expectedTypeContext,
+                                              TypeInfo expectedTypeInfo,
                                               MqttValueProviderConfig valueProvider,
                                               MqttOperationProviderConfig operationProvider,
                                               MqttSubscriptionProviderConfig subscriptionProvider)
@@ -244,8 +242,8 @@ public class MqttAssetConnectionTest {
         }
         MqttAssetConnection result = new MqttAssetConnection();
         ServiceContext serviceContext = mock(ServiceContext.class);
-        if (expectedTypeContext != null) {
-            doReturn(expectedTypeContext).when(serviceContext).getTypeInfo(reference);
+        if (expectedTypeInfo != null) {
+            doReturn(expectedTypeInfo).when(serviceContext).getTypeInfo(reference);
         }
         result.init(CoreConfig.builder().build(), config, serviceContext);
         return result;

@@ -19,6 +19,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.BufferedReader;
 import java.io.File;
@@ -96,6 +98,17 @@ public interface Deserializer {
 
 
     public <T extends ElementValue> T readValue(String json, TypeInfo typeInfo) throws DeserializationException;
+
+
+    public default <T extends ElementValue> T readValue(String json, Class<? extends SubmodelElement> type, TypeInfo typeInfo) throws DeserializationException {
+        if (ElementValue.class.isAssignableFrom(type)) {
+            return readValue(json, typeInfo);
+        }
+        if (!ElementValueHelper.isValueOnlySupported(type)) {
+            throw new DeserializationException("not a value type");
+        }
+        return ElementValueMapper.toValue(read(json, type));
+    }
 
 
     public <T extends ElementValue> List<T> readValueList(String json, TypeInfo typeInfo) throws DeserializationException;

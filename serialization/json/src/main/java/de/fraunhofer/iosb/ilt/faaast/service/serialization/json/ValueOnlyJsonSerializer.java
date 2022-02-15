@@ -93,6 +93,33 @@ public class ValueOnlyJsonSerializer {
         return write(obj, Level.DEFAULT, extend);
     }
 
+    //    private Object convertToValue(Object obj) {
+    //        if (obj == null) {
+    //            return null;
+    //        }
+    //        Class<?> type = obj.getClass();
+    //        if (ElementValueHelper.isSerializableAsValue(type)) {
+    //            return ElementValueMapper.toValue((SubmodelElement)obj);
+    //        }
+    //        if (type.isArray()) {
+    //            return Stream.of((Object[]) obj)
+    //                    .map(x -> convertToValue(x))
+    //                    .toArray();
+    //        }
+    //        if (Collection.class.isAssignableFrom(type)) {
+    //            return ((Collection) obj).stream()
+    //                    .map(x -> convertToValue(x))
+    //                    .collect(Collectors.toList());
+    //        }
+    //        if (Map.class.isAssignableFrom(type)) {
+    //            return ((Map) obj).values().stream()
+    //                    .collect(Collectors.toMap(
+    //                            x -> x, 
+    //                            x -> convertToValue(x) ));
+    //        }
+    //        return obj;
+    //    }
+
 
     public String write(Object obj, Level level, Extend extend) throws SerializationException {
         if (!ElementValueHelper.isValueOnlySupported(obj)) {

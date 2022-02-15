@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.json.JSONException;
+import org.junit.Assert;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -95,11 +97,24 @@ public class ValueOnlyJsonSerializerTest {
 
     @Test
     public void testList() throws SerializationException, JSONException, IOException {
-        List<Object> list = List.of(PropertyValues.PROPERTY_STRING, PropertyValues.RANGE_INT);
-        String expected = String.format("[%s,%s]",
-                Files.readString(PropertyValues.PROPERTY_STRING_FILE.toPath()),
-                Files.readString(PropertyValues.RANGE_INT_FILE.toPath()));
-        String actual = serializer.write(list);
+        Map<SubmodelElement, File> data = Map.of(
+                PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
+                PropertyValues.RANGE_INT, PropertyValues.RANGE_INT_FILE);
+        String expected = data.entrySet().stream()
+                .map(x -> {
+                    try {
+                        return TestUtils.extractValueJson(x.getValue(), x.getKey());
+                    }
+                    catch (IOException ex) {
+                        Assert.fail("error extracting value from file");
+                    }
+                    return "";
+                })
+                .collect(Collectors.joining(",", "[", "]"));
+        List<Object> values = data.keySet().stream()
+                .map(x -> ElementValueMapper.toValue(x))
+                .collect(Collectors.toList());
+        String actual = serializer.write(values);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 

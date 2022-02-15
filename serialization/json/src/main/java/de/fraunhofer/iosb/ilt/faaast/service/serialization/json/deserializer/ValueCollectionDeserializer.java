@@ -26,22 +26,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+
 public class ValueCollectionDeserializer extends CollectionDeserializer {
 
     public ValueCollectionDeserializer(CollectionDeserializer src) {
         super(src);
     }
 
+
     @Override
     public CollectionDeserializer createContextual(DeserializationContext context,
-            BeanProperty property) throws JsonMappingException {
+                                                   BeanProperty property)
+            throws JsonMappingException {
         return new ValueCollectionDeserializer((CollectionDeserializer) super.createContextual(context, property));
     }
+
 
     @Override
     public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         return deserialize(p, ctxt, new ArrayList<Object>());
     }
+
 
     @Override
     public Collection<Object> deserialize(JsonParser parser, DeserializationContext context, Collection<Object> result) throws IOException {

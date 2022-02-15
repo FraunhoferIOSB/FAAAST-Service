@@ -53,6 +53,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -263,7 +264,6 @@ public class HttpEndpointTest {
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/shells");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        // server not returning character encoding
         // TODO: server not returning character encoding
         List<AssetAdministrationShell> actualPayload = deserializer.readList(new String(response.getContent()), AssetAdministrationShell.class);
         Assert.assertEquals(expectedPayload, actualPayload);
@@ -271,6 +271,7 @@ public class HttpEndpointTest {
 
 
     @Test
+    @Ignore("value only serialization not defined for AssetAdministrationShells")
     public void testGetAllAssetAdministrationShells_ValueOnly() throws Exception {
         List<AssetAdministrationShell> expectedPayload = List.of(AASFull.AAS_1);
         when(serviceContext.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
@@ -305,10 +306,10 @@ public class HttpEndpointTest {
                 .payload(submodelElements)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel/submodel-elements", new OutputModifier.Builder()
-                .content(Content.Normal)
+                .content(Content.Value)
                 .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        List<SubmodelElement> actual = deserializer.readList(new String(response.getContent()), SubmodelElement.class);
+        List<ElementValue> actual = deserializer.readValueList(new String(response.getContent()), TypeExtractor.extractTypeInfo(submodelElements));
         List<ElementValue> expected = submodelElements.stream()
                 .map(x -> (ElementValue) ElementValueMapper.toValue(x))
                 .collect(Collectors.toList());
@@ -318,7 +319,7 @@ public class HttpEndpointTest {
 
     @Test
     public void testGetAllSubmodelElements() throws Exception {
-        List<SubmodelElement> submodelElements = List.of(
+        List<SubmodelElement> expected = List.of(
                 new DefaultProperty.Builder()
                         .idShort("property1")
                         .value("hello world")
@@ -332,16 +333,13 @@ public class HttpEndpointTest {
                         .build());
         when(serviceContext.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
                 .statusCode(StatusCode.Success)
-                .payload(submodelElements)
+                .payload(expected)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel/submodel-elements", new OutputModifier.Builder()
-                .content(Content.Value)
+                .content(Content.Normal)
                 .build());
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
-        List<ElementValue> actual = deserializer.readValueList(new String(response.getContent()), TypeExtractor.extractTypeInfo(submodelElements));
-        List<ElementValue> expected = submodelElements.stream()
-                .map(x -> (ElementValue) ElementValueMapper.toValue(x))
-                .collect(Collectors.toList());
+        List<SubmodelElement> actual = deserializer.readList(new String(response.getContent()), SubmodelElement.class);
         Assert.assertEquals(expected, actual);
     }
 }

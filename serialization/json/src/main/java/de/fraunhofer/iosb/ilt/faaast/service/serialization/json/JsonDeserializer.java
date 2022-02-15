@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValue;
@@ -43,6 +44,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.Ele
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.EntityValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.MultiLanguagePropertyValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.PropertyValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.RangeValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.ReferenceElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.RelationshipElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.SubmodelElementCollectionValueDeserializer;
@@ -53,6 +55,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer.Val
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.mixins.PropertyValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import io.adminshell.aas.v3.dataformat.json.modeltype.ModelTypeProcessor;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +73,7 @@ public class JsonDeserializer implements Deserializer {
     @Override
     public <T> T read(String json, Class<T> type) throws DeserializationException {
         try {
-            return wrapper.getMapper().readValue(json, type);
+            return wrapper.getMapper().treeToValue(ModelTypeProcessor.preprocess(json), type);
         }
         catch (JsonProcessingException ex) {
             throw new DeserializationException("deserialization failed", ex);
@@ -81,7 +84,7 @@ public class JsonDeserializer implements Deserializer {
     @Override
     public <T> List<T> readList(String json, Class<T> type) throws DeserializationException {
         try {
-            return wrapper.getMapper().readValue(json, wrapper.getMapper().getTypeFactory().constructCollectionType(List.class, type));
+            return wrapper.getMapper().treeToValue(ModelTypeProcessor.preprocess(json), wrapper.getMapper().getTypeFactory().constructCollectionType(List.class, type));
         }
         catch (JsonProcessingException ex) {
             throw new DeserializationException("deserialization failed", ex);
@@ -100,7 +103,7 @@ public class JsonDeserializer implements Deserializer {
         try {
             return (T) wrapper.getMapper().reader()
                     .withAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo)
-                    .readValue(json, typeInfo.getType());
+                    .treeToValue(ModelTypeProcessor.preprocess(json), typeInfo.getType());
         }
         catch (IOException ex) {
             throw new DeserializationException("deserialization failed", ex);
@@ -111,7 +114,7 @@ public class JsonDeserializer implements Deserializer {
     @Override
     public <T extends ElementValue> T readValue(String json, Class<T> type) throws DeserializationException {
         try {
-            return wrapper.getMapper().readValue(json, type);
+            return wrapper.getMapper().treeToValue(ModelTypeProcessor.preprocess(json), type);
         }
         catch (JsonProcessingException ex) {
             throw new DeserializationException("deserialization failed", ex);
@@ -138,7 +141,7 @@ public class JsonDeserializer implements Deserializer {
             return (ElementValue[]) wrapper.getMapper().reader()
                     .withAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo)
                     .forType(wrapper.getMapper().getTypeFactory().constructArrayType(containerTypeInfo.getContentType()))
-                    .readValue(json);
+                    .treeToValue(ModelTypeProcessor.preprocess(json), wrapper.getMapper().getTypeFactory().constructArrayType(containerTypeInfo.getContentType()));
         }
         catch (IOException ex) {
             throw new DeserializationException("deserialization failed", ex);
@@ -256,6 +259,7 @@ public class JsonDeserializer implements Deserializer {
         module.addDeserializer(ReferenceElementValue.class, new ReferenceElementValueDeserializer());
         module.addDeserializer(EntityValue.class, new EntityValueDeserializer());
         module.addDeserializer(ElementValue.class, new ElementValueDeserializer());
+        module.addDeserializer(RangeValue.class, new RangeValueDeserializer());
         mapper.registerModule(module);
     }
 
