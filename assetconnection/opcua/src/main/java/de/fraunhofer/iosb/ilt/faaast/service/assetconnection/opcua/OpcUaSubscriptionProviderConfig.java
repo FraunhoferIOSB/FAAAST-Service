@@ -23,6 +23,7 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
         return nodeId;
     }
 
+
     public void setNodeId(String nodeId) {
         this.nodeId = nodeId;
     }
@@ -32,6 +33,7 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
     public Integer getInterval() {
         return interval;
     }
+
 
     public void setInterval(Integer interval) {
         this.interval = interval;

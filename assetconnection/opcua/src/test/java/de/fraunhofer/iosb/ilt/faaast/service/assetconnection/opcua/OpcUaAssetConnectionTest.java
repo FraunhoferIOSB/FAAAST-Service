@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
@@ -23,29 +25,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.DoubleValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import org.eclipse.milo.opcua.sdk.server.identity.AnonymousIdentityValidator;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import org.eclipse.milo.opcua.sdk.server.identity.AnonymousIdentityValidator;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 public class OpcUaAssetConnectionTest {
@@ -77,11 +72,13 @@ public class OpcUaAssetConnectionTest {
             server = new EmbeddedOpcUaServer(
                     AnonymousIdentityValidator.INSTANCE, opcPort, httpsPort);
             server.startup().get();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
         serverUrl = "opc.tcp://localhost:" + opcPort + "/milo";
     }
+
 
     @Test
     public void testSubscriptionProvider() throws AssetConnectionException, InterruptedException {
@@ -121,6 +118,7 @@ public class OpcUaAssetConnectionTest {
         Assert.assertEquals(expected, response.get());
     }
 
+
     @Test
     public void testValueProvider() throws AssetConnectionException, InterruptedException {
         OpcUaAssetConnectionConfig config = new OpcUaAssetConnectionConfig();
@@ -151,6 +149,7 @@ public class OpcUaAssetConnectionTest {
         Assert.assertEquals(expected, connection.getValueProviders().get(reference).getValue());
     }
 
+
     @Test
     public void testOperationProvider() throws AssetConnectionException, InterruptedException {
         OpcUaAssetConnectionConfig config = new OpcUaAssetConnectionConfig();
@@ -177,8 +176,11 @@ public class OpcUaAssetConnectionTest {
         x.setValue(xProp);
         y.setValue(yProp);
 
-        OperationVariable[] output =
-        connection.getOperationProviders().get(reference).invoke(new OperationVariable[]{x}, new OperationVariable[]{y});
+        OperationVariable[] output = connection.getOperationProviders().get(reference).invoke(new OperationVariable[] {
+                x
+        }, new OperationVariable[] {
+                y
+        });
         String expected = "2.0";
         DefaultProperty actualProperty = (DefaultProperty) output[0].getValue();
         String actual = actualProperty.getValue();

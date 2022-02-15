@@ -23,6 +23,7 @@ public class OpcUaOperationProviderConfig implements AssetOperationProviderConfi
         return nodeId;
     }
 
+
     public void setNodeId(String nodeId) {
         this.nodeId = nodeId;
     }

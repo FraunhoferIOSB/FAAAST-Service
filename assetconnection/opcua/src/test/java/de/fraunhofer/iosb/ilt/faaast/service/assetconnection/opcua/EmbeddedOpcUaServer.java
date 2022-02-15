@@ -1,6 +1,24 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USER_TOKEN_POLICY_ANONYMOUS;
+import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USER_TOKEN_POLICY_USERNAME;
+import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USER_TOKEN_POLICY_X509;
+
 import java.io.File;
 import java.security.KeyPair;
 import java.security.Security;
@@ -12,9 +30,6 @@ import java.util.concurrent.CompletableFuture;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig;
-import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USER_TOKEN_POLICY_ANONYMOUS;
-import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USER_TOKEN_POLICY_USERNAME;
-import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USER_TOKEN_POLICY_X509;
 import org.eclipse.milo.opcua.sdk.server.identity.CompositeValidator;
 import org.eclipse.milo.opcua.sdk.server.identity.IdentityValidator;
 import org.eclipse.milo.opcua.sdk.server.identity.X509IdentityValidator;
@@ -33,6 +48,7 @@ import org.eclipse.milo.opcua.stack.server.EndpointConfiguration;
 import org.eclipse.milo.opcua.stack.server.security.DefaultServerCertificateValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Helper class to run embedded OPC UA server
@@ -60,14 +76,12 @@ public class EmbeddedOpcUaServer {
             throw new Exception("unable to create security temp dir: " + securityTempDir);
         }
 
-        DefaultCertificateManager certificateManager = new DefaultCertificateManager(
-        );
+        DefaultCertificateManager certificateManager = new DefaultCertificateManager();
         File pkiDir = securityTempDir.toPath().resolve("pki").toFile();
         DefaultTrustListManager trustListManager = new DefaultTrustListManager(pkiDir);
         logger.info("pki dir: {}", pkiDir.getAbsolutePath());
 
-        DefaultServerCertificateValidator certificateValidator
-                = new DefaultServerCertificateValidator(trustListManager);
+        DefaultServerCertificateValidator certificateValidator = new DefaultServerCertificateValidator(trustListManager);
 
         KeyPair httpsKeyPair = SelfSignedCertificateGenerator.generateRsaKeyPair(2048);
 
@@ -75,7 +89,6 @@ public class EmbeddedOpcUaServer {
         httpsCertificateBuilder.setCommonName(HostnameUtil.getHostname());
         HostnameUtil.getHostnames("0.0.0.0").forEach(httpsCertificateBuilder::addDnsName);
         X509Certificate httpsCertificate = httpsCertificateBuilder.build();
-
 
         X509IdentityValidator x509IdentityValidator = new X509IdentityValidator(c -> true);
 
@@ -107,6 +120,7 @@ public class EmbeddedOpcUaServer {
         exampleNamespace.startup();
     }
 
+
     private Set<EndpointConfiguration> createEndpointConfigurations(X509Certificate certificate) {
         Set<EndpointConfiguration> endpointConfigurations = new LinkedHashSet<>();
 
@@ -117,8 +131,8 @@ public class EmbeddedOpcUaServer {
         hostnames.add(HostnameUtil.getHostname());
         hostnames.addAll(HostnameUtil.getHostnames("0.0.0.0"));
 
-        for (String bindAddress : bindAddresses) {
-            for (String hostname : hostnames) {
+        for (String bindAddress: bindAddresses) {
+            for (String hostname: hostnames) {
                 EndpointConfiguration.Builder builder = EndpointConfiguration.newBuilder()
                         .setBindAddress(bindAddress)
                         .setHostname(hostname)
@@ -140,22 +154,18 @@ public class EmbeddedOpcUaServer {
                 endpointConfigurations.add(buildTcpEndpoint(
                         builder.copy()
                                 .setSecurityPolicy(SecurityPolicy.Basic256Sha256)
-                                .setSecurityMode(MessageSecurityMode.SignAndEncrypt))
-                );
+                                .setSecurityMode(MessageSecurityMode.SignAndEncrypt)));
 
                 // HTTPS Basic256Sha256 / Sign (SignAndEncrypt not allowed for HTTPS)
                 endpointConfigurations.add(buildHttpsEndpoint(
                         builder.copy()
                                 .setSecurityPolicy(SecurityPolicy.Basic256Sha256)
-                                .setSecurityMode(MessageSecurityMode.Sign))
-                );
+                                .setSecurityMode(MessageSecurityMode.Sign)));
 
                 /*
                  * It's good practice to provide a discovery-specific endpoint with no security.
                  * It's required practice if all regular endpoints have security configured.
-                 *
-                 * Usage of the  "/discovery" suffix is defined by OPC UA Part 6:
-                 *
+                 * Usage of the "/discovery" suffix is defined by OPC UA Part 6:
                  * Each OPC UA Server Application implements the Discovery Service Set. If the OPC UA Server requires a
                  * different address for this Endpoint it shall create the address by appending the path "/discovery" to
                  * its base address.
@@ -173,12 +183,14 @@ public class EmbeddedOpcUaServer {
         return endpointConfigurations;
     }
 
+
     private EndpointConfiguration buildTcpEndpoint(EndpointConfiguration.Builder base) {
         return base.copy()
                 .setTransportProfile(TransportProfile.TCP_UASC_UABINARY)
                 .setBindPort(this.tcpPort)
                 .build();
     }
+
 
     private EndpointConfiguration buildHttpsEndpoint(EndpointConfiguration.Builder base) {
         return base.copy()
@@ -187,13 +199,16 @@ public class EmbeddedOpcUaServer {
                 .build();
     }
 
+
     public OpcUaServer getServer() {
         return server;
     }
 
+
     public CompletableFuture<OpcUaServer> startup() {
         return server.startup();
     }
+
 
     public CompletableFuture<OpcUaServer> shutdown() {
         return server.shutdown();

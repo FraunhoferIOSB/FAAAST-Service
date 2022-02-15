@@ -20,8 +20,8 @@ import io.adminshell.aas.v3.model.impl.DefaultProperty;
 
 public class OpcContentSerializer implements ContentSerializer {
 
-    public OpcContentSerializer() {
-    }
+    public OpcContentSerializer() {}
+
 
     @Override
     public Object write(DefaultProperty value) throws AssetConnectionException {
@@ -41,7 +41,8 @@ public class OpcContentSerializer implements ContentSerializer {
                 default:
                     return value;
             }
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             throw new AssetConnectionException("OPC serializer failed.");
         }
     }

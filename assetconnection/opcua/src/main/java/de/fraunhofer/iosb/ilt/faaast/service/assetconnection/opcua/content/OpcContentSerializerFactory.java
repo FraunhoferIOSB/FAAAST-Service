@@ -16,11 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.content;
 
 public class OpcContentSerializerFactory {
 
-    private OpcContentSerializerFactory() {
-
-    }
-
     public static ContentSerializer create() {
         return new OpcContentSerializer();
+    }
+
+
+    private OpcContentSerializerFactory() {
+
     }
 }

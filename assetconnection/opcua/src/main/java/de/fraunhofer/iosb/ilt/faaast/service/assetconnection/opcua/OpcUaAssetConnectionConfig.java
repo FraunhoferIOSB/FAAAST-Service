@@ -14,24 +14,24 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 
 
 /**
  * OPC UA config class for OPC UA AssetConnection implementations/subclasses.
  */
-public class OpcUaAssetConnectionConfig extends AssetConnectionConfig<OpcUaAssetConnection, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig> {
+public class OpcUaAssetConnectionConfig
+        extends AssetConnectionConfig<OpcUaAssetConnection, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig> {
 
     public String getHost() {
         return host;
     }
+
 
     public void setHost(String host) {
         this.host = host;
     }
 
     private String host;
-
-
 
 }

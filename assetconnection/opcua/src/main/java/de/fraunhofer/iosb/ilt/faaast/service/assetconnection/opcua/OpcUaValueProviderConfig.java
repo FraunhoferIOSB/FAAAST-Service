@@ -23,11 +23,11 @@ public class OpcUaValueProviderConfig implements AssetValueProviderConfig {
         return nodeId;
     }
 
+
     public void setNodeId(String nodeId) {
         this.nodeId = nodeId;
     }
 
     private String nodeId;
-
 
 }

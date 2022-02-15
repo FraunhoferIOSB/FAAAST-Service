@@ -19,24 +19,23 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.*;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 
 public class OpcContentDeserializer implements ContentDeserializer {
 
-
     public OpcContentDeserializer() {
 
     }
+
 
     @Override
     public DataElementValue read(Object raw, TypeContext typeContext) throws AssetConnectionException {
         if (PropertyValue.class.isAssignableFrom(typeContext.getRootInfo().getValueType())) {
             PropertyValue result = new PropertyValue();
             //todo: need to use existing value mapper?
-            switch (typeContext.getRootInfo().getDatatype().name()){
+            switch (typeContext.getRootInfo().getDatatype().name()) {
                 case "String":
                     result.setValue(new StringValue((String) raw));
                     break;
