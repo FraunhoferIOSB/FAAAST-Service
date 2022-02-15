@@ -14,8 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PostSubmodelRequest;
 import io.adminshell.aas.v3.model.Submodel;
@@ -29,11 +31,16 @@ public class PostSubmodelRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
     private static final String PATTERN = "^submodels$";
 
+    public PostSubmodelRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        PostSubmodelRequest request = new PostSubmodelRequest();
-        request.setSubmodel(parseBody(httpRequest, Submodel.class));
-        return request;
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+        return PostSubmodelRequest.builder()
+                .submodel(parseBody(httpRequest, Submodel.class))
+                .build();
     }
 
 

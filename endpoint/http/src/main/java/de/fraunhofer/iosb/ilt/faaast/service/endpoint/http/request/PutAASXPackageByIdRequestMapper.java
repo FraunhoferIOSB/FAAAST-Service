@@ -14,10 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutAASXPackageByIdRequest;
 
 
 /**
@@ -28,21 +29,22 @@ public class PutAASXPackageByIdRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
     private static final String PATTERN = "^packages/(.*)$";
 
+    public PutAASXPackageByIdRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 2) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    PutAASXPackageByIdRequest.class.getSimpleName(),
-                    PATTERN));
-        }
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+        throw new InvalidRequestException("PutAASXPackageById currently not supported");
         // TODO: Needs specialy handling in HTTP server because it is 'multipart/form-data'
         // commented out for now
-        PutAASXPackageByIdRequest request = new PutAASXPackageByIdRequest();
+        //        PutAASXPackageByIdRequest request = new PutAASXPackageByIdRequest();
         //        request.setPackageId(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1)));
         //        request.setAasIds(IdGenerator.parseAssetIds(httpRequest.getBody()));
         //        request.setFilename(IdGenerator.parseFilename(httpRequest.getBody()));
         //        request.setFile(IdGenerator.parseFile(httpRequest.getBody()));
-        return request;
+        //        return request;
     }
 
 

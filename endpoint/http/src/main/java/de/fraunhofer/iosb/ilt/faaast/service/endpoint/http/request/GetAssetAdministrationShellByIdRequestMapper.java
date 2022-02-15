@@ -14,8 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAssetAdministrationShellByIdRequest;
@@ -26,28 +27,29 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
 /**
  * class to map HTTP-GET-Request path: shells
  */
-public class GetAssetAdministrationShellByIdRequestMapper extends RequestMapper {
+public class GetAssetAdministrationShellByIdRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "(?!.*/aas)^shells/(.*)";
+    private static final String PATTERN = "(?!.*/aas)^shells/(.*?)$";
+
+    public GetAssetAdministrationShellByIdRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 2) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    GetAssetAdministrationShellByIdRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        GetAssetAdministrationShellByIdRequest request = new GetAssetAdministrationShellByIdRequest();
-        request.setOutputModifier(new OutputModifier());
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        return request;
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+        return GetAssetAdministrationShellByIdRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .outputModifier(outputModifier)
+                .build();
     }
 
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
         return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
+                && httpRequest.getPath().matches(PATTERN)
+                && (httpRequest.getPathElements().size() == 2); // TODO: not nice, needs hotfix
     }
 }

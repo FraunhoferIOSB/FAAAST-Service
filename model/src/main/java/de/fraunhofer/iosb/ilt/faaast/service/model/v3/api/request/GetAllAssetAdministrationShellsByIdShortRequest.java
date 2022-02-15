@@ -14,34 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllAssetAdministrationShellsByIdShortResponse;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 /**
  * Chapter 6.2.5
  */
-public class GetAllAssetAdministrationShellsByIdShortRequest extends BaseRequest<GetAllAssetAdministrationShellsByIdShortResponse> {
-    private OutputModifier outputModifier;
+public class GetAllAssetAdministrationShellsByIdShortRequest extends RequestWithModifier<GetAllAssetAdministrationShellsByIdShortResponse> {
+
     private String idShort;
-
-    public GetAllAssetAdministrationShellsByIdShortRequest() {
-        this.outputModifier = OutputModifier.DEFAULT;
-    }
-
-
-    public OutputModifier getOutputModifier() {
-        return outputModifier;
-    }
-
-
-    public void setOutputModifier(OutputModifier outputModifier) {
-        this.outputModifier = outputModifier;
-    }
-
 
     public String getIdShort() {
         return idShort;
@@ -55,19 +37,21 @@ public class GetAllAssetAdministrationShellsByIdShortRequest extends BaseRequest
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         GetAllAssetAdministrationShellsByIdShortRequest that = (GetAllAssetAdministrationShellsByIdShortRequest) o;
-        return Objects.equals(outputModifier, that.outputModifier)
+        return super.equals(that)
                 && Objects.equals(idShort, that.idShort);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(outputModifier, idShort);
+        return Objects.hash(super.hashCode(), idShort);
     }
 
 
@@ -75,15 +59,11 @@ public class GetAllAssetAdministrationShellsByIdShortRequest extends BaseRequest
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllAssetAdministrationShellsByIdShortRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public static abstract class AbstractBuilder<T extends GetAllAssetAdministrationShellsByIdShortRequest, B extends AbstractBuilder<T, B>>
+            extends RequestWithModifier.AbstractBuilder<T, B> {
+
         public B idShort(String value) {
             getBuildingInstance().setIdShort(value);
-            return getSelf();
-        }
-
-
-        public B outputModifier(OutputModifier value) {
-            getBuildingInstance().setOutputModifier(value);
             return getSelf();
         }
     }

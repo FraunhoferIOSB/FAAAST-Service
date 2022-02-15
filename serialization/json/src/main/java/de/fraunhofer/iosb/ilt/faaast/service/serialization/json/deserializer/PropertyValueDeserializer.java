@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer;
 
 import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValue;
 import java.io.IOException;
@@ -35,9 +35,9 @@ public class PropertyValueDeserializer extends ContextAwareElementValueDeseriali
 
 
     @Override
-    public PropertyValue deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
+    public PropertyValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
         return PropertyValue.builder()
-                .value(context.readValue(parser, TypedValue.class))
+                .value(context.readTreeAsValue(node, TypedValue.class))
                 .build();
     }
 

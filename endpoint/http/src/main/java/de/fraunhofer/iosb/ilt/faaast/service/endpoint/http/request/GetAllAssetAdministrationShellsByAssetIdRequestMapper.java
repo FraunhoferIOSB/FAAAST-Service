@@ -14,8 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllAssetAdministrationShellsByAssetIdRequest;
@@ -27,26 +29,30 @@ import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 /**
  * class to map HTTP-GET-Request path: shells
  */
-public class GetAllAssetAdministrationShellsByAssetIdRequestMapper extends RequestMapper {
+public class GetAllAssetAdministrationShellsByAssetIdRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^shells$";
     private static final String QUERYPARAM = "assetIds";
 
+    public GetAllAssetAdministrationShellsByAssetIdRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        GetAllAssetAdministrationShellsByAssetIdRequest request = new GetAllAssetAdministrationShellsByAssetIdRequest();
-        request.setOutputModifier(new OutputModifier());
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException {
         try {
-            request.setAssetIds(
-                    deserializer.readList(
+            return GetAllAssetAdministrationShellsByAssetIdRequest.builder()
+                    .assetIds(deserializer.readList(
                             EncodingUtils.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM)),
-                            IdentifierKeyValuePair.class));
+                            IdentifierKeyValuePair.class))
+                    .outputModifier(outputModifier)
+                    .build();
         }
         catch (DeserializationException ex) {
-            throw new IllegalArgumentException(String.format("error deserializing %s", QUERYPARAM));
+            throw new InvalidRequestException(String.format("error deserializing %s", QUERYPARAM));
         }
-        return request;
     }
 
 

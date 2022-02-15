@@ -14,35 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllSubmodelReferencesResponse;
 import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 /**
  * Chapter 4.2.4
  */
-public class GetAllSubmodelReferencesRequest extends BaseRequest<GetAllSubmodelReferencesResponse> {
+public class GetAllSubmodelReferencesRequest extends RequestWithModifier<GetAllSubmodelReferencesResponse> {
+
     private Identifier id;
-    private OutputModifier outputModifier;
-
-    public GetAllSubmodelReferencesRequest() {
-        this.outputModifier = OutputModifier.DEFAULT;
-    }
-
-
-    public OutputModifier getOutputModifier() {
-        return outputModifier;
-    }
-
-
-    public void setOutputModifier(OutputModifier outputModifier) {
-        this.outputModifier = outputModifier;
-    }
-
 
     public Identifier getId() {
         return id;
@@ -56,18 +38,21 @@ public class GetAllSubmodelReferencesRequest extends BaseRequest<GetAllSubmodelR
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         GetAllSubmodelReferencesRequest that = (GetAllSubmodelReferencesRequest) o;
-        return Objects.equals(id, that.id) && Objects.equals(outputModifier, that.outputModifier);
+        return super.equals(that)
+                && Objects.equals(id, that.id);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, outputModifier);
+        return Objects.hash(super.hashCode(), id);
     }
 
 
@@ -75,15 +60,10 @@ public class GetAllSubmodelReferencesRequest extends BaseRequest<GetAllSubmodelR
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllSubmodelReferencesRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public static abstract class AbstractBuilder<T extends GetAllSubmodelReferencesRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
-
-        public B outputModifier(OutputModifier value) {
-            getBuildingInstance().setOutputModifier(value);
             return getSelf();
         }
     }

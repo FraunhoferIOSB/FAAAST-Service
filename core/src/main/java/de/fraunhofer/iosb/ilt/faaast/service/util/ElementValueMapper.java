@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.MostSpecificClassComparator;
 import de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper.DataValueMapper;
 import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -24,6 +25,7 @@ import io.github.classgraph.ScanResult;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,8 +93,8 @@ public class ElementValueMapper {
 
 
     /**
-     * Set the values of the ElementValue to the SubmodelElement
-     * Utility function to determine equivalent ElementValue class for given
+     * Set the values of the ElementValue to the SubmodelElement Utility
+     * function to determine equivalent ElementValue class for given
      * SubmodelElement class
      *
      * @param elementType SubmodelElement type
@@ -109,6 +111,26 @@ public class ElementValueMapper {
         return (Class<? extends ElementValue>) TypeToken.of(mappers.get(ReflectionHelper.getAasInterface(elementType)).getClass())
                 .resolveType(DataValueMapper.class.getTypeParameters()[1])
                 .getRawType();
+    }
+
+
+    public static Class<? extends SubmodelElement> getElementClass(Class<? extends ElementValue> valueType) {
+        init();
+        if (valueType == null) {
+            throw new IllegalArgumentException("valueType must be non-null");
+        }
+        Class<?> aasValueType = ReflectionHelper.getAasInterface(valueType);
+        Optional<?> result = mappers.values().stream()
+                .map(x -> TypeToken.of(x.getClass()))
+                .filter(x -> x.resolveType(DataValueMapper.class.getTypeParameters()[1]).getRawType().isAssignableFrom(aasValueType))
+                .map(x -> (Class<? extends SubmodelElement>) x.resolveType(DataValueMapper.class.getTypeParameters()[0]).getRawType())
+                .sorted(new MostSpecificClassComparator())
+                .findFirst();
+
+        if (!result.isPresent()) {
+            throw new RuntimeException("no element class defined for value type  " + valueType.getSimpleName());
+        }
+        return (Class<? extends SubmodelElement>) result.get();
     }
 
 

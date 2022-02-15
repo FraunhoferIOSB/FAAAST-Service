@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetOperationAsyncResultRequest;
@@ -28,27 +28,23 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
  * class to map HTTP-GET-Request path:
  * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/(.*)
  */
-public class GetOperationAsyncResultRequestMapper extends RequestMapper {
+public class GetOperationAsyncResultRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^submodels/(.*?)/submodel/submodel-elements/(.*)/operation-results/(.*)$";
-    private static final String QUERYPARAM1 = "content";
+
+    public GetOperationAsyncResultRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 7) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    GetOperationAsyncResultRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        GetOperationAsyncResultRequest request = new GetOperationAsyncResultRequest();
-        // URL encoded
-        request.setPath(ElementPathUtils.toKeys(httpRequest.getPathElements().get(4)));
-        request.setHandleId(EncodingUtils.base64Decode(httpRequest.getPathElements().get(6)));
-        OutputModifier outputModifier = new OutputModifier();
-        outputModifier.setContent(Content.fromString(httpRequest.getQueryParameters().get(QUERYPARAM1)));
-        request.setOutputModifier(outputModifier);
-        return request;
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+        return GetOperationAsyncResultRequest.builder()
+                .path(ElementPathUtils.toKeys(httpRequest.getPathElements().get(4)))
+                .handleId(EncodingUtils.base64Decode(httpRequest.getPathElements().get(6)))
+                .outputModifier(outputModifier)
+                .build();
     }
 
 

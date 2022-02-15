@@ -14,8 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.DeleteSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
@@ -37,17 +38,17 @@ public class DeleteSubmodelReferenceRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.DELETE;
     private static final String PATTERN = "^shells/(.*)/aas/submodels/(.*)";
 
+    public DeleteSubmodelReferenceRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
     public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 5) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    DeleteSubmodelReferenceRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        DeleteSubmodelReferenceRequest request = new DeleteSubmodelReferenceRequest();
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        request.setSubmodelRef(toReference(EncodingUtils.base64Decode(httpRequest.getPathElements().get(4))));
-        return request;
+        return DeleteSubmodelReferenceRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .submodelRef(toReference(EncodingUtils.base64Decode(httpRequest.getPathElements().get(4))))
+                .build();
     }
 
 

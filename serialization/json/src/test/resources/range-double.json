@@ -1,5 +1,5 @@
 {
-    "range1": {
+    "rangeDouble": {
         "min": 3.0,
         "max": 5.0
     }

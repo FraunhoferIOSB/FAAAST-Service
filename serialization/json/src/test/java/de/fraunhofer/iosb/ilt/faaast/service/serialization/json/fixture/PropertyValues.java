@@ -79,7 +79,7 @@ public class PropertyValues {
             .build();
     public static final Property PROPERTY_DOUBLE = new DefaultProperty.Builder()
             .category("category")
-            .idShort("prop1")
+            .idShort("propDouble")
             .kind(ModelingKind.INSTANCE)
             .valueType(Datatype.Double.getName())
             .value("42.17")
@@ -87,19 +87,19 @@ public class PropertyValues {
 
     public static final Property PROPERTY_INT = new DefaultProperty.Builder()
             .category("category")
-            .idShort("prop1")
+            .idShort("propInt")
             .kind(ModelingKind.INSTANCE)
             .valueType(Datatype.Int.getName())
             .value("42")
             .build();
     public static final Property PROPERTY_STRING = new DefaultProperty.Builder()
             .category("category")
-            .idShort("prop1")
+            .idShort("propString")
             .kind(ModelingKind.INSTANCE)
             .value("foo")
             .build();
     public static final Range RANGE_DOUBLE = new DefaultRange.Builder()
-            .idShort("range1")
+            .idShort("rangeDouble")
             .kind(ModelingKind.INSTANCE)
             .valueType(Datatype.Double.getName())
             .min("3.0")
@@ -113,7 +113,7 @@ public class PropertyValues {
             .value(ENTITY)
             .build();
     public static final Range RANGE_INT = new DefaultRange.Builder()
-            .idShort("range1")
+            .idShort("rangeInt")
             .kind(ModelingKind.INSTANCE)
             .valueType(Datatype.Int.getName())
             .min("17")

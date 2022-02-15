@@ -14,11 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetOperationAsyncResultResponse;
 import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,14 +24,13 @@ import java.util.Objects;
 /**
  * Chapter 4.3.13
  */
-public class GetOperationAsyncResultRequest extends BaseRequest<GetOperationAsyncResultResponse> {
+public class GetOperationAsyncResultRequest extends RequestWithModifier<GetOperationAsyncResultResponse> {
+
     private List<Key> path;
-    private OutputModifier outputModifier;
     private String handleId;
 
     public GetOperationAsyncResultRequest() {
         this.path = new ArrayList<>();
-        this.outputModifier = OutputModifier.DEFAULT;
     }
 
 
@@ -48,32 +44,24 @@ public class GetOperationAsyncResultRequest extends BaseRequest<GetOperationAsyn
     }
 
 
-    public OutputModifier getOutputModifier() {
-        return outputModifier;
-    }
-
-
-    public void setOutputModifier(OutputModifier outputModifier) {
-        this.outputModifier = outputModifier;
-    }
-
-
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         GetOperationAsyncResultRequest that = (GetOperationAsyncResultRequest) o;
-        return Objects.equals(path, that.path)
-                && Objects.equals(outputModifier, that.outputModifier)
+        return super.equals(that)
+                && Objects.equals(path, that.path)
                 && Objects.equals(handleId, that.handleId);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(path, outputModifier, handleId);
+        return Objects.hash(super.hashCode(), path, handleId);
     }
 
 
@@ -91,15 +79,10 @@ public class GetOperationAsyncResultRequest extends BaseRequest<GetOperationAsyn
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetOperationAsyncResultRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public static abstract class AbstractBuilder<T extends GetOperationAsyncResultRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+
         public B handleId(String value) {
             getBuildingInstance().setHandleId(value);
-            return getSelf();
-        }
-
-
-        public B outputModifier(OutputModifier value) {
-            getBuildingInstance().setOutputModifier(value);
             return getSelf();
         }
 
