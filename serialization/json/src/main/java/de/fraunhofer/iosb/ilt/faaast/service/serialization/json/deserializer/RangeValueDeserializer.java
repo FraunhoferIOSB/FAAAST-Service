@@ -17,32 +17,32 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RangeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonFieldNames;
 import java.io.IOException;
 
 
-public class RelationshipElementValueDeserializer extends ContextAwareElementValueDeserializer<RelationshipElementValue> {
+public class RangeValueDeserializer extends ContextAwareElementValueDeserializer<RangeValue> {
 
-    public RelationshipElementValueDeserializer() {
+    public RangeValueDeserializer() {
         this(null);
     }
 
 
-    public RelationshipElementValueDeserializer(Class<RelationshipElementValue> type) {
+    public RangeValueDeserializer(Class<RangeValue> type) {
         super(type);
     }
 
 
     @Override
-    public RelationshipElementValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
-        RelationshipElementValue.Builder builder = new RelationshipElementValue.Builder();
-        if (node.has(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST)) {
-            builder.first(context.readTreeAsValue(node.get(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST), ReferenceElementValue.class).getKeys());
+    public RangeValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
+        RangeValue.Builder builder = RangeValue.builder();
+        if (node.has(JsonFieldNames.RANGE_VALUE_MIN)) {
+            builder = builder.min(context.readTreeAsValue(node.get(JsonFieldNames.RANGE_VALUE_MIN), TypedValue.class));
         }
-        if (node.has(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND)) {
-            builder.second(context.readTreeAsValue(node.get(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND), ReferenceElementValue.class).getKeys());
+        if (node.has(JsonFieldNames.RANGE_VALUE_MAX)) {
+            builder = builder.max(context.readTreeAsValue(node.get(JsonFieldNames.RANGE_VALUE_MAX), TypedValue.class));
         }
         return builder.build();
     }

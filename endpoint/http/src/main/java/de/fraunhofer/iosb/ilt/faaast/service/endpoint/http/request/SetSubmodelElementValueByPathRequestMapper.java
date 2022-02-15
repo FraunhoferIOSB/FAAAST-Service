@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -78,8 +79,6 @@ public class SetSubmodelElementValueByPathRequestMapper extends RequestMapper {
     public boolean matches(HttpRequest httpRequest) {
         return httpRequest.getMethod().equals(HTTP_METHOD)
                 && httpRequest.getPath().matches(PATTERN)
-                // TODO this is obviously wrong as it does not check of content=value but only appearance of key 'content' and value 'value'
-                && httpRequest.getQueryParameters().containsKey(QUERYPARAM1)
-                && httpRequest.getQueryParameters().containsValue(QUERYVALUE1);
+                && (httpRequest.getQueryParameters().containsKey(QUERYPARAM1) && Objects.equals(httpRequest.getQueryParameters().get(QUERYPARAM1), QUERYVALUE1));
     }
 }

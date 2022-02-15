@@ -101,7 +101,7 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
     protected WalkingMode mode;
     protected AssetAdministrationShellElementVisitor visitor;
 
-    private AssetAdministrationShellElementWalker() {
+    protected AssetAdministrationShellElementWalker() {
         mode = WalkingMode.DEFAULT;
     }
 
@@ -959,7 +959,7 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
     }
 
 
-    private void visit(Object obj) {
+    protected void visit(Object obj) {
         // find most specific matching visit method by reflection
         if (obj != null) {
             try {

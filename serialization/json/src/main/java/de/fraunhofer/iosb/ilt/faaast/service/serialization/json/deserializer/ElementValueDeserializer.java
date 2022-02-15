@@ -15,30 +15,30 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer;
 
 import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementCollectionValue;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import java.io.IOException;
 
 
-public class SubmodelElementCollectionValueDeserializer extends ContextAwareElementValueDeserializer<ElementCollectionValue> {
+public class ElementValueDeserializer extends StdDeserializer<ElementValue> {
 
-    public SubmodelElementCollectionValueDeserializer() {
+    public ElementValueDeserializer() {
         this(null);
     }
 
 
-    public SubmodelElementCollectionValueDeserializer(Class<ElementCollectionValue> type) {
+    public ElementValueDeserializer(Class<ElementValue> type) {
         super(type);
     }
 
 
     @Override
-    public ElementCollectionValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
-        return new ElementCollectionValue.Builder()
-                .values(deserializeChildren(node, context, ElementValue.class))
-                .build();
+    public ElementValue deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
+        TypeInfo typeInfo = ContextAwareElementValueDeserializer.getTypeInfo(context);
+        return (ElementValue) context.readValue(parser, typeInfo.getType());
     }
 
 }

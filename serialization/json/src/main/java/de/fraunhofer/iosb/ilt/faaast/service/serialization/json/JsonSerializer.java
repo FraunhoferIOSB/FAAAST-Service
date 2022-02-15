@@ -47,13 +47,15 @@ public class JsonSerializer implements Serializer {
 
     @Override
     public String write(Object obj, OutputModifier modifier) throws SerializationException {
-        if ((modifier != null && modifier.getContent() == Content.Value)
-                || (obj != null && ElementValue.class.isAssignableFrom(obj.getClass()))) {
+        if (modifier != null && modifier.getContent() == Content.Value) {
+            return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());
+        }
+        if (obj != null && ElementValue.class.isAssignableFrom(obj.getClass())) {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());
         }
         try {
             JsonMapper mapper = wrapper.getMapper();
-            if (List.class.isAssignableFrom(obj.getClass())) {
+            if (obj != null && List.class.isAssignableFrom(obj.getClass())) {
                 ObjectWriter objectWriter = mapper.writerFor(mapper.getTypeFactory()
                         .constructCollectionType(List.class, ((List<Object>) obj).get(0).getClass()))
                         .withAttribute(ModifierAwareSerializer.LEVEL, modifier);

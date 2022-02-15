@@ -32,6 +32,9 @@ public class JsonFieldNames {
     public static final String FILE_VALUE_MIME_TYPE = "mimeType";
     public static final String FILE_VALUE_VALUE = "value";
 
+    public static final String RANGE_VALUE_MIN = "min";
+    public static final String RANGE_VALUE_MAX = "max";
+
     public static final String REFERENCE_ELEMENT_VALUE_ID_TYPE = "idType";
     public static final String REFERENCE_ELEMENT_VALUE_TYPE = "type";
     public static final String REFERENCE_ELEMENT_VALUE_VALUE = "value";

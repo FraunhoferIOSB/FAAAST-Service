@@ -22,7 +22,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappin
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -59,11 +61,11 @@ public class RequestHandler extends AbstractHandler {
                 .query(request.getQueryString())
                 .body(request.getReader().lines().collect(Collectors.joining(System.lineSeparator())))
                 .method(HttpMethod.valueOf(request.getMethod()))
+                .headers(Collections.list(request.getHeaderNames()).stream()
+                        .collect(Collectors.toMap(
+                                x -> x,
+                                x -> request.getHeader(x))))
                 .build();
-        httpRequest.setHeaders(Collections.list(request.getHeaderNames()).stream()
-                .collect(Collectors.toMap(
-                        x -> x,
-                        x -> request.getHeader(x))));
         de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request apiRequest = null;
         try {
             apiRequest = mappingManager.map(httpRequest);
@@ -72,17 +74,18 @@ public class RequestHandler extends AbstractHandler {
             send(response, HttpStatus.BAD_REQUEST_400, ex.getMessage());
         }
         //TODO more differentiated error codes (must be generated in mappingManager)
-        if (apiRequest == null) {
-            send(response, HttpStatus.BAD_REQUEST_400);
-        }
-        else {
-            send(response, serviceContext.execute(apiRequest));
-        }
+        executeAndSend(response, apiRequest);
         baseRequest.setHandled(true);
     }
 
 
-    private void send(HttpServletResponse response, Response apiResponse) throws IOException {
+    private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request apiRequest) throws IOException {
+        // TODO forward output modifier to serializer
+        if (apiRequest == null) {
+            send(response, HttpStatus.BAD_REQUEST_400);
+            return;
+        }
+        Response apiResponse = serviceContext.execute(apiRequest);
         if (apiResponse == null) {
             send(response, HttpStatus.INTERNAL_SERVER_ERROR_500);
             return;
@@ -90,7 +93,14 @@ public class RequestHandler extends AbstractHandler {
         int statusCode = HttpUtils.toHttpStatusCode(apiResponse.getStatusCode());
         if (BaseResponseWithPayload.class.isAssignableFrom(apiResponse.getClass())) {
             try {
-                sendJson(response, statusCode, serializer.write(((BaseResponseWithPayload) apiResponse).getPayload()));
+                if (RequestWithModifier.class.isAssignableFrom(apiRequest.getClass())) {
+                    Object payload = ((BaseResponseWithPayload) apiResponse).getPayload();
+                    OutputModifier outputModifier = ((RequestWithModifier) apiRequest).getOutputModifier();
+                    sendJson(response, statusCode, serializer.write(payload, outputModifier));
+                }
+                else {
+                    sendJson(response, statusCode, serializer.write(((BaseResponseWithPayload) apiResponse).getPayload()));
+                }
             }
             catch (SerializationException ex) {
                 send(response, HttpStatus.INTERNAL_SERVER_ERROR_500, ex.getMessage());
@@ -120,8 +130,9 @@ public class RequestHandler extends AbstractHandler {
     private void send(HttpServletResponse response, int statusCode, String content, String contentType) throws IOException {
         response.setStatus(statusCode);
         if (content != null) {
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType(contentType + "; charset=UTF-8");
             PrintWriter out = response.getWriter();
-            response.setContentType(contentType);
             out.print(content);
             out.flush();
         }

@@ -22,18 +22,28 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllAssetAdministrationShellsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.PostSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.Identifier;
+import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
+import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import io.adminshell.aas.v3.model.impl.DefaultRange;
 import java.net.ServerSocket;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
@@ -43,6 +53,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,6 +119,15 @@ public class HttpEndpointTest {
 
     public ContentResponse execute(HttpMethod method, String path) throws Exception {
         return execute(method, path, null, null, null);
+    }
+
+
+    public ContentResponse execute(HttpMethod method, String path, OutputModifier outputModifier) throws Exception {
+        return execute(method, path, Map.of(
+                "content", outputModifier.getContent().name().toLowerCase(),
+                "level", outputModifier.getLevel().name().toLowerCase(),
+                "extend", outputModifier.getExtend().name().toLowerCase()),
+                null, null);
     }
 
 
@@ -245,7 +265,83 @@ public class HttpEndpointTest {
         ContentResponse response = execute(HttpMethod.GET, "/shells");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         // TODO: server not returning character encoding
+        logger.info("http response encoding: {}", response.getEncoding());
+        logger.info("http response content: {}", new String(response.getContent(), "UTF-8"));
+        List<AssetAdministrationShell> actualPayload = deserializer.readList(new String(response.getContent(), "UTF-8"), AssetAdministrationShell.class);
+        Assert.assertEquals(expectedPayload, actualPayload);
+    }
+
+
+    @Test
+    @Ignore("value only serialization not defined for AssetAdministrationShells")
+    public void testGetAllAssetAdministrationShells_ValueOnly() throws Exception {
+        List<AssetAdministrationShell> expectedPayload = List.of(AASFull.AAS_1);
+        when(serviceContext.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
+                .statusCode(StatusCode.Success)
+                .payload(expectedPayload)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/shells", new OutputModifier.Builder()
+                .content(Content.Value)
+                .build());
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         List<AssetAdministrationShell> actualPayload = deserializer.readList(new String(response.getContent()), AssetAdministrationShell.class);
         Assert.assertEquals(expectedPayload, actualPayload);
+    }
+
+
+    @Test
+    public void testGetAllSubmodelElements_ValueOnly() throws Exception {
+        List<SubmodelElement> submodelElements = List.of(
+                new DefaultProperty.Builder()
+                        .idShort("property1")
+                        .value("hello world")
+                        .valueType("string")
+                        .build(),
+                new DefaultRange.Builder()
+                        .idShort("range1")
+                        .min("1.1")
+                        .max("2.0")
+                        .valueType("double")
+                        .build());
+        when(serviceContext.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
+                .statusCode(StatusCode.Success)
+                .payload(submodelElements)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel/submodel-elements", new OutputModifier.Builder()
+                .content(Content.Value)
+                .build());
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        List<ElementValue> actual = deserializer.readValueList(new String(response.getContent()), TypeExtractor.extractTypeInfo(submodelElements));
+        List<ElementValue> expected = submodelElements.stream()
+                .map(x -> (ElementValue) ElementValueMapper.toValue(x))
+                .collect(Collectors.toList());
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testGetAllSubmodelElements() throws Exception {
+        List<SubmodelElement> expected = List.of(
+                new DefaultProperty.Builder()
+                        .idShort("property1")
+                        .value("hello world")
+                        .valueType("string")
+                        .build(),
+                new DefaultRange.Builder()
+                        .idShort("range1")
+                        .min("1.1")
+                        .max("2.0")
+                        .valueType("double")
+                        .build());
+        when(serviceContext.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
+                .statusCode(StatusCode.Success)
+                .payload(expected)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/foo/submodel/submodel-elements", new OutputModifier.Builder()
+                .content(Content.Normal)
+                .build());
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        List<SubmodelElement> actual = deserializer.readList(new String(response.getContent()), SubmodelElement.class);
+        Assert.assertEquals(expected, actual);
     }
 }

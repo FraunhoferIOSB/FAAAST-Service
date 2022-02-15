@@ -23,12 +23,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.EntityType;
 import io.adminshell.aas.v3.model.ModelingKind;
+import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.impl.DefaultAnnotatedRelationshipElement;
 import io.adminshell.aas.v3.model.impl.DefaultEntity;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultRange;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import java.util.Collection;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -49,33 +52,26 @@ public class TypeExtractorTest {
 
     @Test
     public void testSubmodel() {
-        TypeContext expected = TypeContext.builder()
-                .rootInfo(TypeInfo.builder()
-                        .valueType(null)
-                        .build())
-                .typeInfo(TypeInfo.builder()
-                        .idShortPath("stringProp1")
+        TypeInfo expected = ContainerTypeInfo.builder()
+                .type(Submodel.class)
+                .element("stringProp1", ElementValueTypeInfo.builder()
                         .datatype(Datatype.String)
-                        .valueType(PropertyValue.class)
+                        .type(PropertyValue.class)
                         .build())
-                .typeInfo(TypeInfo.builder()
-                        .idShortPath("intProp1")
+                .element("intProp1", ElementValueTypeInfo.builder()
                         .datatype(Datatype.Int)
-                        .valueType(PropertyValue.class)
+                        .type(PropertyValue.class)
                         .build())
-                .typeInfo(TypeInfo.builder()
-                        .idShortPath("collection1")
-                        .valueType(ElementCollectionValue.class)
-                        .build())
-                .typeInfo(TypeInfo.builder()
-                        .idShortPath("collection1", "doubleRange1")
-                        .datatype(Datatype.Double)
-                        .valueType(RangeValue.class)
-                        .build())
-                .typeInfo(TypeInfo.builder()
-                        .idShortPath("collection1", "intProp2")
-                        .datatype(Datatype.Int)
-                        .valueType(PropertyValue.class)
+                .element("collection1", ElementValueTypeInfo.builder()
+                        .type(ElementCollectionValue.class)
+                        .element("doubleRange1", ElementValueTypeInfo.builder()
+                                .datatype(Datatype.Double)
+                                .type(RangeValue.class)
+                                .build())
+                        .element("intProp2", ElementValueTypeInfo.builder()
+                                .datatype(Datatype.Int)
+                                .type(PropertyValue.class)
+                                .build())
                         .build())
                 .build();
         Object data = new DefaultSubmodel.Builder()
@@ -101,26 +97,22 @@ public class TypeExtractorTest {
                                 .build())
                         .build())
                 .build();
-        TypeContext actual = TypeExtractor.getTypeContext(data);
+        TypeInfo actual = TypeExtractor.extractTypeInfo(data);
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
     public void testAnnotatedRelationshipElement() {
-        TypeContext expected = TypeContext.builder()
-                .rootInfo(TypeInfo.builder()
-                        .valueType(AnnotatedRelationshipElementValue.class)
-                        .build())
-                .typeInfo(TypeInfo.builder()
-                        .idShortPath("stringProp1")
+        TypeInfo expected = ElementValueTypeInfo.builder()
+                .type(AnnotatedRelationshipElementValue.class)
+                .element("stringProp1", ElementValueTypeInfo.builder()
                         .datatype(Datatype.String)
-                        .valueType(PropertyValue.class)
+                        .type(PropertyValue.class)
                         .build())
-                .typeInfo(TypeInfo.builder()
-                        .idShortPath("intProp1")
+                .element("intProp1", ElementValueTypeInfo.builder()
                         .datatype(Datatype.Int)
-                        .valueType(PropertyValue.class)
+                        .type(PropertyValue.class)
                         .build())
                 .build();
         Object data = new DefaultAnnotatedRelationshipElement.Builder()
@@ -134,52 +126,98 @@ public class TypeExtractorTest {
                         .build())
                 .idShort("annotatedRelationship1")
                 .build();
-        TypeContext actual = TypeExtractor.getTypeContext(data);
+        TypeInfo actual = TypeExtractor.extractTypeInfo(data);
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
     public void testPropertyString() {
-        TypeContext expected = TypeContext.builder()
-                .rootInfo(TypeInfo.builder()
-                        .datatype(Datatype.String)
-                        .valueType(PropertyValue.class)
-                        .build())
+        TypeInfo expected = ElementValueTypeInfo.builder()
+                .datatype(Datatype.String)
+                .type(PropertyValue.class)
                 .build();
         Object data = new DefaultProperty.Builder()
                 .idShort("stringProp1")
                 .valueType("string")
                 .build();
-        TypeContext actual = TypeExtractor.getTypeContext(data);
+        TypeInfo actual = TypeExtractor.extractTypeInfo(data);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testListProperty() {
+        TypeInfo expected = ContainerTypeInfo.builder()
+                .type(Collection.class)
+                .element(0, ElementValueTypeInfo.builder()
+                        .datatype(Datatype.String)
+                        .type(PropertyValue.class)
+                        .build())
+                .element(1, ElementValueTypeInfo.builder()
+                        .datatype(Datatype.Integer)
+                        .type(PropertyValue.class)
+                        .build())
+                .build();
+        Object data = List.of(
+                new DefaultProperty.Builder()
+                        .idShort("stringProp1")
+                        .valueType("string")
+                        .build(),
+                new DefaultProperty.Builder()
+                        .idShort("stringProp2")
+                        .valueType("integer")
+                        .build());
+        TypeInfo actual = TypeExtractor.extractTypeInfo(data);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testList() {
+        TypeInfo expected = ContainerTypeInfo.builder()
+                .type(Collection.class)
+                .element(0, ElementValueTypeInfo.builder()
+                        .datatype(Datatype.String)
+                        .type(PropertyValue.class)
+                        .build())
+                .element(1, ElementValueTypeInfo.builder()
+                        .datatype(Datatype.Integer)
+                        .type(PropertyValue.class)
+                        .build())
+                .build();
+        Object data = List.of(
+                new DefaultProperty.Builder()
+                        .idShort("stringProp1")
+                        .valueType("string")
+                        .build(),
+                new DefaultProperty.Builder()
+                        .idShort("stringProp2")
+                        .valueType("integer")
+                        .build());
+        TypeInfo actual = TypeExtractor.extractTypeInfo(data);
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
     public void testSubmodelElementCollection() {
-        TypeContext expected = TypeContext.builder()
-                .rootInfo(TypeInfo.builder()
-                        .valueType(ElementCollectionValue.class)
-                        .build())
-                .typeInfo(TypeInfo.builder()
-                        .idShortPath("stringProp1")
+        TypeInfo expected = ElementValueTypeInfo.builder()
+                .type(ElementCollectionValue.class)
+                .element("stringProp1", ElementValueTypeInfo.builder()
                         .datatype(Datatype.String)
-                        .valueType(PropertyValue.class)
+                        .type(PropertyValue.class)
                         .build())
-                .typeInfo(TypeInfo.builder()
-                        .idShortPath("doubleRange1")
+                .element("doubleRange1", ElementValueTypeInfo.builder()
                         .datatype(Datatype.Double)
-                        .valueType(RangeValue.class)
+                        .type(RangeValue.class)
                         .build())
-                .typeInfo(TypeInfo.builder()
-                        .idShortPath("entity1")
-                        .valueType(EntityValue.class)
-                        .build())
-                .typeInfo(TypeInfo.builder()
-                        .idShortPath("entity1", "MaxRotationSpeed")
-                        .datatype(Datatype.Int)
-                        .valueType(PropertyValue.class)
+                .element("entity1", ElementValueTypeInfo.builder()
+                        .type(EntityValue.class)
+                        .element("MaxRotationSpeed", ElementValueTypeInfo.builder()
+                                .datatype(Datatype.Int)
+                                .type(PropertyValue.class)
+                                .build())
                         .build())
                 .build();
         Object data = new DefaultSubmodelElementCollection.Builder()
@@ -210,7 +248,77 @@ public class TypeExtractorTest {
                         .globalAssetId(AasUtils.parseReference("(GlobalReference)[IRI]http://customer.com/demo/asset/1/1/MySubAsset"))
                         .build())
                 .build();
-        TypeContext actual = TypeExtractor.getTypeContext(data);
+        TypeInfo actual = TypeExtractor.extractTypeInfo(data);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testNestedSubmodelElementCollection() {
+        TypeInfo expected = ElementValueTypeInfo.builder()
+                .type(ElementCollectionValue.class)
+                .element("stringProp1", ElementValueTypeInfo.builder()
+                        .datatype(Datatype.String)
+                        .type(PropertyValue.class)
+                        .build())
+                .element("doubleRange1", ElementValueTypeInfo.builder()
+                        .datatype(Datatype.Double)
+                        .type(RangeValue.class)
+                        .build())
+                .element("entity1", ElementValueTypeInfo.builder()
+                        .type(EntityValue.class)
+                        .element("MaxRotationSpeed", ElementValueTypeInfo.builder()
+                                .datatype(Datatype.Int)
+                                .type(PropertyValue.class)
+                                .build())
+                        .build())
+                .element("collection2", ElementValueTypeInfo.builder()
+                        .type(ElementCollectionValue.class)
+                        .element("stringProp2", ElementValueTypeInfo.builder()
+                                .datatype(Datatype.String)
+                                .type(PropertyValue.class)
+                                .build())
+                        .build())
+                .build();
+        Object data = new DefaultSubmodelElementCollection.Builder()
+                .idShort("collection1")
+                .kind(ModelingKind.INSTANCE)
+                .value(new DefaultProperty.Builder()
+                        .category("category")
+                        .idShort("stringProp1")
+                        .valueType(Datatype.String.getName())
+                        .value("foo")
+                        .build())
+                .value(new DefaultRange.Builder()
+                        .idShort("doubleRange1")
+                        .kind(ModelingKind.INSTANCE)
+                        .valueType(Datatype.Double.getName())
+                        .min("3.0")
+                        .max("5.0")
+                        .build())
+                .value(new DefaultEntity.Builder()
+                        .idShort("entity1")
+                        .kind(ModelingKind.INSTANCE)
+                        .entityType(EntityType.SELF_MANAGED_ENTITY)
+                        .statement(new DefaultProperty.Builder()
+                                .idShort("MaxRotationSpeed")
+                                .valueType(Datatype.Int.getName())
+                                .value("5000")
+                                .build())
+                        .globalAssetId(AasUtils.parseReference("(GlobalReference)[IRI]http://customer.com/demo/asset/1/1/MySubAsset"))
+                        .build())
+                .value(new DefaultSubmodelElementCollection.Builder()
+                        .idShort("collection2")
+                        .kind(ModelingKind.INSTANCE)
+                        .value(new DefaultProperty.Builder()
+                                .category("category")
+                                .idShort("stringProp2")
+                                .valueType(Datatype.String.getName())
+                                .value("bar")
+                                .build())
+                        .build())
+                .build();
+        TypeInfo actual = TypeExtractor.extractTypeInfo(data);
         Assert.assertEquals(expected, actual);
     }
 }

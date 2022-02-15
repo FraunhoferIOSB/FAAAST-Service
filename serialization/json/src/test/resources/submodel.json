@@ -1,7 +1,7 @@
 {
     "collection1": {
-        "prop1": "foo",
-        "range1": {
+        "propString": "foo",
+        "rangeDouble": {
             "min": 3.0,
             "max": 5.0
         },
@@ -14,8 +14,8 @@
             "globalAssetId": ["http://customer.com/demo/asset/1/1/MySubAsset"]
         }
     },
-    "prop1": "foo",
-    "range1": {
+    "propString": "foo",
+    "rangeDouble": {
         "min": 3,
         "max": 5
     }

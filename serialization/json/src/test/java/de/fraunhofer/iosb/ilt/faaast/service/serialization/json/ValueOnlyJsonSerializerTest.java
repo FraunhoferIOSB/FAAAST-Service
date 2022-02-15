@@ -24,7 +24,11 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.json.JSONException;
+import org.junit.Assert;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -78,9 +82,9 @@ public class ValueOnlyJsonSerializerTest {
     }
 
 
-    @Test
+    @Test(expected = SerializationException.class)
     public void testNonValue() throws SerializationException, JSONException, IOException {
-        compare("{}", AasUtils.parseReference("(Property)[IRI]foo)"));
+        serializer.write(AasUtils.parseReference("(Property)[IRI]foo)"));
     }
 
 
@@ -88,6 +92,56 @@ public class ValueOnlyJsonSerializerTest {
     public void testProperty() throws SerializationException, JSONException, IOException {
         compare(PropertyValues.PROPERTY_STRING_FILE, PropertyValues.PROPERTY_STRING);
         compareValue(PropertyValues.PROPERTY_STRING_FILE, PropertyValues.PROPERTY_STRING);
+    }
+
+
+    @Test
+    public void testList() throws SerializationException, JSONException, IOException {
+        Map<SubmodelElement, File> data = Map.of(
+                PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
+                PropertyValues.RANGE_INT, PropertyValues.RANGE_INT_FILE);
+        String expected = data.entrySet().stream()
+                .map(x -> {
+                    try {
+                        return TestUtils.extractValueJson(x.getValue(), x.getKey());
+                    }
+                    catch (IOException ex) {
+                        Assert.fail("error extracting value from file");
+                    }
+                    return "";
+                })
+                .collect(Collectors.joining(",", "[", "]"));
+        List<Object> values = data.keySet().stream()
+                .map(x -> ElementValueMapper.toValue(x))
+                .collect(Collectors.toList());
+        String actual = serializer.write(values);
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
+    }
+
+
+    @Test
+    public void testArray() throws SerializationException, JSONException, IOException {
+        Object[] array = new Object[] {
+                PropertyValues.PROPERTY_STRING,
+                PropertyValues.RANGE_INT
+        };
+        String expected = String.format("[%s,%s]",
+                Files.readString(PropertyValues.PROPERTY_STRING_FILE.toPath()),
+                Files.readString(PropertyValues.RANGE_INT_FILE.toPath()));
+        String actual = serializer.write(array);
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
+    }
+
+
+    @Test
+    public void testMap() throws SerializationException, JSONException, IOException {
+        Map<String, Object> map = Map.of("first", PropertyValues.PROPERTY_STRING,
+                "second", PropertyValues.RANGE_INT);
+        String expected = String.format("{ \"first\": %s,\"second\":%s}",
+                Files.readString(PropertyValues.PROPERTY_STRING_FILE.toPath()),
+                Files.readString(PropertyValues.RANGE_INT_FILE.toPath()));
+        String actual = serializer.write(map);
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
 

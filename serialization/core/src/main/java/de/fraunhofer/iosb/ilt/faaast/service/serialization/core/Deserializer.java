@@ -16,8 +16,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.core;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,6 +31,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -93,11 +97,46 @@ public interface Deserializer {
     }
 
 
-    public <T extends ElementValue> T readValue(String json, TypeContext context) throws DeserializationException;
+    public <T extends ElementValue> T readValue(String json, TypeInfo typeInfo) throws DeserializationException;
+
+
+    public default <T extends ElementValue> T readValue(String json, Class<? extends SubmodelElement> type, TypeInfo typeInfo) throws DeserializationException {
+        if (ElementValue.class.isAssignableFrom(type)) {
+            return readValue(json, typeInfo);
+        }
+        if (!ElementValueHelper.isValueOnlySupported(type)) {
+            throw new DeserializationException("not a value type");
+        }
+        return ElementValueMapper.toValue(read(json, type));
+    }
+
+
+    public <T extends ElementValue> List<T> readValueList(String json, TypeInfo typeInfo) throws DeserializationException;
+
+
+    public default <T extends ElementValue> List<T> readValueList(String json, SubmodelElement submodelElement) throws DeserializationException {
+        return readValueList(json, TypeExtractor.extractTypeInfo(submodelElement));
+    }
+
+
+    public <T extends ElementValue> T[] readValueArray(String json, TypeInfo typeInfo) throws DeserializationException;
+
+
+    public default <T extends ElementValue> T[] readValueArray(String json, SubmodelElement submodelElement) throws DeserializationException {
+        return readValueArray(json, TypeExtractor.extractTypeInfo(submodelElement));
+    }
+
+
+    public <K, V extends ElementValue> Map<K, V> readValueMap(String json, TypeInfo typeInfo) throws DeserializationException;
+
+
+    public default <K, V extends ElementValue> Map<K, V> readValueMap(String json, SubmodelElement submodelElement) throws DeserializationException {
+        return readValueMap(json, TypeExtractor.extractTypeInfo(submodelElement));
+    }
 
 
     public default <T extends ElementValue> T readValue(String json, SubmodelElement submodelElement) throws DeserializationException {
-        return readValue(json, TypeContext.fromElement(submodelElement));
+        return readValue(json, TypeExtractor.extractTypeInfo(submodelElement));
     }
 
 
@@ -108,11 +147,9 @@ public interface Deserializer {
         if (!ElementValue.class.isAssignableFrom(type)) {
             throw new DeserializationException(String.format("invalid type '%s' - must be subtype of SubmodelElement", type.getSimpleName()));
         }
-        return readValue(json, TypeContext.builder()
-                .rootInfo(TypeInfo.builder()
-                        .valueType(type)
-                        .datatype(datatype)
-                        .build())
+        return readValue(json, ElementValueTypeInfo.builder()
+                .type(type)
+                .datatype(datatype)
                 .build());
     }
 
@@ -122,8 +159,8 @@ public interface Deserializer {
     }
 
 
-    public default <T extends ElementValue> T readValue(InputStream src, Charset charset, TypeContext context) throws DeserializationException {
-        return readValue(readStream(src, charset), context);
+    public default <T extends ElementValue> T readValue(InputStream src, Charset charset, TypeInfo typeInfo) throws DeserializationException {
+        return readValue(readStream(src, charset), typeInfo);
     }
 
 
@@ -132,7 +169,7 @@ public interface Deserializer {
     }
 
 
-    public default <T extends ElementValue> T readValue(InputStream src, TypeContext context) throws DeserializationException {
+    public default <T extends ElementValue> T readValue(InputStream src, TypeInfo context) throws DeserializationException {
         return readValue(readStream(src, DEFAULT_CHARSET), context);
     }
 
@@ -177,8 +214,8 @@ public interface Deserializer {
     }
 
 
-    public default <T extends ElementValue> T readValue(File file, TypeContext context) throws DeserializationException, FileNotFoundException {
-        return readValue(new FileInputStream(file), DEFAULT_CHARSET, context);
+    public default <T extends ElementValue> T readValue(File file, TypeInfo typeInfo) throws DeserializationException, FileNotFoundException {
+        return readValue(new FileInputStream(file), DEFAULT_CHARSET, typeInfo);
     }
 
 

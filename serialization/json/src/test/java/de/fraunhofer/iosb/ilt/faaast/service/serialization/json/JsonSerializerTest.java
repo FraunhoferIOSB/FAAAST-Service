@@ -15,22 +15,34 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.PropertyValues;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetKind;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Referable;
+import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
 import io.adminshell.aas.v3.model.impl.DefaultAssetInformation;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 
 public class JsonSerializerTest {
 
-    JsonSerializer jsonSerializer = new JsonSerializer();
+    JsonSerializer serializer = new JsonSerializer();
 
     @Test
     public void testIdentifiableSerialization() throws Exception {
@@ -85,16 +97,39 @@ public class JsonSerializerTest {
 
 
     @Test
+    public void testSubmodelElementList_ValueOnly() throws SerializationException, JSONException {
+        Map<SubmodelElement, File> data = Map.of(
+                PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
+                PropertyValues.RANGE_INT, PropertyValues.RANGE_INT_FILE);
+        String expected = data.entrySet().stream()
+                .map(x -> {
+                    try {
+                        return Files.readString(x.getValue().toPath());
+                    }
+                    catch (IOException ex) {
+                        Assert.fail(String.format("error reading file %s", x.getValue()));
+                    }
+                    return "";
+                })
+                .collect(Collectors.joining(",", "[", "]"));
+        String actual = serializer.write(data.keySet(), new OutputModifier.Builder()
+                .content(Content.Value)
+                .build());
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
+    }
+
+
+    @Test
     public void testFullExampleSerialization() throws Exception {
         String expected = new io.adminshell.aas.v3.dataformat.json.JsonSerializer().write(AASFull.createEnvironment());
-        String actual = jsonSerializer.write(AASFull.createEnvironment(), new OutputModifier.Builder().build());
+        String actual = serializer.write(AASFull.createEnvironment(), new OutputModifier.Builder().build());
         compare(expected, actual);
     }
 
 
     private void compareToAdminShellIoSerialization(Referable referable) throws Exception {
         String expected = new io.adminshell.aas.v3.dataformat.json.JsonSerializer().write(referable);
-        String actual = jsonSerializer.write(referable, new OutputModifier.Builder().build());
+        String actual = serializer.write(referable, new OutputModifier.Builder().build());
 
         compare(expected, actual);
     }
@@ -102,7 +137,7 @@ public class JsonSerializerTest {
 
     private void compareToAdminShellIoSerialization(List<Referable> referables) throws Exception {
         String expected = new io.adminshell.aas.v3.dataformat.json.JsonSerializer().write(referables);
-        String actual = jsonSerializer.write(referables, new OutputModifier.Builder().build());
+        String actual = serializer.write(referables, new OutputModifier.Builder().build());
 
         compare(expected, actual);
     }

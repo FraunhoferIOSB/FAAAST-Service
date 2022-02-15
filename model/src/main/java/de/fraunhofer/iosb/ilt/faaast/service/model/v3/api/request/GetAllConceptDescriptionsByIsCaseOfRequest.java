@@ -14,35 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllConceptDescriptionsByIsCaseOfResponse;
 import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 /**
  * Chapter 6.4.5
  */
-public class GetAllConceptDescriptionsByIsCaseOfRequest extends BaseRequest<GetAllConceptDescriptionsByIsCaseOfResponse> {
-    private OutputModifier outputModifier;
+public class GetAllConceptDescriptionsByIsCaseOfRequest extends RequestWithModifier<GetAllConceptDescriptionsByIsCaseOfResponse> {
+
     private Reference isCaseOf;
-
-    public GetAllConceptDescriptionsByIsCaseOfRequest() {
-        this.outputModifier = OutputModifier.DEFAULT;
-    }
-
-
-    public OutputModifier getOutputModifier() {
-        return outputModifier;
-    }
-
-
-    public void setOutputModifier(OutputModifier outputModifier) {
-        this.outputModifier = outputModifier;
-    }
-
 
     public Reference getIsCaseOf() {
         return isCaseOf;
@@ -56,19 +38,21 @@ public class GetAllConceptDescriptionsByIsCaseOfRequest extends BaseRequest<GetA
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         GetAllConceptDescriptionsByIsCaseOfRequest that = (GetAllConceptDescriptionsByIsCaseOfRequest) o;
-        return Objects.equals(outputModifier, that.outputModifier)
+        return super.equals(that)
                 && Objects.equals(isCaseOf, that.isCaseOf);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(outputModifier, isCaseOf);
+        return Objects.hash(super.hashCode(), isCaseOf);
     }
 
 
@@ -76,15 +60,11 @@ public class GetAllConceptDescriptionsByIsCaseOfRequest extends BaseRequest<GetA
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllConceptDescriptionsByIsCaseOfRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public static abstract class AbstractBuilder<T extends GetAllConceptDescriptionsByIsCaseOfRequest, B extends AbstractBuilder<T, B>>
+            extends RequestWithModifier.AbstractBuilder<T, B> {
+
         public B isCaseOf(Reference value) {
             getBuildingInstance().setIsCaseOf(value);
-            return getSelf();
-        }
-
-
-        public B outputModifier(OutputModifier value) {
-            getBuildingInstance().setOutputModifier(value);
             return getSelf();
         }
     }

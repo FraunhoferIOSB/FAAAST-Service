@@ -53,6 +53,8 @@ public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSu
                     && !Objects.equals(valueFromAssetConnection, oldValue)) {
                 submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection);
                 persistence.put(null, reference, submodelElement);
+                // TODO @Jens
+                // better publishValueChangeEventMessage(reference, oldValue, oldValue) ???
                 publishElementUpdateEventMessage(reference, submodelElement);
             }
 
