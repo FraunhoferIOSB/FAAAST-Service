@@ -45,13 +45,14 @@ public class OutputModifier extends QueryModifier {
             return false;
         }
         OutputModifier that = (OutputModifier) o;
-        return content == that.content;
+        return super.equals(that)
+                && content == that.content;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(content);
+        return Objects.hash(super.hashCode(), content);
     }
 
     public static abstract class AbstractBuilder<T extends OutputModifier, B extends AbstractBuilder<T, B>> extends QueryModifier.AbstractBuilder<T, B> {

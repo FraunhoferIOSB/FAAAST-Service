@@ -16,10 +16,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 
 
 public interface ContentDeserializer {
 
-    public DataElementValue read(String raw, String query, TypeContext typeContext) throws AssetConnectionException;
+    public DataElementValue read(String raw, String query, TypeInfo typeInfo) throws AssetConnectionException;
 }

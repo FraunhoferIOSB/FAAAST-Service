@@ -3,6 +3,7 @@
 
 
 <!-- PROJECT LOGO -->
+![FA³ST Service Logo](./documentation/images/Fa3st-Service_positiv.png)
 <br />
 <div align="center">
 
@@ -53,7 +54,7 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-FA³ST Service implements the Asset Administration specification from the Plattform Industrie4.0 and built up an easy-to-use AAS Service based on a custom AAS model instance.
+FA³ST Service implements the Asset Administration specification from the platform Industrie4.0 and built up an easy-to-use AAS Service based on a custom AAS model instance.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -219,7 +220,7 @@ You can automatically format your code by running
 
 > mvn spotless:apply
 
-Additionally, you can import the eclipse formating rules defined in */codestyle* into our IDE.
+Additionally, you can import the eclipse formatting rules defined in */codestyle* into our IDE.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

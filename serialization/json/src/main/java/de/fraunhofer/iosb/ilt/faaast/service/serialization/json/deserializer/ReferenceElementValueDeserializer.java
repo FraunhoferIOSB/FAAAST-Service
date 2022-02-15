@@ -15,10 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer;
 
 import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonFieldNames;
 import io.adminshell.aas.v3.model.KeyElements;
@@ -28,7 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 
-public class ReferenceElementValueDeserializer extends StdDeserializer<ReferenceElementValue> {
+public class ReferenceElementValueDeserializer extends ContextAwareElementValueDeserializer<ReferenceElementValue> {
 
     public ReferenceElementValueDeserializer() {
         this(null);
@@ -41,16 +39,15 @@ public class ReferenceElementValueDeserializer extends StdDeserializer<Reference
 
 
     @Override
-    public ReferenceElementValue deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
-        JsonNode root = parser.readValueAsTree();
-        if (root == null || !root.isArray()) {
+    public ReferenceElementValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
+        if (node == null || !node.isArray()) {
             return null;
         }
         ReferenceElementValue.Builder builder = ReferenceElementValue.builder();
-        if (!root.elements().hasNext()) {
+        if (!node.elements().hasNext()) {
             return builder.build();
         }
-        Iterable<JsonNode> iterable = () -> root.elements();
+        Iterable<JsonNode> iterable = () -> node.elements();
         for (JsonNode element: StreamSupport
                 .stream(iterable.spliterator(), false)
                 .collect(Collectors.toList())) {
@@ -73,7 +70,7 @@ public class ReferenceElementValueDeserializer extends StdDeserializer<Reference
                 builder.key(KeyType.IRI, KeyElements.GLOBAL_REFERENCE, element.textValue());
             }
             else {
-                context.handleUnexpectedToken(ReferenceElementValue.class, parser);
+                context.reportBadDefinition(ReferenceElementValue.class, "unknown format of reference element");
             }
         }
         return builder.build();

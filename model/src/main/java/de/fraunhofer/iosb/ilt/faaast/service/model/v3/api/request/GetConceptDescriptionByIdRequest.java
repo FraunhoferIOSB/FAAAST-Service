@@ -14,35 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetConceptDescriptionByIdResponse;
 import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 /**
  * Chapter 6.4.3
  */
-public class GetConceptDescriptionByIdRequest extends BaseRequest<GetConceptDescriptionByIdResponse> {
-    private OutputModifier outputModifier;
+public class GetConceptDescriptionByIdRequest extends RequestWithModifier<GetConceptDescriptionByIdResponse> {
+
     private Identifier id;
-
-    public GetConceptDescriptionByIdRequest() {
-        this.outputModifier = OutputModifier.DEFAULT;
-    }
-
-
-    public OutputModifier getOutputModifier() {
-        return outputModifier;
-    }
-
-
-    public void setOutputModifier(OutputModifier outputModifier) {
-        this.outputModifier = outputModifier;
-    }
-
 
     public Identifier getId() {
         return id;
@@ -56,19 +38,21 @@ public class GetConceptDescriptionByIdRequest extends BaseRequest<GetConceptDesc
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         GetConceptDescriptionByIdRequest that = (GetConceptDescriptionByIdRequest) o;
-        return Objects.equals(outputModifier, that.outputModifier)
+        return super.equals(that)
                 && Objects.equals(id, that.id);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(outputModifier, id);
+        return Objects.hash(super.hashCode(), id);
     }
 
 
@@ -76,15 +60,10 @@ public class GetConceptDescriptionByIdRequest extends BaseRequest<GetConceptDesc
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public static abstract class AbstractBuilder<T extends GetConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
-
-        public B outputModifier(OutputModifier value) {
-            getBuildingInstance().setOutputModifier(value);
             return getSelf();
         }
     }
