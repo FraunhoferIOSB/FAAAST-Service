@@ -37,7 +37,6 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
-
 public class RequestHandler extends AbstractHandler {
 
     private ServiceContext serviceContext;
@@ -52,7 +51,6 @@ public class RequestHandler extends AbstractHandler {
         this.mappingManager = new RequestMappingManager(serviceContext);
         this.serializer = new HttpJsonSerializer();
     }
-
 
     @Override
     public void handle(String string, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -69,15 +67,13 @@ public class RequestHandler extends AbstractHandler {
         de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request apiRequest = null;
         try {
             apiRequest = mappingManager.map(httpRequest);
-        }
-        catch (InvalidRequestException | IllegalArgumentException ex) {
+        } catch (InvalidRequestException | IllegalArgumentException ex) {
             send(response, HttpStatus.BAD_REQUEST_400, ex.getMessage());
         }
         //TODO more differentiated error codes (must be generated in mappingManager)
         executeAndSend(response, apiRequest);
         baseRequest.setHandled(true);
     }
-
 
     private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request apiRequest) throws IOException {
         // TODO forward output modifier to serializer
@@ -97,43 +93,36 @@ public class RequestHandler extends AbstractHandler {
                     Object payload = ((BaseResponseWithPayload) apiResponse).getPayload();
                     OutputModifier outputModifier = ((RequestWithModifier) apiRequest).getOutputModifier();
                     sendJson(response, statusCode, serializer.write(payload, outputModifier));
-                }
-                else {
+                } else {
                     sendJson(response, statusCode, serializer.write(((BaseResponseWithPayload) apiResponse).getPayload()));
                 }
 
-            }
-            catch (SerializationException ex) {
+            } catch (SerializationException ex) {
                 send(response, HttpStatus.INTERNAL_SERVER_ERROR_500, ex.getMessage());
             }
-        }
-        else {
+        } else {
             send(response, statusCode);
         }
     }
-
 
     private void send(HttpServletResponse response, int statusCode) throws IOException {
         send(response, statusCode, null);
     }
 
-
     private void send(HttpServletResponse response, int statusCode, String content) throws IOException {
         send(response, statusCode, content, "text/plain");
     }
-
 
     private void sendJson(HttpServletResponse response, int statusCode, String content) throws IOException {
         send(response, statusCode, content, "application/json");
     }
 
-
     private void send(HttpServletResponse response, int statusCode, String content, String contentType) throws IOException {
         response.setStatus(statusCode);
         if (content != null) {
-            PrintWriter out = response.getWriter();
             response.setCharacterEncoding("UTF-8");
-            response.setContentType(contentType);
+            response.setContentType(contentType + "; charset=UTF-8");
+            PrintWriter out = response.getWriter();
             out.print(content);
             out.flush();
         }
