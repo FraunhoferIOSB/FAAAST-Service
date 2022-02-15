@@ -22,7 +22,8 @@ import io.adminshell.aas.v3.model.Reference;
 
 public interface ServiceContext {
 
+    public TypeInfo getTypeInfo(Reference reference);
 
-public TypeInfo getTypeInfo(Reference reference);
+
     public Response execute(Request request);
 }

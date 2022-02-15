@@ -130,6 +130,7 @@ public class HttpEndpointTest {
                 null, null);
     }
 
+
     public ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters, String body, String contentType) throws Exception {
         Request request = client.newRequest(HOST, port)
                 .method(method)
