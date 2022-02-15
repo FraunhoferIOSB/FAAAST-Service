@@ -14,8 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
@@ -29,16 +30,16 @@ public class GetAllAssetLinksByIdRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^lookup/shells/(.*)$";
 
+    public GetAllAssetLinksByIdRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
     public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 3) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    GetAllAssetLinksByIdRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        GetAllAssetLinksByIdRequest request = new GetAllAssetLinksByIdRequest();
-        request.setAasIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(2)));
-        return request;
+        return GetAllAssetLinksByIdRequest.builder()
+                .aasIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(2)))
+                .build();
     }
 
 

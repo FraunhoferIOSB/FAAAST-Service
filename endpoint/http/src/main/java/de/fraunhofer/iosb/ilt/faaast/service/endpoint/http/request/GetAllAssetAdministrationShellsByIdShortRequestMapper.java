@@ -14,8 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllAssetAdministrationShellsByIdShortRequest;
@@ -24,19 +25,23 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllAssetAdm
 /**
  * class to map HTTP-Request path: shells
  */
-public class GetAllAssetAdministrationShellsByIdShortRequestMapper extends RequestMapper {
+public class GetAllAssetAdministrationShellsByIdShortRequestMapper extends RequestMapperWithOutputModifier {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^shells$";
     private static final String QUERYPARAM = "idShort";
 
+    public GetAllAssetAdministrationShellsByIdShortRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        GetAllAssetAdministrationShellsByIdShortRequest request = new GetAllAssetAdministrationShellsByIdShortRequest();
-        request.setOutputModifier(new OutputModifier());
-        String idShort = httpRequest.getQueryParameters().get(QUERYPARAM);
-        request.setIdShort(idShort);
-        return request;
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+        return GetAllAssetAdministrationShellsByIdShortRequest.builder()
+                .idShort(httpRequest.getQueryParameters().get(QUERYPARAM))
+                .outputModifier(outputModifier)
+                .build();
     }
 
 

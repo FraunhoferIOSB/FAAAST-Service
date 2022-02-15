@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer;
 
 import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
@@ -40,9 +39,8 @@ public class EntityValueDeserializer extends ContextAwareElementValueDeserialize
 
 
     @Override
-    public EntityValue deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
+    public EntityValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
         EntityValue.Builder builder = new EntityValue.Builder();
-        JsonNode node = parser.readValueAsTree();
         if (node.has(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE)) {
             builder.entityType(EntityType.valueOf(AasUtils.deserializeEnumName(node.get(JsonFieldNames.ENTITY_VALUE_ENTITY_TYPE).asText())));
         }

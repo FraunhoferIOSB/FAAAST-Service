@@ -87,19 +87,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
 
     /**
-     * Sets the given Service. This is the second call.
-     *
-     * @param service The current Service
-     */
-    @Override
-    public void setService(Service service) {
-        this.service = service;
-        this.aasEnvironment = service.getEnvironment();
-        this.messageBus = service.getMessageBus();
-    }
-
-
-    /**
      * Starts the Endpoint. This is the third call.
      */
     @Override

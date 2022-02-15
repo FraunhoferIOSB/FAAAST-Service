@@ -596,8 +596,7 @@ public class PersistenceInMemoryTest {
                         .getValues().stream().filter(z -> z.getIdShort().equalsIgnoreCase(SUBMODEL_ELEMENT_IDSHORT)).findFirst().get();
 
         Assert.assertEquals(expected, actual);
-
-        queryModifier.setExtend(Extend.WithoutBLOBValue);
+        queryModifier = new QueryModifier.Builder().extend(Extend.WithoutBLOBValue).build();
         actual = this.persistence.get(reference, queryModifier);
         expected = null;
 
@@ -620,7 +619,7 @@ public class PersistenceInMemoryTest {
         Submodel actual = (Submodel) this.persistence.get(submodelId, queryModifier);
         Assert.assertEquals(expected, actual);
 
-        queryModifier.setLevel(Level.Core);
+        queryModifier = new QueryModifier.Builder().level(Level.Core).build();
         actual = (Submodel) this.persistence.get(submodelId, queryModifier);
         List<SubmodelElement> submodelElementCollections = actual.getSubmodelElements().stream().filter(x -> SubmodelElementCollection.class.isAssignableFrom(x.getClass()))
                 .collect(Collectors.toList());

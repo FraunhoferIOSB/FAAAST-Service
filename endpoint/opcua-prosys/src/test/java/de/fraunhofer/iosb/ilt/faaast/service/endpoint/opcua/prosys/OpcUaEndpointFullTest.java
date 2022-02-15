@@ -74,7 +74,6 @@ public class OpcUaEndpointFullTest {
         endpoint = new OpcUaEndpoint();
         endpoint.init(coreConfig, config, service);
         service = new TestService(endpoint, true);
-        endpoint.setService(service);
         service.start();
     }
 

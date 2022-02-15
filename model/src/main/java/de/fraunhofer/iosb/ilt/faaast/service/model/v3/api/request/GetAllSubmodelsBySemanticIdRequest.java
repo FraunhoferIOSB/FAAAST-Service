@@ -14,35 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllSubmodelsBySemanticIdResponse;
 import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 /**
  * Chapter 6.3.4
  */
-public class GetAllSubmodelsBySemanticIdRequest extends BaseRequest<GetAllSubmodelsBySemanticIdResponse> {
-    private OutputModifier outputModifier;
+public class GetAllSubmodelsBySemanticIdRequest extends RequestWithModifier<GetAllSubmodelsBySemanticIdResponse> {
+
     private Reference semanticId;
-
-    public GetAllSubmodelsBySemanticIdRequest() {
-        this.outputModifier = OutputModifier.DEFAULT;
-    }
-
-
-    public OutputModifier getOutputModifier() {
-        return outputModifier;
-    }
-
-
-    public void setOutputModifier(OutputModifier outputModifier) {
-        this.outputModifier = outputModifier;
-    }
-
 
     public Reference getSemanticId() {
         return semanticId;
@@ -56,19 +38,21 @@ public class GetAllSubmodelsBySemanticIdRequest extends BaseRequest<GetAllSubmod
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         GetAllSubmodelsBySemanticIdRequest that = (GetAllSubmodelsBySemanticIdRequest) o;
-        return Objects.equals(outputModifier, that.outputModifier)
+        return super.equals(that)
                 && Objects.equals(semanticId, that.semanticId);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(outputModifier, semanticId);
+        return Objects.hash(super.hashCode(), semanticId);
     }
 
 
@@ -76,12 +60,7 @@ public class GetAllSubmodelsBySemanticIdRequest extends BaseRequest<GetAllSubmod
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllSubmodelsBySemanticIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-        public B outputModifier(OutputModifier value) {
-            getBuildingInstance().setOutputModifier(value);
-            return getSelf();
-        }
-
+    public static abstract class AbstractBuilder<T extends GetAllSubmodelsBySemanticIdRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
 
         public B semanticId(Reference value) {
             getBuildingInstance().setSemanticId(value);

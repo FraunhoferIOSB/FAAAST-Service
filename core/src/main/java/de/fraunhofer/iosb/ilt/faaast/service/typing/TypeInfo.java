@@ -14,27 +14,21 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.typing;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 
-public class TypeInfo {
+public abstract class TypeInfo<T> {
 
-    public static Builder builder() {
-        return new Builder();
-    }
+    // ValueTypeInfo | ElementValueTypeInfo
+    // StructuralTypeInfo | CollectionLikeTypeInfo<T>
+    protected Class<?> type;
+    private Map<T, TypeInfo> elements;
 
-    private Datatype datatype;
-    private List<String> idShortPath;
-    private Class<? extends ElementValue> valueType;
-
-    public TypeInfo() {
-        this.idShortPath = new ArrayList<>();
+    protected TypeInfo() {
+        this.elements = new HashMap<>();
     }
 
 
@@ -47,91 +41,53 @@ public class TypeInfo {
             return false;
         }
         TypeInfo that = (TypeInfo) o;
-        return Objects.equals(idShortPath, that.idShortPath)
-                && Objects.equals(valueType, that.valueType)
-                && Objects.equals(datatype, that.datatype);
+        return Objects.equals(elements, that.elements)
+                && Objects.equals(type, that.type);
     }
 
 
-    public Datatype getDatatype() {
-        return datatype;
+    public Class<?> getType() {
+        return type;
     }
 
 
-    public void setDatatype(Datatype datatype) {
-        this.datatype = datatype;
-    }
-
-
-    public List<String> getIdShortPath() {
-        return idShortPath;
-    }
-
-
-    public void setIdShortPath(List<String> idShortPath) {
-        this.idShortPath = idShortPath;
-    }
-
-
-    public Class<? extends ElementValue> getValueType() {
-        return valueType;
-    }
-
-
-    public void setValueType(Class<? extends ElementValue> valueType) {
-        this.valueType = valueType;
+    public void setType(Class<?> type) {
+        this.type = type;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(idShortPath, valueType, datatype);
+        return Objects.hash(elements, type);
     }
 
-    public static abstract class AbstractBuilder<T extends TypeInfo, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public static abstract class AbstractBuilder<P, T extends TypeInfo<P>, B extends AbstractBuilder<P, T, B>> extends ExtendableBuilder<T, B> {
 
-        public B idShortPath(List<String> value) {
-            getBuildingInstance().setIdShortPath(value);
+        public B type(Class<?> value) {
+            getBuildingInstance().setType(value);
             return getSelf();
         }
 
 
-        public B idShortPath(String... value) {
-            getBuildingInstance().setIdShortPath(Arrays.asList(value));
+        public B element(P key, TypeInfo value) {
+            getBuildingInstance().getElements().put(key, value);
             return getSelf();
         }
 
 
-        public B idShortPath(String value) {
-            getBuildingInstance().getIdShortPath().add(value);
-            return getSelf();
-        }
-
-
-        public B datatype(Datatype value) {
-            getBuildingInstance().setDatatype(value);
-            return getSelf();
-        }
-
-
-        public B valueType(Class<? extends ElementValue> value) {
-            getBuildingInstance().setValueType(value);
+        public B elements(Map<P, TypeInfo> value) {
+            getBuildingInstance().setElements(value);
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<TypeInfo, Builder> {
-
-        @Override
-        protected Builder getSelf() {
-            return this;
-        }
+    public Map<T, TypeInfo> getElements() {
+        return elements;
+    }
 
 
-        @Override
-        protected TypeInfo newBuildingInstance() {
-            return new TypeInfo();
-        }
+    public void setElements(Map<T, TypeInfo> elements) {
+        this.elements = elements;
     }
 
 }

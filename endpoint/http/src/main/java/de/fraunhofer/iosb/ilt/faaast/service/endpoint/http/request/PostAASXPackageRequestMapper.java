@@ -14,8 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PostAASXPackageRequest;
 
@@ -28,9 +30,15 @@ public class PostAASXPackageRequestMapper extends RequestMapper {
     private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
     private static final String PATTERN = "^packages$";
 
+    public PostAASXPackageRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
-    public Request parse(HttpRequest httpRequest) {
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
         PostAASXPackageRequest request = new PostAASXPackageRequest();
+        throw new InvalidRequestException("PostAASXPackage currently not supported");
         // TODO: Needs specialy handling in HTTP server because it is 'multipart/form-data'
         // commented out for now
         // aasIds --> Identifier[]
@@ -39,7 +47,7 @@ public class PostAASXPackageRequestMapper extends RequestMapper {
         //        request.setFilename(IdGenerator.parseFilename(httpRequest.getBody()));
         //        request.setFile(IdGenerator.parseFile(httpRequest.getBody()));
         //        request.setAasIds(IdGenerator.parseAssetIds(httpRequest.getBody()));
-        return request;
+        //return request;
     }
 
 

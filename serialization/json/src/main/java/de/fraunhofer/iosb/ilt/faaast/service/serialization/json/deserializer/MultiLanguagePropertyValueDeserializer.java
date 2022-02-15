@@ -15,19 +15,16 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer;
 
 import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePropertyValue;
 import io.adminshell.aas.v3.model.LangString;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
-public class MultiLanguagePropertyValueDeserializer extends StdDeserializer<MultiLanguagePropertyValue> {
+public class MultiLanguagePropertyValueDeserializer extends ContextAwareElementValueDeserializer<MultiLanguagePropertyValue> {
 
     public MultiLanguagePropertyValueDeserializer() {
         this(null);
@@ -40,11 +37,17 @@ public class MultiLanguagePropertyValueDeserializer extends StdDeserializer<Mult
 
 
     @Override
-    public MultiLanguagePropertyValue deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
+    public MultiLanguagePropertyValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
         return MultiLanguagePropertyValue.builder()
-                .values(((Stream<Entry<?, ?>>) parser.readValueAs(Map.class).entrySet().stream())
-                        .map(x -> new LangString(x.getValue().toString(), x.getKey().toString()))
-                        .collect(Collectors.toSet()))
+                .values(((Map<String, String>) context.readTreeAsValue(
+                        node,
+                        context.getTypeFactory().constructMapType(
+                                Map.class,
+                                String.class,
+                                String.class)))
+                                        .entrySet().stream()
+                                        .map(x -> new LangString(x.getValue(), x.getKey()))
+                                        .collect(Collectors.toSet()))
                 .build();
     }
 

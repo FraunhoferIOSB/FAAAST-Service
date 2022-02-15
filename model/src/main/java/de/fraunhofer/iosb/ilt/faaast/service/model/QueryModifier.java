@@ -23,8 +23,8 @@ import java.util.Objects;
 public class QueryModifier {
 
     public static final QueryModifier DEFAULT = new QueryModifier();
-    private Level level;
-    private Extend extend;
+    protected Level level;
+    protected Extend extend;
 
     /**
      * Constructor using enum default values
@@ -40,27 +40,19 @@ public class QueryModifier {
     }
 
 
-    public void setLevel(Level level) {
-        this.level = level;
-    }
-
-
     public Extend getExtend() {
         return extend;
     }
 
 
-    public void setExtend(Extend extend) {
-        this.extend = extend;
-    }
-
-
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         QueryModifier that = (QueryModifier) o;
         return Objects.equals(level, that.level)
                 && Objects.equals(extend, that.extend);
@@ -73,14 +65,15 @@ public class QueryModifier {
     }
 
     public static abstract class AbstractBuilder<T extends QueryModifier, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B level(Level value) {
-            getBuildingInstance().setLevel(value);
+            getBuildingInstance().level = value;
             return getSelf();
         }
 
 
         public B extend(Extend value) {
-            getBuildingInstance().setExtend(value);
+            getBuildingInstance().extend = value;
             return getSelf();
         }
     }

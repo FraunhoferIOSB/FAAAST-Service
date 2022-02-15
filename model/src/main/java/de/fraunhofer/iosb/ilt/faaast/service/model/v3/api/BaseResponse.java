@@ -19,7 +19,13 @@ import java.util.Objects;
 
 
 public abstract class BaseResponse implements Response {
+
     private StatusCode statusCode;
+
+    public BaseResponse() {
+        this.statusCode = StatusCode.ServerInternalError;
+    }
+
 
     public StatusCode getStatusCode() {
         return statusCode;
@@ -33,10 +39,12 @@ public abstract class BaseResponse implements Response {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         BaseResponse that = (BaseResponse) o;
         return statusCode == that.statusCode;
     }
@@ -48,6 +56,7 @@ public abstract class BaseResponse implements Response {
     }
 
     public static abstract class AbstractBuilder<T extends BaseResponse, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B statusCode(StatusCode value) {
             getBuildingInstance().setStatusCode(value);
             return getSelf();
