@@ -132,6 +132,7 @@ public class RequestHandler extends AbstractHandler {
         response.setStatus(statusCode);
         if (content != null) {
             PrintWriter out = response.getWriter();
+            response.setCharacterEncoding("UTF-8");
             response.setContentType(contentType);
             out.print(content);
             out.flush();
