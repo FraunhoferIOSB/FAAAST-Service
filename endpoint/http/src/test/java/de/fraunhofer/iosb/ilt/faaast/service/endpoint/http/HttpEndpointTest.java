@@ -265,7 +265,9 @@ public class HttpEndpointTest {
         ContentResponse response = execute(HttpMethod.GET, "/shells");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         // TODO: server not returning character encoding
-        List<AssetAdministrationShell> actualPayload = deserializer.readList(new String(response.getContent()), AssetAdministrationShell.class);
+        logger.info("http response encoding: ", response.getEncoding());
+        logger.info("http response content: ", new String(response.getContent(), "UTF-8"));
+        List<AssetAdministrationShell> actualPayload = deserializer.readList(new String(response.getContent(), "UTF-8"), AssetAdministrationShell.class);
         Assert.assertEquals(expectedPayload, actualPayload);
     }
 
