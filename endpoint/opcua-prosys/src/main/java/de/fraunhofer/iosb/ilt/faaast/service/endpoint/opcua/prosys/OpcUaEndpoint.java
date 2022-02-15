@@ -85,7 +85,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         currentConfig = config;
     }
 
-
+  
     /**
      * Starts the Endpoint. This is the third call.
      */

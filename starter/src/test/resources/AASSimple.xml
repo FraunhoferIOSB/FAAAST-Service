@@ -1,0 +1,2120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<UANodeSet xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd">
+    <NamespaceUris>
+        <Uri>http://example.org/SerializerTest</Uri>
+        <Uri>http://opcfoundation.org/UA/I4AAS/V3/</Uri>
+    </NamespaceUris>
+    <Models>
+        <Model ModelUri="http://example.org/SerializerTest" Version="1.0.0" PublicationDate="2021-08-10T08:48:22.167518400">
+            <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.04.7" PublicationDate="2020-07-15T00:00:00Z"/>
+            <RequiredModel ModelUri="http://opcfoundation.org/UA/I4AAS/V3/" Version="1.0.0" PublicationDate="2021-06-04T00:00:00Z"/>
+        </Model>
+    </Models>
+    <Aliases>
+        <Alias Alias="Boolean">i=1</Alias>
+        <Alias Alias="String">i=12</Alias>
+        <Alias Alias="DateTime">i=13</Alias>
+        <Alias Alias="ByteString">i=15</Alias>
+        <Alias Alias="LocalizedText">i=21</Alias>
+        <Alias Alias="Organizes">i=35</Alias>
+        <Alias Alias="HasTypeDefinition">i=40</Alias>
+        <Alias Alias="HasProperty">i=46</Alias>
+        <Alias Alias="HasComponent">i=47</Alias>
+        <Alias Alias="HasOrderedComponent">i=49</Alias>
+        <Alias Alias="FolderType">i=61</Alias>
+        <Alias Alias="PropertyType">i=68</Alias>
+        <Alias Alias="IdType">i=256</Alias>
+        <Alias Alias="NumericRange">i=291</Alias>
+        <Alias Alias="HasAddIn">i=17604</Alias>
+        <Alias Alias="HasDictionaryEntry">i=17597</Alias>
+        <Alias Alias="AASAssetAdministrationShellType">ns=2;i=1002</Alias>
+        <Alias Alias="AASReferableType">ns=2;i=1003</Alias>
+        <Alias Alias="AASReferenceType">ns=2;i=1004</Alias>
+        <Alias Alias="AASAssetType">ns=2;i=1005</Alias>
+        <Alias Alias="AASSubmodelType">ns=2;i=1006</Alias>
+        <Alias Alias="AASIdentifiableType">ns=2;i=1007</Alias>
+        <Alias Alias="AASEnvironmentType">ns=2;i=1008</Alias>
+        <Alias Alias="AASSubmodelElementType">ns=2;i=1009</Alias>
+        <Alias Alias="AASSubmodelElementCollectionType">ns=2;i=1010</Alias>
+        <Alias Alias="AASOrderedSubmodelElementCollectionType">ns=2;i=1011</Alias>
+        <Alias Alias="AASMultiLanguagePropertyType">ns=2;i=1012</Alias>
+        <Alias Alias="AASPropertyType">ns=2;i=1013</Alias>
+        <Alias Alias="AASCapabilityType">ns=2;i=1014</Alias>
+        <Alias Alias="AASOperationType">ns=2;i=1015</Alias>
+        <Alias Alias="AASBlobType">ns=2;i=1016</Alias>
+        <Alias Alias="AASFileType">ns=2;i=1017</Alias>
+        <Alias Alias="AASRelationshipElementType">ns=2;i=1018</Alias>
+        <Alias Alias="AASAnnotatedRelationshipElementType">ns=2;i=1019</Alias>
+        <Alias Alias="AASReferenceElementType">ns=2;i=1020</Alias>
+        <Alias Alias="AASEventType">ns=2;i=1021</Alias>
+        <Alias Alias="AASEntityType">ns=2;i=1022</Alias>
+        <Alias Alias="AASRangeType">ns=2;i=1023</Alias>
+        <Alias Alias="AASIrdiConceptDescriptionType">ns=2;i=1024</Alias>
+        <Alias Alias="AASIriConceptDescriptionType">ns=2;i=1025</Alias>
+        <Alias Alias="AASCustomConceptDescriptionType">ns=2;i=1026</Alias>
+        <Alias Alias="AASDataSpecificationType">ns=2;i=1027</Alias>
+        <Alias Alias="AASDataSpecificationIEC61360Type">ns=2;i=1028</Alias>
+        <Alias Alias="AASIdentifierType">ns=2;i=1029</Alias>
+        <Alias Alias="AASAdministrativeInformationType">ns=2;i=1030</Alias>
+        <Alias Alias="AASAssetInformationType">ns=2;i=1031</Alias>
+        <Alias Alias="AASQualifierType">ns=2;i=1032</Alias>
+        <Alias Alias="IAASReferableType">ns=2;i=1033</Alias>
+        <Alias Alias="IAASIdentifiableType">ns=2;i=1034</Alias>
+        <Alias Alias="AASIdentifierKeyValuePairType">ns=2;i=1035</Alias>
+        <Alias Alias="AASReferenceList">ns=2;i=1036</Alias>
+        <Alias Alias="AASQualifierList">ns=2;i=1037</Alias>
+        <Alias Alias="AASSubmodelElementList">ns=2;i=1038</Alias>
+        <Alias Alias="AASIdentifierKeyValuePairList">ns=2;i=1039</Alias>
+        <Alias Alias="AASKeyTypeDataType">ns=2;i=3002</Alias>
+        <Alias Alias="AASAssetKindDataType">ns=2;i=3003</Alias>
+        <Alias Alias="AASValueTypeDataType">ns=2;i=3004</Alias>
+        <Alias Alias="AASPathDataType">ns=2;i=3005</Alias>
+        <Alias Alias="AASEntityTypeDataType">ns=2;i=3006</Alias>
+        <Alias Alias="AASCategoryDataType">ns=2;i=3007</Alias>
+        <Alias Alias="AASDataTypeIEC61360DataType">ns=2;i=3008</Alias>
+        <Alias Alias="AASLevelTypeDataType">ns=2;i=3009</Alias>
+        <Alias Alias="AASIdentifierTypeDataType">ns=2;i=3010</Alias>
+        <Alias Alias="AASKeyDataType">ns=2;i=3011</Alias>
+        <Alias Alias="AASKeyElementsDataType">ns=2;i=3012</Alias>
+        <Alias Alias="AASQualifierDataType">ns=2;i=3013</Alias>
+        <Alias Alias="AASPropertyValueDataType">ns=2;i=3014</Alias>
+        <Alias Alias="AASModelingKindDataType">ns=2;i=3015</Alias>
+        <Alias Alias="AASMimeDataType">ns=2;i=3016</Alias>
+        <Alias Alias="AASKeyDataType_Encoding_DefaultXml">ns=2;i=5039</Alias>
+    </Aliases>
+    <UAObject NodeId="ns=1;i=1" BrowseName="1:AASEnvironment">
+        <DisplayName>AASEnvironment</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1008</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">i=85</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=84</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=108</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=137</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=153</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=2" BrowseName="1:Title">
+        <DisplayName>Title</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1025</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=3</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=4</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=7</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=8</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=16</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">i=17594</Reference>
+            <Reference ReferenceType="HasDictionaryEntry" IsForward="false">ns=1;i=120</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=3" BrowseName="2:Category" ParentNodeId="ns=1;i=2" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=2</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=4" BrowseName="2:Identification" ParentNodeId="ns=1;i=2">
+        <DisplayName>Identification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1029</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=2</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=5</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=5" BrowseName="2:Id" ParentNodeId="ns=1;i=4" DataType="String" AccessLevel="3">
+        <DisplayName>Id</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=4</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">www.vdi2770.com/blatt1/Entwurf/Okt18/cd/Description/Title</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=6" BrowseName="2:IdType" ParentNodeId="ns=1;i=4" DataType="AASIdentifierTypeDataType" AccessLevel="3">
+        <DisplayName>IdType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=4</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=7" BrowseName="2:Administration" ParentNodeId="ns=1;i=2">
+        <DisplayName>Administration</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1030</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=2</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=8" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=2">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=2</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=9</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=9" BrowseName="1:Content_0" ParentNodeId="ns=1;i=8">
+        <DisplayName>Content_0</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1028</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=10</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=11</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=12</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=13</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=14</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=15</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=8</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=10" BrowseName="2:DataTypeIEC61360" ParentNodeId="ns=1;i=9" DataType="AASDataTypeIEC61360DataType" AccessLevel="3">
+        <DisplayName>DataTypeIEC61360</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=9</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">8</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=11" BrowseName="2:SourceOfDefinition" ParentNodeId="ns=1;i=9" DataType="String" AccessLevel="3">
+        <DisplayName>SourceOfDefinition</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=9</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=12" BrowseName="2:Unit" ParentNodeId="ns=1;i=9" DataType="String" AccessLevel="3">
+        <DisplayName>Unit</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=9</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=13" BrowseName="2:Definition" ParentNodeId="ns=1;i=9" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>Definition</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=9</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:LocalizedText>
+                    <uax:Locale>DE</uax:Locale>
+                    <uax:Text>SprachabhängigerTiteldesDokuments.</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=14" BrowseName="2:PreferredName" ParentNodeId="ns=1;i=9" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>PreferredName</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=9</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:LocalizedText>
+                    <uax:Locale>EN</uax:Locale>
+                    <uax:Text>Title</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Locale>DE</uax:Locale>
+                    <uax:Text>Titel</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=15" BrowseName="2:ShortName" ParentNodeId="ns=1;i=9" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>ShortName</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=9</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:LocalizedText>
+                    <uax:Locale>EN</uax:Locale>
+                    <uax:Text>Title</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Locale>DE</uax:Locale>
+                    <uax:Text>Titel</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=16" BrowseName="2:IsCaseOf" ParentNodeId="ns=1;i=2">
+        <DisplayName>IsCaseOf</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=2</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=17" BrowseName="1:DigitalFile">
+        <DisplayName>DigitalFile</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1025</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=18</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=19</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=22</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=23</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=31</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">i=17594</Reference>
+            <Reference ReferenceType="HasDictionaryEntry" IsForward="false">ns=1;i=127</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=18" BrowseName="2:Category" ParentNodeId="ns=1;i=17" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=17</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=19" BrowseName="2:Identification" ParentNodeId="ns=1;i=17">
+        <DisplayName>Identification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1029</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=17</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=20</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=21</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=20" BrowseName="2:Id" ParentNodeId="ns=1;i=19" DataType="String" AccessLevel="3">
+        <DisplayName>Id</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=19</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">www.vdi2770.com/blatt1/Entwurf/Okt18/cd/StoredDocumentRepresentation/DigitalFile</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=21" BrowseName="2:IdType" ParentNodeId="ns=1;i=19" DataType="AASIdentifierTypeDataType" AccessLevel="3">
+        <DisplayName>IdType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=19</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=22" BrowseName="2:Administration" ParentNodeId="ns=1;i=17">
+        <DisplayName>Administration</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1030</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=17</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=23" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=17">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=17</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=24</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=24" BrowseName="1:Content_0" ParentNodeId="ns=1;i=23">
+        <DisplayName>Content_0</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1028</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=25</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=26</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=27</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=28</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=29</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=30</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=23</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=25" BrowseName="2:DataTypeIEC61360" ParentNodeId="ns=1;i=24" DataType="AASDataTypeIEC61360DataType" AccessLevel="3">
+        <DisplayName>DataTypeIEC61360</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=24</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">7</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=26" BrowseName="2:SourceOfDefinition" ParentNodeId="ns=1;i=24" DataType="String" AccessLevel="3">
+        <DisplayName>SourceOfDefinition</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=24</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=27" BrowseName="2:Unit" ParentNodeId="ns=1;i=24" DataType="String" AccessLevel="3">
+        <DisplayName>Unit</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=24</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=28" BrowseName="2:Definition" ParentNodeId="ns=1;i=24" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>Definition</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=24</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:LocalizedText>
+                    <uax:Locale>DE</uax:Locale>
+                    <uax:Text>Eine Datei, die die Document Version repräsentiert. Neben der obligatorischen PDF Datei können weitere Dateien angegeben werden.</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=29" BrowseName="2:PreferredName" ParentNodeId="ns=1;i=24" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>PreferredName</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=24</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:LocalizedText>
+                    <uax:Locale>EN</uax:Locale>
+                    <uax:Text>DigitalFile</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Locale>DE</uax:Locale>
+                    <uax:Text>DigitaleDatei</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=30" BrowseName="2:ShortName" ParentNodeId="ns=1;i=24" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>ShortName</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=24</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:LocalizedText>
+                    <uax:Locale>EN</uax:Locale>
+                    <uax:Text>DigitalFile</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Locale>DE</uax:Locale>
+                    <uax:Text>DigitaleDatei</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=31" BrowseName="2:IsCaseOf" ParentNodeId="ns=1;i=17">
+        <DisplayName>IsCaseOf</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=17</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=32" BrowseName="1:MaxRotationSpeed">
+        <DisplayName>MaxRotationSpeed</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1024</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=33</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=34</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=37</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=41</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=51</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">i=17594</Reference>
+            <Reference ReferenceType="HasDictionaryEntry" IsForward="false">ns=1;i=99</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=33" BrowseName="2:Category" ParentNodeId="ns=1;i=32" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=32</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">PROPERTY</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=34" BrowseName="2:Identification" ParentNodeId="ns=1;i=32">
+        <DisplayName>Identification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1029</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=32</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=35</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=36</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=35" BrowseName="2:Id" ParentNodeId="ns=1;i=34" DataType="String" AccessLevel="3">
+        <DisplayName>Id</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=34</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">0173-1#02-BAA120#008</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=36" BrowseName="2:IdType" ParentNodeId="ns=1;i=34" DataType="AASIdentifierTypeDataType" AccessLevel="3">
+        <DisplayName>IdType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=34</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">0</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=37" BrowseName="2:Administration" ParentNodeId="ns=1;i=32">
+        <DisplayName>Administration</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1030</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=38</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=39</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=40</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=32</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=38" BrowseName="2:Revision" ParentNodeId="ns=1;i=37" DataType="String" AccessLevel="3">
+        <DisplayName>Revision</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=37</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">2</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=39" BrowseName="2:Version" ParentNodeId="ns=1;i=37" DataType="String" AccessLevel="3">
+        <DisplayName>Version</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=37</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=40" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=37">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=37</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=41" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=32">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=32</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=42</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=42" BrowseName="1:Content_0" ParentNodeId="ns=1;i=41">
+        <DisplayName>Content_0</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1028</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=43</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=44</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=45</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=46</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=48</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=49</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=50</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=41</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=43" BrowseName="2:DataTypeIEC61360" ParentNodeId="ns=1;i=42" DataType="AASDataTypeIEC61360DataType" AccessLevel="3">
+        <DisplayName>DataTypeIEC61360</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=42</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">6</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=44" BrowseName="2:SourceOfDefinition" ParentNodeId="ns=1;i=42" DataType="String" AccessLevel="3">
+        <DisplayName>SourceOfDefinition</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=42</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=45" BrowseName="2:Unit" ParentNodeId="ns=1;i=42" DataType="String" AccessLevel="3">
+        <DisplayName>Unit</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=42</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1/min</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=46" BrowseName="2:UnitId" ParentNodeId="ns=1;i=42">
+        <DisplayName>UnitId</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1004</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=47</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=42</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=47" BrowseName="2:Keys" ParentNodeId="ns=1;i=46" DataType="AASKeyDataType" ValueRank="1" ArrayDimensions="0" AccessLevel="3">
+        <DisplayName>Keys</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=46</Reference>
+        </References>
+        <Value>
+            <uax:ListOfExtensionObject xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>ns=2;i=5039</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <ns0:AASKeyDataType xmlns:ns0="http://opcfoundation.org/UA/I4AAS/V3/Types.xsd">
+                            <ns0:Type>GlobalReference_13</ns0:Type>
+                            <ns0:Value>0173-1#05-AAA650#002</ns0:Value>
+                            <ns0:IdType>IRDI_3</ns0:IdType>
+                        </ns0:AASKeyDataType>
+                    </uax:Body>
+                </uax:ExtensionObject>
+            </uax:ListOfExtensionObject>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=48" BrowseName="2:Definition" ParentNodeId="ns=1;i=42" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>Definition</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=42</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:LocalizedText>
+                    <uax:Locale>de</uax:Locale>
+                    <uax:Text>HöchstezulässigeDrehzahl,mitwelcherderMotoroderdieSpeiseinheitbetriebenwerdendarf</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Locale>en</uax:Locale>
+                    <uax:Text>Greatestpermissiblerotationspeedwithwhichthemotororfeedingunitmaybeoperated</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=49" BrowseName="2:PreferredName" ParentNodeId="ns=1;i=42" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>PreferredName</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=42</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:LocalizedText>
+                    <uax:Locale>de</uax:Locale>
+                    <uax:Text>max.Drehzahl</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Locale>en</uax:Locale>
+                    <uax:Text>Max.rotationspeed</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=50" BrowseName="2:ShortName" ParentNodeId="ns=1;i=42" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>ShortName</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=42</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd"/>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=51" BrowseName="2:IsCaseOf" ParentNodeId="ns=1;i=32">
+        <DisplayName>IsCaseOf</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=32</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=52" BrowseName="1:RotationSpeed">
+        <DisplayName>RotationSpeed</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1025</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=53</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=54</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=57</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=58</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=68</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">i=17594</Reference>
+            <Reference ReferenceType="HasDictionaryEntry" IsForward="false">ns=1;i=144</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=53" BrowseName="2:Category" ParentNodeId="ns=1;i=52" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=52</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">PROPERTY</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=54" BrowseName="2:Identification" ParentNodeId="ns=1;i=52">
+        <DisplayName>Identification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1029</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=52</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=55</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=56</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=55" BrowseName="2:Id" ParentNodeId="ns=1;i=54" DataType="String" AccessLevel="3">
+        <DisplayName>Id</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=54</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">http://customer.com/cd/1/1/18EBD56F6B43D895</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=56" BrowseName="2:IdType" ParentNodeId="ns=1;i=54" DataType="AASIdentifierTypeDataType" AccessLevel="3">
+        <DisplayName>IdType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=54</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=57" BrowseName="2:Administration" ParentNodeId="ns=1;i=52">
+        <DisplayName>Administration</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1030</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=52</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=58" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=52">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=52</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=59</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=59" BrowseName="1:Content_0" ParentNodeId="ns=1;i=58">
+        <DisplayName>Content_0</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1028</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=61</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=62</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=63</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=65</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=66</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=67</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=58</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=60" BrowseName="2:DataTypeIEC61360" ParentNodeId="ns=1;i=59" DataType="AASDataTypeIEC61360DataType" AccessLevel="3">
+        <DisplayName>DataTypeIEC61360</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=59</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">6</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=61" BrowseName="2:SourceOfDefinition" ParentNodeId="ns=1;i=59" DataType="String" AccessLevel="3">
+        <DisplayName>SourceOfDefinition</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=59</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=62" BrowseName="2:Unit" ParentNodeId="ns=1;i=59" DataType="String" AccessLevel="3">
+        <DisplayName>Unit</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=59</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1/min</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=63" BrowseName="2:UnitId" ParentNodeId="ns=1;i=59">
+        <DisplayName>UnitId</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1004</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=64</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=59</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=64" BrowseName="2:Keys" ParentNodeId="ns=1;i=63" DataType="AASKeyDataType" ValueRank="1" ArrayDimensions="0" AccessLevel="3">
+        <DisplayName>Keys</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=63</Reference>
+        </References>
+        <Value>
+            <uax:ListOfExtensionObject xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>ns=2;i=5039</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <ns0:AASKeyDataType xmlns:ns0="http://opcfoundation.org/UA/I4AAS/V3/Types.xsd">
+                            <ns0:Type>GlobalReference_13</ns0:Type>
+                            <ns0:Value>0173-1#05-AAA650#002</ns0:Value>
+                            <ns0:IdType>IRDI_3</ns0:IdType>
+                        </ns0:AASKeyDataType>
+                    </uax:Body>
+                </uax:ExtensionObject>
+            </uax:ListOfExtensionObject>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=65" BrowseName="2:Definition" ParentNodeId="ns=1;i=59" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>Definition</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=59</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:LocalizedText>
+                    <uax:Locale>DE</uax:Locale>
+                    <uax:Text>Aktuelle Drehzahl, mitwelcher der Motor oder die Speiseinheit betrieben wird</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Locale>EN</uax:Locale>
+                    <uax:Text>Actual rotationspeed with which the motor or feedingunit is operated</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=66" BrowseName="2:PreferredName" ParentNodeId="ns=1;i=59" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>PreferredName</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=59</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:LocalizedText>
+                    <uax:Locale>DE</uax:Locale>
+                    <uax:Text>AktuelleDrehzahl</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Locale>EN</uax:Locale>
+                    <uax:Text>Actualrotationspeed</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=67" BrowseName="2:ShortName" ParentNodeId="ns=1;i=59" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>ShortName</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=59</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:LocalizedText>
+                    <uax:Locale>DE</uax:Locale>
+                    <uax:Text>AktuelleDrehzahl</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Locale>EN</uax:Locale>
+                    <uax:Text>ActualRotationSpeed</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=68" BrowseName="2:IsCaseOf" ParentNodeId="ns=1;i=52">
+        <DisplayName>IsCaseOf</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=52</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=69" BrowseName="1:Document">
+        <DisplayName>Document</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1025</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=70</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=71</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=74</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=75</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=83</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">i=17594</Reference>
+            <Reference ReferenceType="HasDictionaryEntry" IsForward="false">ns=1;i=115</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=70" BrowseName="2:Category" ParentNodeId="ns=1;i=69" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=69</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=71" BrowseName="2:Identification" ParentNodeId="ns=1;i=69">
+        <DisplayName>Identification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1029</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=69</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=72</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=73</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=72" BrowseName="2:Id" ParentNodeId="ns=1;i=71" DataType="String" AccessLevel="3">
+        <DisplayName>Id</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=71</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">www.vdi2770.com/blatt1/Entwurf/Okt18/cd/Document</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=73" BrowseName="2:IdType" ParentNodeId="ns=1;i=71" DataType="AASIdentifierTypeDataType" AccessLevel="3">
+        <DisplayName>IdType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=71</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=74" BrowseName="2:Administration" ParentNodeId="ns=1;i=69">
+        <DisplayName>Administration</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1030</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=69</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=75" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=69">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=69</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=76</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=76" BrowseName="1:Content_0" ParentNodeId="ns=1;i=75">
+        <DisplayName>Content_0</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1028</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=77</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=78</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=79</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=80</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=81</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=82</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=75</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=77" BrowseName="2:DataTypeIEC61360" ParentNodeId="ns=1;i=76" DataType="AASDataTypeIEC61360DataType" AccessLevel="3">
+        <DisplayName>DataTypeIEC61360</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=76</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">7</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=78" BrowseName="2:SourceOfDefinition" ParentNodeId="ns=1;i=76" DataType="String" AccessLevel="3">
+        <DisplayName>SourceOfDefinition</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=76</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">[ISO15519-1:2010]</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=79" BrowseName="2:Unit" ParentNodeId="ns=1;i=76" DataType="String" AccessLevel="3">
+        <DisplayName>Unit</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=76</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=80" BrowseName="2:Definition" ParentNodeId="ns=1;i=76" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>Definition</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=76</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:LocalizedText>
+                    <uax:Locale>DE</uax:Locale>
+                    <uax:Text>Feste und geordnete Menge von für die Verwendung durch Personen bestimmte Informationen, die verwaltet und als Einheit zwischen Benutzern und System ausgetauscht werden kann.</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=81" BrowseName="2:PreferredName" ParentNodeId="ns=1;i=76" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>PreferredName</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=76</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd"/>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=82" BrowseName="2:ShortName" ParentNodeId="ns=1;i=76" DataType="LocalizedText" ValueRank="1" AccessLevel="3">
+        <DisplayName>ShortName</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=76</Reference>
+        </References>
+        <Value>
+            <uax:ListOfLocalizedText xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:LocalizedText>
+                    <uax:Locale>EN</uax:Locale>
+                    <uax:Text>Document</uax:Text>
+                </uax:LocalizedText>
+                <uax:LocalizedText>
+                    <uax:Locale>DE</uax:Locale>
+                    <uax:Text>Dokument</uax:Text>
+                </uax:LocalizedText>
+            </uax:ListOfLocalizedText>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=83" BrowseName="2:IsCaseOf" ParentNodeId="ns=1;i=69">
+        <DisplayName>IsCaseOf</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=69</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=84" BrowseName="1:TechnicalData" ParentNodeId="ns=1;i=1">
+        <DisplayName>Submodel:TechnicalData</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1006</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=85</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=86</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=89</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=90</Reference>
+            <Reference ReferenceType="HasDictionaryEntry">ns=1;i=91</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=99</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=106</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=107</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1</Reference>
+            <Reference ReferenceType="HasAddIn" IsForward="false">ns=1;i=183</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=85" BrowseName="2:Category" ParentNodeId="ns=1;i=84" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=84</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=86" BrowseName="2:Identification" ParentNodeId="ns=1;i=84">
+        <DisplayName>Identification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1029</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=84</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=87</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=88</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=87" BrowseName="2:Id" ParentNodeId="ns=1;i=86" DataType="String" AccessLevel="3">
+        <DisplayName>Id</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=86</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">http://i40.customer.com/type/1/1/7A7104BDAB57E184</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=88" BrowseName="2:IdType" ParentNodeId="ns=1;i=86" DataType="AASIdentifierTypeDataType" AccessLevel="3">
+        <DisplayName>IdType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=86</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=89" BrowseName="2:Administration" ParentNodeId="ns=1;i=84">
+        <DisplayName>Administration</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1030</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=84</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=90" BrowseName="2:ModelingKind" ParentNodeId="ns=1;i=84" DataType="AASModelingKindDataType" AccessLevel="3">
+        <DisplayName>ModelingKind</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=84</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=91" BrowseName="1:0173-1#01-AFZ615#016">
+        <DisplayName>0173-1#01-AFZ615#016</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1024</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=92</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=93</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=96</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=97</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=98</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">i=17594</Reference>
+            <Reference ReferenceType="HasDictionaryEntry" IsForward="false">ns=1;i=84</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=92" BrowseName="2:Category" ParentNodeId="ns=1;i=91" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=91</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=93" BrowseName="2:Identification" ParentNodeId="ns=1;i=91">
+        <DisplayName>Identification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1029</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=91</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=94</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=95</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=94" BrowseName="2:Id" ParentNodeId="ns=1;i=93" DataType="String" AccessLevel="3">
+        <DisplayName>Id</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=93</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">0173-1#01-AFZ615#016</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=95" BrowseName="2:IdType" ParentNodeId="ns=1;i=93" DataType="AASIdentifierTypeDataType" AccessLevel="3">
+        <DisplayName>IdType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=93</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">0</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=96" BrowseName="2:Administration" ParentNodeId="ns=1;i=91">
+        <DisplayName>Administration</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1030</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=91</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=97" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=91">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=91</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=98" BrowseName="2:IsCaseOf" ParentNodeId="ns=1;i=91">
+        <DisplayName>IsCaseOf</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=91</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=99" BrowseName="1:MaxRotationSpeed" ParentNodeId="ns=1;i=84">
+        <DisplayName>MaxRotationSpeed</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1013</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=100</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=101</Reference>
+            <Reference ReferenceType="HasDictionaryEntry">ns=1;i=32</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=102</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=103</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=104</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=105</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=84</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=100" BrowseName="2:Category" ParentNodeId="ns=1;i=99" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=99</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">Parameter</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=101" BrowseName="2:ModelingKind" ParentNodeId="ns=1;i=99" DataType="AASModelingKindDataType" AccessLevel="3">
+        <DisplayName>ModelingKind</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=99</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=102" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=99">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=99</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=103" BrowseName="2:Qualifier" ParentNodeId="ns=1;i=99">
+        <DisplayName>Qualifier</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1037</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=99</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=104" BrowseName="2:ValueType" ParentNodeId="ns=1;i=99" DataType="AASValueTypeDataType" AccessLevel="3">
+        <DisplayName>ValueType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=99</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">5</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=105" BrowseName="2:Value" ParentNodeId="ns=1;i=99" DataType="String" AccessLevel="3">
+        <DisplayName>Value</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=99</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">5000</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=106" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=84">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=84</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=107" BrowseName="2:Qualifier" ParentNodeId="ns=1;i=84">
+        <DisplayName>Qualifier</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1037</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=84</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=108" BrowseName="1:Documentation" ParentNodeId="ns=1;i=1">
+        <DisplayName>Submodel:Documentation</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1006</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=109</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=110</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=113</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=114</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=115</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=135</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=136</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1</Reference>
+            <Reference ReferenceType="HasAddIn" IsForward="false">ns=1;i=187</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=109" BrowseName="2:Category" ParentNodeId="ns=1;i=108" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=108</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=110" BrowseName="2:Identification" ParentNodeId="ns=1;i=108">
+        <DisplayName>Identification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1029</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=108</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=111</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=112</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=111" BrowseName="2:Id" ParentNodeId="ns=1;i=110" DataType="String" AccessLevel="3">
+        <DisplayName>Id</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=110</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">http://i40.customer.com/type/1/1/1A7B62B529F19152</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=112" BrowseName="2:IdType" ParentNodeId="ns=1;i=110" DataType="AASIdentifierTypeDataType" AccessLevel="3">
+        <DisplayName>IdType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=110</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=113" BrowseName="2:Administration" ParentNodeId="ns=1;i=108">
+        <DisplayName>Administration</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1030</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=108</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=114" BrowseName="2:ModelingKind" ParentNodeId="ns=1;i=108" DataType="AASModelingKindDataType" AccessLevel="3">
+        <DisplayName>ModelingKind</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=108</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=115" BrowseName="1:OperatingManual" ParentNodeId="ns=1;i=108">
+        <DisplayName>OperatingManual</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1010</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=116</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=117</Reference>
+            <Reference ReferenceType="HasDictionaryEntry">ns=1;i=69</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=118</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=119</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=120</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=127</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=134</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=108</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=116" BrowseName="2:Category" ParentNodeId="ns=1;i=115" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=115</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=117" BrowseName="2:ModelingKind" ParentNodeId="ns=1;i=115" DataType="AASModelingKindDataType" AccessLevel="3">
+        <DisplayName>ModelingKind</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=115</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=118" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=115">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=115</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=119" BrowseName="2:Qualifier" ParentNodeId="ns=1;i=115">
+        <DisplayName>Qualifier</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1037</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=115</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=120" BrowseName="1:Title" ParentNodeId="ns=1;i=115">
+        <DisplayName>Title</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1013</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=121</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=122</Reference>
+            <Reference ReferenceType="HasDictionaryEntry">ns=1;i=2</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=123</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=124</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=125</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=126</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=115</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=121" BrowseName="2:Category" ParentNodeId="ns=1;i=120" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=120</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=122" BrowseName="2:ModelingKind" ParentNodeId="ns=1;i=120" DataType="AASModelingKindDataType" AccessLevel="3">
+        <DisplayName>ModelingKind</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=120</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=123" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=120">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=120</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=124" BrowseName="2:Qualifier" ParentNodeId="ns=1;i=120">
+        <DisplayName>Qualifier</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1037</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=120</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=125" BrowseName="2:ValueType" ParentNodeId="ns=1;i=120" DataType="AASValueTypeDataType" AccessLevel="3">
+        <DisplayName>ValueType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=120</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">14</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=126" BrowseName="2:Value" ParentNodeId="ns=1;i=120" DataType="String" AccessLevel="3">
+        <DisplayName>Value</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=120</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">OperatingManual</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=127" BrowseName="1:DigitalFile_PDF" ParentNodeId="ns=1;i=115">
+        <DisplayName>DigitalFile_PDF</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1017</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=128</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=129</Reference>
+            <Reference ReferenceType="HasDictionaryEntry">ns=1;i=17</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=130</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=131</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=132</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=133</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=115</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=128" BrowseName="2:Category" ParentNodeId="ns=1;i=127" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=127</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=129" BrowseName="2:ModelingKind" ParentNodeId="ns=1;i=127" DataType="AASModelingKindDataType" AccessLevel="3">
+        <DisplayName>ModelingKind</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=127</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=130" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=127">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=127</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=131" BrowseName="2:Qualifier" ParentNodeId="ns=1;i=127">
+        <DisplayName>Qualifier</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1037</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=127</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=132" BrowseName="2:MimeType" ParentNodeId="ns=1;i=127" DataType="AASMimeDataType" AccessLevel="3">
+        <DisplayName>MimeType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=127</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">application/pdf</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=133" BrowseName="2:Value" ParentNodeId="ns=1;i=127" DataType="AASPathDataType" AccessLevel="3">
+        <DisplayName>Value</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=127</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">/aasx/OperatingManual.pdf</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=134" BrowseName="2:AllowDuplicates" ParentNodeId="ns=1;i=115" DataType="Boolean" AccessLevel="3">
+        <DisplayName>AllowDuplicates</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=115</Reference>
+        </References>
+        <Value>
+            <ns0:Boolean xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">false</ns0:Boolean>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=135" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=108">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=108</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=136" BrowseName="2:Qualifier" ParentNodeId="ns=1;i=108">
+        <DisplayName>Qualifier</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1037</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=108</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=137" BrowseName="1:OperationalData" ParentNodeId="ns=1;i=1">
+        <DisplayName>Submodel:OperationalData</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1006</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=138</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=139</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=142</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=143</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=144</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=151</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=152</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1</Reference>
+            <Reference ReferenceType="HasAddIn" IsForward="false">ns=1;i=185</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=138" BrowseName="2:Category" ParentNodeId="ns=1;i=137" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=137</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=139" BrowseName="2:Identification" ParentNodeId="ns=1;i=137">
+        <DisplayName>Identification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1029</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=137</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=140</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=141</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=140" BrowseName="2:Id" ParentNodeId="ns=1;i=139" DataType="String" AccessLevel="3">
+        <DisplayName>Id</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=139</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">http://i40.customer.com/instance/1/1/AC69B1CB44F07935</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=141" BrowseName="2:IdType" ParentNodeId="ns=1;i=139" DataType="AASIdentifierTypeDataType" AccessLevel="3">
+        <DisplayName>IdType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=139</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=142" BrowseName="2:Administration" ParentNodeId="ns=1;i=137">
+        <DisplayName>Administration</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1030</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=137</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=143" BrowseName="2:ModelingKind" ParentNodeId="ns=1;i=137" DataType="AASModelingKindDataType" AccessLevel="3">
+        <DisplayName>ModelingKind</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=137</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=144" BrowseName="1:RotationSpeed" ParentNodeId="ns=1;i=137">
+        <DisplayName>RotationSpeed</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1013</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=145</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=146</Reference>
+            <Reference ReferenceType="HasDictionaryEntry">ns=1;i=52</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=147</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=148</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=149</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=150</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=137</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=145" BrowseName="2:Category" ParentNodeId="ns=1;i=144" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=144</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">VARIABLE</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=146" BrowseName="2:ModelingKind" ParentNodeId="ns=1;i=144" DataType="AASModelingKindDataType" AccessLevel="3">
+        <DisplayName>ModelingKind</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=144</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=147" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=144">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=144</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=148" BrowseName="2:Qualifier" ParentNodeId="ns=1;i=144">
+        <DisplayName>Qualifier</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1037</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=144</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=149" BrowseName="2:ValueType" ParentNodeId="ns=1;i=144" DataType="AASValueTypeDataType" AccessLevel="3">
+        <DisplayName>ValueType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=144</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">5</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=150" BrowseName="2:Value" ParentNodeId="ns=1;i=144" DataType="String" AccessLevel="3">
+        <DisplayName>Value</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=144</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">4370</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=151" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=137">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=137</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=152" BrowseName="2:Qualifier" ParentNodeId="ns=1;i=137">
+        <DisplayName>Qualifier</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1037</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=137</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=153" BrowseName="1:ExampleMotor" ParentNodeId="ns=1;i=1">
+        <DisplayName>AAS:ExampleMotor</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1002</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=154</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=155</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=158</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=159</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=182</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=189</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=154" BrowseName="2:Category" ParentNodeId="ns=1;i=153" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=153</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=155" BrowseName="2:Identification" ParentNodeId="ns=1;i=153">
+        <DisplayName>Identification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1029</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=153</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=156</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=157</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=156" BrowseName="2:Id" ParentNodeId="ns=1;i=155" DataType="String" AccessLevel="3">
+        <DisplayName>Id</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=155</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">http://customer.com/aas/9175_7013_7091_9168</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=157" BrowseName="2:IdType" ParentNodeId="ns=1;i=155" DataType="AASIdentifierTypeDataType" AccessLevel="3">
+        <DisplayName>IdType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=155</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=158" BrowseName="2:Administration" ParentNodeId="ns=1;i=153">
+        <DisplayName>Administration</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1030</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=153</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=159" BrowseName="2:AssetInformation" ParentNodeId="ns=1;i=153">
+        <DisplayName>AssetInformation</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1031</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=160</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=161</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=163</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=164</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=171</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=153</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=160" BrowseName="2:AssetKind" ParentNodeId="ns=1;i=159" DataType="AASAssetKindDataType" AccessLevel="3">
+        <DisplayName>AssetKind</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=159</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=161" BrowseName="2:GlobalAssetId" ParentNodeId="ns=1;i=159">
+        <DisplayName>GlobalAssetId</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1004</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=162</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=159</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=162" BrowseName="2:Keys" ParentNodeId="ns=1;i=161" DataType="AASKeyDataType" ValueRank="1" ArrayDimensions="0" AccessLevel="3">
+        <DisplayName>Keys</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=161</Reference>
+        </References>
+        <Value>
+            <uax:ListOfExtensionObject xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>ns=2;i=5039</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <ns0:AASKeyDataType xmlns:ns0="http://opcfoundation.org/UA/I4AAS/V3/Types.xsd">
+                            <ns0:Type>Asset_2</ns0:Type>
+                            <ns0:Value>http://customer.com/assets/KHBVZJSQKIY</ns0:Value>
+                            <ns0:IdType>IRI_4</ns0:IdType>
+                        </ns0:AASKeyDataType>
+                    </uax:Body>
+                </uax:ExtensionObject>
+            </uax:ListOfExtensionObject>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=163" BrowseName="2:BillOfMaterial" ParentNodeId="ns=1;i=159">
+        <DisplayName>BillOfMaterial</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=159</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=164" BrowseName="2:DefaultThumbnail" ParentNodeId="ns=1;i=159">
+        <DisplayName>DefaultThumbnail</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1017</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=165</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=166</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=167</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=168</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=169</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=170</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=159</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=165" BrowseName="2:Category" ParentNodeId="ns=1;i=164" DataType="String" AccessLevel="3">
+        <DisplayName>Category</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=164</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd"></ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=166" BrowseName="2:ModelingKind" ParentNodeId="ns=1;i=164" DataType="AASModelingKindDataType" AccessLevel="3">
+        <DisplayName>ModelingKind</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=164</Reference>
+        </References>
+        <Value>
+            <ns0:Int32 xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">1</ns0:Int32>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=167" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=164">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=164</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=168" BrowseName="2:Qualifier" ParentNodeId="ns=1;i=164">
+        <DisplayName>Qualifier</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1037</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=164</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=169" BrowseName="2:MimeType" ParentNodeId="ns=1;i=164" DataType="AASMimeDataType" AccessLevel="3">
+        <DisplayName>MimeType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=164</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">image/png</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=170" BrowseName="2:Value" ParentNodeId="ns=1;i=164" DataType="AASPathDataType" AccessLevel="3">
+        <DisplayName>Value</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=164</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">https://github.com/admin-shell/io/blob/master/verwaltungsschale-detail-part1.png</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=171" BrowseName="2:SpecificAssetId" ParentNodeId="ns=1;i=159">
+        <DisplayName>SpecificAssetId</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1039</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=159</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=172</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=177</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=172" BrowseName="1:EquipmentID" ParentNodeId="ns=1;i=171">
+        <DisplayName>EquipmentID</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1035</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=173</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=175</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=176</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=171</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=173" BrowseName="2:ExternalSubjectId" ParentNodeId="ns=1;i=172">
+        <DisplayName>ExternalSubjectId</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1004</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=174</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=172</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=174" BrowseName="2:Keys" ParentNodeId="ns=1;i=173" DataType="AASKeyDataType" ValueRank="1" ArrayDimensions="0" AccessLevel="3">
+        <DisplayName>Keys</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=173</Reference>
+        </References>
+        <Value>
+            <uax:ListOfExtensionObject xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>ns=2;i=5039</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <ns0:AASKeyDataType xmlns:ns0="http://opcfoundation.org/UA/I4AAS/V3/Types.xsd">
+                            <ns0:Type>GlobalReference_13</ns0:Type>
+                            <ns0:Value>http://customer.com/Systems/ERP/012</ns0:Value>
+                            <ns0:IdType>IRI_4</ns0:IdType>
+                        </ns0:AASKeyDataType>
+                    </uax:Body>
+                </uax:ExtensionObject>
+            </uax:ListOfExtensionObject>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=175" BrowseName="2:Key" ParentNodeId="ns=1;i=172" DataType="String" AccessLevel="3">
+        <DisplayName>Key</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=172</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">EquipmentID</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=176" BrowseName="2:Value" ParentNodeId="ns=1;i=172" DataType="String" AccessLevel="3">
+        <DisplayName>Value</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=172</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">538fd1b3-f99f-4a52-9c75-72e9fa921270</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=177" BrowseName="1:DeviceID" ParentNodeId="ns=1;i=171">
+        <DisplayName>DeviceID</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1035</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=178</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=180</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=181</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=171</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=178" BrowseName="2:ExternalSubjectId" ParentNodeId="ns=1;i=177">
+        <DisplayName>ExternalSubjectId</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1004</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=179</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=177</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=179" BrowseName="2:Keys" ParentNodeId="ns=1;i=178" DataType="AASKeyDataType" ValueRank="1" ArrayDimensions="0" AccessLevel="3">
+        <DisplayName>Keys</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=178</Reference>
+        </References>
+        <Value>
+            <uax:ListOfExtensionObject xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>ns=2;i=5039</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <ns0:AASKeyDataType xmlns:ns0="http://opcfoundation.org/UA/I4AAS/V3/Types.xsd">
+                            <ns0:Type>GlobalReference_13</ns0:Type>
+                            <ns0:Value>http://customer.com/Systems/IoT/1</ns0:Value>
+                            <ns0:IdType>IRI_4</ns0:IdType>
+                        </ns0:AASKeyDataType>
+                    </uax:Body>
+                </uax:ExtensionObject>
+            </uax:ListOfExtensionObject>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=180" BrowseName="2:Key" ParentNodeId="ns=1;i=177" DataType="String" AccessLevel="3">
+        <DisplayName>Key</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=177</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">DeviceID</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAVariable NodeId="ns=1;i=181" BrowseName="2:Value" ParentNodeId="ns=1;i=177" DataType="String" AccessLevel="3">
+        <DisplayName>Value</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=177</Reference>
+        </References>
+        <Value>
+            <ns0:String xmlns:ns0="http://opcfoundation.org/UA/2008/02/Types.xsd">QjYgPggjwkiHk4RrQiYSLg==</ns0:String>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=182" BrowseName="2:Submodel" ParentNodeId="ns=1;i=153">
+        <DisplayName>Submodel</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=153</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=183</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=185</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=187</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=183" BrowseName="2:Submodel:http://i40.customer.com/type/1/1/7A7104BDAB57E184" ParentNodeId="ns=1;i=182">
+        <DisplayName>Submodel:http://i40.customer.com/type/1/1/7A7104BDAB57E184</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1004</Reference>
+            <Reference ReferenceType="HasAddIn">ns=1;i=84</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=184</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=182</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=184" BrowseName="2:Keys" ParentNodeId="ns=1;i=183" DataType="AASKeyDataType" ValueRank="1" ArrayDimensions="0" AccessLevel="3">
+        <DisplayName>Keys</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=183</Reference>
+        </References>
+        <Value>
+            <uax:ListOfExtensionObject xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>ns=2;i=5039</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <ns0:AASKeyDataType xmlns:ns0="http://opcfoundation.org/UA/I4AAS/V3/Types.xsd">
+                            <ns0:Type>Submodel_20</ns0:Type>
+                            <ns0:Value>http://i40.customer.com/type/1/1/7A7104BDAB57E184</ns0:Value>
+                            <ns0:IdType>IRI_4</ns0:IdType>
+                        </ns0:AASKeyDataType>
+                    </uax:Body>
+                </uax:ExtensionObject>
+            </uax:ListOfExtensionObject>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=185" BrowseName="2:Submodel:http://i40.customer.com/instance/1/1/AC69B1CB44F07935" ParentNodeId="ns=1;i=182">
+        <DisplayName>Submodel:http://i40.customer.com/instance/1/1/AC69B1CB44F07935</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1004</Reference>
+            <Reference ReferenceType="HasAddIn">ns=1;i=137</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=186</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=182</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=186" BrowseName="2:Keys" ParentNodeId="ns=1;i=185" DataType="AASKeyDataType" ValueRank="1" ArrayDimensions="0" AccessLevel="3">
+        <DisplayName>Keys</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=185</Reference>
+        </References>
+        <Value>
+            <uax:ListOfExtensionObject xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>ns=2;i=5039</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <ns0:AASKeyDataType xmlns:ns0="http://opcfoundation.org/UA/I4AAS/V3/Types.xsd">
+                            <ns0:Type>Submodel_20</ns0:Type>
+                            <ns0:Value>http://i40.customer.com/instance/1/1/AC69B1CB44F07935</ns0:Value>
+                            <ns0:IdType>IRI_4</ns0:IdType>
+                        </ns0:AASKeyDataType>
+                    </uax:Body>
+                </uax:ExtensionObject>
+            </uax:ListOfExtensionObject>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=187" BrowseName="2:Submodel:http://i40.customer.com/type/1/1/1A7B62B529F19152" ParentNodeId="ns=1;i=182">
+        <DisplayName>Submodel:http://i40.customer.com/type/1/1/1A7B62B529F19152</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1004</Reference>
+            <Reference ReferenceType="HasAddIn">ns=1;i=108</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=188</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=182</Reference>
+        </References>
+    </UAObject>
+    <UAVariable NodeId="ns=1;i=188" BrowseName="2:Keys" ParentNodeId="ns=1;i=187" DataType="AASKeyDataType" ValueRank="1" ArrayDimensions="0" AccessLevel="3">
+        <DisplayName>Keys</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=187</Reference>
+        </References>
+        <Value>
+            <uax:ListOfExtensionObject xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>ns=2;i=5039</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <ns0:AASKeyDataType xmlns:ns0="http://opcfoundation.org/UA/I4AAS/V3/Types.xsd">
+                            <ns0:Type>Submodel_20</ns0:Type>
+                            <ns0:Value>http://i40.customer.com/type/1/1/1A7B62B529F19152</ns0:Value>
+                            <ns0:IdType>IRI_4</ns0:IdType>
+                        </ns0:AASKeyDataType>
+                    </uax:Body>
+                </uax:ExtensionObject>
+            </uax:ListOfExtensionObject>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=189" BrowseName="2:DataSpecification" ParentNodeId="ns=1;i=153">
+        <DisplayName>DataSpecification</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=2;i=1036</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=153</Reference>
+        </References>
+    </UAObject>
+</UANodeSet>

@@ -24,3 +24,5 @@ target/
 /endpoint/opcua-prosys/PKI
 **/documentation/third_party_licenses
 !/documentation/third_party_licenses
+
+*.log
