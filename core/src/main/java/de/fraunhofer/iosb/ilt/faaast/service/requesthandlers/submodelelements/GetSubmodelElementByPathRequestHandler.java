@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Objects;
 
@@ -41,7 +42,7 @@ public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSu
     public GetSubmodelElementByPathResponse process(GetSubmodelElementByPathRequest request) {
         GetSubmodelElementByPathResponse response = new GetSubmodelElementByPathResponse();
         try {
-            Reference reference = Util.toReference(request.getPath());
+            Reference reference = Util.toReference(request.getPath(), request.getId(), Submodel.class);
             SubmodelElement submodelElement = persistence.get(reference, request.getOutputModifier());
             ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
 

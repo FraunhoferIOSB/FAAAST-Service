@@ -27,6 +27,7 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,28 @@ import java.util.stream.Collectors;
 public class Util {
 
     public static Reference toReference(List<Key> keys) {
+        return new DefaultReference.Builder()
+                .keys(keys)
+                .build();
+    }
+
+
+    public static Reference toReference(List<Key> keys, Identifier parentId, Class<?> parentClass) {
+        Reference parentReference = toReference(parentId, parentClass);
+        Reference childReference = new DefaultReference.Builder()
+                .keys(keys)
+                .build();
+        return toReference(parentReference, childReference);
+    }
+
+
+    public static Reference toReference(Reference parentReference, Reference childReference) {
+        List<Key> keys = new ArrayList<>(parentReference.getKeys());
+        childReference.getKeys().forEach(x -> {
+            if (!keys.contains(x)) {
+                keys.add(x);
+            }
+        });
         return new DefaultReference.Builder()
                 .keys(keys)
                 .build();

@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.Submodel;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -48,7 +49,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
 
     @Override
     public InvokeOperationSyncResponse process(InvokeOperationSyncRequest request) {
-        Reference reference = Util.toReference(request.getPath());
+        Reference reference = Util.toReference(request.getPath(), request.getId(), Submodel.class);
         InvokeOperationSyncResponse response = new InvokeOperationSyncResponse();
         try {
             //Check if submodelelement does exist
