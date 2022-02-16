@@ -25,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 public class OpcUaEndpointConfig extends EndpointConfig {
 
     private int tcpPort;
-    private int httpsPort;
     private int secondsTillShutdown;
 
     /**
@@ -45,26 +44,6 @@ public class OpcUaEndpointConfig extends EndpointConfig {
      */
     public void setTcpPort(int tcpPort) {
         this.tcpPort = tcpPort;
-    }
-
-
-    /**
-     * Gets the desired port for the HTTPS Endpoint
-     *
-     * @return The desired port for the HTTPS Endpoint
-     */
-    public int getHttpsPort() {
-        return httpsPort;
-    }
-
-
-    /**
-     * Sets the given port for the HTTPS Endpoint.
-     *
-     * @param httpsPort The desired port for the HTTPS Endpoint
-     */
-    public void setHttpsPort(int httpsPort) {
-        this.httpsPort = httpsPort;
     }
 
 

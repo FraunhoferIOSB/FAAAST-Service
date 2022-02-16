@@ -122,7 +122,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         }
 
         try {
-            server = new Server(currentConfig.getTcpPort(), aasEnvironment, this, currentConfig.getHttpsPort());
+            server = new Server(currentConfig.getTcpPort(), aasEnvironment, this);
             server.startup();
             logger.info("server started");
         }

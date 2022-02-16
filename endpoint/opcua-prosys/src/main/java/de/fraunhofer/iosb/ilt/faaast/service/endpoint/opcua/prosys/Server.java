@@ -59,7 +59,6 @@ public class Server {
     private static final int CERT_KEY_SIZE = 2048;
 
     private final int tcpPort;
-    private final int httpsPort;
     private final AssetAdministrationShellEnvironment aasEnvironment;
     private final OpcUaEndpoint endpoint;
 
@@ -77,13 +76,11 @@ public class Server {
      * @param portTcp The desired port for the opc.tcp endpoint
      * @param environment The AAS environment
      * @param endpoint the associated endpoint
-     * @param portHttps The desired port for the Https endpoint
      */
-    public Server(int portTcp, AssetAdministrationShellEnvironment environment, OpcUaEndpoint endpoint, int portHttps) {
+    public Server(int portTcp, AssetAdministrationShellEnvironment environment, OpcUaEndpoint endpoint) {
         this.tcpPort = portTcp;
         this.aasEnvironment = environment;
         this.endpoint = endpoint;
-        this.httpsPort = portHttps;
     }
 
 
@@ -140,8 +137,8 @@ public class Server {
             // *** Server Endpoints
             // TCP Port number for the UA TCP protocol
             server.setPort(Protocol.OpcTcp, tcpPort);
-            // TCP Port for the HTTPS protocol
-            server.setPort(Protocol.OpcHttps, httpsPort);
+            // TCP Port for the HTTPS protocol - currently disabled
+            //server.setPort(Protocol.OpcHttps, httpsPort);
 
             // optional server name part of the URI (default for all protocols)
             //server.setServerName("OPCUA/" + applicationName);
