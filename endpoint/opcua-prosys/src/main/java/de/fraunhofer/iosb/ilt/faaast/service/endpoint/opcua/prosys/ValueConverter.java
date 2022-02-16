@@ -71,198 +71,6 @@ public class ValueConverter {
      */
     public ValueConverter() {}
 
-    //    /**
-    //     * Converts a value from the OPC UA type (DataValue) to its corresponding AAS Service Type (ValueDataType)
-    //     * @param dv The OPC UA value to convert
-    //     * @param valueType The desired AAS Service data type for the destination type
-    //     * @return The converted AAS Service type
-    //     * @throws IOException I/O exception
-    //     * @throws DatatypeConfigurationException Indicates a serious configuration error.
-    //     */
-    //    public static ValueDataType convertToValueType(DataValue dv, DataTypeDef valueType) throws IOException, DatatypeConfigurationException {
-    //        ValueDataType retval = null;
-    //        
-    //        try {
-    //            switch(valueType) {
-    //                case AnyURI:
-    //                    retval = valueType.create(dv.getValue().toString());
-    //                    break;
-    //            
-    //                case Base64Binary:
-    //                    retval = valueType.create(dv.getValue().toString());
-    //                    break;
-    //
-    //                case Boolean:
-    //                    retval = valueType.create(dv.getValue().toString());
-    //                    break;
-    //
-    //                case Date:
-    //                    if (dv.getValue().getValue() instanceof DateTime) {
-    //                        DateTime dt = (DateTime)dv.getValue().getValue();
-    //                        retval = new DateValue(DatatypeFactory.newInstance().newXMLGregorianCalendar(dt.getUtcCalendar()));
-    //                    }
-    //                    else {
-    //                        logger.warn("convertToValueType (Date): cannot convert value to DateTime. Try default handler.");
-    //                        retval = valueType.create(dv.getValue().toString());
-    //                    }
-    //                    break;
-    //
-    //                case Decimal:
-    //                    retval = valueType.create(dv.getValue().toString());
-    //                    break;
-    //            
-    //                case Integer:
-    //                    retval = valueType.create(dv.getValue().toString());
-    //                    break;
-    //
-    //                case Int:
-    //                    retval = valueType.create(dv.getValue().toString());
-    //                    break;
-    //
-    //                case Long:
-    //                    retval = valueType.create(dv.getValue().toString());
-    //                    break;
-    //
-    //                case Short:
-    //                    retval = valueType.create(dv.getValue().toString());
-    //                    break;
-    //
-    //                case Byte:
-    //                    retval = valueType.create(dv.getValue().toString());
-    //                    break;
-    //
-    //                case Double:
-    //                    retval = new DoubleValue(dv.getValue().doubleValue());
-    //                    break;
-    //
-    //                case Float:
-    //                    retval = new FloatValue(dv.getValue().floatValue());
-    //                    break;
-    //            
-    //                case QName:
-    //                    retval = valueType.create(dv.getValue().toString());
-    //                    break;
-    //
-    //                case String:
-    //                    retval = valueType.create(dv.getValue().toString());
-    //                    break;
-    //
-    //                case Time:
-    //                    if (dv.getValue().getValue() instanceof DateTime) {
-    //                        DateTime dt = (DateTime)dv.getValue().getValue();
-    //                        retval = new TimeValue(DatatypeFactory.newInstance().newXMLGregorianCalendar(dt.getUtcCalendar()));
-    //                    }
-    //                    else {
-    //                        logger.warn("convertToValueType (Time): cannot convert value to DateTime. Try default handler.");
-    //                        retval = valueType.create(dv.getValue().toString());
-    //                    }
-    //                    break;
-    //                    
-    //                case Duration:
-    //                    retval = valueType.create(dv.getValue().toString());
-    //                    break;
-    //                    
-    //                default:
-    //                    logger.warn("convertToValueType: unknown type: " + valueType);
-    //                    throw new IllegalArgumentException("unknown type: " + valueType);
-    //            }
-    //        }
-    //        catch (Throwable ex) {
-    //            logger.error("convertToValueType Exception", ex);
-    //            throw ex;
-    //        }
-    //        
-    //        return retval;
-    //    }
-    //    
-    //    /**
-    //     * Converts a value from the AAS Service Type (ValueDataType) to its corresponding OPC UA type 
-    //     * @param val The AAS source value
-    //     * @param valueType The desired AAS Service data type 
-    //     * @return The converted OPC UA value
-    //     */
-    //    public static Object convertToOpcUAType(ValueDataType val, DataTypeDef valueType) {
-    //        Object retval = null;
-    //        
-    //        try {
-    //            switch(valueType) {
-    //                case AnyURI:
-    //                    retval = ((AnyUri)val).getValue().toString();
-    //                    break;
-    //
-    //                case Base64Binary:
-    //                    retval = ((Base64Binary)val).getValue();
-    //                    break;
-    //
-    //                case Boolean:
-    //                    retval = ((BooleanValue)val).getValue();
-    //                    break;
-    //
-    //                case Date:
-    //                    retval = new DateTime(((DateValue)val).getValue().toGregorianCalendar());
-    //                    break;
-    //
-    //                case Decimal:
-    //                    retval = ((DecimalValue)val).getValue().longValue();
-    //                    break;
-    //
-    //                case Integer:
-    //                    retval = ((IntegerValue)val).getValue().longValue();
-    //                    break;
-    //                    
-    //                case Int:
-    //                    retval = ((IntValue)val).getValue();
-    //                    break;
-    //
-    //                case Long:
-    //                    retval = ((LongValue)val).getValue();
-    //                    break;
-    //
-    //                case Short:
-    //                    retval = ((ShortValue)val).getValue();
-    //                    break;
-    //
-    //                case Byte:
-    //                    retval = ((ByteValue)val).getValue();
-    //                    break;
-    //
-    //                case Double:
-    //                    retval = ((DoubleValue)val).getValue();
-    //                    break;
-    //
-    //                case Float:
-    //                    retval = ((FloatValue)val).getValue();
-    //                    break;
-    //
-    //                case QName:
-    //                    retval = ((QNameValue)val).getValue().toString();
-    //                    break;
-    //
-    //                case String:
-    //                    retval = ((StringValue)val).getValue();
-    //                    break;
-    //
-    //                case Time:
-    //                    retval = new DateTime(((TimeValue)val).getValue().toGregorianCalendar());
-    //                    break;
-    //
-    //                case Duration:
-    //                    retval = ((DurationValue)val).getValue().toString();
-    //                    break;
-    //                    
-    //                default:
-    //                    logger.warn("convertToOpcUAType: unknown type: " + valueType);
-    //                    throw new IllegalArgumentException("unknown type: " + valueType);
-    //            }
-    //        }
-    //        catch (Throwable ex) {
-    //            logger.error("convertToOpcUAType Exception", ex);
-    //            throw ex;
-    //        }
-    //        
-    //        return retval;
-    //    }
-
 
     /**
      * Converts the AAS DataTypeDef into the corresponding OPC UA type (NodeId)
@@ -275,10 +83,6 @@ public class ValueConverter {
 
         try {
             switch (valueType.toLowerCase()) {
-                //                    case AnyURI:
-                //                        retval = Identifiers.String;
-                //                        break;
-
                 case "bytestring":
                     retval = Identifiers.ByteString;
                     break;
@@ -350,10 +154,6 @@ public class ValueConverter {
                 case "time":
                     retval = Identifiers.UtcTime;
                     break;
-
-                //                    case Duration:
-                //                        retval = Identifiers.String;
-                //                        break;
                 default:
                     logger.warn("convertValueTypeStringToNodeId: Unknown type: " + valueType);
                     retval = NodeId.NULL;
@@ -869,10 +669,6 @@ public class ValueConverter {
                 case AnnotatedRelationshipElement:
                     retval = KeyElements.ANNOTATED_RELATIONSHIP_ELEMENT;
                     break;
-
-                //                case BASIC_EVENT:
-                //                    logger.warn("getKeyElementsDataTypeFromKeyElements: BASIC_EVENT not available in KeyElements");
-                //                    throw new IllegalArgumentException("BASIC_EVENT not available in KeyElements");
 
                 case Blob:
                     retval = KeyElements.BLOB;
