@@ -195,17 +195,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private AASEnvironmentType aasEnvironmentNode;
 
-    //    /**
-    //     * Maps AAS Submodel Element references to the corresponding submodel
-    //     * reference
-    //     */
-    //    private final Map<Reference, Reference> submodelElementRefMap;
-
-    //    /**
-    //     * Lock for the submodelElementRefMap
-    //     */
-    //    private final ReentrantLock submodelElementRefMapLock;
-
     /**
      * Maps NodeIds to AAS Data (e.g. Properties and operations)
      */
@@ -275,8 +264,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
         endpoint = ep;
         dictionaryMap = new HashMap<>();
-        //submodelElementRefMap = new HashMap<>();
-        //submodelElementRefMapLock = new ReentrantLock();
         submodelElementAasMapLock = new ReentrantLock();
         submodelElementAasMap = new HashMap<>();
         submodelElementOpcUAMap = new HashMap<>();
