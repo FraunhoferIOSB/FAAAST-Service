@@ -748,7 +748,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Creates a reference for the given ConceptDescription.
      *
-     * @param submodel The desired submodel
+     * @param submodel The desired ConceptDescription
      * @return The created reference
      */
     private Reference getReference(ConceptDescription cd) {
