@@ -199,7 +199,7 @@ public class AASFull {
 
     public static AssetAdministrationShell createAAS4() {
         return new DefaultAssetAdministrationShell.Builder()
-                .idShort("TestAssetAdministrationShell")
+                .idShort("TestAssetAdministrationShell4")
                 .description(new LangString("An Example Asset Administration Shell for the test application", "en-us"))
                 .description(new LangString("Ein Beispiel-Verwaltungsschale für eine Test-Anwendung", "de"))
                 .identification(new DefaultIdentifier.Builder()
@@ -273,6 +273,7 @@ public class AASFull {
                         .description(new LangString(
                                 "Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das 'Inverkehrbringen' im eigenen Namen verantwortlich ist",
                                 "de"))
+                        .kind(ModelingKind.INSTANCE)
                         .semanticId(new DefaultReference.Builder()
                                 .key(new DefaultKey.Builder()
                                         .type(KeyElements.GLOBAL_REFERENCE)
@@ -440,12 +441,12 @@ public class AASFull {
 
     public static Submodel createSubmodel3() {
         return new DefaultSubmodel.Builder()
-                .idShort("TestSubmodel")
+                .idShort("TestSubmodel3")
                 .description(new LangString("An example submodel for the test application", "en-us"))
                 .description(new LangString("Ein Beispiel-Teilmodell für eine Test-Anwendung", "de"))
                 .identification(new DefaultIdentifier.Builder()
                         .idType(IdentifierType.IRI)
-                        .identifier("https://acplt.org/Test_Submodel")
+                        .identifier("https://acplt.org/Test_Submodel3")
                         .build())
                 .administration(new DefaultAdministrativeInformation.Builder()
                         .version("0.9")
@@ -962,8 +963,8 @@ public class AASFull {
                         .value(new DefaultRange.Builder()
                                 .idShort("ExampleRange")
                                 .valueType("int")
-                                .min(null)
-                                .max(null)
+                                .min("1")
+                                .max("500")
                                 .build())
                         .ordered(true)
                         .build())
@@ -1005,7 +1006,7 @@ public class AASFull {
 
     public static Submodel createSubmodel6() {
         return new DefaultSubmodel.Builder()
-                .idShort("TestSubmodel")
+                .idShort("TestSubmodel6")
                 .description(new LangString("An example submodel for the test application", "en-us"))
                 .description(new LangString("Ein Beispiel-Teilmodell für eine Test-Anwendung", "de"))
                 .identification(new DefaultIdentifier.Builder()
@@ -1388,7 +1389,7 @@ public class AASFull {
 
     public static Submodel createSubmodel7() {
         return new DefaultSubmodel.Builder()
-                .idShort("TestSubmodel")
+                .idShort("TestSubmodel7")
                 .description(new LangString("An example submodel for the test application", "en-us"))
                 .description(new LangString("Ein Beispiel-Teilmodell für eine Test-Anwendung", "de"))
                 .identification(new DefaultIdentifier.Builder()

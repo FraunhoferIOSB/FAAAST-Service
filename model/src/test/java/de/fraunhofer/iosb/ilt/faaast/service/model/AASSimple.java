@@ -20,6 +20,7 @@ import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.AssetKind;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.DataTypeIEC61360;
+import io.adminshell.aas.v3.model.EntityType;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
@@ -31,18 +32,24 @@ import io.adminshell.aas.v3.model.impl.DefaultAsset;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultAssetInformation;
+import io.adminshell.aas.v3.model.impl.DefaultBlob;
 import io.adminshell.aas.v3.model.impl.DefaultConceptDescription;
 import io.adminshell.aas.v3.model.impl.DefaultDataSpecificationIEC61360;
 import io.adminshell.aas.v3.model.impl.DefaultEmbeddedDataSpecification;
+import io.adminshell.aas.v3.model.impl.DefaultEntity;
 import io.adminshell.aas.v3.model.impl.DefaultFile;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.impl.DefaultMultiLanguageProperty;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import io.adminshell.aas.v3.model.impl.DefaultRange;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import io.adminshell.aas.v3.model.impl.DefaultReferenceElement;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.util.Arrays;
+import java.util.Base64;
 
 
 public class AASSimple {
@@ -90,6 +97,8 @@ public class AASSimple {
     // AAS
     public static final String AAS_ID = "ExampleMotor";
     public static final String AAS_IDENTIFIER = "http://customer.com/aas/9175_7013_7091_9168";
+    public static final String AAS_VERSION = "1";
+    public static final String AAS_REVISION = "2";
 
     // SUBMODEL_TECHNICAL_DATA
     public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_ID_SHORT = MAX_ROTATION_SPEED;
@@ -99,7 +108,10 @@ public class AASSimple {
     public static final String SUBMODEL_TECHNICAL_DATA_SEMANTIC_ID_PROPERTY = _0173_1_02_BAA120_008;
     public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_CATEGORY = "Parameter";
     public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUE = "5000";
-    public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUETYPE = "integer";
+    public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUETYPE = "int";
+    public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY2_ID_SHORT = "DecimalProperty";
+    public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY2_VALUE = "123456";
+    public static final String SUBMODEL_TECHNICAL_DATA_PROPERTY2_VALUETYPE = "decimal";
 
     // SUBMODEL_DOCUMENTATION
     private static final String SUBMODEL_DOCUMENTATION_ID_SHORT = "Documentation";
@@ -114,15 +126,19 @@ public class AASSimple {
     private static final String SUBMODEL_DOCUMENTATION_FILE_ID_SHORT = "DigitalFile_PDF";
     private static final String SUBMODEL_DOCUMENTATION_FILE_MIMETYPE = "application/pdf";
     private static final String SUBMODEL_DOCUMENTATION_FILE_VALUE = "/aasx/OperatingManual.pdf";
+    public static final String SUBMODEL_DOCUMENTATION_VERSION = "11";
+    public static final String SUBMODEL_DOCUMENTATION_REVISION = "159";
 
     // SUBMODEL_OPERATIONAL_DATA
+    public static final String SUBMODEL_OPERATIONAL_DATA_ID = "http://i40.customer.com/instance/1/1/AC69B1CB44F07935";
     private static final String SUBMODEL_OPERATIONAL_DATA_ID_SHORT = "OperationalData";
-    private static final String SUBMODEL_OPERATIONAL_DATA_ID = "http://i40.customer.com/instance/1/1/AC69B1CB44F07935";
     private static final String SUBMODEL_OPERATIONAL_DATA_SEMANTIC_ID_PROPERTY = HTTP_CUSTOMER_COM_CD_1_1_18EBD56F6B43D895;
     private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_ID_SHORT = ROTATION_SPEED;
     private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_CATEGORY = "Variable";
     private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_VALUE = "4370";
-    private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_VALUETYPE = "integer";
+    private static final String SUBMODEL_OPERATIONAL_DATA_PROPERTY_VALUETYPE = "int";
+    private static final String SUBMODEL_OPERATIONAL_DATA_ENTITY_NAME = "ExampleEntity";
+    private static final String SUBMODEL_OPERATIONAL_DATA_ENTITY_PROPERTY_NAME = "ExampleProperty";
 
     public AASSimple() {}
 
@@ -146,6 +162,10 @@ public class AASSimple {
                                 .idType(IdentifierType.IRI)
                                 .identifier(AAS_IDENTIFIER)
                                 .build())
+                .administration(new DefaultAdministrativeInformation.Builder()
+                        .version(AAS_VERSION)
+                        .revision(AAS_REVISION)
+                        .build())
                 .assetInformation(new DefaultAssetInformation.Builder()
                         .assetKind(AssetKind.INSTANCE)
                         .globalAssetId(new DefaultReference.Builder()
@@ -247,6 +267,13 @@ public class AASSimple {
                         .value(SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUE)
                         .valueType(SUBMODEL_TECHNICAL_DATA_PROPERTY_VALUETYPE)
                         .build())
+                .submodelElement(new DefaultProperty.Builder()
+                        .kind(ModelingKind.INSTANCE)
+                        .idShort(SUBMODEL_TECHNICAL_DATA_PROPERTY2_ID_SHORT)
+                        .category(SUBMODEL_TECHNICAL_DATA_PROPERTY_CATEGORY)
+                        .value(SUBMODEL_TECHNICAL_DATA_PROPERTY2_VALUE)
+                        .valueType(SUBMODEL_TECHNICAL_DATA_PROPERTY2_VALUETYPE)
+                        .build())
                 .build();
     }
 
@@ -273,6 +300,145 @@ public class AASSimple {
                         .value(SUBMODEL_OPERATIONAL_DATA_PROPERTY_VALUE)
                         .valueType(SUBMODEL_OPERATIONAL_DATA_PROPERTY_VALUETYPE)
                         .build())
+                .submodelElement(new DefaultProperty.Builder()
+                        .kind(ModelingKind.INSTANCE)
+                        .semanticId(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.CONCEPT_DESCRIPTION)
+                                        .value(SUBMODEL_OPERATIONAL_DATA_SEMANTIC_ID_PROPERTY)
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .build())
+                        .idShort("TestProperty")
+                        .category(SUBMODEL_OPERATIONAL_DATA_PROPERTY_CATEGORY)
+                        .value("50")
+                        .valueType("int")
+                        .build())
+                .submodelElement(new DefaultRange.Builder()
+                        .idShort("TestRange")
+                        .kind(ModelingKind.INSTANCE)
+                        .category("Parameter")
+                        .description(new LangString("Example Range object", "en-us"))
+                        .description(new LangString("Beispiel Range Element", "de"))
+                        .semanticId(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.GLOBAL_REFERENCE)
+                                        .value("http://acplt.org/Ranges/ExampleRange")
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .build())
+                        .valueType("int")
+                        .min("0")
+                        .max("100")
+                        .build())
+                .submodelElement(new DefaultBlob.Builder()
+                        .idShort("ExampleBlob")
+                        .category("Parameter")
+                        .description(new LangString("Example Blob object", "en-us"))
+                        .description(new LangString("Beispiel Blob Element", "de"))
+                        .semanticId(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder().type(KeyElements.GLOBAL_REFERENCE)
+                                        .value("http://acplt.org/Blobs/ExampleBlob")
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .build())
+                        .mimeType("application/pdf")
+                        .value(Base64.getDecoder().decode("AQIDBAU="))
+                        .build())
+                .submodelElement(new DefaultMultiLanguageProperty.Builder()
+                        .idShort("ExampleMultiLanguageProperty")
+                        .category("Constant")
+                        .description(new LangString("Example MultiLanguageProperty object", "en-us"))
+                        .description(new LangString("Beispiel MulitLanguageProperty Element", "de"))
+                        .semanticId(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.GLOBAL_REFERENCE)
+                                        .value("http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty")
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .build())
+                        .value(new LangString("Example value of a MultiLanguageProperty element", "en-us"))
+                        .value(new LangString("Beispielswert für ein MulitLanguageProperty-Element", "de"))
+                        .build())
+                .submodelElement(new DefaultReferenceElement.Builder()
+                        .idShort("ExampleReferenceElement")
+                        .category("Parameter")
+                        .description(new LangString("Example Reference Element object", "en-us"))
+                        .description(new LangString("Beispiel Reference Element Element", "de"))
+                        .value(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.SUBMODEL)
+                                        .value(SUBMODEL_TECHNICAL_DATA_ID)
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.PROPERTY)
+                                        .idType(KeyType.ID_SHORT)
+                                        .value(SUBMODEL_TECHNICAL_DATA_PROPERTY_ID_SHORT)
+                                        .build())
+                                .build())
+                        .build())
+                .submodelElement(new DefaultEntity.Builder()
+                        .idShort(SUBMODEL_OPERATIONAL_DATA_ENTITY_NAME)
+                        .description(new LangString(
+                                "Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.",
+                                "en-us"))
+                        .description(new LangString(
+                                "Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das 'Inverkehrbringen' im eigenen Namen verantwortlich ist",
+                                "de"))
+                        .semanticId(new DefaultReference.Builder()
+                                .key(new DefaultKey.Builder()
+                                        .type(KeyElements.GLOBAL_REFERENCE)
+                                        .value("http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber")
+                                        .idType(KeyType.IRI)
+                                        .build())
+                                .build())
+                        .statement(new DefaultProperty.Builder()
+                                .idShort("ExampleProperty2")
+                                .category("Constant")
+                                .description(new LangString("Example Property object", "en-us"))
+                                .description(new LangString("Beispiel Property Element", "de"))
+                                .semanticId(new DefaultReference.Builder()
+                                        .key(new DefaultKey.Builder()
+                                                .type(KeyElements.GLOBAL_REFERENCE)
+                                                .value("http://acplt.org/Properties/ExampleProperty")
+                                                .idType(KeyType.IRI)
+                                                .build())
+                                        .build())
+                                .value("http://acplt.org/ValueId/ExampleValue2")
+                                .valueId(new DefaultReference.Builder()
+                                        .key(new DefaultKey.Builder()
+                                                .type(KeyElements.GLOBAL_REFERENCE)
+                                                .idType(KeyType.IRI)
+                                                .value("http://acplt.org/ValueId/ExampleValue2")
+                                                .build())
+                                        .build())
+                                .valueType("string")
+                                .build())
+                        .statement(new DefaultProperty.Builder()
+                                .idShort(SUBMODEL_OPERATIONAL_DATA_ENTITY_PROPERTY_NAME)
+                                .category("Constant")
+                                .description(new LangString("Example Property object", "en-us"))
+                                .description(new LangString("Beispiel Property Element", "de"))
+                                .semanticId(new DefaultReference.Builder()
+                                        .key(new DefaultKey.Builder()
+                                                .type(KeyElements.GLOBAL_REFERENCE)
+                                                .value("http://acplt.org/Properties/ExampleProperty")
+                                                .idType(KeyType.IRI)
+                                                .build())
+                                        .build())
+                                .value("http://acplt.org/ValueId/ExampleValueId")
+                                .valueId(new DefaultReference.Builder()
+                                        .key(new DefaultKey.Builder()
+                                                .type(KeyElements.GLOBAL_REFERENCE)
+                                                .idType(KeyType.IRI)
+                                                .value("http://acplt.org/ValueId/ExampleValueId")
+                                                .build())
+                                        .build())
+                                .valueType("string")
+                                .build())
+                        .entityType(EntityType.CO_MANAGED_ENTITY)
+                        .build())
                 .build();
     }
 
@@ -284,6 +450,10 @@ public class AASSimple {
                 .identification(new DefaultIdentifier.Builder()
                         .identifier(SUBMODEL_DOCUMENTATION_ID)
                         .idType(IdentifierType.IRI)
+                        .build())
+                .administration(new DefaultAdministrativeInformation.Builder()
+                        .version(SUBMODEL_DOCUMENTATION_VERSION)
+                        .revision(SUBMODEL_DOCUMENTATION_REVISION)
                         .build())
                 .submodelElement(new DefaultSubmodelElementCollection.Builder()
                         .kind(ModelingKind.INSTANCE)

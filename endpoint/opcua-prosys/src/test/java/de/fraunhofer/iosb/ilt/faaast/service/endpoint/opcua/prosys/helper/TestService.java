@@ -20,6 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal;
+import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.AASSimple;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory;
 import java.util.List;
 
@@ -30,12 +32,6 @@ import java.util.List;
  * @author Tino Bischoff
  */
 public class TestService extends Service {
-
-    //private static final Logger logger = LoggerFactory.getLogger(TestService.class);
-
-    //private final boolean useFullExample;
-
-    //private MessageBusInternal messageBus;
 
     /**
      * Creates a new instance of TestService
@@ -54,6 +50,5 @@ public class TestService extends Service {
                 new MessageBusInternal(),
                 List.of(endpoint),
                 assetConnection != null ? List.of(assetConnection) : null);
-        //useFullExample = full;
     }
 }

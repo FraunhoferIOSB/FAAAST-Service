@@ -957,8 +957,10 @@ public class OpcUaEndpointTest {
      * @throws AddressSpaceException If the operation fails
      * @throws StatusException If the operation fails
      * @throws ServiceResultException If the operation fails
+     * @throws InterruptedException Id a wait was interrupted
      */
-    private void testSubmodelDoc(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
+    private void testSubmodelDoc(UaClient client, NodeId submodelNode)
+            throws ServiceException, AddressSpaceException, StatusException, ServiceResultException, InterruptedException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestDefines.SUBMODEL_DOC_NODE_NAME);
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestDefines.AAS_SUBMODEL_TYPE_ID));
 
@@ -1053,8 +1055,9 @@ public class OpcUaEndpointTest {
      * @throws AddressSpaceException If the operation fails
      * @throws StatusException If the operation fails
      * @throws ServiceResultException If the operation fails
+     * @throws InterruptedException If a wait was interrupted
      */
-    private void testOperatingManual(UaClient client, NodeId node) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
+    private void testOperatingManual(UaClient client, NodeId node) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException, InterruptedException {
         TestUtils.checkDisplayName(client, node, TestDefines.OPERATING_MANUAL_NAME);
         TestUtils.checkType(client, node, new NodeId(aasns, TestDefines.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
         TestUtils.checkCategoryNode(client, node, aasns, "");
@@ -1065,8 +1068,7 @@ public class OpcUaEndpointTest {
         // Skip LangString / LocalizedText test: not yet implemented in the service
         //TestUtils.checkAasPropertyString(client, node, aasns, "Title", AASModelingKindDataType.Instance, "", AASValueTypeDataType.LocalizedText, "OperatingManual",
         //        new ArrayList<>());
-        TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", AASModelingKindDataType.Instance, "", "application/pdf", "./data/OPC-UA-Getting-Started.pdf",
-                1419637);
+        TestUtils.checkAasPropertyFile(client, node, aasns, "DigitalFile_PDF", AASModelingKindDataType.Instance, "", "application/pdf", "/aasx/OperatingManual.pdf", 0);
     }
 
 

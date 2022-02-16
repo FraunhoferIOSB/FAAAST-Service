@@ -481,8 +481,7 @@ public class TestUtils {
         checkAssetKindNode(client, assetInfoNode, aasns, AASAssetKindDataType.Instance);
         checkBillOfMaterialNode(client, assetInfoNode, aasns);
         checkAasPropertyFile(client, assetInfoNode, aasns, TestDefines.DEFAULT_THUMB_NAME, AASModelingKindDataType.Instance, "", "image/png",
-                "./data/verwaltungsschale-detail-part1.png",
-                123900);
+                "https://github.com/admin-shell/io/blob/master/verwaltungsschale-detail-part1.png", 0);
 
         List<AASKeyDataType> keyList = new ArrayList<>();
         keyList.add(new AASKeyDataType(AASKeyElementsDataType.Asset, "http://customer.com/assets/KHBVZJSQKIY", AASKeyTypeDataType.IRI));
@@ -746,15 +745,17 @@ public class TestUtils {
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(propValue, value.getValue().toString());
 
-        // File Size
-        if (bpres[2].getStatusCode().isBad()) {
-            System.out.println("checkAasPropertyFile File Status " + bpres[2].getStatusCode());
+        if (fileSize > 0) {
+            // File Size
+            if (bpres[2].getStatusCode().isBad()) {
+                System.out.println("checkAasPropertyFile File Status " + bpres[2].getStatusCode());
+            }
+            targets = bpres[2].getTargets();
+            Assert.assertNotNull("checkAasPropertyFile File Null", targets);
+            Assert.assertTrue("checkAasPropertyFile File empty", targets.length > 0);
+            value = client.readValue(targets[0].getTargetId());
+            Assert.assertEquals(fileSize, value.getValue().intValue());
         }
-        targets = bpres[2].getTargets();
-        Assert.assertNotNull("checkAasPropertyFile File Null", targets);
-        Assert.assertTrue("checkAasPropertyFile File empty", targets.length > 0);
-        value = client.readValue(targets[0].getTargetId());
-        Assert.assertEquals(fileSize, value.getValue().intValue());
     }
 
 
