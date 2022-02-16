@@ -37,7 +37,7 @@
 		<li><a href="#HTTP-Endpoint-Interface">HTTP-Endpoint Interface</a></li>
 		<ul>
 			<li><a href="#HTTP-Endpoint-Interface">HTTP-Endpoint Interface</a></li>
-			<li><a href="#Example-HTTP/REST-API-Call">Example</a></li>
+			<li><a href="#Example-HTTP-REST-API-Call">Example</a></li>
 			<li><a href="#HTTP-API">HTTP API</a></li>
 		</ul>
 	</ul>
@@ -103,8 +103,8 @@ In order to use the HTTP-Endpoint the configuration settings require to include 
 ##### Example HTTP/REST API Call
 Sample HTTP-Call for Operation _GetSubmodelElementByPath_
 using the parameters
- - _submodelIdentifier_: https://acplt.org/Test_Submodel (must be base64URL-encoded)
- - _idShortPath_: ExampleRelationshipElement (must be URL-encoded)
+- _submodelIdentifier_: https://acplt.org/Test_Submodel (must be base64URL-encoded)
+- _idShortPath_: ExampleRelationshipElement (must be URL-encoded)
 
 using the query-parameters _level=deep_ and _content=normal_.
 
@@ -146,24 +146,24 @@ Returns a specific submodel element from the Submodel at a specified path
 
 ##### The following interface URLs are currently not (yet) supported:
 * Submodel Repository Interface (Alternative Interface URLs "Swagger Doc Feb. 2022",
-  [DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-Repository/Final-Draft#/Asset%20Administration%20Shell%20Repository/GetSubmodel) (yet not fully specified))
-    * /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
-    * /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements
-    * /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
-    * /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
-    * /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/{handleId}
-* Asset Administration Shell Registry Interface (not in Scope of FA³ST-Service)	
+[DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-Repository/Final-Draft#/Asset%20Administration%20Shell%20Repository/GetSubmodel) (yet not fully specified))
+	* /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
+	* /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements
+	* /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+	* /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
+	* /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/{handleId}
+* Asset Administration Shell Registry Interface (not in Scope of FA³ST-Service)
 * Submodel Registry Interface (not in Scope of FA³ST-Service)
 
 
 * AASX File Server Interface (not yet supported)
-    * /packages
-    * /packages/{packageId}
+	* /packages
+	* /packages/{packageId}
 * Asset Administration Shell Serialization Interface (not yet supported)
-    * /serialization (GET)
+	* /serialization (GET)
 * Asset Administration Shell Basic Discovery (not yet supported)
-    * /lookup/shells
-    * /lookup/shells/{aasIdentifier}
+	* /lookup/shells
+	* /lookup/shells/{aasIdentifier}
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 <hr>
