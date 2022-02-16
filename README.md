@@ -35,7 +35,11 @@
 	<a href="#features">Features</a>
 	<ul>
 		<li><a href="#HTTP-Endpoint-Interface">HTTP-Endpoint Interface</a></li>
-		<li><a href="#http-example">Example</a></li>
+		<ul>
+			<li><a href="#HTTP-Endpoint-Interface">HTTP-Endpoint Interface</a></li>
+			<li><a href="#Example-HTTP/REST-API-Call">Example</a></li>
+			<li><a href="#HTTP-API">HTTP API</a></li>
+		</ul>
 	</ul>
 	<a href="#getting-started">Getting Started</a>
 	<ul>
@@ -115,6 +119,7 @@ Returns a specific submodel element from the Submodel at a specified path
 <p align="right">(<a href="#top">back to top</a>)</p>
 <hr>
 
+#### HTTP-API
 ##### The following interface URLs are fully supported:
 * Asset Administration Shell Repository Interface
 	* /shells (GET, POST)
