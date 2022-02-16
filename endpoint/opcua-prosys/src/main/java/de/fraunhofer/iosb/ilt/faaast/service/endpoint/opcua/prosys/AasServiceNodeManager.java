@@ -106,7 +106,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ConcurrentHashMap;
 import opc.i4aas.AASAdministrativeInformationType;
 import opc.i4aas.AASAnnotatedRelationshipElementType;
 import opc.i4aas.AASAssetAdministrationShellType;
@@ -201,19 +201,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private final Map<NodeId, SubmodelElementData> submodelElementAasMap;
 
     /**
-     * Lock for the submodelElementAasMap
-     */
-    private final ReentrantLock submodelElementAasMapLock;
-
-    /**
      * Maps AAS SubmodelElements to OPC UA SubmodelElements
      */
     private final Map<Reference, AASSubmodelElementType> submodelElementOpcUAMap;
-
-    /**
-     * Lock for the submodelElementOpcUAMap
-     */
-    private final ReentrantLock submodelElementOpcUAMapLock;
 
     /**
      * Maps Submodel references to the OPC UA Submodel
@@ -221,19 +211,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private final Map<Reference, UaNode> submodelOpcUAMap;
 
     /**
-     * Lock for the submodelOpcUAMap
-     */
-    private final ReentrantLock submodelOpcUAMapLock;
-
-    /**
      * Maps NodeIds to the corresponding Referable elements
      */
     private final Map<Reference, ObjectData> referableMap;
-
-    /**
-     * Lock for the referableMap
-     */
-    private final ReentrantLock referableMapLock;
 
     /**
      * The MessageBus for signalling changes, e.g. changed values
@@ -264,14 +244,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
         endpoint = ep;
         dictionaryMap = new HashMap<>();
-        submodelElementAasMapLock = new ReentrantLock();
-        submodelElementAasMap = new HashMap<>();
-        submodelElementOpcUAMap = new HashMap<>();
-        submodelElementOpcUAMapLock = new ReentrantLock();
-        submodelOpcUAMap = new HashMap<>();
-        submodelOpcUAMapLock = new ReentrantLock();
-        referableMap = new HashMap<>();
-        referableMapLock = new ReentrantLock();
+        submodelElementAasMap = new ConcurrentHashMap<>();
+        submodelElementOpcUAMap = new ConcurrentHashMap<>();
+        submodelOpcUAMap = new ConcurrentHashMap<>();
+        referableMap = new ConcurrentHashMap<>();
 
         messageBus = ep.getMessageBus();
         subscriptions = new ArrayList<>();
@@ -317,22 +293,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     public SubmodelElementData getAasData(NodeId node) {
         SubmodelElementData retval = null;
 
-        try {
-            submodelElementAasMapLock.lock();
-            if (submodelElementAasMap.containsKey(node)) {
-                retval = submodelElementAasMap.get(node);
-                logger.debug("getAasSubmodelElement: NodeId: " + node + "; Property " + retval);
-            }
-            else {
-                logger.info("Node " + node.toString() + " not found in submodelElementMap");
-            }
+        if (submodelElementAasMap.containsKey(node)) {
+            retval = submodelElementAasMap.get(node);
+            logger.debug("getAasSubmodelElement: NodeId: " + node + "; Property " + retval);
         }
-        catch (Throwable ex) {
-            logger.error("getAasSubmodelElement Exception", ex);
-            throw ex;
-        }
-        finally {
-            submodelElementAasMapLock.unlock();
+        else {
+            logger.info("Node " + node.toString() + " not found in submodelElementMap");
         }
 
         return retval;
@@ -464,16 +430,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             // add AAS to Environment
             addNodeAndReference(aasEnvironmentNode, aasShell, Identifiers.Organizes);
 
-            try {
-                referableMapLock.lock();
-                referableMap.put(AasUtils.toReference(aas), new ObjectData(aas, aasShell));
-            }
-            catch (Exception ex2) {
-                logger.warn("referableMap problem", ex2);
-            }
-            finally {
-                referableMapLock.unlock();
-            }
+            referableMap.put(AasUtils.toReference(aas), new ObjectData(aas, aasShell));
         }
         catch (Throwable ex) {
             logger.error("addAssetAdministrationShell Exception", ex);
@@ -533,16 +490,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         break;
                 }
 
-                try {
-                    referableMapLock.lock();
-                    referableMap.put(AasUtils.toReference(c), new ObjectData(c, dictNode));
-                }
-                catch (Exception ex2) {
-                    logger.warn("referableMap problem", ex2);
-                }
-                finally {
-                    referableMapLock.unlock();
-                }
+                referableMap.put(AasUtils.toReference(c), new ObjectData(c, dictNode));
             }
         }
         catch (Throwable ex) {
@@ -1088,16 +1036,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 if (parentRef != null) {
                     Reference fileRef = AasUtils.toReference(parentRef, aasFile);
 
-                    try {
-                        referableMapLock.lock();
-                        referableMap.put(fileRef, new ObjectData(aasFile, fileNode, submodel));
-                    }
-                    catch (Exception ex2) {
-                        logger.warn("referableMap problem", ex2);
-                    }
-                    finally {
-                        referableMapLock.unlock();
-                    }
+                    referableMap.put(fileRef, new ObjectData(aasFile, fileNode, submodel));
                 }
             }
         }
@@ -1750,16 +1689,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             node.addComponent(assetNode);
 
-            try {
-                referableMapLock.lock();
-                referableMap.put(AasUtils.toReference(asset), new ObjectData(asset, assetNode));
-            }
-            catch (Exception ex2) {
-                logger.warn("referableMap problem", ex2);
-            }
-            finally {
-                referableMapLock.unlock();
-            }
+            referableMap.put(AasUtils.toReference(asset), new ObjectData(asset, assetNode));
         }
         catch (Throwable ex) {
             logger.error("addAsset Exception", ex);
@@ -1827,29 +1757,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     smNode.getModelingKindNode().setAccessLevel(AccessLevelType.CurrentRead);
                 }
 
-                try {
-                    submodelOpcUAMapLock.lock();
-                    submodelOpcUAMap.put(AasUtils.toReference(submodel), smNode);
-                }
-                catch (Exception e2) {
-                    logger.error("Error when adding to submodelOpcUAMap", e2);
-                }
-                finally {
-                    submodelOpcUAMapLock.unlock();
-                }
+                submodelOpcUAMap.put(AasUtils.toReference(submodel), smNode);
 
                 node.addComponent(smNode);
 
-                try {
-                    referableMapLock.lock();
-                    referableMap.put(AasUtils.toReference(submodel), new ObjectData(submodel, smNode));
-                }
-                catch (Exception ex2) {
-                    logger.warn("referableMap problem", ex2);
-                }
-                finally {
-                    referableMapLock.unlock();
-                }
+                referableMap.put(AasUtils.toReference(submodel), new ObjectData(submodel, smNode));
             }
             else {
                 logger.warn("addSubmodel: IdShort is empty!");
@@ -2018,16 +1930,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 node.addComponent(prop);
             }
 
-            try {
-                referableMapLock.lock();
-                referableMap.put(propRef, new ObjectData(aasProperty, prop, submodel));
-            }
-            catch (Exception ex2) {
-                logger.warn("referableMap problem", ex2);
-            }
-            finally {
-                referableMapLock.unlock();
-            }
+            referableMap.put(propRef, new ObjectData(aasProperty, prop, submodel));
         }
         catch (Throwable ex) {
             logger.error("addAasProperty Exception", ex);
@@ -2049,29 +1952,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASPropertyType.getNamespaceUri(), AASPropertyType.VALUE).toQualifiedName(getNamespaceTable());
             LocalizedText displayName = LocalizedText.english(AASPropertyType.VALUE);
 
-            try {
-                submodelElementAasMapLock.lock();
-                submodelElementAasMap.put(myPropertyId, new SubmodelElementData(aasProperty, submodel, SubmodelElementData.Type.PROPERTY_VALUE, propRef));
-                logger.debug("setPropertyValueAndType: NodeId " + myPropertyId + "; Property: " + aasProperty);
-            }
-            catch (Exception ex2) {
-                logger.warn("submodelElementAasMap problem", ex2);
-            }
-            finally {
-                submodelElementAasMapLock.unlock();
-            }
+            submodelElementAasMap.put(myPropertyId, new SubmodelElementData(aasProperty, submodel, SubmodelElementData.Type.PROPERTY_VALUE, propRef));
+            logger.debug("setPropertyValueAndType: NodeId " + myPropertyId + "; Property: " + aasProperty);
 
             if (submodel != null) {
-                try {
-                    submodelElementOpcUAMapLock.lock();
-                    submodelElementOpcUAMap.put(propRef, prop);
-                }
-                catch (Exception ex3) {
-                    logger.warn("submodelElementOpcUAMap problem", ex3);
-                }
-                finally {
-                    submodelElementOpcUAMapLock.unlock();
-                }
+                submodelElementOpcUAMap.put(propRef, prop);
             }
 
             AASValueTypeDataType valueDataType;
@@ -2427,28 +2312,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         addBlobValueNode(blobNode);
                     }
 
-                    try {
-                        submodelElementAasMapLock.lock();
-                        submodelElementAasMap.put(blobNode.getValueNode().getNodeId(), new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE, blobRef));
-                        logger.debug("addAasBlob: NodeId " + blobNode.getValueNode().getNodeId() + "; Blob: " + aasBlob);
-                    }
-                    catch (Exception ex2) {
-                        logger.warn("submodelElementAasMap problem", ex2);
-                    }
-                    finally {
-                        submodelElementAasMapLock.unlock();
-                    }
+                    submodelElementAasMap.put(blobNode.getValueNode().getNodeId(), new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE, blobRef));
+                    logger.debug("addAasBlob: NodeId " + blobNode.getValueNode().getNodeId() + "; Blob: " + aasBlob);
 
-                    try {
-                        submodelElementOpcUAMapLock.lock();
-                        submodelElementOpcUAMap.put(blobRef, blobNode);
-                    }
-                    catch (Exception ex3) {
-                        logger.warn("submodelElementOpcUAMap problem", ex3);
-                    }
-                    finally {
-                        submodelElementOpcUAMapLock.unlock();
-                    }
+                    submodelElementOpcUAMap.put(blobRef, blobNode);
 
                     blobNode.setValue(ByteString.valueOf(aasBlob.getValue()));
                 }
@@ -2460,16 +2327,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     node.addComponent(blobNode);
                 }
 
-                try {
-                    referableMapLock.lock();
-                    referableMap.put(blobRef, new ObjectData(aasBlob, blobNode, submodel));
-                }
-                catch (Exception ex2) {
-                    logger.warn("referableMap problem", ex2);
-                }
-                finally {
-                    referableMapLock.unlock();
-                }
+                referableMap.put(blobRef, new ObjectData(aasBlob, blobNode, submodel));
             }
         }
         catch (Throwable ex) {
@@ -2531,29 +2389,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
                 Reference refElemRef = AasUtils.toReference(parentRef, aasRefElem);
 
-                try {
-                    submodelElementAasMapLock.lock();
-                    submodelElementAasMap.put(refElemNode.getValueNode().getKeysNode().getNodeId(),
-                            new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
-                }
-                catch (Exception ex2) {
-                    logger.warn("submodelElementAasMap problem", ex2);
-                }
-                finally {
-                    submodelElementAasMapLock.unlock();
-                }
+                submodelElementAasMap.put(refElemNode.getValueNode().getKeysNode().getNodeId(),
+                        new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
 
-                try {
-                    //Reference refElemRef = getReference(aasRefElem, submodel);
-                    submodelElementOpcUAMapLock.lock();
-                    submodelElementOpcUAMap.put(refElemRef, refElemNode);
-                }
-                catch (Exception ex3) {
-                    logger.warn("submodelElementOpcUAMap problem", ex3);
-                }
-                finally {
-                    submodelElementOpcUAMapLock.unlock();
-                }
+                submodelElementOpcUAMap.put(refElemRef, refElemNode);
 
                 if (ordered) {
                     node.addReference(refElemNode, Identifiers.HasOrderedComponent, false);
@@ -2562,16 +2401,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     node.addComponent(refElemNode);
                 }
 
-                try {
-                    referableMapLock.lock();
-                    referableMap.put(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
-                }
-                catch (Exception ex2) {
-                    logger.warn("referableMap problem", ex2);
-                }
-                finally {
-                    referableMapLock.unlock();
-                }
+                referableMap.put(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
             }
         }
         catch (Throwable ex) {
@@ -2615,16 +2445,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     node.addComponent(rangeNode);
                 }
 
-                try {
-                    referableMapLock.lock();
-                    referableMap.put(rangeRef, new ObjectData(aasRange, rangeNode, submodel));
-                }
-                catch (Exception ex2) {
-                    logger.warn("referableMap problem", ex2);
-                }
-                finally {
-                    referableMapLock.unlock();
-                }
+                referableMap.put(rangeRef, new ObjectData(aasRange, rangeNode, submodel));
             }
         }
         catch (Throwable ex) {
@@ -2654,28 +2475,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             QualifiedName browseNameMax = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MAX).toQualifiedName(getNamespaceTable());
             LocalizedText displayNameMax = LocalizedText.english(AASRangeType.MAX);
 
-            try {
-                submodelElementAasMapLock.lock();
-                submodelElementAasMap.put(myPropertyIdMin, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MIN, rangeRef));
-                submodelElementAasMap.put(myPropertyIdMax, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MAX, rangeRef));
-            }
-            catch (Exception ex2) {
-                logger.warn("submodelElementAasMap problem", ex2);
-            }
-            finally {
-                submodelElementAasMapLock.unlock();
-            }
+            submodelElementAasMap.put(myPropertyIdMin, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MIN, rangeRef));
+            submodelElementAasMap.put(myPropertyIdMax, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MAX, rangeRef));
 
-            try {
-                submodelElementOpcUAMapLock.lock();
-                submodelElementOpcUAMap.put(rangeRef, range);
-            }
-            catch (Exception ex3) {
-                logger.warn("submodelElementOpcUAMap problem", ex3);
-            }
-            finally {
-                submodelElementOpcUAMapLock.unlock();
-            }
+            submodelElementOpcUAMap.put(rangeRef, range);
 
             TypedValue minTypedValue = TypedValueFactory.create(valueType, minValue);
             TypedValue maxTypedValue = TypedValueFactory.create(valueType, maxValue);
@@ -3096,29 +2899,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
 
                 Reference multiLangRef = AasUtils.toReference(parentRef, aasMultiLang);
-                try {
-                    submodelElementAasMapLock.lock();
-                    submodelElementAasMap.put(multiLangNode.getValueNode().getNodeId(),
-                            new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE, multiLangRef));
-                }
-                catch (Exception ex2) {
-                    logger.warn("submodelElementAasMap problem", ex2);
-                }
-                finally {
-                    submodelElementAasMapLock.unlock();
-                }
+                submodelElementAasMap.put(multiLangNode.getValueNode().getNodeId(),
+                        new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE, multiLangRef));
 
-                try {
-                    //Reference blobRef = getReference(aasMultiLang, submodel);
-                    submodelElementOpcUAMapLock.lock();
-                    submodelElementOpcUAMap.put(multiLangRef, multiLangNode);
-                }
-                catch (Exception ex3) {
-                    logger.warn("submodelElementOpcUAMap problem", ex3);
-                }
-                finally {
-                    submodelElementOpcUAMapLock.unlock();
-                }
+                submodelElementOpcUAMap.put(multiLangRef, multiLangNode);
 
                 if (ordered) {
                     node.addReference(multiLangNode, Identifiers.HasOrderedComponent, false);
@@ -3127,16 +2911,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     node.addComponent(multiLangNode);
                 }
 
-                try {
-                    referableMapLock.lock();
-                    referableMap.put(multiLangRef, new ObjectData(aasMultiLang, multiLangNode, submodel));
-                }
-                catch (Exception ex2) {
-                    logger.warn("referableMap problem", ex2);
-                }
-                finally {
-                    referableMapLock.unlock();
-                }
+                referableMap.put(multiLangRef, new ObjectData(aasMultiLang, multiLangNode, submodel));
             }
         }
         catch (Throwable ex) {
@@ -3207,16 +2982,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
                 Reference capabilityRef = AasUtils.toReference(parentRef, aasCapability);
 
-                try {
-                    referableMapLock.lock();
-                    referableMap.put(capabilityRef, new ObjectData(aasCapability, capabilityNode, submodel));
-                }
-                catch (Exception ex2) {
-                    logger.warn("referableMap problem", ex2);
-                }
-                finally {
-                    referableMapLock.unlock();
-                }
+                referableMap.put(capabilityRef, new ObjectData(aasCapability, capabilityNode, submodel));
             }
         }
         catch (Throwable ex) {
@@ -3255,17 +3021,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 // EntityType
                 entityNode.setEntityType(ValueConverter.getAasEntityType(aasEntity.getEntityType()));
 
-                try {
-                    submodelElementAasMapLock.lock();
-                    submodelElementAasMap.put(entityNode.getEntityTypeNode().getNodeId(),
-                            new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_TYPE, entityRef));
-                }
-                catch (Exception ex2) {
-                    logger.warn("submodelElementAasMap problem", ex2);
-                }
-                finally {
-                    submodelElementAasMapLock.unlock();
-                }
+                submodelElementAasMap.put(entityNode.getEntityTypeNode().getNodeId(),
+                        new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_TYPE, entityRef));
 
                 // GlobalAssetId
                 if (aasEntity.getGlobalAssetId() != null) {
@@ -3276,17 +3033,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         setAasReferenceData(aasEntity.getGlobalAssetId(), entityNode.getGlobalAssetIdNode(), false);
                     }
 
-                    try {
-                        submodelElementAasMapLock.lock();
-                        submodelElementAasMap.put(entityNode.getGlobalAssetIdNode().getKeysNode().getNodeId(),
-                                new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_GLOBAL_ASSET_ID, entityRef));
-                    }
-                    catch (Exception ex2) {
-                        logger.warn("submodelElementAasMap problem", ex2);
-                    }
-                    finally {
-                        submodelElementAasMapLock.unlock();
-                    }
+                    submodelElementAasMap.put(entityNode.getGlobalAssetIdNode().getKeysNode().getNodeId(),
+                            new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_GLOBAL_ASSET_ID, entityRef));
                 }
 
                 // SpecificAssetIds
@@ -3303,16 +3051,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 // Statements
                 addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, entityRef);
 
-                try {
-                    submodelElementOpcUAMapLock.lock();
-                    submodelElementOpcUAMap.put(entityRef, entityNode);
-                }
-                catch (Exception ex3) {
-                    logger.warn("submodelElementOpcUAMap problem", ex3);
-                }
-                finally {
-                    submodelElementOpcUAMapLock.unlock();
-                }
+                submodelElementOpcUAMap.put(entityRef, entityNode);
 
                 if (ordered) {
                     node.addReference(entityNode, Identifiers.HasOrderedComponent, false);
@@ -3321,16 +3060,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     node.addComponent(entityNode);
                 }
 
-                try {
-                    referableMapLock.lock();
-                    referableMap.put(entityRef, new ObjectData(aasEntity, entityNode, submodel));
-                }
-                catch (Exception ex2) {
-                    logger.warn("referableMap problem", ex2);
-                }
-                finally {
-                    referableMapLock.unlock();
-                }
+                referableMap.put(entityRef, new ObjectData(aasEntity, entityNode, submodel));
             }
         }
         catch (Throwable ex) {
@@ -3360,18 +3090,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             Reference operRef = AasUtils.toReference(parentRef, aasOperation);
 
-            try {
-                // for operations we put the corresponding operation object into the map
-                submodelElementAasMapLock.lock();
-                submodelElementAasMap.put(nid, new SubmodelElementData(aasOperation, submodel, SubmodelElementData.Type.OPERATION, operRef));
-                logger.debug("addAasOperation: NodeId " + nid + "; Property: " + aasOperation);
-            }
-            catch (Exception ex2) {
-                logger.warn("submodelElementAasMap problem", ex2);
-            }
-            finally {
-                submodelElementAasMapLock.unlock();
-            }
+            // for operations we put the corresponding operation object into the map
+            submodelElementAasMap.put(nid, new SubmodelElementData(aasOperation, submodel, SubmodelElementData.Type.OPERATION, operRef));
+            logger.debug("addAasOperation: NodeId " + nid + "; Property: " + aasOperation);
 
             // add method
             NodeId myMethodId = new NodeId(getNamespaceIndex(), nid.getValue().toString() + "." + name);
@@ -3407,16 +3128,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 node.addComponent(oper);
             }
 
-            try {
-                referableMapLock.lock();
-                referableMap.put(operRef, new ObjectData(aasOperation, oper, submodel));
-            }
-            catch (Exception ex2) {
-                logger.warn("referableMap problem", ex2);
-            }
-            finally {
-                referableMapLock.unlock();
-            }
+            referableMap.put(operRef, new ObjectData(aasOperation, oper, submodel));
         }
         catch (Throwable ex) {
             logger.error("addAasOperation Exception", ex);
@@ -3500,16 +3212,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     node.addComponent(eventNode);
                 }
 
-                try {
-                    referableMapLock.lock();
-                    referableMap.put(eventRef, new ObjectData(aasEvent, eventNode, submodel));
-                }
-                catch (Exception ex2) {
-                    logger.warn("referableMap problem", ex2);
-                }
-                finally {
-                    referableMapLock.unlock();
-                }
+                referableMap.put(eventRef, new ObjectData(aasEvent, eventNode, submodel));
             }
         }
         catch (Throwable ex) {
@@ -3575,30 +3278,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     setAasReferenceData(aasRelElem.getFirst(), relElemNode.getFirstNode(), false);
                     setAasReferenceData(aasRelElem.getSecond(), relElemNode.getSecondNode(), false);
 
-                    try {
-                        submodelElementAasMapLock.lock();
-                        submodelElementAasMap.put(relElemNode.getFirstNode().getKeysNode().getNodeId(),
-                                new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));
-                        submodelElementAasMap.put(relElemNode.getSecondNode().getKeysNode().getNodeId(),
-                                new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_SECOND, relElemRef));
-                    }
-                    catch (Exception ex2) {
-                        logger.warn("submodelElementAasMap problem", ex2);
-                    }
-                    finally {
-                        submodelElementAasMapLock.unlock();
-                    }
+                    submodelElementAasMap.put(relElemNode.getFirstNode().getKeysNode().getNodeId(),
+                            new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));
+                    submodelElementAasMap.put(relElemNode.getSecondNode().getKeysNode().getNodeId(),
+                            new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_SECOND, relElemRef));
 
-                    try {
-                        submodelElementOpcUAMapLock.lock();
-                        submodelElementOpcUAMap.put(relElemRef, relElemNode);
-                    }
-                    catch (Exception ex3) {
-                        logger.warn("submodelElementOpcUAMap problem", ex3);
-                    }
-                    finally {
-                        submodelElementOpcUAMapLock.unlock();
-                    }
+                    submodelElementOpcUAMap.put(relElemRef, relElemNode);
 
                     if (ordered) {
                         node.addReference(relElemNode, Identifiers.HasOrderedComponent, false);
@@ -3607,16 +3292,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         node.addComponent(relElemNode);
                     }
 
-                    try {
-                        referableMapLock.lock();
-                        referableMap.put(relElemRef, new ObjectData(aasRelElem, relElemNode, submodel));
-                    }
-                    catch (Exception ex2) {
-                        logger.warn("referableMap problem", ex2);
-                    }
-                    finally {
-                        referableMapLock.unlock();
-                    }
+                    referableMap.put(relElemRef, new ObjectData(aasRelElem, relElemNode, submodel));
                 }
             }
         }
@@ -3727,16 +3403,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     node.addComponent(collNode);
                 }
 
-                try {
-                    referableMapLock.lock();
-                    referableMap.put(collRef, new ObjectData(aasColl, collNode, submodel));
-                }
-                catch (Exception ex2) {
-                    logger.warn("referableMap problem", ex2);
-                }
-                finally {
-                    referableMapLock.unlock();
-                }
+                referableMap.put(collRef, new ObjectData(aasColl, collNode, submodel));
             }
         }
         catch (Throwable ex) {
@@ -3940,20 +3607,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             // The element is the parent object where the value is added
             ObjectData parent = null;
-            try {
-                referableMapLock.lock();
-                if (referableMap.containsKey(element)) {
-                    parent = referableMap.get(element);
-                }
-                else {
-                    logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(element));
-                }
+            if (referableMap.containsKey(element)) {
+                parent = referableMap.get(element);
             }
-            catch (Exception ex2) {
-                logger.warn("referableMap problem", ex2);
-            }
-            finally {
-                referableMapLock.unlock();
+            else {
+                logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(element));
             }
 
             if (value instanceof ConceptDescription) {
@@ -4038,23 +3696,14 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             // The element is the parent object where the value is added
             ObjectData parent = null;
-            try {
-                referableMapLock.lock();
-                if (referableMap.containsKey(element)) {
-                    parent = referableMap.get(element);
+            if (referableMap.containsKey(element)) {
+                parent = referableMap.get(element);
 
-                    // remove element from the map
-                    referableMap.remove(element);
-                }
-                else {
-                    logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(element));
-                }
+                // remove element from the map
+                referableMap.remove(element);
             }
-            catch (Exception ex2) {
-                logger.warn("referableMap problem", ex2);
-            }
-            finally {
-                referableMapLock.unlock();
+            else {
+                logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(element));
             }
 
             if (parent != null) {
@@ -4139,23 +3788,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             throw new IllegalArgumentException("newValue is null");
         }
 
-        try {
-            logger.debug("updateSubmodelElementValue");
-            submodelElementOpcUAMapLock.lock();
-            if (submodelElementOpcUAMap.containsKey(reference)) {
-                AASSubmodelElementType subElem = submodelElementOpcUAMap.get(reference);
-                setSubmodelElementValue(subElem, newValue);
-            }
-            else {
-                logger.warn("SubmodelElement " + reference.toString() + " not found in submodelElementOpcUAMap");
-            }
+        logger.debug("updateSubmodelElementValue");
+        if (submodelElementOpcUAMap.containsKey(reference)) {
+            AASSubmodelElementType subElem = submodelElementOpcUAMap.get(reference);
+            setSubmodelElementValue(subElem, newValue);
         }
-        catch (Throwable ex) {
-            logger.error("updateSubmodelElementValue Exception", ex);
-            throw ex;
-        }
-        finally {
-            submodelElementOpcUAMapLock.unlock();
+        else {
+            logger.warn("SubmodelElement " + reference.toString() + " not found in submodelElementOpcUAMap");
         }
     }
 
@@ -4596,174 +4235,93 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             logger.debug("doRemoveFromMaps: remove SubmodelElement " + AasUtils.asString(reference));
 
-            try {
-                submodelElementOpcUAMapLock.lock();
-                if (submodelElementOpcUAMap.containsKey(reference)) {
-                    submodelElementOpcUAMap.remove(reference);
-                    logger.debug("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: " + AasUtils.asString(reference));
-                }
-            }
-            catch (Exception ex3) {
-                logger.warn("submodelElementOpcUAMap problem", ex3);
-            }
-            finally {
-                submodelElementOpcUAMapLock.unlock();
+            if (submodelElementOpcUAMap.containsKey(reference)) {
+                submodelElementOpcUAMap.remove(reference);
+                logger.debug("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: " + AasUtils.asString(reference));
             }
 
             if (element instanceof AASPropertyType) {
                 AASPropertyType prop = (AASPropertyType) element;
-                try {
-                    submodelElementAasMapLock.lock();
-                    if (submodelElementAasMap.containsKey(prop.getValueNode().getNodeId())) {
-                        submodelElementAasMap.remove(prop.getValueNode().getNodeId());
-                        logger.debug("doRemoveFromMaps: remove Property NodeId " + prop.getValueNode().getNodeId());
-                    }
-                }
-                catch (Exception ex2) {
-                    logger.warn("submodelElementAasMap problem", ex2);
-                }
-                finally {
-                    submodelElementAasMapLock.unlock();
+                if (submodelElementAasMap.containsKey(prop.getValueNode().getNodeId())) {
+                    submodelElementAasMap.remove(prop.getValueNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove Property NodeId " + prop.getValueNode().getNodeId());
                 }
             }
             else if (element instanceof AASRangeType) {
                 AASRangeType range = (AASRangeType) element;
-                try {
-                    submodelElementAasMapLock.lock();
-                    if (submodelElementAasMap.containsKey(range.getMinNode().getNodeId())) {
-                        submodelElementAasMap.remove(range.getMinNode().getNodeId());
-                        logger.debug("doRemoveFromMaps: remove Range Min NodeId " + range.getMinNode().getNodeId());
-                    }
+                if (submodelElementAasMap.containsKey(range.getMinNode().getNodeId())) {
+                    submodelElementAasMap.remove(range.getMinNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove Range Min NodeId " + range.getMinNode().getNodeId());
+                }
 
-                    if (submodelElementAasMap.containsKey(range.getMaxNode().getNodeId())) {
-                        submodelElementAasMap.remove(range.getMaxNode().getNodeId());
-                        logger.debug("doRemoveFromMaps: remove Range Max NodeId " + range.getMaxNode().getNodeId());
-                    }
-                }
-                catch (Exception ex2) {
-                    logger.warn("submodelElementAasMap problem", ex2);
-                }
-                finally {
-                    submodelElementAasMapLock.unlock();
+                if (submodelElementAasMap.containsKey(range.getMaxNode().getNodeId())) {
+                    submodelElementAasMap.remove(range.getMaxNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove Range Max NodeId " + range.getMaxNode().getNodeId());
                 }
             }
             else if (element instanceof AASOperationType) {
                 AASOperationType oper = (AASOperationType) element;
-                try {
-                    submodelElementAasMapLock.lock();
-                    if (submodelElementAasMap.containsKey(oper.getOperationNode().getNodeId())) {
-                        submodelElementAasMap.remove(oper.getOperationNode().getNodeId());
-                        logger.debug("doRemoveFromMaps: remove Operation NodeId " + oper.getOperationNode().getNodeId());
-                    }
-                }
-                catch (Exception ex2) {
-                    logger.warn("submodelElementAasMap problem", ex2);
-                }
-                finally {
-                    submodelElementAasMapLock.unlock();
+                if (submodelElementAasMap.containsKey(oper.getOperationNode().getNodeId())) {
+                    submodelElementAasMap.remove(oper.getOperationNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove Operation NodeId " + oper.getOperationNode().getNodeId());
                 }
             }
             else if (element instanceof AASBlobType) {
                 AASBlobType blob = (AASBlobType) element;
-                try {
-                    submodelElementAasMapLock.lock();
-                    if (submodelElementAasMap.containsKey(blob.getValueNode().getNodeId())) {
-                        submodelElementAasMap.remove(blob.getValueNode().getNodeId());
-                        logger.debug("doRemoveFromMaps: remove Blob NodeId " + blob.getValueNode().getNodeId());
-                    }
-                }
-                catch (Exception ex2) {
-                    logger.warn("submodelElementAasMap problem", ex2);
-                }
-                finally {
-                    submodelElementAasMapLock.unlock();
+                if (submodelElementAasMap.containsKey(blob.getValueNode().getNodeId())) {
+                    submodelElementAasMap.remove(blob.getValueNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove Blob NodeId " + blob.getValueNode().getNodeId());
                 }
             }
             else if (element instanceof AASMultiLanguagePropertyType) {
                 AASMultiLanguagePropertyType mlp = (AASMultiLanguagePropertyType) element;
-                try {
-                    submodelElementAasMapLock.lock();
-                    if (submodelElementAasMap.containsKey(mlp.getValueNode().getNodeId())) {
-                        submodelElementAasMap.remove(mlp.getValueNode().getNodeId());
-                        logger.debug("doRemoveFromMaps: remove AASMultiLanguageProperty NodeId " + mlp.getValueNode().getNodeId());
-                    }
-                }
-                catch (Exception ex2) {
-                    logger.warn("submodelElementAasMap problem", ex2);
-                }
-                finally {
-                    submodelElementAasMapLock.unlock();
+                if (submodelElementAasMap.containsKey(mlp.getValueNode().getNodeId())) {
+                    submodelElementAasMap.remove(mlp.getValueNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove AASMultiLanguageProperty NodeId " + mlp.getValueNode().getNodeId());
                 }
             }
             else if (element instanceof AASReferenceElementType) {
                 AASReferenceElementType refElem = (AASReferenceElementType) element;
-                try {
-                    NodeId nid = refElem.getValueNode().getKeysNode().getNodeId();
-                    submodelElementAasMapLock.lock();
-                    if (submodelElementAasMap.containsKey(nid)) {
-                        submodelElementAasMap.remove(nid);
-                        logger.debug("doRemoveFromMaps: remove AASReferenceElement NodeId " + nid);
-                    }
-                }
-                catch (Exception ex2) {
-                    logger.warn("submodelElementAasMap problem", ex2);
-                }
-                finally {
-                    submodelElementAasMapLock.unlock();
+                NodeId nid = refElem.getValueNode().getKeysNode().getNodeId();
+                if (submodelElementAasMap.containsKey(nid)) {
+                    submodelElementAasMap.remove(nid);
+                    logger.debug("doRemoveFromMaps: remove AASReferenceElement NodeId " + nid);
                 }
             }
             else if (element instanceof AASRelationshipElementType) {
                 AASRelationshipElementType relElem = (AASRelationshipElementType) element;
-                try {
-                    submodelElementAasMapLock.lock();
-                    NodeId nid = relElem.getFirstNode().getKeysNode().getNodeId();
-                    if (submodelElementAasMap.containsKey(nid)) {
-                        submodelElementAasMap.remove(nid);
-                        logger.debug("doRemoveFromMaps: remove AASRelationshipElement First NodeId " + nid);
-                    }
+                NodeId nid = relElem.getFirstNode().getKeysNode().getNodeId();
+                if (submodelElementAasMap.containsKey(nid)) {
+                    submodelElementAasMap.remove(nid);
+                    logger.debug("doRemoveFromMaps: remove AASRelationshipElement First NodeId " + nid);
+                }
 
-                    nid = relElem.getSecondNode().getKeysNode().getNodeId();
-                    if (submodelElementAasMap.containsKey(nid)) {
-                        submodelElementAasMap.remove(nid);
-                        logger.debug("doRemoveFromMaps: remove AASRelationshipElement Second NodeId " + nid);
-                    }
+                nid = relElem.getSecondNode().getKeysNode().getNodeId();
+                if (submodelElementAasMap.containsKey(nid)) {
+                    submodelElementAasMap.remove(nid);
+                    logger.debug("doRemoveFromMaps: remove AASRelationshipElement Second NodeId " + nid);
+                }
 
-                    if (relElem instanceof AASAnnotatedRelationshipElementType) {
-                        if (referable instanceof AnnotatedRelationshipElement) {
-                            AnnotatedRelationshipElement annRelElem = (AnnotatedRelationshipElement) referable;
-                            for (DataElement de: annRelElem.getAnnotations()) {
-                                doRemoveFromMaps(reference, de);
-                            }
+                if (relElem instanceof AASAnnotatedRelationshipElementType) {
+                    if (referable instanceof AnnotatedRelationshipElement) {
+                        AnnotatedRelationshipElement annRelElem = (AnnotatedRelationshipElement) referable;
+                        for (DataElement de: annRelElem.getAnnotations()) {
+                            doRemoveFromMaps(reference, de);
                         }
                     }
-                }
-                catch (Exception ex2) {
-                    logger.warn("submodelElementAasMap problem", ex2);
-                }
-                finally {
-                    submodelElementAasMapLock.unlock();
                 }
             }
             else if (element instanceof AASEntityType) {
                 AASEntityType ent = (AASEntityType) element;
-                try {
-                    NodeId nid = ent.getGlobalAssetIdNode().getKeysNode().getNodeId();
-                    submodelElementAasMapLock.lock();
-                    if (submodelElementAasMap.containsKey(nid)) {
-                        submodelElementAasMap.remove(nid);
-                        logger.debug("doRemoveFromMaps: remove Entity GlobalAssetId NodeId " + nid);
-                    }
+                NodeId nid = ent.getGlobalAssetIdNode().getKeysNode().getNodeId();
+                if (submodelElementAasMap.containsKey(nid)) {
+                    submodelElementAasMap.remove(nid);
+                    logger.debug("doRemoveFromMaps: remove Entity GlobalAssetId NodeId " + nid);
+                }
 
-                    if (submodelElementAasMap.containsKey(ent.getEntityTypeNode().getNodeId())) {
-                        submodelElementAasMap.remove(ent.getEntityTypeNode().getNodeId());
-                        logger.debug("doRemoveFromMaps: remove Entity EntityType NodeId " + ent.getEntityTypeNode().getNodeId());
-                    }
-                }
-                catch (Exception ex2) {
-                    logger.warn("submodelElementAasMap problem", ex2);
-                }
-                finally {
-                    submodelElementAasMapLock.unlock();
+                if (submodelElementAasMap.containsKey(ent.getEntityTypeNode().getNodeId())) {
+                    submodelElementAasMap.remove(ent.getEntityTypeNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove Entity EntityType NodeId " + ent.getEntityTypeNode().getNodeId());
                 }
             }
             else if (referable instanceof SubmodelElementCollection) {
@@ -4792,27 +4350,18 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             Reference ref = AasUtils.toReference(parent, de);
             ObjectData element = null;
-            try {
-                referableMapLock.lock();
-                if (referableMap.containsKey(ref)) {
-                    element = referableMap.get(ref);
+            if (referableMap.containsKey(ref)) {
+                element = referableMap.get(ref);
 
-                    if (element.getNode() instanceof AASSubmodelElementType) {
-                        doRemoveFromMaps((AASSubmodelElementType) element.getNode(), ref, de);
-                    }
+                if (element.getNode() instanceof AASSubmodelElementType) {
+                    doRemoveFromMaps((AASSubmodelElementType) element.getNode(), ref, de);
+                }
 
-                    // remove element from the map
-                    referableMap.remove(ref);
-                }
-                else {
-                    logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(ref));
-                }
+                // remove element from the map
+                referableMap.remove(ref);
             }
-            catch (Exception ex2) {
-                logger.warn("referableMap problem", ex2);
-            }
-            finally {
-                referableMapLock.unlock();
+            else {
+                logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(ref));
             }
         }
         catch (Throwable ex) {
@@ -4836,17 +4385,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 doRemoveFromMaps(reference, element);
             }
 
-            try {
-                submodelOpcUAMapLock.lock();
-                if (submodelOpcUAMap.containsKey(reference)) {
-                    submodelOpcUAMap.remove(reference);
-                }
-            }
-            catch (Exception e2) {
-                logger.error("Error removing from submodelOpcUAMap", e2);
-            }
-            finally {
-                submodelOpcUAMapLock.unlock();
+            if (submodelOpcUAMap.containsKey(reference)) {
+                submodelOpcUAMap.remove(reference);
             }
         }
         catch (Throwable ex) {
