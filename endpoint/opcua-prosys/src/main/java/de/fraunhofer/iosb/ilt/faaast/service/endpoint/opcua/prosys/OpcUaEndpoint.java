@@ -187,7 +187,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
 
             List<Key> path = new ArrayList<>();
-            //Reference ref = AasUtils.toReference(AasUtils.toReference(submodel), element);
             path.addAll(refElement.getKeys());
 
             request.setId(submodel.getIdentification());
@@ -243,8 +242,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             InvokeOperationSyncRequest request = new InvokeOperationSyncRequest();
 
             List<Key> path = new ArrayList<>();
-            //path.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.OPERATION).value(operation.getIdShort()).build());
-            //request.setPath(path);
             path.addAll(refElement.getKeys());
 
             request.setId(submodel.getIdentification());
