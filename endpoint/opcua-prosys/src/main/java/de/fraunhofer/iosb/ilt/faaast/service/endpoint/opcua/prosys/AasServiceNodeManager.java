@@ -1460,7 +1460,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Adds a list of IdentifierKeyValuePairs to the given Node.
      *
-     * @param node The AssetInformation node in which the
+     * @param assetInfoNode The AssetInformation node in which the
      *            IdentifierKeyValuePairs should be created or added
      * @param list The desired list of IdentifierKeyValuePairs
      * @param name The desired name of the Node
