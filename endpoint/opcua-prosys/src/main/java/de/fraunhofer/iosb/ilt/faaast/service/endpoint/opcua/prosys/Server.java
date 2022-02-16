@@ -35,6 +35,8 @@ import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import com.prosysopc.ua.stack.transport.security.SecurityPolicy;
 import com.prosysopc.ua.types.opcua.server.BuildInfoTypeNode;
 import com.prosysopc.ua.types.opcua.server.ServerCapabilitiesTypeNode;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.listener.AasCertificateValidationListener;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.listener.AasServiceIoManagerListener;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
 import java.net.InetAddress;

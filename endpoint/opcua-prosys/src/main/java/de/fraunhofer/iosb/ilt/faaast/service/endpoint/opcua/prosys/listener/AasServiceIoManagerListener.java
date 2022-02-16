@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.listener;
 
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.nodes.UaMethod;
@@ -30,6 +30,10 @@ import com.prosysopc.ua.stack.core.AttributeWriteMask;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import com.prosysopc.ua.stack.core.TimestampsToReturn;
 import com.prosysopc.ua.stack.utils.NumericRange;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.OpcUaEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.data.SubmodelElementData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

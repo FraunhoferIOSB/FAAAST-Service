@@ -22,6 +22,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.StatusCodes;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
 import io.adminshell.aas.v3.model.AssetKind;
 import io.adminshell.aas.v3.model.Blob;
