@@ -91,11 +91,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     public void init(CoreConfig core, OpcUaEndpointConfig config, ServiceContext context) {
         currentConfig = config;
         service = context;
-        aasEnvironment = service.getAASEnvironment();
-        if (aasEnvironment == null) {
-            throw new IllegalArgumentException("AASEnvironment is null");
-        }
-
         messageBus = service.getMessageBus();
         if (messageBus == null) {
             throw new IllegalArgumentException("MessageBus is null");
@@ -114,6 +109,11 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         }
         else if (currentConfig == null) {
             throw new IllegalStateException("OPC UA Endpoint cannot be started because no configuration is available");
+        }
+
+        aasEnvironment = service.getAASEnvironment();
+        if (aasEnvironment == null) {
+            throw new IllegalArgumentException("AASEnvironment is null");
         }
 
         try {
