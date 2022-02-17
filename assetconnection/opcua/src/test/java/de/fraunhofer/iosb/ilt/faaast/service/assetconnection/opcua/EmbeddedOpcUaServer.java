@@ -114,7 +114,6 @@ public class EmbeddedOpcUaServer {
                 .setIdentityValidator(new CompositeValidator(identityValidator, x509IdentityValidator))
                 .setProductUri("urn:eclipse:milo:example-server")
                 .build();
-
         server = new OpcUaServer(serverConfig);
         ExampleNamespace exampleNamespace = new ExampleNamespace(server);
         exampleNamespace.startup();

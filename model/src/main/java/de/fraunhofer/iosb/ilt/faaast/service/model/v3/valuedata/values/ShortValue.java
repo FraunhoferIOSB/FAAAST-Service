@@ -35,11 +35,11 @@ public class ShortValue extends TypedValue<Short> {
     @Override
     public void fromString(String value) throws ValueFormatException {
         if (value == null) {
-            this.value = null;
+            this.setValue(null);
             return;
         }
         try {
-            this.value = Short.parseShort(value);
+            this.setValue((Short) Short.parseShort(value));
         }
         catch (NumberFormatException ex) {
             throw new ValueFormatException(ex);

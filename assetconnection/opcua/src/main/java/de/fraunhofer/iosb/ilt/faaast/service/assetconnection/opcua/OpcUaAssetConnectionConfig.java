@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
+import java.util.Objects;
 
 
 /**
@@ -22,6 +23,26 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConf
  */
 public class OpcUaAssetConnectionConfig
         extends AssetConnectionConfig<OpcUaAssetConnection, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig> {
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private String host;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OpcUaAssetConnectionConfig that = (OpcUaAssetConnectionConfig) o;
+        return super.equals(that)
+                && Objects.equals(host, that.host);
+    }
+
 
     public String getHost() {
         return host;
@@ -32,6 +53,34 @@ public class OpcUaAssetConnectionConfig
         this.host = host;
     }
 
-    private String host;
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), host);
+    }
+
+    public static abstract class AbstractBuilder<T extends OpcUaAssetConnectionConfig, B extends AbstractBuilder<T, B>>
+            extends
+            AssetConnectionConfig.AbstractBuilder<OpcUaAssetConnectionConfig, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig, OpcUaAssetConnection, B> {
+
+        public B host(String value) {
+            getBuildingInstance().setHost(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<OpcUaAssetConnectionConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected OpcUaAssetConnectionConfig newBuildingInstance() {
+            return new OpcUaAssetConnectionConfig();
+        }
+    }
 
 }

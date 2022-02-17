@@ -34,7 +34,7 @@ public class StringValue extends TypedValue<String> {
 
     @Override
     public void fromString(String value) {
-        this.value = value;
+        this.setValue(value);
     }
 
 

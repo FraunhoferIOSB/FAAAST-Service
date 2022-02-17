@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.util.Objects;
 
 
 public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
@@ -30,14 +32,67 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
 
     private String nodeId;
 
-    public Integer getInterval() {
+    public long getInterval() {
         return interval;
     }
 
 
-    public void setInterval(Integer interval) {
+    public void setInterval(long interval) {
         this.interval = interval;
     }
 
-    private Integer interval;
+    private long interval;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OpcUaSubscriptionProviderConfig that = (OpcUaSubscriptionProviderConfig) o;
+        return Objects.equals(nodeId, that.nodeId)
+                && Objects.equals(interval, that.interval);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nodeId, interval);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private static abstract class AbstractBuilder<T extends OpcUaSubscriptionProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B nodeId(String value) {
+            getBuildingInstance().setNodeId(value);
+            return getSelf();
+        }
+
+
+        public B interval(long value) {
+            getBuildingInstance().setInterval(value);
+            return getSelf();
+        }
+
+    }
+
+    public static class Builder extends AbstractBuilder<OpcUaSubscriptionProviderConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected OpcUaSubscriptionProviderConfig newBuildingInstance() {
+            return new OpcUaSubscriptionProviderConfig();
+        }
+    }
 }

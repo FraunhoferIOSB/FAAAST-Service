@@ -34,7 +34,7 @@ public class BooleanValue extends TypedValue<Boolean> {
 
     @Override
     public void fromString(String value) {
-        this.value = Boolean.valueOf(value);
+        this.setValue(Boolean.valueOf(value));
     }
 
 

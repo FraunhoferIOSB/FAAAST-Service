@@ -35,11 +35,11 @@ public class LongValue extends TypedValue<Long> {
     @Override
     public void fromString(String value) throws ValueFormatException {
         if (value == null) {
-            this.value = null;
+            this.setValue(null);
             return;
         }
         try {
-            this.value = Long.parseLong(value);
+            this.setValue((Long) Long.parseLong(value));
         }
         catch (NumberFormatException ex) {
             throw new ValueFormatException(ex);

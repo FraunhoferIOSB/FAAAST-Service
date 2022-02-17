@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
 
 
@@ -26,4 +27,7 @@ public interface ServiceContext {
 
 
     public Response execute(Request request);
+
+
+    public OperationVariable[] getOperationOutputVariables(Reference reference);
 }

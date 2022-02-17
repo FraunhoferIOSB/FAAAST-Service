@@ -35,11 +35,11 @@ public class ByteValue extends TypedValue<Byte> {
     @Override
     public void fromString(String value) throws ValueFormatException {
         if (value == null) {
-            this.value = null;
+            this.setValue(null);
             return;
         }
         try {
-            this.value = Byte.parseByte(value);
+            this.setValue((Byte) Byte.parseByte(value));
         }
         catch (NumberFormatException ex) {
             throw new ValueFormatException(ex);

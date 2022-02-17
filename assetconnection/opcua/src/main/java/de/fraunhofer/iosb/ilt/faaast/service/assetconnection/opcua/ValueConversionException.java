@@ -12,16 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.content;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
-public class OpcContentDeserializerFactory {
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 
-    private OpcContentDeserializerFactory() {
 
+public class ValueConversionException extends AssetConnectionException {
+
+    public ValueConversionException(String msg) {
+        super(msg);
     }
 
 
-    public static OpcContentDeserializer create() {
-        return new OpcContentDeserializer();
+    public ValueConversionException(Throwable err) {
+        super(err);
     }
+
+
+    public ValueConversionException(String msg, Throwable err) {
+        super(msg, err);
+    }
+
 }
