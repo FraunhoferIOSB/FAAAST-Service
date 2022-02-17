@@ -117,9 +117,8 @@ public class OpcUaEndpointTest {
         config.setSecondsTillShutdown(0);
 
         endpoint = new OpcUaEndpoint();
-        endpoint.init(coreConfig, config, service);
         service = new TestService(endpoint, null, false);
-        endpoint.setService(service);
+        endpoint.init(coreConfig, config, service);
         service.start();
     }
 

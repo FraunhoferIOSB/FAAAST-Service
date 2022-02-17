@@ -14,8 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.GetAllAASXPackageIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
@@ -33,15 +34,18 @@ public class GetAllAASXPackageIdsRequestMapper extends RequestMapper {
     private static final String PATTERN = "^packages$";
     private static final String QUERYPARAM = "aasId";
 
+    public GetAllAASXPackageIdsRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
+
     @Override
     public Request parse(HttpRequest httpRequest) {
-        GetAllAASXPackageIdsRequest request = new GetAllAASXPackageIdsRequest();
-        // TODO: singular or plural? conflicting documentation
-        // decision: implement more powerful plural version
-        request.setAasId(Stream.of(EncodingUtils.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM)).split(","))
-                .map(x -> IdUtils.parseIdentifier(x))
-                .collect(Collectors.toList()));
-        return request;
+        return GetAllAASXPackageIdsRequest.builder()
+                .aasIds(Stream.of(EncodingUtils.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM)).split(","))
+                        .map(x -> IdUtils.parseIdentifier(x))
+                        .collect(Collectors.toList()))
+                .build();
     }
 
 

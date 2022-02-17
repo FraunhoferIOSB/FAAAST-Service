@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
 
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.stack.core.StatusCodes;
-import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
@@ -52,7 +51,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
     private static final Logger logger = LoggerFactory.getLogger(OpcUaEndpoint.class);
 
-    private Service service;
+    private ServiceContext service;
     private AssetAdministrationShellEnvironment aasEnvironment;
     private MessageBus messageBus;
     private OpcUaEndpointConfig currentConfig;
@@ -91,20 +90,16 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     @Override
     public void init(CoreConfig core, OpcUaEndpointConfig config, ServiceContext context) {
         currentConfig = config;
-    }
+        service = context;
+        aasEnvironment = service.getAASEnvironment();
+        if (aasEnvironment == null) {
+            throw new IllegalArgumentException("AASEnvironment is null");
+        }
 
-
-    /**
-     * Sets the given Service.
-     * This is the second call.
-     *
-     * @param service The current Service
-     */
-    @Override
-    public void setService(Service service) {
-        this.service = service;
-        this.aasEnvironment = service.getEnvironment();
-        this.messageBus = service.getMessageBus();
+        messageBus = service.getMessageBus();
+        if (messageBus == null) {
+            throw new IllegalArgumentException("MessageBus is null");
+        }
     }
 
 

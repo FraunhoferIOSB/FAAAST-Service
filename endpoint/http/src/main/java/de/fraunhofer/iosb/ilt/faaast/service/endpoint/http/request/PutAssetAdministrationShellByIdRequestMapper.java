@@ -14,15 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.http.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
-import io.adminshell.aas.v3.dataformat.DeserializationException;
-import io.adminshell.aas.v3.dataformat.json.JsonDeserializer;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -30,8 +32,14 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  */
 public class PutAssetAdministrationShellByIdRequestMapper extends RequestMapper {
 
+    private static Logger logger = LoggerFactory.getLogger(PutAssetAdministrationShellByIdRequestMapper.class);
     private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
     private static final String PATTERN = "(?!.*/aas)^shells/(.*)$";
+
+    public PutAssetAdministrationShellByIdRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext);
+    }
+
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
@@ -41,21 +49,10 @@ public class PutAssetAdministrationShellByIdRequestMapper extends RequestMapper 
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        if (httpRequest.getPathElements() == null || httpRequest.getPathElements().size() != 2) {
-            throw new IllegalArgumentException(String.format("invalid URL format (request: %s, url pattern: %s)",
-                    PutAssetAdministrationShellByIdRequest.class.getSimpleName(),
-                    PATTERN));
-        }
-        PutAssetAdministrationShellByIdRequest request = new PutAssetAdministrationShellByIdRequest();
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        JsonDeserializer jsonDeserializer = new JsonDeserializer();
-        try {
-            AssetAdministrationShell shell = jsonDeserializer.readReferable(httpRequest.getBody(), AssetAdministrationShell.class);
-            request.setAas(shell);
-            return request;
-        }
-        catch (DeserializationException e) {}
-        return null;
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+        return PutAssetAdministrationShellByIdRequest.builder()
+                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .aas(parseBody(httpRequest, AssetAdministrationShell.class))
+                .build();
     }
 }

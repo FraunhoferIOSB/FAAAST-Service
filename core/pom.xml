@@ -49,6 +49,11 @@
             <version>${aas.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.admin-shell.aas</groupId>
+            <artifactId>dataformat-json</artifactId>
+            <version>${aas.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
             <version>${classgraph.version}</version>

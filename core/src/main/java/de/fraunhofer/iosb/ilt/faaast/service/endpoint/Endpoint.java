@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint;
 
-import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
@@ -35,14 +34,6 @@ public interface Endpoint<T extends EndpointConfig> extends Configurable<T> {
      * @param config the corresponding config
      */
     public void init(CoreConfig core, T config, ServiceContext context);
-
-
-    /**
-     * Sets the service instance.
-     *
-     * @param service the service
-     */
-    public void setService(Service service);
 
 
     /**

@@ -22,6 +22,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import java.io.IOException;
 
 
@@ -39,7 +41,11 @@ public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 
     @Override
     public TypedValue deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
-        Datatype datatype = ContextAwareElementValueDeserializer.getCurrentTypeInfo(context).getDatatype();
+        TypeInfo typeInfo = ContextAwareElementValueDeserializer.getTypeInfo(context);
+        if (typeInfo == null || !ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
+            throw new RuntimeException("missing datatype information");
+        }
+        Datatype datatype = ((ElementValueTypeInfo) typeInfo).getDatatype();
         try {
             return TypedValueFactory.create(datatype, parser.getValueAsString());
         }

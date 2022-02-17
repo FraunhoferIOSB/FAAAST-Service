@@ -869,33 +869,47 @@ public class ValueConverter {
             switch (type) {
                 case PROPERTY_VALUE: {
                     Property aasProp = (Property) submodelElement;
-                    String newValue = variant.getValue().toString();
+                    String newValue = null;
+                    if (variant.getValue() != null) {
+                        newValue = variant.getValue().toString();
+                    }
                     aasProp.setValue(newValue);
                     break;
                 }
                 case RANGE_MIN: {
                     Range aasRange = (Range) submodelElement;
-                    String newValue = variant.getValue().toString();
+                    String newValue = null;
+                    if (variant.getValue() != null) {
+                        newValue = variant.getValue().toString();
+                    }
                     aasRange.setMin(newValue);
                     break;
                 }
                 case RANGE_MAX: {
                     Range aasRange = (Range) submodelElement;
-                    String newValue = variant.getValue().toString();
+                    String newValue = null;
+                    if (variant.getValue() != null) {
+                        newValue = variant.getValue().toString();
+                    }
                     aasRange.setMax(newValue);
                     break;
                 }
                 case BLOB_VALUE: {
                     Blob aasBlob = (Blob) submodelElement;
-                    ByteString bs = (ByteString) variant.getValue();
+                    ByteString bs = null;
+                    if (variant.getValue() != null) {
+                        bs = (ByteString) variant.getValue();
+                    }
                     aasBlob.setValue(ByteString.asByteArray(bs));
                     break;
                 }
                 case MULTI_LANGUAGE_VALUE: {
                     MultiLanguageProperty aasMultiProp = (MultiLanguageProperty) submodelElement;
-                    //String newValue = variant.getValue().toString();
                     if (variant.isArray() && (variant.getValue() instanceof LocalizedText[])) {
                         aasMultiProp.setValues(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
+                    }
+                    else if (variant.isEmpty()) {
+                        aasMultiProp.setValues(new ArrayList<>());
                     }
                     break;
                 }
@@ -904,6 +918,9 @@ public class ValueConverter {
                     if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
                         aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
                     }
+                    else if (variant.isEmpty()) {
+                        aasRefElem.setValue(null);
+                    }
                     break;
                 }
                 case RELATIONSHIP_ELEMENT_FIRST: {
@@ -911,12 +928,18 @@ public class ValueConverter {
                     if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
                         aasRelElem.setFirst(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
                     }
+                    else if (variant.isEmpty()) {
+                        aasRelElem.setFirst(null);
+                    }
                     break;
                 }
                 case RELATIONSHIP_ELEMENT_SECOND: {
                     RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
                     if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
                         aasRelElem.setSecond(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                    }
+                    else if (variant.isEmpty()) {
+                        aasRelElem.setSecond(null);
                     }
                     break;
                 }
@@ -927,7 +950,12 @@ public class ValueConverter {
                 }
                 case ENTITY_TYPE: {
                     Entity aasEntity = (Entity) submodelElement;
-                    aasEntity.setEntityType(ValueConverter.getEntityType(AASEntityTypeDataType.valueOf((int) variant.getValue())));
+                    if (variant.isEmpty()) {
+                        aasEntity.setEntityType(null);
+                    }
+                    else {
+                        aasEntity.setEntityType(ValueConverter.getEntityType(AASEntityTypeDataType.valueOf((int) variant.getValue())));
+                    }
                     break;
                 }
                 default:

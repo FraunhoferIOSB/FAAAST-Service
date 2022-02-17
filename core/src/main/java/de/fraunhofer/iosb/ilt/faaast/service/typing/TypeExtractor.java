@@ -14,155 +14,107 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.typing;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
+import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
-import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
-import io.adminshell.aas.v3.model.DataElement;
+import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
 import io.adminshell.aas.v3.model.Entity;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Range;
-import io.adminshell.aas.v3.model.ReferenceElement;
-import io.adminshell.aas.v3.model.RelationshipElement;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 
 
 public class TypeExtractor {
 
-    public static TypeContext getTypeContext(Object obj) {
+    private static final Type COLLECTION_GENERIC_TOKEN;
+    private static final Type MAP_GENERIC_TOKEN;
+
+    static {
+        try {
+            COLLECTION_GENERIC_TOKEN = TypeToken.of(Collection.class.getMethod("iterator").getGenericReturnType()).resolveType(Iterator.class.getTypeParameters()[0]).getType();
+            MAP_GENERIC_TOKEN = Map.class.getMethod("get", Object.class).getGenericReturnType();
+        }
+        catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static TypeInfo extractTypeInfo(Object obj) {
         if (obj == null) {
-            throw new IllegalArgumentException("obj must be non-null");
+            return null;
         }
-        if (ElementValue.class.isAssignableFrom(obj.getClass())) {
-            return fromValueType((ElementValue) obj);
-        }
-        TypeExtractor visitor = new TypeExtractor();
-        visitor.walk(obj);
-        return visitor.context;
-    }
-
-
-    private static TypeContext fromValueType(ElementValue value) {
-        // TODO implement
-        throw new UnsupportedOperationException("resolving TypeContext from value elements not supported yet");
-    }
-
-    private final TypeContext context;
-    private boolean isRoot = true;
-    private final List<String> path = new ArrayList<>();
-
-    private TypeExtractor() {
-        context = new TypeContext();
-    }
-
-
-    private void addType(Object obj) {
-        if (!isRoot) {
-            context.getTypeInfos().add(getTypeInfo(obj));
-        }
-        isRoot = false;
-    }
-
-
-    private TypeInfo getTypeInfo(Object obj) {
-        TypeInfo.Builder result = TypeInfo.builder()
-                .idShortPath(new ArrayList<>(path));
-        if (obj != null && SubmodelElement.class.isAssignableFrom(obj.getClass())) {
-            Datatype datatype = null;
-            if (Property.class.isAssignableFrom(obj.getClass())) {
-                datatype = Datatype.fromName(((Property) obj).getValueType());
+        Class<?> type = obj.getClass();
+        if (SubmodelElement.class.isAssignableFrom(type)) {
+            ElementValueTypeInfo.Builder builder = ElementValueTypeInfo.builder();
+            SubmodelElement submodelElement = (SubmodelElement) obj;
+            builder.type(ElementValueMapper.getValueClass((Class<? extends SubmodelElement>) submodelElement.getClass()));
+            if (AnnotatedRelationshipElement.class.isAssignableFrom(type)) {
+                AnnotatedRelationshipElement annotatedRelationshipElement = (AnnotatedRelationshipElement) obj;
+                annotatedRelationshipElement.getAnnotations().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
+            }
+            else if (SubmodelElementCollection.class.isAssignableFrom(type)) {
+                SubmodelElementCollection submodelElementCollection = (SubmodelElementCollection) obj;
+                submodelElementCollection.getValues().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
+            }
+            else if (Entity.class.isAssignableFrom(type)) {
+                Entity entity = (Entity) obj;
+                entity.getStatements().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
+            }
+            else if (Property.class.isAssignableFrom(obj.getClass())) {
+                Property property = (Property) obj;
+                builder.datatype(Datatype.fromName(property.getValueType()));
             }
             else if (Range.class.isAssignableFrom(obj.getClass())) {
-                datatype = Datatype.fromName(((Range) obj).getValueType());
+                Range range = (Range) obj;
+                builder.datatype(Datatype.fromName(range.getValueType()));
             }
-            Class<? extends ElementValue> valueType = null;
-            try {
-                valueType = ElementValueMapper.getValueClass((Class<? extends SubmodelElement>) obj.getClass());
+            return builder.build();
+        }
+        if (Submodel.class.isAssignableFrom(type)) {
+            Submodel submodel = (Submodel) obj;
+            ContainerTypeInfo.Builder<Object> builder = ContainerTypeInfo.<Object> builder();
+            builder.type(Submodel.class);
+            submodel.getSubmodelElements().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
+            return builder.build();
+        }
+        if (Collection.class.isAssignableFrom(type)) {
+            Collection collection = (Collection) obj;
+            ContainerTypeInfo.Builder<Integer> builder = ContainerTypeInfo.<Integer> builder();
+            builder.type(Collection.class);
+            builder.contentType(TypeToken.of(type).resolveType(COLLECTION_GENERIC_TOKEN).getRawType());
+            Iterator iterator = collection.iterator();
+            int i = 0;
+            while (iterator.hasNext()) {
+                builder.element(i, extractTypeInfo(iterator.next()));
+                i++;
             }
-            catch (Exception ex) {}
-            result = result
-                    .datatype(datatype)
-                    .valueType(valueType);
+            return builder.build();
         }
-        return result.build();
-    }
-
-
-    private void levelDown(String idShort) {
-        if (!isRoot) {
-            path.add(idShort);
+        if (Map.class.isAssignableFrom(type)) {
+            Map map = (Map) obj;
+            ContainerTypeInfo.Builder<String> builder = ContainerTypeInfo.<String> builder();
+            builder.type(Map.class);
+            builder.contentType(TypeToken.of(type).resolveType(MAP_GENERIC_TOKEN).getRawType());
+            map.forEach((key, value) -> builder.element(key.toString(), extractTypeInfo(value)));
+            return builder.build();
         }
-    }
-
-
-    private void levelUp() {
-        isRoot = false;
-        if (path.size() > 0) {
-            path.remove(path.size() - 1);
+        if (type.isArray()) {
+            Object[] array = (Object[]) obj;
+            ContainerTypeInfo.Builder<Integer> builder = ContainerTypeInfo.<Integer> builder();
+            builder.type(Array.class);
+            builder.contentType(type.getComponentType());
+            for (int i = 0; i < array.length; i++) {
+                builder.element(i, extractTypeInfo(array[i]));
+            }
+            return builder.build();
         }
-    }
-
-
-    private void walk(Object obj) {
-        context.setRootInfo(getTypeInfo(obj));
-
-        AssetAdministrationShellElementWalker.builder()
-                .visitor(new DefaultAssetAdministrationShellElementVisitor() {
-
-                    @Override
-                    public void visit(DataElement element) {
-                        addType(element);
-                    }
-
-
-                    @Override
-                    public void visit(Submodel submodel) {
-                        isRoot = false;
-                    }
-
-
-                    @Override
-                    public void visit(SubmodelElementCollection submodelElementCollection) {
-                        addType(submodelElementCollection);
-                    }
-
-
-                    @Override
-                    public void visit(ReferenceElement referenceElement) {
-                        addType(referenceElement);
-                    }
-
-
-                    @Override
-                    public void visit(RelationshipElement relationshipElement) {
-                        addType(relationshipElement);
-                    }
-
-
-                    @Override
-                    public void visit(Entity entity) {
-                        addType(entity);
-                    }
-                })
-                .before(new DefaultAssetAdministrationShellElementVisitor() {
-                    @Override
-                    public void visit(SubmodelElement submodelElement) {
-                        levelDown(submodelElement.getIdShort());
-                    }
-                })
-                .after(new DefaultAssetAdministrationShellElementVisitor() {
-                    @Override
-                    public void visit(SubmodelElement submodelElement) {
-                        levelUp();
-                    }
-                })
-                .build()
-                .walk(obj);
-
+        return ContainerTypeInfo.<Object> builder().build();
     }
 }

@@ -14,11 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.GetAllAssetAdministrationShellsByAssetIdResponse;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,41 +24,32 @@ import java.util.Objects;
 /**
  * Chapter 6.2.4
  */
-public class GetAllAssetAdministrationShellsByAssetIdRequest extends BaseRequest<GetAllAssetAdministrationShellsByAssetIdResponse> {
-    private OutputModifier outputModifier;
+public class GetAllAssetAdministrationShellsByAssetIdRequest extends RequestWithModifier<GetAllAssetAdministrationShellsByAssetIdResponse> {
+
     private List<IdentifierKeyValuePair> assetIds;
 
     public GetAllAssetAdministrationShellsByAssetIdRequest() {
         this.assetIds = new ArrayList<>();
-        this.outputModifier = OutputModifier.DEFAULT;
-    }
-
-
-    public OutputModifier getOutputModifier() {
-        return outputModifier;
-    }
-
-
-    public void setOutputModifier(OutputModifier outputModifier) {
-        this.outputModifier = outputModifier;
     }
 
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         GetAllAssetAdministrationShellsByAssetIdRequest that = (GetAllAssetAdministrationShellsByAssetIdRequest) o;
-        return Objects.equals(outputModifier, that.outputModifier)
+        return super.equals(that)
                 && Objects.equals(assetIds, that.assetIds);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(outputModifier, assetIds);
+        return Objects.hash(super.hashCode(), assetIds);
     }
 
 
@@ -79,12 +67,8 @@ public class GetAllAssetAdministrationShellsByAssetIdRequest extends BaseRequest
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllAssetAdministrationShellsByAssetIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-        public B outputModifier(OutputModifier value) {
-            getBuildingInstance().setOutputModifier(value);
-            return getSelf();
-        }
-
+    public static abstract class AbstractBuilder<T extends GetAllAssetAdministrationShellsByAssetIdRequest, B extends AbstractBuilder<T, B>>
+            extends RequestWithModifier.AbstractBuilder<T, B> {
 
         public B assetId(IdentifierKeyValuePair value) {
             getBuildingInstance().getAssetIds().add(value);

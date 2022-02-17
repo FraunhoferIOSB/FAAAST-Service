@@ -121,9 +121,8 @@ public class OpcUaEndpointFullTest {
         assetConnection.registerOperationProvider(ref, new TestOperationProviderConfig(outputArgs));
 
         endpoint = new OpcUaEndpoint();
-        endpoint.init(coreConfig, config, service);
         service = new TestService(endpoint, assetConnection, true);
-        endpoint.setService(service);
+        endpoint.init(coreConfig, config, service);
         service.start();
     }
 
@@ -306,7 +305,6 @@ public class OpcUaEndpointFullTest {
 
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        //List<AASKeyDataType> oldValue = new ArrayList<>();
         // The DataElementValueMapper changes the order of the elements
         List<AASKeyDataType> newValue = new ArrayList<>();
         newValue.add(new AASKeyDataType(AASKeyElementsDataType.GlobalReference, "https://iosb.fraunhofer.de/TestValue1", AASKeyTypeDataType.IRI));

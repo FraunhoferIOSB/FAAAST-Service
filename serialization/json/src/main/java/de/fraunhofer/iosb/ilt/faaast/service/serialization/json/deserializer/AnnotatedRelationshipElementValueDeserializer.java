@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer;
 
 import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.AnnotatedRelationshipElementValue;
@@ -38,9 +37,8 @@ public class AnnotatedRelationshipElementValueDeserializer extends ContextAwareE
 
 
     @Override
-    public AnnotatedRelationshipElementValue deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
+    public AnnotatedRelationshipElementValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
         AnnotatedRelationshipElementValue.Builder builder = new AnnotatedRelationshipElementValue.Builder();
-        JsonNode node = parser.readValueAsTree();
         if (node.has(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST)) {
             builder.first(context.readTreeAsValue(node.get(JsonFieldNames.ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST), ReferenceElementValue.class).getKeys());
         }

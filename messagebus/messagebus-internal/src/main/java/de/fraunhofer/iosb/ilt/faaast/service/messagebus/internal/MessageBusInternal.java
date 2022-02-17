@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
@@ -32,7 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * MessageBusInternal: Implements the internal MessageBus Implements
  * subscribe/unsubscribe and publishes/dispatches EventMessages to subscribers
  */
-public class MessageBusInternal implements MessageBus<MessageBusConfig>, Runnable {
+public class MessageBusInternal implements MessageBus<MessageBusInternalConfig>, Runnable {
 
     private final BlockingQueue<EventMessage> messageQueue;
 
@@ -47,7 +46,7 @@ public class MessageBusInternal implements MessageBus<MessageBusConfig>, Runnabl
 
 
     @Override
-    public MessageBusConfig asConfig() {
+    public MessageBusInternalConfig asConfig() {
         return null;
     }
 
@@ -60,7 +59,7 @@ public class MessageBusInternal implements MessageBus<MessageBusConfig>, Runnabl
      *            class
      */
     @Override
-    public void init(CoreConfig coreConfig, MessageBusConfig config, ServiceContext context) {
+    public void init(CoreConfig coreConfig, MessageBusInternalConfig config, ServiceContext context) {
         running.set(false);
     }
 

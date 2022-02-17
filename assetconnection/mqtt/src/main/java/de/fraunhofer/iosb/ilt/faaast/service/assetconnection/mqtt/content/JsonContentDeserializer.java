@@ -20,7 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeContext;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 
 
 public class JsonContentDeserializer implements ContentDeserializer {
@@ -33,13 +34,16 @@ public class JsonContentDeserializer implements ContentDeserializer {
 
 
     @Override
-    public DataElementValue read(String raw, String query, TypeContext typeContext) throws AssetConnectionException {
+    public DataElementValue read(String raw, String query, TypeInfo typeInfo) throws AssetConnectionException {
         try {
             String value = raw;
             if (query != null) {
                 try {
                     value = JsonPath.read(value, query).toString();
-                    if (typeContext.getRootInfo().getDatatype() == Datatype.String) {
+
+                    if (typeInfo != null
+                            && ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())
+                            && ((ElementValueTypeInfo) typeInfo).getDatatype() == Datatype.String) {
                         value = "\"" + value + "\"";
                     }
                 }
@@ -47,7 +51,7 @@ public class JsonContentDeserializer implements ContentDeserializer {
                     throw new AssetConnectionException(String.format("invalid JSON path expression '%s'", query), ex);
                 }
             }
-            return deserializer.readValue(value, typeContext);
+            return deserializer.readValue(value, typeInfo);
         }
         catch (DeserializationException ex) {
             throw new AssetConnectionException("parsing JSON value failed", ex);
