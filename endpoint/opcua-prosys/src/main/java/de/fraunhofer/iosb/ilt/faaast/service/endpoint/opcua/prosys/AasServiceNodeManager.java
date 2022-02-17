@@ -1448,6 +1448,18 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 addAasReferenceAasNS(qualifierNode, qualifier.getValueId(), AASQualifierType.VALUE_ID);
             }
 
+            if (VALUES_READ_ONLY) {
+                if (qualifierNode.getValueNode() != null) {
+                    qualifierNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
+                }
+                if (qualifierNode.getValueTypeNode() != null) {
+                    qualifierNode.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                }
+                if (qualifierNode.getTypeNode() != null) {
+                    qualifierNode.getTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                }
+            }
+
             node.addComponent(qualifierNode);
         }
         catch (Throwable ex) {
