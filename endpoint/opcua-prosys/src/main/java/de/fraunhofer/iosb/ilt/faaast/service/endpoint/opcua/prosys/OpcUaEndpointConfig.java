@@ -32,6 +32,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         this.tcpPort = DEFAULT_PORT;
     }
 
+
     /**
      * Gets the desired port for the OPC.TCP Endpoint
      *
