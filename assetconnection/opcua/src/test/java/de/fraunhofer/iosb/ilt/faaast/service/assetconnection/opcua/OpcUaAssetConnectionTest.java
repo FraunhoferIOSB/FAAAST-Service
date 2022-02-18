@@ -47,6 +47,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
 public class OpcUaAssetConnectionTest {
 
     private static final long DEFAULT_TIMEOUT = 1000;
@@ -61,30 +62,35 @@ public class OpcUaAssetConnectionTest {
             Assert.assertNotNull(serverSocket);
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
             opcPort = serverSocket.getLocalPort();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             Assert.fail("could not find free port");
         }
         try (ServerSocket serverSocket = new ServerSocket(0)) {
             Assert.assertNotNull(serverSocket);
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
             httpsPort = serverSocket.getLocalPort();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             Assert.fail("could not find free port");
         }
         try {
             server = new EmbeddedOpcUaServer(
                     AnonymousIdentityValidator.INSTANCE, opcPort, httpsPort);
             server.startup().get();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
         serverUrl = "opc.tcp://localhost:" + opcPort + "/milo";
     }
 
+
     @Test
     public void testSubscriptionProvider() throws AssetConnectionException, InterruptedException, ValueFormatException, ExecutionException, UaException {
-        testSubscribe("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.Double, "0.0"));
+        testSubscribe("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.Double, "0.1"));
     }
+
 
     private void testSubscribe(String nodeId, PropertyValue expected) throws AssetConnectionException, InterruptedException, ExecutionException, UaException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
@@ -131,9 +137,11 @@ public class OpcUaAssetConnectionTest {
         Assert.assertEquals(expected, response.get());
     }
 
+
     private static boolean isDebugging() {
         return java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
     }
+
 
     private void testWriteReadValue(String nodeId, PropertyValue expected) throws AssetConnectionException, InterruptedException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
@@ -142,8 +150,8 @@ public class OpcUaAssetConnectionTest {
                 .type(expected.getClass())
                 .datatype(expected.getValue().getDataType())
                 .build())
-                .when(serviceContext)
-                .getTypeInfo(reference);
+                        .when(serviceContext)
+                        .getTypeInfo(reference);
         OpcUaAssetConnection connection = new OpcUaAssetConnection(
                 CoreConfig.builder()
                         .build(),
@@ -161,19 +169,21 @@ public class OpcUaAssetConnectionTest {
         Assert.assertEquals(expected, actual);
     }
 
+
     @Test
     public void testValueProvider() throws AssetConnectionException, InterruptedException, ValueFormatException {
         testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.Double, "3.3"));
-//        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/String", PropertyValue.of(Datatype.String, "hello world!"));
-//        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Integer", PropertyValue.of(Datatype.Integer, "42"));
-//        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Boolean", PropertyValue.of(Datatype.Boolean, "true"));
+        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/String", PropertyValue.of(Datatype.String, "hello world!"));
+        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Integer", PropertyValue.of(Datatype.Integer, "42"));
+        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Boolean", PropertyValue.of(Datatype.Boolean, "true"));
     }
 
+
     private void testInvokeOperationSync(String nodeId,
-            Map<String, PropertyValue> input,
-            Map<String, PropertyValue> inoutput,
-            Map<String, PropertyValue> expectedInoutput,
-            Map<String, PropertyValue> expectedOutput)
+                                         Map<String, PropertyValue> input,
+                                         Map<String, PropertyValue> inoutput,
+                                         Map<String, PropertyValue> expectedInoutput,
+                                         Map<String, PropertyValue> expectedOutput)
             throws AssetConnectionException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
@@ -237,6 +247,7 @@ public class OpcUaAssetConnectionTest {
         Assert.assertArrayEquals(expectedOut, actual);
         Assert.assertArrayEquals(expectedInOut, inoutputVariables);
     }
+
 
     @Test
     public void testOperationProvider() throws AssetConnectionException, InterruptedException, ValueFormatException {

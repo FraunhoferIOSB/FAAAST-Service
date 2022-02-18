@@ -40,28 +40,23 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.milo.opcua.sdk.client.AddressSpace;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
-import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaMonitoredItem;
-import org.eclipse.milo.opcua.sdk.client.api.subscriptions.UaSubscription;
 import org.eclipse.milo.opcua.sdk.client.nodes.UaMethodNode;
 import org.eclipse.milo.opcua.sdk.client.nodes.UaNode;
+import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedDataItem;
+import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
 import org.eclipse.milo.opcua.sdk.core.nodes.VariableNode;
-import org.eclipse.milo.opcua.stack.core.AttributeId;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
@@ -70,20 +65,14 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
-import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UShort;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.BrowseDirection;
-import org.eclipse.milo.opcua.stack.core.types.enumerated.MonitoringMode;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
 import org.eclipse.milo.opcua.stack.core.types.structured.Argument;
 import org.eclipse.milo.opcua.stack.core.types.structured.CallMethodRequest;
 import org.eclipse.milo.opcua.stack.core.types.structured.CallMethodResult;
-import org.eclipse.milo.opcua.stack.core.types.structured.MonitoredItemCreateRequest;
-import org.eclipse.milo.opcua.stack.core.types.structured.MonitoringParameters;
-import org.eclipse.milo.opcua.stack.core.types.structured.ReadValueId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Implementation of OPC UA Asset Connection
@@ -96,71 +85,66 @@ public class OpcUaAssetConnection
     private Map<Reference, AssetValueProvider> valueProviders;
     private Map<Reference, AssetOperationProvider> operationProviders;
     private Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
-    private final List<UaSubscription> subscriptions;
+    private final Map<String, SubscriptionHandler> subscriptions;
+    private ManagedSubscription subscription;
     private ServiceContext serviceContext;
-    private ValueConverter valueConverter;
+    private static ValueConverter valueConverter;
     private final String NODE_ID_SEPARATOR = ";";
     private final String NS_PREFIX = "ns=";
     private OpcUaClient client;
 
     public OpcUaAssetConnection() {
         this.valueConverter = new ValueConverter();
-        this.subscriptions = new ArrayList<>();
+        this.subscriptions = new HashMap<>();
         this.valueProviders = new HashMap<>();
         this.operationProviders = new HashMap<>();
         this.subscriptionProviders = new HashMap<>();
     }
-
 
     protected OpcUaAssetConnection(CoreConfig coreConfig, OpcUaAssetConnectionConfig config, ServiceContext context) throws AssetConnectionException {
         this();
         init(coreConfig, config, context);
     }
 
-
     @Override
     public void close() throws AssetConnectionException {
         if (client != null) {
-            for (var subscription: subscriptions) {
+            for (var subscription : subscriptions.values()) {
                 try {
-                    unsubscribe(subscription);
-                }
-                catch (InterruptedException | ExecutionException ex) {
+                    subscription.dataItem.delete();
+                } catch (UaException ex) {
                     logger.info("unsubscribing from OPC UA asset connection on connection closing failed", ex);
                 }
             }
+            subscriptions.clear();
             try {
                 client.disconnect().get();
-            }
-            catch (InterruptedException | ExecutionException ex) {
+            } catch (InterruptedException | ExecutionException ex) {
                 throw new AssetConnectionException("error closing OPC UA asset connection");
             }
         }
     }
-
 
     @Override
     public void init(CoreConfig coreConfig, OpcUaAssetConnectionConfig config, ServiceContext context) throws AssetConnectionException {
         this.serviceContext = context;
         this.config = config;
         connect();
-        for (var provider: config.getValueProviders().entrySet()) {
+        for (var provider : config.getValueProviders().entrySet()) {
             registerValueProvider(provider.getKey(), provider.getValue());
         }
-        for (var provider: config.getOperationProviders().entrySet()) {
+        for (var provider : config.getOperationProviders().entrySet()) {
             registerOperationProvider(provider.getKey(), provider.getValue());
         }
-        for (var provider: config.getSubscriptionProviders().entrySet()) {
+        for (var provider : config.getSubscriptionProviders().entrySet()) {
             registerSubscriptionProvider(provider.getKey(), provider.getValue());
         }
     }
-
 
     @Override
     public OpcUaAssetConnectionConfig asConfig() {
         return config;
     }
-
 
     private static void checkStatusCode(StatusCode statusCode, String errorMessage) throws AssetConnectionException {
         String message = errorMessage;
@@ -177,7 +161,6 @@ public class OpcUaAssetConnection
             throw new AssetConnectionException(message);
         }
     }
-
 
     @Override
     public void registerValueProvider(Reference reference, OpcUaValueProviderConfig valueProviderConfig) throws AssetConnectionException {
@@ -210,9 +193,8 @@ public class OpcUaAssetConnection
         }
         final VariableNode node;
         try {
-            node = client.getAddressSpace().getVariableNode(parseNodeId(client, valueProviderConfig.getNodeId()));
-        }
-        catch (UaException ex) {
+            node = client.getAddressSpace().getVariableNode(parseNodeId(valueProviderConfig.getNodeId()));
+        } catch (UaException ex) {
             throw new AssetConnectionException(String.format("%s - could not parse nodeId (nodeId: %s)",
                     baseErrorMessage,
                     valueProviderConfig.getNodeId()), ex);
@@ -224,12 +206,10 @@ public class OpcUaAssetConnection
                     DataValue dataValue = client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()).get();
                     checkStatusCode(dataValue.getStatusCode(), "error reading value from asset conenction");
                     return new PropertyValue(valueConverter.convert(dataValue.getValue(), datatype));
-                }
-                catch (AssetConnectionException | InterruptedException | ExecutionException e) {
+                } catch (AssetConnectionException | InterruptedException | ExecutionException e) {
                     throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)), e);
                 }
             }
-
 
             @Override
             public void setValue(DataElementValue value) throws AssetConnectionException {
@@ -248,24 +228,21 @@ public class OpcUaAssetConnection
                             null,
                             null)).get();
                     checkStatusCode(result, "error setting value on asset connection");
-                }
-                catch (InterruptedException | ExecutionException e) {
+                } catch (InterruptedException | ExecutionException e) {
                     throw new AssetConnectionException("error writing asset connection value", e);
                 }
             }
         });
     }
 
-
     @Override
     public void registerOperationProvider(Reference reference, OpcUaOperationProviderConfig config) throws AssetConnectionException {
         String baseErrorMessage = "error registering operation provider";
-        final NodeId nodeId = parseNodeId(client, config.getNodeId());
+        final NodeId nodeId = parseNodeId(config.getNodeId());
         final UaNode node;
         try {
             node = client.getAddressSpace().getNode(nodeId);
-        }
-        catch (UaException ex) {
+        } catch (UaException ex) {
             throw new AssetConnectionException(String.format("%s - could not resolve nodeId (nodeId: %s)",
                     baseErrorMessage,
                     config.getNodeId()),
@@ -286,8 +263,7 @@ public class OpcUaAssetConnection
                             .build())
                     .get(0)
                     .getNodeId();
-        }
-        catch (UaException ex) {
+        } catch (UaException ex) {
             throw new AssetConnectionException(String.format("%s - could not resolve parent node (nodeId: %s)",
                     baseErrorMessage,
                     config.getNodeId()),
@@ -298,8 +274,7 @@ public class OpcUaAssetConnection
             methodArguments = methodNode.readInputArgumentsAsync().get() != null
                     ? methodNode.readInputArgumentsAsync().get()
                     : new Argument[0];
-        }
-        catch (InterruptedException | ExecutionException ex) {
+        } catch (InterruptedException | ExecutionException ex) {
             throw new AssetConnectionException(String.format("%s - could not read input arguments (nodeId: %s)",
                     baseErrorMessage,
                     config.getNodeId()),
@@ -310,8 +285,7 @@ public class OpcUaAssetConnection
             methodOutputArguments = methodNode.readOutputArgumentsAsync().get() != null
                     ? methodNode.readOutputArgumentsAsync().get()
                     : new Argument[0];
-        }
-        catch (InterruptedException | ExecutionException ex) {
+        } catch (InterruptedException | ExecutionException ex) {
             throw new AssetConnectionException(String.format("%s - could not read ouput arguments (nodeId: %s)",
                     baseErrorMessage,
                     config.getNodeId()),
@@ -320,7 +294,7 @@ public class OpcUaAssetConnection
         final OperationVariable[] outputVariables = serviceContext.getOperationOutputVariables(reference) != null
                 ? serviceContext.getOperationOutputVariables(reference)
                 : new OperationVariable[0];
-        for (var outputVariable: outputVariables) {
+        for (var outputVariable : outputVariables) {
             if (outputVariable == null) {
                 throw new AssetConnectionException(String.format("%s - output variable must be non-null (nodeId: %s)",
                         baseErrorMessage,
@@ -367,11 +341,9 @@ public class OpcUaAssetConnection
                     ElementValue parameterValue;
                     if (inputParameter.containsKey(argumentName)) {
                         parameterValue = inputParameter.get(argumentName);
-                    }
-                    else if (inoutputParameter.containsKey(argumentName)) {
+                    } else if (inoutputParameter.containsKey(argumentName)) {
                         parameterValue = inoutputParameter.get(argumentName);
-                    }
-                    else {
+                    } else {
                         throw new AssetConnectionException(String.format("%s - missing argument (argument name: %s)",
                                 baseErrorMessage,
                                 argumentName));
@@ -397,8 +369,7 @@ public class OpcUaAssetConnection
                             parentNodeId,
                             nodeId,
                             actualParameters)).get();
-                }
-                catch (InterruptedException | ExecutionException ex) {
+                } catch (InterruptedException | ExecutionException ex) {
                     throw new AssetConnectionException(String.format("%s - executing OPC UA method failed (nodeId: %s)",
                             baseErrorMessage,
                             config.getNodeId()));
@@ -443,7 +414,6 @@ public class OpcUaAssetConnection
                 return result;
             }
 
-
             @Override
             public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callback)
                     throws AssetConnectionException {
@@ -452,10 +422,8 @@ public class OpcUaAssetConnection
         });
     }
 
-
     @Override
-    public void registerSubscriptionProvider(Reference reference, OpcUaSubscriptionProviderConfig subscriptionProviderConfig) throws AssetConnectionException {
-        final Map<NewDataListener, UaSubscription> localSubscriptions = new HashMap<>();
+    public void registerSubscriptionProvider(Reference reference, OpcUaSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
         final String baseErrorMessage = "error registering subscription provider";
         TypeInfo typeInfo = serviceContext.getTypeInfo(reference);
         if (typeInfo == null) {
@@ -486,104 +454,131 @@ public class OpcUaAssetConnection
         this.subscriptionProviders.put(reference, new AssetSubscriptionProvider() {
             @Override
             public void addNewDataListener(NewDataListener listener) throws AssetConnectionException {
-                try {
-                    if (!localSubscriptions.containsKey(listener)) {
-                        AtomicBoolean firstCall = new AtomicBoolean(true);
-                        UaSubscription subscription = subscribe(client,
-                                parseNodeId(client, subscriptionProviderConfig.getNodeId()),
-                                subscriptionProviderConfig.getInterval(),
-                                x -> {
-                                    try {
-                                        if (!firstCall.get()) {
-                                            listener.newDataReceived(new PropertyValue(valueConverter.convert(x.getValue(), datatype)));
-                                        }
-                                        else {
-                                            firstCall.set(false);
-                                        }
-                                    }
-                                    catch (ValueConversionException ex) {
-                                        // TODO how to forward exception?
-                                    }
-                                });
-                        localSubscriptions.put(listener, subscription);
-                        subscriptions.add(subscription);
+                // check if there already is a subscription
+                // if yes, attach listener to existing subscription
+                // if no, create subscription & attach listener
+                if (!subscriptions.containsKey(providerConfig.getNodeId())) {
+                    SubscriptionHandler handler = new SubscriptionHandler();
+                    handler.datatype = datatype;
+                    try {
+                        handler.originalValue = client.readValue(0, TimestampsToReturn.Neither,
+                                client.getAddressSpace().getVariableNode(parseNodeId(providerConfig.getNodeId())).getNodeId()).get();
+                    } catch (UaException | InterruptedException | ExecutionException ex) {
+                        logger.warn("{} - reading initial value of subscribed node failed (reference: {}, nodeId: {})",
+                                baseErrorMessage,
+                                AasUtils.asString(reference),
+                                providerConfig.getNodeId());
                     }
-
+                    try {
+                        handler.dataItem = subscription.createDataItem(
+                                parseNodeId(providerConfig.getNodeId()),
+                                LambdaExceptionUtil.rethrowConsumer(
+                                        x -> {
+                                            x.addDataValueListener(LambdaExceptionUtil.rethrowConsumer(v -> handler.notify(v)));
+                                        }));
+                    } catch (UaException ex) {
+                        logger.warn("{} - could not create subscrption item (reference: {}, nodeId: {})",
+                                baseErrorMessage,
+                                AasUtils.asString(reference),
+                                providerConfig.getNodeId());
+                    }
+                    subscriptions.put(providerConfig.getNodeId(), handler);
                 }
-                catch (InterruptedException | ExecutionException e) {
-                    throw new AssetConnectionException(
-                            String.format("%s (reference: %s)",
-                                    baseErrorMessage,
-                                    AasUtils.asString(reference)),
-                            e);
+                List<NewDataListener> listeners = subscriptions.get(providerConfig.getNodeId()).listeners;
+                if (!listeners.contains(listener)) {
+                    listeners.add(listener);
                 }
             }
 
-
             @Override
             public void removeNewDataListener(NewDataListener listener) throws AssetConnectionException {
-                try {
-                    if (localSubscriptions.containsKey(listener)) {
-                        UaSubscription subscription = localSubscriptions.get(listener);
-                        unsubscribe(subscription);
-                        subscriptions.remove(subscription);
+
+                if (subscriptions.containsKey(providerConfig.getNodeId())) {
+                    SubscriptionHandler handler = subscriptions.get(providerConfig.getNodeId());
+                    if (handler.listeners.contains(listener)) {
+                        handler.listeners.remove(listener);
+                    }
+                    if (handler.listeners.isEmpty()) {
+                        try {
+                            handler.dataItem.delete();
+                            subscriptions.remove(providerConfig.getNodeId());
+                        } catch (UaException ex) {
+                            throw new AssetConnectionException(
+                                    String.format("%s - removing subscription failed (reference: %s, nodeId: %s)",
+                                            baseErrorMessage,
+                                            AasUtils.asString(reference),
+                                            providerConfig.getNodeId()),
+                                    ex);
+                        }
                     }
                 }
-                catch (InterruptedException | ExecutionException e) {
-                    throw new AssetConnectionException(
-                            String.format("%s (reference: %s)",
-                                    baseErrorMessage,
-                                    AasUtils.asString(reference)),
-                            e);
-                }
+
             }
         });
     }
 
+    private static class SubscriptionHandler {
+
+        ManagedDataItem dataItem;
+        Datatype datatype;
+        List<NewDataListener> listeners = new ArrayList<>();
+        boolean firstCall = true;
+        DataValue originalValue = null;
+
+        public void notify(DataValue value) throws ValueConversionException {
+            try {
+                if (!firstCall || (originalValue != null && !Objects.equals(value.getValue(), originalValue.getValue()))) {
+                    DataElementValue newAasValue = new PropertyValue(valueConverter.convert(value.getValue(), datatype));
+                    for (var listener : listeners) {
+                        try {
+                            listener.newDataReceived(newAasValue);
+                        } catch (Exception ex) {
+                            logger.debug("exception while invoking newDataReceived handler", ex);
+                        }
+                    }
+                }
+            } finally {
+                firstCall = false;
+            }
+        }
+    }
 
     @Override
     public void unregisterValueProvider(Reference reference) {
         this.valueProviders.remove(reference);
     }
 
-
     @Override
     public void unregisterOperationProvider(Reference reference) {
         this.operationProviders.remove(reference);
     }
-
 
     @Override
     public void unregisterSubscriptionProvider(Reference reference) {
         this.subscriptionProviders.remove(reference);
     }
 
-
     @Override
     public Map<Reference, AssetValueProvider> getValueProviders() {
         return this.valueProviders;
     }
-
 
     @Override
     public Map<Reference, AssetOperationProvider> getOperationProviders() {
         return this.operationProviders;
     }
 
-
     @Override
     public Map<Reference, AssetSubscriptionProvider> getSubscriptionProviders() {
         return this.subscriptionProviders;
     }
-
 
     @Override
     public boolean sameAs(AssetConnection other) {
         return false;
     }
 
-
-    public NodeId parseNodeId(OpcUaClient client, String nodeId) {
+    public NodeId parseNodeId(String nodeId) {
         Optional<String> ns = Stream.of(nodeId.split(NODE_ID_SEPARATOR))
                 .filter(x -> x.startsWith(NS_PREFIX))
                 .findFirst();
@@ -592,21 +587,18 @@ public class OpcUaAssetConnection
             String namespace = ns.get().replace(NS_PREFIX, "");
             try {
                 namespaceIndex = Integer.parseUnsignedInt(namespace);
-            }
-            catch (NumberFormatException ex) {
+            } catch (NumberFormatException ex) {
                 UShort actualNamespaceIndex = client.getNamespaceTable().getIndex(namespace);
                 if (actualNamespaceIndex == null) {
                     throw new RuntimeException(String.format("could not resolve namespace '%s'", namespace));
                 }
                 namespaceIndex = actualNamespaceIndex.intValue();
             }
-        }
-        else {
+        } else {
             System.out.println("no namespace provided for node. Using default (ns=0)");
         }
         return NodeId.parse(nodeId.replace(ns.get(), NS_PREFIX + namespaceIndex));
     }
-
 
     public void connect() throws AssetConnectionException {
         try {
@@ -625,34 +617,9 @@ public class OpcUaAssetConnection
             client.connect().get();
             // without sleep bad timeout while waiting for acknowledge appears from time to time
             Thread.sleep(200);
-        }
-        catch (InterruptedException | ExecutionException | UaException ex) {
+            subscription = ManagedSubscription.create(client);
+        } catch (InterruptedException | ExecutionException | UaException ex) {
             throw new AssetConnectionException(String.format("error opening OPC UA connection (endpoint: %s)", config.getHost()), ex);
         }
     }
-
-
-    public synchronized UaSubscription subscribe(OpcUaClient client, NodeId node, double interval, Consumer<DataValue> consumer) throws InterruptedException, ExecutionException {
-        UaSubscription result = null;
-        List<UaMonitoredItem> items = null;
-        ReadValueId readValueId = new ReadValueId(node, AttributeId.Value.uid(), null, null);
-        UInteger clientHandle = uint(new Random().nextInt((int) Math.min(UInteger.MAX.longValue(), (long) Integer.MAX_VALUE)));
-        MonitoringParameters monitorParameters = new MonitoringParameters(clientHandle, interval, null, uint(10), true);
-        MonitoredItemCreateRequest request = new MonitoredItemCreateRequest(readValueId, MonitoringMode.Reporting, monitorParameters);
-        result = client.getSubscriptionManager().createSubscription(interval).get();
-        items = result.createMonitoredItems(
-                TimestampsToReturn.Both,
-                Arrays.asList(request),
-                (monitoredItem, id) -> {
-                    monitoredItem.setValueConsumer(consumer);
-                }).get();
-        return result;
-    }
-
-
-    public void unsubscribe(UaSubscription subscription) throws InterruptedException, ExecutionException {
-        // TODO handle return codes
-        subscription.deleteMonitoredItems(subscription.getMonitoredItems()).get();
-    }
-
 }
