@@ -22,10 +22,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
  *
  * @author Tino Bischoff
  */
-public class OpcUaEndpointConfig extends EndpointConfig {
+public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
+    public static final int DEFAULT_PORT = 8081;
     private int tcpPort;
     private int secondsTillShutdown;
+
+    public OpcUaEndpointConfig() {
+        this.tcpPort = DEFAULT_PORT;
+    }
+
 
     /**
      * Gets the desired port for the OPC.TCP Endpoint
