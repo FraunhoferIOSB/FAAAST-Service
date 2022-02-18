@@ -34,7 +34,7 @@ import opc.i4aas.AASBlobType;
 
 
 /**
- * Generated on 2021-12-15 11:39:02
+ * Generated on 2022-02-08 12:58:54
  */
 @TypeDefinitionId("nsu=http://opcfoundation.org/UA/I4AAS/V3/;i=1016")
 public abstract class AASBlobTypeNodeBase extends AASSubmodelElementTypeNode implements AASBlobType {

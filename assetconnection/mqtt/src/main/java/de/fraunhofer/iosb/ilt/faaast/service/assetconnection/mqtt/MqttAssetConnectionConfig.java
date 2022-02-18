@@ -85,7 +85,8 @@ public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetCo
     }
 
     public static abstract class AbstractBuilder<T extends MqttAssetConnectionConfig, B extends AbstractBuilder<T, B>>
-            extends AssetConnectionConfig.AbstractBuilder<MqttAssetConnection, MqttValueProviderConfig, MqttOperationProviderConfig, MqttSubscriptionProviderConfig, T, B> {
+            extends
+            AssetConnectionConfig.AbstractBuilder<MqttAssetConnectionConfig, MqttValueProviderConfig, MqttOperationProviderConfig, MqttSubscriptionProviderConfig, MqttAssetConnection, B> {
 
         public B clientId(String value) {
             getBuildingInstance().setClientId(value);

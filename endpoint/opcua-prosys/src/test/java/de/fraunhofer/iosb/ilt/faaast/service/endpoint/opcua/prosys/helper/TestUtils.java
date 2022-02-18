@@ -68,6 +68,8 @@ import org.junit.Assert;
  */
 public class TestUtils {
 
+    private static final long WRITE_TIMEOUT = 200;
+
     /**
      * Define a minimal ApplicationIdentity.If you use secure connections, you
      * will also need to define the application instance certificate and manage
@@ -160,9 +162,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.IDENTIFICATION_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentificationNode Browse Result Null", bpres);
         Assert.assertTrue("checkIdentificationNode Browse Result: size doesn't match", bpres.length == 1);
 
@@ -192,9 +194,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.MODELING_KIND_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkModelingKind Browse Result Null", bpres);
         Assert.assertTrue("checkModelingKind Browse Result: size doesn't match", bpres.length == 1);
 
@@ -224,9 +226,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.CATEGORY_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("Category Result Null", bpres);
         Assert.assertTrue("Category Result: size doesn't match", bpres.length == 1);
 
@@ -262,9 +264,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.DATA_SPECIFICATION_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkDataSpecificationNode Browse Result Null", bpres);
         Assert.assertTrue("checkDataSpecificationNode Browse Result: size doesn't match", bpres.length == 1);
 
@@ -294,9 +296,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.BILL_OF_MATERIAL_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkBillOfMaterialNode Browse Result Null", bpres);
         Assert.assertTrue("checkBillOfMaterialNode Browse Result: size doesn't match", bpres.length == 1);
 
@@ -329,9 +331,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.QUALIFIER_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkQualifierNode Browse Result Null", bpres);
         Assert.assertTrue("checkQualifierNode Browse Result: size doesn't match", bpres.length == 1);
 
@@ -380,9 +382,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.ADMINISTRATION_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAdministrationNode Browse(1) Result Null", bpres);
         Assert.assertTrue("checkAdministrationNode Browse(1) Result: size doesn't match", bpres.length == 1);
 
@@ -402,19 +404,19 @@ public class TestUtils {
         if (version != null) {
             browsePath.clear();
             browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.VERSION_NAME)));
-            relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+            relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
             size++;
         }
 
         if (revision != null) {
             browsePath.clear();
             browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.REVISION_NAME)));
-            relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+            relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
             size++;
         }
 
         if (size > 0) {
-            bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(administrationNode, relPath.toArray(new RelativePath[0]));
+            bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(administrationNode, relPath.toArray(RelativePath[]::new));
             Assert.assertNotNull("checkAdministrationNode Browse(2) Result Null", bpres);
             Assert.assertTrue("checkAdministrationNode Browse(2) Result: size doesn't match", bpres.length == size);
 
@@ -461,9 +463,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.ASSET_INFORMATION_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAssetInformationNode Browse(1) Result Null", bpres);
         Assert.assertTrue("checkAssetInformationNode Browse(1) Result: size doesn't match", bpres.length == 1);
 
@@ -479,8 +481,7 @@ public class TestUtils {
         checkAssetKindNode(client, assetInfoNode, aasns, AASAssetKindDataType.Instance);
         checkBillOfMaterialNode(client, assetInfoNode, aasns);
         checkAasPropertyFile(client, assetInfoNode, aasns, TestDefines.DEFAULT_THUMB_NAME, AASModelingKindDataType.Instance, "", "image/png",
-                "./data/verwaltungsschale-detail-part1.png",
-                123900);
+                "https://github.com/admin-shell/io/blob/master/verwaltungsschale-detail-part1.png", 0);
 
         List<AASKeyDataType> keyList = new ArrayList<>();
         keyList.add(new AASKeyDataType(AASKeyElementsDataType.Asset, "http://customer.com/assets/KHBVZJSQKIY", AASKeyTypeDataType.IRI));
@@ -509,9 +510,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, name)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkPropertyBool Browse Result Null", bpres);
         Assert.assertTrue("checkPropertyBool Browse Result: size doesn't match", bpres.length == 1);
 
@@ -548,9 +549,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, name)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyString Browse Property Result Null", bpres);
         Assert.assertTrue("checkAasPropertyString Browse Property Result: size doesn't match", bpres.length == 1);
 
@@ -568,12 +569,12 @@ public class TestUtils {
         relPath.clear();
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_TYPE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(new RelativePath[0]));
+        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyString Browse Value & Type Result Null", bpres);
         Assert.assertTrue("checkAasPropertyString Browse Value & Type Result: size doesn't match", bpres.length == 2);
 
@@ -603,6 +604,76 @@ public class TestUtils {
 
 
     /**
+     * Checks the String Property with the given Name
+     *
+     * @param client The OPC UA Client
+     * @param node The Node where the desired property is located
+     * @param aasns The namespace index of the AAS namespace
+     * @param name The name of the desired property
+     * @param kind The expected ModelingKind
+     * @param category The expected Category
+     * @param valueType The expected ValueType
+     * @param propValue The expected Value
+     * @param qualifierList The list of qualifiers
+     * @throws ServiceException If the operation fails
+     * @throws AddressSpaceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     */
+    public static void checkAasPropertyObject(UaClient client, NodeId node, int aasns, String name, AASModelingKindDataType kind, String category, AASValueTypeDataType valueType,
+                                              Object propValue, List<Qualifier> qualifierList)
+            throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, name)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("checkAasPropertyString Browse Property Result Null", bpres);
+        Assert.assertTrue("checkAasPropertyString Browse Property Result: size doesn't match", bpres.length == 1);
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("checkAasPropertyString Property Null", targets);
+        Assert.assertTrue("checkAasPropertyString Property empty", targets.length > 0);
+        NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+
+        checkDisplayName(client, propertyNode, name);
+        checkCategoryNode(client, propertyNode, aasns, category);
+        checkModelingKindNode(client, propertyNode, aasns, kind);
+        checkDataSpecificationNode(client, propertyNode, aasns);
+        checkQualifierNode(client, propertyNode, aasns, qualifierList);
+
+        relPath.clear();
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_TYPE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("checkAasPropertyString Browse Value & Type Result Null", bpres);
+        Assert.assertTrue("checkAasPropertyString Browse Value & Type Result: size doesn't match", bpres.length == 2);
+
+        targets = bpres[0].getTargets();
+        Assert.assertNotNull("checkAasPropertyString ValueType Null", targets);
+        Assert.assertTrue("checkAasPropertyString ValueType empty", targets.length > 0);
+        DataValue value = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertEquals(valueType.ordinal(), value.getValue().intValue());
+
+        targets = bpres[1].getTargets();
+        Assert.assertNotNull("checkAasPropertyString Value Null", targets);
+        Assert.assertTrue("checkAasPropertyString value empty", targets.length > 0);
+        value = client.readValue(targets[0].getTargetId());
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+
+        Variant var = new Variant(propValue);
+        Assert.assertEquals(var, value.getValue());
+    }
+
+
+    /**
      * Checks the File Property with the given Name.
      *
      * @param client The OPC UA Client
@@ -625,9 +696,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, name)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyFile Browse Property Result Null", bpres);
         Assert.assertTrue("checkAasPropertyFile Browse Property Result: size doesn't match", bpres.length == 1);
         Assert.assertTrue("checkAasPropertyFile Browse Result Good", bpres[0].getStatusCode().isGood());
@@ -646,16 +717,16 @@ public class TestUtils {
         relPath.clear();
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_MIME_TYPE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HasAddIn, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_FILE_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(0, TestDefines.PROPERTY_SIZE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(new RelativePath[0]));
+        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyFile Browse Value & Type Result Null", bpres);
         Assert.assertTrue("checkAasPropertyFile Browse Value & Type Result: size doesn't match", bpres.length == 3);
 
@@ -674,15 +745,17 @@ public class TestUtils {
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(propValue, value.getValue().toString());
 
-        // File Size
-        if (bpres[2].getStatusCode().isBad()) {
-            System.out.println("checkAasPropertyFile File Status " + bpres[2].getStatusCode());
+        if (fileSize > 0) {
+            // File Size
+            if (bpres[2].getStatusCode().isBad()) {
+                System.out.println("checkAasPropertyFile File Status " + bpres[2].getStatusCode());
+            }
+            targets = bpres[2].getTargets();
+            Assert.assertNotNull("checkAasPropertyFile File Null", targets);
+            Assert.assertTrue("checkAasPropertyFile File empty", targets.length > 0);
+            value = client.readValue(targets[0].getTargetId());
+            Assert.assertEquals(fileSize, value.getValue().intValue());
         }
-        targets = bpres[2].getTargets();
-        Assert.assertNotNull("checkAasPropertyFile File Null", targets);
-        Assert.assertTrue("checkAasPropertyFile File empty", targets.length > 0);
-        value = client.readValue(targets[0].getTargetId());
-        Assert.assertEquals(fileSize, value.getValue().intValue());
     }
 
 
@@ -741,9 +814,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, name)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkSubmodelRef Browse Result Null", bpres);
         Assert.assertTrue("checkSubmodelRef Browse Result: size doesn't match", bpres.length == 1);
         Assert.assertTrue("checkSubmodelRef Browse Result Good", bpres[0].getStatusCode().isGood());
@@ -769,6 +842,97 @@ public class TestUtils {
 
 
     /**
+     * Writes the new value into the given node and checks whether the value was written correctly.
+     * 
+     * @param client The OPC UA Client.
+     * @param writeNode The node which should be written.
+     * @param oldValue The old value.
+     * @param newValue The new value.
+     * @throws ServiceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws InterruptedException If the operation fails
+     */
+    public static void writeNewValueIntern(UaClient client, NodeId writeNode, Object oldValue, Object newValue) throws ServiceException, StatusException, InterruptedException {
+        DataValue value = client.readValue(writeNode);
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        if (oldValue == null) {
+            Assert.assertTrue("intial null value not equal", value.getValue().isEmpty());
+        }
+        else {
+            Assert.assertEquals("intial value not equal", oldValue, value.getValue().getValue());
+        }
+
+        client.writeValue(writeNode, newValue);
+
+        // wait until the write is finished completely
+        Thread.sleep(WRITE_TIMEOUT);
+
+        // read new value
+        value = client.readValue(writeNode);
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertEquals("new value not equal", newValue, value.getValue().getValue());
+    }
+
+
+    /**
+     * Writes the new value (array) into the given node and checks whether the value was written correctly.
+     * 
+     * @param client The OPC UA Client.
+     * @param writeNode The node which should be written.
+     * @param oldValue The old value.
+     * @param newValue The new value.
+     * @throws ServiceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws InterruptedException If the operation fails
+     */
+    public static void writeNewValueArray(UaClient client, NodeId writeNode, LocalizedText[] oldValue, LocalizedText[] newValue)
+            throws ServiceException, StatusException, InterruptedException {
+        DataValue value = client.readValue(writeNode);
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertArrayEquals("intial value not equal", oldValue, (LocalizedText[]) value.getValue().getValue());
+
+        client.writeValue(writeNode, newValue);
+
+        // wait until the write is finished completely
+        Thread.sleep(WRITE_TIMEOUT);
+
+        // read new value
+        value = client.readValue(writeNode);
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertArrayEquals("new value not equal", newValue, (LocalizedText[]) value.getValue().getValue());
+    }
+
+
+    /**
+     * Writes the new value (array) into the given node and checks whether the value was written correctly.
+     * 
+     * @param client The OPC UA Client.
+     * @param writeNode The node which should be written.
+     * @param oldValue The old value.
+     * @param newValue The new value.
+     * @throws ServiceException If the operation fails
+     * @throws StatusException If the operation fails
+     * @throws InterruptedException If the operation fails
+     */
+    public static void writeNewValueArray(UaClient client, NodeId writeNode, AASKeyDataType[] oldValue, AASKeyDataType[] newValue)
+            throws ServiceException, StatusException, InterruptedException {
+        DataValue value = client.readValue(writeNode);
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertArrayEquals("intial value not equal", oldValue, (AASKeyDataType[]) value.getValue().getValue());
+
+        client.writeValue(writeNode, newValue);
+
+        // wait until the write is finished completely
+        Thread.sleep(WRITE_TIMEOUT);
+
+        // read new value
+        value = client.readValue(writeNode);
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertArrayEquals("new value not equal", newValue, (AASKeyDataType[]) value.getValue().getValue());
+    }
+
+
+    /**
      * Checks the Identification values in the given node.
      *
      * @param client The OPC UA Client.
@@ -788,12 +952,12 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "IdType")));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, "Id")));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(identificationNode, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(identificationNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentification Browse Result Null", bpres);
         Assert.assertTrue("checkIdentification Browse Result: size doesn't match", bpres.length == 2);
 
@@ -853,9 +1017,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.ASSET_KIND_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAssetKindNode Browse Result Null", bpres);
         Assert.assertTrue("checkAssetKindNode Browse Result: size doesn't match", bpres.length == 1);
 
@@ -908,9 +1072,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, name)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasReferenceNode Browse Result Null", bpres);
         Assert.assertTrue("checkAasReferenceNode Browse Result: size doesn't match", bpres.length == 1);
 
@@ -942,7 +1106,7 @@ public class TestUtils {
 
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, "Keys")));
-        BrowsePathTarget[] targetsProp = client.getAddressSpace().translateBrowsePathToNodeId(node, browsePath.toArray(new RelativePathElement[0]));
+        BrowsePathTarget[] targetsProp = client.getAddressSpace().translateBrowsePathToNodeId(node, browsePath.toArray(RelativePathElement[]::new));
         Assert.assertNotNull("Property Keys Null", targetsProp);
         Assert.assertTrue("Property Keys empty", targetsProp.length > 0);
 
@@ -985,9 +1149,9 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, name)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentifierKeyValuePairListNode Browse Result Null", bpres);
         Assert.assertTrue("checkIdentifierKeyValuePairListNode Browse Result: size doesn't match", bpres.length == 1);
 
@@ -1032,12 +1196,12 @@ public class TestUtils {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.ID_KEY_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.ID_VALUE_NAME)));
-        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
-        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(new RelativePath[0]));
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentifierKeyValuePairNode Browse Result Null", bpres);
         Assert.assertTrue("checkIdentifierKeyValuePairNode Browse Result: size doesn't match", bpres.length == 2);
 

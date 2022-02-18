@@ -22,10 +22,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
  *
  * @author Tino Bischoff
  */
-public class OpcUaEndpointConfig extends EndpointConfig {
+public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
+    public static final int DEFAULT_PORT = 8081;
     private int tcpPort;
-    private int httpsPort;
+    private int secondsTillShutdown;
+
+    public OpcUaEndpointConfig() {
+        this.tcpPort = DEFAULT_PORT;
+    }
+
 
     /**
      * Gets the desired port for the OPC.TCP Endpoint
@@ -48,21 +54,21 @@ public class OpcUaEndpointConfig extends EndpointConfig {
 
 
     /**
-     * Gets the desired port for the HTTPS Endpoint
-     *
-     * @return The desired port for the HTTPS Endpoint
+     * Gets the number of seconds until the server stops on shutdown
+     * 
+     * @return The desired number of seconds
      */
-    public int getHttpsPort() {
-        return httpsPort;
+    public int getSecondsTillShutdown() {
+        return secondsTillShutdown;
     }
 
 
     /**
-     * Sets the given port for the HTTPS Endpoint.
-     *
-     * @param httpsPort The desired port for the HTTPS Endpoint
+     * Sets the number of seconds until the server stops on shutdown
+     * 
+     * @param value The desired number of seconds
      */
-    public void setHttpsPort(int httpsPort) {
-        this.httpsPort = httpsPort;
+    public void setSecondsTillShutdown(int value) {
+        secondsTillShutdown = value;
     }
 }

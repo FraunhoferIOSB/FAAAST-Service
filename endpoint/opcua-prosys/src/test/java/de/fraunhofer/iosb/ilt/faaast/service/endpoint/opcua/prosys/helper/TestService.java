@@ -14,17 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper;
 
-import static org.mockito.Mockito.mock;
-
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.AASSimple;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,26 +33,22 @@ import org.slf4j.LoggerFactory;
  */
 public class TestService extends Service {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestService.class);
-
-    private MessageBusInternal messageBus;
-    private boolean useFullExample;
-
     /**
-     * Constructs a new TestService
+     * Creates a new instance of TestService
      *
      * @param endpoint
+     * @param assetConnection The desired AssetConnection
      * @param full True if the full example is requested, otherwise the simple
      *            is used
+     * @throws ConfigurationException If the operation fails
      */
-    public TestService(Endpoint endpoint, boolean full) throws ConfigurationException {
+    public TestService(Endpoint endpoint, AssetConnection assetConnection, boolean full) throws ConfigurationException {
         super(
                 CoreConfig.builder().build(),
                 full ? AASFull.ENVIRONMENT : AASSimple.ENVIRONMENT,
-                mock(Persistence.class),
+                new PersistenceInMemory(),
                 new MessageBusInternal(),
                 List.of(endpoint),
-                List.of());
-        useFullExample = full;
+                assetConnection != null ? List.of(assetConnection) : null);
     }
 }

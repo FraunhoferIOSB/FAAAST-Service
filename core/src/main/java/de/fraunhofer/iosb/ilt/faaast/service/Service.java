@@ -33,6 +33,9 @@ import io.adminshell.aas.v3.dataformat.DeserializationException;
 import io.adminshell.aas.v3.dataformat.SerializationException;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.Operation;
+import io.adminshell.aas.v3.model.OperationVariable;
+import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +111,24 @@ public class Service implements ServiceContext {
             throw new IllegalArgumentException("request must be non-null");
         }
         return this.requestHandler.execute(request);
+    }
+
+
+    @Override
+    public OperationVariable[] getOperationOutputVariables(Reference reference) {
+        if (reference == null) {
+            throw new IllegalArgumentException("reference must be non-null");
+        }
+        Referable referable = AasUtils.resolve(reference, aasEnvironment);
+        if (referable == null) {
+            throw new IllegalArgumentException(String.format("reference could not be resolved (reference: %s)", AasUtils.asString(reference)));
+        }
+        if (Operation.class.isAssignableFrom(referable.getClass())) {
+            throw new IllegalArgumentException(String.format("reference points to invalid type (reference: %s, expected type: Operation, actual type: %s)",
+                    AasUtils.asString(reference),
+                    referable.getClass()));
+        }
+        return ((Operation) referable).getOutputVariables().toArray(new OperationVariable[0]);
     }
 
 

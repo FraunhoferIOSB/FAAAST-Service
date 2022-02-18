@@ -33,9 +33,35 @@ public class TestDefines {
     public static final String SUBMODEL_DOC_NAME = "http://i40.customer.com/type/1/1/1A7B62B529F19152";
     public static final String SUBMODEL_TECH_DATA_NAME = "http://i40.customer.com/type/1/1/7A7104BDAB57E184";
     public static final String SUBMODEL_OPER_DATA_NAME = "http://i40.customer.com/instance/1/1/AC69B1CB44F07935";
+    public static final String TEST_PROPERTY_NAME = "TestProperty";
+    public static final String TEST_RANGE_NAME = "TestRange";
+    public static final String RANGE_MIN_NAME = "Min";
+    public static final String RANGE_MAX_NAME = "Max";
+    public static final String TEST_BLOB_NAME = "ExampleBlob";
+    public static final String TEST_MULTI_LAN_PROP_NAME = "ExampleMultiLanguageProperty";
+    public static final String TEST_REF_ELEM_NAME = "ExampleReferenceElement";
+    public static final String TEST_ENTITY_NAME = "ExampleEntity";
+    public static final String TEST_ENTITY_PROPERTY_NAME = "ExampleProperty";
+    public static final String DECIMAL_PROPERTY = "DecimalProperty";
+    public static final String SUBMODEL_DOC_PROPERTY_TITLE_NAME = "Title";
+    public static final String SUBMODEL_DOC_FILE_NAME = "DigitalFile_PDF";
 
     public static final String FULL_SUBMODEL_1_NAME = "Identification";
     public static final String FULL_SUBMODEL_1_ID = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
+    public static final String FULL_SUBMODEL_2_NAME = "BillOfMaterial";
+    public static final String FULL_SUBMODEL_3_NAME = "TestSubmodel3";
+    public static final String FULL_SUBMODEL_4_NAME = "Test_Submodel_Mandatory";
+    public static final String FULL_SUBMODEL_5_NAME = "Test_Submodel2_Mandatory";
+    public static final String FULL_SUBMODEL_6_NAME = "TestSubmodel6";
+    public static final String FULL_SUBMODEL_7_NAME = "TestSubmodel7";
+    public static final String FULL_REL_ELEMENT_NAME = "ExampleRelationshipElement";
+    public static final String FULL_SM_ELEM_COLL_UO_NAME = "ExampleSubmodelCollectionUnordered";
+    public static final String FULL_SM_ELEM_COLL_O_NAME = "ExampleSubmodelCollectionOrdered";
+    public static final String FULL_SMEC_REL_ELEM_NAME = "ExampleReferenceElement";
+    public static final String FULL_SMEC_RANGE_NAME = "ExampleRange";
+    public static final String FULL_OPERATION_NAME = "ExampleOperation";
+    public static final String FULL_ENTITY2_NAME = "ExampleEntity2";
+    public static final String FULL_CAPABILITY_NAME = "ExampleCapability";
 
     public static final String MODELING_KIND_NAME = "ModelingKind";
     public static final String CATEGORY_NAME = "Category";
@@ -58,12 +84,14 @@ public class TestDefines {
     public static final String SPECIFIC_ASSET_ID_NAME = "SpecificAssetId";
     public static final String ID_KEY_NAME = "Key";
     public static final String ID_VALUE_NAME = "Value";
+    public static final String KEYS_VALUE_NAME = "Keys";
 
     public static final int AAS_AAS_TYPE_ID = 1002;
     public static final int AAS_REFERENCE_TYPE_ID = 1004;
     public static final int AAS_ASSET_TYPE_ID = 1005;
     public static final int AAS_SUBMODEL_TYPE_ID = 1006;
     public static final int AAS_SUBMODEL_ELEM_COLL_TYPE_ID = 1010;
+    public static final int AAS_OREDER_SM_ELEM_COLL_TYPE_ID = 1011;
     public static final int AAS_IDENTIFIER_TYPE_ID = 1029;
     public static final int AAS_ADMIN_INFO_TYPE_ID = 1030;
     public static final int AAS_ASSET_INFO_TYPE_ID = 1031;
@@ -73,5 +101,4 @@ public class TestDefines {
     public static final int AAS_QUALIFIER_LIST_ID = 1037;
     public static final int AAS_ID_KEY_VALUE_PAIR_LIST_ID = 1039;
     public static final int AAS_KEY_DATA_TYPE_ID = 3011;
-
 }

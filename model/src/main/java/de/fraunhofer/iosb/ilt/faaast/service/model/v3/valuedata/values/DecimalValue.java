@@ -38,11 +38,11 @@ public class DecimalValue extends TypedValue<BigDecimal> {
     @Override
     public void fromString(String value) throws ValueFormatException {
         if (value == null) {
-            this.value = null;
+            this.setValue(null);
             return;
         }
         try {
-            this.value = new BigDecimal(value);
+            this.setValue(new BigDecimal(value));
         }
         catch (NumberFormatException ex) {
             throw new ValueFormatException(ex);

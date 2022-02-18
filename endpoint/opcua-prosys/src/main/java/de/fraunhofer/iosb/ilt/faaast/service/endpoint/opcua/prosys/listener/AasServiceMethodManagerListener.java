@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.listener;
 
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.nodes.UaMethod;
@@ -24,10 +24,12 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.StatusCode;
 import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.StatusCodes;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.OpcUaEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.data.SubmodelElementData;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
@@ -94,61 +96,15 @@ public class AasServiceMethodManagerListener implements CallableListener {
                 logger.warn("onCall: no Endpoint available");
             }
             else {
-                // TODO implement method
-                //throw new UnsupportedOperationException("onCall not implemented");
-
-                Operation aasOper = (Operation) nodeManager.getAasSubmodelElement(objectId);
+                SubmodelElementData data = nodeManager.getAasData(objectId);
+                Operation aasOper = (Operation) data.getSubmodelElement();
                 if (aasOper != null) {
                     List<OperationVariable> inputVariables = aasOper.getInputVariables();
-                    if (inputArguments.length < inputVariables.size()) {
-                        throw new StatusException(StatusCodes.Bad_ArgumentsMissing);
-                    }
-                    if (inputArguments.length > inputVariables.size()) {
-                        throw new StatusException(StatusCodes.Bad_TooManyArguments);
-                    }
-                    else {
-                        for (int i = 0; i < inputVariables.size(); i++) {
-                            SubmodelElement smelem = inputVariables.get(i).getValue();
-                            if (smelem instanceof Property) {
-                                ((Property) smelem).setValue(inputArguments[i].toString());
-                            }
+                    ValueConverter.setOperationValues(inputVariables, inputArguments);
+                    List<OperationVariable> outputVariables = endpoint.callOperation(aasOper, inputVariables, data.getSubmodel(), data.getReference());
 
-                            // TODO: set values for other SubmodelElement Types
-                        }
-
-                        endpoint.callOperation(aasOper, inputVariables);
-                    }
-
-                    //                    // search the corresponding submodel
-                    //                    Reference smref = nodeManager.getSubmodelReference(aasOper.getReference());
-                    //                    if (smref != null) {
-                    //                        Argument[] arguments = new Argument[inputArguments.length];
-                    //                        List<OperationVariable> aasInputVariables = aasOper.getInputVariables();
-                    //                        for (int i = 0; i < arguments.length; i++) {
-                    //                            arguments[0] = Argument.of(aasInputVariables.get(i).getValue().getIdShort(), inputArguments[i].toString());
-                    //                        }
-                    //                        
-                    //                        OpcUaResponse response = endpoint.callOperation(smref, aasOper, arguments);
-                    //                        if ((response == null) || (!response.isSuccess())) {
-                    //                            throw new StatusException(StatusCodes.Bad_UnexpectedError);
-                    //                        }
-                    //                        
-                    //                        if (response.getResult() != null) {
-                    //                            if (Argument[].class.isAssignableFrom(response.getResult().getClass())) {
-                    //                                Argument[] outputArgs = (Argument[])response.getResult();
-                    //                                for (int i = 0; i < outputArgs.length; i++) {
-                    //                                    Property outprop = (Property)aasOper.getOutputVariables().get(i).getValue();
-                    //
-                    //                                    outputs[i] = nodeManager.getServer().getAddressSpace().getDataTypeConverter().parseVariant(outputArgs[i].getValue(), ValueConverter.convertAasDataTypeToNodeId(outprop.getValueType()));
-                    //                                }
-                    //                                
-                    //                                retval = true;
-                    //                            }
-                    //                            else {
-                    //                                logger.warn("onCall: result wrong type: " + response.getResult());
-                    //                            }
-                    //                        }
-                    //                    }
+                    ValueConverter.setOutputArguments(outputVariables, outputs);
+                    retval = true;
                 }
                 else {
                     logger.info("onCall: Property for " + objectId.toString() + " not found");
