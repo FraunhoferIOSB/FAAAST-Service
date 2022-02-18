@@ -88,6 +88,7 @@ import io.adminshell.aas.v3.model.Event;
 import io.adminshell.aas.v3.model.File;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
+import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import io.adminshell.aas.v3.model.Operation;
@@ -943,7 +944,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             if (ref != null) {
                 QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(getNamespaceTable());
-                NodeId nid = createNodeId(node, browseName);
+                NodeId nid = getDefaultNodeId();
                 AASReferenceType nodeRef = createInstance(AASReferenceType.class, nid, browseName, LocalizedText.english(name));
 
                 logger.debug("addAasReference: add Node " + nid + " to Node " + node.getNodeId());
@@ -989,7 +990,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
 
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = createNodeId(node, browseName);
+                NodeId nid = getDefaultNodeId();
                 AASFileType fileNode = createInstance(AASFileType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(fileNode, aasFile);
 
@@ -1634,7 +1635,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             logger.info("addAasReferenceList " + name + "; to Node: " + node.toString());
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-            NodeId nid = createNodeId(node, browseName);
+            NodeId nid = getDefaultNodeId();
             AASReferenceList referenceListNode = createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
 
             int counter = 1;
@@ -1911,7 +1912,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             String name = aasProperty.getIdShort();
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASPropertyType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-            NodeId nid = createNodeId(node, browseName);
+            NodeId nid = getDefaultNodeId();
+
             AASPropertyType prop = createInstance(AASPropertyType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(prop, aasProperty);
 
@@ -2312,7 +2314,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             if ((node != null) && (aasBlob != null)) {
                 String name = aasBlob.getIdShort();
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = createNodeId(node, browseName);
+                NodeId nid = getDefaultNodeId();
                 AASBlobType blobNode = createInstance(AASBlobType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(blobNode, aasBlob);
 
@@ -2394,7 +2396,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             if ((node != null) && (aasRefElem != null)) {
                 String name = aasRefElem.getIdShort();
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = createNodeId(node, browseName);
+                NodeId nid = getDefaultNodeId();
                 AASReferenceElementType refElemNode = createInstance(AASReferenceElementType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(refElemNode, aasRefElem);
 
@@ -2446,7 +2448,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             if ((node != null) && (aasRange != null)) {
                 String name = aasRange.getIdShort();
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = createNodeId(node, browseName);
+                NodeId nid = getDefaultNodeId();
                 AASRangeType rangeNode = createInstance(AASRangeType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(rangeNode, aasRange);
 
@@ -2896,7 +2898,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             if ((node != null) && (aasMultiLang != null)) {
                 String name = aasMultiLang.getIdShort();
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = createNodeId(node, browseName);
+                NodeId nid = getDefaultNodeId();
                 AASMultiLanguagePropertyType multiLangNode = createInstance(AASMultiLanguagePropertyType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(multiLangNode, aasMultiLang);
 
@@ -2984,7 +2986,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             if ((node != null) && (aasCapability != null)) {
                 String name = aasCapability.getIdShort();
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASCapabilityType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = createNodeId(node, browseName);
+                NodeId nid = getDefaultNodeId();
                 AASCapabilityType capabilityNode = createInstance(AASCapabilityType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(capabilityNode, aasCapability);
 
@@ -3027,7 +3029,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             if ((node != null) && (aasEntity != null)) {
                 String name = aasEntity.getIdShort();
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEntityType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = createNodeId(node, browseName);
+                NodeId nid = getDefaultNodeId();
                 AASEntityType entityNode = createInstance(AASEntityType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(entityNode, aasEntity);
 
@@ -3099,7 +3101,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             String name = aasOperation.getIdShort();
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASOperationType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-            NodeId nid = createNodeId(node, browseName);
+            NodeId nid = getDefaultNodeId();
             AASOperationType oper = createInstance(AASOperationType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(oper, aasOperation);
 
@@ -3210,7 +3212,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             if ((node != null) && (aasEvent != null)) {
                 String name = aasEvent.getIdShort();
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEventType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = createNodeId(node, browseName);
+                NodeId nid = getDefaultNodeId();
                 AASEventType eventNode = createInstance(AASEventType.class, nid, browseName, LocalizedText.english(name));
                 addSubmodelElementBaseData(eventNode, aasEvent);
 
@@ -3279,7 +3281,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 String name = aasRelElem.getIdShort();
                 AASRelationshipElementType relElemNode;
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRelationshipElementType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = createNodeId(node, browseName);
+                NodeId nid = getDefaultNodeId();
                 if (aasRelElem instanceof AnnotatedRelationshipElement) {
                     relElemNode = createAnnotatedRelationshipElement((AnnotatedRelationshipElement) aasRelElem, submodel, relElemRef, nid);
                 }
@@ -3378,7 +3380,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 String name = aasColl.getIdShort();
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelElementCollectionType.getNamespaceUri(), name)
                         .toQualifiedName(getNamespaceTable());
-                NodeId nid = createNodeId(node, browseName);
+                NodeId nid = getDefaultNodeId();
                 AASSubmodelElementCollectionType collNode;
                 if (aasColl.getOrdered()) {
                     collNode = createAasOrderedSubmodelElementCollection(name, nid);
@@ -3626,7 +3628,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 parent = referableMap.get(element);
             }
             else {
-                logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(element));
+                logger.info("elementCreated: element not found in referableMap: " + AasUtils.asString(element));
             }
 
             if (value instanceof ConceptDescription) {
@@ -3709,10 +3711,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             logger.debug("elementDeleted called. Reference " + AasUtils.asString(element));
 
-            // The element is the parent object where the value is added
-            ObjectData parent = null;
+            // The element is the object that should be deleted
+            ObjectData data = null;
             if (referableMap.containsKey(element)) {
-                parent = referableMap.get(element);
+                data = referableMap.get(element);
 
                 // remove element from the map
                 referableMap.remove(element);
@@ -3721,9 +3723,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(element));
             }
 
-            if (parent != null) {
-                removeFromMaps(parent.getNode(), element, parent.getReferable());
-                deleteNode(parent.getNode(), true, true);
+            if (data != null) {
+                removeFromMaps(data.getNode(), element, data.getReferable());
+                deleteNode(data.getNode(), true, true);
             }
         }
         catch (Throwable ex) {
@@ -3756,6 +3758,14 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             // Currently we implement update as delete and create. 
             elementDeleted(element);
+
+            // elementCreated needs the parent as element 
+            List<Key> keys = element.getKeys();
+            if (keys.size() > 1) {
+                // remove the last element from the list
+                keys.remove(keys.size() - 1);
+            }
+            element.setKeys(keys);
             elementCreated(element, value);
         }
         catch (Throwable ex) {
@@ -4328,10 +4338,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
             else if (element instanceof AASEntityType) {
                 AASEntityType ent = (AASEntityType) element;
-                NodeId nid = ent.getGlobalAssetIdNode().getKeysNode().getNodeId();
-                if (submodelElementAasMap.containsKey(nid)) {
-                    submodelElementAasMap.remove(nid);
-                    logger.debug("doRemoveFromMaps: remove Entity GlobalAssetId NodeId " + nid);
+                if ((ent.getGlobalAssetIdNode() != null) && (ent.getGlobalAssetIdNode().getKeysNode() != null)) {
+                    NodeId nid = ent.getGlobalAssetIdNode().getKeysNode().getNodeId();
+                    if (submodelElementAasMap.containsKey(nid)) {
+                        submodelElementAasMap.remove(nid);
+                        logger.debug("doRemoveFromMaps: remove Entity GlobalAssetId NodeId " + nid);
+                    }
                 }
 
                 if (submodelElementAasMap.containsKey(ent.getEntityTypeNode().getNodeId())) {
@@ -4376,7 +4388,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 referableMap.remove(ref);
             }
             else {
-                logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(ref));
+                logger.info("doRemoveFromMaps: element not found in referableMap: " + AasUtils.asString(ref));
             }
         }
         catch (Throwable ex) {

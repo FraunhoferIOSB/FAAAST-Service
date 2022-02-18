@@ -18,6 +18,7 @@ import com.prosysopc.ua.SecureIdentityException;
 import com.prosysopc.ua.ServiceException;
 import com.prosysopc.ua.client.UaClient;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
+import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.builtintypes.StatusCode;
 import com.prosysopc.ua.stack.core.BrowsePathResult;
@@ -42,9 +43,11 @@ import io.adminshell.aas.v3.model.ModelingKind;
 import io.adminshell.aas.v3.model.impl.DefaultAdministrativeInformation;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultRelationshipElement;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
+import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -304,6 +307,104 @@ public class OpcUaEndpoint2Test {
         DataValue value = client.readValue(client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()));
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertArrayEquals("new SubmodelElement value not equal", smeValue.toArray(AASKeyDataType[]::new), (AASKeyDataType[]) value.getValue().getValue());
+
+        System.out.println("disconnect client");
+        client.disconnect();
+    }
+
+
+    /**
+     * Test method for updating a SubmodelElement.
+     * 
+     * @throws SecureIdentityException If the operation fails
+     * @throws IOException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws Exception If the operation fails
+     */
+    @Test
+    public void testUpdateSubmodelElement() throws SecureIdentityException, IOException, ServiceException, Exception {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("testUpdateSubmodelElement: client connected");
+
+        int aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        // make sure one of the old elements exists, the new element exists not yet
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_DOC_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.OPERATING_MANUAL_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_DOC_PROPERTY_TITLE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_DOC_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.OPERATING_MANUAL_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_DOC_FILE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testUpdateSubmodelElement Browse Result Null", bpres);
+        Assert.assertTrue("testUpdateSubmodelElement Browse 1 Result: size doesn't match", bpres.length == 2);
+        Assert.assertTrue("testUpdateSubmodelElement Browse 1 Result 1 Good", bpres[0].getStatusCode().isGood());
+        Assert.assertTrue("testUpdateSubmodelElement Browse 1 Result 2 Good", bpres[1].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testUpdateSubmodelElement Property Value Null", targets);
+        Assert.assertTrue("testUpdateSubmodelElement Property Value empty", targets.length > 0);
+
+        // read the (old) value of the SubmodelElement
+        DataValue value = client.readValue(client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()));
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertEquals("old SubmodelElement value not equal", "OperatingManual", value.getValue().toString());
+
+        String newValue = "New Test Value";
+
+        // update SubmodelElement 
+        // Send update event to MessageBus
+        ElementUpdateEventMessage msg = new ElementUpdateEventMessage();
+        msg.setElement(new DefaultReference.Builder()
+                .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(TestDefines.SUBMODEL_DOC_NAME).build())
+                .key(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.SUBMODEL_ELEMENT_COLLECTION).value(TestDefines.OPERATING_MANUAL_NAME).build())
+                .build());
+        msg.setValue(new DefaultSubmodelElementCollection.Builder()
+                .kind(ModelingKind.INSTANCE)
+                .idShort("OperatingManual")
+                .value(new DefaultProperty.Builder()
+                        .kind(ModelingKind.INSTANCE)
+                        .idShort("Title")
+                        .value(newValue)
+                        .valueType("string")
+                        .build())
+                .ordered(false)
+                .allowDuplicates(false)
+                .build());
+        service.getMessageBus().publish(msg);
+
+        Thread.sleep(DEFAULT_TIMEOUT);
+
+        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testUpdateSubmodelElement Browse 2 Result Null", bpres);
+        Assert.assertTrue("testUpdateSubmodelElement Browse 2 Result: size doesn't match", bpres.length == 2);
+        Assert.assertTrue("testUpdateSubmodelElement Browse 2 Result 1 Good", bpres[0].getStatusCode().isGood());
+        Assert.assertTrue("testUpdateSubmodelElement Browse 2 Result 2 Bad", bpres[1].getStatusCode().isBad());
+
+        // read the (new) value of the SubmodelElement
+        targets = bpres[0].getTargets();
+        Assert.assertNotNull("testUpdateSubmodelElement Property New Value Null", targets);
+        Assert.assertTrue("testUpdateSubmodelElement Property New Value empty", targets.length > 0);
+
+        NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        value = client.readValue(writeNode);
+        System.out.println("testUpdateSubmodelElement: writeNode: " + writeNode.toString());
+
+        Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
+        Assert.assertEquals("new SubmodelElement value not equal", newValue, value.getValue().toString());
 
         System.out.println("disconnect client");
         client.disconnect();

@@ -43,6 +43,8 @@ public class TestDefines {
     public static final String TEST_ENTITY_NAME = "ExampleEntity";
     public static final String TEST_ENTITY_PROPERTY_NAME = "ExampleProperty";
     public static final String DECIMAL_PROPERTY = "DecimalProperty";
+    public static final String SUBMODEL_DOC_PROPERTY_TITLE_NAME = "Title";
+    public static final String SUBMODEL_DOC_FILE_NAME = "DigitalFile_PDF";
 
     public static final String FULL_SUBMODEL_1_NAME = "Identification";
     public static final String FULL_SUBMODEL_1_ID = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
