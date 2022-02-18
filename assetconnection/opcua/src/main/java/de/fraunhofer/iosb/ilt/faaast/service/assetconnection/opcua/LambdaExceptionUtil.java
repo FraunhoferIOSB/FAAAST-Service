@@ -1,12 +1,11 @@
 /*
- * Copyright 2022 Fraunhofer IOSB.
- *
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +18,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
 
 public class LambdaExceptionUtil {
 
@@ -61,21 +61,25 @@ public class LambdaExceptionUtil {
         return t -> {
             try {
                 consumer.accept(t);
-            } catch (Exception exception) {
+            }
+            catch (Exception exception) {
                 throwAsUnchecked(exception);
             }
         };
     }
 
+
     public static <T, U, E extends Exception> BiConsumer<T, U> rethrowBiConsumer(BiConsumer_WithExceptions<T, U, E> biConsumer) throws E {
         return (t, u) -> {
             try {
                 biConsumer.accept(t, u);
-            } catch (Exception exception) {
+            }
+            catch (Exception exception) {
                 throwAsUnchecked(exception);
             }
         };
     }
+
 
     /**
      * .map(rethrowFunction(name -> Class.forName(name))) or
@@ -85,12 +89,14 @@ public class LambdaExceptionUtil {
         return t -> {
             try {
                 return function.apply(t);
-            } catch (Exception exception) {
+            }
+            catch (Exception exception) {
                 throwAsUnchecked(exception);
                 return null;
             }
         };
     }
+
 
     /**
      * rethrowSupplier(() -> new StringJoiner(new String(new byte[]{77, 97, 114,
@@ -100,12 +106,14 @@ public class LambdaExceptionUtil {
         return () -> {
             try {
                 return function.get();
-            } catch (Exception exception) {
+            }
+            catch (Exception exception) {
                 throwAsUnchecked(exception);
                 return null;
             }
         };
     }
+
 
     /**
      * uncheck(() -> Class.forName("xxx"));
@@ -113,10 +121,12 @@ public class LambdaExceptionUtil {
     public static void uncheck(Runnable_WithExceptions t) {
         try {
             t.run();
-        } catch (Exception exception) {
+        }
+        catch (Exception exception) {
             throwAsUnchecked(exception);
         }
     }
+
 
     /**
      * uncheck(() -> Class.forName("xxx"));
@@ -124,11 +134,13 @@ public class LambdaExceptionUtil {
     public static <R, E extends Exception> R uncheck(Supplier_WithExceptions<R, E> supplier) {
         try {
             return supplier.get();
-        } catch (Exception exception) {
+        }
+        catch (Exception exception) {
             throwAsUnchecked(exception);
             return null;
         }
     }
+
 
     /**
      * uncheck(Class::forName, "xxx");
@@ -136,11 +148,13 @@ public class LambdaExceptionUtil {
     public static <T, R, E extends Exception> R uncheck(Function_WithExceptions<T, R, E> function, T t) {
         try {
             return function.apply(t);
-        } catch (Exception exception) {
+        }
+        catch (Exception exception) {
             throwAsUnchecked(exception);
             return null;
         }
     }
+
 
     @SuppressWarnings("unchecked")
     private static <E extends Throwable> void throwAsUnchecked(Exception exception) throws E {

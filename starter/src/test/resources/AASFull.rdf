@@ -1,0 +1,77 @@
+{
+  "@context" : {
+    "aas" : "https://admin-shell.io/aas/3/0/RC01/",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "phys_unit" : "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationPhysicalUnit/3/0/RC01/",
+    "iec61360" : "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0/RC01/"
+  },
+  "@id" : "https://admin-shell.io/autogen/31208fc0-2024-4533-a3a8-102eab30b8fc",
+  "@type" : "aas:AssetAdministrationShellEnvironment",
+  "https://admin-shell.io/aas/3/0/RC01/AssetAdministrationShellEnvironment/assetAdministrationShells" : [ {
+    "@id" : "https://admin-shell.io/autogen/ad00d860-9995-4fd8-badb-466c507d2793",
+    "@type" : "aas:AssetAdministrationShell",
+    "https://admin-shell.io/aas/3/0/RC01/AssetAdministrationShell/assetInformation" : {
+      "@id" : "https://admin-shell.io/autogen/f34ed149-f568-47fd-aaad-93e3d66260d2",
+      "@type" : "aas:AssetInformation",
+      "https://admin-shell.io/aas/3/0/RC01/AssetInformation/assetKind" : "aas:AssetKind/INSTANCE",
+      "https://admin-shell.io/aas/3/0/RC01/AssetInformation/billOfMaterial" : [ ],
+      "https://admin-shell.io/aas/3/0/RC01/AssetInformation/specificAssetId" : [ ]
+    },
+    "https://admin-shell.io/aas/3/0/RC01/AssetAdministrationShell/submodel" : [ ],
+    "https://admin-shell.io/aas/3/0/RC01/AssetAdministrationShell/view" : [ ],
+    "https://admin-shell.io/aas/3/0/RC01/HasDataSpecification/embeddedDataSpecification" : [ ],
+    "https://admin-shell.io/aas/3/0/RC01/Referable/description" : [ {
+      "@type" : "rdf:langString",
+      "@value" : "This is a test AAS"
+    } ],
+    "https://admin-shell.io/aas/3/0/RC01/Referable/displayName" : [ {
+      "@language" : "en",
+      "@value" : "Display Name 1"
+    }, {
+      "@language" : "de",
+      "@value" : "Anzeigename 2"
+    } ]
+  } ],
+  "https://admin-shell.io/aas/3/0/RC01/AssetAdministrationShellEnvironment/conceptDescriptions" : [ ],
+  "https://admin-shell.io/aas/3/0/RC01/AssetAdministrationShellEnvironment/submodels" : [ {
+    "@id" : "https://admin-shell.io/autogen/8e5e5058-b969-4ec4-abc1-5b9d87c84d40",
+    "@type" : "aas:Submodel",
+    "https://admin-shell.io/aas/3/0/RC01/HasDataSpecification/embeddedDataSpecification" : [ {
+      "@id" : "https://admin-shell.io/autogen/3f625f89-e744-487f-98c6-4fec1e2743e9",
+      "@type" : "aas:EmbeddedDataSpecification",
+      "https://admin-shell.io/aas/3/0/RC01/EmbeddedDataSpecification/dataSpecification" : {
+        "@id" : "https://admin-shell.io/autogen/cb1f585b-060b-4132-bbac-ef83bb3f9cb8",
+        "@type" : "aas:Reference",
+        "https://admin-shell.io/aas/3/0/RC01/Reference/key" : [ {
+          "@id" : "https://admin-shell.io/autogen/75b6ec66-74eb-4c2c-bab4-550a51e12ff6",
+          "@type" : "aas:Key",
+          "https://admin-shell.io/aas/3/0/RC01/Key/idType" : "aas:KeyType/IRI",
+          "https://admin-shell.io/aas/3/0/RC01/Key/value" : "https://example.org"
+        } ]
+      },
+      "https://admin-shell.io/aas/3/0/RC01/EmbeddedDataSpecification/dataSpecificationContent" : {
+        "@id" : "https://admin-shell.io/autogen/734ac4cf-2b9d-450a-bcba-23f21fd9625b",
+        "@type" : "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0/RC01/DataSpecificationIEC61360",
+        "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0/RC01/DataSpecificationIEC61360/dataType" : "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0/RC01/DataTypeIEC61360/RATIONAL",
+        "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0/RC01/DataSpecificationIEC61360/definition" : [ ],
+        "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0/RC01/DataSpecificationIEC61360/levelType" : [ ],
+        "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0/RC01/DataSpecificationIEC61360/preferredName" : [ ],
+        "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0/RC01/DataSpecificationIEC61360/shortName" : [ ]
+      }
+    } ],
+    "https://admin-shell.io/aas/3/0/RC01/Qualifiable/qualifier" : [ ],
+    "https://admin-shell.io/aas/3/0/RC01/Referable/category" : "Example category",
+    "https://admin-shell.io/aas/3/0/RC01/Referable/description" : [ {
+      "@type" : "rdf:langString",
+      "@value" : "My Submodel"
+    } ],
+    "https://admin-shell.io/aas/3/0/RC01/Referable/displayName" : [ {
+      "@type" : "rdf:langString",
+      "@value" : "First Submodel Element name"
+    }, {
+      "@type" : "rdf:langString",
+      "@value" : "Second Submodel Element name"
+    } ],
+    "https://admin-shell.io/aas/3/0/RC01/Submodel/submodelElement" : [ ]
+  } ]
+}

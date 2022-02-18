@@ -101,7 +101,6 @@ public class RequestHandler extends AbstractHandler {
                 else {
                     sendJson(response, statusCode, serializer.write(((BaseResponseWithPayload) apiResponse).getPayload()));
                 }
-
             }
             catch (SerializationException ex) {
                 send(response, HttpStatus.INTERNAL_SERVER_ERROR_500, ex.getMessage());
