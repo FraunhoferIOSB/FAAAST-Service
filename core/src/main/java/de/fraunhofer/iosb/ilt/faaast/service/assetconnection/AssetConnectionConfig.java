@@ -126,37 +126,23 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
 
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (obj == null) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final AssetConnectionConfig<?, ?, ?, ?> other = (AssetConnectionConfig<?, ?, ?, ?>) obj;
-        if (!Objects.equals(this.valueProviders, other.valueProviders)) {
-            return false;
-        }
-        if (!Objects.equals(this.operationProviders, other.operationProviders)) {
-            return false;
-        }
-        if (!Objects.equals(this.subscriptionProviders, other.subscriptionProviders)) {
-            return false;
-        }
-        return true;
+        AssetConnectionConfig<?, ?, ?, ?> that = (AssetConnectionConfig<?, ?, ?, ?>) o;
+        return Objects.equals(valueProviders, that.valueProviders)
+                && Objects.equals(operationProviders, that.operationProviders)
+                && Objects.equals(subscriptionProviders, that.subscriptionProviders);
     }
 
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 89 * hash + Objects.hashCode(this.valueProviders);
-        hash = 89 * hash + Objects.hashCode(this.operationProviders);
-        hash = 89 * hash + Objects.hashCode(this.subscriptionProviders);
-        return hash;
+        return Objects.hash(valueProviders, operationProviders, subscriptionProviders);
     }
 
     /**
@@ -170,11 +156,11 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
      *            connection
      * @param <S> type of the subscription providers of the corresponding asset
      *            connection
-     * @param <C> type of the config to build
+     * @param <C> type of the asset connection
      * @param <B> type of this builder, needed for inheritance builder pattern
      */
-    public static abstract class AbstractBuilder<T extends AssetConnection, V extends AssetValueProviderConfig, O extends AssetOperationProviderConfig, S extends AssetSubscriptionProviderConfig, C extends AssetConnectionConfig<T, V, O, S>, B extends AbstractBuilder<T, V, O, S, C, B>>
-            extends ExtendableBuilder<C, B> {
+    public static abstract class AbstractBuilder<T extends AssetConnectionConfig, V extends AssetValueProviderConfig, O extends AssetOperationProviderConfig, S extends AssetSubscriptionProviderConfig, C extends AssetConnection<T, V, O, S>, B extends AbstractBuilder<T, V, O, S, C, B>>
+            extends ExtendableBuilder<T, B> {
 
         public B operationProviders(Map<Reference, O> value) {
             getBuildingInstance().setOperationProviders(value);
@@ -216,7 +202,7 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
     /**
      * Builder for AssetConnectionConfig class.
      *
-     * @param <T> type of the asset connection of the config to build
+     * @param <C> type of the asset connection of the config to build
      * @param <V> type of the value providers of the corresponding asset
      *            connection
      * @param <O> type of the operation providers of the corresponding asset
@@ -224,17 +210,17 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
      * @param <S> type of the subscription providers of the corresponding asset
      *            connection
      */
-    public static class Builder<T extends AssetConnection, V extends AssetValueProviderConfig, O extends AssetOperationProviderConfig, S extends AssetSubscriptionProviderConfig>
-            extends AbstractBuilder<T, V, O, S, AssetConnectionConfig<T, V, O, S>, Builder<T, V, O, S>> {
+    public static class Builder<V extends AssetValueProviderConfig, O extends AssetOperationProviderConfig, S extends AssetSubscriptionProviderConfig, C extends AssetConnection<AssetConnectionConfig, V, O, S>>
+            extends AbstractBuilder<AssetConnectionConfig, V, O, S, C, Builder<V, O, S, C>> {
 
         @Override
-        protected Builder<T, V, O, S> getSelf() {
+        protected Builder<V, O, S, C> getSelf() {
             return this;
         }
 
 
         @Override
-        protected AssetConnectionConfig<T, V, O, S> newBuildingInstance() {
+        protected AssetConnectionConfig<AssetConnection, V, O, S> newBuildingInstance() {
             return new AssetConnectionConfig<>();
         }
 

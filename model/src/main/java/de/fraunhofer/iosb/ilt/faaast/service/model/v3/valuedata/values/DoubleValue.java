@@ -35,11 +35,11 @@ public class DoubleValue extends TypedValue<Double> {
     @Override
     public void fromString(String value) throws ValueFormatException {
         if (value == null) {
-            this.value = null;
+            this.setValue(null);
             return;
         }
         try {
-            this.value = Double.parseDouble(value);
+            this.setValue((Double) Double.parseDouble(value));
         }
         catch (NumberFormatException ex) {
             throw new ValueFormatException(ex);

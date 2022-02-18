@@ -35,11 +35,11 @@ public class FloatValue extends TypedValue<Float> {
     @Override
     public void fromString(String value) throws ValueFormatException {
         if (value == null) {
-            this.value = null;
+            this.setValue(null);
             return;
         }
         try {
-            this.value = Float.parseFloat(value);
+            this.setValue((Float) Float.parseFloat(value));
         }
         catch (NumberFormatException ex) {
             throw new ValueFormatException(ex);

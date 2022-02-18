@@ -12,35 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
-public class BooleanValue extends TypedValue<Boolean> {
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 
-    public BooleanValue() {
-        super();
+
+public class ValueConversionException extends AssetConnectionException {
+
+    public ValueConversionException(String msg) {
+        super(msg);
     }
 
 
-    public BooleanValue(Boolean value) {
-        super(value);
+    public ValueConversionException(Throwable err) {
+        super(err);
     }
 
 
-    @Override
-    public String asString() {
-        return Boolean.toString(value);
-    }
-
-
-    @Override
-    public void fromString(String value) {
-        this.setValue(Boolean.valueOf(value));
-    }
-
-
-    @Override
-    public Datatype getDataType() {
-        return Datatype.Boolean;
+    public ValueConversionException(String msg, Throwable err) {
+        super(msg, err);
     }
 
 }

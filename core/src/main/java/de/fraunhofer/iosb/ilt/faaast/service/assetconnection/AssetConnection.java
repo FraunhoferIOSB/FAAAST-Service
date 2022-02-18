@@ -37,7 +37,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
     /**
      * Gracefully closes the asset connection.
      */
-    public void close();
+    public void close() throws AssetConnectionException;
 
 
     public Map<Reference, AssetOperationProvider> getOperationProviders();

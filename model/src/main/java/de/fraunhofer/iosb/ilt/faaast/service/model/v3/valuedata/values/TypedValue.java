@@ -59,6 +59,11 @@ public abstract class TypedValue<T> {
     }
 
 
+    public void setValue(T value) {
+        this.value = value;
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(value);

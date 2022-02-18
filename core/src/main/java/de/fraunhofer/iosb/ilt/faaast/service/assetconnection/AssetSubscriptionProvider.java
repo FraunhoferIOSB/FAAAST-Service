@@ -15,22 +15,24 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
 /**
- * An AssetSubscriptionProvider provides methods to subscribe to an asset and provide events about new data values.
+ * An AssetSubscriptionProvider provides methods to subscribe to an asset and
+ * provide events about new data values.
  */
 public interface AssetSubscriptionProvider extends AssetProvider {
 
     /**
-     * Add a NewDataListener to be notified when new data is received from the asset.
-     * 
+     * Add a NewDataListener to be notified when new data is received from the
+     * asset.
+     *
      * @param listener listener to add
      */
-    public void addNewDataListener(NewDataListener listener);
+    public void addNewDataListener(NewDataListener listener) throws AssetConnectionException;
 
 
     /**
      * Remove NewDataListener if present, otherwise to nothing.
-     * 
+     *
      * @param listener listener to remove
      */
-    public void removeNewDataListener(NewDataListener listener);
+    public void removeNewDataListener(NewDataListener listener) throws AssetConnectionException;
 }

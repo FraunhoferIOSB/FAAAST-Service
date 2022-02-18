@@ -35,11 +35,11 @@ public class IntValue extends TypedValue<Integer> {
     @Override
     public void fromString(String value) throws ValueFormatException {
         if (value == null) {
-            this.value = null;
+            this.setValue(null);
             return;
         }
         try {
-            this.value = Integer.parseInt(value);
+            this.setValue((Integer) Integer.parseInt(value));
         }
         catch (NumberFormatException ex) {
             throw new ValueFormatException(ex);
