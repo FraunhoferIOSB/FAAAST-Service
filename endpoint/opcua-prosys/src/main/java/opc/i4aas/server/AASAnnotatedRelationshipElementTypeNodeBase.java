@@ -30,7 +30,7 @@ import opc.i4aas.AASAnnotatedRelationshipElementType;
 
 
 /**
- * Generated on 2021-12-15 11:39:02
+ * Generated on 2022-02-08 12:58:54
  */
 @TypeDefinitionId("nsu=http://opcfoundation.org/UA/I4AAS/V3/;i=1019")
 public abstract class AASAnnotatedRelationshipElementTypeNodeBase extends AASRelationshipElementTypeNode implements AASAnnotatedRelationshipElementType {

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.listener;
 
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.nodes.UaMethod;
@@ -30,8 +30,10 @@ import com.prosysopc.ua.stack.core.AttributeWriteMask;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import com.prosysopc.ua.stack.core.TimestampsToReturn;
 import com.prosysopc.ua.stack.utils.NumericRange;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
-import io.adminshell.aas.v3.model.Property;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.AasServiceNodeManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.OpcUaEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.data.SubmodelElementData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -257,17 +259,30 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                 logger.warn("onWriteValue: StatusCode not good");
             }
             else {
-                //String oldValue = "";
-                //if (uvn.getValue().getStatusCode().isGood()) {
-                //    oldValue = uvn.getValue().getValue().getValue().toString();
-                //}
+                boolean rv;
+                SubmodelElementData data = nodeManager.getAasData(nodeId);
+                if (data != null) {
+                    if (data.getType() == null) {
+                        logger.warn("onWriteValue: Node " + nodeId + ": unkown type");
+                        rv = false;
+                    }
+                    else {
+                        ValueConverter.setSubmodelElementValue(data, dv);
 
-                Property aasProp = (Property) nodeManager.getAasSubmodelElement(nodeId);
-                if (aasProp != null) {
-                    String newValue = dv.getValue().getValue().toString();
-                    // TODO potentially check type?
-                    PropertyValue newPropertyValue = PropertyValue.of(aasProp.getValueType(), newValue);
-                    endpoint.writeValue(aasProp, newPropertyValue);
+                        rv = endpoint.writeValue(data.getSubmodelElement(), data.getSubmodel(), data.getReference());
+                    }
+                }
+                else {
+                    logger.warn("onWriteValue: Node " + nodeId + ": SubmodelElementData not found");
+                    rv = false;
+                }
+
+                if (rv) {
+                    logger.debug("onWriteValue: NodeId " + nodeId.toString() + " written successfully");
+                }
+                else {
+                    logger.info("onWriteValue: NodeId " + nodeId.toString() + " write failed");
+                    throw new StatusException(StatusCodes.Bad_InternalError);
                 }
             }
         }
@@ -276,7 +291,9 @@ public class AasServiceIoManagerListener implements IoManagerListener {
             throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError);
         }
 
-        return false;
+        // We return true here. So, the value is not written to the node here. 
+        // The node is written in the callback from the MessageBus.
+        return true;
     }
 
 }

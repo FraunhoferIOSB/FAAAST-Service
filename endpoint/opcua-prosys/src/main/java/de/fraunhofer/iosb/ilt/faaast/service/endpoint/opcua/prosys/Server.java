@@ -35,6 +35,8 @@ import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import com.prosysopc.ua.stack.transport.security.SecurityPolicy;
 import com.prosysopc.ua.types.opcua.server.BuildInfoTypeNode;
 import com.prosysopc.ua.types.opcua.server.ServerCapabilitiesTypeNode;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.listener.AasCertificateValidationListener;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.listener.AasServiceIoManagerListener;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
 import java.net.InetAddress;
@@ -59,7 +61,6 @@ public class Server {
     private static final int CERT_KEY_SIZE = 2048;
 
     private final int tcpPort;
-    private final int httpsPort;
     private final AssetAdministrationShellEnvironment aasEnvironment;
     private final OpcUaEndpoint endpoint;
 
@@ -77,13 +78,11 @@ public class Server {
      * @param portTcp The desired port for the opc.tcp endpoint
      * @param environment The AAS environment
      * @param endpoint the associated endpoint
-     * @param portHttps The desired port for the Https endpoint
      */
-    public Server(int portTcp, AssetAdministrationShellEnvironment environment, OpcUaEndpoint endpoint, int portHttps) {
+    public Server(int portTcp, AssetAdministrationShellEnvironment environment, OpcUaEndpoint endpoint) {
         this.tcpPort = portTcp;
         this.aasEnvironment = environment;
         this.endpoint = endpoint;
-        this.httpsPort = portHttps;
     }
 
 
@@ -140,8 +139,8 @@ public class Server {
             // *** Server Endpoints
             // TCP Port number for the UA TCP protocol
             server.setPort(Protocol.OpcTcp, tcpPort);
-            // TCP Port for the HTTPS protocol
-            server.setPort(Protocol.OpcHttps, httpsPort);
+            // TCP Port for the HTTPS protocol - currently disabled
+            //server.setPort(Protocol.OpcHttps, httpsPort);
 
             // optional server name part of the URI (default for all protocols)
             //server.setServerName("OPCUA/" + applicationName);
@@ -318,6 +317,8 @@ public class Server {
             createAddressSpace();
 
             server.start();
+
+            running = true;
         }
         catch (Throwable ex) {
             logger.error("startup Exception", ex);
@@ -327,10 +328,12 @@ public class Server {
 
     /**
      * Stops the OPC UA server
+     * 
+     * @param secondsTillShutdown The number of seconds until the server stops
      */
-    public void shutdown() {
+    public void shutdown(int secondsTillShutdown) {
         running = false;
-        server.shutdown(5, new LocalizedText("Server stopped", Locale.ENGLISH));
+        server.shutdown(secondsTillShutdown, new LocalizedText("Server stopped", Locale.ENGLISH));
     }
 
 

@@ -14,22 +14,28 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
 
-import de.fraunhofer.iosb.ilt.faaast.service.Service;
+import com.prosysopc.ua.StatusException;
+import com.prosysopc.ua.stack.core.StatusCodes;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.SetSubmodelElementValueByPathRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.InvokeOperationSyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
+import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.Submodel;
+import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -45,7 +51,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
     private static final Logger logger = LoggerFactory.getLogger(OpcUaEndpoint.class);
 
-    private Service service;
+    private ServiceContext service;
     private AssetAdministrationShellEnvironment aasEnvironment;
     private MessageBus messageBus;
     private OpcUaEndpointConfig currentConfig;
@@ -53,7 +59,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     private int requestCounter;
 
     /**
-     * Constructs a new OpcUaEndpoint
+     * Creates a new instance of OpcUaEndpoint
      */
     public OpcUaEndpoint() {
         aasEnvironment = null;
@@ -74,29 +80,44 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
 
     /**
-     * Initializes the OPC UA Endpoint with the given Configurations. This is
-     * the first call.
+     * Initializes the OPC UA Endpoint with the given Configurations.
+     * This is the first call.
      *
      * @param core The desired Core Configuration
      * @param config The desired OPC UA Configuration
+     * @param context The desired ServiceContext
      */
     @Override
     public void init(CoreConfig core, OpcUaEndpointConfig config, ServiceContext context) {
         currentConfig = config;
+        service = context;
+        messageBus = service.getMessageBus();
+        if (messageBus == null) {
+            throw new IllegalArgumentException("MessageBus is null");
+        }
     }
 
-  
+
     /**
-     * Starts the Endpoint. This is the third call.
+     * Starts the Endpoint.
+     * This is the third call.
      */
     @Override
     public void start() {
         if (server != null && server.isRunning()) {
             throw new IllegalStateException("OPC UA Endpoint cannot be started because it is already running");
         }
+        else if (currentConfig == null) {
+            throw new IllegalStateException("OPC UA Endpoint cannot be started because no configuration is available");
+        }
+
+        aasEnvironment = service.getAASEnvironment();
+        if (aasEnvironment == null) {
+            throw new IllegalArgumentException("AASEnvironment is null");
+        }
 
         try {
-            server = new Server(currentConfig.getTcpPort(), aasEnvironment, this, currentConfig.getHttpsPort());
+            server = new Server(currentConfig.getTcpPort(), aasEnvironment, this);
             server.startup();
             logger.info("server started");
         }
@@ -112,10 +133,14 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      */
     @Override
     public void stop() {
+        if (currentConfig == null) {
+            throw new IllegalStateException("OPC UA Endpoint cannot be stopped because no configuration is available");
+        }
+
         try {
             if (server != null) {
-                logger.info("stop server");
-                server.shutdown();
+                logger.info("stop server. Currently running: " + server.isRunning());
+                server.shutdown(currentConfig.getSecondsTillShutdown());
             }
         }
         catch (Exception ex) {
@@ -137,26 +162,56 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
 
     /**
-     * Writes the Value of the given Property into the service.
+     * Writes the Value of the given SubmodelElement into the service.
      *
-     * @param property The desired Property
-     * @param value The new value
+     * @param element The desired SubmodelElement including the new value
+     * @param submodel The corresponding submodel
+     * @param refElement The reference to the SubmodelElement
      * @return True if the write succeeded, false otherwise
      */
-    public boolean writeValue(Property property, PropertyValue value) {
+    public boolean writeValue(SubmodelElement element, Submodel submodel, Reference refElement) {
         boolean retval = false;
+        if (element == null) {
+            throw new IllegalArgumentException("element == null");
+        }
+        else if (submodel == null) {
+            throw new IllegalArgumentException("submodel == null");
+        }
 
         try {
             SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
 
             List<Key> path = new ArrayList<>();
-            path.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.PROPERTY).value(property.getIdShort()).build());
-            request.setPath(path);
+            path.addAll(refElement.getKeys());
 
-            // TODO set payload no longer available, solution tbd
-            //request.setPayload(value);
-            //service.execute
-            // TODO Method in Service not yet implemented
+            request.setId(submodel.getIdentification());
+            request.setPath(path);
+            request.setValueParser(new OpcUaElementValueParser());
+            if (element instanceof MultiLanguageProperty) {
+                MultiLanguageProperty mlp = (MultiLanguageProperty) element;
+                if ((mlp.getValues() != null) && (mlp.getValues().size() > 1)) {
+                    for (int i = 0; i < mlp.getValues().size(); i++) {
+                        logger.info("writeValue: MLP " + i + ": " + mlp.getValues().get(i).getValue());
+                    }
+                }
+            }
+
+            request.setRawValue(ElementValueMapper.toValue(element));
+
+            if (request.getRawValue() instanceof MultiLanguagePropertyValue) {
+                MultiLanguagePropertyValue mlpv = (MultiLanguagePropertyValue) request.getRawValue();
+                if ((mlpv.getLangStringSet() != null) && (mlpv.getLangStringSet().size() > 1)) {
+                    for (int i = 0; i < mlpv.getLangStringSet().size(); i++) {
+                        logger.info("writeValue: MLPV " + i + ": " + mlpv.getLangStringSet().toArray()[i]);
+                    }
+                }
+            }
+
+            Response response = service.execute(request);
+            logger.info("writeValue: Submodel " + submodel.getIdentification().getIdentifier() + "; Element " + element.getIdShort() + "; Status: " + response.getStatusCode());
+            if (isSuccess(response.getStatusCode())) {
+                retval = true;
+            }
         }
         catch (Exception ex) {
             logger.error("writeValue error", ex);
@@ -171,24 +226,64 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      *
      * @param operation The desired operation
      * @param inputVariables The input arguments
+     * @param submodel The corresponding submodel
+     * @param refElement The reference to the SubmodelElement
+     * @return The OutputArguments The output arguments returned from the operation call
+     * @throws StatusException If the operation fails
      */
-    public void callOperation(Operation operation, List<OperationVariable> inputVariables) {
+    public List<OperationVariable> callOperation(Operation operation, List<OperationVariable> inputVariables, Submodel submodel, Reference refElement) throws StatusException {
+        List<OperationVariable> outputArguments;
         try {
             InvokeOperationSyncRequest request = new InvokeOperationSyncRequest();
 
             List<Key> path = new ArrayList<>();
-            path.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.OPERATION).value(operation.getIdShort()).build());
-            request.setPath(path);
+            path.addAll(refElement.getKeys());
 
+            request.setId(submodel.getIdentification());
+            request.setPath(path);
             request.setInputArguments(inputVariables);
+            request.setContent(Content.Normal);
 
             requestCounter++;
             request.setRequestId(Integer.toString(requestCounter));
 
-            // TODO Method in Service not yet implemented
+            // execute method
+            InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
+            if (isSuccess(response.getStatusCode())) {
+                logger.info("callOperation: Operation " + operation.getIdShort() + " executed successfully");
+            }
+            else if (response.getStatusCode() == StatusCode.ClientMethodNotAllowed) {
+                logger.warn("callOperation: Operation " + operation.getIdShort() + " error executing operation: " + response.getStatusCode());
+                throw new StatusException(StatusCodes.Bad_NotExecutable);
+            }
+            else {
+                logger.warn("callOperation: Operation " + operation.getIdShort() + " error executing operation: " + response.getStatusCode());
+                throw new StatusException(StatusCodes.Bad_UnexpectedError);
+            }
+
+            outputArguments = response.getPayload().getOutputArguments();
         }
         catch (Exception ex) {
             logger.error("callOperation error", ex);
+            throw ex;
         }
+
+        return outputArguments;
+    }
+
+
+    /**
+     * Returns a value indicating whether the given StatusCode is a success
+     * 
+     * @param code The desired StatusCode
+     * @return True if the StatusCode is a success, false otherweise
+     */
+    private static boolean isSuccess(StatusCode code) {
+        boolean retval = false;
+        if ((code == StatusCode.Success) || (code == StatusCode.SuccessCreated) || (code == StatusCode.SuccessNoContent)) {
+            retval = true;
+        }
+
+        return retval;
     }
 }

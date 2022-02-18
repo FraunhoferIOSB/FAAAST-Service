@@ -27,7 +27,7 @@ public class ReferenceElementValueMapper extends DataValueMapper<ReferenceElemen
             return null;
         }
         ReferenceElementValue referenceElementValue = new ReferenceElementValue();
-        referenceElementValue.setKeys(submodelElement.getValue().getKeys());
+        referenceElementValue.setKeys(submodelElement.getValue() == null ? null : submodelElement.getValue().getKeys());
         return referenceElementValue;
     }
 
