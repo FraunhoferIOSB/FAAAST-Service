@@ -121,7 +121,7 @@ public class AASSimple {
     private static final String SUBMODEL_DOCUMENTATION_PROPERTY_SEMANTIC_ID = WWW_VDI2770_COM_BLATT1_ENTWURF_OKT18_CD_DESCRIPTION_TITLE;
     private static final String SUBMODEL_DOCUMENTATION_PROPERTY_ID_SHORT = TITLE;
     private static final String SUBMODEL_DOCUMENTATION_PROPERTY_VALUE = "OperatingManual";
-    private static final String SUBMODEL_DOCUMENTATION_PROPERTY_VALUETYPE = "langString";
+    private static final String SUBMODEL_DOCUMENTATION_PROPERTY_VALUETYPE = "string";
     private static final String SUBMODEL_DOCUMENTATION_FILE_SEMANTIC_ID = WWW_VDI2770_COM_BLATT1_ENTWURF_OKT18_CD_STORED_DOCUMENT_REPRESENTATION_DIGITAL_FILE;
     private static final String SUBMODEL_DOCUMENTATION_FILE_ID_SHORT = "DigitalFile_PDF";
     private static final String SUBMODEL_DOCUMENTATION_FILE_MIMETYPE = "application/pdf";
