@@ -20,7 +20,7 @@
         <module>core</module>
         <module>model</module>
         <!-- needs to be build separately because of proprietary dependency to prosys -->
-        <!--<module>endpoint/opcua-prosys</module>-->
+        <!-- <module>endpoint/opcua-prosys</module> -->
         <module>endpoint/http</module>
         <module>messagebus/messagebus-internal</module>
         <module>persistence/persistence-inmemory</module>
@@ -204,7 +204,7 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>check</goal>
+                            <goal>apply</goal>
                         </goals>
                         <phase>compile</phase>
                     </execution>

@@ -43,8 +43,7 @@ public class DeleteSubmodelReferenceRequestHandler extends RequestHandler<Delete
             aas.getSubmodels().remove(request.getSubmodelRef());
             persistence.put(aas);
             response.setStatusCode(StatusCode.Success);
-            //TODO: how to publish reference deletion?
-            publishElementDeleteEventMessage(AasUtils.toReference(aas), null);
+            publishElementUpdateEventMessage(AasUtils.toReference(aas), aas);
         }
         catch (ResourceNotFoundException ex) {
             response.setStatusCode(StatusCode.ClientErrorResourceNotFound);

@@ -661,10 +661,14 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testDeleteSubmodelElementByPathRequest() throws ResourceNotFoundException {
-        when(persistence.get(Util.toReference(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF)), new QueryModifier()))
+        Submodel submodel = environment.getSubmodels().get(0);
+        Reference reference = Util.toReference(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF),
+                submodel.getIdentification(),
+                Submodel.class);
+        when(persistence.get(reference, new QueryModifier()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         DeleteSubmodelElementByPathRequest request = new DeleteSubmodelElementByPathRequest.Builder()
-                .id(environment.getSubmodels().get(0).getIdentification())
+                .id(submodel.getIdentification())
                 .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
                 .build();
         DeleteSubmodelElementByPathResponse response = manager.execute(request);
@@ -672,7 +676,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.Success)
                 .build();
         Assert.assertEquals(expected, response);
-        verify(persistence).remove(Util.toReference(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF)));
+        verify(persistence).remove(reference);
     }
 
 
