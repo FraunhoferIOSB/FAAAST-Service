@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Extend;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Submodel;
