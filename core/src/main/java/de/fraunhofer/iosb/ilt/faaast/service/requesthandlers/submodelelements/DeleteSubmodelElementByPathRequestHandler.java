@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 
 
@@ -40,7 +41,7 @@ public class DeleteSubmodelElementByPathRequestHandler extends RequestHandler<De
         DeleteSubmodelElementByPathResponse response = new DeleteSubmodelElementByPathResponse();
 
         try {
-            Reference reference = Util.toReference(request.getPath());
+            Reference reference = Util.toReference(request.getPath(), request.getId(), Submodel.class);
             SubmodelElement submodelElement = persistence.get(reference, new QueryModifier());
             persistence.remove(reference);
             response.setStatusCode(StatusCode.Success);

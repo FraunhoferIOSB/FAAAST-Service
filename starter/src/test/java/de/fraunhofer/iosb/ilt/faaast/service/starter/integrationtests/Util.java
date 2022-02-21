@@ -76,6 +76,7 @@ public class Util {
         return null;
     }
 
+
     public static HttpResponse getListCall(String url) {
         try {
             return getHttpResponse(url);
@@ -115,7 +116,7 @@ public class Util {
 
     public static <T> T postCall(String url, T payload, Class<T> clazz) {
         try {
-            HttpResponse response = postCall(url,payload);
+            HttpResponse response = postCall(url, payload);
             return retrieveResourceFromResponse(response, clazz);
         }
         catch (Exception e) {
@@ -145,7 +146,7 @@ public class Util {
 
     public static <T> T putCall(String url, T payload, Class<T> clazz) {
         try {
-            HttpResponse response = putCall(url,payload);
+            HttpResponse response = putCall(url, payload);
             return retrieveResourceFromResponse(response, clazz);
         }
         catch (Exception e) {
@@ -154,6 +155,7 @@ public class Util {
         }
         return null;
     }
+
 
     public static HttpResponse putCall(String url, Object payload) {
         try {
@@ -171,6 +173,7 @@ public class Util {
         return null;
     }
 
+
     public static <T> T deleteCall(String url, Class<T> clazz) {
         try {
             HttpResponse response = deleteCall(url);
@@ -182,6 +185,7 @@ public class Util {
         }
         return null;
     }
+
 
     public static HttpResponse deleteCall(String url) {
         try {

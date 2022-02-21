@@ -46,8 +46,7 @@ public class PostSubmodelReferenceRequestHandler extends RequestHandler<PostSubm
             persistence.put(aas);
             response.setPayload(request.getSubmodelRef());
             response.setStatusCode(StatusCode.SuccessCreated);
-            //TODO: how to add reference instead of referable
-            publishElementCreateEventMessage(AasUtils.toReference(aas), null);
+            publishElementUpdateEventMessage(AasUtils.toReference(aas), aas);
         }
         catch (ResourceNotFoundException ex) {
             response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
