@@ -142,6 +142,18 @@ Returns a specific submodel element from the Submodel at a specified path
 	* concept-descriptions (GET, POST)
 	* concept-descriptions/{cdIdentifier} (GET, PUT, DELETE)
 
+###### Optional query params are
+* level=deep/core
+* content=normal/trimmed/value
+* extent=WithoutBLOBValue/WithBLOBValue
+* InvokeOperation supports async=true/false
+
+They are added to the URL as regular query params
+```sh
+http://url:port?level=deep&content=value
+```
+FA³ST Service currently supports only content=value
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##### The following interface URLs are currently not (yet) supported:
