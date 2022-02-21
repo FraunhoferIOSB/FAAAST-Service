@@ -121,7 +121,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
-import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodel.DeleteSubmodelByIdRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
@@ -597,7 +596,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllSubmodelElementsRequest() throws ResourceNotFoundException {
-        Reference reference = Util.toReference(environment.getSubmodels().get(0).getIdentification(), Submodel.class);
+        Reference reference = ElementPathUtils.toReference(environment.getSubmodels().get(0).getIdentification(), Submodel.class);
         when(persistence.getSubmodelElements(reference, (Reference) null, new OutputModifier()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements());
         GetAllSubmodelElementsRequest request = new GetAllSubmodelElementsRequest.Builder()
@@ -615,7 +614,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPostSubmodelElementRequest() throws ResourceNotFoundException {
-        Reference reference = Util.toReference(environment.getSubmodels().get(0).getIdentification(), Submodel.class);
+        Reference reference = ElementPathUtils.toReference(environment.getSubmodels().get(0).getIdentification(), Submodel.class);
         when(persistence.put(reference, (Reference) null, environment.getSubmodels().get(0).getSubmodelElements().get(0)))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         PostSubmodelElementRequest request = new PostSubmodelElementRequest.Builder()
@@ -745,7 +744,7 @@ public class RequestHandlerManagerTest {
     @Test
     public void testDeleteSubmodelElementByPathRequest() throws ResourceNotFoundException {
         Submodel submodel = environment.getSubmodels().get(0);
-        Reference reference = Util.toReference(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF),
+        Reference reference = ElementPathUtils.toReference(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF),
                 submodel.getIdentification(),
                 Submodel.class);
         when(persistence.get(reference, new QueryModifier()))
@@ -915,7 +914,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllConceptDescriptionsByIsCaseOfRequest() throws ResourceNotFoundException {
-        Reference reference = Util.toReference(environment.getConceptDescriptions().get(0).getIdentification(), ConceptDescription.class);
+        Reference reference = ElementPathUtils.toReference(environment.getConceptDescriptions().get(0).getIdentification(), ConceptDescription.class);
         when(persistence.get(null, reference, null, new OutputModifier()))
                 .thenReturn(environment.getConceptDescriptions());
         GetAllConceptDescriptionsByIsCaseOfRequest request = new GetAllConceptDescriptionsByIsCaseOfRequest.Builder()
@@ -933,7 +932,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllConceptDescriptionsByDataSpecificationReferenceRequest() throws ResourceNotFoundException {
-        Reference reference = Util.toReference(environment.getConceptDescriptions().get(0).getIdentification(), ConceptDescription.class);
+        Reference reference = ElementPathUtils.toReference(environment.getConceptDescriptions().get(0).getIdentification(), ConceptDescription.class);
         when(persistence.get(null, null, reference, new OutputModifier()))
                 .thenReturn(environment.getConceptDescriptions());
         GetAllConceptDescriptionsByDataSpecificationReferenceRequest request = new GetAllConceptDescriptionsByDataSpecificationReferenceRequest.Builder()
