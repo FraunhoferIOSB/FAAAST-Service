@@ -39,7 +39,7 @@
 			<li><a href="#http-example">Example HTTP/REST API Call</a></li>
 			<li><a href="#http-api">HTTP API</a></li>
 		</ul>
-		<li><a href="#opc-ua-endpoint-interface">OPC UA Endpoint Interface</a></li>		
+		<li><a href="#opc-ua-endpoint-interface">OPC UA Endpoint Interface</a></li>
 	</ul>
 	<a href="#getting-started">Getting Started</a>
 	<ul>
