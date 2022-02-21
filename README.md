@@ -34,12 +34,12 @@
 	<li>
 	<a href="#features">Features</a>
 	<ul>
-		<li><a href="#HTTP-Endpoint-Interface">HTTP-Endpoint Interface</a></li>
+		<li><a href="#http-endpoint-interface">HTTP-Endpoint Interface</a></li>
 		<ul>
-			<li><a href="#HTTP-Endpoint-Interface">HTTP-Endpoint Interface</a></li>
-			<li><a href="#Example-HTTP-REST-API-Call">Example</a></li>
-			<li><a href="#HTTP-API">HTTP API</a></li>
+			<li><a href="#http-example">Example HTTP/REST API Call</a></li>
+			<li><a href="#http-api">HTTP API</a></li>
 		</ul>
+		<li><a href="#opc-ua-endpoint-interface">OPC UA Endpoint Interface</a></li>		
 	</ul>
 	<a href="#getting-started">Getting Started</a>
 	<ul>
@@ -100,7 +100,7 @@ In order to use the HTTP-Endpoint the configuration settings require to include 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- HTTP-EXAMPLE -->
-##### Example HTTP/REST API Call
+##### HTTP Example
 Sample HTTP-Call for Operation _GetSubmodelElementByPath_
 using the parameters
 - _submodelIdentifier_: https://acplt.org/Test_Submodel (must be base64URL-encoded)
