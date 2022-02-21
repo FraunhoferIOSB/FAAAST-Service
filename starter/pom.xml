@@ -32,6 +32,14 @@
             <artifactId>endpoint-http</artifactId>
             <version>${revision}</version>
         </dependency>
+        <!-- needs to be build separately because of proprietary dependency to prosys -->
+        <!--
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>endpoint-opcua-prosys</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>messagebus-internal</artifactId>
@@ -41,6 +49,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>model</artifactId>
             <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>model</artifactId>
+            <version>${revision}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -112,6 +127,12 @@
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>validator</artifactId>
             <version>${aas.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.13</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
