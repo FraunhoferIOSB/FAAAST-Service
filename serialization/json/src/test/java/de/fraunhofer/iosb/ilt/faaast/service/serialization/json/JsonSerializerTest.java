@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Content;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.PropertyValues;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
@@ -144,9 +144,6 @@ public class JsonSerializerTest {
 
 
     private void compare(String expected, String actual) {
-        //System.out.println("Actual: " + actual);
-        //System.out.println("Expected: " + expected);
-
         Assert.assertEquals(expected, actual);
     }
 

@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import com.google.common.reflect.TypeToken;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.MostSpecificClassComparator;
 import de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper.DataValueMapper;
 import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;

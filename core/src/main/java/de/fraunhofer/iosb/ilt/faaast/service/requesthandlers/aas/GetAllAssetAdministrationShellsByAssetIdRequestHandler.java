@@ -16,12 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.aas;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.model.GlobalAssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.model.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByAssetIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;

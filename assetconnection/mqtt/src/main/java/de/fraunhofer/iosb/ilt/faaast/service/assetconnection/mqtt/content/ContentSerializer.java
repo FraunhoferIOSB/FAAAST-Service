@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 
 
 public interface ContentSerializer {

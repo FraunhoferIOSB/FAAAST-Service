@@ -20,10 +20,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
 import jakarta.servlet.ServletException;
@@ -101,7 +101,7 @@ public class RequestHandler extends AbstractHandler {
             send(response, HttpStatus.INTERNAL_SERVER_ERROR_500);
             return;
         }
-        int statusCode = HttpUtils.toHttpStatusCode(apiResponse.getStatusCode());
+        int statusCode = HttpHelper.toHttpStatusCode(apiResponse.getStatusCode());
         if (BaseResponseWithPayload.class.isAssignableFrom(apiResponse.getClass())) {
             try {
                 if (RequestWithModifier.class.isAssignableFrom(apiRequest.getClass())) {

@@ -960,7 +960,6 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
 
 
     protected void visit(Object obj) {
-        // find most specific matching visit method by reflection
         if (obj != null) {
             try {
                 Optional<Method> method = Stream.of(this.getClass().getMethods())

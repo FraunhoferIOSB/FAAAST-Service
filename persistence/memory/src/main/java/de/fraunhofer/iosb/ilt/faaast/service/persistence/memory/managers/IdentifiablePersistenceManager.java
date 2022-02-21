@@ -15,9 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.model.GlobalAssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.model.SpecificAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Asset;

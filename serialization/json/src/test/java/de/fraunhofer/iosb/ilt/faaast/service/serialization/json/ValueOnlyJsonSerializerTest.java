@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Extend;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.PropertyValues;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;

@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ReferenceElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import io.adminshell.aas.v3.model.ReferenceElement;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 

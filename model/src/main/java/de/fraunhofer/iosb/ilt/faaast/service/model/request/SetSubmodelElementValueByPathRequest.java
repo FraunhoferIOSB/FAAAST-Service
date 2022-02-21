@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementValueParser;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;

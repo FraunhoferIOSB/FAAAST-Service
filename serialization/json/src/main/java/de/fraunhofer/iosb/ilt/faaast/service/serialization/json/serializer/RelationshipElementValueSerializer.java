@@ -18,8 +18,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ReferenceElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.RelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonFieldNames;
 import java.io.IOException;
 

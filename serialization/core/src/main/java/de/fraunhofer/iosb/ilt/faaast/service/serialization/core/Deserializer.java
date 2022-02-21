@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.core;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;

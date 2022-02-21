@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.typing;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.AnnotatedRelationshipElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementCollectionValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.EntityValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.RangeValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.EntityType;
 import io.adminshell.aas.v3.model.ModelingKind;

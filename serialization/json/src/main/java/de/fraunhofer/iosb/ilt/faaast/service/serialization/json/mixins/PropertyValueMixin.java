@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.mixins;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 
 
 public abstract class PropertyValueMixin {

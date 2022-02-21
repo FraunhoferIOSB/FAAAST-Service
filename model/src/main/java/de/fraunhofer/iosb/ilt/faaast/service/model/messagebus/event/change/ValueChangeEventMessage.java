@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import java.util.Objects;
 
 

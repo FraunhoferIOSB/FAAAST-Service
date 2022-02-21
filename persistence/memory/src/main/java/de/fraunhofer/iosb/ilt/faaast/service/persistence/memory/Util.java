@@ -15,9 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Extend;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import io.adminshell.aas.v3.dataformat.DeserializationException;
 import io.adminshell.aas.v3.dataformat.SerializationException;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;

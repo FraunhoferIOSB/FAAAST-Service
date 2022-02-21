@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.RelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
 import io.adminshell.aas.v3.model.RelationshipElement;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 

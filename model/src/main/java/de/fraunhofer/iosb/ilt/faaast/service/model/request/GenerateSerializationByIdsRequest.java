@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.SerializationFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GenerateSerializationByIdsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.SerializationFormat;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;

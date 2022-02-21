@@ -14,9 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 
 
 /**
@@ -27,7 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
  */
 public interface Endpoint<T extends EndpointConfig> extends Configurable<T> {
 
-     /**
+    /**
      * Starts the endpoint.
      */
     public void start() throws Exception;
