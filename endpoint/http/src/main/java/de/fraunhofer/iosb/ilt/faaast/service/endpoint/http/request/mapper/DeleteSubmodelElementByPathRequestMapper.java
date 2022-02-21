@@ -19,9 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelElementByPathRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 
 
 /**
@@ -41,8 +41,8 @@ public class DeleteSubmodelElementByPathRequestMapper extends RequestMapper {
     @Override
     public Request parse(HttpRequest httpRequest) {
         return DeleteSubmodelElementByPathRequest.builder()
-                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
-                .path(ElementPathUtils.toKeys(EncodingUtils.urlDecode(httpRequest.getPathElements().get(4))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
+                .path(ElementPathHelper.toKeys(EncodingHelper.urlDecode(httpRequest.getPathElements().get(4))))
                 .build();
     }
 

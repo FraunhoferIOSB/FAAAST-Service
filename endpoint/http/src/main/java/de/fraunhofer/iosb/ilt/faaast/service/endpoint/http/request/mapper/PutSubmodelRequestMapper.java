@@ -21,8 +21,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import io.adminshell.aas.v3.model.Submodel;
 
 
@@ -42,7 +42,7 @@ public class PutSubmodelRequestMapper extends RequestMapperWithOutputModifier {
     @Override
     public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException {
         return PutSubmodelRequest.builder()
-                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
                 .submodel(parseBody(httpRequest, Submodel.class))
                 .outputModifier(outputModifier)
                 .build();

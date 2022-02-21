@@ -19,8 +19,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelReferenceRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
@@ -46,8 +46,8 @@ public class DeleteSubmodelReferenceRequestMapper extends RequestMapper {
     @Override
     public Request parse(HttpRequest httpRequest) {
         return DeleteSubmodelReferenceRequest.builder()
-                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
-                .submodelRef(toReference(EncodingUtils.base64Decode(httpRequest.getPathElements().get(4))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
+                .submodelRef(toReference(EncodingHelper.base64Decode(httpRequest.getPathElements().get(4))))
                 .build();
     }
 
@@ -58,7 +58,7 @@ public class DeleteSubmodelReferenceRequestMapper extends RequestMapper {
             result = ReflectionHelper.getDefaultImplementation(Reference.class).getConstructor().newInstance();
 
             Key key = ReflectionHelper.getDefaultImplementation(Key.class).getConstructor().newInstance();
-            key.setIdType(IdUtils.guessKeyType(id));
+            key.setIdType(IdentifierHelper.guessKeyType(id));
             key.setType(KeyElements.SUBMODEL);
             key.setValue(id);
             result.setKeys(Arrays.asList(key));

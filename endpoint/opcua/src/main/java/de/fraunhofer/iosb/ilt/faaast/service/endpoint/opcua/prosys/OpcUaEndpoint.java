@@ -27,7 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRe
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.MultiLanguageProperty;
@@ -103,7 +103,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      * This is the third call.
      */
     @Override
-    public void start() {
+    public void start() throws Exception {
         if (server != null && server.isRunning()) {
             throw new IllegalStateException("OPC UA Endpoint cannot be started because it is already running");
         }

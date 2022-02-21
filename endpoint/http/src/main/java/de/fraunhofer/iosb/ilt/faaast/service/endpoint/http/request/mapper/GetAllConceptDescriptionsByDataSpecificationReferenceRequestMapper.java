@@ -20,7 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByDataSpecificationReferenceRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 
 
@@ -41,7 +41,7 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper 
     @Override
     public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
         return GetAllConceptDescriptionsByDataSpecificationReferenceRequest.builder()
-                .dataSpecification(AasUtils.parseReference(EncodingUtils.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM1))))
+                .dataSpecification(AasUtils.parseReference(EncodingHelper.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM1))))
                 .outputModifier(outputModifier)
                 .build();
     }

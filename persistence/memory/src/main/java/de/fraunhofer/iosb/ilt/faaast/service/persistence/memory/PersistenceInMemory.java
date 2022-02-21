@@ -25,12 +25,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.IdentifiablePersistenceManager;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.PackagePersistenceManager;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.ReferablePersistenceManager;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.GeneralHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager.IdentifiablePersistenceManager;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager.PackagePersistenceManager;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager.ReferablePersistenceManager;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.QueryModifierHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;
@@ -44,6 +43,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**
@@ -113,7 +113,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
     @Override
     public List<AssetAdministrationShell> get(String idShort, List<AssetIdentification> assetIds, QueryModifier modifier) {
-        if (modifier == null || (!GeneralHelper.empty(idShort) && assetIds != null)) {
+        if (modifier == null || (StringUtils.isNoneBlank(idShort) && assetIds != null)) {
             return null;
         }
         List<AssetAdministrationShell> shells = identifiablePersistenceManager.getAASs(idShort, assetIds);
@@ -132,7 +132,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         }
 
         //TODO: allow this combination? Throw meaningful exception if not.
-        if (!GeneralHelper.empty(idShort) && semanticId != null) {
+        if (StringUtils.isNoneBlank(idShort) && semanticId != null) {
             return null;
         }
 
@@ -248,7 +248,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
     @Override
     public OperationResult getOperationResult(String handleId) {
-        if (!GeneralHelper.empty(handleId)) {
+        if (StringUtils.isNoneBlank(handleId)) {
             return operationResultMap.getOrDefault(handleId, null);
         }
         return null;
@@ -264,7 +264,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
                     .build();
         }
 
-        if (GeneralHelper.empty(handleId)) {
+        if (StringUtils.isBlank(handleId)) {
             OperationHandle operationHandle = new OperationHandle.Builder()
                     .requestId(requestId)
                     .handleId(UUID.randomUUID().toString())
@@ -273,7 +273,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             operationResultMap.putIfAbsent(operationHandle.getHandleId(), operationResult);
             return operationHandle;
         }
-        else if (!GeneralHelper.empty(handleId)) {
+        else {
             operationResultMap.put(handleId, operationResult);
         }
 

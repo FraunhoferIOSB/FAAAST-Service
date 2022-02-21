@@ -26,8 +26,7 @@
         <module>persistence/memory</module>
         <module>assetconnection/mqtt</module>
         <module>assetconnection/opcua</module>
-        <module>serialization/core</module>
-        <module>serialization/json</module>
+        <module>dataformat/json</module>
         <module>starter</module>
     </modules>
     <properties>

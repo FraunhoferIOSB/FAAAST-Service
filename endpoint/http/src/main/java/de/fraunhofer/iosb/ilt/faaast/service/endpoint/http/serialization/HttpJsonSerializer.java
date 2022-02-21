@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
 
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.mixins.InvokeOperationRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonSerializer;
 
 
 public class HttpJsonSerializer extends JsonSerializer {

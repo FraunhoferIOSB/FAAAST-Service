@@ -15,11 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
-import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException;
 import java.util.List;
 
 

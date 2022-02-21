@@ -31,9 +31,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetAdminist
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -165,7 +165,7 @@ public class HttpEndpointTest {
         when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.Success)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingUtils.base64UrlEncode(id.toString()) + "/aas?content=normal");
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=normal");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
@@ -176,7 +176,7 @@ public class HttpEndpointTest {
         when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.Success)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingUtils.base64UrlEncode(id.toString()) + "/aas?content=trimmed");
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=trimmed");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
@@ -187,7 +187,7 @@ public class HttpEndpointTest {
         when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.Success)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingUtils.base64UrlEncode(id.toString()) + "/aas?content=reference");
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=reference");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
@@ -198,7 +198,7 @@ public class HttpEndpointTest {
         when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.Success)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingUtils.base64UrlEncode(id.toString()) + "/aas?content=bogus&level=bogus");
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=bogus&level=bogus");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
@@ -227,7 +227,7 @@ public class HttpEndpointTest {
                 .statusCode(StatusCode.ClientErrorResourceNotFound)
                 .payload(null)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingUtils.base64UrlEncode(idShort));
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort));
         Assert.assertEquals(HttpStatus.NOT_FOUND_404, response.getStatus());
     }
 

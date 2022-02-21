@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>serialization-json</artifactId>
+            <artifactId>dataformat-json</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>

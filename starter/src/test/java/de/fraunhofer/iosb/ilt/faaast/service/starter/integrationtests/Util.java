@@ -132,7 +132,7 @@ public class Util {
             HttpPost request = new HttpPost(url);
             BasicHttpEntity entity = new BasicHttpEntity();
             entity.setContent(
-                    new ByteArrayInputStream(new de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonSerializer().write(payload).getBytes(StandardCharsets.UTF_8)));
+                    new ByteArrayInputStream(new de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonSerializer().write(payload).getBytes(StandardCharsets.UTF_8)));
             request.setEntity(entity);
             return HttpClientBuilder.create().build().execute(request);
         }
@@ -162,7 +162,7 @@ public class Util {
             HttpPut request = new HttpPut(url);
             BasicHttpEntity entity = new BasicHttpEntity();
             entity.setContent(
-                    new ByteArrayInputStream(new de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonSerializer().write(payload).getBytes(StandardCharsets.UTF_8)));
+                    new ByteArrayInputStream(new de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonSerializer().write(payload).getBytes(StandardCharsets.UTF_8)));
             request.setEntity(entity);
             return HttpClientBuilder.create().build().execute(request);
         }
@@ -207,19 +207,19 @@ public class Util {
 
 
     public static <T> T retrieveResourceFromResponse(HttpResponse response, Class<T> clazz)
-            throws IOException, de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException {
+            throws IOException, de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException {
 
         String jsonFromResponse = EntityUtils.toString(response.getEntity());
-        de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonDeserializer deserializer = new de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonDeserializer();
+        de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonDeserializer deserializer = new de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonDeserializer();
         return deserializer.read(jsonFromResponse, clazz);
     }
 
 
     public static <T> List<T> retrieveResourceFromResponseList(HttpResponse response, Class<T> clazz)
-            throws IOException, de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException {
+            throws IOException, de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException {
 
         String jsonFromResponse = EntityUtils.toString(response.getEntity());
-        de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonDeserializer deserializer = new de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonDeserializer();
+        de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonDeserializer deserializer = new de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonDeserializer();
         return deserializer.readList(jsonFromResponse, clazz);
     }
 

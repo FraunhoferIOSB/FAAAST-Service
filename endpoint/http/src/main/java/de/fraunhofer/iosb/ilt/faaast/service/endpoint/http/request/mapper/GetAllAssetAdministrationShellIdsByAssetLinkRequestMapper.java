@@ -15,13 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 
 
@@ -43,8 +43,7 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestMapper extends R
     public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
         try {
             return GetAllAssetAdministrationShellIdsByAssetLinkRequest.builder()
-                    .assetIdentifierPairs(deserializer.readList(
-                            EncodingUtils.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM)),
+                    .assetIdentifierPairs(deserializer.readList(EncodingHelper.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM)),
                             IdentifierKeyValuePair.class))
                     .build();
         }

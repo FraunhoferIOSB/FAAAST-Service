@@ -20,8 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetOperationAsyncResultRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 
 
 /**
@@ -41,8 +41,8 @@ public class GetOperationAsyncResultRequestMapper extends RequestMapperWithOutpu
     @Override
     public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
         return GetOperationAsyncResultRequest.builder()
-                .path(ElementPathUtils.toKeys(httpRequest.getPathElements().get(4)))
-                .handleId(EncodingUtils.base64Decode(httpRequest.getPathElements().get(6)))
+                .path(ElementPathHelper.toKeys(httpRequest.getPathElements().get(4)))
+                .handleId(EncodingHelper.base64Decode(httpRequest.getPathElements().get(6)))
                 .outputModifier(outputModifier)
                 .build();
     }

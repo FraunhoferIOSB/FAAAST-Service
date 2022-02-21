@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.typing;
 
 import com.google.common.reflect.TypeToken;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
 import io.adminshell.aas.v3.model.Entity;
 import io.adminshell.aas.v3.model.Property;

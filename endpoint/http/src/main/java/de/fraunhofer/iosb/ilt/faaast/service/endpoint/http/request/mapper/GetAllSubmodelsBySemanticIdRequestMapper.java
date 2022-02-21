@@ -20,7 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsBySemanticIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 
 
@@ -41,7 +41,7 @@ public class GetAllSubmodelsBySemanticIdRequestMapper extends RequestMapperWithO
     @Override
     public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
         return GetAllSubmodelsBySemanticIdRequest.builder()
-                .semanticId(AasUtils.parseReference(EncodingUtils.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM))))
+                .semanticId(AasUtils.parseReference(EncodingHelper.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM))))
                 .outputModifier(outputModifier)
                 .build();
     }

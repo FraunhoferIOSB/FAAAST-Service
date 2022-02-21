@@ -28,7 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;

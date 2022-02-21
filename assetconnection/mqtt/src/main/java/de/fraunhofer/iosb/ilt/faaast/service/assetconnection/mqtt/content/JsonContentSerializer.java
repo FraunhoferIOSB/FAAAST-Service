@@ -15,9 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonSerializer;
 
 
 public class JsonContentSerializer implements ContentSerializer {

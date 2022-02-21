@@ -15,13 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendableBuilder;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 
 
 public class MessageBusConfig<T extends MessageBus> extends Config<T> {
 
     /**
-     * Abstract builder class that should be used for builders of inheriting classes.
+     * Abstract builder class that should be used for builders of inheriting
+     * classes.
      *
      * @param <T> type of the message bus of the config to build
      * @param <C> type of the config to build

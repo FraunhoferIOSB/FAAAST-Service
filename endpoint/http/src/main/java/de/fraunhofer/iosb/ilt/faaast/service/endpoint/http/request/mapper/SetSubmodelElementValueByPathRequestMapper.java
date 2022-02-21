@@ -15,17 +15,17 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
-import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.List;
@@ -50,16 +50,16 @@ public class SetSubmodelElementValueByPathRequestMapper extends RequestMapper {
 
     @Override
     public Request parse(HttpRequest httpRequest) {
-        final List<Key> path = ElementPathUtils.toKeys(EncodingUtils.urlDecode(httpRequest.getPathElements().get(4)));
+        final List<Key> path = ElementPathHelper.toKeys(EncodingHelper.urlDecode(httpRequest.getPathElements().get(4)));
         return SetSubmodelElementValueByPathRequest.builder()
-                .id(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
                 .path(path)
                 .value(httpRequest.getBody())
                 .valueParser(new ElementValueParser<Object>() {
                     @Override
                     public <U extends ElementValue> U parse(Object raw, Class<U> type) throws DeserializationException {
                         if (ElementValue.class.isAssignableFrom(type)) {
-                            return deserializer.readValue(raw.toString(), serviceContext.getTypeInfo(ElementPathUtils.toReference(path)));
+                            return deserializer.readValue(raw.toString(), serviceContext.getTypeInfo(ElementPathHelper.toReference(path)));
                         }
                         else if (SubmodelElement.class.isAssignableFrom(type)) {
                             SubmodelElement submodelElement = (SubmodelElement) deserializer.read(raw.toString(), type);

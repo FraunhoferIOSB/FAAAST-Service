@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.visitor;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.MostSpecificClassComparator;
 import io.adminshell.aas.v3.model.AccessControl;
 import io.adminshell.aas.v3.model.AccessControlPolicyPoints;
 import io.adminshell.aas.v3.model.AccessPermissionRule;

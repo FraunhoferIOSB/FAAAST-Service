@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetLinksByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 
 
 /**
@@ -38,7 +38,7 @@ public class GetAllAssetLinksByIdRequestMapper extends RequestMapper {
     @Override
     public Request parse(HttpRequest httpRequest) {
         return GetAllAssetLinksByIdRequest.builder()
-                .aasIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(2)))
+                .aasIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(2)))
                 .build();
     }
 

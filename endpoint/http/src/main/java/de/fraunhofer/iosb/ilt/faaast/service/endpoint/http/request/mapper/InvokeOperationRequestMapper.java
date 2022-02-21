@@ -23,9 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 
 
 /**
@@ -49,8 +49,8 @@ public class InvokeOperationRequestMapper extends RequestMapperWithOutputModifie
         InvokeOperationRequest request = async
                 ? parseBody(httpRequest, InvokeOperationAsyncRequest.class)
                 : parseBody(httpRequest, InvokeOperationSyncRequest.class);
-        request.setId(IdUtils.parseIdentifier(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1))));
-        request.setPath(ElementPathUtils.toKeys(EncodingUtils.urlDecode(httpRequest.getPathElements().get(4))));
+        request.setId(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))));
+        request.setPath(ElementPathHelper.toKeys(EncodingHelper.urlDecode(httpRequest.getPathElements().get(4))));
         request.setContent(outputModifier.getContent());
         return request;
     }
