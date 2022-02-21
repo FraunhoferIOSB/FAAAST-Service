@@ -15,16 +15,17 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
-import de.fraunhofer.iosb.ilt.faaast.service.config.ExtendableBuilder;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 
 
 /**
- * Generic persistance configuration. When implementing a custom persistence inherit from this class to create a custom
- * configuration.
- * 
+ * Generic persistance configuration. When implementing a custom persistence
+ * inherit from this class to create a custom configuration.
+ *
  * @param <T> type of the persistence
  */
 public class PersistenceConfig<T extends Persistence> extends Config<T> {
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -48,8 +49,9 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
     }
 
     /**
-     * Abstract builder class that should be used for builders of inheriting classes.
-     * 
+     * Abstract builder class that should be used for builders of inheriting
+     * classes.
+     *
      * @param <T> type of the persistence of the config to build
      * @param <C> type of the config to build
      * @param <B> type of this builder, needed for inheritance builder pattern
@@ -60,7 +62,7 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
 
     /**
      * Builder for PersistenceConfig class.
-     * 
+     *
      * @param <T> type of the persistence of the config to build
      */
     public static class Builder<T extends Persistence> extends AbstractBuilder<T, PersistenceConfig<T>, Builder<T>> {

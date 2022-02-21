@@ -22,6 +22,7 @@ import io.adminshell.aas.v3.model.Reference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,8 +53,8 @@ public class AssetConnectionManager {
     public void add(AssetConnectionConfig<? extends AssetConnection, ? extends AssetValueProviderConfig, ? extends AssetOperationProviderConfig, ? extends AssetSubscriptionProviderConfig> connectionConfig)
             throws ConfigurationException {
         AssetConnection newConnection = (AssetConnection) connectionConfig.newInstance(coreConfig, context);
-        if (connections.stream().anyMatch(x -> x.sameAs(newConnection))) {
-            AssetConnection connection = connections.stream().filter(x -> x.sameAs(newConnection)).findFirst().get();
+        if (connections.stream().anyMatch(x -> Objects.equals(x, newConnection))) {
+            AssetConnection connection = connections.stream().filter(x -> Objects.equals(x, newConnection)).findFirst().get();
             connectionConfig.getValueProviders().forEach((k, v) -> {
                 try {
                     connection.registerValueProvider(k, (AssetValueProviderConfig) v);

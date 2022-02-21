@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.visitor;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.MostSpecificClassComparator;
 import io.adminshell.aas.v3.model.AccessControl;
 import io.adminshell.aas.v3.model.AccessControlPolicyPoints;
 import io.adminshell.aas.v3.model.AccessPermissionRule;
@@ -960,7 +961,6 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
 
 
     protected void visit(Object obj) {
-        // find most specific matching visit method by reflection
         if (obj != null) {
             try {
                 Optional<Method> method = Stream.of(this.getClass().getMethods())

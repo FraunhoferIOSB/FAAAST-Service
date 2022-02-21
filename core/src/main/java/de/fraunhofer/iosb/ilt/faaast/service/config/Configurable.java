@@ -31,7 +31,7 @@ public interface Configurable<T extends Config> {
      * @param config an instance of the corresponding configuration class
      * @throws java.lang.Exception when initialization fails
      */
-    public void init(CoreConfig coreConfig, T config, ServiceContext context) throws Exception;
+    public void init(CoreConfig coreConfig, T config, ServiceContext serviceContext) throws Exception;
 
 
     /**
