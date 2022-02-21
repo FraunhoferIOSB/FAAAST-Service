@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.misc;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetInformationResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetInformationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;

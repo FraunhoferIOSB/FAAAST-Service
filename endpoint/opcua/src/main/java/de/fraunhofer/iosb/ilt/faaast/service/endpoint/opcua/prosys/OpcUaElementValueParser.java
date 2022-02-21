@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementValueParser;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

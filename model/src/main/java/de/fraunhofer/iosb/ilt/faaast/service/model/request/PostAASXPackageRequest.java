@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AASXPackageBase;
+import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.AASXPackageBase;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostAASXPackageResponse;
 import io.adminshell.aas.v3.model.Identifier;

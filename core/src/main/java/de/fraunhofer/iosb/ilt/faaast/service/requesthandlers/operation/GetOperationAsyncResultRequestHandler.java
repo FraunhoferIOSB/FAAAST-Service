@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.operation;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetOperationAsyncResultResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetOperationAsyncResultRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;

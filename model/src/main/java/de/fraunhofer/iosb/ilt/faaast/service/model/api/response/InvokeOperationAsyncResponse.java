@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.OperationHandle;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 
 
 /**

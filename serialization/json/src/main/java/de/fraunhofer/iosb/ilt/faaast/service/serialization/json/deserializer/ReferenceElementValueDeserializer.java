@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ReferenceElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonFieldNames;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;

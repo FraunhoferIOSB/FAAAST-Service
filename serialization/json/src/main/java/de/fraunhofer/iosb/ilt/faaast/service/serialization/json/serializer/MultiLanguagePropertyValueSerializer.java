@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.MultiLanguagePropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import io.adminshell.aas.v3.model.LangString;
 import java.io.IOException;
 

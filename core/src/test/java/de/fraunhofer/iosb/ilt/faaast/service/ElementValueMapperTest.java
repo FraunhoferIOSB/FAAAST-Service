@@ -14,21 +14,21 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.AnnotatedRelationshipElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.BlobValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementCollectionValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.EntityValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.FileValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.MultiLanguagePropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.RangeValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ReferenceElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.RelationshipElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.DoubleValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.StringValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DoubleValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.EntityType;
 import io.adminshell.aas.v3.model.KeyElements;

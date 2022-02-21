@@ -15,10 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.KeyElements;

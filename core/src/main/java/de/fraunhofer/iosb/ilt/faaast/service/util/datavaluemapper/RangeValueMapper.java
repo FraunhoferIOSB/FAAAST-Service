@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.RangeValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.TypedValueFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import io.adminshell.aas.v3.model.Range;
 
 

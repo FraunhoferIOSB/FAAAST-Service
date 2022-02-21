@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.typing;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import java.util.Objects;
 
 

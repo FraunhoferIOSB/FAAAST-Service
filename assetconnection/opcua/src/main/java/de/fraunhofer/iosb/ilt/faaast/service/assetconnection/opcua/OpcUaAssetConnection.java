@@ -23,12 +23,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvi
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConversionException;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.DataElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
@@ -496,9 +499,9 @@ public class OpcUaAssetConnection
                     try {
                         handler.dataItem = subscription.createDataItem(
                                 parseNodeId(providerConfig.getNodeId()),
-                                LambdaExceptionUtil.rethrowConsumer(
+                                LambdaExceptionHelper.rethrowConsumer(
                                         x -> {
-                                            x.addDataValueListener(LambdaExceptionUtil.rethrowConsumer(v -> handler.notify(v)));
+                                            x.addDataValueListener(LambdaExceptionHelper.rethrowConsumer(v -> handler.notify(v)));
                                         }));
                     }
                     catch (UaException ex) {

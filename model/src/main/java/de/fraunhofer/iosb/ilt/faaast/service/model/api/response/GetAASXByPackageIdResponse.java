@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AASXPackageBase;
+import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.AASXPackageBase;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
 import java.util.Objects;
 

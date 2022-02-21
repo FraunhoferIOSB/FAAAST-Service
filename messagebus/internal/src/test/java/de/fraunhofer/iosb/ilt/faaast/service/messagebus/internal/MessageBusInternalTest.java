@@ -20,8 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Chang
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorLevel;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.IntValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.Reference;

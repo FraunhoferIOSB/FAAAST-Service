@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.EntityValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.Entity;
 import io.adminshell.aas.v3.model.SubmodelElement;

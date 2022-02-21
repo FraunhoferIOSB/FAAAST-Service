@@ -13,7 +13,6 @@
     <name>assetconnection-mqtt</name>
     <description>MQTT Asset Connection implementation of the FA³ST Service.</description>
     <properties>
-        <moquette.version>0.14.3</moquette.version>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>
