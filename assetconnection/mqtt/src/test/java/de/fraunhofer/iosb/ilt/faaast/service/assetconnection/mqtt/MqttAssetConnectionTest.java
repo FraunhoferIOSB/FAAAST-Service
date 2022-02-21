@@ -23,10 +23,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;

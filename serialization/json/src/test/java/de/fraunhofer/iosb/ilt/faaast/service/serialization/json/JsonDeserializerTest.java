@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RangeValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.RangeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.PropertyValues;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;

@@ -17,11 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Content;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 
 
 public abstract class RequestMapperWithOutputModifier extends RequestMapper {

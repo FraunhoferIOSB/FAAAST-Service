@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.MultiLanguagePropertyValue;
 import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import org.eclipse.jetty.http.HttpStatus;
 
 

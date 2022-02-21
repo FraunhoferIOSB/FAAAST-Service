@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.mixins.InvokeOperationRequestMixin;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonSerializer;
 
 

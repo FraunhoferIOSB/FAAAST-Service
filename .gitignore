@@ -22,7 +22,6 @@ target/
 **/.flattend-pom.xml
 **/.flattened-pom.xml
 /endpoint/opcua-prosys/PKI
-**/documentation/third_party_licenses
-!/documentation/third_party_licenses
+/documentation/third_party_licenses_report
 
 *.log

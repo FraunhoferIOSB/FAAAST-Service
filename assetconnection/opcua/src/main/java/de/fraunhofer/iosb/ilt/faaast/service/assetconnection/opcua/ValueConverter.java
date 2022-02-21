@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValueFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.ValueFormatException;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;

@@ -17,8 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Level;
 import java.io.IOException;
 
 

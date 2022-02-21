@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.FileValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.FileValue;
 import io.adminshell.aas.v3.model.File;
 
 

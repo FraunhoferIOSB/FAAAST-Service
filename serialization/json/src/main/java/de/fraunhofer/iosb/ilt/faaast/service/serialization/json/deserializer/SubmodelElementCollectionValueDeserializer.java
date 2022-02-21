@@ -17,8 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementCollectionValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementValue;
 import java.io.IOException;
 
 

@@ -1,0 +1,49 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
+
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
+import io.adminshell.aas.v3.model.SubmodelElement;
+import java.util.List;
+
+
+/**
+ * Chapter 4.3.3
+ */
+public class GetAllSubmodelElementsResponse extends BaseResponseWithPayload<List<SubmodelElement>> {
+    public static GetAllSubmodelElementsResponse.Builder builder() {
+        return new GetAllSubmodelElementsResponse.Builder();
+    }
+
+    public static class Builder extends AbstractBuilder<GetAllSubmodelElementsResponse, GetAllSubmodelElementsResponse.Builder> {
+
+        @Override
+        protected GetAllSubmodelElementsResponse.Builder getSelf() {
+            return this;
+        }
+
+
+        public GetAllSubmodelElementsResponse.Builder payload(List<SubmodelElement> value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected GetAllSubmodelElementsResponse newBuildingInstance() {
+            return new GetAllSubmodelElementsResponse();
+        }
+    }
+}

@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util.datavaluemapper;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.TypedValueFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.ValueFormatException;
 import io.adminshell.aas.v3.model.Property;
 
 

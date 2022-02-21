@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.deserializer;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.MultiLanguagePropertyValue;
 import io.adminshell.aas.v3.model.LangString;
 import java.io.IOException;
 import java.util.Map;

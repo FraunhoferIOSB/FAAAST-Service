@@ -27,16 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
  */
 public interface Endpoint<T extends EndpointConfig> extends Configurable<T> {
 
-    /**
-     * Initialize the endpoint with a matching configuration.
-     * 
-     * @param core the core config
-     * @param config the corresponding config
-     */
-    public void init(CoreConfig core, T config, ServiceContext context);
-
-
-    /**
+     /**
      * Starts the endpoint.
      */
     public void start() throws Exception;

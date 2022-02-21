@@ -18,11 +18,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Extend;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Level;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.PutSubmodelByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.PutSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;

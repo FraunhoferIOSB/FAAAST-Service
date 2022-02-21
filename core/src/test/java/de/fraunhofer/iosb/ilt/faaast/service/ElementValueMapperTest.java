@@ -14,21 +14,21 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.AnnotatedRelationshipElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.BlobValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementCollectionValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.EntityValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.FileValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.MultiLanguagePropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RangeValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ReferenceElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.RelationshipElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.DoubleValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.StringValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.AnnotatedRelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.BlobValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.EntityValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.FileValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.MultiLanguagePropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.RangeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ReferenceElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.RelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.DoubleValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.StringValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.values.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.EntityType;
 import io.adminshell.aas.v3.model.KeyElements;

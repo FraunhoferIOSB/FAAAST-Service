@@ -21,10 +21,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.BaseResponseWithPayload;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.RequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.core.SerializationException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -76,7 +76,7 @@ public class RequestHandler extends AbstractHandler {
                                 x -> x,
                                 x -> request.getHeader(x))))
                 .build();
-        de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request apiRequest = null;
+        de.fraunhofer.iosb.ilt.faaast.service.model.api.Request apiRequest = null;
         try {
             apiRequest = mappingManager.map(httpRequest);
         }
@@ -90,7 +90,7 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request apiRequest) throws IOException {
+    private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request apiRequest) throws IOException {
         // TODO forward output modifier to serializer
         if (apiRequest == null) {
             send(response, HttpStatus.BAD_REQUEST_400);
