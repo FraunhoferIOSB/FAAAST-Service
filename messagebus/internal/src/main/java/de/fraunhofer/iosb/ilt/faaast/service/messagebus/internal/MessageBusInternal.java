@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
- * MessageBusInternal: Implements the internal MessageBus Implements
+ * MessageBusInternal: Implements the internal MessageBus interface
  * subscribe/unsubscribe and publishes/dispatches EventMessages to subscribers
  */
 public class MessageBusInternal implements MessageBus<MessageBusInternalConfig>, Runnable {
@@ -73,12 +73,7 @@ public class MessageBusInternal implements MessageBus<MessageBusInternalConfig>,
     @Override
     public void publish(EventMessage message) throws InterruptedException {
         if (message != null) {
-            try {
-                messageQueue.put(message);
-            }
-            catch (InterruptedException e) {
-                throw e;
-            }
+            messageQueue.put(message);
         }
     }
 

@@ -18,11 +18,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelElementsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelElementsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
-import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
@@ -41,7 +41,7 @@ public class GetAllSubmodelElementsRequestHandler extends RequestHandler<GetAllS
     public GetAllSubmodelElementsResponse process(GetAllSubmodelElementsRequest request) {
         GetAllSubmodelElementsResponse response = new GetAllSubmodelElementsResponse();
         try {
-            Reference reference = Util.toReference(request.getId(), Submodel.class);
+            Reference reference = ElementPathUtils.toReference(request.getId(), Submodel.class);
             List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, null, request.getOutputModifier());
             readValueFromAssetConnectionAndUpdatePersistence(reference, submodelElements);
             response.setPayload(submodelElements);

@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
-import de.fraunhofer.iosb.ilt.faaast.service.config.ExtendableBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendableBuilder;
 
 
 public class MessageBusConfig<T extends MessageBus> extends Config<T> {

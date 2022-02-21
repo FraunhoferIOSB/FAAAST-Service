@@ -372,6 +372,16 @@ leads to a FA³ST Service with the HTTP endpoint implemented in class `de.fraunh
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+## Persistence
+### `InMemory`
+#### Yet not implemented
+- AASX Packages
+- Package Descriptors
+- OutputModifier Content
+- SubmodelElementStructs
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 <!-- HOW TO DEVELOP -->
 ## Develop
 ### Spotless

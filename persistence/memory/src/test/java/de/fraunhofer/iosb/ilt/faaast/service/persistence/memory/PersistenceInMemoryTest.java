@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.DeepCopyHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;
@@ -74,7 +75,7 @@ public class PersistenceInMemoryTest {
         String AAS_IDENTIFIER = "https://acplt.org/Test_AssetAdministrationShell";
         String SUBMODEL_IDENTIFIER = "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial";
         String SUBMODEL_ELEMENT_IDSHORT = "ExampleEntity2";
-        Reference reference = Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_IDSHORT);
+        Reference reference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_IDSHORT);
         SubmodelElement actualSubmodelElement = persistence.get(reference, new QueryModifier());
         SubmodelElement expectedSubmodelElement = environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(SUBMODEL_IDENTIFIER))
@@ -92,7 +93,7 @@ public class PersistenceInMemoryTest {
         String SUBMODEL_IDENTIFIER = "https://acplt.org/Test_Submodel_Mandatory";
         String SUBMODEL_ELEMENT_COLLECTION_IDSHORT = "ExampleSubmodelCollectionUnordered";
         String SUBMODEL_ELEMENT_IDSHORT = "ExampleBlob";
-        Reference reference = Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, SUBMODEL_ELEMENT_IDSHORT);
+        Reference reference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, SUBMODEL_ELEMENT_IDSHORT);
         QueryModifier queryModifier = new QueryModifier.Builder().extend(Extend.WithBLOBValue).build();
 
         SubmodelElement actualSubmodelElement = persistence.get(reference, queryModifier);
@@ -113,7 +114,7 @@ public class PersistenceInMemoryTest {
         String SUBMODEL_IDENTIFIER = "https://acplt.org/Test_Submodel_Mandatory";
         String SUBMODEL_ELEMENT_COLLECTION_IDSHORT = "ExampleSubmodelCollectionUnordered";
         String SUBMODEL_ELEMENT_IDSHORT = "ExampleBlob";
-        Reference reference = Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, SUBMODEL_ELEMENT_IDSHORT);
+        Reference reference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, SUBMODEL_ELEMENT_IDSHORT);
         SubmodelElement submodelElement = persistence.get(reference, new QueryModifier());
         Assert.assertEquals(null, submodelElement);
     }
@@ -253,7 +254,7 @@ public class PersistenceInMemoryTest {
     public void getSubmodelElementsTest() throws ResourceNotFoundException {
         String AAS_IDSHORT = "TestAssetAdministrationShell";
         String SUBMODEL_IRI = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
-        Reference submodelReference = Utils.createReference(AAS_IDSHORT, SUBMODEL_IRI);
+        Reference submodelReference = Util.createReference(AAS_IDSHORT, SUBMODEL_IRI);
         List<SubmodelElement> actualSubmodelElements = persistence.getSubmodelElements(submodelReference, null, new QueryModifier());
         List<SubmodelElement> expectedSubmodelElements = this.environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(SUBMODEL_IRI))
@@ -267,7 +268,7 @@ public class PersistenceInMemoryTest {
     public void getSubmodelElementsWithSemanticIdTest() throws ResourceNotFoundException {
         String AAS_IDSHORT = "TestAssetAdministrationShell";
         String SUBMODEL_IRI = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
-        Reference submodelReference = Utils.createReference(AAS_IDSHORT, SUBMODEL_IRI);
+        Reference submodelReference = Util.createReference(AAS_IDSHORT, SUBMODEL_IRI);
         Reference semanticIdReference = new DefaultReference.Builder()
                 .key(new DefaultKey.Builder()
                         .type(KeyElements.GLOBAL_REFERENCE)
@@ -289,7 +290,7 @@ public class PersistenceInMemoryTest {
         String AAS_IDENTIFIER = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String SUBMODEL_IDENTIFIER = "https://acplt.org/Test_Submodel_Mandatory";
         String SUBMODEL_ELEMENT_COLLECTION_IDSHORT = "ExampleSubmodelCollectionUnordered";
-        Reference reference = Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT);
+        Reference reference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT);
 
         List<SubmodelElement> actualSubmodelElements = persistence.getSubmodelElements(reference, null, new QueryModifier());
         List<SubmodelElement> expectedSubmodelElements = (List<SubmodelElement>) ((SubmodelElementCollection) this.environment.getSubmodels().stream()
@@ -382,15 +383,15 @@ public class PersistenceInMemoryTest {
 
     @Test
     public void putSubmodelElementNewInSubmodelTest() throws ResourceNotFoundException {
-        SubmodelElement newSubmodelElement = Util.deepCopy(this.environment.getSubmodels().get(0).getSubmodelElements().get(0),
+        SubmodelElement newSubmodelElement = DeepCopyHelper.deepCopy(this.environment.getSubmodels().get(0).getSubmodelElements().get(0),
                 this.environment.getSubmodels().get(0).getSubmodelElements().get(0).getClass());
         String idShort = "NewIdShort";
         newSubmodelElement.setIdShort(idShort);
 
         String AAS_IDENTIFIER = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String SUBMODEL_IDENTIFIER = "https://acplt.org/Test_Submodel_Mandatory";
-        Reference parent = Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER);
-        Reference submodelElementReference = Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, idShort);
+        Reference parent = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER);
+        Reference submodelElementReference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, idShort);
 
         this.persistence.put(parent, null, newSubmodelElement);
         SubmodelElement actualSubmodelElement = this.persistence.get(submodelElementReference, new QueryModifier());
@@ -407,11 +408,11 @@ public class PersistenceInMemoryTest {
         SubmodelElement submodelElement = this.environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(SUBMODEL_IDENTIFIER))
                 .findFirst().get().getSubmodelElements().get(0);
-        SubmodelElement changedSubmodelElement = Util.deepCopy(submodelElement, submodelElement.getClass());
+        SubmodelElement changedSubmodelElement = DeepCopyHelper.deepCopy(submodelElement, submodelElement.getClass());
         String category = "NewCategory";
         changedSubmodelElement.setCategory(category);
 
-        Reference reference = Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, submodelElement.getIdShort());
+        Reference reference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, submodelElement.getIdShort());
 
         this.persistence.put(null, reference, changedSubmodelElement);
         SubmodelElement actualSubmodelElement = this.persistence.get(reference, new QueryModifier());
@@ -422,7 +423,7 @@ public class PersistenceInMemoryTest {
 
     @Test
     public void putSubmodelElementNewInSubmodelElementCollectionTest() throws ResourceNotFoundException {
-        SubmodelElement newSubmodelElement = Util.deepCopy(this.environment.getSubmodels().get(0).getSubmodelElements().get(0),
+        SubmodelElement newSubmodelElement = DeepCopyHelper.deepCopy(this.environment.getSubmodels().get(0).getSubmodelElements().get(0),
                 this.environment.getSubmodels().get(0).getSubmodelElements().get(0).getClass());
         String idShort = "NewIdShort";
         newSubmodelElement.setIdShort(idShort);
@@ -430,7 +431,7 @@ public class PersistenceInMemoryTest {
         String AAS_IDENTIFIER = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String SUBMODEL_IDENTIFIER = "https://acplt.org/Test_Submodel_Mandatory";
         String SUBMODEL_ELEMENT_COLLECTION_IDSHORT = "ExampleSubmodelCollectionUnordered";
-        Reference parent = Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT);
+        Reference parent = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT);
 
         Assert.assertEquals(((SubmodelElementCollection) this.environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(SUBMODEL_IDENTIFIER))
@@ -443,7 +444,7 @@ public class PersistenceInMemoryTest {
 
         this.persistence.put(parent, null, newSubmodelElement);
         SubmodelElement actualSubmodelelement = this.persistence.get(
-                Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, idShort), new QueryModifier());
+                Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, idShort), new QueryModifier());
 
         Assert.assertEquals(newSubmodelElement, actualSubmodelelement);
     }
@@ -463,11 +464,11 @@ public class PersistenceInMemoryTest {
                         .getValues().stream()
                         .findFirst().orElse(null);
 
-        SubmodelElement changedSubmodelElement = Util.deepCopy(submodelElement, submodelElement.getClass());
+        SubmodelElement changedSubmodelElement = DeepCopyHelper.deepCopy(submodelElement, submodelElement.getClass());
         String category = "NewCategory";
         changedSubmodelElement.setCategory(category);
 
-        Reference reference = Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, submodelElement.getIdShort());
+        Reference reference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, submodelElement.getIdShort());
         this.persistence.put(null, reference, changedSubmodelElement);
         SubmodelElement actualSubmodelelement = this.persistence.get(reference, new QueryModifier.Builder().extend(Extend.WithBLOBValue).build());
 
@@ -509,7 +510,7 @@ public class PersistenceInMemoryTest {
         String AAS_IDENTIFIER = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String SUBMODEL_IDENTIFIER = "https://acplt.org/Test_Submodel_Mandatory";
         String SUBMODEL_ELEMENT_COLLECTION_IDSHORT = "ExampleSubmodelCollectionUnordered";
-        Reference reference = Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT);
+        Reference reference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT);
         this.persistence.remove(reference);
         Assert.assertThrows(ResourceNotFoundException.class, () -> this.persistence.get(reference, new QueryModifier()));
     }
@@ -521,7 +522,7 @@ public class PersistenceInMemoryTest {
         String SUBMODEL_IDENTIFIER = "https://acplt.org/Test_Submodel_Mandatory";
         String SUBMODEL_ELEMENT_COLLECTION_IDSHORT = "ExampleSubmodelCollectionUnordered";
         String SUBMODEL_ELEMENT_IDSHORT = "ExampleFile";
-        Reference reference = Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, SUBMODEL_ELEMENT_IDSHORT);
+        Reference reference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, SUBMODEL_ELEMENT_IDSHORT);
 
         SubmodelElement submodelElement = this.persistence.get(reference, new OutputModifier());
         this.persistence.remove(reference);
@@ -534,7 +535,7 @@ public class PersistenceInMemoryTest {
         String AAS_IDENTIFIER = "https://acplt.org/Test_AssetAdministrationShell";
         String SUBMODEL_IDENTIFIER = "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial";
         String SUBMODEL_ELEMENT_IDSHORT = "ExampleEntity2";
-        Reference reference = Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_IDSHORT);
+        Reference reference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_IDSHORT);
 
         SubmodelElement submodelElement = this.persistence.get(reference, new OutputModifier());
         this.persistence.remove(reference);
@@ -544,7 +545,7 @@ public class PersistenceInMemoryTest {
 
     @Test
     public void putIdentifiableNewTest() throws ResourceNotFoundException {
-        Submodel newSubmodel = Util.deepCopy(this.environment.getSubmodels().get(0),
+        Submodel newSubmodel = DeepCopyHelper.deepCopy(this.environment.getSubmodels().get(0),
                 this.environment.getSubmodels().get(0).getClass());
         String idShort = "NewIdShort";
         newSubmodel.setIdShort(idShort);
@@ -564,7 +565,7 @@ public class PersistenceInMemoryTest {
 
     @Test
     public void putIdentifiableChangeTest() throws ResourceNotFoundException {
-        ConceptDescription expected = Util.deepCopy(this.environment.getConceptDescriptions().get(0),
+        ConceptDescription expected = DeepCopyHelper.deepCopy(this.environment.getConceptDescriptions().get(0),
                 this.environment.getConceptDescriptions().get(0).getClass());
         String category = "NewCategory";
         expected.setCategory(category);
@@ -582,7 +583,7 @@ public class PersistenceInMemoryTest {
         String SUBMODEL_ELEMENT_COLLECTION_IDSHORT = "ExampleSubmodelCollectionUnordered";
         String SUBMODEL_ELEMENT_IDSHORT = "ExampleBlob";
 
-        Reference reference = Utils.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, SUBMODEL_ELEMENT_IDSHORT);
+        Reference reference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, SUBMODEL_ELEMENT_IDSHORT);
         QueryModifier queryModifier = new QueryModifier.Builder().extend(Extend.WithBLOBValue).build();
         Identifier submodelId = new DefaultIdentifier.Builder()
                 .idType(IdentifierType.IRI)

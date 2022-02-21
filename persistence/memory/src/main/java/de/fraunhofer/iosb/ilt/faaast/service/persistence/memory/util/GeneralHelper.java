@@ -12,28 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util;
 
-import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
+public class GeneralHelper {
 
-
-/**
- * An Endpoint is an implementation of the interfaces and methods described by Part 2 of the AAS specification. It is
- * also often called upper DT interface.
- * 
- * @param <T> type of the corresponding configuration class
- */
-public interface Endpoint<T extends EndpointConfig> extends Configurable<T> {
-
-    /**
-     * Starts the endpoint.
-     */
-    public void start() throws Exception;
+    private GeneralHelper() {}
 
 
-    /**
-     * Stops the endpoint.
-     */
-    public void stop();
-
+    public static boolean empty(final String s) {
+        return s == null || s.trim().isEmpty();
+    }
 }

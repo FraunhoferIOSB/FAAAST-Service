@@ -10,7 +10,7 @@
     <artifactId>messagebus-internal</artifactId>
     <version>${revision}</version>
     <name>messagebus-internal</name>
-    <description>MessageBus implementation of the FA³ST Service using Java method calls.</description>
+    <description>Internal MessageBus implementation of the FA³ST Service.</description>
     <properties>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>

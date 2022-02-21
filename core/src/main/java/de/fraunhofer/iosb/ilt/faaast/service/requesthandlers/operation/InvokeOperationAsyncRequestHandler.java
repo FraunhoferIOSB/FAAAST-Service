@@ -24,11 +24,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationAsyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
@@ -50,7 +51,7 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
         InvokeOperationAsyncResponse response = new InvokeOperationAsyncResponse();
 
         try {
-            Reference reference = Util.toReference(request.getPath(), request.getId(), Submodel.class);
+            Reference reference = ElementPathUtils.toReference(request.getPath(), request.getId(), Submodel.class);
             //Check if submodelelement does exist
             Operation operation = (Operation) persistence.get(reference, new OutputModifier());
             OperationHandle operationHandle = executeOperationAsync(reference, request);

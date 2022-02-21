@@ -28,6 +28,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.IdentifiablePersistenceManager;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.PackagePersistenceManager;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers.ReferablePersistenceManager;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.GeneralHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.QueryModifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;
@@ -90,7 +93,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             return null;
         }
         Identifiable identifiable = identifiablePersistenceManager.getIdentifiableById(id);
-        Util.applyQueryModifier(identifiable, modifier);
+        QueryModifierHelper.applyQueryModifier(identifiable, modifier);
 
         return (T) identifiable;
     }
@@ -101,23 +104,23 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (reference == null || reference.getKeys() == null || modifier == null || this.aasEnvironment == null) {
             return null;
         }
-        Util.completeReference(reference, this.aasEnvironment);
+        ReferenceHelper.completeReferenceWithProperKeyElements(reference, this.aasEnvironment);
         SubmodelElement submodelElement = referablePersistenceManager.getSubmodelElement(reference, modifier);
-        Util.applyQueryModifier(submodelElement, modifier);
+        QueryModifierHelper.applyQueryModifier(submodelElement, modifier);
         return submodelElement;
     }
 
 
     @Override
     public List<AssetAdministrationShell> get(String idShort, List<AssetIdentification> assetIds, QueryModifier modifier) {
-        if (modifier == null || (!Util.empty(idShort) && assetIds != null)) {
+        if (modifier == null || (!GeneralHelper.empty(idShort) && assetIds != null)) {
             return null;
         }
         List<AssetAdministrationShell> shells = identifiablePersistenceManager.getAASs(idShort, assetIds);
         if (shells == null) {
             return null;
         }
-        Util.applyQueryModifier(shells, modifier);
+        QueryModifierHelper.applyQueryModifier(shells, modifier);
         return shells;
     }
 
@@ -129,7 +132,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         }
 
         //TODO: allow this combination? Throw meaningful exception if not.
-        if (!Util.empty(idShort) && semanticId != null) {
+        if (!GeneralHelper.empty(idShort) && semanticId != null) {
             return null;
         }
 
@@ -137,7 +140,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (submodels == null) {
             return null;
         }
-        Util.applyQueryModifier(submodels, modifier);
+        QueryModifierHelper.applyQueryModifier(submodels, modifier);
         return submodels;
     }
 
@@ -147,13 +150,13 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (reference == null || modifier == null) {
             return null;
         }
-        Util.completeReference(reference, this.aasEnvironment);
+        ReferenceHelper.completeReferenceWithProperKeyElements(reference, this.aasEnvironment);
 
         List<SubmodelElement> submodelElements = referablePersistenceManager.getSubmodelElements(reference, semanticId);
         if (submodelElements == null) {
             return null;
         }
-        Util.applyQueryModifier(submodelElements, modifier);
+        QueryModifierHelper.applyQueryModifier(submodelElements, modifier);
         return submodelElements;
     }
 
@@ -165,7 +168,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         }
 
         List<ConceptDescription> conceptDescriptions = identifiablePersistenceManager.getConceptDescriptions(idShort, isCaseOf, dataSpecification);
-        Util.applyQueryModifier(conceptDescriptions, modifier);
+        QueryModifierHelper.applyQueryModifier(conceptDescriptions, modifier);
         return conceptDescriptions;
     }
 
@@ -176,10 +179,10 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             return null;
         }
         if (parent != null) {
-            Util.completeReference(parent, this.aasEnvironment);
+            ReferenceHelper.completeReferenceWithProperKeyElements(parent, this.aasEnvironment);
         }
         if (referenceToSubmodelElement != null) {
-            Util.completeReference(referenceToSubmodelElement, this.aasEnvironment);
+            ReferenceHelper.completeReferenceWithProperKeyElements(referenceToSubmodelElement, this.aasEnvironment);
         }
         return referablePersistenceManager.putSubmodelElement(parent, referenceToSubmodelElement, submodelElement);
     }
@@ -199,7 +202,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (reference == null) {
             return;
         }
-        Util.completeReference(reference, this.aasEnvironment);
+        ReferenceHelper.completeReferenceWithProperKeyElements(reference, this.aasEnvironment);
         referablePersistenceManager.remove(reference);
     }
 
@@ -245,7 +248,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
     @Override
     public OperationResult getOperationResult(String handleId) {
-        if (!Util.empty(handleId)) {
+        if (!GeneralHelper.empty(handleId)) {
             return operationResultMap.getOrDefault(handleId, null);
         }
         return null;
@@ -261,7 +264,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
                     .build();
         }
 
-        if (Util.empty(handleId)) {
+        if (GeneralHelper.empty(handleId)) {
             OperationHandle operationHandle = new OperationHandle.Builder()
                     .requestId(requestId)
                     .handleId(UUID.randomUUID().toString())
@@ -270,7 +273,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             operationResultMap.putIfAbsent(operationHandle.getHandleId(), operationResult);
             return operationHandle;
         }
-        else if (!Util.empty(handleId)) {
+        else if (!GeneralHelper.empty(handleId)) {
             operationResultMap.put(handleId, operationResult);
         }
 

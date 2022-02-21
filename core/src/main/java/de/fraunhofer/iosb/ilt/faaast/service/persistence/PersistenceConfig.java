@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
-import de.fraunhofer.iosb.ilt.faaast.service.config.ExtendableBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendableBuilder;
 
 
 /**

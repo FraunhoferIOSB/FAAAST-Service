@@ -10,7 +10,7 @@
     <artifactId>persistence-memory</artifactId>
     <version>${revision}</version>
     <name>persistence-memory</name>
-    <description>In memory persistence implementation implementation of the FA³ST Service.</description>
+    <description>In memory persistence implementation of the FA³ST Service.</description>
     <properties>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>

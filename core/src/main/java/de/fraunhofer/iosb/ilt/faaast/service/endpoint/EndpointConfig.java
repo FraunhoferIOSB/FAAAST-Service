@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
-import de.fraunhofer.iosb.ilt.faaast.service.config.ExtendableBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendableBuilder;
 
 
 /**

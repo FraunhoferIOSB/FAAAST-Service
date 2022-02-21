@@ -18,11 +18,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
-import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
@@ -41,7 +41,7 @@ public class PostSubmodelElementByPathRequestHandler extends RequestHandler<Post
     public PostSubmodelElementByPathResponse process(PostSubmodelElementByPathRequest request) {
         PostSubmodelElementByPathResponse response = new PostSubmodelElementByPathResponse();
         try {
-            Reference parentReference = Util.toReference(request.getId(), Submodel.class);
+            Reference parentReference = ElementPathUtils.toReference(request.getId(), Submodel.class);
             Reference childReference = AasUtils.toReference(parentReference, request.getSubmodelElement());
             SubmodelElement submodelElement = persistence.put(parentReference, null, request.getSubmodelElement());
             response.setPayload(submodelElement);

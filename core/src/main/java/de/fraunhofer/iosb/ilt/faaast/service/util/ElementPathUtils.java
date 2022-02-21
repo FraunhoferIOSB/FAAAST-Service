@@ -16,11 +16,16 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
+import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
+import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -86,5 +91,51 @@ public class ElementPathUtils {
                     }
                 })
                 .collect(Collectors.toList());
+    }
+
+
+    public static Reference toReference(List<Key> keys) {
+        return new DefaultReference.Builder()
+                .keys(keys)
+                .build();
+    }
+
+
+    public static Reference toReference(List<Key> keys, Identifier parentId, Class<?> parentClass) {
+        Reference parentReference = toReference(parentId, parentClass);
+        Reference childReference = new DefaultReference.Builder()
+                .keys(keys)
+                .build();
+        return toReference(parentReference, childReference);
+    }
+
+
+    public static Reference toReference(Reference parentReference, Reference childReference) {
+        List<Key> keys = new ArrayList<>(parentReference.getKeys());
+        childReference.getKeys().forEach(x -> {
+            if (!keys.contains(x)) {
+                keys.add(x);
+            }
+        });
+        return new DefaultReference.Builder()
+                .keys(keys)
+                .build();
+    }
+
+
+    public static Reference toReference(Identifier id, Class<?> clazz) {
+        return new DefaultReference.Builder()
+                .keys(List.of(new DefaultKey.Builder()
+                        .value(id.getIdentifier())
+                        .type(referableToKeyType(clazz))
+                        .idType(KeyType.IRI)
+                        .build()))
+                .build();
+    }
+
+
+    public static KeyElements referableToKeyType(Class<?> clazz) {
+        Class<?> aasInterface = ReflectionHelper.getAasInterface(clazz);
+        return aasInterface != null ? KeyElements.valueOf(AasUtils.deserializeEnumName(aasInterface.getSimpleName())) : null;
     }
 }

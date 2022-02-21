@@ -22,11 +22,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
@@ -49,7 +50,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
 
     @Override
     public InvokeOperationSyncResponse process(InvokeOperationSyncRequest request) {
-        Reference reference = Util.toReference(request.getPath(), request.getId(), Submodel.class);
+        Reference reference = ElementPathUtils.toReference(request.getPath(), request.getId(), Submodel.class);
         InvokeOperationSyncResponse response = new InvokeOperationSyncResponse();
         try {
             //Check if submodelelement does exist

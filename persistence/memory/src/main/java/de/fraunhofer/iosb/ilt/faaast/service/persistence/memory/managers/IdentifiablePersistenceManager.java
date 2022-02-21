@@ -18,7 +18,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException
 import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.SpecificAssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.GeneralHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.Util;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Asset;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
@@ -60,7 +63,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
         if (this.aasEnvironment == null) {
             return null;
         }
-        if (!Util.empty(idShort)) {
+        if (!GeneralHelper.empty(idShort)) {
             return Util.getDeepCopiedShells(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
         }
 
@@ -98,14 +101,14 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
             return null;
         }
 
-        if (!Util.empty(idShort)) {
+        if (!GeneralHelper.empty(idShort)) {
             List<Submodel> submodels = Util.getDeepCopiedSubmodels(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
             return submodels;
         }
 
         if (semanticId != null) {
             List<Submodel> submodels = Util.getDeepCopiedSubmodels(x -> x.getSemanticId() != null
-                    && Util.isEqualsIgnoringKeyType(x.getSemanticId(), semanticId), this.aasEnvironment);
+                    && ReferenceHelper.isEqualsIgnoringKeyType(x.getSemanticId(), semanticId), this.aasEnvironment);
             return submodels;
         }
 
@@ -122,14 +125,14 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
 
         List<ConceptDescription> conceptDescriptions = null;
 
-        if (!Util.empty(idShort)) {
+        if (!GeneralHelper.empty(idShort)) {
             conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream()
                     .filter(x -> x.getIdShort().equalsIgnoreCase(idShort))
                     .collect(Collectors.toList());
         }
 
         if (isCaseOf != null) {
-            Predicate<ConceptDescription> filter = x -> x.getIsCaseOfs().stream().anyMatch(y -> Util.isEqualsIgnoringKeyType(y, isCaseOf));
+            Predicate<ConceptDescription> filter = x -> x.getIsCaseOfs().stream().anyMatch(y -> ReferenceHelper.isEqualsIgnoringKeyType(y, isCaseOf));
             if (conceptDescriptions == null) {
                 conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream()
                         .filter(filter)
@@ -145,7 +148,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
         if (dataSpecification != null) {
             Predicate<ConceptDescription> filter = x -> x.getEmbeddedDataSpecifications() != null
                     && x.getEmbeddedDataSpecifications().stream()
-                            .anyMatch(y -> y.getDataSpecification() != null && Util.isEqualsIgnoringKeyType(y.getDataSpecification(), dataSpecification));
+                            .anyMatch(y -> y.getDataSpecification() != null && ReferenceHelper.isEqualsIgnoringKeyType(y.getDataSpecification(), dataSpecification));
             if (conceptDescriptions == null) {
                 conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream()
                         .filter(filter)
@@ -156,12 +159,12 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
             }
         }
 
-        if (Util.empty(idShort) && isCaseOf == null && dataSpecification == null) {
+        if (GeneralHelper.empty(idShort) && isCaseOf == null && dataSpecification == null) {
             conceptDescriptions = this.aasEnvironment.getConceptDescriptions();
         }
 
         Class conceptDescriptionClass = conceptDescriptions != null && conceptDescriptions.size() > 0 ? conceptDescriptions.get(0).getClass() : ConceptDescription.class;
-        return Util.deepCopy(conceptDescriptions, conceptDescriptionClass);
+        return DeepCopyHelper.deepCopy(conceptDescriptions, conceptDescriptionClass);
     }
 
 

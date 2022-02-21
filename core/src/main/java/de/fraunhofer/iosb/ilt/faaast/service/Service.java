@@ -139,15 +139,8 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public AssetAdministrationShellEnvironment getAASEnvironment() {
-        try {
-            return Util.deepCopy(this.aasEnvironment);
-        }
-        catch (SerializationException | DeserializationException e) {
-            logger.warn("Could not deep copy AAS Environment");
-            e.printStackTrace();
-            return null;
-        }
+    public AssetAdministrationShellEnvironment getAASEnvironment() throws SerializationException, DeserializationException {
+        return Util.deepCopy(this.aasEnvironment);
     }
 
 
@@ -188,7 +181,6 @@ public class Service implements ServiceContext {
 
 
     public void start() throws Exception {
-        //TODO set AASEnvironment properly
         if (this.aasEnvironment == null) {
             throw new IllegalArgumentException("AssetAdministrationEnvironment must be non-null");
         }

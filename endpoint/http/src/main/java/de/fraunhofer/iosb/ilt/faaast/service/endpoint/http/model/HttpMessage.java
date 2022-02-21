@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
-import de.fraunhofer.iosb.ilt.faaast.service.config.ExtendableBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendableBuilder;
 import java.util.HashMap;
 import java.util.Map;
 

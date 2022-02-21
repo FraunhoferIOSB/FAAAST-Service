@@ -17,7 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.managers;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Extend;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.Util;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.KeyElements;
@@ -52,7 +53,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
 
         try {
             SubmodelElement submodelElement = AasUtils.resolve(reference, this.aasEnvironment, SubmodelElement.class);
-            return Util.deepCopy(submodelElement, submodelElement.getClass());
+            return DeepCopyHelper.deepCopy(submodelElement, submodelElement.getClass());
         }
         catch (IllegalArgumentException ex) {
             throw new ResourceNotFoundException(reference);
@@ -75,7 +76,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
                 if (submodel == null) {
                     return null;
                 }
-                Submodel deepCopiedSubmodel = Util.deepCopy(submodel, submodel.getClass());
+                Submodel deepCopiedSubmodel = DeepCopyHelper.deepCopy(submodel, submodel.getClass());
                 submodelElements = deepCopiedSubmodel.getSubmodelElements();
 
             }
@@ -84,7 +85,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
                 if (submodelElementCollection == null) {
                     return null;
                 }
-                SubmodelElementCollection deepCopiedSubmodelElementCollection = Util.deepCopy(submodelElementCollection, submodelElementCollection.getClass());
+                SubmodelElementCollection deepCopiedSubmodelElementCollection = DeepCopyHelper.deepCopy(submodelElementCollection, submodelElementCollection.getClass());
                 submodelElements = new ArrayList<>(deepCopiedSubmodelElementCollection.getValues());
             }
 

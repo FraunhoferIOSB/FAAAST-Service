@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Utils {
+public class Util {
 
     public static Reference createReference(String aasIdentifier, String submodelIdentifier, String submodelElementIdshort) {
         List<Key> keyList = new ArrayList<>();

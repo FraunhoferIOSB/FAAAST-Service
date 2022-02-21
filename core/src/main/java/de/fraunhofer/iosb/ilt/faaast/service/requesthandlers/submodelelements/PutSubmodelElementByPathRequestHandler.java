@@ -21,12 +21,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.valuedata.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
-import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
@@ -45,7 +45,7 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
     public PutSubmodelElementByPathResponse process(PutSubmodelElementByPathRequest request) {
         PutSubmodelElementByPathResponse response = new PutSubmodelElementByPathResponse();
         try {
-            Reference reference = Util.toReference(request.getPath(), request.getId(), Submodel.class);
+            Reference reference = ElementPathUtils.toReference(request.getPath(), request.getId(), Submodel.class);
 
             //Check if submodelelement does exist
             SubmodelElement currentSubmodelElement = persistence.get(reference, new QueryModifier.Builder()

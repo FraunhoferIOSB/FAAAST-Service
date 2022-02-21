@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.config;
+package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 /**
  * Utility class for realizing builder pattern with inheritance.
- * The builder works by creating an internal instance of the targte class upon creation and modifying that instance
- * witht the builder. Upon a call to build() the instance is returned.
+ * The builder works by creating an internal instance of the target class upon creation and modifying that instance
+ * with the builder. Upon a call to build() the instance is returned.
  * After calling build() once the builder should not be used any further as additional calls/modifications will also
  * modify the previously return object which developers may not expect.
  * 

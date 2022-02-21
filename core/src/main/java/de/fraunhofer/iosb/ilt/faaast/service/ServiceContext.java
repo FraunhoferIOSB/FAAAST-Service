@@ -38,7 +38,7 @@ public interface ServiceContext {
      * @return a deep copied AssetAdministrationShellEnvironment instance of the
      *         service
      */
-    public AssetAdministrationShellEnvironment getAASEnvironment();
+    public AssetAdministrationShellEnvironment getAASEnvironment() throws Exception;
 
 
     public MessageBus<?> getMessageBus();
