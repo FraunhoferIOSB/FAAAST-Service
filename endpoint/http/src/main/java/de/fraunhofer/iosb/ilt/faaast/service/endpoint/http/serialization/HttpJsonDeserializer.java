@@ -15,9 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.mixins.InvokeOperationRequestMixin;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.InvokeOperationRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.JsonDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
 
 
 public class HttpJsonDeserializer extends JsonDeserializer {

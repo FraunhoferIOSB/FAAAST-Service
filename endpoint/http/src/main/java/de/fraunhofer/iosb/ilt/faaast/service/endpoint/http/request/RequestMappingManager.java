@@ -17,7 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.RequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.Constructor;
@@ -46,7 +47,7 @@ public class RequestMappingManager {
 
     private void init() {
         try (ScanResult scanResult = new ClassGraph()
-                .enableAllInfo() // Scan classes, methods, fields, annotations
+                .enableAllInfo()
                 .acceptPackages(getClass().getPackageName())
                 .scan()) {
             mappers = scanResult
@@ -74,8 +75,6 @@ public class RequestMappingManager {
                     })
                     .filter(x -> x != null)
                     .collect(Collectors.toList());
-
-            // filter out all which are null
             mappers.stream()
                     .filter(x -> x == null)
                     .collect(Collectors.toList());

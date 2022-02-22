@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 
 
 /**

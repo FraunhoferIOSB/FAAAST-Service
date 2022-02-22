@@ -20,14 +20,13 @@
         <module>core</module>
         <module>model</module>
         <!-- needs to be build separately because of proprietary dependency to prosys -->
-        <!-- <module>endpoint/opcua-prosys</module> -->
+        <!-- <module>endpoint/opcua</module> -->
         <module>endpoint/http</module>
-        <module>messagebus/messagebus-internal</module>
-        <module>persistence/persistence-inmemory</module>
+        <module>messagebus/internal</module>
+        <module>persistence/memory</module>
         <module>assetconnection/mqtt</module>
         <module>assetconnection/opcua</module>
-        <module>serialization/core</module>
-        <module>serialization/json</module>
+        <module>dataformat/json</module>
         <module>starter</module>
     </modules>
     <properties>
@@ -38,6 +37,9 @@
         <flatten.version>1.2.7</flatten.version>
         <guava.version>31.0.1-jre</guava.version>
         <jackson.version>2.13.1</jackson.version>
+        <jakarta-servlet.version>5.0.0</jakarta-servlet.version>
+        <javax-servlet.version>2.5</javax-servlet.version>
+        <jetty.version>11.0.8</jetty.version>
         <jsonassert.version>1.5.0</jsonassert.version>
         <jsonpath.version>2.7.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
@@ -54,6 +56,7 @@
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
         <milo.version>0.6.3</milo.version>
         <mockito.version>4.3.1</mockito.version>
+        <moquette.version>0.14.3</moquette.version>
         <paho.version>1.2.5</paho.version>
         <plugin.jar.version>3.2.2</plugin.jar.version>
         <plugin.jib.version>3.2.0</plugin.jib.version>
@@ -61,7 +64,7 @@
         <revision>1.0.0-SNAPSHOT</revision>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.version>1.7.36</slf4j.version>
-        <spotless.version>2.20.2</spotless.version>
+        <spotless.version>2.21.0</spotless.version>
     </properties>
     <dependencies>
         <dependency>
@@ -152,12 +155,12 @@
                     <formats>
                         <format>
                             <includes>
-                                <include>codestyle/*.xml</include>
+                                <include>misc/codestyle/*.xml</include>
                             </includes>
                             <eclipseWtp>
                                 <type>XML</type>
                                 <files>
-                                    <file>${root.basedir}/codestyle/xml.prefs</file>
+                                    <file>${root.basedir}/misc/codestyle/xml.prefs</file>
                                 </files>
                             </eclipseWtp>
                         </format>
@@ -197,14 +200,14 @@
                         </licenseHeader>
                         <eclipse>
                             <version>4.13.0</version>
-                            <file>${root.basedir}/codestyle/formatter.xml</file>
+                            <file>${root.basedir}/misc/codestyle/formatter.xml</file>
                         </eclipse>
                     </java>
                 </configuration>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>apply</goal>
+                            <goal>check</goal>
                         </goals>
                         <phase>compile</phase>
                     </execution>
@@ -215,12 +218,7 @@
                 <artifactId>license-maven-plugin</artifactId>
                 <version>2.0.0</version>
                 <configuration>
-                    <!-- Output folder -->
                     <outputDirectory>${root.basedir}/documentation/third_party_licenses_report</outputDirectory>
-                    <!-- Text with the output list of all licenses. Just contains the list of projects and websites, does not contain the copyright notices -->
-                    <licensesOutputFile>${root.basedir}/documentation/third_party_licenses_report/licenses-generated.xml</licensesOutputFile>
-                    <!-- Folder with an output dump of all license text. Usually they contain the license template (for APL2) but not the copyright notices. -->
-                    <licensesOutputDirectory>${project.basedir}/documentation/third_party_licenses</licensesOutputDirectory>
                     <licenseMerges>
                         <licenseMerge>Apache Software License, Version 2.0|The Apache Software License, Version 2.0|Apache License, Version 2.0|Apache Public License 2.0|Apache License Version 2.0</licenseMerge>
                         <licenseMerge>Apache Software License, Version 2.0|Apache 2.0|Apache2.0|Apache License 2.0|Apache Software License - Version 2.0|The Apache License, Version 2.0</licenseMerge>

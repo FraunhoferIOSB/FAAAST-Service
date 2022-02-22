@@ -12,7 +12,9 @@
     <name>starter</name>
     <description>Starter for the FA³ST Service.</description>
     <properties>
+        <aas.version.jsonld>1.0.2</aas.version.jsonld>
         <commons-code.version>1.15</commons-code.version>
+        <httpcomponents.version>4.5.13</httpcomponents.version>
         <logback.version>1.2.10</logback.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
         <maven-compiler-plugin-version>3.9.0</maven-compiler-plugin-version>
@@ -106,7 +108,7 @@
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>dataformat-jsonld</artifactId>
-            <version>1.0.2</version>
+            <version>${aas.version.jsonld}</version>
         </dependency>
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
@@ -131,7 +133,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.13</version>
+            <version>${httpcomponents.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

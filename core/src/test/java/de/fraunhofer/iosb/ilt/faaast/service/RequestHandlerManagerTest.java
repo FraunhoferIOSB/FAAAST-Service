@@ -24,24 +24,107 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
-import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.model.GlobalAssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.SpecificAssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.*;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.request.*;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.*;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.DataElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.ElementValueParser;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.valuedata.values.StringValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteAssetAdministrationShellByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteConceptDescriptionByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelReferenceResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByAssetIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByIdShortResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByDataSpecificationReferenceResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIdShortResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIsCaseOfResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelReferencesResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsByIdShortResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsBySemanticIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetAdministrationShellByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetAdministrationShellResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetInformationResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetConceptDescriptionByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationAsyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostAssetAdministrationShellResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostConceptDescriptionResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelReferenceResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetAdministrationShellByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetAdministrationShellResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetInformationResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutConceptDescriptionByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteAssetAdministrationShellByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteConceptDescriptionByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelReferenceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByAssetIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByIdShortRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByDataSpecificationReferenceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIdShortRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIsCaseOfRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelElementsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelReferencesRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsByIdShortRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsBySemanticIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAssetAdministrationShellByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAssetAdministrationShellRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAssetInformationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetConceptDescriptionByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationAsyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostAssetAdministrationShellRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostConceptDescriptionRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelReferenceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetAdministrationShellByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetAdministrationShellRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetInformationRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutConceptDescriptionByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.RequestHandler;
-import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.Util;
-import de.fraunhofer.iosb.ilt.faaast.service.requesthandlers.submodel.DeleteSubmodelByIdRequestHandler;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.DeleteSubmodelByIdRequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -514,7 +597,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllSubmodelElementsRequest() throws ResourceNotFoundException {
-        Reference reference = Util.toReference(environment.getSubmodels().get(0).getIdentification(), Submodel.class);
+        Reference reference = ElementPathHelper.toReference(environment.getSubmodels().get(0).getIdentification(), Submodel.class);
         when(persistence.getSubmodelElements(reference, (Reference) null, new OutputModifier()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements());
         GetAllSubmodelElementsRequest request = new GetAllSubmodelElementsRequest.Builder()
@@ -532,7 +615,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPostSubmodelElementRequest() throws ResourceNotFoundException {
-        Reference reference = Util.toReference(environment.getSubmodels().get(0).getIdentification(), Submodel.class);
+        Reference reference = ElementPathHelper.toReference(environment.getSubmodels().get(0).getIdentification(), Submodel.class);
         when(persistence.put(reference, (Reference) null, environment.getSubmodels().get(0).getSubmodelElements().get(0)))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         PostSubmodelElementRequest request = new PostSubmodelElementRequest.Builder()
@@ -564,7 +647,7 @@ public class RequestHandlerManagerTest {
         GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder()
                 .id(submodel.getIdentification())
                 .outputModifier(new OutputModifier())
-                .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
                 .build();
         GetSubmodelElementByPathResponse response = manager.execute(request);
 
@@ -587,7 +670,7 @@ public class RequestHandlerManagerTest {
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         PostSubmodelElementByPathRequest request = new PostSubmodelElementByPathRequest.Builder()
                 .id(environment.getSubmodels().get(0).getIdentification())
-                .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
                 .build();
         PostSubmodelElementByPathResponse response = manager.execute(request);
         PostSubmodelElementByPathResponse expected = new PostSubmodelElementByPathResponse.Builder()
@@ -647,7 +730,7 @@ public class RequestHandlerManagerTest {
                         return (U) raw;
                     }
                 })
-                .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
                 .build();
 
         Response response = manager.execute(request);
@@ -662,14 +745,14 @@ public class RequestHandlerManagerTest {
     @Test
     public void testDeleteSubmodelElementByPathRequest() throws ResourceNotFoundException {
         Submodel submodel = environment.getSubmodels().get(0);
-        Reference reference = Util.toReference(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF),
+        Reference reference = ElementPathHelper.toReference(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF),
                 submodel.getIdentification(),
                 Submodel.class);
         when(persistence.get(reference, new QueryModifier()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         DeleteSubmodelElementByPathRequest request = new DeleteSubmodelElementByPathRequest.Builder()
                 .id(submodel.getIdentification())
-                .path(ElementPathUtils.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
                 .build();
         DeleteSubmodelElementByPathResponse response = manager.execute(request);
         DeleteSubmodelElementByPathResponse expected = new DeleteSubmodelElementByPathResponse.Builder()
@@ -832,7 +915,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllConceptDescriptionsByIsCaseOfRequest() throws ResourceNotFoundException {
-        Reference reference = Util.toReference(environment.getConceptDescriptions().get(0).getIdentification(), ConceptDescription.class);
+        Reference reference = ElementPathHelper.toReference(environment.getConceptDescriptions().get(0).getIdentification(), ConceptDescription.class);
         when(persistence.get(null, reference, null, new OutputModifier()))
                 .thenReturn(environment.getConceptDescriptions());
         GetAllConceptDescriptionsByIsCaseOfRequest request = new GetAllConceptDescriptionsByIsCaseOfRequest.Builder()
@@ -850,7 +933,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllConceptDescriptionsByDataSpecificationReferenceRequest() throws ResourceNotFoundException {
-        Reference reference = Util.toReference(environment.getConceptDescriptions().get(0).getIdentification(), ConceptDescription.class);
+        Reference reference = ElementPathHelper.toReference(environment.getConceptDescriptions().get(0).getIdentification(), ConceptDescription.class);
         when(persistence.get(null, null, reference, new OutputModifier()))
                 .thenReturn(environment.getConceptDescriptions());
         GetAllConceptDescriptionsByDataSpecificationReferenceRequest request = new GetAllConceptDescriptionsByDataSpecificationReferenceRequest.Builder()

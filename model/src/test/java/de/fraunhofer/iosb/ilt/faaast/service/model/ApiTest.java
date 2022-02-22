@@ -14,11 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.StatusCode.ClientErrorBadRequest;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.ClientErrorBadRequest;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.DeleteAASXPackageByIdResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.DeleteAllAssetLinksByIdResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.response.DeleteSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteAASXPackageByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteAllAssetLinksByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelByIdResponse;
 import org.junit.Assert;
 import org.junit.Test;
 

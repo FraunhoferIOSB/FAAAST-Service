@@ -16,12 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.AssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.model.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.AASXPackage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationHandle;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.OperationResult;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.PackageDescription;
+import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.AASXPackage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.PackageDescription;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;

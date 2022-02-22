@@ -23,12 +23,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Request;
-import de.fraunhofer.iosb.ilt.faaast.service.model.v3.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Util;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import io.adminshell.aas.v3.dataformat.DeserializationException;
 import io.adminshell.aas.v3.dataformat.SerializationException;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -81,7 +82,7 @@ public class Service implements ServiceContext {
             this.endpoints = endpoints;
         }
         try {
-            this.aasEnvironment = Util.deepCopy(aasEnvironment);
+            this.aasEnvironment = DeepCopyHelper.deepCopy(aasEnvironment);
         }
         catch (SerializationException | DeserializationException e) {
             e.printStackTrace();
@@ -139,15 +140,8 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public AssetAdministrationShellEnvironment getAASEnvironment() {
-        try {
-            return Util.deepCopy(this.aasEnvironment);
-        }
-        catch (SerializationException | DeserializationException e) {
-            logger.warn("Could not deep copy AAS Environment");
-            e.printStackTrace();
-            return null;
-        }
+    public AssetAdministrationShellEnvironment getAASEnvironment() throws SerializationException, DeserializationException {
+        return DeepCopyHelper.deepCopy(this.aasEnvironment);
     }
 
 
@@ -164,15 +158,17 @@ public class Service implements ServiceContext {
 
 
     /**
-     * Set a deep copied instance of the given AssetAdministrationShellEnvironment instance to the service if the service
-     * is not already running. Else stop the service, set the AssetAdministrationShellEnvironment and start
-     * the service again to apply the new AssetAdministrationShellEnvironment.
+     * Set a deep copied instance of the given
+     * AssetAdministrationShellEnvironment instance to the service if the
+     * service is not already running. Else stop the service, set the
+     * AssetAdministrationShellEnvironment and start the service again to apply
+     * the new AssetAdministrationShellEnvironment.
      *
      * @param aasEnvironment which will be used in the service
      */
     public void setAASEnvironment(AssetAdministrationShellEnvironment aasEnvironment) {
         try {
-            this.aasEnvironment = Util.deepCopy(aasEnvironment);
+            this.aasEnvironment = DeepCopyHelper.deepCopy(aasEnvironment);
         }
         catch (SerializationException | DeserializationException e) {
             logger.warn("Could not deep copy AAS Environment");
@@ -188,7 +184,6 @@ public class Service implements ServiceContext {
 
 
     public void start() throws Exception {
-        //TODO set AASEnvironment properly
         if (this.aasEnvironment == null) {
             throw new IllegalArgumentException("AssetAdministrationEnvironment must be non-null");
         }
