@@ -18,8 +18,11 @@ import io.adminshell.aas.v3.model.Identifier;
 import java.util.List;
 import java.util.Objects;
 
-
+/**
+ * Model class for package description
+ */
 public class PackageDescription {
+
     private String packageId;
     private List<Identifier> aasId;
 
@@ -27,32 +30,29 @@ public class PackageDescription {
         return packageId;
     }
 
-
     public void setPackageId(String packageId) {
         this.packageId = packageId;
     }
-
 
     public List<Identifier> getAasId() {
         return aasId;
     }
 
-
     public void setAasId(List<Identifier> aasId) {
         this.aasId = aasId;
     }
 
-
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PackageDescription that = (PackageDescription) o;
         return Objects.equals(packageId, that.packageId) && Objects.equals(aasId, that.aasId);
     }
-
 
     @Override
     public int hashCode() {

@@ -25,7 +25,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-
+/**
+ * Holds informations about a subscription.
+ */
 public class SubscriptionInfo {
 
     private static final Predicate<Reference> DEFAULT_FILTER = x -> true;

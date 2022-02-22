@@ -20,27 +20,17 @@ import java.util.Objects;
 
 
 /**
- * Wrapper class for an AssetInformation/globalAssetId of an AssetAdministrationShell
+ * Represents a global asset identification
  */
 public class GlobalAssetIdentification implements AssetIdentification {
 
     private Reference reference;
 
-    /**
-     * AssetInformation/globalAssetId
-     * 
-     * @return the globalAssetId of an AssetInformation
-     */
     public Reference getReference() {
         return reference;
     }
 
 
-    /**
-     * AssetInformation/globalAssetId
-     * 
-     * @param reference of an AssetInformation
-     */
     public void setReference(Reference reference) {
         this.reference = reference;
     }

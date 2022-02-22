@@ -17,7 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus;
 import java.util.Objects;
 import java.util.UUID;
 
-
+/**
+ * Identifier of a subscription.
+ */
 public class SubscriptionId {
 
     private final UUID subscriptionId;
@@ -26,22 +28,21 @@ public class SubscriptionId {
         this.subscriptionId = UUID.randomUUID();
     }
 
-
     public UUID getSubscriptionId() {
         return subscriptionId;
     }
 
-
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         SubscriptionId that = (SubscriptionId) o;
         return Objects.equals(subscriptionId, that.subscriptionId);
     }
-
 
     @Override
     public int hashCode() {

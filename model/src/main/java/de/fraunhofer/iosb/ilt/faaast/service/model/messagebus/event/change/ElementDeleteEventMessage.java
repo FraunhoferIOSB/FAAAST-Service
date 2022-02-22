@@ -14,4 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change;
 
-public class ElementDeleteEventMessage extends ElementChangeEventMessage {}
+/**
+ * Event message indicating that an element has been deleted
+ */
+public class ElementDeleteEventMessage extends ElementChangeEventMessage {
+}

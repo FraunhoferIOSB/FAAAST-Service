@@ -16,7 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change;
 
 import io.adminshell.aas.v3.model.Referable;
 
-
+/**
+ * Event message indicating that an element has been changed
+ */
 public abstract class ElementChangeEventMessage extends ChangeEventMessage {
 
     private Referable value;
@@ -24,7 +26,6 @@ public abstract class ElementChangeEventMessage extends ChangeEventMessage {
     public Referable getValue() {
         return value;
     }
-
 
     public void setValue(Referable value) {
         this.value = value;

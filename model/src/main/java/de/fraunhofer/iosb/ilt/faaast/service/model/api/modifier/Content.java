@@ -16,11 +16,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier;
 
 import java.util.stream.Stream;
 
-
+/**
+ * Enum of different content options
+ */
 public enum Content {
     Normal,
     Value,
-    Trimmed, //@TODO:  Swagger, but not in specification
+    Trimmed, // defined in swagger but not specification
     Reference,
     Path;
 

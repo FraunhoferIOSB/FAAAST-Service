@@ -19,7 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-
+/**
+ * Event message indicating that an operation has been invoked
+ */
 public class OperationInvokeEventMessage extends ExecuteEventMessage {
 
     private List<ElementValue> input;

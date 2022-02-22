@@ -16,33 +16,36 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
 import java.util.Objects;
 
-
+/**
+ * Abstract base class for protocol-agnostic responses containing payload.
+ */
 public abstract class BaseResponseWithPayload<T> extends BaseResponse {
+
     private T payload;
 
     public T getPayload() {
         return payload;
     }
 
-
     public void setPayload(T payload) {
         this.payload = payload;
     }
 
-
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-        if (!super.equals(o))
+        }
+        if (!super.equals(o)) {
             return false;
+        }
         BaseResponseWithPayload<?> that = (BaseResponseWithPayload<?>) o;
         return Objects.equals(payload, that.payload)
                 && (getStatusCode() == that.getStatusCode());
     }
-
 
     @Override
     public int hashCode() {

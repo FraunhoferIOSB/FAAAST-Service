@@ -17,9 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.asset;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
-
 /**
- * Wrapper class for an IdentifierKeyValuePair of an AssetAdministrationShell
+ * Represents specific asset identification information
  */
 public class SpecificAssetIdentification implements AssetIdentification {
 
@@ -27,74 +26,50 @@ public class SpecificAssetIdentification implements AssetIdentification {
 
     private String value;
 
-    /**
-     * IdentifierKeyValuePair/key
-     * 
-     * @return the key of an IdentifierKeyValuePair
-     */
     public String getKey() {
         return key;
     }
 
-
-    /**
-     * IdentifierKeyValuePair/key
-     * 
-     * @param key of an IdentifierKeyValuePair
-     */
     public void setKey(String key) {
         this.key = key;
     }
 
-
-    /**
-     * IdentifierKeyValuePair/value
-     * 
-     * @return the value of an IdentifierKeyValuePair
-     */
     public String getValue() {
         return value;
     }
 
-
-    /**
-     * IdentifierKeyValuePair/value
-     * 
-     * @param value of an IdentifierKeyValuePair
-     */
     public void setValue(String value) {
         this.value = value;
     }
 
-
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         SpecificAssetIdentification that = (SpecificAssetIdentification) o;
         return Objects.equals(key, that.key)
                 && Objects.equals(value, that.value);
     }
-
 
     @Override
     public int hashCode() {
         return Objects.hash(key, value);
     }
 
-
     public static GlobalAssetIdentification.Builder builder() {
         return new GlobalAssetIdentification.Builder();
     }
 
     public static abstract class AbstractBuilder<T extends SpecificAssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B key(String value) {
             getBuildingInstance().setKey(value);
             return getSelf();
         }
-
 
         public B value(String value) {
             getBuildingInstance().setValue(value);
@@ -108,7 +83,6 @@ public class SpecificAssetIdentification implements AssetIdentification {
         protected Builder getSelf() {
             return this;
         }
-
 
         @Override
         protected SpecificAssetIdentification newBuildingInstance() {

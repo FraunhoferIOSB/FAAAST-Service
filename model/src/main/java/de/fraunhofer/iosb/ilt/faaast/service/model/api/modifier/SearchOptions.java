@@ -18,7 +18,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 11.5
+ * Model class for search options
  */
 public class SearchOptions {
     private Depth depth;

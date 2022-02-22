@@ -17,31 +17,27 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
-
+/**
+ * Model class for query modifier
+ */
 public class QueryModifier {
 
     public static final QueryModifier DEFAULT = new QueryModifier();
     protected Level level;
     protected Extend extend;
 
-    /**
-     * Constructor using enum default values
-     */
     public QueryModifier() {
         this.level = Level.Deep;
         this.extend = Extend.WithoutBLOBValue;
     }
 
-
     public Level getLevel() {
         return level;
     }
 
-
     public Extend getExtend() {
         return extend;
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -56,7 +52,6 @@ public class QueryModifier {
                 && Objects.equals(extend, that.extend);
     }
 
-
     @Override
     public int hashCode() {
         return Objects.hash(level, extend);
@@ -68,7 +63,6 @@ public class QueryModifier {
             getBuildingInstance().level = value;
             return getSelf();
         }
-
 
         public B extend(Extend value) {
             getBuildingInstance().extend = value;
@@ -82,7 +76,6 @@ public class QueryModifier {
         protected Builder getSelf() {
             return this;
         }
-
 
         @Override
         protected QueryModifier newBuildingInstance() {

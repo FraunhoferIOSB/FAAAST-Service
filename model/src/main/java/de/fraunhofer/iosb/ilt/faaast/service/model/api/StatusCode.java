@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
 /**
- * Enum StatusCode Also maps internal status enum to http status code
+ * Model class for defined status codes for {@link Request}.
  */
 public enum StatusCode {
     Success,

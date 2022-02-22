@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
 /**
- * The abstract base class for requests.
- * 
+ * Abstract base class for protocol-agnostic requests.
+ *
  * @param <T> type of the corresponding response
  */
 public abstract class BaseRequest<T extends Response> implements Request<T> {

@@ -14,4 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.asset;
 
+/**
+ * Information to identify an asset
+ */
 public interface AssetIdentification {}

@@ -16,24 +16,21 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier;
 
 import java.util.Objects;
 
-
+/**
+ * Model class for output modifier
+ */
 public class OutputModifier extends QueryModifier {
 
     public static final OutputModifier DEFAULT = new OutputModifier();
     protected Content content;
 
-    /**
-     * Constructor using enum default values
-     */
     public OutputModifier() {
         this.content = Content.Normal;
     }
 
-
     public Content getContent() {
         return content;
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -47,7 +44,6 @@ public class OutputModifier extends QueryModifier {
         return super.equals(that)
                 && content == that.content;
     }
-
 
     @Override
     public int hashCode() {
@@ -68,7 +64,6 @@ public class OutputModifier extends QueryModifier {
         protected Builder getSelf() {
             return this;
         }
-
 
         @Override
         protected OutputModifier newBuildingInstance() {
