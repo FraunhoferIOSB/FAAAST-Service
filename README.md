@@ -298,7 +298,7 @@ They are added to the URL as regular query params
 ```sh
 http://url:port?level=deep&content=value
 ```
-FA³ST Service currently supports only content=value
+FA³ST Service currently supports only content=value and content=normal
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
