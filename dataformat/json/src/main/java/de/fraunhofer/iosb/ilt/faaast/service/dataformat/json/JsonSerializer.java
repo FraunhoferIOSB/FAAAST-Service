@@ -28,6 +28,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
+/**
+ * JSON serializer for FA³ST supporting different output modifier as defined by
+ * specification.
+ * <p>
+ * Currently supports only content=value.
+ */
 public class JsonSerializer implements Serializer {
 
     private final ValueOnlyJsonSerializer valueOnlySerializer;
