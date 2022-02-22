@@ -20,7 +20,7 @@ import java.util.UUID;
 
 
 /**
- * Mqtt config class for Mqtt AssetConnection implementations/subclasses.
+ * Config file for {@link MqttAssetConnection}.
  */
 public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetConnection, MqttValueProviderConfig, MqttOperationProviderConfig, MqttSubscriptionProviderConfig> {
 

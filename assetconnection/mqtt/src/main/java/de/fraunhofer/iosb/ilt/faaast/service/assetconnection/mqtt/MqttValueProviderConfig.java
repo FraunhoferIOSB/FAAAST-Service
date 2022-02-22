@@ -19,6 +19,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.Conten
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 
 
+/**
+ * * Config file for MQTT-based
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
+ */
 public class MqttValueProviderConfig implements AssetValueProviderConfig {
 
     private ContentFormat contentFormat;

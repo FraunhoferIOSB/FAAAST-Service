@@ -14,13 +14,23 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content;
 
+/**
+ * Factory class for {@link ContentSerializer} based on {@link ContentFormat}.
+ */
 public class ContentSerializerFactory {
 
-    private ContentSerializerFactory() {
-
-    }
+    private ContentSerializerFactory() {}
 
 
+    /**
+     * Instantiate {@link ContentSerializer} based on provided
+     * {@link ContentFormat}.
+     *
+     * @param format content format to use
+     * @return instance of {@link ContentSerializer} able to serialize given
+     *         format
+     * @throws IllegalArgumentException if provided format is not supported
+     */
     public static ContentSerializer create(ContentFormat format) {
         switch (format) {
             case JSON:

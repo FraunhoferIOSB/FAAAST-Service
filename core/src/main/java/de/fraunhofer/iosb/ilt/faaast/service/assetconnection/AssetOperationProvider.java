@@ -14,7 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.OperationVariable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
 
@@ -35,7 +39,25 @@ public interface AssetOperationProvider extends AssetProvider {
      * de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException
      *             when invoking operation on asset connection fails
      */
-    public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException;
+    public default OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
+        final AtomicReference<OperationVariable[]> result = new AtomicReference<>();
+        final AtomicReference<OperationVariable[]> modifiedInoutput = new AtomicReference<>();
+        CountDownLatch condition = new CountDownLatch(1);
+        invokeAsync(input, inoutput, (x, y) -> {
+            result.set(x);
+            modifiedInoutput.set(y);
+            condition.countDown();
+        });
+        try {
+            condition.await();
+        }
+        catch (InterruptedException ex) {
+            throw new AssetConnectionException("invoking operation failed because of timeout", ex);
+        }
+        // TODO check if 1:1 assignment of each value is needed
+        inoutput = modifiedInoutput.get();
+        return result.get();
+    }
 
 
     /**
@@ -50,5 +72,11 @@ public interface AssetOperationProvider extends AssetProvider {
      * de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException
      *             when invoking operation on asset connection fails
      */
-    public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callback) throws AssetConnectionException;
+    public default void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callback)
+            throws AssetConnectionException {
+        CompletableFuture.supplyAsync(LambdaExceptionHelper.rethrowSupplier(() -> invoke(input, inoutput))).thenAccept(x -> {
+            callback.accept(x, inoutput);
+        });
+
+    }
 }

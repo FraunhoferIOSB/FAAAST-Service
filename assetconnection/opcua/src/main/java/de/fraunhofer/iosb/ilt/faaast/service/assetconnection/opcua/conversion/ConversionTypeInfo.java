@@ -19,6 +19,9 @@ import java.util.Objects;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 
 
+/**
+ * Utility class to store conversion type information.
+ */
 public class ConversionTypeInfo {
 
     private final Datatype aasDatatype;

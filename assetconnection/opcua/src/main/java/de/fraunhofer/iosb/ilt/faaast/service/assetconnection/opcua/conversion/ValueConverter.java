@@ -29,6 +29,9 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 
 
+/**
+ * Converts values bi-directional between OPC UA and AAS types.
+ */
 public class ValueConverter {
 
     private Map<ConversionTypeInfo, AasToOpcUaValueConverter> aasToOpcUaConverters;
@@ -46,16 +49,39 @@ public class ValueConverter {
     }
 
 
+    /**
+     * Registers an AAS to OPC UA mapping
+     *
+     * @param aasDatatype AAS datatype to map
+     * @param opcUaDatatype OPC UA target datatype
+     * @param conveter actual converter implementation
+     */
     public void register(Datatype aasDatatype, NodeId opcUaDatatype, AasToOpcUaValueConverter conveter) {
         aasToOpcUaConverters.put(new ConversionTypeInfo(aasDatatype, opcUaDatatype), conveter);
     }
 
 
+    /**
+     * Registers an OPC UA to AAS mapping
+     *
+     * @param aasDatatype AAS target datatype
+     * @param opcUaDatatype OPC UA datatype to map
+     * @param conveter actual converter implementation
+     */
     public void register(Datatype aasDatatype, NodeId opcUaDatatype, OpcUaToAasValueConverter conveter) {
         opcUaToAasConverters.put(new ConversionTypeInfo(aasDatatype, opcUaDatatype), conveter);
     }
 
 
+    /**
+     * Converts AAS value to OPC UA target type
+     *
+     * @param value AAS value
+     * @param targetType OPC UA target type
+     * @return converted AAS value
+     * @throws ValueConversionException if value or targetType are null
+     * @throws ValueConversionException if conversion fails
+     */
     public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
         if (value == null) {
             throw new ValueConversionException("typed value must be non-null");
@@ -70,12 +96,21 @@ public class ValueConverter {
     }
 
 
+    /**
+     * Converts OPC UA value to AAS target type
+     *
+     * @param value OPC UAvalue
+     * @param targetType AAS target type
+     * @return converted OPC UA value
+     * @throws ValueConversionException if value or targetType are null
+     * @throws ValueConversionException if conversion fails
+     */
     public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
         if (value == null) {
             throw new ValueConversionException("value must be non-null");
         }
         if (targetType == null) {
-            throw new ValueConversionException("datatype value must be non-null");
+            throw new ValueConversionException("targetType value must be non-null");
         }
         OpcUaToAasValueConverter converter = opcUaToAasConverters.getOrDefault(
                 new ConversionTypeInfo(targetType, value.getDataType().get().toNodeId(null).get()),

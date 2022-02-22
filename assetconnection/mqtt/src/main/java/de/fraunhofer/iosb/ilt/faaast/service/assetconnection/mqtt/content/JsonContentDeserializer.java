@@ -24,6 +24,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 
 
+/**
+ * {@link ContentDeserializer} for {@link ContentFormat}.JSON.
+ */
 public class JsonContentDeserializer implements ContentDeserializer {
 
     private final JsonDeserializer deserializer;
@@ -33,6 +36,12 @@ public class JsonContentDeserializer implements ContentDeserializer {
     }
 
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws AssetConnectionException if deserialization fails or invalid JSON
+     *             path expression
+     */
     @Override
     public DataElementValue read(String raw, String query, TypeInfo typeInfo) throws AssetConnectionException {
         try {

@@ -18,7 +18,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 
 
+/**
+ * Interface for serializing values before sending them over MQTT.
+ */
 public interface ContentSerializer {
 
+    /**
+     * Serializes a given value for publishing it via MQTT.
+     *
+     * @param value value to write
+     * @param query additional query options
+     * @return a string representation of the value
+     * @throws AssetConnectionException if writing failed
+     */
     public String write(DataElementValue value, String query) throws AssetConnectionException;
 }
