@@ -92,12 +92,25 @@ public class HttpRequest extends HttpMessage {
     }
 
 
+    private String[] splitKeyValue(String x, String regex) {
+        String split[] = x.split(regex);
+        if (split.length == 2)
+            return split;
+        else
+            return new String[] {
+                    "illegal",
+                    "empty"
+            };
+    }
+
+
     public void setQueryParametersFromQueryString(String queryString) {
         this.queryParameters = queryString != null && queryString.contains("=")
                 ? Arrays.asList(queryString.split("&")).stream()
-                        .map(x -> x.split("=")).collect(Collectors.toMap(
+                        .map(x -> splitKeyValue(x, "=")).collect(Collectors.toMap(
                                 x -> x[0],
-                                x -> x[1]))
+                                x -> x[1],
+                                (oldValue, newValue) -> newValue))
                 : new HashMap<>();
     }
 
