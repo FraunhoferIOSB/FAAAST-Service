@@ -18,11 +18,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import org.eclipse.jetty.http.HttpStatus;
 
 
+/**
+ * Helper class providing HTTP specific functionality.
+ */
 public class HttpHelper {
 
     private HttpHelper() {}
 
 
+    /**
+     * Convert protocol-agnostic status code to HTTP-specific status code
+     *
+     * @param statusCode protocol-agnostic status code
+     * @return HTTP-specific status code
+     * @throws IllegalArgumentException if status code cannot be mapped to HTTP
+     */
     public static int toHttpStatusCode(StatusCode statusCode) {
         switch (statusCode) {
             case Success:
@@ -44,7 +54,7 @@ public class HttpHelper {
             case ServerErrorBadGateway:
                 return HttpStatus.BAD_GATEWAY_502;
             default:
-                throw new IllegalStateException(String.format("unsupported status code '%s'", statusCode.name()));
+                throw new IllegalArgumentException(String.format("unsupported status code '%s'", statusCode.name()));
         }
     }
 }

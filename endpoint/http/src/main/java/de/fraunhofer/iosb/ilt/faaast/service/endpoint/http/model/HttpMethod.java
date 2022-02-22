@@ -14,9 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
+/**
+ * Enum describing supported HTTP methods
+ */
 public enum HttpMethod {
     GET,
     PUT,
     DELETE,
-    POST;
+    POST,
+    OPTIONS,
+    HEAD,
+    TRACE,
+    CONNECT;
 }

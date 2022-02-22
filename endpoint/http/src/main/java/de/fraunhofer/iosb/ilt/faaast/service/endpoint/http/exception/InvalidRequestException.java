@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception;
 
+/**
+ * Exception to indicate a received request is invalid.
+ */
 public class InvalidRequestException extends Exception {
 
     public InvalidRequestException(String message) {

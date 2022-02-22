@@ -23,9 +23,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Implements HttpEndpoint accepts http reqeust and maps them to Request objects
- * passes them to the service and expects a response object which is streamed as
- * json response to the http client
+ * Implementation of HTTP endpoint.
  */
 public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
@@ -41,8 +39,13 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
     }
 
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws IllegalArgumentException is config is null
+     */
     @Override
-    public void init(CoreConfig core, HttpEndpointConfig config, ServiceContext serviceContext) {
+    public void init(CoreConfig coreConfig, HttpEndpointConfig config, ServiceContext serviceContext) {
         if (config == null) {
             throw new IllegalArgumentException("config must be non-null");
         }

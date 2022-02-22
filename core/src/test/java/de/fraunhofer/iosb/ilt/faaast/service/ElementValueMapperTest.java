@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
@@ -475,7 +475,7 @@ public class ElementValueMapperTest {
     public void testSubmodelElementCollectionToValueMapping() {
         PropertyValue propertyValue = PropertyValue.builder().value(new StringValue("testValue")).build();
         PropertyValue propertyValue2 = PropertyValue.builder().value(new StringValue("testValue2")).build();
-        ElementCollectionValue expected = ElementCollectionValue.builder()
+        SubmodelElementCollectionValue expected = SubmodelElementCollectionValue.builder()
                 .value("prop1", propertyValue)
                 .value("prop2", propertyValue2)
                 .build();
@@ -509,7 +509,7 @@ public class ElementValueMapperTest {
 
         PropertyValue propertyValue = PropertyValue.builder().value(new StringValue("testValue")).build();
         PropertyValue propertyValue2 = PropertyValue.builder().value(new StringValue("testValue2")).build();
-        ElementCollectionValue value = ElementCollectionValue.builder()
+        SubmodelElementCollectionValue value = SubmodelElementCollectionValue.builder()
                 .value("prop1", propertyValue)
                 .value("prop2", propertyValue2)
                 .build();

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Finds available RequestMappings
+ * Finds matching request mapper for given HTTP request.
  */
 public class RequestMappingManager {
 
@@ -82,6 +82,15 @@ public class RequestMappingManager {
     }
 
 
+    /**
+     * Finds corresponding protocol-agnostic request for given HTTP request and
+     * converts it.
+     *
+     * @param httpRequest HTTP-based request to convert
+     * @return protocol-agnostic request
+     * @throws InvalidRequestException if no mapper is found for request or
+     *             mapping fails
+     */
     public Request map(HttpRequest httpRequest) throws InvalidRequestException {
         if (httpRequest == null) {
             throw new IllegalArgumentException("httpRequest must be non-null");

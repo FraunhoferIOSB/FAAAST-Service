@@ -14,20 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementCollectionValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.util.stream.Collectors;
 
 
-public class ElementCollectionValueMapper extends DataValueMapper<SubmodelElementCollection, ElementCollectionValue> {
+public class ElementCollectionValueMapper extends DataValueMapper<SubmodelElementCollection, SubmodelElementCollectionValue> {
 
     @Override
-    public ElementCollectionValue toValue(SubmodelElementCollection elementCollection) {
+    public SubmodelElementCollectionValue toValue(SubmodelElementCollection elementCollection) {
         if (elementCollection == null) {
             return null;
         }
-        return ElementCollectionValue.builder()
+        return SubmodelElementCollectionValue.builder()
                 .values(elementCollection.getValues().stream().collect(Collectors.toMap(
                         x -> x.getIdShort(),
                         x -> ElementValueMapper.toValue(x))))
@@ -36,7 +36,7 @@ public class ElementCollectionValueMapper extends DataValueMapper<SubmodelElemen
 
 
     @Override
-    public SubmodelElementCollection setValue(SubmodelElementCollection elementCollection, ElementCollectionValue value) {
+    public SubmodelElementCollection setValue(SubmodelElementCollection elementCollection, SubmodelElementCollectionValue value) {
         if (elementCollection == null || value == null) {
             return elementCollection;
         }

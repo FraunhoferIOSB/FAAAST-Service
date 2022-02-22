@@ -24,7 +24,7 @@ import java.util.List;
 
 
 /**
- * Base class for implementing code to execute a given Request.
+ * Base class for mapping HTTP requests to protocl-agnostic requests.
  */
 public abstract class RequestMapper {
 
@@ -37,12 +37,35 @@ public abstract class RequestMapper {
     }
 
 
+    /**
+     * Decides if a given HTTP request matches this concrete protocl-agnostic
+     * request.
+     *
+     * @param httpRequest the HTTP request to check
+     * @return true if matches, otherwise false
+     */
     public abstract boolean matches(HttpRequest httpRequest);
 
 
+    /**
+     * Converts the HTTP request to protocol-agnostic request
+     *
+     * @param httpRequest the HTTP request to convert
+     * @return the protocol-agnostic request
+     * @throws InvalidRequestException if conversion fails
+     */
     public abstract Request parse(HttpRequest httpRequest) throws InvalidRequestException;
 
 
+    /**
+     * Deserializes HTTP body to given type
+     *
+     * @param <T> expected type
+     * @param httpRequest HTTP request
+     * @param type expected type
+     * @return deserialized payload
+     * @throws InvalidRequestException if deserialization fails
+     */
     protected <T> T parseBody(HttpRequest httpRequest, Class<T> type) throws InvalidRequestException {
         try {
             return deserializer.read(httpRequest.getBody(), type);
@@ -53,6 +76,15 @@ public abstract class RequestMapper {
     }
 
 
+    /**
+     * Deserializes HTTP body to a list of given type
+     *
+     * @param <T> expected type
+     * @param httpRequest HTTP request
+     * @param type expected type
+     * @return deserialized payload as list of given type
+     * @throws InvalidRequestException if deserialization fails
+     */
     protected <T> List<T> parseBodyAsList(HttpRequest httpRequest, Class<T> type) throws InvalidRequestException {
         try {
             return deserializer.readList(httpRequest.getBody(), type);

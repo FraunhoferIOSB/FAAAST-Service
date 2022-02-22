@@ -22,6 +22,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 
+/**
+ * Abstraction of concrete HTTP request.
+ */
 public class HttpRequest extends HttpMessage {
 
     private HttpMethod method;

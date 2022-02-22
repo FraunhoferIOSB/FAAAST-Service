@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 
 
+/**
+ * Configuration class for {@link HttpEndpoint}
+ */
 public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
     public static final int DEFAULT_PORT = 8080;
