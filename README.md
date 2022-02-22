@@ -2,12 +2,12 @@
 # FA³ST Service
 
 <p>
-  <a target="_blank">
-    <img src="./documentation/images/Fa3st-Service_positiv.png" alt="FA³ST Service Logo" width="350" >
-  </a>
-  <a target="_blank">
-    <img src="./documentation/images/Fa3st-Service_negativ.png" alt="FA³ST Service Logo" width="350">
-  </a>
+<a target="_blank">
+	<img src="./documentation/images/Fa3st-Service_positiv.png" alt="FA³ST Service Logo" width="350" >
+</a>
+<a target="_blank">
+	<img src="./documentation/images/Fa3st-Service_negativ.png" alt="FA³ST Service Logo" width="350">
+</a>
 </p>
 
 FA³ST Service implements the [Asset Administration Shell (AAS) specification from the platform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and built up an easy-to-use Web Service based on a custom AAS model instance.
@@ -84,24 +84,24 @@ FA³ST Service provides a number of useful functionalities:
 - The FA³ST Service supports several dataformats for the Asset Administration Shell Environment: `json, json-ld, xml, aml, rdf, opcua nodeset`
 - The FA³ST Service can be easily configured by a configuration file in json format. Additionally it is possible to use default configurations.
 - The FA³ST Service uses the results of well known [admin-shell-io java serializer](https://github.com/admin-shell-io/java-serializer) and [admin-shell-io java model](https://github.com/admin-shell-io/java-model). That´s why we can react very fast on changes in the AAS specification.
-- The FA³ST Service can be easily expanded with own implementations for `endpoint, messagebus, persistence, assetconnection`. Therefore, interfaces are provided in the `core` which needs to be implemented. 
+- The FA³ST Service can be easily expanded with own implementations for `endpoint, messagebus, persistence, assetconnection`. Therefore, interfaces are provided in the `core` which needs to be implemented.
 <img src="./documentation/images/fa3st-service-default-implementations.png" alt="FA³ST Service Logo" >
 - The FA³ST Service provides for each component one or more default implementations
-  - In memory persistence in class `de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory`
-  - Internal messagebus in class `de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal`
-  - HTTP Endpoint in class `de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint`
-  - OPC UA Endpoint in class `de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.OpcUaEndpoint`
-  - MQTT Assetconnection in class `de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnection`
-  - OPC UA Assetconnection in class `de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection`
+- In memory persistence in class `de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory`
+- Internal messagebus in class `de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal`
+- HTTP Endpoint in class `de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint`
+- OPC UA Endpoint in class `de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.OpcUaEndpoint`
+- MQTT Assetconnection in class `de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnection`
+- OPC UA Assetconnection in class `de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection`
 - The FA³ST Service can be started with multiple synchronized endpoints in parallel
-  - [HTTP Endpoint](#http-endpoint-interface)
-  - [OPCUA Endpoint](#opc-ua-endpoint-interface)
-- The FA³ST Service provides the interface `AssetConnection` to easily connect your AssetAdministrationShell to your asset. 
+- [HTTP Endpoint](#http-endpoint-interface)
+- [OPCUA Endpoint](#opc-ua-endpoint-interface)
+- The FA³ST Service provides the interface `AssetConnection` to easily connect your AssetAdministrationShell to your asset.
 
 ## Roadmap
 
 We will continously expand the features of the FA³ST Service. However, we highly welcome bug reports, feature requests, code contributions, and assistance with testing. Our next steps and integrations will be:
-- Implement a file & database persistence 
+- Implement a file & database persistence
 - Expand the functionality and configuration options in the MQTT/OPCUA AssetConnections
 - FA³ST Registry
 
