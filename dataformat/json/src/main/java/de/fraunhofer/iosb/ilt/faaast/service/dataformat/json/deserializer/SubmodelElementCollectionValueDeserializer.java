@@ -17,26 +17,30 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import java.io.IOException;
 
 
-public class SubmodelElementCollectionValueDeserializer extends ContextAwareElementValueDeserializer<ElementCollectionValue> {
+/**
+ * Deserializer for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue}
+ */
+public class SubmodelElementCollectionValueDeserializer extends ContextAwareElementValueDeserializer<SubmodelElementCollectionValue> {
 
     public SubmodelElementCollectionValueDeserializer() {
         this(null);
     }
 
 
-    public SubmodelElementCollectionValueDeserializer(Class<ElementCollectionValue> type) {
+    public SubmodelElementCollectionValueDeserializer(Class<SubmodelElementCollectionValue> type) {
         super(type);
     }
 
 
     @Override
-    public ElementCollectionValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
-        return new ElementCollectionValue.Builder()
+    public SubmodelElementCollectionValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
+        return new SubmodelElementCollectionValue.Builder()
                 .values(deserializeChildren(node, context, ElementValue.class))
                 .build();
     }

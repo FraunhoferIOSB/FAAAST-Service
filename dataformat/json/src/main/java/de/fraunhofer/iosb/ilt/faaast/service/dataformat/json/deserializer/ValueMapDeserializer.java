@@ -30,6 +30,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 
+/**
+ * Deserializer for map with value type
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue}
+ */
 public class ValueMapDeserializer extends MapDeserializer {
 
     public ValueMapDeserializer(MapDeserializer src) {
@@ -57,7 +61,6 @@ public class ValueMapDeserializer extends MapDeserializer {
         if (typeInfo == null || !ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             return super.deserialize(parser, context);
         }
-        ContainerTypeInfo containerTypeInfo = (ContainerTypeInfo) typeInfo;
         JsonNode node = context.readTree(parser);
         if (!node.isObject()) {
             return context.reportBadDefinition(Collection.class, "expected array");

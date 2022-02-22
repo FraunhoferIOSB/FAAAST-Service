@@ -25,6 +25,10 @@ import java.io.IOException;
 import org.codehaus.plexus.util.Base64;
 
 
+/**
+ * Serializer for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue}
+ */
 public class BlobValueSerializer extends ModifierAwareSerializer<BlobValue> {
 
     public BlobValueSerializer() {

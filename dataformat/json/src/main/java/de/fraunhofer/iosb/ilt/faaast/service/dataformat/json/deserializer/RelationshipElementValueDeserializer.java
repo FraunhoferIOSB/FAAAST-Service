@@ -23,6 +23,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValu
 import java.io.IOException;
 
 
+/**
+ * Deserializer for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue}
+ */
 public class RelationshipElementValueDeserializer extends ContextAwareElementValueDeserializer<RelationshipElementValue> {
 
     public RelationshipElementValueDeserializer() {

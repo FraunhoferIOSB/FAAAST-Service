@@ -26,6 +26,10 @@ import io.adminshell.aas.v3.model.EntityType;
 import java.io.IOException;
 
 
+/**
+ * Deserializer for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue}
+ */
 public class EntityValueDeserializer extends ContextAwareElementValueDeserializer<EntityValue> {
 
     public EntityValueDeserializer() {

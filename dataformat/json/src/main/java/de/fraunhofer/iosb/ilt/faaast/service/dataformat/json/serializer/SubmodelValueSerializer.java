@@ -23,6 +23,10 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.IOException;
 
 
+/**
+ * Serializer for {@link io.adminshell.aas.v3.model.Submodel}. Serializes a
+ * submodel as map of idShort and value of all its elements.
+ */
 public class SubmodelValueSerializer extends StdSerializer<Submodel> {
 
     public SubmodelValueSerializer() {

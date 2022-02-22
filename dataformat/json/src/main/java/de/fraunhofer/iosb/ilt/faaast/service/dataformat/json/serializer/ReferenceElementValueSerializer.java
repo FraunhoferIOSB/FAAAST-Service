@@ -27,6 +27,10 @@ import io.adminshell.aas.v3.model.KeyElements;
 import java.io.IOException;
 
 
+/**
+ * Serializer for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue}
+ */
 public class ReferenceElementValueSerializer extends StdSerializer<ReferenceElementValue> {
 
     public ReferenceElementValueSerializer() {

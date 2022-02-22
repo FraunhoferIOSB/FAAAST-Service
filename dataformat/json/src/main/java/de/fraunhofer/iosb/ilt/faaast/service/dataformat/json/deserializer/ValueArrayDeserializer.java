@@ -27,6 +27,10 @@ import java.io.IOException;
 import java.util.Collection;
 
 
+/**
+ * Deserializer for array of
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue}
+ */
 public class ValueArrayDeserializer extends ContainerDeserializerBase<Object[]> {
 
     public ValueArrayDeserializer(ObjectArrayDeserializer src) {
