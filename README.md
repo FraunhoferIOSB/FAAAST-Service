@@ -1,75 +1,223 @@
 
-<div id="top"></div>
+# FA³ST Service
 
-
-<!-- PROJECT LOGO -->
-![FA³ST Service Logo](./documentation/images/Fa3st-Service_positiv.png "FA³ST Service Logo")
-<br />
-<div align="center">
-
-<h3 align="center">FA³ST Service</h3>
-
-<p align="center">
-	Easy-to-use Asset Administration Shell Service
-
-[**Explore the docs »**](https://github.com/FraunhoferIOSB/FAAAST-Service/tree/main/documentation)
-<br />
-[Report Bug](https://github.com/FraunhoferIOSB/FAAAST-Service/issues)
-·
-[Request Feature](https://github.com/FraunhoferIOSB/FAAAST-Service/issues)
+<p>
+  <a target="_blank">
+    <img src="./documentation/images/Fa3st-Service_positiv.png" alt="FA³ST Service Logo" width="350" >
+  </a>
+  <a target="_blank">
+    <img src="./documentation/images/Fa3st-Service_negativ.png" alt="FA³ST Service Logo" width="350">
+  </a>
 </p>
-</div>
 
+FA³ST Service implements the [Asset Administration Shell (AAS) specification from the platform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and built up an easy-to-use Web Service based on a custom AAS model instance.
 
-<!-- TABLE OF CONTENTS -->
-<details>
-<summary>Table of Contents</summary>
-<ol>
-	<li>
-	<a href="#about-the-project">About The Project</a>
-	<ul>
-		<li><a href="#built-with">Built With</a></li>
-	</ul>
-	</li>
-	<li>
-	<a href="#features">Features</a>
-	<ul>
-		<li><a href="#http-endpoint-interface">HTTP-Endpoint Interface</a></li>
-		<ul>
-			<li><a href="#http-example">Example HTTP/REST API Call</a></li>
-			<li><a href="#http-api">HTTP API</a></li>
-		</ul>
-		<li><a href="#opc-ua-endpoint-interface">OPC UA Endpoint Interface</a></li>
-	</ul>
-	<a href="#getting-started">Getting Started</a>
-	<ul>
-		<li><a href="#prerequisites">Prerequisites</a></li>
-		<li><a href="#installation">Installation</a></li>
-	</ul>
-	</li>
-	<li><a href="#usage">Usage</a></li>
-	<li><a href="#develop">Develop</a></li>
-	<li><a href="#roadmap">Roadmap</a></li>
-	<li><a href="#contributing">Contributing</a></li>
-	<li><a href="#license">License</a></li>
-	<li><a href="#contact">Contact</a></li>
-	<li><a href="#acknowledgments">Acknowledgments</a></li>
-</ol>
-</details>
+| Currently we publish the FA³ST Service here as a <mark>BETA Version</mark> since there are not all functionalities fully tested. However, contributions like bug issues or questions are highly welcome. |
+|-----------------------------|
+| |
 
+<!-- GETTING STARTED -->
+## Getting Started
 
+This is an example of how you may setting up your project locally.
+To get a local copy up and running follow these simple example steps.
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
-FA³ST Service implements the Asset Administration specification from the platform Industrie4.0 and built up an easy-to-use AAS Service based on a custom AAS model instance.
+### Prerequisites
+
+* maven
+* java 11
+
+### Installation
+
+The following commands will build the most recent version of the FA³ST-Service from git main. The compiled package will then be in the "[module]/target" directory.
+```sh
+git clone https://github.com/FraunhoferIOSB/FAAAST-Service
+cd FAAAST-Service
+mvn package
+```
+Alternatively, use `mvn install` instead of `mvn package` to build a SNAPSHOT jar and then copy it into your local repository, so that you can use it in your Maven projects.
+
+To start the Service from command line do following commands.
+```sh
+cd /starter
+mvn clean package
+cd /target
+java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
+```
+For further information of using the command line see [here](#usage-with-command-line).
+
+### Example
+
+Since the FA³ST Service is not yet published to maven central (we are planning to do that), the FA³ST Service needs to be installed manually to your local maven repository. Afterwards, you can add the FA³ST Service module `starter` to your project.
+
+```xml
+<dependency>
+	<groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
+	<artifactId>starter</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+The following code starts a FA³ST Service with a HTTP endpoint on port 8080. You can use the `AASFull.json` as an example AASEnvironment or use your own AASEnvironment. Therefore, just replace the `pathToYourAASEnvironment` with the path to your file.
+```java
+String pathToYourAASEnvironment = "{pathTo}\\FAAAST-Service\\starter\\src\\test\\resources\\AASFull.json";
+Service service = new Service(
+		new ServiceConfig.Builder()
+				.core(new CoreConfig.Builder()
+						.requestHandlerThreadPoolSize(2)
+						.build())
+				.persistence(new PersistenceInMemoryConfig())
+				.endpoints(List.of(new HttpEndpointConfig()))
+				.messageBus(new MessageBusInternalConfig())
+				.build());
+service.setAASEnvironment(new AASEnvironmentFactory()
+		.getAASEnvironment(pathToYourAASEnvironment));
+service.start();
+```
+Afterwards, you can reach the running FA³ST Service with `http://localhost:8080/shells`.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+## Features
 
-### Built With
+FA³ST Service provides a number of useful functionalities:
+- The FA³ST Service supports several dataformats for the Asset Administration Shell Environment: `json, json-ld, xml, aml, rdf, opcua nodeset`
+- The FA³ST Service can be easily configured by a configuration file in json format. Additionally it is possible to use default configurations.
+- The FA³ST Service uses the results of well known [admin-shell-io java serializer](https://github.com/admin-shell-io/java-serializer) and [admin-shell-io java model](https://github.com/admin-shell-io/java-model). That´s why we can react very fast on changes in the AAS specification.
+- The FA³ST Service can be easily expanded with own implementations for `endpoint, messagebus, persistence, assetconnection`. Therefore, interfaces are provided in the `core` which needs to be implemented. 
+<img src="./documentation/images/fa3st-service-default-implementations.png" alt="FA³ST Service Logo" >
+- The FA³ST Service provides for each component one or more default implementations
+  - In memory persistence in class `de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory`
+  - Internal messagebus in class `de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal`
+  - HTTP Endpoint in class `de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint`
+  - OPC UA Endpoint in class `de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.OpcUaEndpoint`
+  - MQTT Assetconnection in class `de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.MqttAssetConnection`
+  - OPC UA Assetconnection in class `de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection`
+- The FA³ST Service can be started with multiple synchronized endpoints in parallel
+  - [HTTP Endpoint](#http-endpoint-interface)
+  - [OPCUA Endpoint](#opc-ua-endpoint-interface)
+- The FA³ST Service provides the interface `AssetConnection` to easily connect your AssetAdministrationShell to your asset. 
 
-* Java 11
-* Maven
+## Roadmap
+
+We will continously expand the features of the FA³ST Service. However, we highly welcome bug reports, feature requests, code contributions, and assistance with testing. Our next steps and integrations will be:
+- Implement a file & database persistence 
+- Expand the functionality and configuration options in the MQTT/OPCUA AssetConnections
+- FA³ST Registry
+
+## Usage with Command Line
+
+To start a FA³ST Service from the command line:
+1. Move to the starter project and build the project
+	```sh
+	cd /starter
+	mvn clean package
+	```
+2. Move to the generated `.jar` file
+	```sh
+	cd starter/target
+	```
+3. Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
+	```sh
+	java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
+	```
+
+Currently we supporting following formats of the Asset Administration Shell Environment model:
+- json
+- json-ld
+- aml
+- xml
+- opcua nodeset
+- rdf
+
+<hr>
+<p>
+
+
+
+Following command line parameters could be used:
+```
+-c, --configFile=<configFilePath>
+						The config file path. Default Value = config.json
+-e, --environmentFile=<aasEnvironmentFilePath>
+						Asset Administration Shell Environment FilePath.
+							Default Value = aasenvironment.*
+	--emptyEnvironment   Starts the FA³ST service with an empty Asset
+							Administration Shell Environment. False by default
+	--endpoints[=<endpoints>...]
+
+-h, --help               Show this help message and exit.
+	--[no-]autoCompleteConfig
+						Autocompletes the configuration with default values
+							for required configuration sections. True by
+							default
+	--[no-]modelValidation
+						Validates the AAS Environment. True by default
+-V, --version            Print version information and exit.
+```
+<hr>
+<p>
+
+#### Change the Configuration
+<p>
+
+In general there are 3 ways to configure your FA³ST Service:
+1. Default values
+2. Commandline parameters
+3. Environment Variables
+
+The 3 kinds can be combined, e.g. by using the default configuration and customizing with commandline parameters and environment variables. If they conflict, environment variables are preferred over all and commandline parameters are preferred over the default values.
+
+Without any manual customization a FA³ST Service with default configuration will be started. For details to the structure and components of the configuration please have a look at the configuration section [here]()
+
+Default Configuration:
+```json
+{
+	"core" : {
+		"requestHandlerThreadPoolSize" : 2
+	},
+	"endpoints" : [ {
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint"
+	} ],
+	"persistence" : {
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+	},
+	"messageBus" : {
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
+	}
+}
+```
+<hr>
+<p>
+
+
+The FA³ST Service Starter consider following environment variables:
+- `faaast.configFilePath` to use a own configuration file
+- `faaast.aasEnvFilePath` to use a Asset Administration Environment file
+
+Environment variables could also be used to adjust some config components in the configuration:
+- `faaast.configParameter.[dot.separated.path]`
+
+If you want to change for example the requestHandlerThreadPoolSize in the core configuration, just set the environment variable `faaast.configParameter.core.requestHandlerThreadPoolSize=42`. To access configuration components in a list use the index. For example to change the port of the HTTP endpoint in the default configuration you can set the environment variable `faaast.configParameter.endpoints.0.port=8081`.
+
+<hr>
+<p>
+
+You could also use properties to adjust configuration components with the `-D` parameter. To change the `requestHandlerThreadPoolSize` of the core component and the port of the http endpoint use
+```sh
+java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
+-Dcore.requestHandlerThreadPoolSize=42 -Dendpoints.0.port=8081
+```
+<hr>
+<p>
+
+#### Special Parameters
+
+The parameter `--endpoints` accepts a list of endpoints which should be started with the service. Currently supported is only `http`. So a execution of
+```sh
+java -jar starter-{version}.jar -e {path/to/your/AASEnvironment} --endoints http
+```
+leads to a FA³ST Service with the HTTP endpoint implemented in class `de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint`.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -239,148 +387,6 @@ For evaluation purposes, you also have the possibility to request an [evaluation
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 <hr>
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-This is an example of how you may setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
-### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* maven
-* java
-
-### Installation
-
-1. Clone the repo
-```sh
-git clone https://github.com/FraunhoferIOSB/FAAAST-Service
-```
-2. Install
-```sh
-maven package
-```
-3. Use needed classes as dependency in your project
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-## Usage with Command Line
-
-To start a FA³ST Service from the command line:
-1. Move to the starter project and build the project
-	```sh
-	cd /starter
-	mvn clean package
-	```
-2. Move to the generated `.jar` file
-	```sh
-	cd starter/target
-	```
-3. Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
-	```sh
-	java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
-	```
-
-Currently we supporting following formats of the Asset Administration Shell Environment model:
-- json
-- json-ld
-- aml
-- xml
-- opcua nodeset
-- rdf
-
-<hr>
-<p>
-
-
-
-Following command line parameters could be used:
-```
--c, --configFile=<configFilePath>
-						The config file path. Default Value = config.json
--e, --environmentFile=<aasEnvironmentFilePath>
-						Asset Administration Shell Environment FilePath.
-							Default Value = aasenvironment.*
-	--emptyEnvironment   Starts the FA³ST service with an empty Asset
-							Administration Shell Environment. False by default
-	--endpoints[=<endpoints>...]
-
--h, --help               Show this help message and exit.
-	--[no-]autoCompleteConfig
-						Autocompletes the configuration with default values
-							for required configuration sections. True by
-							default
-	--[no-]modelValidation
-						Validates the AAS Environment. True by default
--V, --version            Print version information and exit.
-```
-<hr>
-<p>
-
-#### Change the Configuration
-<p>
-
-In general there are 3 ways to configure your FA³ST Service:
-1. Default values
-2. Commandline parameters
-3. Environment Variables
-
-The 3 kinds can be combined, e.g. by using the default configuration and customizing with commandline parameters and environment variables. If they conflict, environment variables are preferred over all and commandline parameters are preferred over the default values.
-
-Without any manual customization a FA³ST Service with default configuration will be started. For details to the structure and components of the configuration please have a look at the configuration section [here]()
-
-Default Configuration:
-```json
-{
-	"core" : {
-		"requestHandlerThreadPoolSize" : 2
-	},
-	"endpoints" : [ {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint"
-	} ],
-	"persistence" : {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
-	},
-	"messageBus" : {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
-	}
-}
-```
-<hr>
-<p>
-
-
-The FA³ST Service Starter consider following environment variables:
-- `faaast.configFilePath` to use a own configuration file
-- `faaast.aasEnvFilePath` to use a Asset Administration Environment file
-
-Environment variables could also be used to adjust some config components in the configuration:
-- `faaast.configParameter.[dot.separated.path]`
-
-If you want to change for example the requestHandlerThreadPoolSize in the core configuration, just set the environment variable `faaast.configParameter.core.requestHandlerThreadPoolSize=42`. To access configuration components in a list use the index. For example to change the port of the HTTP endpoint in the default configuration you can set the environment variable `faaast.configParameter.endpoints.0.port=8081`.
-
-<hr>
-<p>
-
-You could also use properties to adjust configuration components with the `-D` parameter. To change the `requestHandlerThreadPoolSize` of the core component and the port of the http endpoint use
-```sh
-java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
--Dcore.requestHandlerThreadPoolSize=42 -Dendpoints.0.port=8081
-```
-<hr>
-<p>
-
-#### Special Parameters
-
-The parameter `--endpoints` accepts a list of endpoints which should be started with the service. Currently supported is only `http`. So a execution of
-```sh
-java -jar starter-{version}.jar -e {path/to/your/AASEnvironment} --endoints http
-```
-leads to a FA³ST Service with the HTTP endpoint implemented in class `de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint`.
-
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
