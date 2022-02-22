@@ -28,6 +28,7 @@
 	<li>
 	<a href="#about-the-project">About The Project</a>
 	<ul>
+		<li><a href="#introduction">Introduction</a></li>
 		<li><a href="#built-with">Built With</a></li>
 	</ul>
 	</li>
@@ -58,13 +59,16 @@
 </details>
 
 
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 FA³ST Service implements the Asset Administration specification from the platform Industrie4.0 and built up an easy-to-use AAS Service based on a custom AAS model instance.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+<!-- FA³ST Service General Intro -->
+## Introduction
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Built With
 
