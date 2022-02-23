@@ -8,7 +8,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
-    <artifactId>endpoint-opcua-prosys</artifactId>
+    <artifactId>endpoint-opcua</artifactId>
     <version>${revision}</version>
     <name>endpoint-opcua</name>
     <description>OPCUA prosys endpoint implementation of the FA³ST Service.</description>
