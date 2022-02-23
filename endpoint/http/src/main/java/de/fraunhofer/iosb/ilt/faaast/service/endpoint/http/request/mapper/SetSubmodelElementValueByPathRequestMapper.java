@@ -33,6 +33,7 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.List;
 import java.util.Objects;
 
+
 /**
  * class to map HTTP-PUT-Request path:
  * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
@@ -48,6 +49,7 @@ public class SetSubmodelElementValueByPathRequestMapper extends RequestMapper {
         super(serviceContext);
     }
 
+
     @Override
     public Request parse(HttpRequest httpRequest) {
         final List<Key> path = ElementPathHelper.toKeys(EncodingHelper.urlDecode(httpRequest.getPathElements().get(4)));
@@ -61,7 +63,8 @@ public class SetSubmodelElementValueByPathRequestMapper extends RequestMapper {
                     public <U extends ElementValue> U parse(Object raw, Class<U> type) throws DeserializationException {
                         if (ElementValue.class.isAssignableFrom(type)) {
                             return deserializer.readValue(raw.toString(), serviceContext.getTypeInfo(ElementPathHelper.toReference(path, identifier, Submodel.class)));
-                        } else if (SubmodelElement.class.isAssignableFrom(type)) {
+                        }
+                        else if (SubmodelElement.class.isAssignableFrom(type)) {
                             SubmodelElement submodelElement = (SubmodelElement) deserializer.read(raw.toString(), type);
                             return ElementValueMapper.toValue(submodelElement);
                         }
@@ -72,6 +75,7 @@ public class SetSubmodelElementValueByPathRequestMapper extends RequestMapper {
                 })
                 .build();
     }
+
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
