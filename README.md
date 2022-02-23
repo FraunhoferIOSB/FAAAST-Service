@@ -284,7 +284,7 @@ For evaluation purposes, you also have the possibility to request an [evaluation
 - Small Example with configuration
 
 ### In Memory Persistence
-Yet not implemented:
+Not yet implemented:
 - AASX Packages
 - Package Descriptors
 - SubmodelElementStructs
