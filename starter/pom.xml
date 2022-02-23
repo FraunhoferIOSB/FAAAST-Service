@@ -45,11 +45,13 @@
             <version>${revision}</version>
         </dependency>
         <!-- needs to be build separately because of proprietary dependency to prosys -->
+        <!-- 
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endpoint-opcua</artifactId>
             <version>${revision}</version>
         </dependency>
+        -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>messagebus-internal</artifactId>
