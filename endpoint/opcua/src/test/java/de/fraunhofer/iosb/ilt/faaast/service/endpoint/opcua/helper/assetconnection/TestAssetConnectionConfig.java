@@ -12,31 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.assetconnection;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
-import io.adminshell.aas.v3.model.OperationVariable;
-import java.util.ArrayList;
-import java.util.List;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 
 
 /**
  * @author Tino Bischoff
  */
-public class TestOperationProviderConfig implements AssetOperationProviderConfig {
-    private final List<OperationVariable> outputArgs;
+public class TestAssetConnectionConfig extends AssetConnectionConfig<TestAssetConnection, TestValueProviderConfig, TestOperationProviderConfig, TestSubscriptionProviderConfig> {
 
-    public TestOperationProviderConfig(List<OperationVariable> outputArgs) {
-        if (outputArgs == null) {
-            this.outputArgs = new ArrayList<>();
-        }
-        else {
-            this.outputArgs = outputArgs;
-        }
-    }
-
-
-    public List<OperationVariable> getOutputArgs() {
-        return outputArgs;
-    }
 }

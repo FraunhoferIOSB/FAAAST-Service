@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.assetconnection;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
 
 
 /**
  * @author Tino Bischoff
  */
-public class TestSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
+public class TestValueProviderConfig implements AssetValueProviderConfig {
 
 }

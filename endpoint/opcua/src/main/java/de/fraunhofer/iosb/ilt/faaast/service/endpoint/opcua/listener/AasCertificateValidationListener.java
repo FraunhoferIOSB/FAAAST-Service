@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.listener;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener;
 
 import com.prosysopc.ua.stack.cert.CertificateCheck;
 import com.prosysopc.ua.stack.cert.DefaultCertificateValidatorListener;

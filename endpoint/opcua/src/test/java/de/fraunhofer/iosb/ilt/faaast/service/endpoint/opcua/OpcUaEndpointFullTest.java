@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import com.prosysopc.ua.MethodCallStatusException;
 import com.prosysopc.ua.SecureIdentityException;
@@ -38,11 +38,11 @@ import com.prosysopc.ua.stack.core.StatusCodes;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.TestDefines;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.TestService;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.TestUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.assetconnection.TestAssetConnection;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper.assetconnection.TestOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestDefines;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestAssetConnection;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import io.adminshell.aas.v3.model.Key;
