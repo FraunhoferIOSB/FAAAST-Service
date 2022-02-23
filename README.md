@@ -1,7 +1,7 @@
 
 # FA³ST Service
 
-<p>
+<p align="center">
 <a href="https://iosb.fraunhofer.de/#gh-light-mode-only" target="_blank">
 	<img src="./documentation/images/Fa3st-Service_positiv.png" alt="FA³ST Service Logo" width="350" >
 </a>
