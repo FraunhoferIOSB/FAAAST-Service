@@ -3,7 +3,8 @@
     "requestHandlerThreadPoolSize" : 2
   },
   "endpoints" : [ {
-    "@class" : "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint"
+    "@class" : "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+    "port" : 8080
   } ],
   "persistence" : {
     "@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"

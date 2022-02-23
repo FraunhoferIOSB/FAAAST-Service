@@ -10,9 +10,9 @@
 </a>
 </p>
 
-**F**raunhofer **A**sset **A**dministration **S**hell **T**ools (FA³ST) Service implements the [Asset Administration Shell (AAS) specification from the platform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and built up an easy-to-use Web Service based on a custom AAS model instance. If you are not familiar with AAS have a look [here](#about-the-project).
+The **F**raunhofer **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service implements the [Asset Administration Shell (AAS) specification from the platform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and built up an easy-to-use Web Service based on a custom AAS model instance. If you are not familiar with AAS have a look [here](#about-the-project).
 
-| Currently we publish the FA³ST Service here as a <mark>BETA Version</mark> since there are not all functionalities fully tested. However, contributions like bug issues or questions are highly welcome. |
+| Currently we publish the FA³ST Service here as <mark>BETA Version</mark> since not all functionalities fully tested yet and some internal capabilities like logging and exception handling are still missing. However, contributions like bug issues or questions are highly welcome. |
 |-----------------------------|
 
 
@@ -115,32 +115,35 @@ To start a FA³ST Service from the command line:
 
 Currently we supporting following formats of the Asset Administration Shell Environment model:
 >json, json-ld, aml, xml, opcua nodeset, rdf
-
-<hr>
 <p>
 
 Following command line parameters could be used:
 ```
 -c, --configFile=<configFilePath>
 						The config file path. Default Value = config.json
+
 -e, --environmentFile=<aasEnvironmentFilePath>
 						Asset Administration Shell Environment FilePath.
-							Default Value = aasenvironment.*
-	--emptyEnvironment   Starts the FA³ST service with an empty Asset
-							Administration Shell Environment. False by default
-	--endpoints[=<endpoints>...]
+						Default Value = aasenvironment.*
 
--h, --help               Show this help message and exit.
-	--[no-]autoCompleteConfig
+--emptyEnvironment   	Starts the FA³ST service with an empty Asset
+						Administration Shell Environment. False by default
+
+--endpoints[=<endpoints>...]
+						Supported endpoints: http
+
+-h, --help              Show this help message and exit.
+
+--[no-]autoCompleteConfig
 						Autocompletes the configuration with default values
-							for required configuration sections. True by
-							default
-	--[no-]modelValidation
+						for required configuration sections. True by default
+
+--[no-]modelValidation
 						Validates the AAS Environment. True by default
--V, --version            Print version information and exit.
+
+-V, --version           Print version information and exit.
 ```
 <hr>
-<p>
 
 ## Usage with Docker
 When using Docker there are two options to get an AAS running with FA³ST.
@@ -165,9 +168,44 @@ docker run --rm -v "$(pwd)"/myDemoAAS.json:/AASEnv.json -e faaast.aasEnvFilePath
 ```
 Similarly to the above examples you can pass more arguments to the FA³ST service by using the CLI or a configuration file as provided in the cfg folder (use the `faaast.configFilePath` environment variable for that).
 
-<!-- FEATURES -->
 ## Components
-<!-- HTTP-ENDPOINT -->
+
+### Configuration
+<!--TBD-->
+Here you get a short introduction about the configuration of the FA³ST Service. To get all capabilities like creating your own configuration for your implementation check the [full documentation](./documentation/configuration.md).
+
+The FA³ST Service can be easily configurated by a config file when starting via the command line or via code. Following you find an example configuration file. The `@class` attribute defines which implementation class should be loaded for this component. Each implementation class can define its own attributes in his configuration which can be set in the configuration file. For instance, the `HttpEndpoint` defines in his configuration implementation a attribute named `port`. This attribute can now be set in the configuration file.
+```json
+{
+"core" : {
+	"requestHandlerThreadPoolSize" : 2
+},
+"endpoints" : [ {
+	"@class" : "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+	"port" : 8080
+} ],
+"persistence" : {
+	"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+},
+"messageBus" : {
+	"@class" : "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
+}
+}
+```
+
+In the following code snippet you see how to create a `ServiceConfig` object which you need to instantiate a service:
+```java
+ServiceConfig serviceConfig = new ServiceConfig.Builder()
+	.core(new CoreConfig.Builder()
+			.requestHandlerThreadPoolSize(2)
+			.build())
+	.persistence(new PersistenceInMemoryConfig())
+	.endpoints(List.of(new HttpEndpointConfig()))
+	.messageBus(new MessageBusInternalConfig())
+	.build());
+```
+
+
 ### HTTP-Endpoint Interface
 Here you get a short introduction about the HTTP Endpoint of the FA³ST Service. To get all capabilities check the [full documentation](./documentation/httpendpoint.md).
 
@@ -192,7 +230,6 @@ In order to use the HTTP-Endpoint the configuration settings require to include 
 ```
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!-- HTTP-EXAMPLE -->
 ### HTTP Example
 Sample HTTP-Call for Operation _GetSubmodelElementByPath_ (returns a specific submodel element from the Submodel at a specified path) using the parameters
 - _submodelIdentifier_: https://acplt.org/Test_Submodel (must be base64URL-encoded)
@@ -220,7 +257,7 @@ http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/sub
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!-- OPC UA ENDPOINT -->
+
 ### OPC UA Endpoint Interface
 Here you get a short introduction about the OPCUA Endpoint of the FA³ST Service. To get all capabilities check the [full documentation](./documentation/opcuaendpoint.md).
 
@@ -243,8 +280,16 @@ For evaluation purposes, you also have the possibility to request an [evaluation
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## In Memory Persistence
-Yet not implemented
+### MQTT AssetConnection
+- Short introduction
+- Small Example with configuration
+
+### OPC UA AssetConnection
+- Short introduction
+- Small Example with configuration
+
+### In Memory Persistence
+Yet not implemented:
 - AASX Packages
 - Package Descriptors
 - SubmodelElementStructs
@@ -256,18 +301,18 @@ The Reference Architecture of Industrie 4.0 (RAMI) presents the [Asset Administr
 Furthermore, the AAS covers all stages of the lifecycle of an asset starting in the development phase, reaching the most importance in the operation phase and finally delivering valuable information for the decline/decomposition phase.
 
 To guarantee the interoperability of assets Industie 4.0 defines an information metamodel for the AAS covering all important aspects as type/instance concept, events, redefined data specification templates, security aspects, mapping of data formats and many more. Moreover interfaces and operations for a registry, a repository, publish and discovery are specified.
-At first glance the evolving specification of the AAS seems pretty complex and a challenging task for asset providers. To make things easier to FA³ST provides an implementation of several tools to allow easy and fast creation and management of AAS-compliant  Digital Twins.
+At first glance the evolving specification of the AAS seems pretty complex and a challenging task for asset providers. To make things easier to FA³ST provides an implementation of several tools to allow easy and fast creation and management of AAS-compliant Digital Twins.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+<!--TO BE DISCUSSED -->
 ## Roadmap
 
-We will continously expand the features of the FA³ST environment. However, we highly welcome bug reports, feature requests, code contributions, and assistance with testing. Our next steps and integrations will be:
+We will continously expand the features of the FA³ST environment. However, we highly welcome bug reports, feature requests, code contributions, and assistance with testing. Our next steps and implementations will be:
 - Implement a file & database persistence in FA³ST Service
 - Expand the functionality and configuration options in the MQTT/OPCUA AssetConnections in FA³ST Service
 - Implement an AAS Registry called FA³ST Registry
 
-<!-- CONTRIBUTING -->
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -295,10 +340,7 @@ If you use additional dependencies please be sure that the dependency License ar
 
 and check the generated report in the directory `./documentation/third_party_licenses_report.html`.
 
-
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- FA³ST Service General Intro -->
 
 ## Recommended Documents/Links
 * [Asset Administration Shell Specifications](https://www.plattform-i40.de/IP/Redaktion/EN/Standardartikel/specification-administrationshell.html) <br />
@@ -312,7 +354,6 @@ This part extends Part 1 and defines how information provided in the Asset Admin
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!-- LICENSE -->
 ## License
 
 Distributed under the Apache 2.0 License. See `LICENSE` for more information.
@@ -323,8 +364,6 @@ You should have received a copy of the Apache 2.0 License along with this progra
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-<!-- CONTACT -->
 ## Contact
 
 Michael Jacoby <br>
