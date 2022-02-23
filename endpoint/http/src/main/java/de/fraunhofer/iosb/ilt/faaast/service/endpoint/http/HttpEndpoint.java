@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Implements HttpEndpoint accepts http reqeust and maps them to Request objects
+ * Implements HttpEndpoint accepts http request and maps them to Request objects
  * passes them to the service and expects a response object which is streamed as
  * json response to the http client
  */

@@ -22,8 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.*;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import jakarta.servlet.ServletException;
@@ -33,7 +32,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
@@ -82,27 +84,62 @@ public class RequestHandler extends AbstractHandler {
         }
         catch (InvalidRequestException | IllegalArgumentException ex) {
             //ex.printStackTrace();
-            send(response, HttpStatus.BAD_REQUEST_400, ex.getMessage());
+            sendErrorResponse(response, HttpStatus.BAD_REQUEST_400, ex.getMessage());
+            baseRequest.setHandled(true);
+            return;
         }
         //TODO more differentiated error codes (must be generated in mappingManager)
-        executeAndSend(response, apiRequest);
+        try {
+            executeAndSend(response, apiRequest);
+        }
+        catch (SerializationException e) {
+            e.printStackTrace();
+        }
         baseRequest.setHandled(true);
     }
 
 
-    private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request apiRequest) throws IOException {
+    private void sendErrorResponse(HttpServletResponse response, int httpStatusCode, String errorMessage) throws IOException {
+        if (errorMessage.isEmpty())
+            errorMessage = HttpStatus.getMessage(httpStatusCode);
+        List<Date> dateList = new ArrayList<Date>();
+        dateList.add(new Date());
+        Message message = Message.builder()
+                .text(errorMessage)
+                .success(MessageType.Error)
+                .code(HttpStatus.getMessage(httpStatusCode))
+                .timestamps(dateList)
+                .build();
+        Result result = Result.builder()
+                .message(message)
+                .success(false)
+                .build();
+        //send(response, httpStatusCode, errorMessage);
+        try {
+            send(response, httpStatusCode, serializer.write(result), "application/json");
+        }
+        catch (SerializationException ex) {
+            send(response, httpStatusCode, errorMessage, "text/plain");
+        }
+    }
+
+
+    private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request apiRequest) throws IOException, SerializationException {
         // TODO forward output modifier to serializer
         if (apiRequest == null) {
-            send(response, HttpStatus.BAD_REQUEST_400);
+            sendErrorResponse(response, HttpStatus.BAD_REQUEST_400, "");
             return;
         }
         Response apiResponse = serviceContext.execute(apiRequest);
         if (apiResponse == null) {
-            send(response, HttpStatus.INTERNAL_SERVER_ERROR_500);
+            sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, "");
             return;
         }
         int statusCode = HttpHelper.toHttpStatusCode(apiResponse.getStatusCode());
-        if (BaseResponseWithPayload.class.isAssignableFrom(apiResponse.getClass())) {
+        if (statusCode != HttpStatus.OK_200) {
+            sendErrorResponse(response, statusCode, HttpStatus.getMessage((statusCode)));
+        }
+        else if (BaseResponseWithPayload.class.isAssignableFrom(apiResponse.getClass())) {
             try {
                 if (RequestWithModifier.class.isAssignableFrom(apiRequest.getClass())) {
                     Object payload = ((BaseResponseWithPayload) apiResponse).getPayload();
@@ -114,7 +151,7 @@ public class RequestHandler extends AbstractHandler {
                 }
             }
             catch (SerializationException ex) {
-                send(response, HttpStatus.INTERNAL_SERVER_ERROR_500, ex.getMessage());
+                sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, ex.getMessage());
             }
         }
         else {
