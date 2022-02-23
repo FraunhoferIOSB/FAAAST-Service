@@ -3,8 +3,8 @@ services:
   FA3ST:
     image: fraunhoferiosb/faaast-service
     volumes:
-      - ${PWD}/examples/demoAAS.json:/AASEnv.json
-      - ${PWD}/examples/exampleConfiguration.json:/config.json
+      - ../examples/demoAAS.json:/AASEnv.json
+      - ../examples/exampleConfiguration.json:/config.json
     environment:
       - faaast.aasEnvFilePath=AASEnv.json
       - faaast.configFilePath=config.json

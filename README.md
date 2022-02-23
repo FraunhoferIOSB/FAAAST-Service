@@ -9,8 +9,6 @@ The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools
 | Currently we publish the FA³ST Service here as <mark>BETA Version</mark> since not all functionalities fully tested yet and some internal capabilities like logging and exception handling are still missing. However, contributions like bug issues or questions are highly welcome. |
 |-----------------------------|
 
-
-<!-- GETTING STARTED -->
 ## Getting Started
 
 This is an example of how you may setting up your project locally.
@@ -50,7 +48,7 @@ Since the FA³ST Service is not yet published to maven central (we are planning 
 
 The following code starts a FA³ST Service with a HTTP endpoint on port 8080. You can use the `AASFull.json` as an example AASEnvironment or use your own AASEnvironment. Therefore, just replace the `pathToYourAASEnvironment` with the path to your file.
 ```java
-String pathToYourAASEnvironment = "{pathTo}\\FAAAST-Service\\starter\\src\\test\\resources\\AASFull.json";
+String pathToYourAASEnvironment = "{pathTo}\\FAAAST-Service\\misc\\examples\\demoAAS.json";
 Service service = new Service(
 		new ServiceConfig.Builder()
 				.core(new CoreConfig.Builder()
@@ -137,7 +135,7 @@ Following command line parameters could be used:
 
 -V, --version           Print version information and exit.
 ```
-<hr>
+
 
 ## Usage with Docker
 When using Docker there are two options to get an AAS running with FA³ST.
@@ -149,7 +147,7 @@ Clone this repository, navigate to `/misc/docker/` and run this command inside i
 ```sh
 docker-compose up -d
 ```
-To use your own AAS environment just replace the `/misc/docker/examples/demoAAS.json`. If you want to modify the configuration of the FA³ST service, change the contents of `/misc/docker/examples/exampleConfiguration.json`.
+To use your own AAS environment just replace the `/misc/examples/demoAAS.json`. If you want to modify the configuration of the FA³ST service, change the contents of `/misc/examples/exampleConfiguration.json`.
 
 ### Docker CLI
 To start the FA³ST service with an empty AAS environment execute this command.
@@ -158,7 +156,7 @@ docker run --rm -P fraunhoferiosb/faaast-service '--emptyEnvironment' '--no-mode
 ```
 To start the FA³ST service with your own AAS environment, just place the JSON-file (in this example `demoAAS.json`) containing your enviroment in the current directory, just modify the command accordingly and run it.
 ```sh
-docker run --rm -v "$(pwd)"/demoAAS.json:/AASEnv.json -e faaast.aasEnvFilePath=AASEnv.json -P fraunhoferiosb/faaast-service '--no-modelValidation'
+docker run --rm -v ../examples/demoAAS.json:/AASEnv.json -e faaast.aasEnvFilePath=AASEnv.json -P fraunhoferiosb/faaast-service '--no-modelValidation'
 ```
 Similarly to the above examples you can pass more arguments to the FA³ST service by using the CLI or a configuration file as provided in the cfg folder (use the `faaast.configFilePath` environment variable for that).
 
@@ -303,6 +301,8 @@ At first glance the evolving specification of the AAS seems pretty complex and a
 ## Roadmap
 
 We will continously expand the features of the FA³ST environment. However, we highly welcome bug reports, feature requests, code contributions, and assistance with testing. Our next steps and implementations will be:
+- Introduce Exception Handling
+- Test the FA³ST Service in production environments
 - Implement a file & database persistence in FA³ST Service
 - Expand the functionality and configuration options in the MQTT/OPCUA AssetConnections in FA³ST Service
 - Implement an AAS Registry called FA³ST Registry
