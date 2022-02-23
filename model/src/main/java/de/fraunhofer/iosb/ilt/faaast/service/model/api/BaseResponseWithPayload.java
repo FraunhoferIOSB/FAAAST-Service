@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
 import java.util.Objects;
 
+
 /**
  * Abstract base class for protocol-agnostic responses containing payload.
  */
@@ -27,9 +28,11 @@ public abstract class BaseResponseWithPayload<T> extends BaseResponse {
         return payload;
     }
 
+
     public void setPayload(T payload) {
         this.payload = payload;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -46,6 +49,7 @@ public abstract class BaseResponseWithPayload<T> extends BaseResponse {
         return Objects.equals(payload, that.payload)
                 && (getStatusCode() == that.getStatusCode());
     }
+
 
     @Override
     public int hashCode() {

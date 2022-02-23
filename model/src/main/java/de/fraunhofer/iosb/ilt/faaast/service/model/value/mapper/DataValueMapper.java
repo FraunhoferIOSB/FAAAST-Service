@@ -18,11 +18,31 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import io.adminshell.aas.v3.model.SubmodelElement;
 
 
+/**
+ * Base class for mappers between submodel elements and their corresponding
+ * value class.
+ *
+ * @param <I> type of submodel element
+ * @param <O> type if element value
+ */
 public abstract class DataValueMapper<I extends SubmodelElement, O extends ElementValue> {
 
+    /**
+     * Provides the value representation of a submodel element
+     *
+     * @param submodelElement the submodel element
+     * @return the value representation
+     */
     public abstract O toValue(I submodelElement);
 
 
+    /**
+     * Sets the value on a submodel element
+     *
+     * @param submodelElement the submodel element to set the value on
+     * @param value the value to set
+     * @return the updated submodel element with the new value
+     */
     public abstract I setValue(I submodelElement, O value);
 
 }

@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.asset;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
+
 /**
  * Represents specific asset identification information
  */
@@ -30,17 +31,21 @@ public class SpecificAssetIdentification implements AssetIdentification {
         return key;
     }
 
+
     public void setKey(String key) {
         this.key = key;
     }
+
 
     public String getValue() {
         return value;
     }
 
+
     public void setValue(String value) {
         this.value = value;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -55,10 +60,12 @@ public class SpecificAssetIdentification implements AssetIdentification {
                 && Objects.equals(value, that.value);
     }
 
+
     @Override
     public int hashCode() {
         return Objects.hash(key, value);
     }
+
 
     public static GlobalAssetIdentification.Builder builder() {
         return new GlobalAssetIdentification.Builder();
@@ -70,6 +77,7 @@ public class SpecificAssetIdentification implements AssetIdentification {
             getBuildingInstance().setKey(value);
             return getSelf();
         }
+
 
         public B value(String value) {
             getBuildingInstance().setValue(value);
@@ -83,6 +91,7 @@ public class SpecificAssetIdentification implements AssetIdentification {
         protected Builder getSelf() {
             return this;
         }
+
 
         @Override
         protected SpecificAssetIdentification newBuildingInstance() {

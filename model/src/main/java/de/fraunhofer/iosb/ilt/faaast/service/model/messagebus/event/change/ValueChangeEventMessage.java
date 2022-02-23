@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import java.util.Objects;
 
+
 /**
  * Event message indicating that the value of an element has been changed
  */
@@ -29,17 +30,21 @@ public class ValueChangeEventMessage extends ChangeEventMessage {
         return oldValue;
     }
 
+
     public void setOldValue(ElementValue oldValue) {
         this.oldValue = oldValue;
     }
+
 
     public ElementValue getNewValue() {
         return newValue;
     }
 
+
     public void setNewValue(ElementValue newValue) {
         this.newValue = newValue;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -56,6 +61,7 @@ public class ValueChangeEventMessage extends ChangeEventMessage {
         return Objects.equals(oldValue, that.oldValue)
                 && Objects.equals(newValue, that.newValue);
     }
+
 
     @Override
     public int hashCode() {

@@ -31,7 +31,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Finds available DataValue mappers and forward the request to the right class
+ * Central class for bringing together submodel elements and their corresponding
+ * value representation, e.g. supports converting submodel elements to their
+ * valeu representation and updating the value of a submodel element by
+ * providing a value representation.
  */
 public class ElementValueMapper {
 
@@ -71,13 +74,17 @@ public class ElementValueMapper {
 
 
     /**
-     * Wraps the values of the SubmodelElement into a belonging ElementValue
-     * instance
+     * Extracts the value of a
+     * {@link io.adminshell.aas.v3.model.SubmodelElement} into a corresponding
+     * {@link ElementValue} instance
      *
      * @param submodelElement for which a ElementValue should be created
      * @param <I> type of the input SubmodelElement
      * @param <O> type of the output ElementValue
-     * @return a DataElementValue for the given SubmodelElement
+     * @return a value representation of the submodel element
+     * @throws IllegalArgumentException if submodelElement is null
+     * @throws IllegalArgumentException is no mapper for type of submodelElement
+     *             can be found
      */
     public static <I extends SubmodelElement, O extends ElementValue> O toValue(SubmodelElement submodelElement) {
         init();
@@ -85,19 +92,20 @@ public class ElementValueMapper {
             throw new IllegalArgumentException("submodelElement must be non-null");
         }
         if (!mappers.containsKey(ReflectionHelper.getAasInterface(submodelElement.getClass()))) {
-            throw new RuntimeException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
+            throw new IllegalArgumentException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
         }
         return (O) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).toValue(submodelElement);
     }
 
 
     /**
-     * Set the values of the ElementValue to the SubmodelElement Utility
-     * function to determine equivalent ElementValue class for given
-     * SubmodelElement class
+     * Find the correspondig value type for a given submodel element type
      *
-     * @param elementType SubmodelElement type
-     * @return matching ElementValue class
+     * @param elementType submodel element type
+     * @return corresponding value type
+     * @throws IllegalArgumentException if submodelElement is null
+     * @throws IllegalArgumentException is no corresppnding value type can be
+     *             found
      */
     public static Class<? extends ElementValue> getValueClass(Class<? extends SubmodelElement> elementType) {
         init();
@@ -105,7 +113,7 @@ public class ElementValueMapper {
             throw new IllegalArgumentException("elementType must be non-null");
         }
         if (!mappers.containsKey(ReflectionHelper.getAasInterface(elementType))) {
-            throw new RuntimeException("no mapper defined for elementType type " + elementType.getSimpleName());
+            throw new IllegalArgumentException("no mapper defined for elementType type " + elementType.getSimpleName());
         }
         return (Class<? extends ElementValue>) TypeToken.of(mappers.get(ReflectionHelper.getAasInterface(elementType)).getClass())
                 .resolveType(DataValueMapper.class.getTypeParameters()[1])
@@ -113,6 +121,15 @@ public class ElementValueMapper {
     }
 
 
+    /**
+     * Find the correspondig submodel element type for a given value type
+     *
+     * @param valueType value type
+     * @return corresponding submodel element type
+     * @throws IllegalArgumentException if valueType is null
+     * @throws IllegalArgumentException is no corresppnding value type can be
+     *             found
+     */
     public static Class<? extends SubmodelElement> getElementClass(Class<? extends ElementValue> valueType) {
         init();
         if (valueType == null) {
@@ -127,20 +144,23 @@ public class ElementValueMapper {
                 .findFirst();
 
         if (!result.isPresent()) {
-            throw new RuntimeException("no element class defined for value type  " + valueType.getSimpleName());
+            throw new IllegalArgumentException("no element class defined for value type  " + valueType.getSimpleName());
         }
         return (Class<? extends SubmodelElement>) result.get();
     }
 
 
     /**
-     * Set the values of the DataElementValue to the SubmodelElement
+     * Sets the value of a submodel element to value provided as value
+     * representation
      *
      * @param submodelElement for which the values will be set
      * @param elementValue which contains the values for the SubmodelElement
      * @param <I> type of the input/output SubmodelElement
      * @param <O> type of the input ElementValue
      * @return the SubmodelElement instance with the ElementValue values set
+     * @throws IllegalArgumentException if submodelElement is null
+     * @throws IllegalArgumentException is no mapper for type of submodelElement
      */
     public static <I extends SubmodelElement, O extends ElementValue> I setValue(SubmodelElement submodelElement, ElementValue elementValue) {
         init();
@@ -148,7 +168,7 @@ public class ElementValueMapper {
             throw new IllegalArgumentException("submodelElement must be non-null");
         }
         if (!mappers.containsKey(ReflectionHelper.getAasInterface(submodelElement.getClass()))) {
-            throw new RuntimeException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
+            throw new IllegalArgumentException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
         }
         return (I) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).setValue(submodelElement, elementValue);
     }

@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
+
 /**
  * Abstract base class for protocol-agnostic responses.
  */
@@ -28,13 +29,16 @@ public abstract class BaseResponse implements Response {
         this.statusCode = StatusCode.ServerInternalError;
     }
 
+
     public StatusCode getStatusCode() {
         return statusCode;
     }
 
+
     public void setStatusCode(StatusCode statusCode) {
         this.statusCode = statusCode;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -47,6 +51,7 @@ public abstract class BaseResponse implements Response {
         BaseResponse that = (BaseResponse) o;
         return statusCode == that.statusCode;
     }
+
 
     @Override
     public int hashCode() {

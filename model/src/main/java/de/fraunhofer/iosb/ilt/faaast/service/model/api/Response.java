@@ -17,11 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 /**
  * A protocol-agnostic response to a {@link Request} as defined in the AAS
  * specification Part 2.
- *
  */
 public interface Response {
 
     public StatusCode getStatusCode();
+
 
     public void setStatusCode(StatusCode statusCode);
 }

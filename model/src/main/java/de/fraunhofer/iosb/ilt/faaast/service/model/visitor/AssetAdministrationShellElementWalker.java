@@ -89,6 +89,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Special kind of visitor that recursively walks the whole element structre and
+ * applies given visitors to each element.
+ */
 public class AssetAdministrationShellElementWalker implements AssetAdministrationShellElementVisitor {
 
     private static Logger logger = LoggerFactory.getLogger(AssetAdministrationShellElementWalker.class);
@@ -955,6 +959,11 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
     }
 
 
+    /**
+     * Walks the given object.
+     *
+     * @param obj object to walk, must be some element of an AAS
+     */
     public void walk(Object obj) {
         visit(obj);
     }
@@ -1030,8 +1039,17 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
         }
     }
 
+    /**
+     * Enum of supported walking modes
+     */
     public static enum WalkingMode {
+        /**
+         * Visit an element after visiting all of its subelements
+         */
         VisitAfterDescent,
+        /**
+         * Visit an element before visiting all of its subelements
+         */
         VisitBeforeDescent;
 
         public static WalkingMode DEFAULT = VisitBeforeDescent;

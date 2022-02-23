@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import java.util.Objects;
 
+
 /**
  * Event message indicating that an error has occured
  */

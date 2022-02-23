@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.Objects;
 
+
 /**
  * Abstract base class for all messages that are sent via message bus
  */
@@ -28,9 +29,11 @@ public abstract class EventMessage {
         return element;
     }
 
+
     public void setElement(Reference element) {
         this.element = element;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -43,6 +46,7 @@ public abstract class EventMessage {
         EventMessage that = (EventMessage) o;
         return Objects.equals(element, that.element);
     }
+
 
     @Override
     public int hashCode() {

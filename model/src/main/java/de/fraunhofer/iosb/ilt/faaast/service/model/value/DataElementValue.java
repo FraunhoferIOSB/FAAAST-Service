@@ -14,6 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
+/**
+ * Abstract superclass representing the value of a
+ * {@link io.adminshell.aas.v3.model.DataElement}
+ */
 public abstract class DataElementValue extends ElementValue {
 
 }

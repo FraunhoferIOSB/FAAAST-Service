@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+
 /**
  * Model class for a result.
  */
@@ -31,17 +32,21 @@ public class Result {
         return success;
     }
 
+
     public void setSuccess(boolean success) {
         this.success = success;
     }
+
 
     public List<Message> getMessage() {
         return message;
     }
 
+
     public void setMessage(List<Message> message) {
         this.message = message;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -56,10 +61,12 @@ public class Result {
                 && Objects.equals(message, result.message);
     }
 
+
     @Override
     public int hashCode() {
         return Objects.hash(success, message);
     }
+
 
     public static Builder builder() {
         return new Builder();
@@ -72,10 +79,12 @@ public class Result {
             return getSelf();
         }
 
+
         public B messages(List<Message> value) {
             getBuildingInstance().setMessage(value);
             return getSelf();
         }
+
 
         public B message(Message value) {
             getBuildingInstance().getMessage().add(value);
@@ -90,6 +99,7 @@ public class Result {
         protected Builder getSelf() {
             return this;
         }
+
 
         @Override
         protected Result newBuildingInstance() {

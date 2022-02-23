@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.operation;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
+
 /**
  * An operation handle is used to identify async operations after invocation
  */

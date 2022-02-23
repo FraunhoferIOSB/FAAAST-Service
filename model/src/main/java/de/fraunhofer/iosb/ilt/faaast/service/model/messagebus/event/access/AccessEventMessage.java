@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 
+
 /**
  * Abstract base class for all access event messages that are sent via message bus
  */

@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+
 /**
  * Model class representing a message.
  */
@@ -34,33 +35,41 @@ public class Message {
         return messageType;
     }
 
+
     public void setMessageType(MessageType messageType) {
         this.messageType = messageType;
     }
+
 
     public String getText() {
         return text;
     }
 
+
     public void setText(String text) {
         this.text = text;
     }
+
 
     public List<String> getCode() {
         return code;
     }
 
+
     public void setCode(List<String> code) {
         this.code = code;
     }
+
 
     public List<Date> getTimestamp() {
         return timestamp;
     }
 
+
     public void setTimestamp(List<Date> timestamp) {
         this.timestamp = timestamp;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -74,10 +83,12 @@ public class Message {
         return messageType == message.messageType && Objects.equals(text, message.text) && Objects.equals(code, message.code) && Objects.equals(timestamp, message.timestamp);
     }
 
+
     @Override
     public int hashCode() {
         return Objects.hash(messageType, text, code, timestamp);
     }
+
 
     public static Builder builder() {
         return new Builder();
@@ -90,25 +101,30 @@ public class Message {
             return getSelf();
         }
 
+
         public B text(String value) {
             getBuildingInstance().setText(value);
             return getSelf();
         }
+
 
         public B codes(List<String> value) {
             getBuildingInstance().setCode(value);
             return getSelf();
         }
 
+
         public B code(String value) {
             getBuildingInstance().getCode().add(value);
             return getSelf();
         }
 
+
         public B timestamps(List<Date> value) {
             getBuildingInstance().setTimestamp(value);
             return getSelf();
         }
+
 
         public B timestamp(Date value) {
             getBuildingInstance().getTimestamp().add(value);
@@ -123,6 +139,7 @@ public class Message {
         protected Builder getSelf() {
             return this;
         }
+
 
         @Override
         protected Message newBuildingInstance() {

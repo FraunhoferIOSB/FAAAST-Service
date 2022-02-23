@@ -17,7 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 import java.util.stream.Stream;
 
 
-// TODO implement all data types
+/**
+ * Datatypes defined in AAS specification
+ */
 public enum Datatype {
     String("string", StringValue.class),
     Boolean("boolean", BooleanValue.class),
@@ -25,6 +27,7 @@ public enum Datatype {
     Integer("integer", IntegerValue.class),
     Double("double", DoubleValue.class),
     Float("float", FloatValue.class),
+    // TODO implement all data types
     //    Date,
     //    Time,
     //    DateTime,
@@ -39,8 +42,7 @@ public enum Datatype {
     Byte("byte", ByteValue.class),
     Short("short", ShortValue.class),
     Int("int", IntValue.class),
-    Long("long", LongValue.class),
-    //    UnsignedByte,
+    Long("long", LongValue.class), //    UnsignedByte,
     //    UnsignedShort,
     //    UnsignedInt,
     //    UnsignedLong,
@@ -56,11 +58,18 @@ public enum Datatype {
 
     public static final Datatype DEFAULT = Datatype.String;
 
+    /**
+     * Finds datatype from string. Matching is case-sensitive. If no match is
+     * found, {@link Datatype#DEFAULT} is returned.
+     *
+     * @param name name of datatype as defined in AAS specification
+     * @return matching datatype if found, else {@link Datatype#DEFAULT}
+     */
     public static Datatype fromName(String name) {
         return Stream.of(Datatype.values())
                 .filter(x -> x.getName().equals(name))
                 .findAny()
-                .orElse(Datatype.String);
+                .orElse(DEFAULT);
     }
 
     private final Class<? extends TypedValue> implementation;

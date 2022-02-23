@@ -18,13 +18,36 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 
+/**
+ * Utility class to create new instances of {@link TypedValue}
+ */
 public class TypedValueFactory {
 
+    /**
+     * Creates a new {@link TypedValue} instance based on datatype and
+     * string-based value. If datatypeName is unknown, type default to string.
+     *
+     * @param datatypeName name of the datatype
+     * @param value
+     * @return typed value representation
+     * @throws ValueFormatException if value cannot be converted to datatype
+     */
     public static TypedValue<?> create(String datatypeName, String value) throws ValueFormatException {
         return create(Datatype.fromName(datatypeName), value);
     }
 
 
+    /**
+     * Creates a new {@link TypedValue} instance based on datatype and
+     * string-based value.
+     *
+     * @param datatype datatype to use
+     * @param value
+     * @return typed value representation
+     * @throws IllegalArgumentException if datatype is null
+     * @throws ValueFormatException if value cannot be converted to datatype
+     * @throws RuntimeException if instantiating new class fails
+     */
     public static TypedValue<?> create(Datatype datatype, String value) throws ValueFormatException {
         if (datatype == null) {
             throw new IllegalArgumentException("datatype most be non-null");
