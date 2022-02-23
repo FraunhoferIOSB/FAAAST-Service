@@ -100,20 +100,8 @@ public class Message {
         }
 
 
-        public B codes(String value) {
-            getBuildingInstance().setCode(value);
-            return getSelf();
-        }
-
-
         public B code(String value) {
             getBuildingInstance().setCode(value);
-            return getSelf();
-        }
-
-
-        public B timestamps(Date value) {
-            getBuildingInstance().setTimestamp(value);
             return getSelf();
         }
 
