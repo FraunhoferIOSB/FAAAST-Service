@@ -32,10 +32,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
@@ -84,7 +82,7 @@ public class RequestHandler extends AbstractHandler {
         }
         catch (InvalidRequestException | IllegalArgumentException ex) {
             //ex.printStackTrace();
-            sendErrorResponse(response, HttpStatus.BAD_REQUEST_400, ex.getMessage());
+            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, ex.getMessage());
             baseRequest.setHandled(true);
             return;
         }
@@ -99,24 +97,28 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    private void sendErrorResponse(HttpServletResponse response, int httpStatusCode, String errorMessage) throws IOException {
+    /**
+     * Send result/error response which includes result object including message object
+     *
+     * @param response http response object
+     * @param httpStatusCode http status code
+     * @param errorMessage clear text error message
+     */
+    private void sendResultResponse(HttpServletResponse response, int httpStatusCode, String errorMessage) throws IOException {
         if (errorMessage.isEmpty())
             errorMessage = HttpStatus.getMessage(httpStatusCode);
-        List<Date> dateList = new ArrayList<Date>();
-        dateList.add(new Date());
         Message message = Message.builder()
                 .text(errorMessage)
                 .success(MessageType.Error)
                 .code(HttpStatus.getMessage(httpStatusCode))
-                .timestamps(dateList)
+                .timestamp(new Date())
                 .build();
         Result result = Result.builder()
                 .message(message)
                 .success(false)
                 .build();
-        //send(response, httpStatusCode, errorMessage);
         try {
-            send(response, httpStatusCode, serializer.write(result), "application/json");
+            sendJson(response, httpStatusCode, serializer.write(result));
         }
         catch (SerializationException ex) {
             send(response, httpStatusCode, errorMessage, "text/plain");
@@ -127,17 +129,17 @@ public class RequestHandler extends AbstractHandler {
     private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request apiRequest) throws IOException, SerializationException {
         // TODO forward output modifier to serializer
         if (apiRequest == null) {
-            sendErrorResponse(response, HttpStatus.BAD_REQUEST_400, "");
+            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, "");
             return;
         }
         Response apiResponse = serviceContext.execute(apiRequest);
         if (apiResponse == null) {
-            sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, "");
+            sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, "");
             return;
         }
         int statusCode = HttpHelper.toHttpStatusCode(apiResponse.getStatusCode());
-        if (statusCode != HttpStatus.OK_200) {
-            sendErrorResponse(response, statusCode, HttpStatus.getMessage((statusCode)));
+        if (!apiResponse.getResult().getSuccess() || !HttpStatus.isSuccess(statusCode)) {
+            sendResultResponse(response, statusCode, HttpStatus.getMessage((statusCode)));
         }
         else if (BaseResponseWithPayload.class.isAssignableFrom(apiResponse.getClass())) {
             try {
@@ -151,7 +153,7 @@ public class RequestHandler extends AbstractHandler {
                 }
             }
             catch (SerializationException ex) {
-                sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, ex.getMessage());
+                sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, ex.getMessage());
             }
         }
         else {
