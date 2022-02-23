@@ -10,7 +10,7 @@
 </a>
 </p>
 
-The **F**raunhofer **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service implements the [Asset Administration Shell (AAS) specification from the platform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and built up an easy-to-use Web Service based on a custom AAS model instance. If you are not familiar with AAS have a look [here](#about-the-project).
+The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service implements the [Asset Administration Shell (AAS) specification from the platform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and built up an easy-to-use Web Service based on a custom AAS model instance. If you are not familiar with AAS have a look [here](#about-the-project).
 
 | Currently we publish the FA³ST Service here as <mark>BETA Version</mark> since not all functionalities fully tested yet and some internal capabilities like logging and exception handling are still missing. However, contributions like bug issues or questions are highly welcome. |
 |-----------------------------|
