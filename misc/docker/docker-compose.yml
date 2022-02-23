@@ -1,0 +1,14 @@
+version: '3.4'
+services:
+  FA3ST:
+    image: fraunhoferiosb/faaast-service
+    volumes:
+      - ${PWD}/examples/demoAAS.json:/AASEnv.json
+      - ${PWD}/examples/exampleConfiguration.json:/config.json
+    environment:
+      - faaast.aasEnvFilePath=AASEnv.json
+      - faaast.configFilePath=config.json
+    ports:
+      - 8080:8080
+    command: --no-modelValidation
+

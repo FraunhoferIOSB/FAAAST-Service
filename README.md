@@ -142,6 +142,29 @@ Following command line parameters could be used:
 <hr>
 <p>
 
+## Usage with Docker
+When using Docker there are two options to get an AAS running with FA³ST.
+
+<mark>Currently the model validation is deactivated in all examples</mark>
+
+### Docker-Compose
+Clone this repository, navigate to `/misc/docker/` and run this command inside it.
+```sh
+docker-compose up -d
+```
+To use your own AAS environment just replace the `/cfg/DemoAAS.json`. If you want to modify the configuration of the FA³ST service, change the contents of `/cfg/FA3ST_service_config.json`. 
+
+### Docker CLI
+To start the FA³ST service with an empty AAS environment execute this command.
+```sh
+docker run --rm -P fraunhoferiosb/faaast-service '--emptyEnvironment' '--no-modelValidation'
+```
+To start the FA³ST service with your own AAS environment, just place the JSON-file (in this example `myDemoAAS.json`) containing your enviroment in the current directory, just modify the command accordingly and run it. 
+```sh
+docker run --rm -v "$(pwd)"/myDemoAAS.json:/AASEnv.json -e faaast.aasEnvFilePath=AASEnv.json -P fraunhoferiosb/faaast-service '--no-modelValidation'
+```
+Similarly to the above examples you can pass more arguments to the FA³ST service by using the CLI or a configuration file as provided in the cfg folder (use the `faaast.configFilePath` environment variable for that).
+
 <!-- FEATURES -->
 ## Components
 <!-- HTTP-ENDPOINT -->
