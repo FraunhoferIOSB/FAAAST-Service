@@ -56,14 +56,12 @@ public abstract class BaseResponse implements Response {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
+        if (this == o)
             return true;
-        }
-        if (o == null || getClass() != o.getClass() || getResult() != ((BaseResponse) o).getResult()) {
+        if (o == null || getClass() != o.getClass())
             return false;
-        }
         BaseResponse that = (BaseResponse) o;
-        return statusCode == that.statusCode;
+        return statusCode == that.statusCode && Objects.equals(result, that.result);
     }
 
 
@@ -76,6 +74,12 @@ public abstract class BaseResponse implements Response {
 
         public B statusCode(StatusCode value) {
             getBuildingInstance().setStatusCode(value);
+            return getSelf();
+        }
+
+
+        public B result(Result value) {
+            getBuildingInstance().setResult(value);
             return getSelf();
         }
     }

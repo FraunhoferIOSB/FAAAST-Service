@@ -344,4 +344,5 @@ public class HttpEndpointTest {
         List<SubmodelElement> actual = deserializer.readList(new String(response.getContent()), SubmodelElement.class);
         Assert.assertEquals(expected, actual);
     }
+
 }
