@@ -18,11 +18,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
+import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,13 +37,36 @@ public class AssetConnectionManager {
 
     private List<AssetConnection> connections;
     private final CoreConfig coreConfig;
-    private final ServiceContext context;
+    private final ServiceContext serviceContext;
 
     public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections, ServiceContext context) throws ConfigurationException {
         this.coreConfig = coreConfig;
         this.connections = connections != null ? connections : new ArrayList<>();
-        this.context = context;
+        this.serviceContext = context;
         validateConnections();
+        for (var assetConnection: connections) {
+            final Map<Reference, AssetSubscriptionProvider> subscriptionProviders = assetConnection.getSubscriptionProviders();
+            for (var subscriptionInfo: subscriptionProviders.entrySet()) {
+                try {
+                    subscriptionInfo.getValue().addNewDataListener(new NewDataListener() {
+                        @Override
+                        public void newDataReceived(DataElementValue data) {
+                            serviceContext.execute(SetSubmodelElementValueByPathRequest.builder()
+                                    .id(new DefaultIdentifier.Builder()
+                                            .identifier(subscriptionInfo.getKey().getKeys().get(0).getValue())
+                                            .idType(IdentifierType.IRI)
+                                            .build())
+                                    .path(subscriptionInfo.getKey().getKeys().subList(1, subscriptionInfo.getKey().getKeys().size()))
+                                    .value(data)
+                                    .build());
+                        }
+                    });
+                }
+                catch (AssetConnectionException ex) {
+                    Logger.getLogger(AssetConnectionManager.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
     }
 
 
@@ -52,7 +81,7 @@ public class AssetConnectionManager {
      */
     public void add(AssetConnectionConfig<? extends AssetConnection, ? extends AssetValueProviderConfig, ? extends AssetOperationProviderConfig, ? extends AssetSubscriptionProviderConfig> connectionConfig)
             throws ConfigurationException {
-        AssetConnection newConnection = (AssetConnection) connectionConfig.newInstance(coreConfig, context);
+        AssetConnection newConnection = (AssetConnection) connectionConfig.newInstance(coreConfig, serviceContext);
         if (connections.stream().anyMatch(x -> Objects.equals(x, newConnection))) {
             AssetConnection connection = connections.stream().filter(x -> Objects.equals(x, newConnection)).findFirst().get();
             connectionConfig.getValueProviders().forEach((k, v) -> {

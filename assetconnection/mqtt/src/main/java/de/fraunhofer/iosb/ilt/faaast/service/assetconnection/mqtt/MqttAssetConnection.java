@@ -39,7 +39,7 @@ public class MqttAssetConnection
     private final Map<Reference, AssetOperationProvider> operationProviders;
     private final Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
     private MqttClient client;
-    private ServiceContext context;
+    private ServiceContext serviceContext;
 
     public MqttAssetConnection() {
         this.valueProviders = new HashMap<>();
@@ -64,9 +64,15 @@ public class MqttAssetConnection
 
 
     @Override
-    public void init(CoreConfig coreConfig, MqttAssetConnectionConfig config, ServiceContext context) throws AssetConnectionException {
+    public void init(CoreConfig coreConfig, MqttAssetConnectionConfig config, ServiceContext serviceContext) throws AssetConnectionException {
+        if (config == null) {
+            throw new IllegalArgumentException("config must be non-null");
+        }
+        if (serviceContext == null) {
+            throw new IllegalArgumentException("serviceContext must be non-null");
+        }
         this.config = config;
-        this.context = context;
+        this.serviceContext = serviceContext;
         try {
             client = new MqttClient(config.getServerUri(), config.getClientId(), new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
@@ -169,7 +175,7 @@ public class MqttAssetConnection
                                 .create(subscriptionProviderConfig.getContentFormat())
                                 .read(new String(mqttMessage.getPayload()),
                                         subscriptionProviderConfig.getQuery(),
-                                        context.getTypeInfo(reference)));
+                                        serviceContext.getTypeInfo(reference)));
                     }
 
 
