@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 
+
 /**
  * Superclass of all classes that can be created by a correspondig configuration
  * class.
@@ -35,12 +36,13 @@ public interface Configurable<T extends Config> {
      */
     public void init(CoreConfig coreConfig, T config, ServiceContext serviceContext) throws Exception;
 
+
     /**
      * Returns an instance of the corresponding configuration class representing
      * the state this object.
      *
      * @return an instance of the corresponding configuration class representing
-     * the state this object.
+     *         the state this object.
      */
     public T asConfig();
 }
