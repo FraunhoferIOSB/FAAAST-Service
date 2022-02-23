@@ -37,10 +37,18 @@ import java.util.stream.Collectors;
 
 
 /**
- * Class to handle referable elements
+ * Class to handle {@link io.adminshell.aas.v3.model.Referable}
  */
 public class ReferablePersistenceManager extends PersistenceManager {
 
+    /**
+     * Get a submodel element by its reference
+     *
+     * @param reference of the submodel element
+     * @param modifier of the return value
+     * @return the searched submodel or null
+     * @throws ResourceNotFoundException
+     */
     public SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier) throws ResourceNotFoundException {
         if (reference == null || reference.getKeys() == null || modifier == null || this.aasEnvironment == null) {
             return null;
@@ -61,7 +69,22 @@ public class ReferablePersistenceManager extends PersistenceManager {
     }
 
 
-    public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId) {
+    /**
+     * Get the submodel elements associated to the reference.
+     * Supported are two possible parents of submodel elements:
+     * <p>
+     * <ul>
+     * <li>{@link io.adminshell.aas.v3.model.Submodel}
+     * <li>{@link io.adminshell.aas.v3.model.SubmodelElementCollection}
+     * </ul>
+     * <p>
+     * If the semanticId is not null the submodel element list filtered by the semantic id
+     *
+     * @param reference to the submodel or submodel element collection
+     * @param semanticId of the submodel elements
+     * @return a list of the submodel elements associated to the parent reference
+     */
+    public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId) throws ResourceNotFoundException {
         if (reference == null) {
             return null;
         }
@@ -74,7 +97,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
             if (lastKeyElementOfReference == KeyElements.SUBMODEL) {
                 Submodel submodel = AasUtils.resolve(reference, this.aasEnvironment, Submodel.class);
                 if (submodel == null) {
-                    return null;
+                    throw new ResourceNotFoundException(String.format("Resource not found with reference {}", AasUtils.asString(reference)));
                 }
                 Submodel deepCopiedSubmodel = DeepCopyHelper.deepCopy(submodel, submodel.getClass());
                 submodelElements = deepCopiedSubmodel.getSubmodelElements();
@@ -83,7 +106,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
             else if (lastKeyElementOfReference == KeyElements.SUBMODEL_ELEMENT_COLLECTION) {
                 SubmodelElementCollection submodelElementCollection = AasUtils.resolve(reference, this.aasEnvironment, SubmodelElementCollection.class);
                 if (submodelElementCollection == null) {
-                    return null;
+                    throw new ResourceNotFoundException(String.format("Resource not found with reference {}", AasUtils.asString(reference)));
                 }
                 SubmodelElementCollection deepCopiedSubmodelElementCollection = DeepCopyHelper.deepCopy(submodelElementCollection, submodelElementCollection.getClass());
                 submodelElements = new ArrayList<>(deepCopiedSubmodelElementCollection.getValues());
@@ -101,7 +124,24 @@ public class ReferablePersistenceManager extends PersistenceManager {
     }
 
 
-    public SubmodelElement putSubmodelElement(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) {
+    /**
+     * Create or update a submodel element.
+     * Parent reference and reference of the submodel element must not both be null.
+     * Otherwise the location of the submodel element cannot be determined.
+     * Supported parent references could be references to a
+     * <ul>
+     * <li>{@link io.adminshell.aas.v3.model.Submodel} or to a
+     * <li>{@link io.adminshell.aas.v3.model.SubmodelElementCollection}
+     * </ul>
+     * To add a new submodel element give the parent reference and the submodel element.
+     * To update an existing submodel element give the reference to the submodel element and the submodel element.
+     *
+     * @param parent reference to the parent
+     * @param referenceToSubmodelElement reference to the submodel element
+     * @param submodelElement which should be updated or created
+     * @return the updated or created submodel element
+     */
+    public SubmodelElement putSubmodelElement(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException {
         if ((parent == null && referenceToSubmodelElement == null) || submodelElement == null) {
             return null;
         }
@@ -129,7 +169,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
         if (lastKeyElementOfParent == KeyElements.SUBMODEL) {
             Submodel submodel = AasUtils.resolve(parent, this.aasEnvironment, Submodel.class);
             if (submodel == null) {
-                return null;
+                throw new ResourceNotFoundException(String.format("Resource not found with reference {}", AasUtils.asString(parent)));
             }
             submodel.getSubmodelElements().removeIf(filter);
             submodel.getSubmodelElements().add(submodelElement);
@@ -138,7 +178,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
         else if (lastKeyElementOfParent == KeyElements.SUBMODEL_ELEMENT_COLLECTION) {
             SubmodelElementCollection submodelElementCollection = AasUtils.resolve(parent, this.aasEnvironment, SubmodelElementCollection.class);
             if (submodelElementCollection == null) {
-                return null;
+                throw new ResourceNotFoundException(String.format("Resource not found with reference {}", AasUtils.asString(parent)));
             }
             submodelElementCollection.getValues().removeIf(filter);
             submodelElementCollection.getValues().add(submodelElement);
@@ -150,7 +190,12 @@ public class ReferablePersistenceManager extends PersistenceManager {
     }
 
 
-    public void remove(Reference reference) {
+    /**
+     * Remove a {@link io.adminshell.aas.v3.model.Referable}
+     *
+     * @param reference of the referable which should be removed
+     */
+    public void remove(Reference reference) throws ResourceNotFoundException {
         if (reference == null) {
             return;
         }
@@ -169,13 +214,17 @@ public class ReferablePersistenceManager extends PersistenceManager {
 
             Referable referable = AasUtils.resolve(reference, this.aasEnvironment);
 
+            if (referable == null) {
+                throw new ResourceNotFoundException(String.format("Resource not found with reference {}", AasUtils.asString(reference)));
+            }
+
             if (reference.getKeys().size() > 1) {
                 Reference parent = new DefaultReference.Builder()
                         .keys(reference.getKeys().subList(0, reference.getKeys().size() - 1))
                         .build();
                 Referable parentReferable = AasUtils.resolve(parent, this.aasEnvironment);
 
-                Method method = EnvironmentHelper.getGetListMethod(clazz, parentReferable);
+                Method method = EnvironmentHelper.getGetReferableListMethod(clazz, parentReferable);
                 if (method != null) {
                     try {
                         List<Referable> referableList = (List<Referable>) method.invoke(parentReferable);

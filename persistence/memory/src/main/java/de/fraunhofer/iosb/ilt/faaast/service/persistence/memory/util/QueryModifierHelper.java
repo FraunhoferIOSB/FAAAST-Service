@@ -26,11 +26,26 @@ import java.util.List;
 import java.util.function.Predicate;
 
 
+/**
+ * Helper class to apply query modifier
+ */
 public class QueryModifierHelper {
 
     private QueryModifierHelper() {}
 
 
+    /**
+     * Apply the {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier} to a list of referables
+     * Consider the {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend} and
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level} of a query modifier
+     * If the extend of the query modifier is "WithoutBlobValue" all submodel elements of type
+     * {@link io.adminshell.aas.v3.model.Blob} are removed.
+     * If the level of the query modifier is "Core" all underlying submodel element collection values are removed.
+     *
+     * @param referableList which should be adapted by the query modifier
+     * @param modifier which should be applied
+     * @param <T>
+     */
     public static <T extends Referable> void applyQueryModifier(List<T> referableList, QueryModifier modifier) {
         if (referableList == null) {
             return;
@@ -41,6 +56,17 @@ public class QueryModifierHelper {
     }
 
 
+    /**
+     * Apply the {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier} to a referable
+     * Consider the {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend} and
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level} of a query modifier
+     * If the extend of the query modifier is "WithoutBlobValue" all submodel elements of type
+     * {@link io.adminshell.aas.v3.model.Blob} are removed.
+     * If the level of the query modifier is "Core" all underlying submodel element collection values are removed.
+     *
+     * @param referable which should be adapted by the query modifier
+     * @param modifier which should be applied
+     */
     public static void applyQueryModifier(Referable referable, QueryModifier modifier) {
         if (referable == null || modifier == null) {
             return;
