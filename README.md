@@ -1,14 +1,9 @@
 
 # FA³ST Service
 
-<p align="center">
-<a href="https://iosb.fraunhofer.de/#gh-light-mode-only" target="_blank">
-	<img src="./documentation/images/Fa3st-Service_positiv.png" alt="FA³ST Service Logo" width="350" >
-</a>
-<a href="https://iosb.fraunhofer.de/#gh-dark-mode-only" target="_blank">
-	<img src="./documentation/images/Fa3st-Service_negativ.png" alt="FA³ST Service Logo" width="350">
-</a>
-</p>
+![FA³ST Logo Light](./documentation/images/Fa3st-Service_positiv.png/#gh-light-mode-only "FA³ST Service Logo")
+
+![FA³ST Logo Dark](./documentation/images/Fa3st-Service_negativ.png/#gh-dark-mode-only "FA³ST Service Logo")
 
 The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service implements the [Asset Administration Shell (AAS) specification from the platform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and built up an easy-to-use Web Service based on a custom AAS model instance. If you are not familiar with AAS have a look [here](#about-the-project).
 
