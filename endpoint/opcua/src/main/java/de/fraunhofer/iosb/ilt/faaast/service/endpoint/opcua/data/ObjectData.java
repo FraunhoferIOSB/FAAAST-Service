@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.data;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data;
 
 import com.prosysopc.ua.types.opcua.BaseObjectType;
 import io.adminshell.aas.v3.model.Referable;

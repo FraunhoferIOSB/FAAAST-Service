@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.helper;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper;
 
 import com.prosysopc.ua.ApplicationIdentity;
 import com.prosysopc.ua.SecureIdentityException;
@@ -41,7 +41,7 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.ReferenceDescription;
 import com.prosysopc.ua.stack.core.RelativePath;
 import com.prosysopc.ua.stack.core.RelativePathElement;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.prosys.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import io.adminshell.aas.v3.model.Qualifier;
 import java.io.IOException;
 import java.net.UnknownHostException;

@@ -26,7 +26,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
+import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.List;
 import java.util.Objects;
@@ -51,15 +53,16 @@ public class SetSubmodelElementValueByPathRequestMapper extends RequestMapper {
     @Override
     public Request parse(HttpRequest httpRequest) {
         final List<Key> path = ElementPathHelper.toKeys(EncodingHelper.urlDecode(httpRequest.getPathElements().get(4)));
+        final Identifier identifier = IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1)));
         return SetSubmodelElementValueByPathRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
+                .id(identifier)
                 .path(path)
                 .value(httpRequest.getBody())
                 .valueParser(new ElementValueParser<Object>() {
                     @Override
                     public <U extends ElementValue> U parse(Object raw, Class<U> type) throws DeserializationException {
                         if (ElementValue.class.isAssignableFrom(type)) {
-                            return deserializer.readValue(raw.toString(), serviceContext.getTypeInfo(ElementPathHelper.toReference(path)));
+                            return deserializer.readValue(raw.toString(), serviceContext.getTypeInfo(ElementPathHelper.toReference(path, identifier, Submodel.class)));
                         }
                         else if (SubmodelElement.class.isAssignableFrom(type)) {
                             SubmodelElement submodelElement = (SubmodelElement) deserializer.read(raw.toString(), type);
