@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInter
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASSimple;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -49,6 +50,6 @@ public class TestService extends Service {
                 new PersistenceInMemory(),
                 new MessageBusInternal(),
                 List.of(endpoint),
-                assetConnection != null ? List.of(assetConnection) : null);
+                assetConnection != null ? List.of(assetConnection) : new ArrayList<>());
     }
 }
