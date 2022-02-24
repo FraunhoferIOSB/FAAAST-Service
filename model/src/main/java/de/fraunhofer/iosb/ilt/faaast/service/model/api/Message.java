@@ -88,7 +88,7 @@ public class Message {
 
     private static abstract class AbstractBuilder<T extends Message, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B success(MessageType value) {
+        public B messageType(MessageType value) {
             getBuildingInstance().setMessageType(value);
             return getSelf();
         }

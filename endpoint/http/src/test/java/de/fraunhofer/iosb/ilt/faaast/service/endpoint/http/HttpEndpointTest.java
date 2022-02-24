@@ -354,7 +354,7 @@ public class HttpEndpointTest {
                 .build());
         Message message = Message.builder()
                 .text(HttpStatus.getMessage(500))
-                .success(MessageType.Error)
+                .messageType(MessageType.Error)
                 .code(HttpStatus.getMessage(500))
                 .timestamp(new Date())
                 .build();
@@ -373,7 +373,7 @@ public class HttpEndpointTest {
     public void testResultBadRequest() throws Exception {
         Message message = Message.builder()
                 .text("no matching request mapper found")
-                .success(MessageType.Error)
+                .messageType(MessageType.Error)
                 .code(HttpStatus.getMessage(400))
                 .timestamp(new Date())
                 .build();
@@ -397,7 +397,7 @@ public class HttpEndpointTest {
         Identifier id = new DefaultIdentifier();
         Message message = Message.builder()
                 .text(HttpStatus.getMessage(404))
-                .success(MessageType.Error)
+                .messageType(MessageType.Error)
                 .code(HttpStatus.getMessage(404))
                 .timestamp(new Date())
                 .build();

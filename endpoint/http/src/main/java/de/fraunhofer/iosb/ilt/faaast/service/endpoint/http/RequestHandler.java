@@ -82,7 +82,7 @@ public class RequestHandler extends AbstractHandler {
         }
         catch (InvalidRequestException | IllegalArgumentException ex) {
             //ex.printStackTrace();
-            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, ex.getMessage());
+            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, MessageType.Error, ex.getMessage());
             baseRequest.setHandled(true);
             return;
         }
@@ -104,24 +104,24 @@ public class RequestHandler extends AbstractHandler {
      * @param httpStatusCode http status code
      * @param errorMessage clear text error message
      */
-    private void sendResultResponse(HttpServletResponse response, int httpStatusCode, String errorMessage) throws IOException {
+    private void sendResultResponse(HttpServletResponse response, int httpStatusCode, MessageType messageType, String errorMessage) throws IOException {
         if (errorMessage.isEmpty())
             errorMessage = HttpStatus.getMessage(httpStatusCode);
         Message message = Message.builder()
+                .messageType(messageType)
                 .text(errorMessage)
-                .success(MessageType.Error)
-                .code(HttpStatus.getMessage(httpStatusCode))
+                .code(HttpStatus.getMessage(httpStatusCode)) // Technology-dependent status or error code
                 .timestamp(new Date())
                 .build();
         Result result = Result.builder()
-                .message(message)
                 .success(false)
+                .message(message)
                 .build();
         try {
             sendJson(response, httpStatusCode, serializer.write(result));
         }
         catch (SerializationException ex) {
-            send(response, httpStatusCode, errorMessage, "text/plain");
+            send(response, httpStatusCode, errorMessage);
         }
     }
 
@@ -129,17 +129,17 @@ public class RequestHandler extends AbstractHandler {
     private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request apiRequest) throws IOException, SerializationException {
         // TODO forward output modifier to serializer
         if (apiRequest == null) {
-            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, "");
+            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, MessageType.Error, "");
             return;
         }
         Response apiResponse = serviceContext.execute(apiRequest);
         if (apiResponse == null) {
-            sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, "");
+            sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, MessageType.Error, "");
             return;
         }
         int statusCode = HttpHelper.toHttpStatusCode(apiResponse.getStatusCode());
         if (!apiResponse.getResult().getSuccess() || !HttpStatus.isSuccess(statusCode)) {
-            sendResultResponse(response, statusCode, HttpStatus.getMessage((statusCode)));
+            sendResultResponse(response, statusCode, MessageType.Error, HttpStatus.getMessage((statusCode)));
         }
         else if (BaseResponseWithPayload.class.isAssignableFrom(apiResponse.getClass())) {
             try {
@@ -153,7 +153,7 @@ public class RequestHandler extends AbstractHandler {
                 }
             }
             catch (SerializationException ex) {
-                sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, ex.getMessage());
+                sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, MessageType.Exception, ex.getMessage());
             }
         }
         else {
