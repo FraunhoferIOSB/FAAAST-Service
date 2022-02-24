@@ -4,16 +4,16 @@
 ![FA³ST Logo Light](./documentation/images/Fa3st-Service_positiv.png/#gh-light-mode-only "FA³ST Service Logo")
 ![FA³ST Logo Dark](./documentation/images/Fa3st-Service_negativ.png/#gh-dark-mode-only "FA³ST Service Logo")
 
-The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service implements the [Asset Administration Shell (AAS) specification from the platform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and built up an easy-to-use Web Service based on a custom AAS model instance. If you are not familiar with AAS have a look [here](#about-the-project).
+The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service implements the [Asset Administration Shell (AAS) specification from the platform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and builds an easy-to-use web service based on a custom AAS model instance. If you are not familiar with AAS have a look [here](#about-the-project).
 
-| Currently we publish the FA³ST Service here as <mark>BETA Version</mark> since not all functionalities fully tested yet and some internal capabilities like logging and exception handling are still missing. However, contributions like bug issues or questions are highly welcome. |
+| We are currently releasing the FA³ST service here as a <mark>BETA version</mark> because not all functionalities have been fully tested and some internal capabilities such as logging and exception handling are still missing. However, contributions like bug issues or questions are highly welcome. |
 |-----------------------------|
 
 ## Getting Started
 
-This is an example of how you may setting up your project locally.
+This is an example of how to set up your project locally.
 To get a local copy up and running follow these simple example steps.
-To compile FA³ST-Service you need to have a JDK and Maven installed.
+To compile the FA³ST service you need to have a JDK and Maven installed.
 
 ### Installation
 
