@@ -15,11 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.Serializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.ModifierAwareSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -52,6 +54,15 @@ public class JsonSerializer implements Serializer {
         }
         if (obj != null && ElementValue.class.isAssignableFrom(obj.getClass())) {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());
+        }
+        if (obj != null && Result.class.isAssignableFrom(obj.getClass())) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                return mapper.writeValueAsString(obj);
+            }
+            catch (JsonProcessingException ex) {
+                throw new SerializationException("serialization failed", ex);
+            }
         }
         try {
             JsonMapper mapper = wrapper.getMapper();
