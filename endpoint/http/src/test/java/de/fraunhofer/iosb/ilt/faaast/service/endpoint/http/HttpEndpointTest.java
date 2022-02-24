@@ -233,6 +233,45 @@ public class HttpEndpointTest {
 
 
     @Test
+    public void testDoubleQueryValue() throws Exception {
+        String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
+        when(serviceContext.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
+                .statusCode(StatusCode.Success)
+                .payload(null)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort) +
+                "/submodel/submodel-elements/ExampleRelationshipElement?level=normal&level=deep");
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+    }
+
+
+    @Test
+    public void testMissingQueryValue() throws Exception {
+        String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
+        when(serviceContext.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
+                .statusCode(StatusCode.Success)
+                .payload(null)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort) +
+                "/submodel/submodel-elements/ExampleRelationshipElement?level=normal&content=");
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+    }
+
+
+    @Test
+    public void testBogusAndMissingQueryValue() throws Exception {
+        String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
+        when(serviceContext.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
+                .statusCode(StatusCode.Success)
+                .payload(null)
+                .build());
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort) +
+                "/submodel/submodel-elements/ExampleRelationshipElement?level=normal&bogus");
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+    }
+
+
+    @Test
     public void testWrongResponse() throws Exception {
         when(serviceContext.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
                 .statusCode(StatusCode.Success)
