@@ -17,7 +17,7 @@ To compile the FA³ST service you need to have a JDK and Maven installed.
 
 ### Installation
 
-The following commands will build the most recent version of the FA³ST-Service from git main. The compiled package will then be in the "[module]/target" directory.
+The following commands will build the most recent version of the FA³ST-Service from git main. The compiled package is then located in the "[module]/target" directory.
 ```sh
 git clone https://github.com/FraunhoferIOSB/FAAAST-Service
 cd FAAAST-Service
@@ -25,14 +25,14 @@ mvn package
 ```
 Alternatively, use `mvn install` instead of `mvn package` to build a SNAPSHOT jar and then copy it into your local repository, so that you can use it in your Maven projects.
 
-To start the Service from command line do following commands.
+To start the Service from command line use the following commands.
 ```sh
 cd /starter
 mvn clean package
 cd /target
 java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
 ```
-For further information of using the command line see [here](#usage-with-command-line).
+For further information on using the command line see [here](#usage-with-command-line).
 
 ### Example
 
@@ -62,7 +62,7 @@ service.setAASEnvironment(new AASEnvironmentFactory()
 		.getAASEnvironment(pathToYourAASEnvironment));
 service.start();
 ```
-Afterwards, you can reach the running FA³ST Service with `http://localhost:8080/shells`.
+Afterwards, you can reach the running FA³ST Service via `http://localhost:8080/shells`.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -185,7 +185,7 @@ The FA³ST Service can be easily configurated by a config file when starting via
 }
 ```
 
-In the following code snippet you see how to create a `ServiceConfig` object which you need to instantiate a service:
+The following code snippet shows how to create a `ServiceConfig` object which is required to instantiate a service:
 ```java
 ServiceConfig serviceConfig = new ServiceConfig.Builder()
 	.core(new CoreConfig.Builder()
@@ -341,10 +341,10 @@ We will continously expand the features of the FA³ST environment. However, we h
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions are **greatly appreciated**.
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue.
-Don't forget to give the project a star! Thanks again!
+If you have a suggestion for improvements, please fork the repo and create a pull request. You can also simply open an issue.
+Don't forget to rate the project! Thanks again!
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
