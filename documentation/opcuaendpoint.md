@@ -17,7 +17,39 @@ You can purchase a [Prosys OPC UA License](https://www.prosysopc.com/products/op
 
 For evaluation purposes, you also have the possibility to request an [evaluation license](https://www.prosysopc.com/products/opc-ua-java-sdk/evaluate).
 
-##### Supported Functions
+In order to use the OPC UA Endpoint, the configuration settings require to include an OPC UA Endpoint configuration, like the one below:
+```json
+{
+	"endpoints": [
+		{
+			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint",
+			"tcpPort" : 18123,
+			"secondsTillShutdown" : 5
+		}
+	]
+}
+```
+
+"tcpPort" is the desired Port for the OPC UA TCP Protocol (opc.tcp).
+"secondsTillShutdown" is the number of seconds the server waits for clients to disconnect when stopping the Endpoint.
+When the Endpoint is stopped, the server sends a predefined event to all connected clients, that the OPC UA Server is about to shutdown. Now, the OPC UA Server waits the given number of seconds before he stops, to give the clients the possibility to disconnect from the Server.
+When "secondsTillShutdown" is 0, the Endpoint doesn't wait and stops immediately.
+
+To connect to the OPC UA Endpoint, you need an OPC UA Client.
+Here are some examples of OPC UA Clients:
+* [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html)
+UaExpert is a free test client for OPC UA. A registration for the website is required.
+* [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/)
+Free Java-based OPC UA Client. A registration for the website is required.
+* [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples)
+C#-based sample code from the OPC Foundation.
+* [Eclipse Milo](https://github.com/eclipse/milo)
+Java-based Open Source SDK for Java.
+
+Here you can see a sample Screenshot with UaExpert.
+![Screenshot with UaExpert](./images/OpcUaEndpoint.png/ "Screenshot with UaExpert")
+
+## Supported Functions
 * Operations (OPC UA method calls). Exception: Inoutput-Variables are not supported in OPC UA.
 * Write Values
 	* Property
@@ -38,7 +70,7 @@ For evaluation purposes, you also have the possibility to request an [evaluation
 	* GlobalAssetID
 		* Type
 
-##### Not (yet) Supported Functions
+## Not (yet) Supported Functions
 * Events (not yet supported)
 * Write Values (not yet supported)
 	* DataSpecifications

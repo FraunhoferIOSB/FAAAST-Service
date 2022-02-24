@@ -198,7 +198,7 @@ ServiceConfig serviceConfig = new ServiceConfig.Builder()
 ```
 
 
-### HTTP-Endpoint Interface
+### HTTP Endpoint
 Here you get a short introduction about the HTTP Endpoint of the FA³ST Service. To get all capabilities check the [full documentation](./documentation/httpendpoint.md).
 
 The HTTP-Endpoint allows accessing data and execute operations within the FA³ST-Service via REST-API.
@@ -222,7 +222,7 @@ In order to use the HTTP-Endpoint the configuration settings require to include 
 ```
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### HTTP Example
+### HTTP Endpoint - How to Access
 Sample HTTP-Call for Operation _GetSubmodelElementByPath_ (returns a specific submodel element from the Submodel at a specified path) using the parameters
 - _submodelIdentifier_: https://acplt.org/Test_Submodel (must be base64URL-encoded)
 - _idShortPath_: ExampleRelationshipElement (must be URL-encoded)
@@ -250,7 +250,7 @@ http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/sub
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### OPC UA Endpoint Interface
+### OPC UA Endpoint
 Here you get a short introduction about the OPCUA Endpoint of the FA³ST Service. To get all capabilities check the [full documentation](./documentation/opcuaendpoint.md).
 
 The OPC UA Endpoint allows accessing data and execute operations within the FA³ST-Service via OPC UA.
@@ -283,10 +283,8 @@ In order to use the OPC UA Endpoint, the configuration settings require to inclu
 }
 ```
 
-"tcpPort" is the desired Port for the OPC UA TCP Protocol (opc.tcp).
-"secondsTillShutdown" is the number of seconds the server waits for clients to disconnect when stopping the Endpoint.
-When the Endpoint is stopped, the server sends a predefined event to all connected clients, that the OPC UA Server is about to shutdown. Now, the OPC UA Server waits the given number of seconds before he stops, to give the clients the possibility to disconnect from the Server.
-When "secondsTillShutdown" is 0, the Endpoint doesn't wait and stops immediately.
+- `tcpPort` is the desired Port for the OPC UA TCP Protocol (opc.tcp).
+- `secondsTillShutdown` is the number of seconds the server waits for clients to disconnect when stopping the Endpoint. When the Endpoint is stopped, the server sends a predefined event to all connected clients, that the OPC UA Server is about to shutdown. Now, the OPC UA Server waits the given number of seconds before he stops, to give the clients the possibility to disconnect from the Server. When `secondsTillShutdown` is 0, the Endpoint doesn't wait and stops immediately.
 
 To connect to the OPC UA Endpoint, you need an OPC UA Client.
 Here are some examples of OPC UA Clients:
@@ -298,9 +296,6 @@ Free Java-based OPC UA Client. A registration for the website is required.
 C#-based sample code from the OPC Foundation.
 * [Eclipse Milo](https://github.com/eclipse/milo)
 Java-based Open Source SDK for Java.
-
-Here you can see a sample Screenshot with UaExpert.
-![Screenshot with UaExpert](./documentation/images/OpcUaEndpoint.png/ "Screenshot with UaExpert")
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -326,6 +321,16 @@ Furthermore, the AAS covers all stages of the lifecycle of an asset starting in 
 
 To guarantee the interoperability of assets Industie 4.0 defines an information metamodel for the AAS covering all important aspects as type/instance concept, events, redefined data specification templates, security aspects, mapping of data formats and many more. Moreover interfaces and operations for a registry, a repository, publish and discovery are specified.
 At first glance the evolving specification of the AAS seems pretty complex and a challenging task for asset providers. To make things easier to FA³ST provides an implementation of several tools to allow easy and fast creation and management of AAS-compliant Digital Twins.
+
+### Recommended Documents/Links
+* [Asset Administration Shell Specifications](https://www.plattform-i40.de/IP/Redaktion/EN/Standardartikel/specification-administrationshell.html) <br />
+Quicklinks To Different Versions & Reading Guide
+* [Details of the Asset Administration Shell - Part 1](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html), Nov 2021 <br />
+The publication states how companies can use the Asset Administration Shell to compile and structure information. In this way all information can be shared as a package (set of files) with partners at several levels of the value chain. It is not necessary to provide online access to this data from the very beginning.
+* [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), Nov 2021 <br />
+This part extends Part 1 and defines how information provided in the Asset Administration Shell (AAS) (e.g. submodels or properties) can be accessed dynamically via Application Programming Interfaces (APIs).
+* [About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/) <br />
+* [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -368,15 +373,22 @@ and check the generated report in the directory `./documentation/third_party_lic
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## Recommended Documents/Links
-* [Asset Administration Shell Specifications](https://www.plattform-i40.de/IP/Redaktion/EN/Standardartikel/specification-administrationshell.html) <br />
-Quicklinks To Different Versions & Reading Guide
-* [Details of the Asset Administration Shell - Part 1](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html), Nov 2021 <br />
-The publication states how companies can use the Asset Administration Shell to compile and structure information. In this way all information can be shared as a package (set of files) with partners at several levels of the value chain. It is not necessary to provide online access to this data from the very beginning.
-* [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), Nov 2021 <br />
-This part extends Part 1 and defines how information provided in the Asset Administration Shell (AAS) (e.g. submodels or properties) can be accessed dynamically via Application Programming Interfaces (APIs).
-* [About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/) <br />
-* [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/)
+## Contributors
+
+| Name | Github Account |
+|:--| -- |
+| Michael Jacoby | [mjacoby](https://github.com/mjacoby) |
+| Jens Müller | [JensMueller2709](https://github.com/JensMueller2709) |
+| Klaus Schick | [schick64](https://github.com/schick64) |
+| Tino Bischoff | [tbischoff2](https://github.com/tbischoff2) |
+| Friedrich Volz | [fvolz](https://github.com/fvolz) |
+
+## Contact
+
+Michael Jacoby <br>
+Jens Müller<br>
+
+faaast@iosb.fraunhofer.de
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -387,18 +399,5 @@ Distributed under the Apache 2.0 License. See `LICENSE` for more information.
 Copyright (C) 2022 Fraunhofer Institut IOSB, Fraunhoferstr. 1, D 76131 Karlsruhe, Germany.
 
 You should have received a copy of the Apache 2.0 License along with this program. If not, see https://www.apache.org/licenses/LICENSE-2.0.html.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-## Contact
-
-Michael Jacoby <br>
-michael.jacoby@iosb.fraunhofer.de
-
-Jens Mueller<br>
-jens.mueller@iosb.fraunhofer.de
-
-Klaus Schick<br>
-klaus.schick@iosb.fraunhofer.de
 
 <p align="right">(<a href="#top">back to top</a>)</p>
