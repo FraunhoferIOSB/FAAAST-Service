@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.Submodel;
@@ -62,7 +63,7 @@ public class SetSubmodelElementValueByPathRequestMapper extends RequestMapper {
                     @Override
                     public <U extends ElementValue> U parse(Object raw, Class<U> type) throws DeserializationException {
                         if (ElementValue.class.isAssignableFrom(type)) {
-                            return deserializer.readValue(raw.toString(), serviceContext.getTypeInfo(ElementPathHelper.toReference(path, identifier, Submodel.class)));
+                            return deserializer.readValue(raw.toString(), serviceContext.getTypeInfo(ReferenceHelper.toReference(path, identifier, Submodel.class)));
                         }
                         else if (SubmodelElement.class.isAssignableFrom(type)) {
                             SubmodelElement submodelElement = (SubmodelElement) deserializer.read(raw.toString(), type);

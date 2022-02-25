@@ -22,12 +22,20 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 
 
+/**
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelElementByPathRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelElementByPathResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class DeleteSubmodelElementByPathRequestHandler extends RequestHandler<DeleteSubmodelElementByPathRequest, DeleteSubmodelElementByPathResponse> {
 
     public DeleteSubmodelElementByPathRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
@@ -40,7 +48,7 @@ public class DeleteSubmodelElementByPathRequestHandler extends RequestHandler<De
         DeleteSubmodelElementByPathResponse response = new DeleteSubmodelElementByPathResponse();
 
         try {
-            Reference reference = ElementPathHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+            Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
             SubmodelElement submodelElement = persistence.get(reference, new QueryModifier());
             persistence.remove(reference);
             response.setStatusCode(StatusCode.Success);

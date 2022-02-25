@@ -22,6 +22,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.GenerateSerialization
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 
 
+/**
+ * Not supported yet!
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GenerateSerializationByIdsRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GenerateSerializationByIdsResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class GenerateSerializationByIdsRequestHandler extends RequestHandler<GenerateSerializationByIdsRequest, GenerateSerializationByIdsResponse> {
 
     public GenerateSerializationByIdsRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {

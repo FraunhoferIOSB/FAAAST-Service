@@ -83,6 +83,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.ConceptDescription;
@@ -201,7 +202,7 @@ public class RequestMappingManagerTest {
     public void testDeleteSubmodelElementByPath() throws SerializationException, InvalidRequestException {
         Request expected = DeleteSubmodelElementByPathRequest.builder()
                 .id(SUBMODEL.getIdentification())
-                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.DELETE)
@@ -505,7 +506,7 @@ public class RequestMappingManagerTest {
         final String handleId = UUID.randomUUID().toString();
         Request expected = GetOperationAsyncResultRequest.builder()
                 .handleId(handleId)
-                .path(ElementPathHelper.extractElementPath(OPERATION_REF))
+                .path(ReferenceHelper.toKeys(OPERATION_REF))
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -547,7 +548,7 @@ public class RequestMappingManagerTest {
     public void testGetSubmodelElementByPath() throws InvalidRequestException {
         Request expected = GetSubmodelElementByPathRequest.builder()
                 .id(SUBMODEL.getIdentification())
-                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .outputModifier(new OutputModifier.Builder()
                         .level(Level.Deep)
                         .build())
@@ -580,7 +581,7 @@ public class RequestMappingManagerTest {
     public void testInvokeOperationAsync_Normal() throws SerializationException, InvalidRequestException {
         Request expected = InvokeOperationAsyncRequest.builder()
                 .id(SUBMODEL.getIdentification())
-                .path(ElementPathHelper.extractElementPath(OPERATION_REF))
+                .path(ReferenceHelper.toKeys(OPERATION_REF))
                 .inputArguments(OPERATION.getInputVariables())
                 .inoutputArguments(OPERATION.getInoutputVariables())
                 .content(Content.Normal)
@@ -602,7 +603,7 @@ public class RequestMappingManagerTest {
     public void testInvokeOperationAsync_Value() throws SerializationException, InvalidRequestException {
         Request expected = InvokeOperationAsyncRequest.builder()
                 .id(SUBMODEL.getIdentification())
-                .path(ElementPathHelper.extractElementPath(OPERATION_REF))
+                .path(ReferenceHelper.toKeys(OPERATION_REF))
                 .inputArguments(OPERATION.getInputVariables())
                 .inoutputArguments(OPERATION.getInoutputVariables())
                 .content(Content.Value)
@@ -624,7 +625,7 @@ public class RequestMappingManagerTest {
     public void testInvokeOperationSync_Normal() throws SerializationException, InvalidRequestException {
         Request expected = InvokeOperationSyncRequest.builder()
                 .id(SUBMODEL.getIdentification())
-                .path(ElementPathHelper.extractElementPath(OPERATION_REF))
+                .path(ReferenceHelper.toKeys(OPERATION_REF))
                 .inputArguments(OPERATION.getInputVariables())
                 .inoutputArguments(OPERATION.getInoutputVariables())
                 .content(Content.Normal)
@@ -645,7 +646,7 @@ public class RequestMappingManagerTest {
     public void testInvokeOperationSync_Value() throws SerializationException, InvalidRequestException {
         Request expected = InvokeOperationSyncRequest.builder()
                 .id(SUBMODEL.getIdentification())
-                .path(ElementPathHelper.extractElementPath(OPERATION_REF))
+                .path(ReferenceHelper.toKeys(OPERATION_REF))
                 .inputArguments(OPERATION.getInputVariables())
                 .inoutputArguments(OPERATION.getInoutputVariables())
                 .content(Content.Value)
@@ -774,7 +775,7 @@ public class RequestMappingManagerTest {
     public void testPostSubmodelElementByPath() throws SerializationException, InvalidRequestException {
         Request expected = PostSubmodelElementByPathRequest.builder()
                 .id(SUBMODEL.getIdentification())
-                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .submodelElement(SUBMODEL_ELEMENT)
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -912,7 +913,7 @@ public class RequestMappingManagerTest {
     public void testPutSubmodelElementByPath() throws SerializationException, InvalidRequestException {
         Request expected = PutSubmodelElementByPathRequest.builder()
                 .id(SUBMODEL.getIdentification())
-                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .submodelElement(SUBMODEL_ELEMENT)
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -929,7 +930,7 @@ public class RequestMappingManagerTest {
     public void testSetSubmodelElementValueByPath_ContentNormal() throws SerializationException, InvalidRequestException, Exception {
         SetSubmodelElementValueByPathRequest expected = SetSubmodelElementValueByPathRequest.<String> builder()
                 .id(SUBMODEL.getIdentification())
-                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
         when(serviceContext.getTypeInfo(any())).thenReturn(TypeExtractor.extractTypeInfo(SUBMODEL_ELEMENT));
         Request temp = mappingManager.map(HttpRequest.builder()
@@ -950,7 +951,7 @@ public class RequestMappingManagerTest {
     public void testSetSubmodelElementValueByPath_ContentValueOnly() throws SerializationException, InvalidRequestException, Exception {
         SetSubmodelElementValueByPathRequest expected = SetSubmodelElementValueByPathRequest.<String> builder()
                 .id(SUBMODEL.getIdentification())
-                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
         when(serviceContext.getTypeInfo(any())).thenReturn(TypeExtractor.extractTypeInfo(SUBMODEL_ELEMENT));
         Request temp = mappingManager.map(HttpRequest.builder()

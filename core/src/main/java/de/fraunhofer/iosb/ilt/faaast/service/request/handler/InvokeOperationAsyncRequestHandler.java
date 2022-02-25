@@ -27,7 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
@@ -37,6 +37,14 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 
+/**
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationAsyncRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationAsyncResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
 
     public InvokeOperationAsyncRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
@@ -49,7 +57,7 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
         InvokeOperationAsyncResponse response = new InvokeOperationAsyncResponse();
 
         try {
-            Reference reference = ElementPathHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+            Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
             //Check if submodelelement does exist
             Operation operation = (Operation) persistence.get(reference, new OutputModifier());
             OperationHandle operationHandle = executeOperationAsync(reference, request);

@@ -15,26 +15,49 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
+import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
+import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
+import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
+/**
+ * Helper class with methods to handle with
+ * <p>
+ * <ul>
+ * <li>{@link io.adminshell.aas.v3.model.Reference}
+ * <li>{@link io.adminshell.aas.v3.model.Key}
+ * </ul>
+ * <p>
+ */
 public class ReferenceHelper {
 
     private ReferenceHelper() {}
 
 
+    /**
+     * Compares a reference and a list of keys to equality.
+     * Ignores the key types of the keys of both parameters.
+     *
+     * @param reference parameter 1
+     * @param keys parameter 2
+     * @return true if the reference contains the same keys as in the specified list and vice versa. Otherwise, false.
+     */
     public static boolean isEqualsIgnoringKeyType(Reference reference, List<Key> keys) {
         if (reference == null || reference.getKeys() == null || keys == null) {
             if (reference == null && keys == null) {
@@ -53,6 +76,14 @@ public class ReferenceHelper {
     }
 
 
+    /**
+     * Compares two references to equality.
+     * Ignores the key types of the keys of both parameters.
+     *
+     * @param reference parameter 1
+     * @param reference1 parameter 2
+     * @return true if both references contains the same keys. Otherwise, false.
+     */
     public static boolean isEqualsIgnoringKeyType(Reference reference, Reference reference1) {
         return isEqualsIgnoringKeyType(reference, reference1.getKeys());
     }
@@ -66,6 +97,16 @@ public class ReferenceHelper {
     }
 
 
+    /**
+     * Browse the keys of a reference and try to find the referenced element in the
+     * asset administration shell environment to set the right {@link io.adminshell.aas.v3.model.KeyElements}
+     * of the key.
+     * All key types must be null or SUBMODEL_ELEMENT.
+     *
+     * @param reference with keys which should be completed
+     * @param env the asset administration shell environment which contains the referenced elements
+     * @throws ResourceNotFoundException if an element referenced by a key could not be found
+     */
     public static void completeReferenceWithProperKeyElements(Reference reference, AssetAdministrationShellEnvironment env) throws ResourceNotFoundException {
         if (reference == null) {
             return;
@@ -138,5 +179,105 @@ public class ReferenceHelper {
                 throw new ResourceNotFoundException("Resource with ID " + k.getValue() + " was not found!");
             }
         }
+    }
+
+
+    /**
+     * Converts a submodel element reference to a list of keys.
+     * Each key in the list have the general key element "SUBMODEL_ELEMENT"
+     *
+     * @param submodelElementRef reference of the submodel element
+     * @return the list of keys
+     */
+    public static List<Key> toKeys(Reference submodelElementRef) {
+        return submodelElementRef.getKeys().stream()
+                .filter(x -> SubmodelElement.class.isAssignableFrom(AasUtils.keyTypeToClass(x.getType())))
+                .map(x -> {
+                    x.setType(KeyElements.SUBMODEL_ELEMENT);
+                    return x;
+                })
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Converst a list of key to a reference
+     *
+     * @param keys which are converted to a reference
+     * @return the reference with the keys
+     */
+    public static Reference toReference(List<Key> keys) {
+        return new DefaultReference.Builder()
+                .keys(keys)
+                .build();
+    }
+
+
+    /**
+     * Combines a list of keys of a child element with a parent to a reference
+     *
+     * @param keys of the child
+     * @param parentId of the parent
+     * @param parentClass type of the parent
+     * @return the full reference to the child element
+     */
+    public static Reference toReference(List<Key> keys, Identifier parentId, Class<?> parentClass) {
+        Reference parentReference = toReference(parentId, parentClass);
+        Reference childReference = new DefaultReference.Builder()
+                .keys(keys)
+                .build();
+        return toReference(parentReference, childReference);
+    }
+
+
+    /**
+     * Combine a parent reference and a child reference to one reference
+     *
+     * @param parentReference reference of the parent
+     * @param childReference reference of the child
+     * @return the combined reference
+     */
+    public static Reference toReference(Reference parentReference, Reference childReference) {
+        List<Key> keys = new ArrayList<>(parentReference.getKeys());
+        childReference.getKeys().forEach(x -> {
+            if (!keys.contains(x)) {
+                keys.add(x);
+            }
+        });
+        return new DefaultReference.Builder()
+                .keys(keys)
+                .build();
+    }
+
+
+    /**
+     * Create a reference for an {@link io.adminshell.aas.v3.model.Identifiable}
+     * with KeyType IRI
+     *
+     * @param id of the identifiable
+     * @param clazz of the identifiable
+     * @return reference of the identifiable
+     */
+    public static Reference toReference(Identifier id, Class<?> clazz) {
+        return new DefaultReference.Builder()
+                .keys(List.of(new DefaultKey.Builder()
+                        .value(id.getIdentifier())
+                        .type(referableToKeyType(clazz))
+                        .idType(KeyType.IRI)
+                        .build()))
+                .build();
+    }
+
+
+    /**
+     * Get the corresponding {@link KeyElements}
+     * to the given class
+     *
+     * @param clazz to convert to a KeyElement
+     * @return the corresponding KeyElement of the class
+     */
+    public static KeyElements referableToKeyType(Class<?> clazz) {
+        Class<?> aasInterface = ReflectionHelper.getAasInterface(clazz);
+        return aasInterface != null ? KeyElements.valueOf(AasUtils.deserializeEnumName(aasInterface.getSimpleName())) : null;
     }
 }

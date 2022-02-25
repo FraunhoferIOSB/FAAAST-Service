@@ -22,13 +22,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElem
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 
 
+/**
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class PostSubmodelElementRequestHandler extends RequestHandler<PostSubmodelElementRequest, PostSubmodelElementResponse> {
 
     public PostSubmodelElementRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
@@ -40,7 +48,7 @@ public class PostSubmodelElementRequestHandler extends RequestHandler<PostSubmod
     public PostSubmodelElementResponse process(PostSubmodelElementRequest request) {
         PostSubmodelElementResponse response = new PostSubmodelElementResponse();
         try {
-            Reference parentReference = ElementPathHelper.toReference(request.getId(), Submodel.class);
+            Reference parentReference = ReferenceHelper.toReference(request.getId(), Submodel.class);
             Reference childReference = AasUtils.toReference(parentReference, request.getSubmodelElement());
             SubmodelElement submodelElement = persistence.put(parentReference, null, request.getSubmodelElement());
             response.setPayload(submodelElement);

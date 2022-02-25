@@ -34,6 +34,15 @@ import java.util.List;
 import java.util.Set;
 
 
+/**
+ * An implementation of a persistence inherits from this interface.
+ * The persistence manages create, read, update and delete actions with the element in the corresponding
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}.
+ * Each persistence instance needs one instance of an Asset Administration Shell Environment.
+ * There can only be one running instance of a persistence implementation.
+ *
+ * @param <T> type of the corresponding configuration class
+ */
 public interface Persistence<T extends PersistenceConfig> extends Configurable<T> {
 
     /**

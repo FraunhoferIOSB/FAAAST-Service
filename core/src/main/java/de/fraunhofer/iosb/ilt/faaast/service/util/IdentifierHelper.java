@@ -21,6 +21,9 @@ import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import java.util.regex.Pattern;
 
 
+/**
+ * Helper class for handling values of {@link io.adminshell.aas.v3.model.Identifier}
+ */
 public class IdentifierHelper {
     private static final Pattern IRI_PATTERN = Pattern.compile(
             "^(?:(?:https?|ftp):\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?!10(?:\\.\\d{1,3}){3})(?!127(?:\\.\\d{1,3}){3})(?!169\\.254(?:\\.\\d{1,3}){2})(?!192\\.168(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\x{00a1}-\\x{ffff}0-9]+-?)*[a-z\\x{00a1}-\\x{ffff}0-9]+)(?:\\.(?:[a-z\\x{00a1}-\\x{ffff}0-9]+-?)*[a-z\\x{00a1}-\\x{ffff}0-9]+)*(?:\\.(?:[a-z\\x{00a1}-\\x{ffff}]{2,})))(?::\\d{2,5})?(?:\\/[^\\s]*)?$",
@@ -34,6 +37,13 @@ public class IdentifierHelper {
     }
 
 
+    /**
+     * Guess the identifier type out of a value of an {@link io.adminshell.aas.v3.model.Identifier}.
+     * Supported IdentifierTypes: IRDI, IRI, CUSTOM
+     *
+     * @param value of the identifier
+     * @return the guessed identifier type
+     */
     public static IdentifierType guessIdentifierType(String value) {
         if (IRDI_PATTERN.matcher(value).matches()) {
             return IdentifierType.IRDI;
@@ -45,6 +55,13 @@ public class IdentifierHelper {
     }
 
 
+    /**
+     * Guess the key type out of a value of an {@link io.adminshell.aas.v3.model.Identifier}.
+     * Supported key types: IRDI, IRI, FRAGMENT_ID, ID_SHORT, CUSTOM
+     *
+     * @param value of the identifier
+     * @return the guessed key type
+     */
     public static KeyType guessKeyType(String value) {
         if (IRDI_PATTERN.matcher(value).matches()) {
             return KeyType.IRDI;
@@ -62,6 +79,12 @@ public class IdentifierHelper {
     }
 
 
+    /**
+     * Create a {@link io.adminshell.aas.v3.model.Identifier} out of an identifier value
+     *
+     * @param value of the identifier
+     * @return the parsed identifier with a guessed id type
+     */
     public static Identifier parseIdentifier(String value) {
         return new DefaultIdentifier.Builder()
                 .identifier(value)

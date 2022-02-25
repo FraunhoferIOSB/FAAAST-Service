@@ -21,7 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelElementsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
@@ -29,6 +29,14 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.List;
 
 
+/**
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelElementsRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class GetAllSubmodelElementsRequestHandler extends RequestHandler<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
 
     public GetAllSubmodelElementsRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
@@ -40,7 +48,7 @@ public class GetAllSubmodelElementsRequestHandler extends RequestHandler<GetAllS
     public GetAllSubmodelElementsResponse process(GetAllSubmodelElementsRequest request) {
         GetAllSubmodelElementsResponse response = new GetAllSubmodelElementsResponse();
         try {
-            Reference reference = ElementPathHelper.toReference(request.getId(), Submodel.class);
+            Reference reference = ReferenceHelper.toReference(request.getId(), Submodel.class);
             List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, null, request.getOutputModifier());
             readValueFromAssetConnectionAndUpdatePersistence(reference, submodelElements);
             response.setPayload(submodelElements);

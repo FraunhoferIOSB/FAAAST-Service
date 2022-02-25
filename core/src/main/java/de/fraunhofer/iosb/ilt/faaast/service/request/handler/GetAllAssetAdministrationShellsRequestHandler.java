@@ -26,6 +26,14 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import java.util.List;
 
 
+/**
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class GetAllAssetAdministrationShellsRequestHandler extends RequestHandler<GetAllAssetAdministrationShellsRequest, GetAllAssetAdministrationShellsResponse> {
 
     public GetAllAssetAdministrationShellsRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {

@@ -20,6 +20,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 
+/**
+ * Helper class for handling exceptions in lambda expressions
+ */
 public class LambdaExceptionHelper {
 
     @FunctionalInterface
