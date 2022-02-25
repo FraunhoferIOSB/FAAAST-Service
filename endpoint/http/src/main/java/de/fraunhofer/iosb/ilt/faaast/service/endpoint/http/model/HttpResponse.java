@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
+/**
+ * Abstraction of concrete HTTP response.
+ */
 public class HttpResponse extends HttpMessage {
 
     private String url;

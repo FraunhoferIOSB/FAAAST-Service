@@ -15,17 +15,19 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 
+/**
+ * Model class representing a message.
+ */
 public class Message {
+
     private MessageType messageType;
     private String text;
-    private List<String> code = new ArrayList<>();
-    private List<Date> timestamp = new ArrayList<>();
+    private String code;
+    private Date timestamp;
 
     public MessageType getMessageType() {
         return messageType;
@@ -47,32 +49,34 @@ public class Message {
     }
 
 
-    public List<String> getCode() {
+    public String getCode() {
         return code;
     }
 
 
-    public void setCode(List<String> code) {
+    public void setCode(String code) {
         this.code = code;
     }
 
 
-    public List<Date> getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
 
-    public void setTimestamp(List<Date> timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         Message message = (Message) o;
         return messageType == message.messageType && Objects.equals(text, message.text) && Objects.equals(code, message.code) && Objects.equals(timestamp, message.timestamp);
     }
@@ -90,7 +94,7 @@ public class Message {
 
     private static abstract class AbstractBuilder<T extends Message, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B success(MessageType value) {
+        public B messageType(MessageType value) {
             getBuildingInstance().setMessageType(value);
             return getSelf();
         }
@@ -102,26 +106,14 @@ public class Message {
         }
 
 
-        public B codes(List<String> value) {
+        public B code(String value) {
             getBuildingInstance().setCode(value);
             return getSelf();
         }
 
 
-        public B code(String value) {
-            getBuildingInstance().getCode().add(value);
-            return getSelf();
-        }
-
-
-        public B timestamps(List<Date> value) {
-            getBuildingInstance().setTimestamp(value);
-            return getSelf();
-        }
-
-
         public B timestamp(Date value) {
-            getBuildingInstance().getTimestamp().add(value);
+            getBuildingInstance().setTimestamp(value);
             return getSelf();
         }
 

@@ -19,7 +19,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 
 
+/**
+ * Converts values from OPC UA types to AAS types
+ */
 public interface OpcUaToAasValueConverter {
 
+    /**
+     * Converts a given OPC UA-based value to an AAS-based value.
+     *
+     * @param value OPC UA-based input value
+     * @param targetType AAS-based target type
+     * @return AAS-compliant value
+     * @throws ValueConversionException if conversion fails
+     */
     public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException;
 }

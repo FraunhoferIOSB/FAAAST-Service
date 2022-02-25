@@ -19,7 +19,11 @@ import java.util.List;
 import java.util.Objects;
 
 
+/**
+ * Model class for package description
+ */
 public class PackageDescription {
+
     private String packageId;
     private List<Identifier> aasId;
 
@@ -45,10 +49,12 @@ public class PackageDescription {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PackageDescription that = (PackageDescription) o;
         return Objects.equals(packageId, that.packageId) && Objects.equals(aasId, that.aasId);
     }

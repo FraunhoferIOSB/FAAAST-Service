@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
@@ -45,6 +46,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Central class of the FA³ST Service accumulating and connecting all different
+ * components.
+ */
 public class Service implements ServiceContext {
 
     private static Logger logger = LoggerFactory.getLogger(Service.class);
@@ -56,6 +61,24 @@ public class Service implements ServiceContext {
     private Persistence persistence;
     private RequestHandlerManager requestHandler;
 
+    /**
+     * Creates a new instance of {@link Service}
+     *
+     * @param coreConfig core configuration
+     * @param aasEnvironment AAS environment
+     * @param persistence persistence implementation
+     * @param messageBus message bus implementation
+     * @param endpoints endpoints
+     * @param assetConnections asset connections
+     * @throws IllegalArgumentException if coreConfig is null
+     * @throws IllegalArgumentException if aasEnvironment is null
+     * @throws IllegalArgumentException if persistence is null
+     * @throws IllegalArgumentException if messageBus is null
+     * @throws IllegalArgumentException if creating a deep copy of
+     *             aasEnvironment fails
+     * @throws ConfigurationException the configuration the
+     *             {@link AssetConnectionManager} fails
+     */
     public Service(CoreConfig coreConfig,
             AssetAdministrationShellEnvironment aasEnvironment,
             Persistence persistence,
@@ -85,8 +108,7 @@ public class Service implements ServiceContext {
             this.aasEnvironment = DeepCopyHelper.deepCopy(aasEnvironment);
         }
         catch (SerializationException | DeserializationException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("Could not deep copy AAS Environment");
+            throw new IllegalArgumentException("Could not deep copy AAS Environment", e);
         }
         this.config = ServiceConfig.builder()
                 .core(coreConfig)
@@ -98,6 +120,13 @@ public class Service implements ServiceContext {
     }
 
 
+    /**
+     * Creates a new instance of {@link Service}
+     *
+     * @param config service configuration
+     * @throws IllegalArgumentException if config is null
+     * @throws ConfigurationException if invalid configuration is provided
+     */
     public Service(ServiceConfig config) throws ConfigurationException {
         if (config == null) {
             throw new IllegalArgumentException("config must be non-null");
@@ -107,6 +136,7 @@ public class Service implements ServiceContext {
     }
 
 
+    @Override
     public Response execute(Request request) {
         if (request == null) {
             throw new IllegalArgumentException("request must be non-null");
@@ -145,6 +175,15 @@ public class Service implements ServiceContext {
     }
 
 
+    /**
+     * Executes a request asynchroniously
+     *
+     * @param request request to execute
+     * @param callback callback handler that is called when execution if
+     *            finished
+     * @throws IllegalArgumentException if request is null
+     * @throws IllegalArgumentException if callback is null
+     */
     public void executeAsync(Request request, Consumer<Response> callback) {
         if (request == null) {
             throw new IllegalArgumentException("request must be non-null");
@@ -152,7 +191,6 @@ public class Service implements ServiceContext {
         if (callback == null) {
             throw new IllegalArgumentException("callback must be non-null");
         }
-        callback.accept(null);
         this.requestHandler.executeAsync(request, callback);
     }
 
@@ -183,6 +221,13 @@ public class Service implements ServiceContext {
     }
 
 
+    /**
+     * Starts the service. This includes starting the message bus and endpoints.
+     *
+     * @throws IllegalArgumentException if AAS environment is null/has not been
+     *             properly initialized
+     * @throws Exception when starting failed
+     */
     public void start() throws Exception {
         logger.info("Get command for starting FA³ST Service");
         if (this.aasEnvironment == null) {
@@ -199,6 +244,10 @@ public class Service implements ServiceContext {
     }
 
 
+    /**
+     * Stop the service. This includes stopping the message bus and all
+     * endpoints
+     */
     public void stop() {
         logger.info("Get command for stopping FA³ST Service");
         messageBus.stop();
@@ -208,11 +257,11 @@ public class Service implements ServiceContext {
 
     private void init() throws ConfigurationException {
         if (config.getPersistence() == null) {
-            throw new IllegalArgumentException("config.persistence must be non-null");
+            throw new InvalidConfigurationException("config.persistence must be non-null");
         }
         persistence = (Persistence) config.getPersistence().newInstance(config.getCore(), this);
         if (config.getMessageBus() == null) {
-            throw new IllegalArgumentException("config.messagebus must be non-null");
+            throw new InvalidConfigurationException("config.messagebus must be non-null");
         }
         messageBus = (MessageBus) config.getMessageBus().newInstance(config.getCore(), this);
         if (config.getAssetConnections() != null) {

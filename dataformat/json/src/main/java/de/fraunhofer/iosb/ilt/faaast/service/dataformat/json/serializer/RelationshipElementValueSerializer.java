@@ -24,6 +24,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValu
 import java.io.IOException;
 
 
+/**
+ * Serializer for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue}
+ */
 public class RelationshipElementValueSerializer extends StdSerializer<RelationshipElementValue> {
 
     public RelationshipElementValueSerializer() {

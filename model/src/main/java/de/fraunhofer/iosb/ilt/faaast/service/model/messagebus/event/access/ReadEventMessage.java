@@ -13,5 +13,7 @@
  * limitations under the License.
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access;
-
+/**
+ * Abstract base class for all read event messages that are sent via message bus
+ */
 public abstract class ReadEventMessage extends AccessEventMessage {}

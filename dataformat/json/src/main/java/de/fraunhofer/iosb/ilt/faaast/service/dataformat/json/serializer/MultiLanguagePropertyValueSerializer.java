@@ -22,6 +22,10 @@ import io.adminshell.aas.v3.model.LangString;
 import java.io.IOException;
 
 
+/**
+ * Serializer for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue}
+ */
 public class MultiLanguagePropertyValueSerializer extends StdSerializer<MultiLanguagePropertyValue> {
 
     public MultiLanguagePropertyValueSerializer() {

@@ -29,24 +29,68 @@ public interface Serializer {
 
     public Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
+    /**
+     * Serializes given obj as string
+     *
+     * @param obj object to serialize
+     * @param modifier output modifier defining how to serialize
+     * @return string serialization of obj
+     * @throws SerializationException if serialization fails
+     */
     public String write(Object obj, OutputModifier modifier) throws SerializationException;
 
 
+    /**
+     * Serializes given obj as string using
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}
+     *
+     * @param obj object to serialize
+     * @return string serialization of obj
+     * @throws SerializationException if serialization fails
+     */
     public default String write(Object obj) throws SerializationException {
         return write(obj, OutputModifier.DEFAULT);
     }
 
 
+    /**
+     * Serializes given obj to stream
+     *
+     * @param out stream to serialize to
+     * @param obj object to serialize
+     * @param modifier output modifier defining how to serialize
+     * @throws IOException if writing to the stream fails
+     * @throws SerializationException if serialization fails
+     */
     public default void write(OutputStream out, Object obj, OutputModifier modifier) throws IOException, SerializationException {
         write(out, DEFAULT_CHARSET, obj, modifier);
     }
 
 
+    /**
+     * Serializes given obj to stream using
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}
+     *
+     * @param out stream to serialize to
+     * @param obj object to serialize
+     * @throws IOException if writing to the stream fails
+     * @throws SerializationException if serialization fails
+     */
     public default void write(OutputStream out, Object obj) throws IOException, SerializationException {
         write(out, obj, OutputModifier.DEFAULT);
     }
 
 
+    /**
+     * Serializes given obj to stream
+     *
+     * @param out stream to serialize to
+     * @param charset charset to use for serialization
+     * @param obj object to serialize
+     * @param modifier output modifier defining how to serialize
+     * @throws IOException if writing to the stream fails
+     * @throws SerializationException if serialization fails
+     */
     public default void write(OutputStream out, Charset charset, Object obj, OutputModifier modifier) throws IOException, SerializationException {
         try (OutputStreamWriter writer = new OutputStreamWriter(out, charset)) {
             writer.write(write(obj, modifier));
@@ -54,11 +98,32 @@ public interface Serializer {
     }
 
 
+    /**
+     * Serializes given obj to stream using
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}
+     *
+     * @param out stream to serialize to
+     * @param charset charset to use for serialization
+     * @param obj object to serialize
+     * @throws IOException if writing to the stream fails
+     * @throws SerializationException if serialization fails
+     */
     public default void write(OutputStream out, Charset charset, Object obj) throws IOException, SerializationException {
         write(out, charset, obj, OutputModifier.DEFAULT);
     }
 
 
+    /**
+     * Serializes given obj to file
+     *
+     * @param file fileto serialize to
+     * @param charset charset to use for serialization
+     * @param obj object to serialize
+     * @param modifier output modifier defining how to serialize
+     * @throws FileNotFoundException if file is not found
+     * @throws IOException if writing to the stream fails
+     * @throws SerializationException if serialization fails
+     */
     public default void write(File file, Charset charset, Object obj, OutputModifier modifier) throws FileNotFoundException, IOException, SerializationException {
         try (OutputStream out = new FileOutputStream(file)) {
             write(out, charset, obj, modifier);
@@ -66,16 +131,47 @@ public interface Serializer {
     }
 
 
+    /**
+     * Serializes given obj to file using
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}
+     *
+     * @param file fileto serialize to
+     * @param charset charset to use for serialization
+     * @param obj object to serialize
+     * @throws FileNotFoundException if file is not found
+     * @throws IOException if writing to the stream fails
+     * @throws SerializationException if serialization fails
+     */
     public default void write(File file, Charset charset, Object obj) throws FileNotFoundException, IOException, SerializationException {
         write(file, charset, obj, OutputModifier.DEFAULT);
     }
 
 
+    /**
+     * Serializes given obj to file
+     *
+     * @param file fileto serialize to
+     * @param obj object to serialize
+     * @param modifier output modifier defining how to serialize
+     * @throws FileNotFoundException if file is not found
+     * @throws IOException if writing to the stream fails
+     * @throws SerializationException if serialization fails
+     */
     public default void write(File file, Object obj, OutputModifier modifier) throws FileNotFoundException, IOException, SerializationException {
         write(file, DEFAULT_CHARSET, obj, modifier);
     }
 
 
+    /**
+     * Serializes given obj to file using
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}
+     *
+     * @param file fileto serialize to
+     * @param obj object to serialize
+     * @throws FileNotFoundException if file is not found
+     * @throws IOException if writing to the stream fails
+     * @throws SerializationException if serialization fails
+     */
     public default void write(File file, Object obj) throws FileNotFoundException, IOException, SerializationException {
         write(file, obj, OutputModifier.DEFAULT);
     }

@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Objects;
 
 
+/**
+ * The result of invoking an {@link io.adminshell.aas.v3.model.Operation}
+ */
 public class OperationResult {
 
     private String requestId;

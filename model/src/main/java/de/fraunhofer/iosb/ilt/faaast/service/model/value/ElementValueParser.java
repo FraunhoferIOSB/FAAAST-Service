@@ -14,8 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
+/**
+ * Encapsulates functionality to parse an element value from any kind of user
+ * input
+ *
+ * @param <T> type of input
+ */
 public interface ElementValueParser<T> {
 
+    /**
+     * Default parser that is the identity function, i.e. input already matches
+     * expected output type
+     */
     public static ElementValueParser<ElementValue> DEFAULT = new ElementValueParser<ElementValue>() {
         @Override
         public <U extends ElementValue> U parse(ElementValue raw, Class<U> type) {
@@ -23,5 +33,14 @@ public interface ElementValueParser<T> {
         }
     };
 
+    /**
+     * Converts a raw value to an element value.
+     *
+     * @param <U> expected result type
+     * @param raw input to convert
+     * @param type expected result type
+     * @return raw input converted to element value
+     * @throws Exception if conversion fails
+     */
     public <U extends ElementValue> U parse(T raw, Class<U> type) throws Exception;
 }

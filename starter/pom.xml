@@ -26,6 +26,16 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>assetconnection-mqtt</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>assetconnection-opcua</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>core</artifactId>
             <version>${revision}</version>
         </dependency>
@@ -35,7 +45,7 @@
             <version>${revision}</version>
         </dependency>
         <!-- needs to be build separately because of proprietary dependency to prosys -->
-        <!--
+        <!-- 
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endpoint-opcua</artifactId>
@@ -136,6 +146,11 @@
             <version>${httpcomponents.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.13</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -184,6 +199,16 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">

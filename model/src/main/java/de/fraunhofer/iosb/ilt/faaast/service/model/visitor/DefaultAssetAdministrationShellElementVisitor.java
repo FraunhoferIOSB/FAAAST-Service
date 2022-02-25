@@ -79,6 +79,11 @@ import io.adminshell.aas.v3.model.ValueReferencePair;
 import io.adminshell.aas.v3.model.View;
 
 
+/**
+ * Default implementation of {@link AssetAdministrationShellElementVisitor} with
+ * all empty methods. This is usefull when implementing only few selected
+ * methods of the interface.
+ */
 public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdministrationShellElementVisitor {
 
     @Override

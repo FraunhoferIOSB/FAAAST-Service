@@ -179,12 +179,13 @@ public class OpcUaAssetConnectionTest {
     }
 
 
-    private void testInvokeOperationSync(String nodeId,
-                                         Map<String, PropertyValue> input,
-                                         Map<String, PropertyValue> inoutput,
-                                         Map<String, PropertyValue> expectedInoutput,
-                                         Map<String, PropertyValue> expectedOutput)
-            throws AssetConnectionException {
+    private void testInvokeOperation(String nodeId,
+                                     boolean sync,
+                                     Map<String, PropertyValue> input,
+                                     Map<String, PropertyValue> inoutput,
+                                     Map<String, PropertyValue> expectedInoutput,
+                                     Map<String, PropertyValue> expectedOutput)
+            throws AssetConnectionException, InterruptedException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
                 .host(serverUrl)
@@ -242,7 +243,23 @@ public class OpcUaAssetConnectionTest {
                 .when(serviceContext)
                 .getOperationOutputVariables(reference);
         OpcUaAssetConnection connection = new OpcUaAssetConnection(CoreConfig.builder().build(), config, serviceContext);
-        OperationVariable[] actual = connection.getOperationProviders().get(reference).invoke(inputVariables, inoutputVariables);
+        OperationVariable[] actual;
+        if (sync) {
+            actual = connection.getOperationProviders().get(reference).invoke(inputVariables, inoutputVariables);
+        }
+        else {
+            final AtomicReference<OperationVariable[]> operationResult = new AtomicReference<>();
+            final AtomicReference<OperationVariable[]> operationInout = new AtomicReference<>();
+            CountDownLatch condition = new CountDownLatch(1);
+            connection.getOperationProviders().get(reference).invokeAsync(inputVariables, inoutputVariables, (res, inout) -> {
+                operationResult.set(res);
+                operationInout.set(inout);
+                condition.countDown();
+            });
+            condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+            actual = operationResult.get();
+            inoutputVariables = operationInout.get();
+        }
         connection.close();
         Assert.assertArrayEquals(expectedOut, actual);
         Assert.assertArrayEquals(expectedInOut, inoutputVariables);
@@ -252,12 +269,26 @@ public class OpcUaAssetConnectionTest {
     @Test
     public void testOperationProvider() throws AssetConnectionException, InterruptedException, ValueFormatException {
         String nodeIdSqrt = "ns=2;s=HelloWorld/sqrt(x)";
-        testInvokeOperationSync(nodeIdSqrt,
+        testInvokeOperation(nodeIdSqrt,
+                true,
                 Map.of("x", PropertyValue.of(Datatype.Double, "4.0")),
                 null,
                 null,
                 Map.of("x", PropertyValue.of(Datatype.Double, "2.0")));
-        testInvokeOperationSync(nodeIdSqrt,
+        testInvokeOperation(nodeIdSqrt,
+                false,
+                Map.of("x", PropertyValue.of(Datatype.Double, "4.0")),
+                null,
+                null,
+                Map.of("x", PropertyValue.of(Datatype.Double, "2.0")));
+        testInvokeOperation(nodeIdSqrt,
+                true,
+                null,
+                Map.of("x", PropertyValue.of(Datatype.Double, "4.0")),
+                Map.of("x", PropertyValue.of(Datatype.Double, "2.0")),
+                Map.of("x", PropertyValue.of(Datatype.Double, "2.0")));
+        testInvokeOperation(nodeIdSqrt,
+                false,
                 null,
                 Map.of("x", PropertyValue.of(Datatype.Double, "4.0")),
                 Map.of("x", PropertyValue.of(Datatype.Double, "2.0")),

@@ -18,6 +18,9 @@ import io.adminshell.aas.v3.model.Referable;
 import java.util.Objects;
 
 
+/**
+ * Event message indicating that an element has been read
+ */
 public class ElementReadEventMessage extends ReadEventMessage {
 
     private Referable value;

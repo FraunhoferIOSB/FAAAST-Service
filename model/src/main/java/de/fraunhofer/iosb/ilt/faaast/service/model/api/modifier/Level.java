@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier;
 import java.util.stream.Stream;
 
 
+/**
+ * Enum of different level options
+ */
 public enum Level {
     Deep,
     Core;

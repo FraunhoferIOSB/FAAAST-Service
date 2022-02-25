@@ -23,13 +23,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelElementByP
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Objects;
 
 
+/**
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelElementByPathRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelElementByPathResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSubmodelElementByPathRequest, GetSubmodelElementByPathResponse> {
 
     public GetSubmodelElementByPathRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
@@ -41,7 +49,7 @@ public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSu
     public GetSubmodelElementByPathResponse process(GetSubmodelElementByPathRequest request) {
         GetSubmodelElementByPathResponse response = new GetSubmodelElementByPathResponse();
         try {
-            Reference reference = ElementPathHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+            Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
             SubmodelElement submodelElement = persistence.get(reference, request.getOutputModifier());
             ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
 

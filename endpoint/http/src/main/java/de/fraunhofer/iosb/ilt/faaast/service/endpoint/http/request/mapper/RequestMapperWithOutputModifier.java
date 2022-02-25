@@ -24,6 +24,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 
 
+/**
+ * Base class for mapping HTTP requests including output modifier information.
+ */
 public abstract class RequestMapperWithOutputModifier extends RequestMapper {
 
     private static final String PARAMETER_LEVEL = "level";
@@ -35,6 +38,15 @@ public abstract class RequestMapperWithOutputModifier extends RequestMapper {
     }
 
 
+    /**
+     * Converts the HTTP request to protocol-agnostic request including output
+     * modifier information
+     *
+     * @param httpRequest the HTTP request to convert
+     * @param outputModifier output modifier for this request
+     * @return the protocol-agnostic request
+     * @throws InvalidRequestException if conversion fails
+     */
     public abstract Request parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException;
 
 

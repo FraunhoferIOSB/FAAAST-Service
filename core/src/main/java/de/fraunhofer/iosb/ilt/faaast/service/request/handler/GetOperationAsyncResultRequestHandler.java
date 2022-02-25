@@ -23,6 +23,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetOperationAsyncResu
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 
 
+/**
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetOperationAsyncResultRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetOperationAsyncResultResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class GetOperationAsyncResultRequestHandler extends RequestHandler<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
 
     public GetOperationAsyncResultRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {

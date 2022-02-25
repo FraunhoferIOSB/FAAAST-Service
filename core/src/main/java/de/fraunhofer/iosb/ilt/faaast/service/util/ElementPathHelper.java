@@ -16,21 +16,25 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
+/**
+ * Helper class with methods to read/write element paths from/to
+ * <p>
+ * <ul>
+ * <li>{@link io.adminshell.aas.v3.model.Reference}
+ * <li>{@link io.adminshell.aas.v3.model.Key}
+ * </ul>
+ * <p>
+ */
 public class ElementPathHelper {
 
     private static final String ELEMENT_PATH_SEPARATOR = "\\.";
@@ -38,6 +42,13 @@ public class ElementPathHelper {
     private ElementPathHelper() {}
 
 
+    /**
+     * Create an element path out of a {@link io.adminshell.aas.v3.model.Reference}
+     * to a {@link io.adminshell.aas.v3.model.SubmodelElement}.
+     *
+     * @param submodelElementRef reference to the submodel element
+     * @return values of the keys of the reference separated by a "."
+     */
     public static String toElementPath(Reference submodelElementRef) {
         if (submodelElementRef == null || submodelElementRef.getKeys().isEmpty()) {
             return "";
@@ -49,17 +60,13 @@ public class ElementPathHelper {
     }
 
 
-    public static List<Key> extractElementPath(Reference submodelElementRef) {
-        return submodelElementRef.getKeys().stream()
-                .filter(x -> SubmodelElement.class.isAssignableFrom(AasUtils.keyTypeToClass(x.getType())))
-                .map(x -> {
-                    x.setType(KeyElements.SUBMODEL_ELEMENT);
-                    return x;
-                })
-                .collect(Collectors.toList());
-    }
-
-
+    /**
+     * Combines a reference and an element path to one reference
+     *
+     * @param parent reference of the parent
+     * @param elementPath which should be added to the parent reference
+     * @return the combined reference
+     */
     public static Reference toReference(Reference parent, String elementPath) {
         Reference result;
         try {
@@ -74,6 +81,13 @@ public class ElementPathHelper {
     }
 
 
+    /**
+     * Converts an element path to a list of keys.
+     * Each key in the list have the general key element "SUBMODEL_ELEMENT"
+     *
+     * @param elementPath a string with identifier values seperated by a "."
+     * @return the list of keys
+     */
     public static List<Key> toKeys(String elementPath) {
         return Stream.of(elementPath.split(ELEMENT_PATH_SEPARATOR))
                 .map(x -> {
@@ -91,49 +105,4 @@ public class ElementPathHelper {
                 .collect(Collectors.toList());
     }
 
-
-    public static Reference toReference(List<Key> keys) {
-        return new DefaultReference.Builder()
-                .keys(keys)
-                .build();
-    }
-
-
-    public static Reference toReference(List<Key> keys, Identifier parentId, Class<?> parentClass) {
-        Reference parentReference = toReference(parentId, parentClass);
-        Reference childReference = new DefaultReference.Builder()
-                .keys(keys)
-                .build();
-        return toReference(parentReference, childReference);
-    }
-
-
-    public static Reference toReference(Reference parentReference, Reference childReference) {
-        List<Key> keys = new ArrayList<>(parentReference.getKeys());
-        childReference.getKeys().forEach(x -> {
-            if (!keys.contains(x)) {
-                keys.add(x);
-            }
-        });
-        return new DefaultReference.Builder()
-                .keys(keys)
-                .build();
-    }
-
-
-    public static Reference toReference(Identifier id, Class<?> clazz) {
-        return new DefaultReference.Builder()
-                .keys(List.of(new DefaultKey.Builder()
-                        .value(id.getIdentifier())
-                        .type(referableToKeyType(clazz))
-                        .idType(KeyType.IRI)
-                        .build()))
-                .build();
-    }
-
-
-    public static KeyElements referableToKeyType(Class<?> clazz) {
-        Class<?> aasInterface = ReflectionHelper.getAasInterface(clazz);
-        return aasInterface != null ? KeyElements.valueOf(AasUtils.deserializeEnumName(aasInterface.getSimpleName())) : null;
-    }
 }

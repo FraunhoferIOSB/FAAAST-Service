@@ -27,6 +27,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import java.io.IOException;
 
 
+/**
+ * Deserializer for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue}
+ */
 public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 
     public TypedValueDeserializer() {

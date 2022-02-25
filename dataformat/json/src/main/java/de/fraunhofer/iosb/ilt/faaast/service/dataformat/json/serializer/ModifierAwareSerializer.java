@@ -22,6 +22,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import java.io.IOException;
 
 
+/**
+ * Abstract base serializer providing context information while serializing
+ *
+ * @param <T> type that should be serialized
+ */
 public abstract class ModifierAwareSerializer<T> extends StdSerializer<T> {
 
     public static final String LEVEL = "level";
@@ -50,6 +55,17 @@ public abstract class ModifierAwareSerializer<T> extends StdSerializer<T> {
     }
 
 
-    public abstract void serialize(T value, JsonGenerator gen, SerializerProvider provider, Level level, Extend extend) throws IOException;
+    /**
+     * Serializes given value using provided context information level and
+     * extent
+     *
+     * @param value value to serialize
+     * @param generator generator used to generate JSON output
+     * @param provider provider for accessing other serializers
+     * @param level detail level of serialization
+     * @param extend detail extent of serialization
+     * @throws IOException is serialization fails
+     */
+    public abstract void serialize(T value, JsonGenerator generator, SerializerProvider provider, Level level, Extend extend) throws IOException;
 
 }

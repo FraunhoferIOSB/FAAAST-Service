@@ -26,6 +26,14 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Submodel;
 
 
+/**
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelByIdRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelByIdResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class DeleteSubmodelByIdRequestHandler extends RequestHandler<DeleteSubmodelByIdRequest, DeleteSubmodelByIdResponse> {
 
     public DeleteSubmodelByIdRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {

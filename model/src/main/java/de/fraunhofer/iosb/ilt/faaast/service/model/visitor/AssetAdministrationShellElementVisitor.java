@@ -79,6 +79,10 @@ import io.adminshell.aas.v3.model.ValueReferencePair;
 import io.adminshell.aas.v3.model.View;
 
 
+/**
+ * Visitor for elements of an
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShell}
+ */
 public interface AssetAdministrationShellElementVisitor {
 
     public void visit(Certificate certificate);

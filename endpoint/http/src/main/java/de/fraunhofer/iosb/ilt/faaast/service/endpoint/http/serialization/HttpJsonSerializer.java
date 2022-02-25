@@ -19,6 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.mixins.
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
 
 
+/**
+ * JSON serializer including HTTP specific functionality
+ */
 public class HttpJsonSerializer extends JsonSerializer {
 
     public HttpJsonSerializer() {

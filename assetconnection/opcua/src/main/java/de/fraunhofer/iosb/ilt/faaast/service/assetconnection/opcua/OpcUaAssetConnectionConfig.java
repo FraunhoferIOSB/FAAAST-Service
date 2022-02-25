@@ -19,14 +19,10 @@ import java.util.Objects;
 
 
 /**
- * OPC UA config class for OPC UA AssetConnection implementations/subclasses.
+ * Config file for {@link OpcUaAssetConnection}.
  */
 public class OpcUaAssetConnectionConfig
         extends AssetConnectionConfig<OpcUaAssetConnection, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig> {
-
-    public static Builder builder() {
-        return new Builder();
-    }
 
     private String host;
 
@@ -57,6 +53,11 @@ public class OpcUaAssetConnectionConfig
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), host);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static abstract class AbstractBuilder<T extends OpcUaAssetConnectionConfig, B extends AbstractBuilder<T, B>>

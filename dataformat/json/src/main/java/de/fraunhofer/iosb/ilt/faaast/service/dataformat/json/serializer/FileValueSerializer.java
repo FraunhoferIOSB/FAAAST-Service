@@ -23,6 +23,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
 import java.io.IOException;
 
 
+/**
+ * Serializer for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue}
+ */
 public class FileValueSerializer extends StdSerializer<FileValue> {
 
     public FileValueSerializer() {

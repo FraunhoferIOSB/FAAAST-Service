@@ -18,15 +18,15 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
+/**
+ * Model class for query modifier
+ */
 public class QueryModifier {
 
     public static final QueryModifier DEFAULT = new QueryModifier();
     protected Level level;
     protected Extend extend;
 
-    /**
-     * Constructor using enum default values
-     */
     public QueryModifier() {
         this.level = Level.Deep;
         this.extend = Extend.WithoutBLOBValue;

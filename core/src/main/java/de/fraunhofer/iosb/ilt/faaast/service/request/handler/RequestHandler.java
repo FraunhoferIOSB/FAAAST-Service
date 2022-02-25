@@ -327,6 +327,13 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
     }
 
 
+    /**
+     * Converts a list of {@link io.adminshell.aas.v3.model.OperationVariable}
+     * to a list of {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     *
+     * @param variables list of operation variables
+     * @return the corresponding list of element values
+     */
     public static List<ElementValue> toValues(List<OperationVariable> variables) {
         return variables.stream()
                 .map(x -> ElementValueMapper.<SubmodelElement, ElementValue> toValue(x.getValue()))

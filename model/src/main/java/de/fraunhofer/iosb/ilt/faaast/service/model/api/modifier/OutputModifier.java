@@ -17,14 +17,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier;
 import java.util.Objects;
 
 
+/**
+ * Model class for output modifier
+ */
 public class OutputModifier extends QueryModifier {
 
     public static final OutputModifier DEFAULT = new OutputModifier();
     protected Content content;
 
-    /**
-     * Constructor using enum default values
-     */
     public OutputModifier() {
         this.content = Content.Normal;
     }

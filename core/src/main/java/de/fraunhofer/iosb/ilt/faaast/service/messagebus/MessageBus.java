@@ -20,6 +20,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 
 
+/**
+ * An implementation of an internal message bus inherits from this interface.
+ * This message bus is used for internal events
+ *
+ * @param <T> type of the corresponding configuration class
+ */
 public interface MessageBus<T extends MessageBusConfig> extends Configurable<T> {
 
     /**

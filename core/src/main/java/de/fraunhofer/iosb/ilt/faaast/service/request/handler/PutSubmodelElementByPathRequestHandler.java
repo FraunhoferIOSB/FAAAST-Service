@@ -26,13 +26,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelElementByP
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Objects;
 
 
+/**
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelElementByPathRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelElementByPathResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
 
     public PutSubmodelElementByPathRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
@@ -44,7 +52,7 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
     public PutSubmodelElementByPathResponse process(PutSubmodelElementByPathRequest request) {
         PutSubmodelElementByPathResponse response = new PutSubmodelElementByPathResponse();
         try {
-            Reference reference = ElementPathHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+            Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
 
             //Check if submodelelement does exist
             SubmodelElement currentSubmodelElement = persistence.get(reference, new QueryModifier.Builder()

@@ -17,4 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 
 
+/**
+ * Configuration class for {@link PersistenceInMemory}.
+ */
 public class PersistenceInMemoryConfig extends PersistenceConfig<PersistenceInMemory> {}
