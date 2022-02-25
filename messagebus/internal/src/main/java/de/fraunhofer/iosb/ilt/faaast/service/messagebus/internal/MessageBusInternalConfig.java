@@ -17,4 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 
 
+/**
+ * Configuration class for {@link MessageBusInternal}
+ */
 public class MessageBusInternalConfig extends MessageBusConfig<MessageBusInternal> {}
