@@ -48,7 +48,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-        mvn -B verify sonar:sonar -Dsonar.projectKey=FraunhoferIOSB_FROST-Server -Dmaven.javadoc.skip=true -P coverage
+        #mvn -B verify sonar:sonar -Dsonar.projectKey=FraunhoferIOSB_FAAAST-Service -Dmaven.javadoc.skip=true -P coverage
+        mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=FraunhoferIOSB_FAAAST-Service -Dmaven.javadoc.skip=true
 
     - name: Build Docker Image
       run: |
