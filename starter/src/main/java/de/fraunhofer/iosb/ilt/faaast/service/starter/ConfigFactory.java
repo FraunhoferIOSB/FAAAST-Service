@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class for creating the service configuration
+ * Class for creating the {@link de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig}
  */
 public class ConfigFactory {
 
@@ -58,7 +58,7 @@ public class ConfigFactory {
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
     /**
-     * Get the default Service Configuration
+     * Get the default {@link de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig}
      *
      * @return the default Service Configuration
      * @throws Exception
@@ -69,7 +69,7 @@ public class ConfigFactory {
 
 
     /**
-     * Get the default Service Configuration with adjustments
+     * Get the default {@link de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig} with adjustments
      *
      * @param properties the adjustments for the default configuration file.
      * @return the adjusted default configuration
@@ -89,7 +89,7 @@ public class ConfigFactory {
 
 
     /**
-     * Parses a given file to a ServiceConfig object
+     * Parses a given file to a {@link de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig} object
      *
      * @param configFile
      * @return the parsed ServiceConfig object
@@ -101,7 +101,7 @@ public class ConfigFactory {
 
 
     /**
-     * Parses a given file path to a ServiceConfig object
+     * Parses a given file path to a {@link de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig} object
      *
      * @param pathToConfigFile
      * @return the parsed ServiceConfig object
@@ -113,7 +113,7 @@ public class ConfigFactory {
 
 
     /**
-     * Parses a given file path to a ServiceConfig object.
+     * Parses a given file path to a {@link de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig} object.
      * Adjust it with the given properties.
      *
      * @param pathToConfigFile
