@@ -39,8 +39,8 @@ java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
 For further information on using the command line see [here](#usage-with-command-line).
 
 #### As Maven Dependency
-| FA³ST Service is currently not published to Maven Central as there is no official release
-|
+| FA³ST Service is currently not published to Maven Central as there is no official release |
+|-----------------------------|
 ```xml
 <dependency>
 	<groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
@@ -173,7 +173,7 @@ Similarly to the above examples you can pass more arguments to the FA³ST servic
 This section gives a short introduction how the configuration file worls. Details can be found in the [full documentation](./documentation/configuration.md).
 
 The basic structure of a configuration is the following
-```json
+```
 {
 	"core" : {
 		"requestHandlerThreadPoolSize" : [integer]
@@ -339,7 +339,7 @@ An implemented does not have to implement all providers, in fact it is often not
 Each provider is connected to exactly one element of the AAS. Each asset connection can have multiples of each provider type. Each FA³ST Service can have multiple asset connections.
 Accordingly, each asset connection configuration supports at least this minimum structure
 
-```json
+```
 {
 	"@class": "...",
 	"valueProviders":
