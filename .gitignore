@@ -25,3 +25,7 @@ target/
 /documentation/third_party_licenses_report
 
 *.log
+
+### PKI Files OPC UA Endpoint
+*.pem
+*.der
