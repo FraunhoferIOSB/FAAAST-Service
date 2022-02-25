@@ -1,205 +1,287 @@
 
-<div id="top"></div>
+# FA³ST Service
 
+![FA³ST Logo Light](./documentation/images/Fa3st-Service_positiv.png/#gh-light-mode-only "FA³ST Service Logo")
+![FA³ST Logo Dark](./documentation/images/Fa3st-Service_negativ.png/#gh-dark-mode-only "FA³ST Service Logo")
 
-<!-- PROJECT LOGO -->
-![FA³ST Service Logo](./documentation/images/Fa3st-Service_positiv.png "FA³ST Service Logo")
-<br />
-<div align="center">
+The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service implements the [Asset Administration Shell (AAS) specification from the platform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and builds an easy-to-use web service based on a custom AAS model instance. If you are not familiar with AAS you can find additional information [here](#about-the-project).
 
-<h3 align="center">FA³ST Service</h3>
+| FA³ST Service is currently in an early phase of development. This means that some functionality is not fully tested or even not yet implemented. It is likely that you encounter bugs. It should not be used in productional environments. Contributions in form of issues and pull requests are highly welcome. |
+|-----------------------------|
 
-<p align="center">
-	Easy-to-use Asset Administration Shell Service
+## Getting Started
 
-[**Explore the docs »**](https://github.com/FraunhoferIOSB/FAAAST-Service/tree/main/documentation)
-<br />
-[Report Bug](https://github.com/FraunhoferIOSB/FAAAST-Service/issues)
-·
-[Request Feature](https://github.com/FraunhoferIOSB/FAAAST-Service/issues)
-</p>
-</div>
+This is an example of how to set up your project locally.
+To get a local copy up and running follow these simple example steps.
+To compile the FA³ST service you need to have a JDK and Maven installed.
 
+### Prerequisites
 
-<!-- TABLE OF CONTENTS -->
-<details>
-<summary>Table of Contents</summary>
-<ol>
-	<li>
-	<a href="#about-the-project">About The Project</a>
-	<ul>
-		<li><a href="#introduction">Introduction</a></li>
-		<li><a href="#built-with">Built With</a></li>
-	</ul>
-	</li>
-	<li>
-	<a href="#features">Features</a>
-	<ul>
-		<li><a href="#http-endpoint-interface">HTTP-Endpoint Interface</a></li>
-		<ul>
-			<li><a href="#http-example">Example HTTP/REST API Call</a></li>
-			<li><a href="#http-api">HTTP API</a></li>
-		</ul>
-		<li><a href="#opc-ua-endpoint-interface">OPC UA Endpoint Interface</a></li>
-	</ul>
-	<a href="#getting-started">Getting Started</a>
-	<ul>
-		<li><a href="#prerequisites">Prerequisites</a></li>
-		<li><a href="#installation">Installation</a></li>
-	</ul>
-	</li>
-	<li><a href="#usage">Usage</a></li>
-	<li><a href="#develop">Develop</a></li>
-	<li><a href="#roadmap">Roadmap</a></li>
-	<li><a href="#contributing">Contributing</a></li>
-	<li><a href="#license">License</a></li>
-	<li><a href="#contact">Contact</a></li>
-	<li><a href="#acknowledgments">Acknowledgments</a></li>
-</ol>
-</details>
+- Java 11+
+- Maven
 
+### Building from Source
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
-FA³ST Service implements the Asset Administration specification from the platform Industrie4.0 and built up an easy-to-use AAS Service based on a custom AAS model instance.
+```sh
+git clone https://github.com/FraunhoferIOSB/FAAAST-Service
+cd FAAAST-Service
+mvn clean install
+```
+### Use
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+#### From JAR
 
-<!-- FA³ST Service General Intro -->
-## Introduction
+To start the Service from command line use the following commands.
+```sh
+cd /starter/target
+java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
+```
+For further information on using the command line see [here](#usage-with-command-line).
 
-> General BlaFasel ...
+#### As Maven Dependency
+| FA³ST Service is currently not published to Maven Central as there is no official release |
+|-----------------------------|
+```xml
+<dependency>
+	<groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
+	<artifactId>starter</artifactId>
+	<version>{version}</version>
+</dependency>
+```
 
-#### Recommended Documents/Links
-* [Asset Administration Shell Specifications](https://www.plattform-i40.de/IP/Redaktion/EN/Standardartikel/specification-administrationshell.html) <br />
-Quicklinks To Different Versions & Reading Guide
-* [Details of the Asset Administration Shell - Part 1](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html), Nov 2021 <br />
-The publication states how companies can use the Asset Administration Shell to compile and structure information. In this way all information can be shared as a package (set of files) with partners at several levels of the value chain. It is not necessary to provide online access to this data from the very beginning.
-* [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), Nov 2021 <br />
-This part extends Part 1 and defines how information provided in the Asset Administration Shell (AAS) (e.g. submodels or properties) can be accessed dynamically via Application Programming Interfaces (APIs).
-* [About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/) <br />
-* [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/)
+### Example
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-### Built With
+The following code starts a FA³ST Service with a HTTP endpoint on port 8080.
 
-* Java 11
-* Maven
+```java
+String pathToYourAASEnvironment = "{pathTo}\\FAAAST-Service\\misc\\examples\\demoAAS.json";
+Service service = new Service(
+		new ServiceConfig.Builder()
+				.core(new CoreConfig.Builder()
+						.requestHandlerThreadPoolSize(2)
+						.build())
+				.persistence(new PersistenceInMemoryConfig())
+				.endpoint(new HttpEndpointConfig())
+				.messageBus(new MessageBusInternalConfig())
+				.build());
+service.setAASEnvironment(new AASEnvironmentFactory()
+		.getAASEnvironment(pathToYourAASEnvironment));
+service.start();
+```
+Afterwards, you can reach the running FA³ST Service via `http://localhost:8080/shells`.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!-- FEATURES -->
-### Features
-<!-- HTTP-ENDPOINT -->
-#### HTTP-Endpoint Interface
+## Features
 
-The HTTP-Endpoint allows accessing data and execute operations within the FA³ST-Service via REST-API.
-The HTTP-Endpoint Interface is based on the document [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), _Interoperability at Runtime –
-Exchanging Information via Application
-Programming Interfaces (Version 1.0RC02)_' , November 2021 and the OpenAPI documentation [DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-REST-API/Final-Draft), Nov, 11th 2021
+FA³ST Service provides the following functionalities:
+- supports several dataformats for the Asset Administration Shell Environment: `json, json-ld, xml, aml, rdf, opcua nodeset`
+- easy configuration via JSON file (see [details](#Configuration))
+- easily expandable with 3rd party implementations for `endpoint, messagebus, persistence, assetconnection`
+- uses existing open source implementation of AAS datamodel and de-/serializers [admin-shell-io java serializer](https://github.com/admin-shell-io/java-serializer) and [admin-shell-io java model](https://github.com/admin-shell-io/java-model)
+- synchronization between multiple endpoints
+- connecting to assets using arbitrary communication protocols
 
-For detailed information on the REST API see
-[DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-REST-API/Final-Draft), Nov, 11th 2021
+## Architecture
 
-In order to use the HTTP-Endpoint the configuration settings require to include an HTTP-Endpoint configuration, like the one below:
-```json
+<img src="./documentation/images/fa3st-service-default-implementations.png" alt="FA³ST Service Logo" >
+
+Fa³ST Service uses an open architecture and defines interfaces for most functionality. This allows for easy extension by 3rd parties. However, FA³ST Service also includes one or more  useful default implementations for each interface:
+
+- [HTTP Endpoint](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/feature/readme/endpoint/http/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/http/HttpEndpoint.java)
+- [OPC UA Endpoint](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/feature/readme/endpoint/opcua/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/opcua/OpcUaEndpoint.java)
+- [Internal Message Bus](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/feature/readme/messagebus/internal/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/messagebus/internal/MessageBusInternal.java)
+- [MQTT Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/feature/readme/assetconnection/mqtt/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/mqtt/MqttAssetConnection.java)
+- [OPC UA Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/feature/readme/assetconnection/opcua/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/opcua/OpcUaAssetConnection.java)
+
+
+## Usage with Command Line
+
+This section provides a short introduction of the most important command line arguments. For more details see the [full documentation](./documentation/commandline.md).
+
+If not already done, follow the step in [Building from Source](#Building from Source).
+
+1. Move to the output folder of the starter
+	```sh
+	cd starter/target
+	```
+2. Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
+	```sh
+	java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
+	```
+
+Currently we supporting following formats of the Asset Administration Shell Environment model:
+>json, json-ld, aml, xml, opcua nodeset, rdf
+<p>
+
+Following command line parameters could be used:
+```
+-c, --configFile=<configFilePath>
+						The config file path. Default Value = config.json
+
+-e, --environmentFile=<aasEnvironmentFilePath>
+						Asset Administration Shell Environment FilePath.
+						Default Value = aasenvironment.*
+
+--emptyEnvironment   	Starts the FA³ST service with an empty Asset
+						Administration Shell Environment. False by default
+
+--endpoints[=<endpoints>...]
+						Supported endpoints: http
+
+-h, --help              Show this help message and exit.
+
+--[no-]autoCompleteConfig
+						Autocompletes the configuration with default values
+						for required configuration sections. True by default
+
+--[no-]modelValidation
+						Validates the AAS Environment. True by default
+						Currently the model validation is deactivated in all examples
+
+-V, --version           Print version information and exit.
+```
+
+
+## Usage with Docker
+
+
+### Docker-Compose
+Clone this repository, navigate to `/misc/docker/` and run this command inside it.
+```sh
+cd misc/docker
+docker-compose up
+```
+To use your own AAS environment replace the model file `/misc/examples/demoAAS.json`.
+To modify the configuration edit the file `/misc/examples/exampleConfiguration.json`.
+You can also override configuration values using environment variables [see details](./documentation/commandline.md).
+
+### Docker CLI
+To start the FA³ST service with an empty AAS environment execute this command.
+```sh
+docker run --rm -P fraunhoferiosb/faaast-service '--emptyEnvironment' '--no-modelValidation'
+```
+To start the FA³ST service with your own AAS environment, place the JSON-file (in this example `demoAAS.json`) containing your enviroment in the current directory and modify the command accordingly.
+```sh
+docker run --rm -v ../examples/demoAAS.json:/AASEnv.json -e faaast.aasEnvFilePath=AASEnv.json -P fraunhoferiosb/faaast-service '--no-modelValidation'
+```
+Similarly to the above examples you can pass more arguments to the FA³ST service by using the CLI or a configuration file as provided in the cfg folder (use the `faaast.configFilePath` environment variable for that).
+
+## Components
+
+### Configuration
+This section gives a short introduction how the configuration file worls. Details can be found in the [full documentation](./documentation/configuration.md).
+
+The basic structure of a configuration is the following
+```
 {
-	"endpoints": [
-		{
-			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
-			"port": 8080
-		}
+	"core" : {
+		"requestHandlerThreadPoolSize" : [integer]
+	},
+	"endpoints" : [
+		// endpoint configurations, multiple allowed
+	],
+	"persistence" : {
+		// persistence configuration
+	},
+	"messageBus" : {
+		// message bus configuration
+	},
+	"assetConnection": [
+		// asset connection configurations, multiple allowed
 	]
 }
 ```
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- HTTP-EXAMPLE -->
-##### HTTP Example
-Sample HTTP-Call for Operation _GetSubmodelElementByPath_
-using the parameters
-- _submodelIdentifier_: https://acplt.org/Test_Submodel (must be base64URL-encoded)
-- _idShortPath_: ExampleRelationshipElement (must be URL-encoded)
-
-using the query-parameters _level=deep_ and _content=normal_.
-
-> To avoid problems with IRIs in URLs the identifiers shall be BASE64-URL-encoded before using them as
-parameters in the HTTP-APIs. IdshortPaths are URL-encoded to handle including square brackets.
-
-```sh
-http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/submodel/submodel-elements/ExampleRelationshipElement?level=deep&content=normal
+As FA³ST is designed to be easily extendable, the configuration supports to change the used implementation for any of those interfaces without the need to change or recompile the code.
+To tell the Service which implementation of an interface to use, each dynamically configurable configuration block contains the `@class` node specifying the fully qualified name of the implementation class. Each block then contains additionals nodes as defined by the configuration class associated with the implementation class.
+For example, the `HttpEndpoint` defines a the property `port` in its configuration class ([HttpEndpointConfig.java#L23](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/endpoint/http/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/http/HttpEndpointConfig.java#L23)).
+Therefore, the configuration block for a `HttpEndpoint` on port 8080 would look like this:
+```json
+{
+	"@class" : "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+	"port" : 8080
+}
 ```
 
-Returns a specific submodel element from the Submodel at a specified path
-<p align="right">(<a href="#top">back to top</a>)</p>
-<hr>
+A simple example configuration could look like this:
 
-#### HTTP-API
-##### The following interface URLs are fully supported:
-* Asset Administration Shell Repository Interface
-	* /shells (GET, POST)
-	* /shells/{aasIdentifier} (GET, PUT, DELETE)
-* Asset Administration Shell Interface
-	* /shells/{aasIdentifier}/aas (GET, PUT)
-	* /shells/{aasIdentifier}/aas/asset-information (GET, PUT)
-	* /shells/{aasIdentifier}/aas/submodels (GET,POST)
-	* /shells/{aasIdentifier}/aas/submodels{submodeIdentifier} (DELETE)
-* Submodel Repository Interface
-	* /submodels (GET, POST)
-	* /submodels/{submodelIdentifier} (GET, PUT, DELETE)
-* Submodel Interface
-	* /submodels/{submodelIdentifier}/submodel (GET, PUT)
-	* /submodels/{submodelIdentifier}/submodel/submodel-elements (POST)
-	* /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath} (GET, POST, PUT, DELETE)
-	* /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke (POST)
-	* /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/{handle-Id} (GET)
-* Concept Description Repository Interface
-	* concept-descriptions (GET, POST)
-	* concept-descriptions/{cdIdentifier} (GET, PUT, DELETE)
-
-###### Optional query params are
-* level=deep/core
-* content=normal/trimmed/value
-* extent=WithoutBLOBValue/WithBLOBValue
-* InvokeOperation supports async=true/false
-
-They are added to the URL as regular query params
-```sh
-http://url:port?level=deep&content=value
+```json
+{
+	"core" : {
+		"requestHandlerThreadPoolSize" : 2
+	},
+	"endpoints" : [ {
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+		"port" : 8080
+	} ],
+	"persistence" : {
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+	},
+	"messageBus" : {
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
+	}
+}
 ```
-FA³ST Service currently supports only content=value
+Each implementation should provide documentation about supported configuration parameters.
+When using FA³ST Service from your code instead of running it in standalone mode, you can also create the configuration file manually like this:
+
+```java
+ServiceConfig serviceConfig = new ServiceConfig.Builder()
+	.core(new CoreConfig.Builder()
+			.requestHandlerThreadPoolSize(2)
+			.build())
+	.persistence(new PersistenceInMemoryConfig())
+	.endpoint(new HttpEndpointConfig())
+	.messageBus(new MessageBusInternalConfig())
+	.build());
+```
+
+
+### HTTP Endpoint
+This section introduces the HTTP Endpoint implementation. For further details see the [full documentation](./documentation/httpendpoint.md).
+
+The exposed REST API is based on the document [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), and the OpenAPI documentation [DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-REST-API/Final-Draft).
+
+HTTP Endpoint configuration supports the following configuration parameters
+- `port` (optional, default: 8080)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##### The following interface URLs are currently not (yet) supported:
-* Submodel Repository Interface (Alternative Interface URLs "Swagger Doc Feb. 2022",
+#### Example: Get details of a SubmodelElement
+
+```sh
+HTTP GET http://localhost:8080/submodels/{submodelIdentifier (base64URL-encoded)}/submodel/submodel-elements/{idShortPath (URL-encoded)}?{optional query parameters}
+```
+
+For a concrete scenario with
+- _submodelIdentifier_: https://acplt.org/Test_Submodel
+- _idShortPath_: ExampleRelationshipElement
+
+and the query-parameters _level=deep_ and _content=normal_.
+
+```sh
+HTTP GET http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/submodel/submodel-elements/ExampleRelationshipElement?level=deep&content=normal
+```
+
+### The following interface URLs are currently not (yet) supported:
+- Submodel Repository Interface (Alternative Interface URLs "Swagger Doc Feb. 2022",
 [DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-Repository/Final-Draft#/Asset%20Administration%20Shell%20Repository/GetSubmodel) (yet not fully specified))
-	* /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
-	* /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements
-	* /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
-	* /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
-	* /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/{handleId}
-* Asset Administration Shell Registry Interface (not in Scope of FA³ST-Service)
-* Submodel Registry Interface (not in Scope of FA³ST-Service)
+> /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/...
 
+- AASX File Server Interface (not yet supported)
+> /packages
 
-* AASX File Server Interface (not yet supported)
-	* /packages
-	* /packages/{packageId}
-* Asset Administration Shell Serialization Interface (not yet supported)
-	* /serialization (GET)
-* Asset Administration Shell Basic Discovery (not yet supported)
-	* /lookup/shells
-	* /lookup/shells/{aasIdentifier}
+- Asset Administration Shell Serialization Interface (not yet supported)
+> /serialization (GET)
+
+- Asset Administration Shell Basic Discovery (not yet supported)
+> /lookup/shells
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-<hr>
 
-<!-- OPC UA ENDPOINT -->
-#### OPC UA Endpoint Interface
-The OPC UA Endpoint allows accessing data and execute operations within the FA³ST-Service via OPC UA.
-For detailed information on OPC UA see
-[About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/)
+
+### OPC UA Endpoint
+This section introduces the OPC UA Endpoint implementation. For further details see the [full documentation](./documentation/opcuaendpoint.md).
 
 The OPC UA Endpoint is based on the [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/).
 The release version of this Companion Specification is based on the document [Details of the Asset Administration Shell - Part 1 Version 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V2.html).
@@ -214,236 +296,217 @@ You can purchase a [Prosys OPC UA License](https://www.prosysopc.com/products/op
 
 For evaluation purposes, you also have the possibility to request an [evaluation license](https://www.prosysopc.com/products/opc-ua-java-sdk/evaluate).
 
-##### Supported Functions
-* Operations (OPC UA method calls). Exception: Inoutput-Variables are not supported in OPC UA.
-* Write Values
-	* Property
-	* Value
-	* Range
-	* Min
-		* Max
-	* Blob
-	* Value
-	* MultiLanguageProperty
-	* Value
-	* ReferenceElement
-	* Value
-	* RelationshipElement
-	* First
-		* Second
-	* Entity
-	* GlobalAssetID
-		* Type
+In the near future we will provide a pre-compiled version of the OPC UA Endpoint via Maven Central that allows you to use it without requiring a license.
 
-##### Not (yet) Supported Functions
-* Events (not yet supported)
-* Write Values (not yet supported)
-	* DataSpecifications
-	* Qualifier
-	* Category
-	* ModelingKind
-* AASValueTypeDataType (not yet supported)
-	* ByteString
-	* Byte
-	* UInt16
-	* UInt32
-	* UInt64
-	* DateTime
-	* LocalizedText
-	* UtcTime
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-<hr>
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-This is an example of how you may setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
-### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* maven
-* java
-
-### Installation
-
-1. Clone the repo
-```sh
-git clone https://github.com/FraunhoferIOSB/FAAAST-Service
-```
-2. Install
-```sh
-maven package
-```
-3. Use needed classes as dependency in your project
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-## Usage with Command Line
-
-To start a FA³ST Service from the command line:
-1. Move to the starter project and build the project
-	```sh
-	cd /starter
-	mvn clean package
-	```
-2. Move to the generated `.jar` file
-	```sh
-	cd starter/target
-	```
-3. Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
-	```sh
-	java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
-	```
-
-Currently we supporting following formats of the Asset Administration Shell Environment model:
-- json
-- json-ld
-- aml
-- xml
-- opcua nodeset
-- rdf
-
-<hr>
-<p>
-
-
-
-Following command line parameters could be used:
-```
--c, --configFile=<configFilePath>
-						The config file path. Default Value = config.json
--e, --environmentFile=<aasEnvironmentFilePath>
-						Asset Administration Shell Environment FilePath.
-							Default Value = aasenvironment.*
-	--emptyEnvironment   Starts the FA³ST service with an empty Asset
-							Administration Shell Environment. False by default
-	--endpoints[=<endpoints>...]
-
--h, --help               Show this help message and exit.
-	--[no-]autoCompleteConfig
-						Autocompletes the configuration with default values
-							for required configuration sections. True by
-							default
-	--[no-]modelValidation
-						Validates the AAS Environment. True by default
--V, --version            Print version information and exit.
-```
-<hr>
-<p>
-
-#### Change the Configuration
-<p>
-
-In general there are 3 ways to configure your FA³ST Service:
-1. Default values
-2. Commandline parameters
-3. Environment Variables
-
-The 3 kinds can be combined, e.g. by using the default configuration and customizing with commandline parameters and environment variables. If they conflict, environment variables are preferred over all and commandline parameters are preferred over the default values.
-
-Without any manual customization a FA³ST Service with default configuration will be started. For details to the structure and components of the configuration please have a look at the configuration section [here]()
-
-Default Configuration:
+In order to use the OPC UA Endpoint, the configuration settings require to include an OPC UA Endpoint configuration, like the one below:
 ```json
 {
-	"core" : {
-		"requestHandlerThreadPoolSize" : 2
+	"endpoints": [
+		{
+			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint",
+			"tcpPort" : 18123,
+			"secondsTillShutdown" : 5
+		}
+	]
+}
+```
+
+OPC UA Endpoint configuration supports the following configuration parameters
+- `tcpPort` is the desired Port for the OPC UA TCP Protocol (opc.tcp).
+- `secondsTillShutdown` is the number of seconds the server waits for clients to disconnect when stopping the Endpoint. When the Endpoint is stopped, the server sends a predefined event to all connected clients, that the OPC UA Server is about to shutdown. Now, the OPC UA Server waits the given number of seconds before he stops, to give the clients the possibility to disconnect from the Server. When `secondsTillShutdown` is 0, the Endpoint doesn't wait and stops immediately.
+
+To connect to the OPC UA Endpoint, you need an OPC UA Client.
+Here are some examples of OPC UA Clients:
+* [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html)
+UaExpert is a free test client for OPC UA. A registration for the website is required.
+* [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/)
+Free Java-based OPC UA Client. A registration for the website is required.
+* [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples)
+C#-based sample code from the OPC Foundation.
+* [Eclipse Milo](https://github.com/eclipse/milo)
+Java-based Open Source SDK for Java.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+### AssetConnections
+`AssetConnection` implementations allows connecting/synchronizing elements of your AAS to/with assets via different protocol. This functionality is further divided into  3 so-called provider, namely
+- [ValueProvider](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/core/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/AssetValueProvider.java), supporting reading and writing values from/to the asset, i.e. each time a value is read or written via an endpoint the request is forwarded to the asset
+- [OperationProvider](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/core/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/AssetOperationProvider.java), supporting the execution of operations, i.e. forwards operation invocation requests to the asset and returning the result value,
+- [SubscriptionProvider](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/core/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/AssetSubscriptionProvider.java), supporting synchronizing the AAS with pub/sub-based assets, i.e. subscribes to the assets and updates the AAS with new values over time.
+
+An implemented does not have to implement all providers, in fact it is often not possible to implement all of them for a given network protocol as most protocols to not support pull-based and pub/sub mechanisms at the same time (e.g. HTTP, MQTT).
+
+Each provider is connected to exactly one element of the AAS. Each asset connection can have multiples of each provider type. Each FA³ST Service can have multiple asset connections.
+Accordingly, each asset connection configuration supports at least this minimum structure
+
+```
+{
+	"@class": "...",
+	"valueProviders":
+	{
+		"{serialized Reference of AAS element}":
+		{
+			// value provider configuration
+		},
+		...
 	},
-	"endpoints" : [ {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint"
-	} ],
-	"persistence" : {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+	"operationProviders":
+	{
+		"{serialized Reference of AAS element}":
+		{
+			// operation provider configuration
+		},
+		...
 	},
-	"messageBus" : {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
+	"subscriptionProviders":
+	{
+		"{serialized Reference of AAS element}":
+		{
+			// subscription provider configuration
+		},
+		...
 	}
 }
 ```
-<hr>
-<p>
 
+A concrete example for OPC UA could look like this
+```json
 
-The FA³ST Service Starter consider following environment variables:
-- `faaast.configFilePath` to use a own configuration file
-- `faaast.aasEnvFilePath` to use a Asset Administration Environment file
-
-Environment variables could also be used to adjust some config components in the configuration:
-- `faaast.configParameter.[dot.separated.path]`
-
-If you want to change for example the requestHandlerThreadPoolSize in the core configuration, just set the environment variable `faaast.configParameter.core.requestHandlerThreadPoolSize=42`. To access configuration components in a list use the index. For example to change the port of the HTTP endpoint in the default configuration you can set the environment variable `faaast.configParameter.endpoints.0.port=8081`.
-
-<hr>
-<p>
-
-You could also use properties to adjust configuration components with the `-D` parameter. To change the `requestHandlerThreadPoolSize` of the core component and the port of the http endpoint use
-```sh
-java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
--Dcore.requestHandlerThreadPoolSize=42 -Dendpoints.0.port=8081
+{
+	"@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection",
+	"host": "localhost:8080",
+	"valueProviders":
+	{
+		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property1":
+		{
+			"nodeId": "some.node.id.property.1"
+		},
+		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property2":
+		{
+			"nodeId": "some.node.id.property.2"
+		}
+	},
+	"operationProviders":
+	{
+		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Operation)[ID_SHORT]Operation1":
+		{
+			"nodeId": "some.node.id.operation.1"
+		}
+	},
+	"subscriptionProviders":
+	{
+		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property3":
+		{
+			"nodeId": "some.node.id.property.3",
+			"interval": 1000
+		}
+	}
+}
 ```
-<hr>
-<p>
 
-#### Special Parameters
 
-The parameter `--endpoints` accepts a list of endpoints which should be started with the service. Currently supported is only `http`. So a execution of
-```sh
-java -jar starter-{version}.jar -e {path/to/your/AASEnvironment} --endoints http
+### MQTT AssetConnection
+The MQTT asset connection supports the following functionality:
+
+- `ValueProvider`: write values only, read not supported
+- `OperationProvider`: not supported
+- `SubscriptionProvider`: subscribe to value changes
+
+**Configuration Parameters**
+- on connection level
+- `serverUri`: URL of the MQTT server
+- `clientId`: id of the MQTT client (optional, default: random)
+- on ValueProdiver level
+- `topic`: MQTT topic to use
+- `contentFormat`: JSON|XML (default: JSON, currently, only JSON supported)
+- `query`: additional information how to format messages sent via MQTT - depends on `contentFormat`. For JSON this is a JSON Path expression.
+- on SubscriptionProdiver level
+- `topic`: MQTT topic to use
+- `contentFormat`: JSON|XML (default: JSON, currently, only JSON supported)
+- `query`: additional information how to extract actual value from received messages - depends on `contentFormat`. For JSON this is a JSON Path expression.
+
+Example configuration for one of the providers:
+
+```json
+{
+	"topic": "example/myTopic",
+	"query": "$.property.value",
+	"contentFormat": "JSON"
+}
 ```
-leads to a FA³ST Service with the HTTP endpoint implemented in class `de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint`.
+
+### OPC UA AssetConnection
+The OPC UA asset connection supports the following functionality:
+
+- `ValueProvider`: fully supported (read/write)
+- `OperationProvider`: invoke operations synchroniously, async invocation not supported
+- `SubscriptionProvider`: fully supported
+
+**Configuration Parameters**
+- on connection level
+- `host`: URL of the OPC UA server
+- on ValueProdiver level
+- `nodeId`: nodeId of the the OPC UA node to read/write
+- on OperationProdiver level
+- `nodeId`: nodeId of the the OPC UA node representing the OPC UA method to invoke
+- on SubscriptionProdiver level
+- `nodeId`: nodeId of the the OPC UA node to subscribe to
+- `interval`: subscription interval in ms
 
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+Example configuration for a subscription provider:
 
-## Persistence
-### `InMemory`
-#### Yet not implemented
+```json
+{
+	"nodeId": "some.node.id.property",
+	"interval": 1000
+}
+```
+
+### In Memory Persistence
+Not yet implemented:
 - AASX Packages
 - Package Descriptors
-- OutputModifier Content
 - SubmodelElementStructs
 
+<hr>
+
+## About the Project
+The Reference Architecture of Industrie 4.0 (RAMI) presents the [Asset Administration Shell (AAS)](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) as the basis for interoperability. AAS is the digital representation of an asset that is able to provide information about this asset, i.e. information about properties, functionality, parameters, documentation, etc.. The AAS operates as Digital Twin of the asset it represents.
+Furthermore, the AAS covers all stages of the lifecycle of an asset starting in the development phase, reaching the most importance in the operation phase and finally delivering valuable information for the decline/decomposition phase.
+
+To guarantee the interoperability of assets Industie 4.0 defines an information metamodel for the AAS covering all important aspects as type/instance concept, events, redefined data specification templates, security aspects, mapping of data formats and many more. Moreover interfaces and operations for a registry, a repository, publish and discovery are specified.
+At first glance the evolving specification of the AAS seems pretty complex and a challenging task for asset providers. To make things easier to FA³ST provides an implementation of several tools to allow easy and fast creation and management of AAS-compliant Digital Twins.
+
+### Recommended Documents/Links
+* [Asset Administration Shell Specifications](https://www.plattform-i40.de/IP/Redaktion/EN/Standardartikel/specification-administrationshell.html) <br />
+Quicklinks To Different Versions & Reading Guide
+* [Details of the Asset Administration Shell - Part 1](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html), Nov 2021 <br />
+The publication states how companies can use the Asset Administration Shell to compile and structure information. In this way all information can be shared as a package (set of files) with partners at several levels of the value chain. It is not necessary to provide online access to this data from the very beginning.
+* [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), Nov 2021 <br />
+This part extends Part 1 and defines how information provided in the Asset Administration Shell (AAS) (e.g. submodels or properties) can be accessed dynamically via Application Programming Interfaces (APIs).
+* [About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/) <br />
+* [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/)
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!-- HOW TO DEVELOP -->
-## Develop
-### Spotless
-The project uses *spotless:check* in the build cycle, which means the project only compiles if all code, *.pom and *.xml files are formatted according to the project's codestyle definitions (see details on [spotless](https://github.com/diffplug/spotless)).
-You can automatically format your code by running
-
-> mvn spotless:apply
-
-Additionally, you can import the eclipse formatting rules defined in */codestyle* into our IDE.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-### Third Party License Usage Report
-Generates a report of the licenses used in the subsystems (dependencies).
-The report is stored in the directory ./documentation/third_party_licenses_report as a html page.
-> mvn license:aggregate-third-party-report
-
-
-<!-- ROADMAP -->
+<!--TO BE DISCUSSED -->
 ## Roadmap
 
+FA³ST Service is currently in development and not yet released.
+Next milestone is to publish a first beta release to Maven Central and DockerHub.
+Some of the features we are working on include
+- improve stability/robustness
+- improve usability
+- implement a file & database persistence in FA³ST Service
 
-See the [open issues](https://github.com/FraunhoferIOSB/FAAAST-Service/issues) for a full list of proposed features (and known issues).
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-<!-- CONTRIBUTING -->
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions are **greatly appreciated**.
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+If you have a suggestion for improvements, please fork the repo and create a pull request. You can also simply open an issue.
+Don't forget to rate the project! Thanks again!
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -451,10 +514,38 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+### Code Formatting
+The project uses *spotless:check* in the build cycle, which means the project only compiles if all code, *.pom and *.xml files are formatted according to the project's codestyle definitions (see details on [spotless](https://github.com/diffplug/spotless)).
+You can automatically format your code by running
+
+> mvn spotless:apply
+
+Additionally, you can import the eclipse formatting rules defined in */codestyle* into our IDE.
+
+### Third Party License
+If you use additional dependencies please be sure that the licenses of these dependencies are compliant with our [License](#license). If you are not sure which license your dependencies have, you can run
+> mvn license:aggregate-third-party-report
+
+and check the generated report in the directory `documentation/third_party_licenses_report.html`.
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+## Contributors
 
-<!-- LICENSE -->
+| Name | Github Account |
+|:--| -- |
+| Michael Jacoby | [mjacoby](https://github.com/mjacoby) |
+| Jens Müller | [JensMueller2709](https://github.com/JensMueller2709) |
+| Klaus Schick | [schick64](https://github.com/schick64) |
+| Tino Bischoff | [tbischoff2](https://github.com/tbischoff2) |
+| Friedrich Volz | [fvolz](https://github.com/fvolz) |
+
+## Contact
+
+faaast@iosb.fraunhofer.de
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## License
 
 Distributed under the Apache 2.0 License. See `LICENSE` for more information.
@@ -462,22 +553,5 @@ Distributed under the Apache 2.0 License. See `LICENSE` for more information.
 Copyright (C) 2022 Fraunhofer Institut IOSB, Fraunhoferstr. 1, D 76131 Karlsruhe, Germany.
 
 You should have received a copy of the Apache 2.0 License along with this program. If not, see https://www.apache.org/licenses/LICENSE-2.0.html.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-<!-- CONTACT -->
-## Contact
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-* []()
-* []()
-* []()
 
 <p align="right">(<a href="#top">back to top</a>)</p>

@@ -229,14 +229,18 @@ public class Service implements ServiceContext {
      * @throws Exception when starting failed
      */
     public void start() throws Exception {
+        logger.info("Get command for starting FA³ST Service");
         if (this.aasEnvironment == null) {
+            logger.error("AssetAdministrationEnvironment must be non-null");
             throw new IllegalArgumentException("AssetAdministrationEnvironment must be non-null");
         }
         persistence.setEnvironment(this.aasEnvironment);
         messageBus.start();
         for (Endpoint endpoint: endpoints) {
+            logger.info("Starting endpoint {}", endpoint.getClass().getSimpleName());
             endpoint.start();
         }
+        logger.info("FA³ST Service is running!");
     }
 
 
@@ -245,6 +249,7 @@ public class Service implements ServiceContext {
      * endpoints
      */
     public void stop() {
+        logger.info("Get command for stopping FA³ST Service");
         messageBus.stop();
         endpoints.forEach(Endpoint::stop);
     }
