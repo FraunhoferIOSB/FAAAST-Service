@@ -75,9 +75,9 @@ public class MqttAssetConnection
     private ServiceContext context;
     private final Map<Reference, AssetOperationProvider> operationProviders;
     private final Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
-    private MqttClient client;
-    private ServiceContext serviceContext;
+    private final Map<Reference, AssetValueProvider> valueProviders;
 
+    private ServiceContext serviceContext;
 
     public MqttAssetConnection() {
         this.valueProviders = new HashMap<>();
@@ -108,6 +108,24 @@ public class MqttAssetConnection
                 logger.debug("MQTT connection could not be properly closed", ex);
             }
         }
+    }
+
+
+    @Override
+    public Map<Reference, AssetOperationProvider> getOperationProviders() {
+        return this.operationProviders;
+    }
+
+
+    @Override
+    public Map<Reference, AssetSubscriptionProvider> getSubscriptionProviders() {
+        return this.subscriptionProviders;
+    }
+
+
+    @Override
+    public Map<Reference, AssetValueProvider> getValueProviders() {
+        return this.valueProviders;
     }
 
 
