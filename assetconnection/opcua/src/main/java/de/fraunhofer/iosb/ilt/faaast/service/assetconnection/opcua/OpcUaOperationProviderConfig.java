@@ -19,11 +19,11 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
+/**
+ * * Config file for OPC UA-based
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
+ */
 public class OpcUaOperationProviderConfig implements AssetOperationProviderConfig {
-
-    public static Builder builder() {
-        return new Builder();
-    }
 
     private String nodeId;
 
@@ -53,6 +53,11 @@ public class OpcUaOperationProviderConfig implements AssetOperationProviderConfi
     @Override
     public int hashCode() {
         return Objects.hash(nodeId);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder extends AbstractBuilder<OpcUaOperationProviderConfig, Builder> {

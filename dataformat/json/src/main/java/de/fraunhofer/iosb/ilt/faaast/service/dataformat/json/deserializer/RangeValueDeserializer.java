@@ -23,6 +23,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import java.io.IOException;
 
 
+/**
+ * Deserializer for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue}
+ */
 public class RangeValueDeserializer extends ContextAwareElementValueDeserializer<RangeValue> {
 
     public RangeValueDeserializer() {

@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+/**
+ * Exception indicating that converting a value to a given dataformat failed.
+ */
 public class ValueFormatException extends Exception {
 
     public ValueFormatException(String message) {

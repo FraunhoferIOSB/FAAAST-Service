@@ -34,11 +34,21 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
+/**
+ * Helper class for the persistence to handle with an AAS Environment
+ */
 public class EnvironmentHelper {
 
     private EnvironmentHelper() {}
 
 
+    /**
+     * Finds a identifiable in given lists of identifiables
+     *
+     * @param id of the searched identifiable
+     * @param requiredCollections lists of identifiables which should be considered
+     * @return the searched identifiable
+     */
     public static Identifiable findIdentifiableInListsById(Identifier id, Collection<? extends Identifiable>... requiredCollections) {
         Stream<? extends Identifiable> combinedStream = requiredCollections[0].stream();
         for (int i = 1; i < requiredCollections.length; i++) {
@@ -49,6 +59,13 @@ public class EnvironmentHelper {
     }
 
 
+    /**
+     * Get a list of deep copied asset administration shell objects which matches a filter
+     *
+     * @param filter which should applied to the search of asset administration shells
+     * @param aasEnvironment which contains the asset administration shells
+     * @return a filtered list of deep copied asset administration shells
+     */
     public static List<AssetAdministrationShell> getDeepCopiedShells(Predicate<AssetAdministrationShell> filter, AssetAdministrationShellEnvironment aasEnvironment) {
         List<AssetAdministrationShell> shellList = aasEnvironment.getAssetAdministrationShells()
                 .stream()
@@ -60,6 +77,13 @@ public class EnvironmentHelper {
     }
 
 
+    /**
+     * Get a list of deep copied submodels objects which matches a filter
+     *
+     * @param filter which should applied to the search of submodels
+     * @param aasEnvironment which contains the submodels
+     * @return a filtered list of deep copied submodels
+     */
     public static List<Submodel> getDeepCopiedSubmodels(Predicate<Submodel> filter, AssetAdministrationShellEnvironment aasEnvironment) {
         List<Submodel> submodelList = aasEnvironment.getSubmodels()
                 .stream()
@@ -71,7 +95,15 @@ public class EnvironmentHelper {
     }
 
 
-    public static <T extends Identifiable> List<T> updateIdentifiableList(Class<T> identifiableClass, List<T> identifiableList, Identifiable identifiable) {
+    /**
+     * Adds or updates an identifiable to a list.
+     *
+     * @param identifiableList to which the given identifiable should be added/updated
+     * @param identifiable which should be added or updated
+     * @param <T> type of the identifiable
+     * @return the updated list
+     */
+    public static <T extends Identifiable> List<T> updateIdentifiableList(List<T> identifiableList, Identifiable identifiable) {
         List<T> newIdentifiableList = new ArrayList<>();
         identifiableList.forEach(x -> {
             if (!x.getIdentification().getIdentifier().equalsIgnoreCase(identifiable.getIdentification().getIdentifier())) {
@@ -83,7 +115,15 @@ public class EnvironmentHelper {
     }
 
 
-    public static Method getGetListMethod(Class clazz, Object parent) {
+    /**
+     * Looks for a get method with return type list
+     *
+     * @param listParameterType
+     * @param parent
+     * @return method
+     */
+    public static Method getGetReferableListMethod(Class<?> listParameterType, Object parent) {
+        //TODO: rewrite
         for (Method m: parent.getClass().getMethods()) {
             Type type = m.getGenericReturnType();
             if (type instanceof ParameterizedType) {
@@ -91,15 +131,15 @@ public class EnvironmentHelper {
 
                 if (pt.getActualTypeArguments().length == 1) {
                     Type t = pt.getActualTypeArguments()[0];
-                    if (Arrays.stream(clazz.getInterfaces()).anyMatch(x -> x.getName().equalsIgnoreCase(t.getTypeName()))) {
+                    if (Arrays.stream(listParameterType.getInterfaces()).anyMatch(x -> x.getName().equalsIgnoreCase(t.getTypeName()))) {
                         return m;
                     }
-                    if (t.getTypeName().equalsIgnoreCase(clazz.getName())) {
+                    if (t.getTypeName().equalsIgnoreCase(listParameterType.getName())) {
                         return m;
                     }
                 }
             }
-            else if (m.getGenericParameterTypes().length > 0 && m.getGenericParameterTypes()[0].getTypeName().equalsIgnoreCase(clazz.getName())) {
+            else if (m.getGenericParameterTypes().length > 0 && m.getGenericParameterTypes()[0].getTypeName().equalsIgnoreCase(listParameterType.getName())) {
                 return m;
             }
         }

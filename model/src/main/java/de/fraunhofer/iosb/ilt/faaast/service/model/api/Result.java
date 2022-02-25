@@ -20,7 +20,11 @@ import java.util.List;
 import java.util.Objects;
 
 
+/**
+ * Model class for a result.
+ */
 public class Result {
+
     private boolean success;
     private List<Message> message = new ArrayList<>();
 
@@ -46,10 +50,12 @@ public class Result {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         Result result = (Result) o;
         return Objects.equals(success, result.success)
                 && Objects.equals(message, result.message);

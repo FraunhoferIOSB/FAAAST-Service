@@ -17,4 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 
 
+/**
+ * * Config file for MQTT-based
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
+ */
 public class MqttOperationProviderConfig implements AssetOperationProviderConfig {}

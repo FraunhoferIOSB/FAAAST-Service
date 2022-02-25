@@ -124,7 +124,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.DeleteSubmodelByIdRequestHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestHandler;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -597,7 +597,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllSubmodelElementsRequest() throws ResourceNotFoundException {
-        Reference reference = ElementPathHelper.toReference(environment.getSubmodels().get(0).getIdentification(), Submodel.class);
+        Reference reference = ReferenceHelper.toReference(environment.getSubmodels().get(0).getIdentification(), Submodel.class);
         when(persistence.getSubmodelElements(reference, (Reference) null, new OutputModifier()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements());
         GetAllSubmodelElementsRequest request = new GetAllSubmodelElementsRequest.Builder()
@@ -615,7 +615,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testPostSubmodelElementRequest() throws ResourceNotFoundException {
-        Reference reference = ElementPathHelper.toReference(environment.getSubmodels().get(0).getIdentification(), Submodel.class);
+        Reference reference = ReferenceHelper.toReference(environment.getSubmodels().get(0).getIdentification(), Submodel.class);
         when(persistence.put(reference, (Reference) null, environment.getSubmodels().get(0).getSubmodelElements().get(0)))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         PostSubmodelElementRequest request = new PostSubmodelElementRequest.Builder()
@@ -647,7 +647,7 @@ public class RequestHandlerManagerTest {
         GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder()
                 .id(submodel.getIdentification())
                 .outputModifier(new OutputModifier())
-                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
         GetSubmodelElementByPathResponse response = manager.execute(request);
 
@@ -670,7 +670,7 @@ public class RequestHandlerManagerTest {
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         PostSubmodelElementByPathRequest request = new PostSubmodelElementByPathRequest.Builder()
                 .id(environment.getSubmodels().get(0).getIdentification())
-                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
         PostSubmodelElementByPathResponse response = manager.execute(request);
         PostSubmodelElementByPathResponse expected = new PostSubmodelElementByPathResponse.Builder()
@@ -730,7 +730,7 @@ public class RequestHandlerManagerTest {
                         return (U) raw;
                     }
                 })
-                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
 
         Response response = manager.execute(request);
@@ -745,14 +745,14 @@ public class RequestHandlerManagerTest {
     @Test
     public void testDeleteSubmodelElementByPathRequest() throws ResourceNotFoundException {
         Submodel submodel = environment.getSubmodels().get(0);
-        Reference reference = ElementPathHelper.toReference(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF),
+        Reference reference = ReferenceHelper.toReference(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF),
                 submodel.getIdentification(),
                 Submodel.class);
         when(persistence.get(reference, new QueryModifier()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         DeleteSubmodelElementByPathRequest request = new DeleteSubmodelElementByPathRequest.Builder()
                 .id(submodel.getIdentification())
-                .path(ElementPathHelper.extractElementPath(SUBMODEL_ELEMENT_REF))
+                .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
         DeleteSubmodelElementByPathResponse response = manager.execute(request);
         DeleteSubmodelElementByPathResponse expected = new DeleteSubmodelElementByPathResponse.Builder()
@@ -915,7 +915,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllConceptDescriptionsByIsCaseOfRequest() throws ResourceNotFoundException {
-        Reference reference = ElementPathHelper.toReference(environment.getConceptDescriptions().get(0).getIdentification(), ConceptDescription.class);
+        Reference reference = ReferenceHelper.toReference(environment.getConceptDescriptions().get(0).getIdentification(), ConceptDescription.class);
         when(persistence.get(null, reference, null, new OutputModifier()))
                 .thenReturn(environment.getConceptDescriptions());
         GetAllConceptDescriptionsByIsCaseOfRequest request = new GetAllConceptDescriptionsByIsCaseOfRequest.Builder()
@@ -933,7 +933,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testGetAllConceptDescriptionsByDataSpecificationReferenceRequest() throws ResourceNotFoundException {
-        Reference reference = ElementPathHelper.toReference(environment.getConceptDescriptions().get(0).getIdentification(), ConceptDescription.class);
+        Reference reference = ReferenceHelper.toReference(environment.getConceptDescriptions().get(0).getIdentification(), ConceptDescription.class);
         when(persistence.get(null, null, reference, new OutputModifier()))
                 .thenReturn(environment.getConceptDescriptions());
         GetAllConceptDescriptionsByDataSpecificationReferenceRequest request = new GetAllConceptDescriptionsByDataSpecificationReferenceRequest.Builder()

@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.Objects;
 
 
-public class ElementCollectionValue extends DataElementValue {
+public class SubmodelElementCollectionValue extends DataElementValue {
 
     private Map<String, ElementValue> values;
 
-    public ElementCollectionValue() {
+    public SubmodelElementCollectionValue() {
         this.values = new HashMap<>();
     }
 
@@ -47,7 +47,7 @@ public class ElementCollectionValue extends DataElementValue {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ElementCollectionValue elementCollectionValue = (ElementCollectionValue) o;
+        SubmodelElementCollectionValue elementCollectionValue = (SubmodelElementCollectionValue) o;
         return Objects.equals(values, elementCollectionValue.values);
     }
 
@@ -62,7 +62,7 @@ public class ElementCollectionValue extends DataElementValue {
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends ElementCollectionValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public static abstract class AbstractBuilder<T extends SubmodelElementCollectionValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B values(Map<String, ElementValue> value) {
             getBuildingInstance().setValues(value);
@@ -76,7 +76,7 @@ public class ElementCollectionValue extends DataElementValue {
         }
     }
 
-    public static class Builder extends AbstractBuilder<ElementCollectionValue, Builder> {
+    public static class Builder extends AbstractBuilder<SubmodelElementCollectionValue, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -85,8 +85,8 @@ public class ElementCollectionValue extends DataElementValue {
 
 
         @Override
-        protected ElementCollectionValue newBuildingInstance() {
-            return new ElementCollectionValue();
+        protected SubmodelElementCollectionValue newBuildingInstance() {
+            return new SubmodelElementCollectionValue();
         }
     }
 }

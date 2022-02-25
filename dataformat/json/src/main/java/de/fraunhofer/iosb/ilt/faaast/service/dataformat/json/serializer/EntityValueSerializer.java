@@ -27,6 +27,10 @@ import java.io.IOException;
 import java.util.Map;
 
 
+/**
+ * Serializer for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue}
+ */
 public class EntityValueSerializer extends StdSerializer<EntityValue> {
 
     public EntityValueSerializer() {

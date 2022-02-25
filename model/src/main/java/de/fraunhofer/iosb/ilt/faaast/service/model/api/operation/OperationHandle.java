@@ -18,6 +18,9 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
+/**
+ * An operation handle is used to identify async operations after invocation
+ */
 public class OperationHandle {
     private String requestId;
     private String handleId;

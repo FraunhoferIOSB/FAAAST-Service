@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 
 
+/**
+ * Indicates that a value conversion failed.
+ */
 public class ValueConversionException extends AssetConnectionException {
 
     public ValueConversionException(String msg) {

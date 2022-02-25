@@ -40,6 +40,11 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
 
+/**
+ * HTTP handler that actually handles all requests to the endpoint by finding
+ * the matching request class, deserializing the request, executing it using the
+ * serviceContext and serializing the result.
+ */
 public class RequestHandler extends AbstractHandler {
 
     private ServiceContext serviceContext;

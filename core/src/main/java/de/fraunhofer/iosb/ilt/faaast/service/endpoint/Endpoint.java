@@ -18,15 +18,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 
 
 /**
- * An Endpoint is an implementation of the interfaces and methods described by Part 2 of the AAS specification. It is
- * also often called upper DT interface.
- * 
+ * An Endpoint is an implementation of the interfaces and methods described by
+ * Part 2 of the AAS specification. It is also often called upper DT interface.
+ *
  * @param <T> type of the corresponding configuration class
  */
 public interface Endpoint<T extends EndpointConfig> extends Configurable<T> {
 
     /**
      * Starts the endpoint.
+     *
+     * @throws Exception if starting the endpoint fails
      */
     public void start() throws Exception;
 

@@ -20,15 +20,25 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 
 
+/**
+ * {@link ContentSerializer} for {@link ContentFormat}.JSON.
+ */
 public class JsonContentSerializer implements ContentSerializer {
 
-    private JsonSerializer serializer;
+    private final JsonSerializer serializer;
 
     public JsonContentSerializer() {
         this.serializer = new JsonSerializer();
     }
 
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws AssetConnectionException if serialization fails
+     * @throws UnsupportedOperationException if query is not null as JSON path
+     *             expressions are not supported when writing data.
+     */
     @Override
     public String write(DataElementValue value, String query) throws AssetConnectionException {
         try {

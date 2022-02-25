@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content;
 
+/**
+ * Supported content formats for MQTT payload.
+ */
 public enum ContentFormat {
     JSON,
     XML;

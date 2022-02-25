@@ -44,7 +44,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueC
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueMapDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PropertyValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
@@ -52,6 +51,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
@@ -61,6 +61,9 @@ import java.util.List;
 import java.util.Map;
 
 
+/**
+ * JSON deserializer for FA³ST.
+ */
 public class JsonDeserializer implements Deserializer {
 
     private final DeserializerWrapper wrapper;
@@ -92,10 +95,17 @@ public class JsonDeserializer implements Deserializer {
     }
 
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws IllegalArgumentException if typeInfo is null
+     * @throws DeserializationException if typeInfo does not contain type
+     *             information
+     */
     @Override
     public <T extends ElementValue> T readValue(String json, TypeInfo typeInfo) throws DeserializationException {
         if (typeInfo == null) {
-            throw new IllegalArgumentException("context must be non-null");
+            throw new IllegalArgumentException("typeInfo must be non-null");
         }
         if (typeInfo.getType() == null) {
             throw new DeserializationException("missing root type information");
@@ -122,10 +132,19 @@ public class JsonDeserializer implements Deserializer {
     }
 
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws IllegalArgumentException if typeInfo is null
+     * @throws IllegalArgumentException if typeInfo is not a
+     *             {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo}
+     * @throws DeserializationException if typeInfo does not contain type
+     *             information
+     */
     @Override
     public ElementValue[] readValueArray(String json, TypeInfo typeInfo) throws DeserializationException {
         if (typeInfo == null) {
-            throw new IllegalArgumentException("context must be non-null");
+            throw new IllegalArgumentException("typeInfo must be non-null");
         }
         if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new DeserializationException("typeInfo must be of type ContainerTypeInfo");
@@ -149,10 +168,21 @@ public class JsonDeserializer implements Deserializer {
     }
 
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws IllegalArgumentException if typeInfo is null
+     * @throws IllegalArgumentException if typeInfo is not a
+     *             {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo}
+     * @throws DeserializationException if typeInfo does not contain type
+     *             information
+     * @throws DeserializationException if typeInfo does contain content type
+     *             information
+     */
     @Override
     public <T extends ElementValue> List<T> readValueList(String json, TypeInfo typeInfo) throws DeserializationException {
         if (typeInfo == null) {
-            throw new IllegalArgumentException("context must be non-null");
+            throw new IllegalArgumentException("typeInfo must be non-null");
         }
         if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new DeserializationException("typeInfo must be of type ContainerTypeInfo");
@@ -176,10 +206,21 @@ public class JsonDeserializer implements Deserializer {
     }
 
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws IllegalArgumentException if typeInfo is null
+     * @throws IllegalArgumentException if typeInfo is not a
+     *             {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo}
+     * @throws DeserializationException if typeInfo does not contain type
+     *             information
+     * @throws DeserializationException if typeInfo does contain content type
+     *             information
+     */
     @Override
     public <K, V extends ElementValue> Map<K, V> readValueMap(String json, TypeInfo typeInfo) throws DeserializationException {
         if (typeInfo == null) {
-            throw new IllegalArgumentException("context must be non-null");
+            throw new IllegalArgumentException("typeInfo must be non-null");
         }
         if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new DeserializationException("typeInfo must be of type ContainerTypeInfo");
@@ -209,6 +250,11 @@ public class JsonDeserializer implements Deserializer {
     }
 
 
+    /**
+     * Modifies Jackson JsonMapper
+     *
+     * @param mapper mapper to modify
+     */
     protected void modifyMapper(JsonMapper mapper) {
         mapper.addMixIn(PropertyValue.class, PropertyValueMixin.class);
         SimpleModule module = new SimpleModule() {
@@ -254,7 +300,7 @@ public class JsonDeserializer implements Deserializer {
         module.addDeserializer(PropertyValue.class, new PropertyValueDeserializer());
         module.addDeserializer(AnnotatedRelationshipElementValue.class, new AnnotatedRelationshipElementValueDeserializer());
         module.addDeserializer(RelationshipElementValue.class, new RelationshipElementValueDeserializer());
-        module.addDeserializer(ElementCollectionValue.class, new SubmodelElementCollectionValueDeserializer());
+        module.addDeserializer(SubmodelElementCollectionValue.class, new SubmodelElementCollectionValueDeserializer());
         module.addDeserializer(MultiLanguagePropertyValue.class, new MultiLanguagePropertyValueDeserializer());
         module.addDeserializer(ReferenceElementValue.class, new ReferenceElementValueDeserializer());
         module.addDeserializer(EntityValue.class, new EntityValueDeserializer());

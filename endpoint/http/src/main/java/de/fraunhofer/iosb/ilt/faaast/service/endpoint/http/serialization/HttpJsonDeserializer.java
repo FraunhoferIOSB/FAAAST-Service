@@ -20,6 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.mixins.
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
 
 
+/**
+ * JSON deserializer including HTTP specific functionality
+ */
 public class HttpJsonDeserializer extends JsonDeserializer {
 
     @Override

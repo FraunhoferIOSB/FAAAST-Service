@@ -18,6 +18,9 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
+/**
+ * Abstract base class for protocol-agnostic responses.
+ */
 public abstract class BaseResponse implements Response {
 
     private StatusCode statusCode;

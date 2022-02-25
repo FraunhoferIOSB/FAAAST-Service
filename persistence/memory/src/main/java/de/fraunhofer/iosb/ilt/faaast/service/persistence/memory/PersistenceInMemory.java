@@ -47,9 +47,20 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Implementation of Persistence interface for in memory storage To decouple the
- * returned AAS objects from the internal AAS Environment each object is copied
- * deeply in advance
+ * Implementation of
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence}
+ * for in memory storage.
+ * <p>
+ * To decouple the AAS objects from the internal AAS Environment each returned object is copied
+ * deeply in advance.
+ * Following types are not supported in the current version:
+ * <p>
+ * <ul>
+ * <li>AASX packages
+ * <li>Package Descriptors
+ * <li>SubmodelElementStructs
+ * </ul>
+ * <p>
  */
 public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfig> {
 

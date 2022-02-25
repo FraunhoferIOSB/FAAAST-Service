@@ -17,6 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 import java.util.Objects;
 
 
+/**
+ * Base class for representing typed value.
+ *
+ * @param <T> type of underlying Java type
+ */
 public abstract class TypedValue<T> {
 
     protected T value;
@@ -29,6 +34,11 @@ public abstract class TypedValue<T> {
     protected TypedValue() {}
 
 
+    /**
+     * Returns a string representation of the actual value.
+     *
+     * @return string representation of the actual value.
+     */
     public abstract String asString();
 
 
@@ -48,6 +58,13 @@ public abstract class TypedValue<T> {
     }
 
 
+    /**
+     * Sets the value of current instance by parsing the given string to
+     * matching type.
+     *
+     * @param value the string representation of the value to set
+     * @throws ValueFormatException if value can not be converted to datatype
+     */
     public abstract void fromString(String value) throws ValueFormatException;
 
 

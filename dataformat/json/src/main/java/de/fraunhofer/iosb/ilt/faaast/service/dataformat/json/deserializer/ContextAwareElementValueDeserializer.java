@@ -27,10 +27,23 @@ import java.util.Iterator;
 import java.util.Map;
 
 
+/**
+ * Abstract base deserializer providing context information while deserializing
+ *
+ * @param <T> type of ElementValue that should be deserialized
+ */
 public abstract class ContextAwareElementValueDeserializer<T extends ElementValue> extends StdDeserializer<T> {
 
     public static final String VALUE_TYPE_CONTEXT = "typeInfoContext";
 
+    /**
+     * Fetches type information from
+     * {@link com.fasterxml.jackson.databind.DeserializationContext}. If no type
+     * information is present, null is returned.
+     *
+     * @param context deserialization context holding the type information
+     * @return type information if present, else null
+     */
     protected static TypeInfo getTypeInfo(DeserializationContext context) {
         return context.getAttribute(VALUE_TYPE_CONTEXT) != null && TypeInfo.class.isAssignableFrom(context.getAttribute(VALUE_TYPE_CONTEXT).getClass())
                 ? (TypeInfo) context.getAttribute(VALUE_TYPE_CONTEXT)
@@ -58,6 +71,13 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
     }
 
 
+    /**
+     * Check if node is a wrapper node for a value
+     *
+     * @param node node to check
+     * @return true if the node is a wrapper (defined as node.isObject() &&
+     *         node.size() == 1), otherwise false
+     */
     protected boolean isWrapped(JsonNode node) {
         return node != null
                 && node.isObject()
@@ -65,14 +85,40 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
     }
 
 
+    /**
+     * Unwraps a given node, i.e. returns the first child element
+     *
+     * @param node node to unwrap
+     * @return first child node
+     */
     protected JsonNode unwrap(JsonNode node) {
         return node.iterator().next();
     }
 
 
+    /**
+     * Deserializes a value from node given current context
+     *
+     * @param node node to deserialize
+     * @param context deserialization context
+     * @return deserialized values
+     * @throws IOException if reading node fails
+     * @throws JacksonException is deserialization fails
+     */
     public abstract T deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException;
 
 
+    /**
+     * Deserialize children as a map of element values with their idShort as
+     * key.
+     *
+     * @param <T> element value type
+     * @param node node to deserialize
+     * @param context deserialization context
+     * @param type target type
+     * @return map of sub-values identified by their idShort as key
+     * @throws IOException as reading node fails
+     */
     protected <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) throws IOException {
         Map<String, T> result = new HashMap<>();
         if (node == null) {

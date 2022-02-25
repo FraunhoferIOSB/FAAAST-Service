@@ -30,6 +30,9 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 
+/**
+ * Helper class for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+ */
 public class ElementValueHelper {
 
     private static final Type COLLECTION_GENERIC_TOKEN;
@@ -48,6 +51,12 @@ public class ElementValueHelper {
     private ElementValueHelper() {}
 
 
+    /**
+     * Checks if an object can be converted to an element value
+     *
+     * @param obj which should be checked
+     * @return true if the object can be converted to an element value, false otherwise
+     */
     public static boolean isValueOnlySupported(Object obj) {
         if (obj == null) {
             return true;
@@ -66,6 +75,12 @@ public class ElementValueHelper {
     }
 
 
+    /**
+     * Checks if an object of a specific class can be converted to an element value
+     *
+     * @param type which should be checked
+     * @return true if an object of the type can be converted to an element value, false otherwise
+     */
     public static boolean isValueOnlySupported(Class<?> type) {
         if (isSerializableAsValue(type) || Submodel.class.isAssignableFrom(type) || ElementValue.class.isAssignableFrom(type)) {
             return true;
@@ -83,6 +98,12 @@ public class ElementValueHelper {
     }
 
 
+    /**
+     * Checks if an object of a specific class can be converted to an element value
+     *
+     * @param type which should be checked
+     * @return true if an object of the type can be converted to an element value, false otherwise
+     */
     public static boolean isSerializableAsValue(Class<?> type) {
         return DataElement.class.isAssignableFrom(type)
                 || SubmodelElementCollection.class.isAssignableFrom(type)

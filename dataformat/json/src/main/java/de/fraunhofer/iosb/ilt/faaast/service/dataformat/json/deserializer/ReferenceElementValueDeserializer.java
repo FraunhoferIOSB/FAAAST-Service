@@ -26,6 +26,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 
+/**
+ * Deserializer for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue}
+ */
 public class ReferenceElementValueDeserializer extends ContextAwareElementValueDeserializer<ReferenceElementValue> {
 
     public ReferenceElementValueDeserializer() {

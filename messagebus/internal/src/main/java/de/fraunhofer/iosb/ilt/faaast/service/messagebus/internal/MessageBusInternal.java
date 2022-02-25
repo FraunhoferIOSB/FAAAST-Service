@@ -51,13 +51,6 @@ public class MessageBusInternal implements MessageBus<MessageBusInternalConfig>,
     }
 
 
-    /**
-     * Initialize MessageBus
-     *
-     * @param coreConfig coreConfig
-     * @param config an instance of the corresponding message bus configuration
-     *            class
-     */
     @Override
     public void init(CoreConfig coreConfig, MessageBusInternalConfig config, ServiceContext context) {
         running.set(false);
@@ -65,9 +58,8 @@ public class MessageBusInternal implements MessageBus<MessageBusInternalConfig>,
 
 
     /**
-     * Publish a new EventMessage to the message bus
+     * {@inheritDoc}
      *
-     * @param message which should be published
      * @throws java.lang.InterruptedException
      */
     @Override
@@ -103,34 +95,18 @@ public class MessageBusInternal implements MessageBus<MessageBusInternalConfig>,
     }
 
 
-    /**
-     * Start MessageBus-Thread
-     */
     @Override
     public void start() {
         new Thread(this).start();
     }
 
 
-    /**
-     * Stop MessageBus-Thread
-     */
     @Override
     public void stop() {
         running.set(false);
     }
 
 
-    /**
-     * Subscribe to event messages published in the message bus. The
-     * Subscription Info determines which event messages are considered in
-     * detail
-     *
-     * @param subscriptionInfo to determine which event messages should be
-     *            considered
-     * @return the id of the created subscription in the message bus The id can
-     *         be used to update/unsubscribe this subscription.
-     */
     @Override
     public SubscriptionId subscribe(SubscriptionInfo subscriptionInfo) {
         if (subscriptionInfo == null) {
@@ -142,11 +118,6 @@ public class MessageBusInternal implements MessageBus<MessageBusInternalConfig>,
     }
 
 
-    /**
-     * Unsubscribe from a specific subscription by id
-     *
-     * @param id of the subscription which should be deleted
-     */
     @Override
     public void unsubscribe(SubscriptionId id) {
         subscriptions.remove(id);

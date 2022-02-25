@@ -16,15 +16,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.mixins
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
 import java.util.List;
 
 
-// @JsonSubTypes({
-// @Type(value = InvokeOperationSyncRequest.class),
-// @Type(value = InvokeOperationAsyncRequest.class)
-// })
+/**
+ * Mixing for {@link InvokeOperationRequest}
+ */
 public abstract class InvokeOperationRequestMixin {
 
     @JsonIgnore

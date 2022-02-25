@@ -26,6 +26,14 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 
 
+/**
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class GetSubmodelRequestHandler extends RequestHandler<GetSubmodelRequest, GetSubmodelResponse> {
 
     public GetSubmodelRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {

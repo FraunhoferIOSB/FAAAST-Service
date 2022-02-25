@@ -19,7 +19,23 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 
 
+/**
+ * Interface for deserializing content received via MQTT.
+ */
 public interface ContentDeserializer {
 
+    /**
+     * Parses a raw value received via MQTT to the corresponding
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue}.
+     *
+     * @param raw the raw message received via MQTT
+     * @param query additional query options, e.g. which part of the raw message
+     *            to use
+     * @param typeInfo type information about the expected
+     *            {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue}
+     *            needed to properly parse the raw value.
+     * @return the parsed value
+     * @throws AssetConnectionException if reading the value failed
+     */
     public DataElementValue read(String raw, String query, TypeInfo typeInfo) throws AssetConnectionException;
 }

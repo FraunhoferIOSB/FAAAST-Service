@@ -26,6 +26,14 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 
 
+/**
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetAdministrationShellRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetAdministrationShellResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class PutAssetAdministrationShellRequestHandler extends RequestHandler<PutAssetAdministrationShellRequest, PutAssetAdministrationShellResponse> {
 
     public PutAssetAdministrationShellRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {

@@ -19,7 +19,11 @@ import java.util.Date;
 import java.util.Objects;
 
 
+/**
+ * Model class representing a message.
+ */
 public class Message {
+
     private MessageType messageType;
     private String text;
     private String code;
@@ -67,10 +71,12 @@ public class Message {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         Message message = (Message) o;
         return messageType == message.messageType && Objects.equals(text, message.text) && Objects.equals(code, message.code) && Objects.equals(timestamp, message.timestamp);
     }

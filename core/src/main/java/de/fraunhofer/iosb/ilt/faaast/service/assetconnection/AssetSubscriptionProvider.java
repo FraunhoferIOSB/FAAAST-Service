@@ -25,6 +25,7 @@ public interface AssetSubscriptionProvider extends AssetProvider {
      * asset.
      *
      * @param listener listener to add
+     * @throws AssetConnectionException if adding listener fails
      */
     public void addNewDataListener(NewDataListener listener) throws AssetConnectionException;
 
@@ -33,6 +34,7 @@ public interface AssetSubscriptionProvider extends AssetProvider {
      * Remove NewDataListener if present, otherwise to nothing.
      *
      * @param listener listener to remove
+     * @throws AssetConnectionException if removinglistener fails
      */
     public void removeNewDataListener(NewDataListener listener) throws AssetConnectionException;
 }

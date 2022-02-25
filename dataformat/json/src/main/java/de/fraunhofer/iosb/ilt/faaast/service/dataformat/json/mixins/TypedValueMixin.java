@@ -17,6 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 
+/**
+ * Mixin for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue}
+ */
 public abstract class TypedValueMixin<T> {
 
     @JsonValue

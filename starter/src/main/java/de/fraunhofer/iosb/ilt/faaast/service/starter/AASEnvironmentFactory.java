@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class for creating the Asset Administration Shell Environment
+ * Class for creating the {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
  */
 public class AASEnvironmentFactory {
 
@@ -57,7 +57,7 @@ public class AASEnvironmentFactory {
 
 
     /**
-     * Get the Asset Administration Shell Environment from a file
+     * Get the {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} from a file
      *
      * @param file
      * @return the parsed Asset Administration Shell Environment object
@@ -69,7 +69,7 @@ public class AASEnvironmentFactory {
 
 
     /**
-     * Get an empty Asset Administration Shell Environment object
+     * Get an empty {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} object
      *
      * @return an empty Asset Administration Shell Environment
      */
@@ -79,15 +79,20 @@ public class AASEnvironmentFactory {
 
 
     /**
-     * Parses the content in the given file path to an Asset Administration Shell Environment.
+     * Parses the content in the given file path to an
+     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}.
      * Supported formats of the file:
-     * - json
-     * - aml
-     * - xml
-     * - opcua nodeset (also as .xml)
-     * - rdf
-     * - json-ld
-     * The method retrieves the right deserializer and parses the content to an Asset Administration Shell Environment.
+     * <p>
+     * <ul>
+     * <li>json
+     * <li>aml
+     * <li>xml
+     * <li>opcua nodeset (also as .xml)
+     * <li>rdf
+     * <li>json-ld
+     * </ul>
+     * The method retrieves the right deserializer and parses the content to an
+     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}.
      *
      * @param envFilePath of the file which contains the Asset Administration Shell Environment
      * @return the parsed Asset Administration Shell Environment object

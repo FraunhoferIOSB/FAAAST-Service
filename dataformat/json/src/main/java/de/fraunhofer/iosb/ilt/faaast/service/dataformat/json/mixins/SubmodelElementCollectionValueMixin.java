@@ -19,7 +19,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import java.util.Map;
 
 
-public abstract class ElementCollectionValueMixin {
+/**
+ * Mixin for {@link io.adminshell.aas.v3.model.SubmodelElementCollection}
+ */
+public abstract class SubmodelElementCollectionValueMixin {
 
     @JsonValue
     private Map<String, ElementValue> values;

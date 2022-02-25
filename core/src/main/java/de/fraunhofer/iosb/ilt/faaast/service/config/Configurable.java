@@ -18,26 +18,31 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 
 
 /**
- * Superclass of all classes that can be created by a correspondig configuration class.
- * 
+ * Superclass of all classes that can be created by a correspondig configuration
+ * class.
+ *
  * @param <T> type of the corresponding configuration class
  */
 public interface Configurable<T extends Config> {
 
     /**
-     * Initializes this object with a generic coreConfig and an instance of the corresponding configuration class.
-     * 
+     * Initializes this object with a generic coreConfig and an instance of the
+     * corresponding configuration class.
+     *
      * @param coreConfig coreConfig
      * @param config an instance of the corresponding configuration class
-     * @throws java.lang.Exception when initialization fails
+     * @param serviceContext service context this element is running under
+     * @throws java.lang.Exception if initialization fails
      */
     public void init(CoreConfig coreConfig, T config, ServiceContext serviceContext) throws Exception;
 
 
     /**
-     * Returns an instance of the corresponding configuration class representing the state this object.
-     * 
-     * @return an instance of the corresponding configuration class representing the state this object.
+     * Returns an instance of the corresponding configuration class representing
+     * the state this object.
+     *
+     * @return an instance of the corresponding configuration class representing
+     *         the state this object.
      */
     public T asConfig();
 }

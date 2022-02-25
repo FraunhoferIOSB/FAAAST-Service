@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.serialization;
 
+/**
+ * Enum describing supported serialization formats
+ */
 public enum SerializationFormat {
     JSON,
     XML,

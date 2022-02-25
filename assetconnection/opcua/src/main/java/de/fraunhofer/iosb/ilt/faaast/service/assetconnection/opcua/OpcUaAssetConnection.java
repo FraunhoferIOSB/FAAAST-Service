@@ -49,7 +49,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.milo.opcua.sdk.client.AddressSpace;
@@ -79,26 +78,52 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Implementation of OPC UA Asset Connection
+ * Implementation of
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection}
+ * for the OPC UA protocol.
+ * <p>
+ * All asset connection operations are supported.
+ * <p>
+ * This implementation currently only supports submodel elements of type
+ * {@link io.adminshell.aas.v3.model.Property} resp.
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
+ * <p>
+ * This class uses a single underlying OPC UA connection.
  */
-public class OpcUaAssetConnection
-        implements AssetConnection<OpcUaAssetConnectionConfig, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig> {
+public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectionConfig, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig> {
 
     private static Logger logger = LoggerFactory.getLogger(OpcUaAssetConnection.class);
-    private OpcUaAssetConnectionConfig config;
-    private Map<Reference, AssetValueProvider> valueProviders;
-    private Map<Reference, AssetOperationProvider> operationProviders;
-    private Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
-    private final Map<String, SubscriptionHandler> subscriptions;
-    private ManagedSubscription subscription;
-    private ServiceContext serviceContext;
-    private static ValueConverter valueConverter;
+    private static final ValueConverter valueConverter = new ValueConverter();
+
     private final String NODE_ID_SEPARATOR = ";";
     private final String NS_PREFIX = "ns=";
     private OpcUaClient client;
+    private OpcUaAssetConnectionConfig config;
+    private ManagedSubscription opcUaSubscription;
+    private Map<Reference, AssetOperationProvider> operationProviders;
+    private ServiceContext serviceContext;
+    private Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
+    private final Map<String, SubscriptionHandler> subscriptions;
+    private Map<Reference, AssetValueProvider> valueProviders;
+
+    private static void checkStatusCode(StatusCode statusCode, String errorMessage) throws AssetConnectionException {
+        String message = errorMessage;
+        if (statusCode.isBad()) {
+            Optional<String[]> errorCodeDetails = StatusCodes.lookup(statusCode.getValue());
+            if (errorCodeDetails.isPresent()) {
+                if (errorCodeDetails.get().length >= 1) {
+                    message += " - " + errorCodeDetails.get()[0];
+                }
+                if (errorCodeDetails.get().length > 1) {
+                    message += " (details: " + errorCodeDetails.get()[1] + ")";
+                }
+            }
+            throw new AssetConnectionException(message);
+        }
+    }
+
 
     public OpcUaAssetConnection() {
-        this.valueConverter = new ValueConverter();
         this.subscriptions = new HashMap<>();
         this.valueProviders = new HashMap<>();
         this.operationProviders = new HashMap<>();
@@ -106,9 +131,24 @@ public class OpcUaAssetConnection
     }
 
 
-    protected OpcUaAssetConnection(CoreConfig coreConfig, OpcUaAssetConnectionConfig config, ServiceContext context) throws AssetConnectionException {
+    /**
+     * Consutrctor to conveniently create and init asset connection from code.
+     *
+     * @param coreConfig core configuration
+     * @param config asset connection configuration
+     * @param serviceContext service context which this asset connection is
+     *            running in
+     * @throws AssetConnectionException if initialization fails
+     */
+    protected OpcUaAssetConnection(CoreConfig coreConfig, OpcUaAssetConnectionConfig config, ServiceContext serviceContext) throws AssetConnectionException {
         this();
-        init(coreConfig, config, context);
+        init(coreConfig, config, serviceContext);
+    }
+
+
+    @Override
+    public OpcUaAssetConnectionConfig asConfig() {
+        return config;
     }
 
 
@@ -134,6 +174,49 @@ public class OpcUaAssetConnection
     }
 
 
+    private void connect() throws AssetConnectionException {
+        try {
+            client = OpcUaClient.create(
+                    config.getHost(),
+                    endpoints -> endpoints.stream()
+                            .filter(e -> e.getSecurityPolicyUri().equals(SecurityPolicy.None.getUri()))
+                            .findFirst(),
+                    configBuilder -> configBuilder
+                            .setApplicationName(LocalizedText.english("AAS-Service"))
+                            .setApplicationUri("urn:de:fraunhofer:iosb:aas:service")
+                            .setIdentityProvider(AnonymousProvider.INSTANCE)
+                            .setRequestTimeout(uint(1000))
+                            .setAcknowledgeTimeout(uint(1000))
+                            .build());
+            client.connect().get();
+            // without sleep bad timeout while waiting for acknowledge appears from time to time
+            Thread.sleep(200);
+            opcUaSubscription = ManagedSubscription.create(client);
+        }
+        catch (InterruptedException | ExecutionException | UaException ex) {
+            throw new AssetConnectionException(String.format("error opening OPC UA connection (endpoint: %s)", config.getHost()), ex);
+        }
+    }
+
+
+    @Override
+    public Map<Reference, AssetOperationProvider> getOperationProviders() {
+        return this.operationProviders;
+    }
+
+
+    @Override
+    public Map<Reference, AssetSubscriptionProvider> getSubscriptionProviders() {
+        return this.subscriptionProviders;
+    }
+
+
+    @Override
+    public Map<Reference, AssetValueProvider> getValueProviders() {
+        return this.valueProviders;
+    }
+
+
     @Override
     public void init(CoreConfig coreConfig, OpcUaAssetConnectionConfig config, ServiceContext context) throws AssetConnectionException {
         this.serviceContext = context;
@@ -151,111 +234,47 @@ public class OpcUaAssetConnection
     }
 
 
-    @Override
-    public OpcUaAssetConnectionConfig asConfig() {
-        return config;
+    private NodeId parseNodeId(String nodeId) {
+        Optional<String> ns = Stream.of(nodeId.split(NODE_ID_SEPARATOR))
+                .filter(x -> x.startsWith(NS_PREFIX))
+                .findFirst();
+        int namespaceIndex = 0;
+        if (ns.isPresent()) {
+            String namespace = ns.get().replace(NS_PREFIX, "");
+            try {
+                namespaceIndex = Integer.parseUnsignedInt(namespace);
+            }
+            catch (NumberFormatException ex) {
+                UShort actualNamespaceIndex = client.getNamespaceTable().getIndex(namespace);
+                if (actualNamespaceIndex == null) {
+                    throw new RuntimeException(String.format("could not resolve namespace '%s'", namespace));
+                }
+                namespaceIndex = actualNamespaceIndex.intValue();
+            }
+        }
+        else {
+            System.out.println("no namespace provided for node. Using default (ns=0)");
+        }
+        return NodeId.parse(nodeId.replace(ns.get(), NS_PREFIX + namespaceIndex));
     }
 
 
-    private static void checkStatusCode(StatusCode statusCode, String errorMessage) throws AssetConnectionException {
-        String message = errorMessage;
-        if (statusCode.isBad()) {
-            Optional<String[]> errorCodeDetails = StatusCodes.lookup(statusCode.getValue());
-            if (errorCodeDetails.isPresent()) {
-                if (errorCodeDetails.get().length >= 1) {
-                    message += " - " + errorCodeDetails.get()[0];
-                }
-                if (errorCodeDetails.get().length > 1) {
-                    message += " (details: " + errorCodeDetails.get()[1] + ")";
-                }
-            }
-            throw new AssetConnectionException(message);
-        }
-    }
-
-
+    /**
+     * {@inheritdoc}
+     *
+     * @throws AssetConnectionException if nodeId could not be parsed
+     * @throws AssetConnectionException if nodeId does not refer to a method
+     *             node
+     * @throws AssetConnectionException if parent node of nodeId could not be
+     *             resolved
+     * @throws AssetConnectionException if output variables are null or do
+     *             contain any other type than
+     *             {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}
+     */
     @Override
-    public void registerValueProvider(Reference reference, OpcUaValueProviderConfig valueProviderConfig) throws AssetConnectionException {
-        final String baseErrorMessage = "error registering value provider";
-        TypeInfo typeInfo = serviceContext.getTypeInfo(reference);
-        if (typeInfo == null) {
-            throw new AssetConnectionException(
-                    String.format("%s - could not resolve type information (reference: %s)",
-                            baseErrorMessage,
-                            AasUtils.asString(reference)));
-        }
-        if (!ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
-            throw new AssetConnectionException(
-                    String.format("%s - reference must point to element with value (reference: %s)",
-                            baseErrorMessage,
-                            AasUtils.asString(reference)));
-        }
-        ElementValueTypeInfo valueTypeInfo = (ElementValueTypeInfo) typeInfo;
-        if (!PropertyValue.class.isAssignableFrom(valueTypeInfo.getType())) {
-            throw new AssetConnectionException(String.format("%s - unsupported element type (reference: %s, element type: %s)",
-                    baseErrorMessage,
-                    AasUtils.asString(reference),
-                    valueTypeInfo.getType()));
-        }
-        final Datatype datatype = valueTypeInfo.getDatatype();
-        if (datatype == null) {
-            throw new AssetConnectionException(String.format("%s - missing datatype (reference: %s)",
-                    baseErrorMessage,
-                    AasUtils.asString(reference)));
-        }
-        final VariableNode node;
-        try {
-            node = client.getAddressSpace().getVariableNode(parseNodeId(valueProviderConfig.getNodeId()));
-        }
-        catch (UaException ex) {
-            throw new AssetConnectionException(String.format("%s - could not parse nodeId (nodeId: %s)",
-                    baseErrorMessage,
-                    valueProviderConfig.getNodeId()), ex);
-        }
-        this.valueProviders.put(reference, new AssetValueProvider() {
-            @Override
-            public DataElementValue getValue() throws AssetConnectionException {
-                try {
-                    DataValue dataValue = client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()).get();
-                    checkStatusCode(dataValue.getStatusCode(), "error reading value from asset conenction");
-                    return new PropertyValue(valueConverter.convert(dataValue.getValue(), datatype));
-                }
-                catch (AssetConnectionException | InterruptedException | ExecutionException e) {
-                    throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)), e);
-                }
-            }
-
-
-            @Override
-            public void setValue(DataElementValue value) throws AssetConnectionException {
-                if (value == null) {
-                    throw new AssetConnectionException(
-                            String.format("error setting value on asset connection - value must be non-null (reference: %s)", AasUtils.asString(reference)));
-                }
-                if (!PropertyValue.class.isAssignableFrom(value.getClass())) {
-                    throw new AssetConnectionException(String.format("error setting value on asset connection - unsupported element type (reference: %s, element type: %s)",
-                            AasUtils.asString(reference),
-                            value.getClass()));
-                }
-                try {
-                    StatusCode result = client.writeValue(node.getNodeId(), new DataValue(
-                            valueConverter.convert(((PropertyValue) value).getValue(), node.getDataType()),
-                            null,
-                            null)).get();
-                    checkStatusCode(result, "error setting value on asset connection");
-                }
-                catch (InterruptedException | ExecutionException e) {
-                    throw new AssetConnectionException("error writing asset connection value", e);
-                }
-            }
-        });
-    }
-
-
-    @Override
-    public void registerOperationProvider(Reference reference, OpcUaOperationProviderConfig config) throws AssetConnectionException {
+    public void registerOperationProvider(Reference reference, OpcUaOperationProviderConfig operationProvider) throws AssetConnectionException {
         String baseErrorMessage = "error registering operation provider";
-        final NodeId nodeId = parseNodeId(config.getNodeId());
+        final NodeId nodeId = parseNodeId(operationProvider.getNodeId());
         final UaNode node;
         try {
             node = client.getAddressSpace().getNode(nodeId);
@@ -263,13 +282,13 @@ public class OpcUaAssetConnection
         catch (UaException ex) {
             throw new AssetConnectionException(String.format("%s - could not resolve nodeId (nodeId: %s)",
                     baseErrorMessage,
-                    config.getNodeId()),
+                    operationProvider.getNodeId()),
                     ex);
         }
         if (!UaMethodNode.class.isAssignableFrom(node.getClass())) {
             throw new AssetConnectionException(String.format("%s - provided node must be a method (nodeId: %s",
                     baseErrorMessage,
-                    config.getNodeId()));
+                    operationProvider.getNodeId()));
         }
         final UaMethodNode methodNode = (UaMethodNode) node;
         final NodeId parentNodeId;
@@ -285,7 +304,7 @@ public class OpcUaAssetConnection
         catch (UaException ex) {
             throw new AssetConnectionException(String.format("%s - could not resolve parent node (nodeId: %s)",
                     baseErrorMessage,
-                    config.getNodeId()),
+                    operationProvider.getNodeId()),
                     ex);
         }
         final Argument[] methodArguments;
@@ -297,7 +316,7 @@ public class OpcUaAssetConnection
         catch (InterruptedException | ExecutionException ex) {
             throw new AssetConnectionException(String.format("%s - could not read input arguments (nodeId: %s)",
                     baseErrorMessage,
-                    config.getNodeId()),
+                    operationProvider.getNodeId()),
                     ex);
         }
         final Argument[] methodOutputArguments;
@@ -309,7 +328,7 @@ public class OpcUaAssetConnection
         catch (InterruptedException | ExecutionException ex) {
             throw new AssetConnectionException(String.format("%s - could not read ouput arguments (nodeId: %s)",
                     baseErrorMessage,
-                    config.getNodeId()),
+                    operationProvider.getNodeId()),
                     ex);
         }
         final OperationVariable[] outputVariables = serviceContext.getOperationOutputVariables(reference) != null
@@ -319,19 +338,19 @@ public class OpcUaAssetConnection
             if (outputVariable == null) {
                 throw new AssetConnectionException(String.format("%s - output variable must be non-null (nodeId: %s)",
                         baseErrorMessage,
-                        config.getNodeId()));
+                        operationProvider.getNodeId()));
             }
             SubmodelElement submodelElement = outputVariable.getValue();
             if (submodelElement == null) {
                 throw new AssetConnectionException(String.format("%s - output variable must contain non-null submodel element (nodeId: %s)",
                         baseErrorMessage,
-                        config.getNodeId()));
+                        operationProvider.getNodeId()));
             }
             if (!Property.class.isAssignableFrom(submodelElement.getClass())) {
                 throw new AssetConnectionException(String.format("%s - unsupported element type (nodeId: %s, element type: %s)",
                         baseErrorMessage,
                         submodelElement.getClass(),
-                        config.getNodeId()));
+                        operationProvider.getNodeId()));
             }
         }
 
@@ -396,13 +415,11 @@ public class OpcUaAssetConnection
                 catch (InterruptedException | ExecutionException ex) {
                     throw new AssetConnectionException(String.format("%s - executing OPC UA method failed (nodeId: %s)",
                             baseErrorMessage,
-                            config.getNodeId()));
+                            operationProvider.getNodeId()));
                 }
-                //reading output arguments
                 OperationVariable[] result = new OperationVariable[outputVariables.length];
                 for (int i = 0; i < methodOutputArguments.length; i++) {
                     String argumentName = methodArguments[i].getName();
-                    // check if it is an output variable, then find position in output array and assign
                     for (int j = 0; j < outputVariables.length; j++) {
                         if (Objects.equals(argumentName, outputVariables[j].getValue().getIdShort())) {
                             SubmodelElement element = outputVariables[j].getValue();
@@ -437,19 +454,21 @@ public class OpcUaAssetConnection
                 }
                 return result;
             }
-
-
-            @Override
-            public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callback)
-                    throws AssetConnectionException {
-                throw new UnsupportedOperationException("not supported yet.");
-            }
         });
     }
 
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws AssetConnectionException if reference does not point to a
+     *             {@link io.adminshell.aas.v3.model.Property}
+     * @throws AssetConnectionException if referenced
+     *             {@link io.adminshell.aas.v3.model.Property} does not have datatype
+     *             defined
+     */
     @Override
-    public void registerSubscriptionProvider(Reference reference, OpcUaSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
+    public void registerSubscriptionProvider(Reference reference, OpcUaSubscriptionProviderConfig subscriptionProvider) throws AssetConnectionException {
         final String baseErrorMessage = "error registering subscription provider";
         TypeInfo typeInfo = serviceContext.getTypeInfo(reference);
         if (typeInfo == null) {
@@ -480,25 +499,22 @@ public class OpcUaAssetConnection
         this.subscriptionProviders.put(reference, new AssetSubscriptionProvider() {
             @Override
             public void addNewDataListener(NewDataListener listener) throws AssetConnectionException {
-                // check if there already is a subscription
-                // if yes, attach listener to existing subscription
-                // if no, create subscription & attach listener
-                if (!subscriptions.containsKey(providerConfig.getNodeId())) {
+                if (!subscriptions.containsKey(subscriptionProvider.getNodeId())) {
                     SubscriptionHandler handler = new SubscriptionHandler();
                     handler.datatype = datatype;
                     try {
                         handler.originalValue = client.readValue(0, TimestampsToReturn.Neither,
-                                client.getAddressSpace().getVariableNode(parseNodeId(providerConfig.getNodeId())).getNodeId()).get();
+                                client.getAddressSpace().getVariableNode(parseNodeId(subscriptionProvider.getNodeId())).getNodeId()).get();
                     }
                     catch (UaException | InterruptedException | ExecutionException ex) {
                         logger.warn("{} - reading initial value of subscribed node failed (reference: {}, nodeId: {})",
                                 baseErrorMessage,
                                 AasUtils.asString(reference),
-                                providerConfig.getNodeId());
+                                subscriptionProvider.getNodeId());
                     }
                     try {
-                        handler.dataItem = subscription.createDataItem(
-                                parseNodeId(providerConfig.getNodeId()),
+                        handler.dataItem = opcUaSubscription.createDataItem(
+                                parseNodeId(subscriptionProvider.getNodeId()),
                                 LambdaExceptionHelper.rethrowConsumer(
                                         x -> {
                                             x.addDataValueListener(LambdaExceptionHelper.rethrowConsumer(v -> handler.notify(v)));
@@ -508,11 +524,11 @@ public class OpcUaAssetConnection
                         logger.warn("{} - could not create subscrption item (reference: {}, nodeId: {})",
                                 baseErrorMessage,
                                 AasUtils.asString(reference),
-                                providerConfig.getNodeId());
+                                subscriptionProvider.getNodeId());
                     }
-                    subscriptions.put(providerConfig.getNodeId(), handler);
+                    subscriptions.put(subscriptionProvider.getNodeId(), handler);
                 }
-                List<NewDataListener> listeners = subscriptions.get(providerConfig.getNodeId()).listeners;
+                List<NewDataListener> listeners = subscriptions.get(subscriptionProvider.getNodeId()).listeners;
                 if (!listeners.contains(listener)) {
                     listeners.add(listener);
                 }
@@ -522,22 +538,22 @@ public class OpcUaAssetConnection
             @Override
             public void removeNewDataListener(NewDataListener listener) throws AssetConnectionException {
 
-                if (subscriptions.containsKey(providerConfig.getNodeId())) {
-                    SubscriptionHandler handler = subscriptions.get(providerConfig.getNodeId());
+                if (subscriptions.containsKey(subscriptionProvider.getNodeId())) {
+                    SubscriptionHandler handler = subscriptions.get(subscriptionProvider.getNodeId());
                     if (handler.listeners.contains(listener)) {
                         handler.listeners.remove(listener);
                     }
                     if (handler.listeners.isEmpty()) {
                         try {
                             handler.dataItem.delete();
-                            subscriptions.remove(providerConfig.getNodeId());
+                            subscriptions.remove(subscriptionProvider.getNodeId());
                         }
                         catch (UaException ex) {
                             throw new AssetConnectionException(
                                     String.format("%s - removing subscription failed (reference: %s, nodeId: %s)",
                                             baseErrorMessage,
                                             AasUtils.asString(reference),
-                                            providerConfig.getNodeId()),
+                                            subscriptionProvider.getNodeId()),
                                     ex);
                         }
                     }
@@ -545,6 +561,118 @@ public class OpcUaAssetConnection
 
             }
         });
+    }
+
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws AssetConnectionException if reference does not point to a
+     *             {@link io.adminshell.aas.v3.model.Property}
+     * @throws AssetConnectionException if referenced
+     *             {@link io.adminshell.aas.v3.model.Property} does not have datatype
+     *             defined
+     * @throws AssetConnectionException if nodeId could not be parsed
+     */
+    @Override
+    public void registerValueProvider(Reference reference, OpcUaValueProviderConfig valueProvider) throws AssetConnectionException {
+        final String baseErrorMessage = "error registering value provider";
+        TypeInfo typeInfo = serviceContext.getTypeInfo(reference);
+        if (typeInfo == null) {
+            throw new AssetConnectionException(
+                    String.format("%s - could not resolve type information (reference: %s)",
+                            baseErrorMessage,
+                            AasUtils.asString(reference)));
+        }
+        if (!ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
+            throw new AssetConnectionException(
+                    String.format("%s - reference must point to element with value (reference: %s)",
+                            baseErrorMessage,
+                            AasUtils.asString(reference)));
+        }
+        ElementValueTypeInfo valueTypeInfo = (ElementValueTypeInfo) typeInfo;
+        if (!PropertyValue.class.isAssignableFrom(valueTypeInfo.getType())) {
+            throw new AssetConnectionException(String.format("%s - unsupported element type (reference: %s, element type: %s)",
+                    baseErrorMessage,
+                    AasUtils.asString(reference),
+                    valueTypeInfo.getType()));
+        }
+        final Datatype datatype = valueTypeInfo.getDatatype();
+        if (datatype == null) {
+            throw new AssetConnectionException(String.format("%s - missing datatype (reference: %s)",
+                    baseErrorMessage,
+                    AasUtils.asString(reference)));
+        }
+        final VariableNode node;
+        try {
+            node = client.getAddressSpace().getVariableNode(parseNodeId(valueProvider.getNodeId()));
+        }
+        catch (UaException ex) {
+            throw new AssetConnectionException(String.format("%s - could not parse nodeId (nodeId: %s)",
+                    baseErrorMessage,
+                    valueProvider.getNodeId()), ex);
+        }
+        this.valueProviders.put(reference, new AssetValueProvider() {
+            @Override
+            public DataElementValue getValue() throws AssetConnectionException {
+                try {
+                    DataValue dataValue = client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()).get();
+                    checkStatusCode(dataValue.getStatusCode(), "error reading value from asset conenction");
+                    return new PropertyValue(valueConverter.convert(dataValue.getValue(), datatype));
+                }
+                catch (AssetConnectionException | InterruptedException | ExecutionException e) {
+                    throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)), e);
+                }
+            }
+
+
+            @Override
+            public void setValue(DataElementValue value) throws AssetConnectionException {
+                if (value == null) {
+                    throw new AssetConnectionException(
+                            String.format("error setting value on asset connection - value must be non-null (reference: %s)", AasUtils.asString(reference)));
+                }
+                if (!PropertyValue.class.isAssignableFrom(value.getClass())) {
+                    throw new AssetConnectionException(String.format("error setting value on asset connection - unsupported element type (reference: %s, element type: %s)",
+                            AasUtils.asString(reference),
+                            value.getClass()));
+                }
+                try {
+                    StatusCode result = client.writeValue(node.getNodeId(), new DataValue(
+                            valueConverter.convert(((PropertyValue) value).getValue(), node.getDataType()),
+                            null,
+                            null)).get();
+                    checkStatusCode(result, "error setting value on asset connection");
+                }
+                catch (InterruptedException | ExecutionException e) {
+                    throw new AssetConnectionException("error writing asset connection value", e);
+                }
+            }
+        });
+    }
+
+
+    @Override
+    public boolean sameAs(AssetConnection other) {
+        return false;
+    }
+
+
+    @Override
+    public void unregisterOperationProvider(Reference reference) {
+        this.operationProviders.remove(reference);
+    }
+
+
+    @Override
+    public void unregisterSubscriptionProvider(Reference reference) {
+        this.subscriptionProviders.remove(reference);
+    }
+
+
+    @Override
+    public void unregisterValueProvider(Reference reference) {
+        this.valueProviders.remove(reference);
     }
 
     private static class SubscriptionHandler {
@@ -572,97 +700,6 @@ public class OpcUaAssetConnection
             finally {
                 firstCall = false;
             }
-        }
-    }
-
-    @Override
-    public void unregisterValueProvider(Reference reference) {
-        this.valueProviders.remove(reference);
-    }
-
-
-    @Override
-    public void unregisterOperationProvider(Reference reference) {
-        this.operationProviders.remove(reference);
-    }
-
-
-    @Override
-    public void unregisterSubscriptionProvider(Reference reference) {
-        this.subscriptionProviders.remove(reference);
-    }
-
-
-    @Override
-    public Map<Reference, AssetValueProvider> getValueProviders() {
-        return this.valueProviders;
-    }
-
-
-    @Override
-    public Map<Reference, AssetOperationProvider> getOperationProviders() {
-        return this.operationProviders;
-    }
-
-
-    @Override
-    public Map<Reference, AssetSubscriptionProvider> getSubscriptionProviders() {
-        return this.subscriptionProviders;
-    }
-
-
-    @Override
-    public boolean sameAs(AssetConnection other) {
-        return false;
-    }
-
-
-    public NodeId parseNodeId(String nodeId) {
-        Optional<String> ns = Stream.of(nodeId.split(NODE_ID_SEPARATOR))
-                .filter(x -> x.startsWith(NS_PREFIX))
-                .findFirst();
-        int namespaceIndex = 0;
-        if (ns.isPresent()) {
-            String namespace = ns.get().replace(NS_PREFIX, "");
-            try {
-                namespaceIndex = Integer.parseUnsignedInt(namespace);
-            }
-            catch (NumberFormatException ex) {
-                UShort actualNamespaceIndex = client.getNamespaceTable().getIndex(namespace);
-                if (actualNamespaceIndex == null) {
-                    throw new RuntimeException(String.format("could not resolve namespace '%s'", namespace));
-                }
-                namespaceIndex = actualNamespaceIndex.intValue();
-            }
-        }
-        else {
-            System.out.println("no namespace provided for node. Using default (ns=0)");
-        }
-        return NodeId.parse(nodeId.replace(ns.get(), NS_PREFIX + namespaceIndex));
-    }
-
-
-    public void connect() throws AssetConnectionException {
-        try {
-            client = OpcUaClient.create(
-                    config.getHost(),
-                    endpoints -> endpoints.stream()
-                            .filter(e -> e.getSecurityPolicyUri().equals(SecurityPolicy.None.getUri()))
-                            .findFirst(),
-                    configBuilder -> configBuilder
-                            .setApplicationName(LocalizedText.english("AAS-Service"))
-                            .setApplicationUri("urn:de:fraunhofer:iosb:aas:service")
-                            .setIdentityProvider(AnonymousProvider.INSTANCE)
-                            .setRequestTimeout(uint(1000))
-                            .setAcknowledgeTimeout(uint(1000))
-                            .build());
-            client.connect().get();
-            // without sleep bad timeout while waiting for acknowledge appears from time to time
-            Thread.sleep(200);
-            subscription = ManagedSubscription.create(client);
-        }
-        catch (InterruptedException | ExecutionException | UaException ex) {
-            throw new AssetConnectionException(String.format("error opening OPC UA connection (endpoint: %s)", config.getHost()), ex);
         }
     }
 }

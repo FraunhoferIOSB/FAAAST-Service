@@ -17,4 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 
 
+/**
+ * Abstract base class for all change event messages that are sent via message bus
+ */
 public abstract class ChangeEventMessage extends EventMessage {}

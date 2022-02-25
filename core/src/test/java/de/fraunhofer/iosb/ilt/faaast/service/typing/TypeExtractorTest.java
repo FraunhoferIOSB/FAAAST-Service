@@ -15,10 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.typing;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.EntityType;
@@ -63,7 +63,7 @@ public class TypeExtractorTest {
                         .type(PropertyValue.class)
                         .build())
                 .element("collection1", ElementValueTypeInfo.builder()
-                        .type(ElementCollectionValue.class)
+                        .type(SubmodelElementCollectionValue.class)
                         .element("doubleRange1", ElementValueTypeInfo.builder()
                                 .datatype(Datatype.Double)
                                 .type(RangeValue.class)
@@ -203,7 +203,7 @@ public class TypeExtractorTest {
     @Test
     public void testSubmodelElementCollection() {
         TypeInfo expected = ElementValueTypeInfo.builder()
-                .type(ElementCollectionValue.class)
+                .type(SubmodelElementCollectionValue.class)
                 .element("stringProp1", ElementValueTypeInfo.builder()
                         .datatype(Datatype.String)
                         .type(PropertyValue.class)
@@ -256,7 +256,7 @@ public class TypeExtractorTest {
     @Test
     public void testNestedSubmodelElementCollection() {
         TypeInfo expected = ElementValueTypeInfo.builder()
-                .type(ElementCollectionValue.class)
+                .type(SubmodelElementCollectionValue.class)
                 .element("stringProp1", ElementValueTypeInfo.builder()
                         .datatype(Datatype.String)
                         .type(PropertyValue.class)
@@ -273,7 +273,7 @@ public class TypeExtractorTest {
                                 .build())
                         .build())
                 .element("collection2", ElementValueTypeInfo.builder()
-                        .type(ElementCollectionValue.class)
+                        .type(SubmodelElementCollectionValue.class)
                         .element("stringProp2", ElementValueTypeInfo.builder()
                                 .datatype(Datatype.String)
                                 .type(PropertyValue.class)

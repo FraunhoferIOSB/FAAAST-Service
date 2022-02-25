@@ -15,7 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
 /**
- * Value Data Model Base Class
+ * Abstract superclass representing the value of a
+ * {@link io.adminshell.aas.v3.model.SubmodelElement}
  */
 public abstract class ElementValue {
 

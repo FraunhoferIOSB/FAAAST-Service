@@ -21,21 +21,27 @@ import java.util.Map;
 
 /**
  * Interface for asset connections, i.e. connecting assets to the AAS (a.k.a.
- * lower DT interface). An AssetConnection can support the following operations
- * - get/set data values from/to the asset (via AssetValueProvider) - execute
- * operations on the asset (via AssetOperationProvider) - get values from the
- * asset by subscribe to it (via AssetSubscriptionProvider)
+ * lower DT interface). An asset connection can support the following
+ * operations:
+ * <ul>
+ * <li>get/set data values from/to the asset (via {@link AssetValueProvider})
+ * <li>execute operations on the asset (via {@link AssetOperationProvider})
+ * <li>subscribe to new values from the asset (via
+ * {@link AssetSubscriptionProvider})
+ * </ul>
  *
  * @param <T> corresponding config type
- * @param <V> type of value provider for this asset connection
- * @param <O> type of operation provider for this asset connection
- * @param <S> type of subscription for this asset connection
+ * @param <V> type of value provider config
+ * @param <O> type of operation provider config
+ * @param <S> type of subscription config
  */
 public interface AssetConnection<T extends AssetConnectionConfig, V extends AssetValueProviderConfig, O extends AssetOperationProviderConfig, S extends AssetSubscriptionProviderConfig>
         extends Configurable<T> {
 
     /**
      * Gracefully closes the asset connection.
+     *
+     * @throws AssetConnectionException if closing fails
      */
     public void close() throws AssetConnectionException;
 
@@ -55,6 +61,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      * @param reference Reference to the AAS element that this provider will map
      *            to
      * @param operationProvider AssetOperationProvider instance to use
+     * @throws AssetConnectionException if registering provider fails
      */
     public void registerOperationProvider(Reference reference, O operationProvider) throws AssetConnectionException;
 
@@ -65,6 +72,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      * @param reference Reference to the AAS element that this provider will map
      *            to
      * @param subscriptionProvider AssetSubscriptionProvider instance to use
+     * @throws AssetConnectionException if registering provider fails
      */
     public void registerSubscriptionProvider(Reference reference, S subscriptionProvider) throws AssetConnectionException;
 
@@ -75,6 +83,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      * @param reference Reference to the AAS element that this provider will map
      *            to
      * @param valueProvider AssetValueProvider instance to use
+     * @throws AssetConnectionException if registering provider fails
      */
     public void registerValueProvider(Reference reference, V valueProvider) throws AssetConnectionException;
 
@@ -94,6 +103,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      *
      * @param reference Reference to the AAS element that this provider should
      *            be unregistered for
+     * @throws AssetConnectionException if unregistering provider fails
      */
     public void unregisterOperationProvider(Reference reference) throws AssetConnectionException;
 
@@ -103,6 +113,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      *
      * @param reference Reference to the AAS element that this provider should
      *            be unregistered for
+     * @throws AssetConnectionException if unregistering provider fails
      */
     public void unregisterSubscriptionProvider(Reference reference) throws AssetConnectionException;
 
@@ -112,6 +123,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      *
      * @param reference Reference to the AAS element that this provider should
      *            be unregistered for
+     * @throws AssetConnectionException if unregistering provider fails
      */
     public void unregisterValueProvider(Reference reference) throws AssetConnectionException;
 

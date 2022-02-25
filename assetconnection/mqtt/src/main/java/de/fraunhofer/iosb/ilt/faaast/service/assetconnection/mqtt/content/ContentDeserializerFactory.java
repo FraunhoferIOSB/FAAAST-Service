@@ -14,13 +14,23 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content;
 
+/**
+ * Factory class for {@link ContentDeserializer} based on {@link ContentFormat}.
+ */
 public class ContentDeserializerFactory {
 
-    private ContentDeserializerFactory() {
-
-    }
+    private ContentDeserializerFactory() {}
 
 
+    /**
+     * Instantiate {@link ContentDeserializer} based on provided
+     * {@link ContentFormat}.
+     *
+     * @param format content format to use
+     * @return instance of {@link ContentDeserializer} able to deserialize given
+     *         format
+     * @throws IllegalArgumentException if provided format is not supported
+     */
     public static ContentDeserializer create(ContentFormat format) {
         switch (format) {
             case JSON:

@@ -18,6 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import java.util.Objects;
 
 
+/**
+ * Event message indicating that the value of an element has been read
+ */
 public class ValueReadEventMessage extends ReadEventMessage {
 
     private ElementValue value;

@@ -20,6 +20,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 
+/**
+ * Helper class for base64 and base64URL encoding and decoding
+ */
 public class EncodingHelper {
 
     private EncodingHelper() {
@@ -27,32 +30,68 @@ public class EncodingHelper {
     }
 
 
+    /**
+     * Encode url decoded string with charset UTF-8
+     * 
+     * @param value string to encode
+     * @return encoded string
+     */
     public static String urlEncode(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
 
+    /**
+     * Url decode string with charset UTF-8
+     * 
+     * @param value url encoded string
+     * @return decoded string
+     */
     public static String urlDecode(String value) {
         return URLDecoder.decode(value, StandardCharsets.UTF_8);
     }
 
 
+    /**
+     * Base64 encode string
+     * 
+     * @param value string to encode
+     * @return encoded string
+     */
     public static String base64Encode(String value) {
         return Base64.getEncoder().encodeToString(value.getBytes());
     }
 
 
+    /**
+     * Decode a base64 encoded string
+     * 
+     * @param value base64 encoded string
+     * @return decoded string
+     */
     public static String base64Decode(String value) {
         return new String(Base64.getDecoder().decode(value));
 
     }
 
 
+    /**
+     * Base64URL encode string
+     * 
+     * @param value string to encode
+     * @return encoded string
+     */
     public static String base64UrlEncode(String value) {
         return Base64.getUrlEncoder().encodeToString(value.getBytes());
     }
 
 
+    /**
+     * Decode a base64Url encoded string
+     * 
+     * @param value base64Url encoded string
+     * @return decoded string
+     */
     public static String base64UrlDecode(String value) {
         return new String(Base64.getUrlDecoder().decode(value));
     }

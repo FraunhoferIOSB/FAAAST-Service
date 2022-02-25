@@ -26,6 +26,14 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.ConceptDescription;
 
 
+/**
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteConceptDescriptionByIdRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteConceptDescriptionByIdResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class DeleteConceptDescriptionByIdRequestHandler extends RequestHandler<DeleteConceptDescriptionByIdRequest, DeleteConceptDescriptionByIdResponse> {
 
     public DeleteConceptDescriptionByIdRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {

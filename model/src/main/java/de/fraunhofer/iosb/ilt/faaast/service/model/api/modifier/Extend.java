@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier;
 import java.util.stream.Stream;
 
 
+/**
+ * Enum of different extend options
+ */
 public enum Extend {
     WithoutBLOBValue,
     WithBLOBValue;

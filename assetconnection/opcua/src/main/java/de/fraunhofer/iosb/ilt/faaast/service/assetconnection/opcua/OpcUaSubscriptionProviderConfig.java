@@ -19,6 +19,10 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
+/**
+ * Config file for OPC UA-based
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider}.
+ */
 public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
 
     public String getNodeId() {

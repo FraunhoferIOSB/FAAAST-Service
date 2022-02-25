@@ -19,7 +19,18 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 
 
+/**
+ * Converts values from AAS types to OPC UA types
+ */
 public interface AasToOpcUaValueConverter {
 
+    /**
+     * Converts a given AAS-based value to an OPC UA-based value.
+     *
+     * @param value AAS-based input value
+     * @param targetType OPC UA-based target type
+     * @return OPC UA-compliant value
+     * @throws ValueConversionException if conversion fails
+     */
     public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException;
 }

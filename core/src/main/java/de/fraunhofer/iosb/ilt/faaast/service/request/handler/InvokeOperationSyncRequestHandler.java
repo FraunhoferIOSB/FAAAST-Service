@@ -25,7 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
@@ -39,6 +39,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 
+/**
+ * Class to handle a
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest}
+ * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse}.
+ * Is responsible for communication with the persistence and sends the corresponding events to the
+ * message bus.
+ */
 public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
 
     public InvokeOperationSyncRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
@@ -48,7 +56,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
 
     @Override
     public InvokeOperationSyncResponse process(InvokeOperationSyncRequest request) {
-        Reference reference = ElementPathHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
         InvokeOperationSyncResponse response = new InvokeOperationSyncResponse();
         try {
             //Check if submodelelement does exist

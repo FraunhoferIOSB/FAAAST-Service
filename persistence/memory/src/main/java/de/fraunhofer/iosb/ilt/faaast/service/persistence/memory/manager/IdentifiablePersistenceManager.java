@@ -37,10 +37,36 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Class to handle identifiable elements
+ * Class to handle {@link io.adminshell.aas.v3.model.Identifiable}
+ * Following identifiables are supported:
+ * <p>
+ * <ul>
+ * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
+ * <li>{@link io.adminshell.aas.v3.model.Submodel}
+ * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
+ * <li>{@link io.adminshell.aas.v3.model.Asset}
+ * </ul>
+ * <p>
  */
 public class IdentifiablePersistenceManager extends PersistenceManager {
 
+    /**
+     * Get an identifiable by its identifier
+     * Following identifiables are supported:
+     * <p>
+     * <ul>
+     * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
+     * <li>{@link io.adminshell.aas.v3.model.Submodel}
+     * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
+     * <li>{@link io.adminshell.aas.v3.model.Asset}
+     * </ul>
+     * <p>
+     *
+     * @param id of the Identifiable
+     * @param <T> type of the Identifiable
+     * @return the Identifiable
+     * @throws ResourceNotFoundException
+     */
     public <T extends Identifiable> T getIdentifiableById(Identifier id) throws ResourceNotFoundException {
         if (id == null || this.aasEnvironment == null) {
             return null;
@@ -59,6 +85,21 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
     }
 
 
+    /**
+     * Get a list of asset administration shells by idShort or by a list of assetIds.
+     * The assetIds could contain two types
+     * <p>
+     * <ul>
+     * <li>{@link de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification}
+     * <li>{@link de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification}
+     * </ul>
+     * <p>
+     * If both parameters are null all asset administration shells will be returned.
+     *
+     * @param idShort of the searched asset administration shells
+     * @param assetIds list of asset identifications
+     * @return a list of asset administration shells matching the parameters
+     */
     public List<AssetAdministrationShell> getAASs(String idShort, List<AssetIdentification> assetIds) {
         if (this.aasEnvironment == null) {
             return null;
@@ -96,6 +137,14 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
     }
 
 
+    /**
+     * Get a list of submodels by idshort or by semantic id.
+     * If both parameters are null all submodels will be returned.
+     *
+     * @param idShort of the searched submodels
+     * @param semanticId of the searched submodels
+     * @return a list of submodels matching the criteria
+     */
     public List<Submodel> getSubmodels(String idShort, Reference semanticId) {
         if (this.aasEnvironment == null) {
             return null;
@@ -118,6 +167,15 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
     }
 
 
+    /**
+     * Get a list of concept descriptions by idshort, isCaseOf and dataSpecification.
+     * Adds all matching concept descriptions for each parameter to the result list.
+     *
+     * @param idShort of the searched concept descriptions
+     * @param isCaseOf of the searched concept descriptions
+     * @param dataSpecification of the searched concept descriptions
+     * @return a list of all concept descriptions which matches at least one of the criteria
+     */
     public List<ConceptDescription> getConceptDescriptions(String idShort, Reference isCaseOf, Reference dataSpecification) {
         if (this.aasEnvironment == null) {
             return null;
@@ -168,6 +226,21 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
     }
 
 
+    /**
+     * Remove an identifiable by its identifier.
+     * Following identifiables are supported:
+     * <p>
+     * <ul>
+     * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
+     * <li>{@link io.adminshell.aas.v3.model.Submodel}
+     * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
+     * <li>{@link io.adminshell.aas.v3.model.Asset}
+     * </ul>
+     * <p>
+     *
+     * @param id of the indetifiable which should be removed
+     * @throws ResourceNotFoundException if there is no identifiable with such an identifer
+     */
     public void remove(Identifier id) throws ResourceNotFoundException {
         if (id == null || this.aasEnvironment == null) {
             return;
@@ -177,7 +250,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
 
         Identifiable identifiable = getIdentifiableById(id);
         if (identifiable == null) {
-            return;
+            throw new ResourceNotFoundException("Resource not found with ID " + id.getIdentifier());
         }
 
         //TODO: use reflection?
@@ -202,33 +275,46 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
             List<Asset> newAssetList;
             newAssetList = this.aasEnvironment.getAssets().stream().filter(removeFilter).collect(Collectors.toList());
             this.aasEnvironment.setAssets(newAssetList);
-            //TODO: Remove belonging AssetInformation of AAS?
         }
     }
 
 
+    /**
+     * Create or Update an identifiable
+     * Following identifiables are supported:
+     * <p>
+     * <ul>
+     * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
+     * <li>{@link io.adminshell.aas.v3.model.Submodel}
+     * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
+     * <li>{@link io.adminshell.aas.v3.model.Asset}
+     * </ul>
+     * <p>
+     * 
+     * @param identifiable which should be added or updated
+     * @return the added or updated identifiable
+     */
     public Identifiable put(Identifiable identifiable) {
         if (identifiable == null || this.aasEnvironment == null) {
             return null;
         }
 
         if (Submodel.class.isAssignableFrom(identifiable.getClass())) {
-            this.aasEnvironment.setSubmodels(EnvironmentHelper.updateIdentifiableList(Submodel.class, this.aasEnvironment.getSubmodels(), identifiable));
+            this.aasEnvironment.setSubmodels(EnvironmentHelper.updateIdentifiableList(this.aasEnvironment.getSubmodels(), identifiable));
             return identifiable;
         }
         else if (AssetAdministrationShell.class.isAssignableFrom(identifiable.getClass())) {
             this.aasEnvironment.setAssetAdministrationShells(
-                    EnvironmentHelper.updateIdentifiableList(AssetAdministrationShell.class, this.aasEnvironment.getAssetAdministrationShells(), identifiable));
+                    EnvironmentHelper.updateIdentifiableList(this.aasEnvironment.getAssetAdministrationShells(), identifiable));
             return identifiable;
         }
         else if (ConceptDescription.class.isAssignableFrom(identifiable.getClass())) {
             this.aasEnvironment
-                    .setConceptDescriptions(EnvironmentHelper.updateIdentifiableList(ConceptDescription.class, this.aasEnvironment.getConceptDescriptions(), identifiable));
+                    .setConceptDescriptions(EnvironmentHelper.updateIdentifiableList(this.aasEnvironment.getConceptDescriptions(), identifiable));
             return identifiable;
         }
         else if (Asset.class.isAssignableFrom(identifiable.getClass())) {
-            this.aasEnvironment.setAssets(EnvironmentHelper.updateIdentifiableList(Asset.class, this.aasEnvironment.getAssets(), identifiable));
-            //TODO: Add belonging AssetInformation to AAS?
+            this.aasEnvironment.setAssets(EnvironmentHelper.updateIdentifiableList(this.aasEnvironment.getAssets(), identifiable));
             return identifiable;
         }
         return null;
