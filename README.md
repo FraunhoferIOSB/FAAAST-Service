@@ -99,7 +99,7 @@ Fa³ST Service uses an open architecture and defines interfaces for most functio
 
 This section provides a short introduction of the most important command line arguments. For more details see the [full documentation](./documentation/commandline.md).
 
-If not already done, follow the step in [Building from Source](#Building from Source).
+If not already done, follow the step in [Building from Source](#building-from-source).
 
 1. Move to the output folder of the starter
 	```sh
@@ -170,7 +170,7 @@ Similarly to the above examples you can pass more arguments to the FA³ST servic
 ## Components
 
 ### Configuration
-This section gives a short introduction how the configuration file worls. Details can be found in the [full documentation](./documentation/configuration.md).
+This section gives a short introduction how the configuration file works.
 
 The basic structure of a configuration is the following
 ```
@@ -194,7 +194,7 @@ The basic structure of a configuration is the following
 ```
 As FA³ST is designed to be easily extendable, the configuration supports to change the used implementation for any of those interfaces without the need to change or recompile the code.
 To tell the Service which implementation of an interface to use, each dynamically configurable configuration block contains the `@class` node specifying the fully qualified name of the implementation class. Each block then contains additionals nodes as defined by the configuration class associated with the implementation class.
-For example, the `HttpEndpoint` defines a the property `port` in its configuration class ([HttpEndpointConfig.java#L23](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/endpoint/http/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/http/HttpEndpointConfig.java#L23)).
+For example, the `HttpEndpoint` defines the property `port` in its configuration class ([HttpEndpointConfig.java#L23](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/endpoint/http/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/http/HttpEndpointConfig.java#L23)).
 Therefore, the configuration block for a `HttpEndpoint` on port 8080 would look like this:
 ```json
 {
@@ -250,7 +250,7 @@ HTTP Endpoint configuration supports the following configuration parameters
 #### Example: Get details of a SubmodelElement
 
 ```sh
-HTTP GET http://localhost:8080/submodels/{submodelIdentifier (base64URL-encoded)}/submodel/submodel-elements/{idShortPath (URL-encoded)}?{optional query parameters}
+HTTP GET http://localhost:8080/submodels/{submodelIdentifier (base64URL-encoded)}/submodel/submodel-elements/{idShortPath}?{optional query parameters}
 ```
 
 For a concrete scenario with
@@ -369,7 +369,7 @@ Accordingly, each asset connection configuration supports at least this minimum 
 }
 ```
 
-A concrete example for OPC UA could look like this
+A concrete example for OPC UA asset connection could look like this
 ```json
 
 {
