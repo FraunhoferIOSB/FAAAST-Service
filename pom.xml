@@ -31,7 +31,7 @@
     </modules>
     <properties>
         <aas.version>1.2.0</aas.version>
-        <classgraph.version>4.8.139</classgraph.version>
+        <classgraph.version>4.8.140</classgraph.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <flatten.version>1.2.7</flatten.version>
@@ -50,7 +50,7 @@
         <maven.plugin.gpg.version>3.0.1</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.7</maven.plugin.jacoco.version>
         <maven.plugin.javadoc.version>3.3.2</maven.plugin.javadoc.version>
-        <maven.plugin.nexus-staging.version>1.6.11</maven.plugin.nexus-staging.version>
+        <maven.plugin.nexus-staging.version>1.6.12</maven.plugin.nexus-staging.version>
         <maven.plugin.owasp.version>6.5.3</maven.plugin.owasp.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>

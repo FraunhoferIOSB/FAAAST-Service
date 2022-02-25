@@ -75,7 +75,9 @@ public class MqttAssetConnection
     private ServiceContext context;
     private final Map<Reference, AssetOperationProvider> operationProviders;
     private final Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
-    private final Map<Reference, AssetValueProvider> valueProviders;
+    private MqttClient client;
+    private ServiceContext serviceContext;
+
 
     public MqttAssetConnection() {
         this.valueProviders = new HashMap<>();
@@ -110,27 +112,16 @@ public class MqttAssetConnection
 
 
     @Override
-    public Map<Reference, AssetOperationProvider> getOperationProviders() {
-        return this.operationProviders;
-    }
+    public void init(CoreConfig coreConfig, MqttAssetConnectionConfig config, ServiceContext serviceContext) throws AssetConnectionException {
+        if (config == null) {
+            throw new IllegalArgumentException("config must be non-null");
+        }
+        if (serviceContext == null) {
+            throw new IllegalArgumentException("serviceContext must be non-null");
+        }
 
-
-    @Override
-    public Map<Reference, AssetSubscriptionProvider> getSubscriptionProviders() {
-        return this.subscriptionProviders;
-    }
-
-
-    @Override
-    public Map<Reference, AssetValueProvider> getValueProviders() {
-        return this.valueProviders;
-    }
-
-
-    @Override
-    public void init(CoreConfig coreConfig, MqttAssetConnectionConfig config, ServiceContext context) throws AssetConnectionException {
         this.config = config;
-        this.context = context;
+        this.serviceContext = serviceContext;
         try {
             client = new MqttClient(config.getServerUri(), config.getClientId(), new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
@@ -192,7 +183,7 @@ public class MqttAssetConnection
                                 .create(subscriptionProviderConfig.getContentFormat())
                                 .read(new String(mqttMessage.getPayload()),
                                         subscriptionProviderConfig.getQuery(),
-                                        context.getTypeInfo(reference)));
+                                        serviceContext.getTypeInfo(reference)));
                     }
 
 

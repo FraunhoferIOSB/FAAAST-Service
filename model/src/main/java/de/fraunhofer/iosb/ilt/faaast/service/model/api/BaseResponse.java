@@ -24,9 +24,24 @@ import java.util.Objects;
 public abstract class BaseResponse implements Response {
 
     private StatusCode statusCode;
+    private Result result;
+
+    public Result getResult() {
+        return result;
+    }
+
+
+    public void setResult(Result result) {
+        this.result = result;
+    }
+
 
     public BaseResponse() {
         this.statusCode = StatusCode.ServerInternalError;
+        this.result = Result.builder()
+                .success(false)
+                .message(new Message())
+                .build();
     }
 
 
@@ -37,31 +52,37 @@ public abstract class BaseResponse implements Response {
 
     public void setStatusCode(StatusCode statusCode) {
         this.statusCode = statusCode;
+        if (statusCode.isSuccess(statusCode))
+            this.result.setSuccess(true);
     }
 
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
+        if (this == o)
             return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null || getClass() != o.getClass())
             return false;
-        }
         BaseResponse that = (BaseResponse) o;
-        return statusCode == that.statusCode;
+        return statusCode == that.statusCode && Objects.equals(result, that.result);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(statusCode);
+        return Objects.hash(statusCode, result);
     }
 
     public static abstract class AbstractBuilder<T extends BaseResponse, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B statusCode(StatusCode value) {
             getBuildingInstance().setStatusCode(value);
+            return getSelf();
+        }
+
+
+        public B result(Result value) {
+            getBuildingInstance().setResult(value);
             return getSelf();
         }
     }

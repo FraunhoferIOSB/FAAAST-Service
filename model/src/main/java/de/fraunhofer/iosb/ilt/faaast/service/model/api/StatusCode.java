@@ -27,4 +27,11 @@ public enum StatusCode {
     ClientErrorResourceNotFound,
     ServerInternalError,
     ServerErrorBadGateway;
+
+    boolean isSuccess(StatusCode statuscode) {
+        if (statuscode == Success || statuscode == SuccessCreated || statuscode == SuccessNoContent)
+            return true;
+        else
+            return false;
+    }
 }

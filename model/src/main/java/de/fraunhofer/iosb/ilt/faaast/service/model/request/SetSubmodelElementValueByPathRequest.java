@@ -29,6 +29,7 @@ import java.util.Objects;
  * Chapter 4.3.9
  */
 public class SetSubmodelElementValueByPathRequest<T> extends BaseRequest<SetSubmodelElementValueByPathResponse> {
+
     private Identifier id;
     private List<Key> path;
     private T rawValue;
@@ -36,6 +37,7 @@ public class SetSubmodelElementValueByPathRequest<T> extends BaseRequest<SetSubm
 
     public SetSubmodelElementValueByPathRequest() {
         this.path = new ArrayList<>();
+        this.valueParser = ElementValueParser.DEFAULT;
     }
 
 
@@ -61,10 +63,12 @@ public class SetSubmodelElementValueByPathRequest<T> extends BaseRequest<SetSubm
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         SetSubmodelElementValueByPathRequest that = (SetSubmodelElementValueByPathRequest) o;
         return Objects.equals(id, that.id) && Objects.equals(path, that.path) && Objects.equals(rawValue, that.rawValue);
     }
@@ -101,6 +105,7 @@ public class SetSubmodelElementValueByPathRequest<T> extends BaseRequest<SetSubm
     }
 
     public static abstract class AbstractBuilder<U, T extends SetSubmodelElementValueByPathRequest<U>, B extends AbstractBuilder<U, T, B>> extends ExtendableBuilder<T, B> {
+
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();
