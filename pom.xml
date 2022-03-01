@@ -35,7 +35,7 @@
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <flatten.version>1.2.7</flatten.version>
-        <guava.version>31.0.1-jre</guava.version>
+        <guava.version>31.1-jre</guava.version>
         <jackson.version>2.13.1</jackson.version>
         <jakarta-servlet.version>5.0.0</jakarta-servlet.version>
         <javax-servlet.version>2.5</javax-servlet.version>
