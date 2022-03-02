@@ -92,6 +92,8 @@
                                 </filter>
                             </filters>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>packaged</shadedClassifierName>
                         </configuration>
                     </execution>
                 </executions>
