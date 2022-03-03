@@ -57,7 +57,7 @@ public class Application implements Runnable {
 
     private final Map<String, Class<? extends EndpointConfig>> availableEndpoints = new HashMap<>() {
         {
-            availableEndpoints.put("http", HttpEndpointConfig.class);
+            put("http", HttpEndpointConfig.class);
 
             //only usable if OPCUA Endpoint dependency in pom can be resolved
             //put("ocua", OpcUaEndpointConfig.class);
