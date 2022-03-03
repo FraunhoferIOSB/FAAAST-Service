@@ -14,6 +14,7 @@
     <description>OPCUA prosys endpoint implementation of the FA³ST Service.</description>
     <properties>
         <maven-shade-plugin-version>3.2.4</maven-shade-plugin-version>
+        <proguard-maven-plugin-version>2.5.1</proguard-maven-plugin-version>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>
@@ -95,6 +96,29 @@
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>packaged</shadedClassifierName>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <version>${proguard-maven-plugin-version}</version>
+                <configuration>
+                    <obfuscate>true</obfuscate>
+                    <injar>${project.build.finalName}-packaged.jar</injar>
+                    <outjar>${project.build.finalName}-obfuscated.jar</outjar>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <proguardInclude>${basedir}/proguard.conf</proguardInclude>
+                    <libs>
+                        <lib>${java.home}/jmods/java.base.jmod</lib>
+                    </libs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                        <phase>package</phase>
                     </execution>
                 </executions>
             </plugin>
