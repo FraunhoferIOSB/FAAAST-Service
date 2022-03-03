@@ -25,10 +25,10 @@ public class ResourceNotFoundException extends Exception {
     }
 
 
-    public ResourceNotFoundException(Reference reference) {
+    public ResourceNotFoundException(Reference reference) throws ResourceNotFoundException {
         String message = "Resource not found with ID Path: ";
         message += AasUtils.asString(reference);
-        new ResourceNotFoundException(message);
+        throw new ResourceNotFoundException(message);
     }
 
 

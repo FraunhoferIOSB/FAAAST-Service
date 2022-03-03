@@ -50,14 +50,14 @@ public class Application implements Runnable {
     private static final String FAAAST_ENV_PREFIX = "faaast.";
     private static final String CONFIG_PARAMETER_ENV_PREFIX = FAAAST_ENV_PREFIX + "configParameter.";
 
-    public final String CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE = FAAAST_ENV_PREFIX + "configFilePath";
-    public final String AASENV_FILE_PATH_ENVIRONMENT_VARIABLE = FAAAST_ENV_PREFIX + "aasEnvFilePath";
+    public static final String CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE = FAAAST_ENV_PREFIX + "configFilePath";
+    public static final String AASENV_FILE_PATH_ENVIRONMENT_VARIABLE = FAAAST_ENV_PREFIX + "aasEnvFilePath";
 
-    public static Service service;
+    private static Service service;
 
     private final Map<String, Class<? extends EndpointConfig>> availableEndpoints = new HashMap<>() {
         {
-            put("http", HttpEndpointConfig.class);
+            availableEndpoints.put("http", HttpEndpointConfig.class);
 
             //only usable if OPCUA Endpoint dependency in pom can be resolved
             //put("ocua", OpcUaEndpointConfig.class);
@@ -121,7 +121,10 @@ public class Application implements Runnable {
                 service.stop();
             }
         }
-        catch (InterruptedException e) {}
+        catch (InterruptedException e) {
+            LOGGER.warn("Interrupted!", e);
+            Thread.currentThread().interrupt();
+        }
     }
 
 

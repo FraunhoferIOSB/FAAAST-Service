@@ -52,10 +52,9 @@ public interface AssetOperationProvider extends AssetProvider {
             condition.await();
         }
         catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
             throw new AssetConnectionException("invoking operation failed because of timeout", ex);
         }
-        // TODO check if 1:1 assignment of each value is needed
-        inoutput = modifiedInoutput.get();
         return result.get();
     }
 
@@ -74,9 +73,7 @@ public interface AssetOperationProvider extends AssetProvider {
      */
     public default void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callback)
             throws AssetConnectionException {
-        CompletableFuture.supplyAsync(LambdaExceptionHelper.rethrowSupplier(() -> invoke(input, inoutput))).thenAccept(x -> {
-            callback.accept(x, inoutput);
-        });
+        CompletableFuture.supplyAsync(LambdaExceptionHelper.rethrowSupplier(() -> invoke(input, inoutput))).thenAccept(x -> callback.accept(x, inoutput));
 
     }
 }
