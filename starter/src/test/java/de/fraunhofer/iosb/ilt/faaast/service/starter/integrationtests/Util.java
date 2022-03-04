@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.IntegrationTestHttpEndpoint.messageBus;
-import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.IntegrationTestHttpEndpoint.subscriptionIds;
-
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
@@ -226,7 +223,7 @@ public class Util {
 
     public static void setUpEventCheck(Referable expected, Class<? extends EventMessage> clazz, Supplier<?> call) {
         AtomicBoolean fired = new AtomicBoolean(false);
-        SubscriptionId subscriptionId = messageBus.subscribe(SubscriptionInfo.create(clazz, x -> {
+        SubscriptionId subscriptionId = IntegrationTestHttpEndpoint.messageBus.subscribe(SubscriptionInfo.create(clazz, x -> {
             if (ElementReadEventMessage.class.isAssignableFrom(x.getClass())) {
                 Assert.assertEquals(expected, ((ElementReadEventMessage) x).getValue());
                 fired.set(true);
@@ -245,9 +242,9 @@ public class Util {
             }
 
         }));
-        subscriptionIds.add(subscriptionId);
         call.get();
         Assert.assertTrue(fired.get());
+        IntegrationTestHttpEndpoint.messageBus.unsubscribe(subscriptionId);
     }
 
 }
