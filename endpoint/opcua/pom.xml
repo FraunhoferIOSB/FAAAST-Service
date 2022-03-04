@@ -105,7 +105,7 @@
                 <version>${proguard-maven-plugin-version}</version>
                 <configuration>
                     <obfuscate>true</obfuscate>
-                    <injar>${project.build.finalName}-packaged.jar</injar>
+                    <injar>${project.build.finalName}.jar</injar>
                     <outjar>${project.build.finalName}-obfuscated.jar</outjar>
                     <outputDirectory>${project.build.directory}</outputDirectory>
                     <proguardInclude>${basedir}/proguard.conf</proguardInclude>
