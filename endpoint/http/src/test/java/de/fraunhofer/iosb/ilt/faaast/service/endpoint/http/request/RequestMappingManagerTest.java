@@ -432,14 +432,14 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllSubmodelsBySemanticId() throws InvalidRequestException {
+    public void testGetAllSubmodelsBySemanticId() throws InvalidRequestException, SerializationException {
         Request expected = GetAllSubmodelsBySemanticIdRequest.builder()
                 .semanticId(SUBMODEL.getSemanticId())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("submodels")
-                .query("semanticId=" + EncodingHelper.base64UrlEncode(AasUtils.asString(SUBMODEL.getSemanticId())))
+                .query("semanticId=" + EncodingHelper.base64UrlEncode(serializer.write(SUBMODEL.getSemanticId())))
                 .build());
         Assert.assertEquals(expected, actual);
     }
