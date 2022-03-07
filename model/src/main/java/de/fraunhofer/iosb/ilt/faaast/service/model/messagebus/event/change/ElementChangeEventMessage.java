@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change;
 
 import io.adminshell.aas.v3.model.Referable;
-
 import java.util.Objects;
 
 
@@ -35,14 +34,19 @@ public abstract class ElementChangeEventMessage extends ChangeEventMessage {
         this.value = value;
     }
 
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
         ElementChangeEventMessage that = (ElementChangeEventMessage) o;
         return Objects.equals(value, that.value);
     }
+
 
     @Override
     public int hashCode() {

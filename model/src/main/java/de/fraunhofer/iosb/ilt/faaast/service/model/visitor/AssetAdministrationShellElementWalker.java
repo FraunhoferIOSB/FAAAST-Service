@@ -1033,6 +1033,7 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
         }
     }
 
+
     private void extracted(AssetAdministrationShellElementVisitor visitor, Object obj, Method method) {
         try {
             method.setAccessible(true);
