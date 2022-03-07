@@ -300,7 +300,7 @@ public class TestIntegrationHttpEndpoint {
                 + Base64.getUrlEncoder().encodeToString(expected
                         .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas";
-        Assert.assertTrue(setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(url)));
+        setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(url));
     }
 
 
