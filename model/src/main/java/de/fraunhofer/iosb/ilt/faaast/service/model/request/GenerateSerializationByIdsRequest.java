@@ -105,7 +105,7 @@ public class GenerateSerializationByIdsRequest extends BaseRequest<GenerateSeria
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GenerateSerializationByIdsRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GenerateSerializationByIdsRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
         public B aasIds(List<Identifier> value) {
             getBuildingInstance().setAasIds(value);
             return getSelf();

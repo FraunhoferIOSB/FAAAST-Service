@@ -29,9 +29,6 @@ public enum StatusCode {
     ServerErrorBadGateway;
 
     boolean isSuccess(StatusCode statuscode) {
-        if (statuscode == Success || statuscode == SuccessCreated || statuscode == SuccessNoContent)
-            return true;
-        else
-            return false;
+        return (statuscode == Success || statuscode == SuccessCreated || statuscode == SuccessNoContent);
     }
 }

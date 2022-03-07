@@ -102,7 +102,7 @@ public class PutAASXPackageByIdRequest extends BaseRequest<PutAASXPackageByIdRes
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends PutAASXPackageByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PutAASXPackageByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
         public B packageId(String value) {
             getBuildingInstance().setPackageId(value);
             return getSelf();

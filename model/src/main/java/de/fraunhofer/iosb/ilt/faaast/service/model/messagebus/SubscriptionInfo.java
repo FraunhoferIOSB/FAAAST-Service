@@ -65,7 +65,7 @@ public class SubscriptionInfo {
         SubscriptionInfo subscriptionInfo = create(eventMessageClass, handler);
         subscriptionInfo.setFilter(x -> x != null
                 && x.getKeys() != null
-                && x.getKeys().size() >= 1
+                && !x.getKeys().isEmpty()
                 && x.getKeys().get(x.getKeys().size() - 1).getType().equals(keyElements));
         return subscriptionInfo;
     }

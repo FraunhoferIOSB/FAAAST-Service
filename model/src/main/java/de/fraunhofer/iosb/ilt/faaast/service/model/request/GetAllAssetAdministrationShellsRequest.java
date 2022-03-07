@@ -46,7 +46,7 @@ public class GetAllAssetAdministrationShellsRequest extends RequestWithModifier<
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllAssetAdministrationShellsRequest, B extends AbstractBuilder<T, B>>
+    public abstract static class AbstractBuilder<T extends GetAllAssetAdministrationShellsRequest, B extends AbstractBuilder<T, B>>
             extends RequestWithModifier.AbstractBuilder<T, B> {
 
     }

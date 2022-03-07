@@ -70,7 +70,7 @@ public class PutAssetInformationRequest extends BaseRequest<PutAssetInformationR
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends PutAssetInformationRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PutAssetInformationRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
         public B assetInformation(AssetInformation value) {
             getBuildingInstance().setAssetInformation(value);
             return getSelf();

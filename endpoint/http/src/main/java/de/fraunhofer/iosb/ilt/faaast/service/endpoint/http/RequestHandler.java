@@ -32,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -64,7 +65,7 @@ public class RequestHandler extends AbstractHandler {
     @Override
     public void handle(String string, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8")) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8)) {
             @Override
             public void close() throws IOException {
                 request.getInputStream().close();
@@ -86,7 +87,6 @@ public class RequestHandler extends AbstractHandler {
             apiRequest = mappingManager.map(httpRequest);
         }
         catch (InvalidRequestException | IllegalArgumentException ex) {
-            //ex.printStackTrace();
             sendResultResponse(response, HttpStatus.BAD_REQUEST_400, MessageType.Error, ex.getMessage());
             baseRequest.setHandled(true);
             return;

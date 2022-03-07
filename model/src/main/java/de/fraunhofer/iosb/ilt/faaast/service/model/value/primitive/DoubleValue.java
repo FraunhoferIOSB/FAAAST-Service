@@ -39,7 +39,7 @@ public class DoubleValue extends TypedValue<Double> {
             return;
         }
         try {
-            this.setValue((Double) Double.parseDouble(value));
+            this.setValue(Double.parseDouble(value));
         }
         catch (NumberFormatException ex) {
             throw new ValueFormatException(ex);

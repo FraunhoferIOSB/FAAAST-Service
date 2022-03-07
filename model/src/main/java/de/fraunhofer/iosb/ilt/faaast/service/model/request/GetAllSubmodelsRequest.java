@@ -46,7 +46,7 @@ public class GetAllSubmodelsRequest extends RequestWithModifier<GetAllSubmodelsR
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllSubmodelsRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {}
+    public abstract static class AbstractBuilder<T extends GetAllSubmodelsRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {}
 
     public static class Builder extends AbstractBuilder<GetAllSubmodelsRequest, Builder> {
 

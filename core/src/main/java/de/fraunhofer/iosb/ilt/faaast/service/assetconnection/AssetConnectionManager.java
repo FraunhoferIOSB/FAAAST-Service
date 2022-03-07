@@ -81,12 +81,12 @@ public class AssetConnectionManager {
      */
     public void add(AssetConnectionConfig<? extends AssetConnection, ? extends AssetValueProviderConfig, ? extends AssetOperationProviderConfig, ? extends AssetSubscriptionProviderConfig> connectionConfig)
             throws ConfigurationException {
-        AssetConnection newConnection = (AssetConnection) connectionConfig.newInstance(coreConfig, serviceContext);
+        AssetConnection newConnection = connectionConfig.newInstance(coreConfig, serviceContext);
         if (connections.stream().anyMatch(x -> Objects.equals(x, newConnection))) {
             AssetConnection connection = connections.stream().filter(x -> Objects.equals(x, newConnection)).findFirst().get();
             connectionConfig.getValueProviders().forEach((k, v) -> {
                 try {
-                    connection.registerValueProvider(k, (AssetValueProviderConfig) v);
+                    connection.registerValueProvider(k, v);
                 }
                 catch (AssetConnectionException ex) {
                     // TODO rethrow
@@ -94,7 +94,7 @@ public class AssetConnectionManager {
             });
             connectionConfig.getOperationProviders().forEach((k, v) -> {
                 try {
-                    connection.registerOperationProvider(k, (AssetOperationProviderConfig) v);
+                    connection.registerOperationProvider(k, v);
                 }
                 catch (AssetConnectionException ex) {
                     // TODO rethrow
@@ -102,7 +102,7 @@ public class AssetConnectionManager {
             });
             connectionConfig.getSubscriptionProviders().forEach((k, v) -> {
                 try {
-                    connection.registerSubscriptionProvider(k, (AssetSubscriptionProviderConfig) v);
+                    connection.registerSubscriptionProvider(k, v);
                 }
                 catch (AssetConnectionException ex) {
                     // TODO rethrow

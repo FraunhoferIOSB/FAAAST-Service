@@ -60,7 +60,7 @@ public class GetAllConceptDescriptionsByIsCaseOfRequest extends RequestWithModif
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllConceptDescriptionsByIsCaseOfRequest, B extends AbstractBuilder<T, B>>
+    public abstract static class AbstractBuilder<T extends GetAllConceptDescriptionsByIsCaseOfRequest, B extends AbstractBuilder<T, B>>
             extends RequestWithModifier.AbstractBuilder<T, B> {
 
         public B isCaseOf(Reference value) {

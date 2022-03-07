@@ -39,7 +39,7 @@ public class IntValue extends TypedValue<Integer> {
             return;
         }
         try {
-            this.setValue((Integer) Integer.parseInt(value));
+            this.setValue(Integer.parseInt(value));
         }
         catch (NumberFormatException ex) {
             throw new ValueFormatException(ex);

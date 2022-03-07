@@ -39,7 +39,7 @@ public class ByteValue extends TypedValue<Byte> {
             return;
         }
         try {
-            this.setValue((Byte) Byte.parseByte(value));
+            this.setValue(Byte.parseByte(value));
         }
         catch (NumberFormatException ex) {
             throw new ValueFormatException(ex);

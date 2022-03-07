@@ -60,7 +60,7 @@ public class GetAllSubmodelsBySemanticIdRequest extends RequestWithModifier<GetA
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllSubmodelsBySemanticIdRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetAllSubmodelsBySemanticIdRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
 
         public B semanticId(Reference value) {
             getBuildingInstance().setSemanticId(value);

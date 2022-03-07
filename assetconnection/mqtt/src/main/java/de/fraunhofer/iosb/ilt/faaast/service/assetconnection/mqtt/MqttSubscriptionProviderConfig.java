@@ -68,7 +68,7 @@ public class MqttSubscriptionProviderConfig implements AssetSubscriptionProvider
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends MqttSubscriptionProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends MqttSubscriptionProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B query(String value) {
             getBuildingInstance().setQuery(value);

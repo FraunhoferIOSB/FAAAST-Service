@@ -51,7 +51,7 @@ public class ValueMapDeserializer extends MapDeserializer {
 
     @Override
     public Map<Object, Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        return deserialize(p, ctxt, new HashMap<Object, Object>());
+        return deserialize(p, ctxt, new HashMap<>());
     }
 
 
@@ -70,13 +70,11 @@ public class ValueMapDeserializer extends MapDeserializer {
                     String.format("number of elements mismatch (expected: %d, actual: %d)", typeInfo.getElements().size(), node.size()));
         }
         Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();
-        int i = 0;
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> element = iterator.next();
             context.setAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo.getElements().get(element.getKey()));
             Class type = ((TypeInfo) typeInfo.getElements().get(element.getKey())).getType();
             result.put(element.getKey(), context.readTreeAsValue(element.getValue(), type));
-            i++;
         }
         return result;
     }

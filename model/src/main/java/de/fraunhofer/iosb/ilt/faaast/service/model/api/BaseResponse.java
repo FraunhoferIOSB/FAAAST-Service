@@ -36,7 +36,7 @@ public abstract class BaseResponse implements Response {
     }
 
 
-    public BaseResponse() {
+    protected BaseResponse() {
         this.statusCode = StatusCode.ServerInternalError;
         this.result = Result.builder()
                 .success(false)
@@ -73,7 +73,7 @@ public abstract class BaseResponse implements Response {
         return Objects.hash(statusCode, result);
     }
 
-    public static abstract class AbstractBuilder<T extends BaseResponse, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends BaseResponse, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B statusCode(StatusCode value) {
             getBuildingInstance().setStatusCode(value);

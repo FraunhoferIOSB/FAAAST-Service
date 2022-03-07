@@ -59,7 +59,7 @@ public class GetAllAssetAdministrationShellsByIdShortRequest extends RequestWith
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllAssetAdministrationShellsByIdShortRequest, B extends AbstractBuilder<T, B>>
+    public abstract static class AbstractBuilder<T extends GetAllAssetAdministrationShellsByIdShortRequest, B extends AbstractBuilder<T, B>>
             extends RequestWithModifier.AbstractBuilder<T, B> {
 
         public B idShort(String value) {

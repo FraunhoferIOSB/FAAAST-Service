@@ -39,7 +39,7 @@ public class LongValue extends TypedValue<Long> {
             return;
         }
         try {
-            this.setValue((Long) Long.parseLong(value));
+            this.setValue(Long.parseLong(value));
         }
         catch (NumberFormatException ex) {
             throw new ValueFormatException(ex);

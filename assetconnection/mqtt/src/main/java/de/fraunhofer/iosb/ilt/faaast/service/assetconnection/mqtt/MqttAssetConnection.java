@@ -72,7 +72,6 @@ public class MqttAssetConnection
     private static Logger logger = LoggerFactory.getLogger(MqttAssetConnection.class);
     private MqttClient client;
     private MqttAssetConnectionConfig config;
-    private ServiceContext context;
     private final Map<Reference, AssetOperationProvider> operationProviders;
     private final Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
     private final Map<Reference, AssetValueProvider> valueProviders;
@@ -206,7 +205,9 @@ public class MqttAssetConnection
 
 
                     @Override
-                    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {}
+                    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+                        // empty - why?
+                    }
                 });
                 try {
                     client.subscribe(subscriptionProviderConfig.getTopic());

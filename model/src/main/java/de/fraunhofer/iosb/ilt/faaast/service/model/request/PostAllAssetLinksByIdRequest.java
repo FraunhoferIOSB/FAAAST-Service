@@ -77,7 +77,7 @@ public class PostAllAssetLinksByIdRequest extends BaseRequest<PostAllAssetLinksB
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends PostAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PostAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
         public B aasIdentifier(String value) {
             getBuildingInstance().setAasIdentifier(value);
             return getSelf();

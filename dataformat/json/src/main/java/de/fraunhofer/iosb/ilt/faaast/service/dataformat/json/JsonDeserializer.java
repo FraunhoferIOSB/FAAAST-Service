@@ -67,6 +67,10 @@ import java.util.Map;
 public class JsonDeserializer implements Deserializer {
 
     private final DeserializerWrapper wrapper;
+    private static final String DESERIALIZATION_FAILED = "deserialization failed";
+    private static final String TYPEINFO_MUST_BE_CONATINERTYPEINFO = "typeInfo must be of type ContainerTypeInfo";
+    private static final String ROOT_TYPE_INFO_MUST_BE_NON_NULL = "root type information must be non-null";
+    private static final String CONTENT_TYPE_MUST_BE_NON_NULL = "content type must be non-null";
 
     public JsonDeserializer() {
         this.wrapper = new DeserializerWrapper(x -> modifyMapper(x));
@@ -79,7 +83,7 @@ public class JsonDeserializer implements Deserializer {
             return wrapper.getMapper().treeToValue(ModelTypeProcessor.preprocess(json), type);
         }
         catch (JsonProcessingException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+            throw new DeserializationException(DESERIALIZATION_FAILED, ex);
         }
     }
 
@@ -90,7 +94,7 @@ public class JsonDeserializer implements Deserializer {
             return wrapper.getMapper().treeToValue(ModelTypeProcessor.preprocess(json), wrapper.getMapper().getTypeFactory().constructCollectionType(List.class, type));
         }
         catch (JsonProcessingException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+            throw new DeserializationException(DESERIALIZATION_FAILED, ex);
         }
     }
 
@@ -104,11 +108,13 @@ public class JsonDeserializer implements Deserializer {
      */
     @Override
     public <T extends ElementValue> T readValue(String json, TypeInfo typeInfo) throws DeserializationException {
+        final String TYPEINFO_MUST_BE_NON_NULL = "typeInfo must be non-null";
+        final String MISSING_ROOT_TYPE = "missing root type information";
         if (typeInfo == null) {
-            throw new IllegalArgumentException("typeInfo must be non-null");
+            throw new IllegalArgumentException(TYPEINFO_MUST_BE_NON_NULL);
         }
         if (typeInfo.getType() == null) {
-            throw new DeserializationException("missing root type information");
+            throw new DeserializationException(MISSING_ROOT_TYPE);
         }
         try {
             return (T) wrapper.getMapper().reader()
@@ -116,7 +122,7 @@ public class JsonDeserializer implements Deserializer {
                     .treeToValue(ModelTypeProcessor.preprocess(json), typeInfo.getType());
         }
         catch (IOException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+            throw new DeserializationException(DESERIALIZATION_FAILED, ex);
         }
     }
 
@@ -127,7 +133,7 @@ public class JsonDeserializer implements Deserializer {
             return wrapper.getMapper().treeToValue(ModelTypeProcessor.preprocess(json), type);
         }
         catch (JsonProcessingException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+            throw new DeserializationException(DESERIALIZATION_FAILED, ex);
         }
     }
 
@@ -144,17 +150,17 @@ public class JsonDeserializer implements Deserializer {
     @Override
     public ElementValue[] readValueArray(String json, TypeInfo typeInfo) throws DeserializationException {
         if (typeInfo == null) {
-            throw new IllegalArgumentException("typeInfo must be non-null");
+            throw new IllegalArgumentException(CONTENT_TYPE_MUST_BE_NON_NULL);
         }
         if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
-            throw new DeserializationException("typeInfo must be of type ContainerTypeInfo");
+            throw new DeserializationException(TYPEINFO_MUST_BE_CONATINERTYPEINFO);
         }
         if (typeInfo.getType() == null) {
-            throw new DeserializationException("root type information must be non-null");
+            throw new DeserializationException(ROOT_TYPE_INFO_MUST_BE_NON_NULL);
         }
         ContainerTypeInfo containerTypeInfo = (ContainerTypeInfo) typeInfo;
         if (containerTypeInfo.getContentType() == null) {
-            throw new DeserializationException("content type must be non-null");
+            throw new DeserializationException(CONTENT_TYPE_MUST_BE_NON_NULL);
         }
         try {
             return (ElementValue[]) wrapper.getMapper().reader()
@@ -163,7 +169,7 @@ public class JsonDeserializer implements Deserializer {
                     .treeToValue(ModelTypeProcessor.preprocess(json), wrapper.getMapper().getTypeFactory().constructArrayType(containerTypeInfo.getContentType()));
         }
         catch (IOException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+            throw new DeserializationException(DESERIALIZATION_FAILED, ex);
         }
     }
 
@@ -185,14 +191,14 @@ public class JsonDeserializer implements Deserializer {
             throw new IllegalArgumentException("typeInfo must be non-null");
         }
         if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
-            throw new DeserializationException("typeInfo must be of type ContainerTypeInfo");
+            throw new DeserializationException(TYPEINFO_MUST_BE_CONATINERTYPEINFO);
         }
         if (typeInfo.getType() == null) {
-            throw new DeserializationException("root type information must be non-null");
+            throw new DeserializationException(ROOT_TYPE_INFO_MUST_BE_NON_NULL);
         }
         ContainerTypeInfo containerTypeInfo = (ContainerTypeInfo) typeInfo;
         if (containerTypeInfo.getContentType() == null) {
-            throw new DeserializationException("content type must be non-null");
+            throw new DeserializationException(CONTENT_TYPE_MUST_BE_NON_NULL);
         }
         try {
             return (List<T>) wrapper.getMapper().reader()
@@ -201,7 +207,7 @@ public class JsonDeserializer implements Deserializer {
                     .readValue(json);
         }
         catch (IOException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+            throw new DeserializationException(DESERIALIZATION_FAILED, ex);
         }
     }
 
@@ -220,17 +226,17 @@ public class JsonDeserializer implements Deserializer {
     @Override
     public <K, V extends ElementValue> Map<K, V> readValueMap(String json, TypeInfo typeInfo) throws DeserializationException {
         if (typeInfo == null) {
-            throw new IllegalArgumentException("typeInfo must be non-null");
+            throw new IllegalArgumentException("ILLARG_TYPEINFO");
         }
         if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
-            throw new DeserializationException("typeInfo must be of type ContainerTypeInfo");
+            throw new DeserializationException(TYPEINFO_MUST_BE_CONATINERTYPEINFO);
         }
         if (typeInfo.getType() == null) {
-            throw new DeserializationException("root type information must be non-null");
+            throw new DeserializationException(ROOT_TYPE_INFO_MUST_BE_NON_NULL);
         }
         ContainerTypeInfo containerTypeInfo = (ContainerTypeInfo) typeInfo;
         if (containerTypeInfo.getContentType() == null) {
-            throw new DeserializationException("content type must be non-null");
+            throw new DeserializationException(CONTENT_TYPE_MUST_BE_NON_NULL);
         }
         try {
             return (Map<K, V>) wrapper.getMapper().reader()
@@ -239,7 +245,7 @@ public class JsonDeserializer implements Deserializer {
                     .readValue(json);
         }
         catch (IOException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+            throw new DeserializationException(DESERIALIZATION_FAILED, ex);
         }
     }
 

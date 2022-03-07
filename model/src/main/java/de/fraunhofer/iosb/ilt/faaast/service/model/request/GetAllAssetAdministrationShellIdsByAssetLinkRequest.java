@@ -65,7 +65,7 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends BaseReq
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllAssetAdministrationShellIdsByAssetLinkRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetAllAssetAdministrationShellIdsByAssetLinkRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
         public B assetIdentifierPair(IdentifierKeyValuePair value) {
             getBuildingInstance().getAssetIdentifierPairs().add(value);
             return getSelf();

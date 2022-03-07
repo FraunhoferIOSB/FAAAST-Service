@@ -22,7 +22,7 @@ public class ContainerTypeInfo<T> extends TypeInfo<T> {
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<P, T extends ContainerTypeInfo<P>, B extends AbstractBuilder<P, T, B>> extends TypeInfo.AbstractBuilder<P, T, B> {
+    public abstract static class AbstractBuilder<P, T extends ContainerTypeInfo<P>, B extends AbstractBuilder<P, T, B>> extends TypeInfo.AbstractBuilder<P, T, B> {
 
         public B contentType(Class<?> value) {
             getBuildingInstance().setContentType(value);

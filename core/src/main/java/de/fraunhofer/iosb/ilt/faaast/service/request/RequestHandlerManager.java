@@ -164,8 +164,6 @@ public class RequestHandlerManager {
         if (callback == null) {
             throw new IllegalArgumentException("callback must be non-null");
         }
-        requestHandlerExecutorService.submit(() -> {
-            callback.accept(execute(request));
-        });
+        requestHandlerExecutorService.submit(() -> callback.accept(execute(request)));
     }
 }

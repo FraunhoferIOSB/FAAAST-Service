@@ -1024,13 +1024,7 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
                             }
                         }).collect(Collectors.toList());
                 for (Method method: methods) {
-                    try {
-                        method.setAccessible(true);
-                        method.invoke(visitor, obj);
-                    }
-                    catch (Exception ex) {
-                        logger.debug(String.format("invoking visit(%s) method via refection failed", method.getParameterTypes()[0].getSimpleName()), ex);
-                    }
+                    extracted(visitor, obj, method);
                 }
             }
             catch (Exception ex) {
@@ -1039,10 +1033,20 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
         }
     }
 
+    private void extracted(AssetAdministrationShellElementVisitor visitor, Object obj, Method method) {
+        try {
+            method.setAccessible(true);
+            method.invoke(visitor, obj);
+        }
+        catch (Exception ex) {
+            logger.debug(String.format("invoking visit(%s) method via refection failed", method.getParameterTypes()[0].getSimpleName()), ex);
+        }
+    }
+
     /**
      * Enum of supported walking modes
      */
-    public static enum WalkingMode {
+    public enum WalkingMode {
         /**
          * Visit an element after visiting all of its subelements
          */
@@ -1052,10 +1056,10 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
          */
         VisitBeforeDescent;
 
-        public static WalkingMode DEFAULT = VisitBeforeDescent;
+        public static final WalkingMode DEFAULT = VisitBeforeDescent;
     }
 
-    public static abstract class AbstractBuilder<T extends AssetAdministrationShellElementWalker, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends AssetAdministrationShellElementWalker, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B before(AssetAdministrationShellElementVisitor value) {
             getBuildingInstance().before = value;
