@@ -461,7 +461,7 @@ public class TestIntegrationHttpEndpoint {
         String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
                 .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels";
-        Assert.assertTrue(setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementReadEventMessage.class, () -> getListCall(url)));
+        setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementReadEventMessage.class, () -> getListCall(url));
     }
 
 
