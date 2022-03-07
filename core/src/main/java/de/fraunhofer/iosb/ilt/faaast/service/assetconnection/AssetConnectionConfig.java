@@ -159,7 +159,7 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
      * @param <C> type of the asset connection
      * @param <B> type of this builder, needed for inheritance builder pattern
      */
-    public static abstract class AbstractBuilder<T extends AssetConnectionConfig, V extends AssetValueProviderConfig, O extends AssetOperationProviderConfig, S extends AssetSubscriptionProviderConfig, C extends AssetConnection<T, V, O, S>, B extends AbstractBuilder<T, V, O, S, C, B>>
+    public abstract static class AbstractBuilder<T extends AssetConnectionConfig, V extends AssetValueProviderConfig, O extends AssetOperationProviderConfig, S extends AssetSubscriptionProviderConfig, C extends AssetConnection<T, V, O, S>, B extends AbstractBuilder<T, V, O, S, C, B>>
             extends ExtendableBuilder<T, B> {
 
         public B operationProviders(Map<Reference, O> value) {

@@ -88,6 +88,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         }
         catch (Exception ex) {
             logger.debug("HTTP endpoint did non shutdown correctly", ex);
+            Thread.currentThread().interrupt();
         }
     }
 }

@@ -150,6 +150,7 @@ public class TypeExtractorTest {
     public void testListProperty() {
         TypeInfo expected = ContainerTypeInfo.builder()
                 .type(Collection.class)
+                .contentType(Object.class)
                 .element(0, ElementValueTypeInfo.builder()
                         .datatype(Datatype.String)
                         .type(PropertyValue.class)
@@ -176,6 +177,7 @@ public class TypeExtractorTest {
     @Test
     public void testList() {
         TypeInfo expected = ContainerTypeInfo.builder()
+                .contentType(Object.class)
                 .type(Collection.class)
                 .element(0, ElementValueTypeInfo.builder()
                         .datatype(Datatype.String)

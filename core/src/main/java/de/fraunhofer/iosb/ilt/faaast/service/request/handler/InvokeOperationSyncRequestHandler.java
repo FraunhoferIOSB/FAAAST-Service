@@ -26,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationS
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
@@ -60,7 +59,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
         InvokeOperationSyncResponse response = new InvokeOperationSyncResponse();
         try {
             //Check if submodelelement does exist
-            Operation operation = (Operation) persistence.get(reference, new OutputModifier());
+            persistence.get(reference, new OutputModifier());
             publishOperationInvokeEventMessage(reference,
                     toValues(request.getInputArguments()),
                     toValues(request.getInoutputArguments()));
@@ -111,6 +110,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
                         .inoutputArguments(request.getInoutputArguments())
                         .executionState(ExecutionState.Timeout)
                         .build();
+                Thread.currentThread().interrupt();
             }
             catch (Exception ex) {
                 result = OperationResult.builder()
@@ -118,6 +118,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
                         .inoutputArguments(request.getInoutputArguments())
                         .executionState(ExecutionState.Failed)
                         .build();
+                Thread.currentThread().interrupt();
             }
             finally {
                 executor.shutdown();

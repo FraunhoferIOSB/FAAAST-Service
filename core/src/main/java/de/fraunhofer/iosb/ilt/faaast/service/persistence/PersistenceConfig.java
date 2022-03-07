@@ -34,17 +34,13 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        return true;
+        return (getClass() == obj.getClass());
     }
 
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        return hash;
+        return 7;
     }
 
     /**

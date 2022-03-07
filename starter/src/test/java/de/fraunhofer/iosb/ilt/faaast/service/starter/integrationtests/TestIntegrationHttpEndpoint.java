@@ -61,7 +61,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 
-public class IntegrationTestHttpEndpoint {
+public class TestIntegrationHttpEndpoint {
 
     static Service service;
     static AssetAdministrationShellEnvironment environment;
@@ -127,7 +127,7 @@ public class IntegrationTestHttpEndpoint {
 
 
     @Test
-    @Ignore
+    @Ignore("Ignored for now")
     public void testGETShellsWithAssetIds() throws IOException, DeserializationException {
         String assetIdValue = "https://acplt.org/Test_Asset";
         List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells().stream()
@@ -180,7 +180,7 @@ public class IntegrationTestHttpEndpoint {
     @Test
     public void testPOSTShellEvent() {
         AssetAdministrationShell newShell = getNewShell();
-        setUpEventCheck(newShell, ElementCreateEventMessage.class, () -> postCall(HTTP_SHELLS, newShell, AssetAdministrationShell.class));
+        Assert.assertTrue(setUpEventCheck(newShell, ElementCreateEventMessage.class, () -> postCall(HTTP_SHELLS, newShell, AssetAdministrationShell.class)));
     }
 
 
@@ -218,10 +218,10 @@ public class IntegrationTestHttpEndpoint {
     @Test
     public void testGETSpecificShellEvent() {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
-        setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(HTTP_SHELLS + "/"
+        Assert.assertTrue(setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(expected
                         .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8)),
-                AssetAdministrationShell.class));
+                AssetAdministrationShell.class)));
     }
 
 
@@ -250,7 +250,7 @@ public class IntegrationTestHttpEndpoint {
         String url = HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(expected
                         .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
-        setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected, AssetAdministrationShell.class));
+        Assert.assertTrue(setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected, AssetAdministrationShell.class)));
     }
 
 
@@ -276,7 +276,7 @@ public class IntegrationTestHttpEndpoint {
         String identifier = Base64.getUrlEncoder().encodeToString(expected
                 .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
         String url = HTTP_SHELLS + "/" + identifier;
-        setUpEventCheck(expected, ElementDeleteEventMessage.class, () -> deleteCall(url));
+        Assert.assertTrue(setUpEventCheck(expected, ElementDeleteEventMessage.class, () -> deleteCall(url)));
     }
 
 
@@ -300,7 +300,7 @@ public class IntegrationTestHttpEndpoint {
                 + Base64.getUrlEncoder().encodeToString(expected
                         .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas";
-        setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(url));
+        Assert.assertTrue(setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(url)));
     }
 
 
@@ -311,7 +311,7 @@ public class IntegrationTestHttpEndpoint {
 
 
     @Test
-    @Ignore
+    @Ignore("Ignored for now")
     public void testGET_AASShell_ContentReference() throws IOException, DeserializationException {
         call_GET_AASShell_Content("reference", new DefaultReference.Builder()
                 .key(new DefaultKey.Builder()
@@ -331,14 +331,14 @@ public class IntegrationTestHttpEndpoint {
 
 
     @Test
-    @Ignore
+    @Ignore("Ignored for now")
     public void testGET_AASShell_ContentValue() throws IOException, DeserializationException {
         call_GET_AASShell_Content("value", environment.getAssetAdministrationShells().get(1), AssetAdministrationShell.class);
     }
 
 
     @Test
-    @Ignore
+    @Ignore("Ignored for now")
     public void testGET_AASShell_ContentPath() throws IOException, DeserializationException {
         call_GET_AASShell_Content("path", "[idshort](test)", String.class);
     }
@@ -383,7 +383,7 @@ public class IntegrationTestHttpEndpoint {
                 + Base64.getUrlEncoder().encodeToString(expected
                         .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas";
-        setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected, AssetAdministrationShell.class));
+        Assert.assertTrue(setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected, AssetAdministrationShell.class)));
     }
 
 
@@ -407,7 +407,7 @@ public class IntegrationTestHttpEndpoint {
                 + Base64.getUrlEncoder().encodeToString(expected
                         .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas/asset-information";
-        setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(url));
+        Assert.assertTrue(setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(url)));
     }
 
 
@@ -438,7 +438,7 @@ public class IntegrationTestHttpEndpoint {
                 + Base64.getUrlEncoder().encodeToString(expected
                         .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas/asset-information";
-        setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected.getAssetInformation()));
+        Assert.assertTrue(setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected.getAssetInformation())));
     }
 
 
@@ -461,7 +461,7 @@ public class IntegrationTestHttpEndpoint {
         String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
                 .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels";
-        setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementReadEventMessage.class, () -> getListCall(url));
+        Assert.assertTrue(setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementReadEventMessage.class, () -> getListCall(url)));
     }
 
 
@@ -489,7 +489,7 @@ public class IntegrationTestHttpEndpoint {
         String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
                 .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels";
-        setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementUpdateEventMessage.class, () -> postCall(url, newReference));
+        Assert.assertTrue(setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementUpdateEventMessage.class, () -> postCall(url, newReference)));
     }
 
 
@@ -518,7 +518,7 @@ public class IntegrationTestHttpEndpoint {
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels/"
                 + Base64.getUrlEncoder().encodeToString(expected.get(0).getKeys().get(0).getValue().getBytes(StandardCharsets.UTF_8));
         expected.remove(0);
-        setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementUpdateEventMessage.class, () -> deleteCall(url));
+        Assert.assertTrue(setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementUpdateEventMessage.class, () -> deleteCall(url)));
     }
 
 
@@ -544,7 +544,7 @@ public class IntegrationTestHttpEndpoint {
         String identifier = Base64.getUrlEncoder().encodeToString(expected
                 .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
         String url = HTTP_SUBMODELS + "/" + identifier + "/submodel/submodel-elements/" + expected.getSubmodelElements().get(0).getIdShort();
-        setUpEventCheck(expected.getSubmodelElements().get(0), ElementDeleteEventMessage.class, () -> deleteCall(url));
+        Assert.assertTrue(setUpEventCheck(expected.getSubmodelElements().get(0), ElementDeleteEventMessage.class, () -> deleteCall(url)));
     }
 
 

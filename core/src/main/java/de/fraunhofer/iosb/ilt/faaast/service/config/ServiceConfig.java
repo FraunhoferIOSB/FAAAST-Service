@@ -71,10 +71,7 @@ public class ServiceConfig {
         if (!Objects.equals(this.endpoints, other.endpoints)) {
             return false;
         }
-        if (!Objects.equals(this.persistence, other.persistence)) {
-            return false;
-        }
-        return true;
+        return (Objects.equals(this.persistence, other.persistence));
     }
 
 

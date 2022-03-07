@@ -124,7 +124,7 @@ public interface Serializer {
      * @throws IOException if writing to the stream fails
      * @throws SerializationException if serialization fails
      */
-    public default void write(File file, Charset charset, Object obj, OutputModifier modifier) throws FileNotFoundException, IOException, SerializationException {
+    public default void write(File file, Charset charset, Object obj, OutputModifier modifier) throws IOException, SerializationException {
         try (OutputStream out = new FileOutputStream(file)) {
             write(out, charset, obj, modifier);
         }
@@ -142,7 +142,7 @@ public interface Serializer {
      * @throws IOException if writing to the stream fails
      * @throws SerializationException if serialization fails
      */
-    public default void write(File file, Charset charset, Object obj) throws FileNotFoundException, IOException, SerializationException {
+    public default void write(File file, Charset charset, Object obj) throws IOException, SerializationException {
         write(file, charset, obj, OutputModifier.DEFAULT);
     }
 
@@ -157,7 +157,7 @@ public interface Serializer {
      * @throws IOException if writing to the stream fails
      * @throws SerializationException if serialization fails
      */
-    public default void write(File file, Object obj, OutputModifier modifier) throws FileNotFoundException, IOException, SerializationException {
+    public default void write(File file, Object obj, OutputModifier modifier) throws IOException, SerializationException {
         write(file, DEFAULT_CHARSET, obj, modifier);
     }
 
@@ -172,7 +172,7 @@ public interface Serializer {
      * @throws IOException if writing to the stream fails
      * @throws SerializationException if serialization fails
      */
-    public default void write(File file, Object obj) throws FileNotFoundException, IOException, SerializationException {
+    public default void write(File file, Object obj) throws IOException, SerializationException {
         write(file, obj, OutputModifier.DEFAULT);
     }
 

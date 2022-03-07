@@ -148,7 +148,7 @@ public class StarterTest {
 
 
     @Test
-    @Ignore
+    @Ignore("Not Yet")
     public void testGetAASEnvironmentFromFileAML() throws IOException, DeserializationException, Exception {
         String filePath = "src/test/resources/AASFull.aml";
         testAASEnvironment(filePath, new AmlDeserializer());
@@ -156,7 +156,7 @@ public class StarterTest {
 
 
     @Test
-    @Ignore
+    @Ignore("Not yet")
     public void testGetAASEnvironmentFromFileOPCUA() throws IOException, DeserializationException, Exception {
         String filePath = "src/test/resources/AASSimple.xml";
         testAASEnvironment(filePath, new I4AASDeserializer());
