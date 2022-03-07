@@ -165,17 +165,7 @@ public class ValueOnlyJsonSerializer {
                         beanProperties.removeIf(property -> {
                             JavaType type = property.getType();
                             List<JavaType> usedTypes = new ArrayList<>();
-                            if (type.isContainerType()) {
-                                if (type.getContentType() != null) {
-                                    usedTypes.add(type.getContentType());
-                                }
-                                if (type.getKeyType() != null) {
-                                    usedTypes.add(type.getKeyType());
-                                }
-                                if (type.getBindings() != null) {
-                                    usedTypes.addAll(type.getBindings().getTypeParameters());
-                                }
-                            }
+                            evalContainerType(type, usedTypes);
                             return !usedTypes.stream().allMatch(x -> isJreType(x.getRawClass()) || ElementValueHelper.isValueOnlySupported(x.getRawClass()));
                         });
                         return beanProperties;
@@ -184,6 +174,21 @@ public class ValueOnlyJsonSerializer {
             }
         });
         return (JsonMapper) result;
+    }
+
+
+    private void evalContainerType(JavaType type, List<JavaType> usedTypes) {
+        if (type.isContainerType()) {
+            if (type.getContentType() != null) {
+                usedTypes.add(type.getContentType());
+            }
+            if (type.getKeyType() != null) {
+                usedTypes.add(type.getKeyType());
+            }
+            if (type.getBindings() != null) {
+                usedTypes.addAll(type.getBindings().getTypeParameters());
+            }
+        }
     }
 
 }

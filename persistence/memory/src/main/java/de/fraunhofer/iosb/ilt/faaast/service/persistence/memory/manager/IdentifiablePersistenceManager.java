@@ -132,8 +132,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
         }
 
         //return all
-        List<AssetAdministrationShell> shells = EnvironmentHelper.getDeepCopiedShells(x -> true, this.aasEnvironment);
-        return shells;
+        return EnvironmentHelper.getDeepCopiedShells(x -> true, this.aasEnvironment);
     }
 
 
@@ -151,19 +150,16 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
         }
 
         if (StringUtils.isNoneBlank(idShort)) {
-            List<Submodel> submodels = EnvironmentHelper.getDeepCopiedSubmodels(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
-            return submodels;
+            return EnvironmentHelper.getDeepCopiedSubmodels(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
         }
 
         if (semanticId != null) {
-            List<Submodel> submodels = EnvironmentHelper.getDeepCopiedSubmodels(x -> x.getSemanticId() != null
+            return EnvironmentHelper.getDeepCopiedSubmodels(x -> x.getSemanticId() != null
                     && ReferenceHelper.isEqualsIgnoringKeyType(x.getSemanticId(), semanticId), this.aasEnvironment);
-            return submodels;
         }
 
         //return all
-        List<Submodel> submodels = EnvironmentHelper.getDeepCopiedSubmodels(x -> true, this.aasEnvironment);
-        return submodels;
+        return EnvironmentHelper.getDeepCopiedSubmodels(x -> true, this.aasEnvironment);
     }
 
 
@@ -221,7 +217,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
             conceptDescriptions = this.aasEnvironment.getConceptDescriptions();
         }
 
-        Class conceptDescriptionClass = conceptDescriptions != null && conceptDescriptions.size() > 0 ? conceptDescriptions.get(0).getClass() : ConceptDescription.class;
+        Class conceptDescriptionClass = conceptDescriptions != null && !conceptDescriptions.isEmpty() ? conceptDescriptions.get(0).getClass() : ConceptDescription.class;
         return DeepCopyHelper.deepCopy(conceptDescriptions, conceptDescriptionClass);
     }
 

@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
  * Class to handle {@link io.adminshell.aas.v3.model.Referable}
  */
 public class ReferablePersistenceManager extends PersistenceManager {
+    private static final String RESOURCE_NOT_FOUND_BY_REF = "Resource not found by reference %s";
 
     /**
      * Get a submodel element by its reference
@@ -90,14 +91,14 @@ public class ReferablePersistenceManager extends PersistenceManager {
         }
 
         if (reference.getKeys() != null
-                && reference.getKeys().size() > 0) {
+                && !reference.getKeys().isEmpty()) {
             List<SubmodelElement> submodelElements = null;
             KeyElements lastKeyElementOfReference = reference.getKeys().get(reference.getKeys().size() - 1).getType();
 
             if (lastKeyElementOfReference == KeyElements.SUBMODEL) {
                 Submodel submodel = AasUtils.resolve(reference, this.aasEnvironment, Submodel.class);
                 if (submodel == null) {
-                    throw new ResourceNotFoundException(String.format("Resource not found with reference {}", AasUtils.asString(reference)));
+                    throw new ResourceNotFoundException(String.format(RESOURCE_NOT_FOUND_BY_REF, AasUtils.asString(reference)));
                 }
                 Submodel deepCopiedSubmodel = DeepCopyHelper.deepCopy(submodel, submodel.getClass());
                 submodelElements = deepCopiedSubmodel.getSubmodelElements();
@@ -106,7 +107,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
             else if (lastKeyElementOfReference == KeyElements.SUBMODEL_ELEMENT_COLLECTION) {
                 SubmodelElementCollection submodelElementCollection = AasUtils.resolve(reference, this.aasEnvironment, SubmodelElementCollection.class);
                 if (submodelElementCollection == null) {
-                    throw new ResourceNotFoundException(String.format("Resource not found with reference {}", AasUtils.asString(reference)));
+                    throw new ResourceNotFoundException(String.format(RESOURCE_NOT_FOUND_BY_REF, AasUtils.asString(reference)));
                 }
                 SubmodelElementCollection deepCopiedSubmodelElementCollection = DeepCopyHelper.deepCopy(submodelElementCollection, submodelElementCollection.getClass());
                 submodelElements = new ArrayList<>(deepCopiedSubmodelElementCollection.getValues());
@@ -149,7 +150,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
 
         if (parent != null
                 && parent.getKeys() != null
-                && parent.getKeys().size() > 0) {
+                && !parent.getKeys().isEmpty()) {
             lastKeyElementOfParent = parent.getKeys().get(parent.getKeys().size() - 1).getType();
         }
         else if (referenceToSubmodelElement != null
@@ -169,7 +170,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
         if (lastKeyElementOfParent == KeyElements.SUBMODEL) {
             Submodel submodel = AasUtils.resolve(parent, this.aasEnvironment, Submodel.class);
             if (submodel == null) {
-                throw new ResourceNotFoundException(String.format("Resource not found with reference {}", AasUtils.asString(parent)));
+                throw new ResourceNotFoundException(String.format(RESOURCE_NOT_FOUND_BY_REF, AasUtils.asString(parent)));
             }
             submodel.getSubmodelElements().removeIf(filter);
             submodel.getSubmodelElements().add(submodelElement);
@@ -178,7 +179,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
         else if (lastKeyElementOfParent == KeyElements.SUBMODEL_ELEMENT_COLLECTION) {
             SubmodelElementCollection submodelElementCollection = AasUtils.resolve(parent, this.aasEnvironment, SubmodelElementCollection.class);
             if (submodelElementCollection == null) {
-                throw new ResourceNotFoundException(String.format("Resource not found with reference {}", AasUtils.asString(parent)));
+                throw new ResourceNotFoundException(String.format(RESOURCE_NOT_FOUND_BY_REF, AasUtils.asString(parent)));
             }
             submodelElementCollection.getValues().removeIf(filter);
             submodelElementCollection.getValues().add(submodelElement);
@@ -200,7 +201,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
             return;
         }
         if (reference.getKeys() != null
-                && reference.getKeys().size() > 0) {
+                && !reference.getKeys().isEmpty()) {
             KeyElements lastKeyElementOfReference = reference.getKeys().get(reference.getKeys().size() - 1).getType();
             Class clazz = AasUtils.keyTypeToClass(lastKeyElementOfReference);
 
@@ -215,7 +216,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
             Referable referable = AasUtils.resolve(reference, this.aasEnvironment);
 
             if (referable == null) {
-                throw new ResourceNotFoundException(String.format("Resource not found with reference {}", AasUtils.asString(reference)));
+                throw new ResourceNotFoundException(String.format(RESOURCE_NOT_FOUND_BY_REF, AasUtils.asString(reference)));
             }
 
             if (reference.getKeys().size() > 1) {
