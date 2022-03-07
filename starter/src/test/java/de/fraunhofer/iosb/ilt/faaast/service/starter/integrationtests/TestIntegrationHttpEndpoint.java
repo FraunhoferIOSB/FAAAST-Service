@@ -518,7 +518,7 @@ public class TestIntegrationHttpEndpoint {
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels/"
                 + Base64.getUrlEncoder().encodeToString(expected.get(0).getKeys().get(0).getValue().getBytes(StandardCharsets.UTF_8));
         expected.remove(0);
-        Assert.assertTrue(setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementUpdateEventMessage.class, () -> deleteCall(url)));
+        setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementUpdateEventMessage.class, () -> deleteCall(url));
     }
 
 
@@ -544,7 +544,7 @@ public class TestIntegrationHttpEndpoint {
         String identifier = Base64.getUrlEncoder().encodeToString(expected
                 .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
         String url = HTTP_SUBMODELS + "/" + identifier + "/submodel/submodel-elements/" + expected.getSubmodelElements().get(0).getIdShort();
-        Assert.assertTrue(setUpEventCheck(expected.getSubmodelElements().get(0), ElementDeleteEventMessage.class, () -> deleteCall(url)));
+        setUpEventCheck(expected.getSubmodelElements().get(0), ElementDeleteEventMessage.class, () -> deleteCall(url));
     }
 
 
