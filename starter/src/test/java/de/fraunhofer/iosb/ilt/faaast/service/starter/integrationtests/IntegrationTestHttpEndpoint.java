@@ -85,9 +85,8 @@ public class IntegrationTestHttpEndpoint {
                 .endpoints(List.of(new HttpEndpointConfig()))
                 .messageBus(new MessageBusInternalConfig())
                 .build();
-        service = new Service(serviceConfig);
+        service = new Service(environment, serviceConfig);
         messageBus = service.getMessageBus();
-        service.setAASEnvironment(environment);
         service.start();
     }
 
@@ -116,8 +115,8 @@ public class IntegrationTestHttpEndpoint {
                         .equalsIgnoreCase(environment.getAssetAdministrationShells().get(0).getIdShort()))
                 .collect(Collectors.toList());
 
-        HttpResponse response = getListCall(HTTP_SHELLS + "?idShort=" +
-                environment.getAssetAdministrationShells().get(0).getIdShort());
+        HttpResponse response = getListCall(HTTP_SHELLS + "?idShort="
+                + environment.getAssetAdministrationShells().get(0).getIdShort());
         Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
         List<AssetAdministrationShell> actual = retrieveResourceFromResponseList(response, AssetAdministrationShell.class);
