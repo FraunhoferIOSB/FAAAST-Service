@@ -191,7 +191,7 @@ public class Application implements Runnable {
             env.stream().forEach(x -> cleanedEnvs.put(x.getKey().replace(CONFIG_PARAMETER_ENV_PREFIX, ""), x.getValue()));
             LOGGER.info("Got following configuration parameters through environment variables:");
             cleanedEnvs.forEach((key, value) -> {
-                LOGGER.info("  -- " + key + "=" + value);
+                LOGGER.info("  -- {}={}", key, value);
                 properties.put(key, value);
             });
         }
@@ -205,7 +205,7 @@ public class Application implements Runnable {
         }
         if (System.getenv(AASENV_FILE_PATH_ENVIRONMENT_VARIABLE) != null && !System.getenv(AASENV_FILE_PATH_ENVIRONMENT_VARIABLE).isBlank()) {
             aasEnvironmentFilePath = System.getenv(AASENV_FILE_PATH_ENVIRONMENT_VARIABLE);
-            LOGGER.info("Read environment variable '" + AASENV_FILE_PATH_ENVIRONMENT_VARIABLE + "=" + aasEnvironmentFilePath + "'");
+            LOGGER.info("Read environment variable '{}={}'", AASENV_FILE_PATH_ENVIRONMENT_VARIABLE, aasEnvironmentFilePath);
         }
     }
 
@@ -218,7 +218,7 @@ public class Application implements Runnable {
             LOGGER.info("Valid Asset Administration Shell Environment model");
             return true;
         }
-        LOGGER.error("Invalid Asset Administration Shell Environment model. Found '" + report.getEntries().size() + "' failures");
+        LOGGER.error("Invalid Asset Administration Shell Environment model. Found '{}' failures", report.getEntries().size());
         ShLib.printReport(report);
         throw new Exception("Invalid Asset Administration Shell Environment model.");
     }
