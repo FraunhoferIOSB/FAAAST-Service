@@ -15,7 +15,7 @@
         <aas.version.jsonld>1.0.2</aas.version.jsonld>
         <commons-code.version>1.15</commons-code.version>
         <httpcomponents.version>4.5.13</httpcomponents.version>
-        <logback.version>1.2.10</logback.version>
+        <logback.version>1.2.11</logback.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
         <maven-compiler-plugin-version>3.9.0</maven-compiler-plugin-version>
         <maven-shade-plugin-version>3.2.4</maven-shade-plugin-version>
