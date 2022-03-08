@@ -36,7 +36,7 @@ public class ContentDeserializerFactory {
             case JSON:
                 return new JsonContentDeserializer();
             case XML:
-                return null;
+                break;
         }
         throw new IllegalArgumentException(String.format("unsupported content format (%s)", format));
     }
