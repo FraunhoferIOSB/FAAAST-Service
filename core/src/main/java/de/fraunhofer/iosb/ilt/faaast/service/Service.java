@@ -123,22 +123,6 @@ public class Service implements ServiceContext {
     /**
      * Creates a new instance of {@link Service}
      *
-     * @param config service configuration
-     * @throws IllegalArgumentException if config is null
-     * @throws ConfigurationException if invalid configuration is provided
-     */
-    public Service(ServiceConfig config) throws ConfigurationException {
-        if (config == null) {
-            throw new IllegalArgumentException("config must be non-null");
-        }
-        this.config = config;
-        init();
-    }
-
-
-    /**
-     * Creates a new instance of {@link Service}
-     *
      * @param aasEnvironment aasEnvironment which will be used in the service
      * @param config service configuration
      * @throws IllegalArgumentException if config is null
@@ -146,17 +130,11 @@ public class Service implements ServiceContext {
      */
     public Service(AssetAdministrationShellEnvironment aasEnvironment, ServiceConfig config)
             throws ConfigurationException {
-        try {
-            this.setAASEnvironment(aasEnvironment);
-        }
-        catch (Exception e) {
-            logger.warn("Could not deep copy AAS Environment");
-            e.printStackTrace();
-        }
         if (config == null) {
             throw new IllegalArgumentException("config must be non-null");
         }
         this.config = config;
+        setAASEnvironment(aasEnvironment);
         init();
     }
 
@@ -234,8 +212,7 @@ public class Service implements ServiceContext {
             this.aasEnvironment = DeepCopyHelper.deepCopy(aasEnvironment);
         }
         catch (SerializationException | DeserializationException e) {
-            logger.warn("Could not deep copy AAS Environment");
-            e.printStackTrace();
+            logger.warn("Could not deep copy AAS Environment", e);
         }
     }
 
