@@ -649,7 +649,6 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Fails on GitHub, works locally --> probably issue with character encoding")
     public void testDELETESubmodelElementEvent() {
         Submodel expected = environment.getSubmodels().get(0);
         //String identifier = Base64.getUrlEncoder().encodeToString(expected
