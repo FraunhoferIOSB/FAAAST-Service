@@ -399,7 +399,8 @@ public class TestIntegrationHttpEndpoint {
 
     @Test
     public void testGETSubmodelReferencesEvent() {
-        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0).getIdentification().getIdentifier());
+        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0)
+                .getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels";
         setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementReadEventMessage.class, () -> getListCall(url));
     }
