@@ -33,6 +33,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.AssetInformation;
@@ -286,7 +287,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Fails on Github")
+    @Ignore("Fails on GitHub, works locally --> probably issue with character encoding")
     public void testGET_AASShell_Event() {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String url = HTTP_SHELLS + "/"
@@ -360,7 +361,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Fails on Github")
+    @Ignore("Fails on GitHub, works locally --> probably issue with character encoding")
     public void testGETAssetInformationEvent() {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String url = HTTP_SHELLS + "/"
@@ -417,7 +418,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Fails on GitHub")
+    @Ignore("Fails on GitHub, works locally --> probably issue with character encoding")
     public void testGETSubmodelReferencesEvent() {
         String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
                 .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
@@ -443,7 +444,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Fails on Github")
+    @Ignore("Fails on GitHub, works locally --> probably issue with character encoding")
     public void testPOSTSubmodelReferenceEvent() {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
         Reference newReference = new DefaultReference.Builder().key(new DefaultKey.Builder().value("test").idType(KeyType.IRI).build()).build();
@@ -597,7 +598,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Fails on Github")
+    @Ignore("Fails on GitHub, works locally --> probably issue with character encoding")
     public void testGetSpecificSubmodelLevel() throws SerializationException, IOException, DeserializationException {
         Submodel expected = environment.getSubmodels().get(2);
         String identifier = Base64.getUrlEncoder().encodeToString(expected.getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
@@ -648,11 +649,12 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Fails on Github")
+    @Ignore("Fails on GitHub, works locally --> probably issue with character encoding")
     public void testDELETESubmodelElementEvent() {
         Submodel expected = environment.getSubmodels().get(0);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        //String identifier = Base64.getUrlEncoder().encodeToString(expected
+        //        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SUBMODELS + "/" + identifier + "/submodel/submodel-elements/" + expected.getSubmodelElements().get(0).getIdShort();
         setUpEventCheck(expected.getSubmodelElements().get(0), ElementDeleteEventMessage.class, () -> deleteCall(url));
     }
