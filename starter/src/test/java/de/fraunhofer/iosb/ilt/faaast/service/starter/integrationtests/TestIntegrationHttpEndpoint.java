@@ -51,9 +51,7 @@ import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.http.HttpResponse;
@@ -131,7 +129,7 @@ public class TestIntegrationHttpEndpoint {
                 .collect(Collectors.toList());
 
         String assetIdsParameter = "[{\"key\": \"globalAssetId\",\"value\":\"" + assetIdValue + "\"}]";
-        HttpResponse response = getListCall(HTTP_SHELLS + "?assetIds=" + Base64.getUrlEncoder().encodeToString(assetIdsParameter.getBytes(StandardCharsets.UTF_8)));
+        HttpResponse response = getListCall(HTTP_SHELLS + "?assetIds=" + EncodingHelper.base64UrlEncode(assetIdsParameter));
         Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
         List<AssetAdministrationShell> actual = retrieveResourceFromResponseList(response, AssetAdministrationShell.class);
@@ -193,9 +191,7 @@ public class TestIntegrationHttpEndpoint {
     public void testGETSpecificShell() throws IOException, DeserializationException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         HttpResponse actual = getCall(HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8)));
-
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier()));
         Assert.assertEquals(expected, retrieveResourceFromResponse(actual, AssetAdministrationShell.class));
         Assert.assertEquals(HttpStatus.SC_OK, actual.getStatusLine().getStatusCode());
     }
@@ -212,8 +208,7 @@ public class TestIntegrationHttpEndpoint {
     public void testGETSpecificShellEvent() {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8)),
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier()),
                 AssetAdministrationShell.class));
     }
 
@@ -223,9 +218,7 @@ public class TestIntegrationHttpEndpoint {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
-
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         HttpResponse response = putCall(url, expected);
         Assert.assertEquals(expected, retrieveResourceFromResponse(response, AssetAdministrationShell.class));
         //TODO: StatusCode of spec seems to be wrong 204
@@ -241,8 +234,7 @@ public class TestIntegrationHttpEndpoint {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected, AssetAdministrationShell.class));
     }
 
@@ -250,8 +242,7 @@ public class TestIntegrationHttpEndpoint {
     @Test
     public void testDELETESpecificShell() throws IOException, DeserializationException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier;
         HttpResponse response = deleteCall(url);
         //TODO: StatusCode of spec seems to be wrong 204
@@ -266,8 +257,7 @@ public class TestIntegrationHttpEndpoint {
     @Test
     public void testDELETESpecificShellEvent() {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier;
         setUpEventCheck(expected, ElementDeleteEventMessage.class, () -> deleteCall(url));
     }
@@ -277,8 +267,7 @@ public class TestIntegrationHttpEndpoint {
     public void testGET_AASShell() throws IOException, DeserializationException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         HttpResponse actual = getCall(HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
                 + "/aas");
 
         Assert.assertEquals(expected, retrieveResourceFromResponse(actual, AssetAdministrationShell.class));
@@ -287,12 +276,10 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Fails on GitHub, works locally --> probably issue with character encoding")
     public void testGET_AASShell_Event() {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
                 + "/aas";
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(url));
     }
@@ -307,8 +294,7 @@ public class TestIntegrationHttpEndpoint {
     private void call_GET_AASShell_Content(String content, Object expected, Class<?> expectedClass) throws IOException, DeserializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         HttpResponse actual = getCall(HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(aas
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(aas.getIdentification().getIdentifier())
                 + "/aas?content=" + content);
 
         Assert.assertEquals(expected, retrieveResourceFromResponse(actual, expectedClass));
@@ -321,8 +307,7 @@ public class TestIntegrationHttpEndpoint {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
                 + "/aas";
 
         HttpResponse response = putCall(url, expected);
@@ -340,8 +325,7 @@ public class TestIntegrationHttpEndpoint {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
                 + "/aas";
         setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected, AssetAdministrationShell.class));
     }
@@ -351,8 +335,8 @@ public class TestIntegrationHttpEndpoint {
     public void testGETAssetInformation() throws IOException, DeserializationException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         HttpResponse actual = getCall(HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected
+                        .getIdentification().getIdentifier())
                 + "/aas/asset-information");
 
         Assert.assertEquals(expected.getAssetInformation(), retrieveResourceFromResponse(actual, AssetInformation.class));
@@ -361,12 +345,10 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Fails on GitHub, works locally --> probably issue with character encoding")
     public void testGETAssetInformationEvent() {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
                 + "/aas/asset-information";
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(url));
     }
@@ -378,8 +360,7 @@ public class TestIntegrationHttpEndpoint {
         AssetInformation expected = aas.getAssetInformation();
         expected.setAssetKind(AssetKind.TYPE);
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(aas
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(aas.getIdentification().getIdentifier())
                 + "/aas/asset-information";
         HttpResponse response = putCall(url, expected);
 
@@ -396,8 +377,7 @@ public class TestIntegrationHttpEndpoint {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.getAssetInformation().setAssetKind(AssetKind.TYPE);
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
                 + "/aas/asset-information";
         setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected.getAssetInformation()));
     }
@@ -406,8 +386,8 @@ public class TestIntegrationHttpEndpoint {
     @Test
     public void testGETSubmodelReferences() throws IOException, DeserializationException {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
-        String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0)
+                .getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels";
         HttpResponse response = getListCall(url);
         Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
@@ -418,10 +398,8 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Fails on GitHub, works locally --> probably issue with character encoding")
     public void testGETSubmodelReferencesEvent() {
-        String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0).getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels";
         setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementReadEventMessage.class, () -> getListCall(url));
     }
@@ -432,8 +410,8 @@ public class TestIntegrationHttpEndpoint {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
         Reference newReference = new DefaultReference.Builder().key(new DefaultKey.Builder().value("test").idType(KeyType.IRI).build()).build();
         expected.add(newReference);
-        String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0)
+                .getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels";
         HttpResponse response = postCall(url, newReference);
         Assert.assertEquals(HttpStatus.SC_CREATED, response.getStatusLine().getStatusCode());
@@ -444,13 +422,11 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Fails on GitHub, works locally --> probably issue with character encoding")
     public void testPOSTSubmodelReferenceEvent() {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
         Reference newReference = new DefaultReference.Builder().key(new DefaultKey.Builder().value("test").idType(KeyType.IRI).build()).build();
         expected.add(newReference);
-        String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0).getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels";
         setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementUpdateEventMessage.class, () -> postCall(url, newReference));
     }
@@ -459,10 +435,10 @@ public class TestIntegrationHttpEndpoint {
     @Test
     public void testDELETESubmodelReference() throws IOException, DeserializationException {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
-        String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0)
+                .getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels/"
-                + Base64.getUrlEncoder().encodeToString(expected.get(0).getKeys().get(0).getValue().getBytes(StandardCharsets.UTF_8));
+                + EncodingHelper.base64UrlEncode(expected.get(0).getKeys().get(0).getValue());
         HttpResponse response = deleteCall(url);
 
         //TODO: StatusCode of spec seems to be wrong 204
@@ -474,13 +450,11 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Fails on Githiub")
     public void testDELETESubmodelReferenceEvent() {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
-        String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0).getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels/"
-                + Base64.getUrlEncoder().encodeToString(expected.get(0).getKeys().get(0).getValue().getBytes(StandardCharsets.UTF_8));
+                + EncodingHelper.base64UrlEncode(expected.get(0).getKeys().get(0).getValue());
         expected.remove(0);
         setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementUpdateEventMessage.class, () -> deleteCall(url));
     }
@@ -508,7 +482,7 @@ public class TestIntegrationHttpEndpoint {
     @Test
     public void testGetSubmodelsWithSemanticId() throws SerializationException {
         Submodel expected = environment.getSubmodels().get(1);
-        String semnaticId = Base64.getUrlEncoder().encodeToString(new JsonSerializer().write(expected.getSemanticId()).getBytes(StandardCharsets.UTF_8));
+        String semnaticId = EncodingHelper.base64UrlEncode(new JsonSerializer().write(expected.getSemanticId()));
         List<Submodel> actual = getListCall(HTTP_SUBMODELS + "?semanticId=" + semnaticId, Submodel.class);
         Assert.assertEquals(List.of(expected), actual);
     }
@@ -517,7 +491,7 @@ public class TestIntegrationHttpEndpoint {
     @Test
     public void testGetSubmodelsEvent() throws SerializationException {
         Submodel expected = environment.getSubmodels().get(1);
-        String semnaticId = Base64.getUrlEncoder().encodeToString(new JsonSerializer().write(expected.getSemanticId()).getBytes(StandardCharsets.UTF_8));
+        String semnaticId = EncodingHelper.base64UrlEncode(new JsonSerializer().write(expected.getSemanticId()));
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getListCall(HTTP_SUBMODELS + "?semanticId=" + semnaticId));
     }
 
@@ -554,7 +528,7 @@ public class TestIntegrationHttpEndpoint {
     @Test
     public void testGetSpecificSubmodel() throws SerializationException, IOException, DeserializationException {
         Submodel expected = environment.getSubmodels().get(1);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected.getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SUBMODELS + "/" + identifier + "/submodel";
         HttpResponse response = getCall(url);
         Submodel actual = retrieveResourceFromResponse(response, Submodel.class);
@@ -567,7 +541,7 @@ public class TestIntegrationHttpEndpoint {
     @Test
     public void testGetSpecificSubmodelContent() throws SerializationException, IOException, DeserializationException {
         Submodel expected = environment.getSubmodels().get(3);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected.getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SUBMODELS + "/" + identifier + "/submodel?content=normal";
         HttpResponse response = getCall(url);
         Submodel actual = retrieveResourceFromResponse(response, Submodel.class);
@@ -592,16 +566,15 @@ public class TestIntegrationHttpEndpoint {
     @Test
     public void testGetSpecificSubmodelEvent() throws SerializationException {
         Submodel expected = environment.getSubmodels().get(1);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected.getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(HTTP_SUBMODELS + "/" + identifier + "/submodel"));
     }
 
 
     @Test
-    @Ignore("Fails on GitHub, works locally --> probably issue with character encoding")
     public void testGetSpecificSubmodelLevel() throws SerializationException, IOException, DeserializationException {
         Submodel expected = environment.getSubmodels().get(2);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected.getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String baseUrl = HTTP_SUBMODELS + "/" + identifier + "/submodel";
 
         //Level = deep
@@ -635,8 +608,8 @@ public class TestIntegrationHttpEndpoint {
     @Test
     public void testDELETESubmodelElement() throws IOException, DeserializationException {
         Submodel expected = environment.getSubmodels().get(0);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected
+                .getIdentification().getIdentifier());
         String url = HTTP_SUBMODELS + "/" + identifier + "/submodel/submodel-elements/" + expected.getSubmodelElements().get(0).getIdShort();
         HttpResponse response = deleteCall(url);
         //TODO: StatusCode of spec seems to be wrong 204
@@ -651,8 +624,6 @@ public class TestIntegrationHttpEndpoint {
     @Test
     public void testDELETESubmodelElementEvent() {
         Submodel expected = environment.getSubmodels().get(0);
-        //String identifier = Base64.getUrlEncoder().encodeToString(expected
-        //        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
         String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SUBMODELS + "/" + identifier + "/submodel/submodel-elements/" + expected.getSubmodelElements().get(0).getIdShort();
         setUpEventCheck(expected.getSubmodelElements().get(0), ElementDeleteEventMessage.class, () -> deleteCall(url));
