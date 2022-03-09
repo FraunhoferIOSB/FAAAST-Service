@@ -196,7 +196,7 @@ public class TestIntegrationHttpEndpoint {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         HttpResponse actual = getCall(HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8)));
+                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8)));
 
         Assert.assertEquals(expected, retrieveResourceFromResponse(actual, AssetAdministrationShell.class));
         Assert.assertEquals(HttpStatus.SC_OK, actual.getStatusLine().getStatusCode());
@@ -214,7 +214,7 @@ public class TestIntegrationHttpEndpoint {
     public void testGETSpecificShellEvent() {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(HTTP_SHELLS + "/"
-                        + Base64.getUrlEncoder().encodeToString(expected
+                + Base64.getUrlEncoder().encodeToString(expected
                         .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8)),
                 AssetAdministrationShell.class));
     }
@@ -226,7 +226,7 @@ public class TestIntegrationHttpEndpoint {
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
 
         HttpResponse response = putCall(url, expected);
         Assert.assertEquals(expected, retrieveResourceFromResponse(response, AssetAdministrationShell.class));
@@ -244,7 +244,7 @@ public class TestIntegrationHttpEndpoint {
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
         setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected, AssetAdministrationShell.class));
     }
 
@@ -280,7 +280,7 @@ public class TestIntegrationHttpEndpoint {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         HttpResponse actual = getCall(HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas");
 
         Assert.assertEquals(expected, retrieveResourceFromResponse(actual, AssetAdministrationShell.class));
@@ -293,7 +293,7 @@ public class TestIntegrationHttpEndpoint {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String url = HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas";
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(url));
     }
@@ -309,7 +309,7 @@ public class TestIntegrationHttpEndpoint {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         HttpResponse actual = getCall(HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(aas
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas?content=" + content);
 
         Assert.assertEquals(expected, retrieveResourceFromResponse(actual, expectedClass));
@@ -323,7 +323,7 @@ public class TestIntegrationHttpEndpoint {
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas";
 
         HttpResponse response = putCall(url, expected);
@@ -342,7 +342,7 @@ public class TestIntegrationHttpEndpoint {
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas";
         setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected, AssetAdministrationShell.class));
     }
@@ -353,7 +353,7 @@ public class TestIntegrationHttpEndpoint {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         HttpResponse actual = getCall(HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas/asset-information");
 
         Assert.assertEquals(expected.getAssetInformation(), retrieveResourceFromResponse(actual, AssetInformation.class));
@@ -366,7 +366,7 @@ public class TestIntegrationHttpEndpoint {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String url = HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas/asset-information";
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(url));
     }
@@ -379,7 +379,7 @@ public class TestIntegrationHttpEndpoint {
         expected.setAssetKind(AssetKind.TYPE);
         String url = HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(aas
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas/asset-information";
         HttpResponse response = putCall(url, expected);
 
@@ -397,7 +397,7 @@ public class TestIntegrationHttpEndpoint {
         expected.getAssetInformation().setAssetKind(AssetKind.TYPE);
         String url = HTTP_SHELLS + "/"
                 + Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
                 + "/aas/asset-information";
         setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected.getAssetInformation()));
     }
