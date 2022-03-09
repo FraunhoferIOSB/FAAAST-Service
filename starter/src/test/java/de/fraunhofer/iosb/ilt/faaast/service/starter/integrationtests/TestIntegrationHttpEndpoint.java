@@ -354,6 +354,7 @@ public class TestIntegrationHttpEndpoint {
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(url));
     }
 
+
     @Test
     public void testPUTAssetInformation() throws IOException, DeserializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
