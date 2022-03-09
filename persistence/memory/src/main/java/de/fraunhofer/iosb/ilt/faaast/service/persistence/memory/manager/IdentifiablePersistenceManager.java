@@ -115,7 +115,9 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
                     shells.addAll(EnvironmentHelper.getDeepCopiedShells(
                             x -> x.getAssetInformation() != null
                                     && x.getAssetInformation().getGlobalAssetId() != null
-                                    && x.getAssetInformation().getGlobalAssetId().equals(((GlobalAssetIdentification) assetId).getReference()),
+                                    && x.getAssetInformation().getGlobalAssetId().getKeys().stream()
+                                            .anyMatch(y -> ((GlobalAssetIdentification) assetId).getReference().getKeys().stream()
+                                                    .anyMatch(z -> z.getValue().equalsIgnoreCase(y.getValue()))),
                             this.aasEnvironment));
                 }
 
