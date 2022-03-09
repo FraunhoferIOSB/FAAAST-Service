@@ -115,7 +115,9 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
                     shells.addAll(EnvironmentHelper.getDeepCopiedShells(
                             x -> x.getAssetInformation() != null
                                     && x.getAssetInformation().getGlobalAssetId() != null
-                                    && x.getAssetInformation().getGlobalAssetId().equals(((GlobalAssetIdentification) assetId).getReference()),
+                                    && x.getAssetInformation().getGlobalAssetId().getKeys().stream()
+                                            .anyMatch(y -> ((GlobalAssetIdentification) assetId).getReference().getKeys().stream()
+                                                    .anyMatch(z -> z.getValue().equalsIgnoreCase(y.getValue()))),
                             this.aasEnvironment));
                 }
 
@@ -132,7 +134,8 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
         }
 
         //return all
-        return EnvironmentHelper.getDeepCopiedShells(x -> true, this.aasEnvironment);
+        List<AssetAdministrationShell> shells = EnvironmentHelper.getDeepCopiedShells(x -> true, this.aasEnvironment);
+        return shells;
     }
 
 
@@ -150,16 +153,19 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
         }
 
         if (StringUtils.isNoneBlank(idShort)) {
-            return EnvironmentHelper.getDeepCopiedSubmodels(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
+            List<Submodel> submodels = EnvironmentHelper.getDeepCopiedSubmodels(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
+            return submodels;
         }
 
         if (semanticId != null) {
-            return EnvironmentHelper.getDeepCopiedSubmodels(x -> x.getSemanticId() != null
+            List<Submodel> submodels = EnvironmentHelper.getDeepCopiedSubmodels(x -> x.getSemanticId() != null
                     && ReferenceHelper.isEqualsIgnoringKeyType(x.getSemanticId(), semanticId), this.aasEnvironment);
+            return submodels;
         }
 
         //return all
-        return EnvironmentHelper.getDeepCopiedSubmodels(x -> true, this.aasEnvironment);
+        List<Submodel> submodels = EnvironmentHelper.getDeepCopiedSubmodels(x -> true, this.aasEnvironment);
+        return submodels;
     }
 
 
@@ -217,7 +223,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
             conceptDescriptions = this.aasEnvironment.getConceptDescriptions();
         }
 
-        Class conceptDescriptionClass = conceptDescriptions != null && !conceptDescriptions.isEmpty() ? conceptDescriptions.get(0).getClass() : ConceptDescription.class;
+        Class conceptDescriptionClass = conceptDescriptions != null && conceptDescriptions.size() > 0 ? conceptDescriptions.get(0).getClass() : ConceptDescription.class;
         return DeepCopyHelper.deepCopy(conceptDescriptions, conceptDescriptionClass);
     }
 
@@ -286,7 +292,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
      * <li>{@link io.adminshell.aas.v3.model.Asset}
      * </ul>
      * <p>
-     * 
+     *
      * @param identifiable which should be added or updated
      * @return the added or updated identifiable
      */

@@ -15,13 +15,15 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsBySemanticIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.Reference;
 
 
 /**
@@ -39,11 +41,16 @@ public class GetAllSubmodelsBySemanticIdRequestMapper extends RequestMapperWithO
 
 
     @Override
-    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
-        return GetAllSubmodelsBySemanticIdRequest.builder()
-                .semanticId(AasUtils.parseReference(EncodingHelper.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM))))
-                .outputModifier(outputModifier)
-                .build();
+    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException {
+        try {
+            return GetAllSubmodelsBySemanticIdRequest.builder()
+                    .semanticId(deserializer.read(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameters().get(QUERYPARAM)), Reference.class))
+                    .outputModifier(outputModifier)
+                    .build();
+        }
+        catch (DeserializationException ex) {
+            throw new InvalidRequestException(String.format("error deserializing %s", QUERYPARAM));
+        }
     }
 
 

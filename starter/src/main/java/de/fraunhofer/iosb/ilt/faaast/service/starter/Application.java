@@ -152,8 +152,7 @@ public class Application implements Runnable {
             if (validateAASEnv) {
                 validate(environment);
             }
-            service = new Service(config);
-            service.setAASEnvironment(environment);
+            service = new Service(environment, config);
             service.start();
             LOGGER.info("FAAAST Service is running!");
         }

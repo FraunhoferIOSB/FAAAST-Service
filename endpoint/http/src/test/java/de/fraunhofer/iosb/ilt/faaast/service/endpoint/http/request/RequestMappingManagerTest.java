@@ -432,14 +432,14 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllSubmodelsBySemanticId() throws InvalidRequestException {
+    public void testGetAllSubmodelsBySemanticId() throws InvalidRequestException, SerializationException {
         Request expected = GetAllSubmodelsBySemanticIdRequest.builder()
                 .semanticId(SUBMODEL.getSemanticId())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("submodels")
-                .query("semanticId=" + EncodingHelper.base64UrlEncode(AasUtils.asString(SUBMODEL.getSemanticId())))
+                .query("semanticId=" + EncodingHelper.base64UrlEncode(serializer.write(SUBMODEL.getSemanticId())))
                 .build());
         Assert.assertEquals(expected, actual);
     }
@@ -565,9 +565,9 @@ public class RequestMappingManagerTest {
 
     @Test
     public void testInvokeOperationAsync() throws IOException {
-        //        Reference submodelElementRef = AasUtils.toReference(AasUtils.toReference(AASFull.SUBMODEL_3), AASFull.SUBMODEL_3.getSubmodelElements().get(2));        
+        //        Reference submodelElementRef = AasUtils.toReference(AasUtils.toReference(AASFull.SUBMODEL_3), AASFull.SUBMODEL_3.getSubmodelElements().get(2));
         //        File example = new File("src/test/resources/example-invoke.json");
-        //        execute(HttpMethod.POST, 
+        //        execute(HttpMethod.POST,
         //                "submodels/bXktYWFzLXRlc3QtaWRlbnRpZmllcg==/submodel/submodel-elements/MySubmodelElementStruct.MySubSubmodelElementList%5B1%5D/invoke",
         //                "submodels/" + EncodingUtils.base64UrlEncode(AASFull.SUBMODEL_1.getIdentification().getIdentifier()) + "/submodel/submodel-elements/"
         //                + ElementPathUtils.toElementPath(submodelElementRef) + "/invoke", // does url encode happen automatically?

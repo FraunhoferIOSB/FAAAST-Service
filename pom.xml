@@ -36,7 +36,7 @@
         <container.image.tag>latest</container.image.tag>
         <flatten.version>1.2.7</flatten.version>
         <guava.version>31.1-jre</guava.version>
-        <jackson.version>2.13.1</jackson.version>
+        <jackson.version>2.13.2</jackson.version>
         <jakarta-servlet.version>5.0.0</jakarta-servlet.version>
         <javax-servlet.version>2.5</javax-servlet.version>
         <jetty.version>11.0.8</jetty.version>
