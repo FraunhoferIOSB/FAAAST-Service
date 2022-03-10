@@ -34,17 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.AssetInformation;
-import io.adminshell.aas.v3.model.AssetKind;
-import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import io.adminshell.aas.v3.model.*;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
@@ -138,7 +128,6 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("doesn't work on Github server (sometimes), issue unclear")
     public void testGETShellsEvent() {
         List<AssetAdministrationShell> actual = new ArrayList<>();
         List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells();
@@ -170,7 +159,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    public void testPOSTShellEvent() {
+    public void testPOSTShellEvent() throws InterruptedException {
         AssetAdministrationShell newShell = getNewShell();
         setUpEventCheck(newShell, ElementCreateEventMessage.class, () -> postCall(HTTP_SHELLS, newShell, AssetAdministrationShell.class));
     }
@@ -206,7 +195,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    public void testGETSpecificShellEvent() {
+    public void testGETSpecificShellEvent() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(HTTP_SHELLS + "/"
                 + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier()),
@@ -231,7 +220,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    public void testPUTSpecificShellEvent() {
+    public void testPUTSpecificShellEvent() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
@@ -256,7 +245,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    public void testDELETESpecificShellEvent() {
+    public void testDELETESpecificShellEvent() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier;
@@ -277,8 +266,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("doesn't work on Github server (sometimes), issue unclear")
-    public void testGET_AASShell_Event() {
+    public void testGET_AASShell_Event() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String url = HTTP_SHELLS + "/"
                 + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
@@ -323,7 +311,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    public void testPUT_AASShellEvent() {
+    public void testPUT_AASShellEvent() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
@@ -347,8 +335,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Test works locally, but not on Github Server, Encoding corrected, issue unclear")
-    public void testGETAssetInformationEvent() {
+    public void testGETAssetInformationEvent() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String url = HTTP_SHELLS + "/"
                 + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
@@ -376,8 +363,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Test works locally, but not on Github Server, Encoding corrected, issue unclear")
-    public void testPutAssetInformationEvent() {
+    public void testPutAssetInformationEvent() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.getAssetInformation().setAssetKind(AssetKind.TYPE);
         String url = HTTP_SHELLS + "/"
@@ -402,8 +388,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Test works locally, but not on Github Server, Encoding corrected, issue unclear")
-    public void testGETSubmodelReferencesEvent() {
+    public void testGETSubmodelReferencesEvent() throws InterruptedException {
         String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0)
                 .getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels";
@@ -428,7 +413,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    public void testPOSTSubmodelReferenceEvent() {
+    public void testPOSTSubmodelReferenceEvent() throws InterruptedException {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
         Reference newReference = new DefaultReference.Builder().key(new DefaultKey.Builder().value("test").idType(KeyType.IRI).build()).build();
         expected.add(newReference);
@@ -456,7 +441,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    public void testDELETESubmodelReferenceEvent() {
+    public void testDELETESubmodelReferenceEvent() throws InterruptedException {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
         String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0).getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels/"
@@ -495,7 +480,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    public void testGetSubmodelsEvent() throws SerializationException {
+    public void testGetSubmodelsEvent() throws SerializationException, InterruptedException {
         Submodel expected = environment.getSubmodels().get(1);
         String semnaticId = EncodingHelper.base64UrlEncode(new JsonSerializer().write(expected.getSemanticId()));
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getListCall(HTTP_SUBMODELS + "?semanticId=" + semnaticId));
@@ -520,7 +505,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    public void testPostSubmodelsEvent() throws SerializationException {
+    public void testPostSubmodelsEvent() throws SerializationException, InterruptedException {
         Submodel expected = new DefaultSubmodel.Builder()
                 .identification(new DefaultIdentifier.Builder()
                         .idType(IdentifierType.IRI)
@@ -545,7 +530,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    public void testGetSpecificSubmodelContent() throws SerializationException, IOException, DeserializationException {
+    public void testGetSpecificSubmodelContent() throws SerializationException, IOException, DeserializationException, InterruptedException {
         Submodel expected = environment.getSubmodels().get(3);
         String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SUBMODELS + "/" + identifier + "/submodel?content=normal";
@@ -570,7 +555,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    public void testGetSpecificSubmodelEvent() throws SerializationException {
+    public void testGetSpecificSubmodelEvent() throws SerializationException, InterruptedException {
         Submodel expected = environment.getSubmodels().get(1);
         String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(HTTP_SUBMODELS + "/" + identifier + "/submodel"));
@@ -578,7 +563,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    public void testGetSpecificSubmodelLevel() throws SerializationException, IOException, DeserializationException {
+    public void testGetSpecificSubmodelLevel() throws SerializationException, IOException, DeserializationException, InterruptedException {
         Submodel expected = environment.getSubmodels().get(2);
         String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String baseUrl = HTTP_SUBMODELS + "/" + identifier + "/submodel";
@@ -628,7 +613,7 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    public void testDELETESubmodelElementEvent() {
+    public void testDELETESubmodelElementEvent() throws InterruptedException {
         Submodel expected = environment.getSubmodels().get(0);
         String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SUBMODELS + "/" + identifier + "/submodel/submodel-elements/" + expected.getSubmodelElements().get(0).getIdShort();
