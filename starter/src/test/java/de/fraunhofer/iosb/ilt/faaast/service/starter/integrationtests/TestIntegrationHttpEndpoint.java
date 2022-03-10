@@ -276,7 +276,6 @@ public class TestIntegrationHttpEndpoint {
 
 
     @Test
-    @Ignore("Test works locally, but not on Github Server, Encoding corrected, issue unclear")
     public void testGET_AASShell_Event() {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String url = HTTP_SHELLS + "/"
