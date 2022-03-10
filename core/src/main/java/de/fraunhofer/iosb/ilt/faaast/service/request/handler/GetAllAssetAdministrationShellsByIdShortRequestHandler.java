@@ -31,8 +31,8 @@ import java.util.List;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByIdShortRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByIdShortResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllAssetAdministrationShellsByIdShortRequestHandler
         extends RequestHandler<GetAllAssetAdministrationShellsByIdShortRequest, GetAllAssetAdministrationShellsByIdShortResponse> {
@@ -45,16 +45,11 @@ public class GetAllAssetAdministrationShellsByIdShortRequestHandler
     @Override
     public GetAllAssetAdministrationShellsByIdShortResponse process(GetAllAssetAdministrationShellsByIdShortRequest request) {
         GetAllAssetAdministrationShellsByIdShortResponse response = new GetAllAssetAdministrationShellsByIdShortResponse();
-        try {
-            List<AssetAdministrationShell> shells = persistence.get(request.getIdShort(), (List<AssetIdentification>) null, request.getOutputModifier());
-            response.setPayload(shells);
-            response.setStatusCode(StatusCode.Success);
-            if (shells != null) {
-                shells.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
-            }
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
+        List<AssetAdministrationShell> shells = persistence.get(request.getIdShort(), (List<AssetIdentification>) null, request.getOutputModifier());
+        response.setPayload(shells);
+        response.setStatusCode(StatusCode.Success);
+        if (shells != null) {
+            shells.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
         }
         return response;
     }

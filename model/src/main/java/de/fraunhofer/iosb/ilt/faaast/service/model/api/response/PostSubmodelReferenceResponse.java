@@ -22,21 +22,16 @@ import io.adminshell.aas.v3.model.Reference;
  * Chapter 4.2.5
  */
 public class PostSubmodelReferenceResponse extends BaseResponseWithPayload<Reference> {
+
     public static PostSubmodelReferenceResponse.Builder builder() {
         return new PostSubmodelReferenceResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<PostSubmodelReferenceResponse, PostSubmodelReferenceResponse.Builder> {
+    public static class Builder extends AbstractBuilder<Reference, PostSubmodelReferenceResponse, PostSubmodelReferenceResponse.Builder> {
 
         @Override
         protected PostSubmodelReferenceResponse.Builder getSelf() {
             return this;
-        }
-
-
-        public PostSubmodelReferenceResponse.Builder payload(Reference value) {
-            getBuildingInstance().setPayload(value);
-            return getSelf();
         }
 
 

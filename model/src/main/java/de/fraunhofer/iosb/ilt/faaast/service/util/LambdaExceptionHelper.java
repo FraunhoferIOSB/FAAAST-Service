@@ -65,8 +65,8 @@ public class LambdaExceptionHelper {
             try {
                 consumer.accept(t);
             }
-            catch (Exception exception) {
-                throwAsUnchecked(exception);
+            catch (Exception e) {
+                throwAsUnchecked(e);
             }
         };
     }
@@ -77,8 +77,8 @@ public class LambdaExceptionHelper {
             try {
                 biConsumer.accept(t, u);
             }
-            catch (Exception exception) {
-                throwAsUnchecked(exception);
+            catch (Exception e) {
+                throwAsUnchecked(e);
             }
         };
     }
@@ -93,8 +93,8 @@ public class LambdaExceptionHelper {
             try {
                 return function.apply(t);
             }
-            catch (Exception exception) {
-                throwAsUnchecked(exception);
+            catch (Exception e) {
+                throwAsUnchecked(e);
                 return null;
             }
         };
@@ -110,8 +110,8 @@ public class LambdaExceptionHelper {
             try {
                 return function.get();
             }
-            catch (Exception exception) {
-                throwAsUnchecked(exception);
+            catch (Exception e) {
+                throwAsUnchecked(e);
                 return null;
             }
         };
@@ -125,8 +125,8 @@ public class LambdaExceptionHelper {
         try {
             t.run();
         }
-        catch (Exception exception) {
-            throwAsUnchecked(exception);
+        catch (Exception e) {
+            throwAsUnchecked(e);
         }
     }
 
@@ -138,8 +138,8 @@ public class LambdaExceptionHelper {
         try {
             return supplier.get();
         }
-        catch (Exception exception) {
-            throwAsUnchecked(exception);
+        catch (Exception e) {
+            throwAsUnchecked(e);
             return null;
         }
     }
@@ -152,8 +152,8 @@ public class LambdaExceptionHelper {
         try {
             return function.apply(t);
         }
-        catch (Exception exception) {
-            throwAsUnchecked(exception);
+        catch (Exception e) {
+            throwAsUnchecked(e);
             return null;
         }
     }

@@ -31,8 +31,8 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelReferenceRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelReferenceResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class DeleteSubmodelReferenceRequestHandler extends RequestHandler<DeleteSubmodelReferenceRequest, DeleteSubmodelReferenceResponse> {
 
@@ -42,22 +42,13 @@ public class DeleteSubmodelReferenceRequestHandler extends RequestHandler<Delete
 
 
     @Override
-    public DeleteSubmodelReferenceResponse process(DeleteSubmodelReferenceRequest request) {
+    public DeleteSubmodelReferenceResponse process(DeleteSubmodelReferenceRequest request) throws ResourceNotFoundException {
         DeleteSubmodelReferenceResponse response = new DeleteSubmodelReferenceResponse();
-
-        try {
-            AssetAdministrationShell aas = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
-            aas.getSubmodels().remove(request.getSubmodelRef());
-            persistence.put(aas);
-            response.setStatusCode(StatusCode.Success);
-            publishElementUpdateEventMessage(AasUtils.toReference(aas), aas);
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        AssetAdministrationShell aas = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
+        aas.getSubmodels().remove(request.getSubmodelRef());
+        persistence.put(aas);
+        response.setStatusCode(StatusCode.Success);
+        publishElementUpdateEventMessage(AasUtils.toReference(aas), aas);
         return response;
     }
 

@@ -41,8 +41,8 @@ public class DoubleValue extends TypedValue<Double> {
         try {
             this.setValue((Double) Double.parseDouble(value));
         }
-        catch (NumberFormatException ex) {
-            throw new ValueFormatException(ex);
+        catch (NumberFormatException e) {
+            throw new ValueFormatException(e);
         }
     }
 

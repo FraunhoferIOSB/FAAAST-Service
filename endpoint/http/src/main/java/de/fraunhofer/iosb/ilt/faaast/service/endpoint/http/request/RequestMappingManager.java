@@ -60,15 +60,19 @@ public class RequestMappingManager {
                             Constructor<RequestMapper> constructor = x.getConstructor(ServiceContext.class);
                             return constructor.newInstance(serviceContext);
                         }
-                        catch (NoSuchMethodException | SecurityException ex) {
+                        catch (NoSuchMethodException | SecurityException e) {
                             logger.warn("request mapper implementation could not be loaded, "
-                                    + "reason: missing constructor (implementation class: {}, required constructor signature: {}",
-                                    x.getName());
+                                    + "reason: missing constructor (implementation class: {}, required constructor signature: {})",
+                                    x.getName(),
+                                    ServiceContext.class.getName(),
+                                    e);
                         }
-                        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                             logger.warn("request mapper implementation could not be loaded, "
-                                    + "reason: calling constructor failed (implementation class: {}, constructor arguments: {}",
-                                    x.getName());
+                                    + "reason: calling constructor failed (implementation class: {}, constructor arguments: {})",
+                                    x.getName(),
+                                    ServiceContext.class.getName(),
+                                    e);
                         }
                         logger.debug("unable to instantiate class {}", x.getName());
                         return null;

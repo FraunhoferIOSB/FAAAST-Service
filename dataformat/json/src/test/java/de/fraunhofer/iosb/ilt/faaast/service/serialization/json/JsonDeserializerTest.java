@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
@@ -24,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.PropertyValues;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -42,25 +44,25 @@ public class JsonDeserializerTest {
     JsonDeserializer deserializer = new JsonDeserializer();
 
     @Test
-    public void testAnnotatedRelationshipElementProperty() throws DeserializationException, FileNotFoundException, IOException {
+    public void testAnnotatedRelationshipElementProperty() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValue(PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT, PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT_FILE);
     }
 
 
     @Test
-    public void testBlob() throws DeserializationException, FileNotFoundException, IOException {
+    public void testBlob() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValue(PropertyValues.BLOB, PropertyValues.BLOB_FILE_WITH_BLOB);
     }
 
 
     @Test
-    public void testFile() throws DeserializationException, FileNotFoundException, IOException {
+    public void testFile() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValue(PropertyValues.FILE, PropertyValues.FILE_FILE);
     }
 
 
     @Test
-    public void testList() throws DeserializationException, FileNotFoundException, IOException {
+    public void testList() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValueList(Map.of(
                 PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
                 PropertyValues.PROPERTY_INT, PropertyValues.PROPERTY_INT_FILE,
@@ -74,7 +76,7 @@ public class JsonDeserializerTest {
 
 
     @Test
-    public void testArray() throws DeserializationException, FileNotFoundException, IOException {
+    public void testArray() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValueArray(Map.of(
                 PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
                 PropertyValues.PROPERTY_INT, PropertyValues.PROPERTY_INT_FILE,
@@ -88,7 +90,7 @@ public class JsonDeserializerTest {
 
 
     @Test
-    public void testMap() throws DeserializationException, FileNotFoundException, IOException {
+    public void testMap() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValueMap(Map.of(
                 PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
                 PropertyValues.PROPERTY_INT, PropertyValues.PROPERTY_INT_FILE,
@@ -107,8 +109,9 @@ public class JsonDeserializerTest {
                     try {
                         return TestUtils.extractValueJson(x.getValue(), x.getKey());
                     }
-                    catch (IOException ex) {
-                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, ex);
+                    catch (IOException e) {
+                        // TODO proper error handling
+                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, e);
                     }
                     return null;
                 })
@@ -124,8 +127,9 @@ public class JsonDeserializerTest {
                                 x.getKey().getIdShort(),
                                 TestUtils.extractValueJson(x.getValue(), x.getKey()));
                     }
-                    catch (IOException ex) {
-                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, ex);
+                    catch (IOException e) {
+                        // TODO proper error handling
+                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, e);
                     }
                     return null;
                 })
@@ -133,8 +137,9 @@ public class JsonDeserializerTest {
     }
 
 
-    private void compareValueList(Map<SubmodelElement, File> input) throws DeserializationException, IOException {
-        List<Object> expected = input.keySet().stream().map(x -> ElementValueMapper.toValue(x))
+    private void compareValueList(Map<SubmodelElement, File> input) throws DeserializationException, IOException, ValueMappingException {
+        List<Object> expected = input.keySet().stream()
+                .map(LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x)))
                 .collect(Collectors.toList());
         TypeInfo typeInfo = TypeExtractor.extractTypeInfo(input.keySet());
         List<ElementValue> actual = deserializer.readValueList(filesAsJsonArray(input), typeInfo);
@@ -142,10 +147,10 @@ public class JsonDeserializerTest {
     }
 
 
-    private void compareValueMap(Map<SubmodelElement, File> input) throws DeserializationException, IOException {
+    private void compareValueMap(Map<SubmodelElement, File> input) throws DeserializationException, IOException, ValueMappingException {
         Map<Object, ElementValue> expected = input.keySet().stream().collect(Collectors.toMap(
                 x -> x.getIdShort(),
-                x -> ElementValueMapper.toValue(x)));
+                LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x))));
         TypeInfo typeInfo = TypeExtractor.extractTypeInfo(input.keySet().stream().collect(Collectors.toMap(
                 x -> x.getIdShort(),
                 x -> x)));
@@ -154,8 +159,9 @@ public class JsonDeserializerTest {
     }
 
 
-    private void compareValueArray(Map<SubmodelElement, File> input) throws DeserializationException, IOException {
-        Object[] expected = input.keySet().stream().map(x -> ElementValueMapper.toValue(x))
+    private void compareValueArray(Map<SubmodelElement, File> input) throws DeserializationException, IOException, ValueMappingException {
+        Object[] expected = input.keySet().stream()
+                .map(LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x)))
                 .toArray();
         TypeInfo typeInfo = TypeExtractor.extractTypeInfo(input.keySet().toArray());
         ElementValue[] actual = deserializer.readValueArray(filesAsJsonArray(input), typeInfo);
@@ -164,13 +170,13 @@ public class JsonDeserializerTest {
 
 
     @Test
-    public void testMultiLanguageProperty() throws DeserializationException, FileNotFoundException, IOException {
+    public void testMultiLanguageProperty() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValue(PropertyValues.MULTI_LANGUAGE_PROPERTY, PropertyValues.MULTI_LANGUAGE_PROPERTY_FILE);
     }
 
 
     @Test
-    public void testProperty() throws DeserializationException, FileNotFoundException, IOException {
+    public void testProperty() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValue(PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE);
         compareValue(PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE, PropertyValue.class, Datatype.String);
         compareValue(PropertyValues.PROPERTY_DOUBLE, PropertyValues.PROPERTY_DOUBLE_FILE);
@@ -181,7 +187,7 @@ public class JsonDeserializerTest {
 
 
     @Test
-    public void testRange() throws DeserializationException, FileNotFoundException, IOException {
+    public void testRange() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValue(PropertyValues.RANGE_DOUBLE, PropertyValues.RANGE_DOUBLE_FILE);
         compareValue(PropertyValues.RANGE_DOUBLE, PropertyValues.RANGE_DOUBLE_FILE, RangeValue.class, Datatype.Double);
         compareValue(PropertyValues.RANGE_INT, PropertyValues.RANGE_INT_FILE);
@@ -190,25 +196,25 @@ public class JsonDeserializerTest {
 
 
     @Test
-    public void testReferenceElementProperty() throws DeserializationException, FileNotFoundException, IOException {
+    public void testReferenceElementProperty() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValue(PropertyValues.REFERENCE_ELEMENT_MODEL, PropertyValues.REFERENCE_ELEMENT_MODEL_FILE);
         compareValue(PropertyValues.REFERENCE_ELEMENT_GLOBAL, PropertyValues.REFERENCE_ELEMENT_GLOBAL_FILE);
     }
 
 
     @Test
-    public void testRelationshipElementProperty() throws DeserializationException, FileNotFoundException, IOException {
+    public void testRelationshipElementProperty() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValue(PropertyValues.RELATIONSHIP_ELEMENT, PropertyValues.RELATIONSHIP_ELEMENT_FILE);
     }
 
 
     @Test
-    public void testSubmodelElementCollection() throws DeserializationException, FileNotFoundException, IOException {
+    public void testSubmodelElementCollection() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValue(PropertyValues.ELEMENT_COLLECTION, PropertyValues.ELEMENT_COLLECTION_FILE);
     }
 
 
-    private void compareValue(SubmodelElement element, File file) throws DeserializationException, IOException {
+    private void compareValue(SubmodelElement element, File file) throws DeserializationException, IOException, ValueMappingException {
         ElementValue expected = ElementValueMapper.toValue(element);
         TypeInfo typeInfo = TypeExtractor.extractTypeInfo(element);
         ElementValue actual = deserializer.readValue(TestUtils.extractValueJson(file, element), typeInfo);
@@ -216,7 +222,8 @@ public class JsonDeserializerTest {
     }
 
 
-    private void compareValue(SubmodelElement element, File file, Class<? extends ElementValue> type, Datatype datatype) throws DeserializationException, IOException {
+    private void compareValue(SubmodelElement element, File file, Class<? extends ElementValue> type, Datatype datatype)
+            throws DeserializationException, IOException, ValueMappingException {
         ElementValue expected = ElementValueMapper.toValue(element);
         ElementValue actual = deserializer.readValue(TestUtils.extractValueJson(file, element), type, datatype);
         deserializer.readValue(file, type, datatype);

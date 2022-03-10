@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
+import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
@@ -21,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
@@ -32,12 +34,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -64,12 +68,31 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
 
 
     /**
+     * Creates a empty response object.
+     *
+     * @return new empty response object
+     * @throws NoSuchMethodException if response type does not implement a
+     *             parameterless constructor
+     * @throws InstantiationException if response type is abstract
+     * @throws InvocationTargetException if parameterless constructor of
+     *             response type throws an exception
+     * @throws IllegalAccessException if parameterless constructor of response
+     *             type is inaccessible
+     */
+    public O newResponse() throws NoSuchMethodException, InstantiationException, InvocationTargetException, IllegalAccessException {
+        Class<?> responseType = TypeToken.of(getClass()).resolveType(RequestHandler.class.getTypeParameters()[1]).getRawType();
+        return (O) responseType.getConstructor().newInstance();
+    }
+
+
+    /**
      * Processes a request and returns the resulting response
      *
      * @param request the request
      * @return the response
+     * @throws Exception if any executing fails
      */
-    public abstract O process(I request);
+    public abstract O process(I request) throws Exception;
 
 
     /**
@@ -288,7 +311,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
      * @throws AssetConnectionException
      */
     public void readValueFromAssetConnectionAndUpdatePersistence(Reference parentReference, List<SubmodelElement> submodelElements)
-            throws ResourceNotFoundException, AssetConnectionException {
+            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException {
 
         if (parentReference == null || submodelElements == null) {
             return;
@@ -329,14 +352,16 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
 
     /**
      * Converts a list of {@link io.adminshell.aas.v3.model.OperationVariable}
-     * to a list of {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     * to a list of
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
      *
      * @param variables list of operation variables
      * @return the corresponding list of element values
      */
-    public static List<ElementValue> toValues(List<OperationVariable> variables) {
+    public static List<ElementValue> toValues(List<OperationVariable> variables) throws ValueMappingException {
         return variables.stream()
-                .map(x -> ElementValueMapper.<SubmodelElement, ElementValue> toValue(x.getValue()))
+                .map(LambdaExceptionHelper.rethrowFunction(
+                        x -> ElementValueMapper.<SubmodelElement, ElementValue> toValue(x.getValue())))
                 .collect(Collectors.toList());
     }
 

@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AasUserValidator implements UserValidator {
 
-    private static final Logger logger = LoggerFactory.getLogger(AasUserValidator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AasUserValidator.class);
 
     private final CertificateValidator validator;
 
@@ -63,7 +63,7 @@ public class AasUserValidator implements UserValidator {
         // Return true, if the user is allowed access to the server
         // Note that the UserIdentity can be of different actual types,
         // depending on the selected authentication mode (by the client).
-        logger.info("onValidate: userIdentity=" + userIdentity);
+        LOGGER.info("onValidate: userIdentity=" + userIdentity);
         if (userIdentity.getType().equals(UserTokenType.UserName)) {
             if (userIdentity.getName().equals("aas") && userIdentity.getPassword().equals("opcua")) {
                 return true;
@@ -94,7 +94,7 @@ public class AasUserValidator implements UserValidator {
      */
     @Override
     public void onValidationError(Session sn, UserIdentityToken userToken, Exception exception) {
-        logger.error("onValidationError: User validation failed: userToken=" + userToken + " error=" + exception);
+        LOGGER.error("onValidationError: User validation failed: userToken=" + userToken + " error=" + exception);
     }
 
 }

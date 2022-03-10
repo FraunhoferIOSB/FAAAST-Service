@@ -53,8 +53,8 @@ public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
         try {
             return TypedValueFactory.create(datatype, parser.getValueAsString());
         }
-        catch (ValueFormatException ex) {
-            throw new IOException(String.format("error deserializing typed value (datatype: %s, value %s", datatype.getName(), parser.getValueAsString()), ex);
+        catch (ValueFormatException e) {
+            throw new IOException(String.format("error deserializing typed value (datatype: %s, value %s", datatype.getName(), parser.getValueAsString()), e);
         }
     }
 

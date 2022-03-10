@@ -30,8 +30,8 @@ import java.util.List;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIdShortRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIdShortResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllConceptDescriptionsByIdShortRequestHandler extends RequestHandler<GetAllConceptDescriptionsByIdShortRequest, GetAllConceptDescriptionsByIdShortResponse> {
 
@@ -43,17 +43,11 @@ public class GetAllConceptDescriptionsByIdShortRequestHandler extends RequestHan
     @Override
     public GetAllConceptDescriptionsByIdShortResponse process(GetAllConceptDescriptionsByIdShortRequest request) {
         GetAllConceptDescriptionsByIdShortResponse response = new GetAllConceptDescriptionsByIdShortResponse();
-
-        try {
-            List<ConceptDescription> conceptDescriptions = persistence.get(request.getIdShort(), null, null, request.getOutputModifier());
-            response.setPayload(conceptDescriptions);
-            response.setStatusCode(StatusCode.Success);
-            if (conceptDescriptions != null) {
-                conceptDescriptions.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
-            }
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
+        List<ConceptDescription> conceptDescriptions = persistence.get(request.getIdShort(), null, null, request.getOutputModifier());
+        response.setPayload(conceptDescriptions);
+        response.setStatusCode(StatusCode.Success);
+        if (conceptDescriptions != null) {
+            conceptDescriptions.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
         }
         return response;
     }

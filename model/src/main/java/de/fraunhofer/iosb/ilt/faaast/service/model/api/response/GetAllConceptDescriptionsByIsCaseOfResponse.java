@@ -23,21 +23,17 @@ import java.util.List;
  * Chapter 6.4.5
  */
 public class GetAllConceptDescriptionsByIsCaseOfResponse extends BaseResponseWithPayload<List<ConceptDescription>> {
+
     public static GetAllConceptDescriptionsByIsCaseOfResponse.Builder builder() {
         return new GetAllConceptDescriptionsByIsCaseOfResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<GetAllConceptDescriptionsByIsCaseOfResponse, GetAllConceptDescriptionsByIsCaseOfResponse.Builder> {
+    public static class Builder
+            extends AbstractBuilder<List<ConceptDescription>, GetAllConceptDescriptionsByIsCaseOfResponse, GetAllConceptDescriptionsByIsCaseOfResponse.Builder> {
 
         @Override
         protected GetAllConceptDescriptionsByIsCaseOfResponse.Builder getSelf() {
             return this;
-        }
-
-
-        public GetAllConceptDescriptionsByIsCaseOfResponse.Builder payload(List<ConceptDescription> value) {
-            getBuildingInstance().setPayload(value);
-            return getSelf();
         }
 
 

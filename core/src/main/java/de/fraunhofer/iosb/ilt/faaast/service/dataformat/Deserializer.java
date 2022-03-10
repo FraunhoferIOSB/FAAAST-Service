@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
@@ -239,7 +240,12 @@ public interface Deserializer {
         if (!ElementValueHelper.isValueOnlySupported(type)) {
             throw new DeserializationException("not a value type");
         }
-        return ElementValueMapper.toValue(read(json, type));
+        try {
+            return ElementValueMapper.toValue(read(json, type));
+        }
+        catch (ValueMappingException e) {
+            throw new DeserializationException("deserialization failed because of invalid value mapping", e);
+        }
     }
 
 

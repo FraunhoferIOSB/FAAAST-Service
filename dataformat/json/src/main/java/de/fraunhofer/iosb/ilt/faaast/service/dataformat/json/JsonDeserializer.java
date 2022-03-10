@@ -78,8 +78,8 @@ public class JsonDeserializer implements Deserializer {
         try {
             return wrapper.getMapper().treeToValue(ModelTypeProcessor.preprocess(json), type);
         }
-        catch (JsonProcessingException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+        catch (JsonProcessingException e) {
+            throw new DeserializationException("deserialization failed", e);
         }
     }
 
@@ -89,8 +89,8 @@ public class JsonDeserializer implements Deserializer {
         try {
             return wrapper.getMapper().treeToValue(ModelTypeProcessor.preprocess(json), wrapper.getMapper().getTypeFactory().constructCollectionType(List.class, type));
         }
-        catch (JsonProcessingException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+        catch (JsonProcessingException e) {
+            throw new DeserializationException("deserialization failed", e);
         }
     }
 
@@ -115,8 +115,8 @@ public class JsonDeserializer implements Deserializer {
                     .withAttribute(ContextAwareElementValueDeserializer.VALUE_TYPE_CONTEXT, typeInfo)
                     .treeToValue(ModelTypeProcessor.preprocess(json), typeInfo.getType());
         }
-        catch (IOException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+        catch (IOException e) {
+            throw new DeserializationException("deserialization failed", e);
         }
     }
 
@@ -126,8 +126,8 @@ public class JsonDeserializer implements Deserializer {
         try {
             return wrapper.getMapper().treeToValue(ModelTypeProcessor.preprocess(json), type);
         }
-        catch (JsonProcessingException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+        catch (JsonProcessingException e) {
+            throw new DeserializationException("deserialization failed", e);
         }
     }
 
@@ -162,8 +162,8 @@ public class JsonDeserializer implements Deserializer {
                     .forType(wrapper.getMapper().getTypeFactory().constructArrayType(containerTypeInfo.getContentType()))
                     .treeToValue(ModelTypeProcessor.preprocess(json), wrapper.getMapper().getTypeFactory().constructArrayType(containerTypeInfo.getContentType()));
         }
-        catch (IOException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+        catch (IOException e) {
+            throw new DeserializationException("deserialization failed", e);
         }
     }
 
@@ -200,8 +200,8 @@ public class JsonDeserializer implements Deserializer {
                     .forType(wrapper.getMapper().getTypeFactory().constructCollectionType(List.class, containerTypeInfo.getContentType()))
                     .readValue(json);
         }
-        catch (IOException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+        catch (IOException e) {
+            throw new DeserializationException("deserialization failed", e);
         }
     }
 
@@ -238,8 +238,8 @@ public class JsonDeserializer implements Deserializer {
                     .forType(wrapper.getMapper().getTypeFactory().constructMapType(Map.class, Object.class, Object.class))
                     .readValue(json);
         }
-        catch (IOException ex) {
-            throw new DeserializationException("deserialization failed", ex);
+        catch (IOException e) {
+            throw new DeserializationException("deserialization failed", e);
         }
     }
 

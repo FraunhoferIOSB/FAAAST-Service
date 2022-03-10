@@ -14,11 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -31,8 +33,8 @@ import io.adminshell.aas.v3.model.Submodel;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelByIdRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelByIdResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetSubmodelByIdRequestHandler extends RequestHandler<GetSubmodelByIdRequest, GetSubmodelByIdResponse> {
 
@@ -42,24 +44,15 @@ public class GetSubmodelByIdRequestHandler extends RequestHandler<GetSubmodelByI
 
 
     @Override
-    public GetSubmodelByIdResponse process(GetSubmodelByIdRequest request) {
+    public GetSubmodelByIdResponse process(GetSubmodelByIdRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException {
         GetSubmodelByIdResponse response = new GetSubmodelByIdResponse();
-        try {
-            Submodel submodel = (Submodel) persistence.get(request.getId(), request.getOutputModifier());
-            response.setPayload(submodel);
-            response.setStatusCode(StatusCode.Success);
+        Submodel submodel = (Submodel) persistence.get(request.getId(), request.getOutputModifier());
+        response.setPayload(submodel);
+        response.setStatusCode(StatusCode.Success);
 
-            Reference reference = AasUtils.toReference(submodel);
-            readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
-            publishElementReadEventMessage(reference, submodel);
-
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        Reference reference = AasUtils.toReference(submodel);
+        readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
+        publishElementReadEventMessage(reference, submodel);
         return response;
     }
 }

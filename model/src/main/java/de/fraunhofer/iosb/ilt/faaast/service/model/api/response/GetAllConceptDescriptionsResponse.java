@@ -23,21 +23,16 @@ import java.util.List;
  * Chapter 6.4.2
  */
 public class GetAllConceptDescriptionsResponse extends BaseResponseWithPayload<List<ConceptDescription>> {
+
     public static GetAllConceptDescriptionsResponse.Builder builder() {
         return new GetAllConceptDescriptionsResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<GetAllConceptDescriptionsResponse, GetAllConceptDescriptionsResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<ConceptDescription>, GetAllConceptDescriptionsResponse, GetAllConceptDescriptionsResponse.Builder> {
 
         @Override
         protected GetAllConceptDescriptionsResponse.Builder getSelf() {
             return this;
-        }
-
-
-        public GetAllConceptDescriptionsResponse.Builder payload(List<ConceptDescription> value) {
-            getBuildingInstance().setPayload(value);
-            return getSelf();
         }
 
 

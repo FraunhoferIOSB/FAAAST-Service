@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
@@ -67,7 +68,12 @@ public class SetSubmodelElementValueByPathRequestMapper extends RequestMapper {
                         }
                         else if (SubmodelElement.class.isAssignableFrom(type)) {
                             SubmodelElement submodelElement = (SubmodelElement) deserializer.read(raw.toString(), type);
-                            return ElementValueMapper.toValue(submodelElement);
+                            try {
+                                return ElementValueMapper.toValue(submodelElement);
+                            }
+                            catch (ValueMappingException e) {
+                                throw new DeserializationException("error mapping submodel element to value object", e);
+                            }
                         }
                         throw new DeserializationException(
                                 String.format("error deserializing payload - invalid type '%s' (must be either instance of ElementValue or SubmodelElement",

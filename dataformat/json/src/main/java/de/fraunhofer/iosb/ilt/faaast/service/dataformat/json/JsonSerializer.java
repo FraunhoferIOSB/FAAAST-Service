@@ -66,8 +66,8 @@ public class JsonSerializer implements Serializer {
             try {
                 return mapper.writeValueAsString(obj);
             }
-            catch (JsonProcessingException ex) {
-                throw new SerializationException("serialization failed", ex);
+            catch (JsonProcessingException e) {
+                throw new SerializationException("serialization failed", e);
             }
         }
         try {
@@ -85,8 +85,8 @@ public class JsonSerializer implements Serializer {
                         .writeValueAsString(ModelTypeProcessor.postprocess(wrapper.getMapper().valueToTree(obj)));
             }
         }
-        catch (JsonProcessingException ex) {
-            throw new SerializationException("serialization failed", ex);
+        catch (JsonProcessingException e) {
+            throw new SerializationException("serialization failed", e);
         }
     }
 

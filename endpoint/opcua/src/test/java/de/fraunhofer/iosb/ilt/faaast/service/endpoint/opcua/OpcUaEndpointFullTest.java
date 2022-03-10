@@ -84,7 +84,7 @@ import org.slf4j.LoggerFactory;
  */
 public class OpcUaEndpointFullTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpcUaEndpointFullTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointFullTest.class);
 
     private static final int OPC_TCP_PORT = 18123;
     private static final long DEFAULT_TIMEOUT = 1000;
@@ -132,7 +132,7 @@ public class OpcUaEndpointFullTest {
      */
     @AfterClass
     public static void stopTest() {
-        logger.trace("stopTest");
+        LOGGER.trace("stopTest");
         if (endpoint != null) {
             endpoint.stop();
         }

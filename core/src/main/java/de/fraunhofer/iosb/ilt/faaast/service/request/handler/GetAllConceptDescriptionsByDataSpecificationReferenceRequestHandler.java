@@ -30,8 +30,8 @@ import java.util.List;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByDataSpecificationReferenceRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByDataSpecificationReferenceResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestHandler
         extends RequestHandler<GetAllConceptDescriptionsByDataSpecificationReferenceRequest, GetAllConceptDescriptionsByDataSpecificationReferenceResponse> {
@@ -44,18 +44,11 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestHandler
     @Override
     public GetAllConceptDescriptionsByDataSpecificationReferenceResponse process(GetAllConceptDescriptionsByDataSpecificationReferenceRequest request) {
         GetAllConceptDescriptionsByDataSpecificationReferenceResponse response = new GetAllConceptDescriptionsByDataSpecificationReferenceResponse();
-
-        try {
-            List<ConceptDescription> conceptDescriptions = persistence.get(null, null, request.getDataSpecificationReference(), request.getOutputModifier());
-            response.setPayload(conceptDescriptions);
-            response.setStatusCode(StatusCode.Success);
-            if (conceptDescriptions != null) {
-                conceptDescriptions.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
-            }
-        }
-
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
+        List<ConceptDescription> conceptDescriptions = persistence.get(null, null, request.getDataSpecificationReference(), request.getOutputModifier());
+        response.setPayload(conceptDescriptions);
+        response.setStatusCode(StatusCode.Success);
+        if (conceptDescriptions != null) {
+            conceptDescriptions.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
         }
         return response;
     }

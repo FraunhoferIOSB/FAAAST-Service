@@ -12,13 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
-
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
-
+package de.fraunhofer.iosb.ilt.faaast.service.exception;
 
 /**
- * * Config file for MQTT-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
+ * Indicates underlying {@link Configurable} class of configuration could not be initialized.
  */
-public class MqttOperationProviderConfig implements AssetOperationProviderConfig {}
+public class ConfigurationInitializationException extends ConfigurationException {
+
+    public ConfigurationInitializationException() {
+        super();
+    }
+
+
+    public ConfigurationInitializationException(String message) {
+        super(message);
+    }
+
+
+    public ConfigurationInitializationException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+
+    public ConfigurationInitializationException(Throwable cause) {
+        super(cause);
+    }
+}

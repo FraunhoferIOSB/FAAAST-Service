@@ -30,8 +30,8 @@ import java.util.List;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIsCaseOfRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIsCaseOfResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllConceptDescriptionsByIsCaseOfRequestHandler extends RequestHandler<GetAllConceptDescriptionsByIsCaseOfRequest, GetAllConceptDescriptionsByIsCaseOfResponse> {
 
@@ -43,17 +43,11 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestHandler extends RequestHa
     @Override
     public GetAllConceptDescriptionsByIsCaseOfResponse process(GetAllConceptDescriptionsByIsCaseOfRequest request) {
         GetAllConceptDescriptionsByIsCaseOfResponse response = new GetAllConceptDescriptionsByIsCaseOfResponse();
-
-        try {
-            List<ConceptDescription> conceptDescriptions = persistence.get(null, request.getIsCaseOf(), null, request.getOutputModifier());
-            response.setPayload(conceptDescriptions);
-            response.setStatusCode(StatusCode.Success);
-            if (conceptDescriptions != null) {
-                conceptDescriptions.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
-            }
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
+        List<ConceptDescription> conceptDescriptions = persistence.get(null, request.getIsCaseOf(), null, request.getOutputModifier());
+        response.setPayload(conceptDescriptions);
+        response.setStatusCode(StatusCode.Success);
+        if (conceptDescriptions != null) {
+            conceptDescriptions.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
         }
         return response;
     }

@@ -31,8 +31,8 @@ import java.util.List;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllAssetAdministrationShellsRequestHandler extends RequestHandler<GetAllAssetAdministrationShellsRequest, GetAllAssetAdministrationShellsResponse> {
 
@@ -44,16 +44,11 @@ public class GetAllAssetAdministrationShellsRequestHandler extends RequestHandle
     @Override
     public GetAllAssetAdministrationShellsResponse process(GetAllAssetAdministrationShellsRequest request) {
         GetAllAssetAdministrationShellsResponse response = new GetAllAssetAdministrationShellsResponse();
-        try {
-            List<AssetAdministrationShell> shells = persistence.get(null, (List<AssetIdentification>) null, request.getOutputModifier());
-            response.setPayload(shells);
-            response.setStatusCode(StatusCode.Success);
-            if (shells != null) {
-                shells.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
-            }
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
+        List<AssetAdministrationShell> shells = persistence.get(null, (List<AssetIdentification>) null, request.getOutputModifier());
+        response.setPayload(shells);
+        response.setStatusCode(StatusCode.Success);
+        if (shells != null) {
+            shells.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
         }
         return response;
     }

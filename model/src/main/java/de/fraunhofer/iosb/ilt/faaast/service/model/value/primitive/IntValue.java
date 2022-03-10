@@ -41,8 +41,8 @@ public class IntValue extends TypedValue<Integer> {
         try {
             this.setValue((Integer) Integer.parseInt(value));
         }
-        catch (NumberFormatException ex) {
-            throw new ValueFormatException(ex);
+        catch (NumberFormatException e) {
+            throw new ValueFormatException(e);
         }
     }
 

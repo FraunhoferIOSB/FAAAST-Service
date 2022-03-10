@@ -14,24 +14,26 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.stream.Collectors;
 
 
-public class AnnotatedRelationshipElementValueMapper extends DataValueMapper<AnnotatedRelationshipElement, AnnotatedRelationshipElementValue> {
+public class AnnotatedRelationshipElementValueMapper implements DataValueMapper<AnnotatedRelationshipElement, AnnotatedRelationshipElementValue> {
 
     @Override
-    public AnnotatedRelationshipElementValue toValue(AnnotatedRelationshipElement submodelElement) {
+    public AnnotatedRelationshipElementValue toValue(AnnotatedRelationshipElement submodelElement) throws ValueMappingException {
         if (submodelElement == null) {
             return null;
         }
         AnnotatedRelationshipElementValue value = new AnnotatedRelationshipElementValue();
         value.setAnnotations(submodelElement.getAnnotations().stream().collect(Collectors.toMap(
                 x -> x.getIdShort(),
-                x -> ElementValueMapper.toValue(x))));
+                LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x)))));
         value.setFirst(submodelElement.getFirst().getKeys());
         value.setSecond(submodelElement.getSecond().getKeys());
         return value;
@@ -40,9 +42,7 @@ public class AnnotatedRelationshipElementValueMapper extends DataValueMapper<Ann
 
     @Override
     public AnnotatedRelationshipElement setValue(AnnotatedRelationshipElement submodelElement, AnnotatedRelationshipElementValue value) {
-        if (submodelElement == null || value == null) {
-            return null;
-        }
+        DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setFirst(new DefaultReference.Builder().keys(value.getFirst()).build());
         submodelElement.setSecond(new DefaultReference.Builder().keys(value.getSecond()).build());
         for (SubmodelElement element: submodelElement.getAnnotations()) {

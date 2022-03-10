@@ -987,8 +987,8 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
                     method.get().invoke(this, obj);
                 }
             }
-            catch (Exception ex) {
-                logger.debug("invoking visit method via refection failed", ex);
+            catch (Exception e) {
+                logger.debug("invoking visit method via refection failed", e);
             }
         }
     }
@@ -1028,13 +1028,15 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
                         method.setAccessible(true);
                         method.invoke(visitor, obj);
                     }
-                    catch (Exception ex) {
-                        logger.debug(String.format("invoking visit(%s) method via refection failed", method.getParameterTypes()[0].getSimpleName()), ex);
+                    catch (Exception e) {
+                        logger.debug(String.format("invoking visit(%s) method via refection failed",
+                                method.getParameterTypes()[0].getSimpleName()),
+                                e);
                     }
                 }
             }
-            catch (Exception ex) {
-                logger.debug("invoking visit method via refection failed", ex);
+            catch (Exception e) {
+                logger.debug("invoking visit method via refection failed", e);
             }
         }
     }

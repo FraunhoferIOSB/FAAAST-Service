@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GenerateSerializationByIdsResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.SerializationFormat;
+import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
@@ -31,13 +31,13 @@ public class GenerateSerializationByIdsRequest extends BaseRequest<GenerateSeria
     private List<Identifier> aasIds;
     private List<Identifier> submodelIds;
     private boolean includeConceptDescriptions;
-    private SerializationFormat serializationFormat;
+    private DataFormat serializationFormat;
 
     public GenerateSerializationByIdsRequest() {
         this.aasIds = new ArrayList<>();
         this.submodelIds = new ArrayList<>();
         this.includeConceptDescriptions = false;
-        this.serializationFormat = SerializationFormat.JSON;
+        this.serializationFormat = DataFormat.JSON;
     }
 
 
@@ -71,12 +71,12 @@ public class GenerateSerializationByIdsRequest extends BaseRequest<GenerateSeria
     }
 
 
-    public SerializationFormat getSerializationFormat() {
+    public DataFormat getSerializationFormat() {
         return serializationFormat;
     }
 
 
-    public void setSerializationFormat(SerializationFormat serializationFormat) {
+    public void setSerializationFormat(DataFormat serializationFormat) {
         this.serializationFormat = serializationFormat;
     }
 
@@ -130,7 +130,7 @@ public class GenerateSerializationByIdsRequest extends BaseRequest<GenerateSeria
         }
 
 
-        public B serializationFormat(SerializationFormat value) {
+        public B serializationFormat(DataFormat value) {
             getBuildingInstance().setSerializationFormat(value);
             return getSelf();
         }

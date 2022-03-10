@@ -74,6 +74,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelEleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelByIdRequest;
@@ -682,7 +683,7 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    public void testPutSubmodelElementByPathRequest() throws ResourceNotFoundException, AssetConnectionException {
+    public void testPutSubmodelElementByPathRequest() throws ResourceNotFoundException, AssetConnectionException, ValueMappingException {
         SubmodelElement currentSubmodelElement = new DefaultProperty.Builder()
                 .idShort("TestIdshort")
                 .valueType("string")
@@ -1053,7 +1054,7 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    public void testReadValueFromAssetConnectionAndUpdatePersistence() throws AssetConnectionException, ResourceNotFoundException {
+    public void testReadValueFromAssetConnectionAndUpdatePersistence() throws AssetConnectionException, ResourceNotFoundException, ValueMappingException {
         RequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(persistence, messageBus, assetConnectionManager);
         Reference parentRef = new DefaultReference.Builder()
                 .key(new DefaultKey.Builder()

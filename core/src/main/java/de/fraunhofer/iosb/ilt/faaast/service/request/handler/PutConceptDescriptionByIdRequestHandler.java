@@ -31,8 +31,8 @@ import io.adminshell.aas.v3.model.ConceptDescription;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PutConceptDescriptionByIdRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutConceptDescriptionByIdResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class PutConceptDescriptionByIdRequestHandler extends RequestHandler<PutConceptDescriptionByIdRequest, PutConceptDescriptionByIdResponse> {
 
@@ -42,22 +42,13 @@ public class PutConceptDescriptionByIdRequestHandler extends RequestHandler<PutC
 
 
     @Override
-    public PutConceptDescriptionByIdResponse process(PutConceptDescriptionByIdRequest request) {
+    public PutConceptDescriptionByIdResponse process(PutConceptDescriptionByIdRequest request) throws ResourceNotFoundException {
         PutConceptDescriptionByIdResponse response = new PutConceptDescriptionByIdResponse();
-
-        try {
-            ConceptDescription conceptDescription = (ConceptDescription) persistence.get(request.getConceptDescription().getIdentification(), new OutputModifier());
-            conceptDescription = (ConceptDescription) persistence.put(request.getConceptDescription());
-            response.setPayload(conceptDescription);
-            response.setStatusCode(StatusCode.Success);
-            publishElementUpdateEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        ConceptDescription conceptDescription = (ConceptDescription) persistence.get(request.getConceptDescription().getIdentification(), new OutputModifier());
+        conceptDescription = (ConceptDescription) persistence.put(request.getConceptDescription());
+        response.setPayload(conceptDescription);
+        response.setStatusCode(StatusCode.Success);
+        publishElementUpdateEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
         return response;
     }
 

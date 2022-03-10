@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -42,9 +43,14 @@ public class SubmodelElementValueSerializer extends StdSerializer<SubmodelElemen
     @Override
     public void serialize(SubmodelElement value, JsonGenerator generator, SerializerProvider provider) throws IOException {
         if (value != null && ElementValueHelper.isSerializableAsValue(value.getClass())) {
-            generator.writeStartObject();
-            provider.defaultSerializeField(value.getIdShort(), ElementValueMapper.toValue(value), generator);
-            generator.writeEndObject();
+            try {
+                generator.writeStartObject();
+                provider.defaultSerializeField(value.getIdShort(), ElementValueMapper.toValue(value), generator);
+                generator.writeEndObject();
+            }
+            catch (ValueMappingException e) {
+                provider.reportMappingProblem(e, "error mapping submodel element to value");
+            }
         }
         else {
             provider.defaultSerializeValue(value, generator);

@@ -43,8 +43,9 @@ public class ElementPathHelper {
 
 
     /**
-     * Create an element path out of a {@link io.adminshell.aas.v3.model.Reference}
-     * to a {@link io.adminshell.aas.v3.model.SubmodelElement}.
+     * Create an element path out of a
+     * {@link io.adminshell.aas.v3.model.Reference} to a
+     * {@link io.adminshell.aas.v3.model.SubmodelElement}.
      *
      * @param submodelElementRef reference to the submodel element
      * @return values of the keys of the reference separated by a "."
@@ -75,15 +76,15 @@ public class ElementPathHelper {
                     .collect(Collectors.toList()));
             return result;
         }
-        catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
-            throw new RuntimeException("error instantiating reference implementation class", ex);
+        catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
+            throw new RuntimeException("error instantiating reference implementation class", e);
         }
     }
 
 
     /**
-     * Converts an element path to a list of keys.
-     * Each key in the list have the general key element "SUBMODEL_ELEMENT"
+     * Converts an element path to a list of keys. Each key in the list have the
+     * general key element "SUBMODEL_ELEMENT"
      *
      * @param elementPath a string with identifier values seperated by a "."
      * @return the list of keys
@@ -98,8 +99,8 @@ public class ElementPathHelper {
                         key.setValue(x);
                         return key;
                     }
-                    catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                        throw new IllegalArgumentException("error parsing reference - could not instantiate reference type", ex);
+                    catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                        throw new IllegalArgumentException("error parsing reference - could not instantiate reference type", e);
                     }
                 })
                 .collect(Collectors.toList());

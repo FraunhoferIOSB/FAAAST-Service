@@ -31,8 +31,8 @@ import io.adminshell.aas.v3.model.Submodel;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelByIdRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelByIdResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class DeleteSubmodelByIdRequestHandler extends RequestHandler<DeleteSubmodelByIdRequest, DeleteSubmodelByIdResponse> {
 
@@ -42,22 +42,13 @@ public class DeleteSubmodelByIdRequestHandler extends RequestHandler<DeleteSubmo
 
 
     @Override
-    public DeleteSubmodelByIdResponse process(DeleteSubmodelByIdRequest request) {
+    public DeleteSubmodelByIdResponse process(DeleteSubmodelByIdRequest request) throws ResourceNotFoundException {
         DeleteSubmodelByIdResponse response = new DeleteSubmodelByIdResponse();
-
-        try {
-            Submodel submodel = (Submodel) persistence.get(request.getId(), new QueryModifier());
-            persistence.remove(request.getId());
-            response.setStatusCode(StatusCode.Success);
-            //TODO: Delete AssetConnections of underlying submodel elements?
-            publishElementDeleteEventMessage(AasUtils.toReference(submodel), submodel);
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        Submodel submodel = (Submodel) persistence.get(request.getId(), new QueryModifier());
+        persistence.remove(request.getId());
+        response.setStatusCode(StatusCode.Success);
+        //TODO: Delete AssetConnections of underlying submodel elements?
+        publishElementDeleteEventMessage(AasUtils.toReference(submodel), submodel);
         return response;
     }
 

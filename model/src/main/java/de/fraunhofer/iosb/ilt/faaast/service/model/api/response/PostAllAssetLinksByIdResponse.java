@@ -22,21 +22,16 @@ import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
  * Chapter 7.2.4
  */
 public class PostAllAssetLinksByIdResponse extends BaseResponseWithPayload<IdentifierKeyValuePair> {
+
     public static PostAllAssetLinksByIdResponse.Builder builder() {
         return new PostAllAssetLinksByIdResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<PostAllAssetLinksByIdResponse, PostAllAssetLinksByIdResponse.Builder> {
+    public static class Builder extends AbstractBuilder<IdentifierKeyValuePair, PostAllAssetLinksByIdResponse, PostAllAssetLinksByIdResponse.Builder> {
 
         @Override
         protected PostAllAssetLinksByIdResponse.Builder getSelf() {
             return this;
-        }
-
-
-        public PostAllAssetLinksByIdResponse.Builder payload(IdentifierKeyValuePair value) {
-            getBuildingInstance().setPayload(value);
-            return getSelf();
         }
 
 

@@ -132,8 +132,8 @@ public class ValueOnlyJsonSerializer {
                     .withAttribute(ModifierAwareSerializer.EXTEND, extend)
                     .writeValueAsString(obj);
         }
-        catch (JsonProcessingException ex) {
-            throw new SerializationException("serialization failed", ex);
+        catch (JsonProcessingException e) {
+            throw new SerializationException("serialization failed", e);
         }
     }
 

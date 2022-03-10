@@ -15,6 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttValueProviderConfig;
 import java.util.Objects;
 import java.util.UUID;
 

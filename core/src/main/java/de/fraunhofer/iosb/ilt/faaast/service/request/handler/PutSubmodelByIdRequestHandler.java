@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -22,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -34,8 +36,8 @@ import io.adminshell.aas.v3.model.Submodel;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelByIdRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelByIdResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class PutSubmodelByIdRequestHandler extends RequestHandler<PutSubmodelByIdRequest, PutSubmodelByIdResponse> {
 
@@ -45,29 +47,20 @@ public class PutSubmodelByIdRequestHandler extends RequestHandler<PutSubmodelByI
 
 
     @Override
-    public PutSubmodelByIdResponse process(PutSubmodelByIdRequest request) {
+    public PutSubmodelByIdResponse process(PutSubmodelByIdRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException {
         PutSubmodelByIdResponse response = new PutSubmodelByIdResponse();
-
-        try {
-            //check if resource does exist
-            Submodel submodel = (Submodel) persistence.get(request.getSubmodel().getIdentification(),
-                    new QueryModifier.Builder()
-                            .extend(Extend.WithoutBLOBValue)
-                            .level(Level.Core)
-                            .build());
-            submodel = (Submodel) persistence.put(request.getSubmodel());
-            response.setPayload(submodel);
-            response.setStatusCode(StatusCode.Success);
-            Reference reference = AasUtils.toReference(submodel);
-            readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
-            publishElementUpdateEventMessage(reference, submodel);
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        //check if resource does exist
+        Submodel submodel = (Submodel) persistence.get(request.getSubmodel().getIdentification(),
+                new QueryModifier.Builder()
+                        .extend(Extend.WithoutBLOBValue)
+                        .level(Level.Core)
+                        .build());
+        submodel = (Submodel) persistence.put(request.getSubmodel());
+        response.setPayload(submodel);
+        response.setStatusCode(StatusCode.Success);
+        Reference reference = AasUtils.toReference(submodel);
+        readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
+        publishElementUpdateEventMessage(reference, submodel);
         return response;
     }
 

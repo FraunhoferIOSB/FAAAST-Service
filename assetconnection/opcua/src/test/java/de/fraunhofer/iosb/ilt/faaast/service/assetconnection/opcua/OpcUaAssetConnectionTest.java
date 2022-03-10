@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -53,18 +54,18 @@ public class OpcUaAssetConnectionTest {
     private static final long DEFAULT_TIMEOUT = 1000;
     private static EmbeddedOpcUaServer server;
     private static String serverUrl;
-    private static int opcPort;
+    private static int tcpPort;
     private static int httpsPort;
 
     @BeforeClass
-    public static void init() {
+    public static void init() throws Exception {
         try (ServerSocket serverSocket = new ServerSocket(0)) {
             Assert.assertNotNull(serverSocket);
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            opcPort = serverSocket.getLocalPort();
+            tcpPort = serverSocket.getLocalPort();
         }
         catch (IOException e) {
-            Assert.fail("could not find free port");
+            Assert.fail("could not find free port for TCP");
         }
         try (ServerSocket serverSocket = new ServerSocket(0)) {
             Assert.assertNotNull(serverSocket);
@@ -72,27 +73,23 @@ public class OpcUaAssetConnectionTest {
             httpsPort = serverSocket.getLocalPort();
         }
         catch (IOException e) {
-            Assert.fail("could not find free port");
+            Assert.fail("could not find free port for HTTPS");
         }
-        try {
-            server = new EmbeddedOpcUaServer(
-                    AnonymousIdentityValidator.INSTANCE, opcPort, httpsPort);
-            server.startup().get();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        serverUrl = "opc.tcp://localhost:" + opcPort + "/milo";
+        server = new EmbeddedOpcUaServer(AnonymousIdentityValidator.INSTANCE, tcpPort, httpsPort);
+        server.startup().get();
+        serverUrl = "opc.tcp://localhost:" + tcpPort + "/milo";
     }
 
 
     @Test
-    public void testSubscriptionProvider() throws AssetConnectionException, InterruptedException, ValueFormatException, ExecutionException, UaException {
+    public void testSubscriptionProvider()
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ExecutionException, UaException, ConfigurationInitializationException {
         testSubscribe("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.Double, "0.1"));
     }
 
 
-    private void testSubscribe(String nodeId, PropertyValue expected) throws AssetConnectionException, InterruptedException, ExecutionException, UaException {
+    private void testSubscribe(String nodeId, PropertyValue expected)
+            throws AssetConnectionException, InterruptedException, ExecutionException, UaException, ConfigurationInitializationException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         long interval = 1000;
 
@@ -143,7 +140,7 @@ public class OpcUaAssetConnectionTest {
     }
 
 
-    private void testWriteReadValue(String nodeId, PropertyValue expected) throws AssetConnectionException, InterruptedException {
+    private void testWriteReadValue(String nodeId, PropertyValue expected) throws AssetConnectionException, InterruptedException, ConfigurationInitializationException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
@@ -171,7 +168,7 @@ public class OpcUaAssetConnectionTest {
 
 
     @Test
-    public void testValueProvider() throws AssetConnectionException, InterruptedException, ValueFormatException {
+    public void testValueProvider() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
         testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.Double, "3.3"));
         testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/String", PropertyValue.of(Datatype.String, "hello world!"));
         testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Integer", PropertyValue.of(Datatype.Integer, "42"));
@@ -185,7 +182,7 @@ public class OpcUaAssetConnectionTest {
                                      Map<String, PropertyValue> inoutput,
                                      Map<String, PropertyValue> expectedInoutput,
                                      Map<String, PropertyValue> expectedOutput)
-            throws AssetConnectionException, InterruptedException {
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
                 .host(serverUrl)
@@ -267,7 +264,7 @@ public class OpcUaAssetConnectionTest {
 
 
     @Test
-    public void testOperationProvider() throws AssetConnectionException, InterruptedException, ValueFormatException {
+    public void testOperationProvider() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
         String nodeIdSqrt = "ns=2;s=HelloWorld/sqrt(x)";
         testInvokeOperation(nodeIdSqrt,
                 true,

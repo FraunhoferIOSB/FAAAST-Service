@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -30,8 +31,8 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetInformationRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetInformationResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class PutAssetInformationRequestHandler extends RequestHandler<PutAssetInformationRequest, PutAssetInformationResponse> {
 
@@ -41,19 +42,13 @@ public class PutAssetInformationRequestHandler extends RequestHandler<PutAssetIn
 
 
     @Override
-    public PutAssetInformationResponse process(PutAssetInformationRequest request) {
+    public PutAssetInformationResponse process(PutAssetInformationRequest request) throws ResourceNotFoundException {
         PutAssetInformationResponse response = new PutAssetInformationResponse();
-
-        try {
-            AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
-            shell.setAssetInformation(request.getAssetInformation());
-            persistence.put(shell);
-            response.setStatusCode(StatusCode.Success);
-            publishElementUpdateEventMessage(AasUtils.toReference(shell), shell);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
+        shell.setAssetInformation(request.getAssetInformation());
+        persistence.put(shell);
+        response.setStatusCode(StatusCode.Success);
+        publishElementUpdateEventMessage(AasUtils.toReference(shell), shell);
         return response;
     }
 

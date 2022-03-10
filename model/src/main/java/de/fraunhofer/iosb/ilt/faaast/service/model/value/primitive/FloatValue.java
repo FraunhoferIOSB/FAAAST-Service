@@ -41,8 +41,8 @@ public class FloatValue extends TypedValue<Float> {
         try {
             this.setValue((Float) Float.parseFloat(value));
         }
-        catch (NumberFormatException ex) {
-            throw new ValueFormatException(ex);
+        catch (NumberFormatException e) {
+            throw new ValueFormatException(e);
         }
     }
 

@@ -26,6 +26,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConversionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -34,6 +36,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.OperationVariable;
@@ -41,7 +44,6 @@ import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,7 +94,7 @@ import org.slf4j.LoggerFactory;
  */
 public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectionConfig, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig> {
 
-    private static Logger logger = LoggerFactory.getLogger(OpcUaAssetConnection.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaAssetConnection.class);
     private static final ValueConverter valueConverter = new ValueConverter();
 
     private final String NODE_ID_SEPARATOR = ";";
@@ -138,9 +140,9 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
      * @param config asset connection configuration
      * @param serviceContext service context which this asset connection is
      *            running in
-     * @throws AssetConnectionException if initialization fails
+     * @throws ConfigurationInitializationException if initialization fails
      */
-    protected OpcUaAssetConnection(CoreConfig coreConfig, OpcUaAssetConnectionConfig config, ServiceContext serviceContext) throws AssetConnectionException {
+    protected OpcUaAssetConnection(CoreConfig coreConfig, OpcUaAssetConnectionConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this();
         init(coreConfig, config, serviceContext);
     }
@@ -159,16 +161,16 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                 try {
                     subscription.dataItem.delete();
                 }
-                catch (UaException ex) {
-                    logger.info("unsubscribing from OPC UA asset connection on connection closing failed", ex);
+                catch (UaException e) {
+                    LOGGER.info("unsubscribing from OPC UA asset connection on connection closing failed", e);
                 }
             }
             subscriptions.clear();
             try {
                 client.disconnect().get();
             }
-            catch (InterruptedException | ExecutionException ex) {
-                throw new AssetConnectionException("error closing OPC UA asset connection");
+            catch (InterruptedException | ExecutionException e) {
+                throw new AssetConnectionException("error closing OPC UA asset connection", e);
             }
         }
     }
@@ -193,8 +195,8 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
             Thread.sleep(200);
             opcUaSubscription = ManagedSubscription.create(client);
         }
-        catch (InterruptedException | ExecutionException | UaException ex) {
-            throw new AssetConnectionException(String.format("error opening OPC UA connection (endpoint: %s)", config.getHost()), ex);
+        catch (InterruptedException | ExecutionException | UaException e) {
+            throw new AssetConnectionException(String.format("error opening OPC UA connection (endpoint: %s)", config.getHost()), e);
         }
     }
 
@@ -218,18 +220,23 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
 
 
     @Override
-    public void init(CoreConfig coreConfig, OpcUaAssetConnectionConfig config, ServiceContext context) throws AssetConnectionException {
+    public void init(CoreConfig coreConfig, OpcUaAssetConnectionConfig config, ServiceContext context) throws ConfigurationInitializationException {
         this.serviceContext = context;
         this.config = config;
-        connect();
-        for (var provider: config.getValueProviders().entrySet()) {
-            registerValueProvider(provider.getKey(), provider.getValue());
+        try {
+            connect();
+            for (var provider: config.getValueProviders().entrySet()) {
+                registerValueProvider(provider.getKey(), provider.getValue());
+            }
+            for (var provider: config.getOperationProviders().entrySet()) {
+                registerOperationProvider(provider.getKey(), provider.getValue());
+            }
+            for (var provider: config.getSubscriptionProviders().entrySet()) {
+                registerSubscriptionProvider(provider.getKey(), provider.getValue());
+            }
         }
-        for (var provider: config.getOperationProviders().entrySet()) {
-            registerOperationProvider(provider.getKey(), provider.getValue());
-        }
-        for (var provider: config.getSubscriptionProviders().entrySet()) {
-            registerSubscriptionProvider(provider.getKey(), provider.getValue());
+        catch (AssetConnectionException e) {
+            throw new ConfigurationInitializationException("initializaing OPC UA asset connection failed", e);
         }
     }
 
@@ -244,16 +251,16 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
             try {
                 namespaceIndex = Integer.parseUnsignedInt(namespace);
             }
-            catch (NumberFormatException ex) {
+            catch (NumberFormatException e) {
                 UShort actualNamespaceIndex = client.getNamespaceTable().getIndex(namespace);
                 if (actualNamespaceIndex == null) {
-                    throw new RuntimeException(String.format("could not resolve namespace '%s'", namespace));
+                    throw new RuntimeException(String.format("could not resolve namespace '%s'", namespace), e);
                 }
                 namespaceIndex = actualNamespaceIndex.intValue();
             }
         }
         else {
-            System.out.println("no namespace provided for node. Using default (ns=0)");
+            LOGGER.debug("no namespace provided for node. Using default: ns=0 (nodeId: {}", nodeId);
         }
         return NodeId.parse(nodeId.replace(ns.get(), NS_PREFIX + namespaceIndex));
     }
@@ -272,23 +279,23 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
      *             {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}
      */
     @Override
-    public void registerOperationProvider(Reference reference, OpcUaOperationProviderConfig operationProvider) throws AssetConnectionException {
+    public void registerOperationProvider(Reference reference, OpcUaOperationProviderConfig providerConfig) throws AssetConnectionException {
         String baseErrorMessage = "error registering operation provider";
-        final NodeId nodeId = parseNodeId(operationProvider.getNodeId());
+        final NodeId nodeId = parseNodeId(providerConfig.getNodeId());
         final UaNode node;
         try {
             node = client.getAddressSpace().getNode(nodeId);
         }
-        catch (UaException ex) {
+        catch (UaException e) {
             throw new AssetConnectionException(String.format("%s - could not resolve nodeId (nodeId: %s)",
                     baseErrorMessage,
-                    operationProvider.getNodeId()),
-                    ex);
+                    providerConfig.getNodeId()),
+                    e);
         }
         if (!UaMethodNode.class.isAssignableFrom(node.getClass())) {
             throw new AssetConnectionException(String.format("%s - provided node must be a method (nodeId: %s",
                     baseErrorMessage,
-                    operationProvider.getNodeId()));
+                    providerConfig.getNodeId()));
         }
         final UaMethodNode methodNode = (UaMethodNode) node;
         final NodeId parentNodeId;
@@ -301,11 +308,11 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                     .get(0)
                     .getNodeId();
         }
-        catch (UaException ex) {
+        catch (UaException e) {
             throw new AssetConnectionException(String.format("%s - could not resolve parent node (nodeId: %s)",
                     baseErrorMessage,
-                    operationProvider.getNodeId()),
-                    ex);
+                    providerConfig.getNodeId()),
+                    e);
         }
         final Argument[] methodArguments;
         try {
@@ -313,11 +320,11 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                     ? methodNode.readInputArgumentsAsync().get()
                     : new Argument[0];
         }
-        catch (InterruptedException | ExecutionException ex) {
+        catch (InterruptedException | ExecutionException e) {
             throw new AssetConnectionException(String.format("%s - could not read input arguments (nodeId: %s)",
                     baseErrorMessage,
-                    operationProvider.getNodeId()),
-                    ex);
+                    providerConfig.getNodeId()),
+                    e);
         }
         final Argument[] methodOutputArguments;
         try {
@@ -325,11 +332,11 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                     ? methodNode.readOutputArgumentsAsync().get()
                     : new Argument[0];
         }
-        catch (InterruptedException | ExecutionException ex) {
+        catch (InterruptedException | ExecutionException e) {
             throw new AssetConnectionException(String.format("%s - could not read ouput arguments (nodeId: %s)",
                     baseErrorMessage,
-                    operationProvider.getNodeId()),
-                    ex);
+                    providerConfig.getNodeId()),
+                    e);
         }
         final OperationVariable[] outputVariables = serviceContext.getOperationOutputVariables(reference) != null
                 ? serviceContext.getOperationOutputVariables(reference)
@@ -338,19 +345,19 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
             if (outputVariable == null) {
                 throw new AssetConnectionException(String.format("%s - output variable must be non-null (nodeId: %s)",
                         baseErrorMessage,
-                        operationProvider.getNodeId()));
+                        providerConfig.getNodeId()));
             }
             SubmodelElement submodelElement = outputVariable.getValue();
             if (submodelElement == null) {
                 throw new AssetConnectionException(String.format("%s - output variable must contain non-null submodel element (nodeId: %s)",
                         baseErrorMessage,
-                        operationProvider.getNodeId()));
+                        providerConfig.getNodeId()));
             }
             if (!Property.class.isAssignableFrom(submodelElement.getClass())) {
                 throw new AssetConnectionException(String.format("%s - unsupported element type (nodeId: %s, element type: %s)",
                         baseErrorMessage,
                         submodelElement.getClass(),
-                        operationProvider.getNodeId()));
+                        providerConfig.getNodeId()));
             }
         }
 
@@ -358,16 +365,35 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
             @Override
             public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
                 String baseErrorMessage = "error invoking operation on asset connection";
-                Map<String, ElementValue> inputParameter = input == null
-                        ? new HashMap<>()
-                        : Stream.of(input).collect(Collectors.toMap(
+                Map<String, ElementValue> inputParameter = new HashMap<>();
+                if (input != null) {
+                    try {
+                        inputParameter = Stream.of(input).collect(Collectors.toMap(
                                 x -> x.getValue().getIdShort(),
-                                x -> ElementValueMapper.toValue(x.getValue())));
-                Map<String, ElementValue> inoutputParameter = inoutput == null
-                        ? new HashMap<>()
-                        : Stream.of(inoutput).collect(Collectors.toMap(
+                                LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x.getValue()))));
+                    }
+                    catch (ValueMappingException e) {
+                        throw new AssetConnectionException(
+                                String.format("%s - could not exract value of input parameters",
+                                        baseErrorMessage),
+                                e);
+                    }
+                }
+
+                Map<String, ElementValue> inoutputParameter = new HashMap<>();
+                if (inoutput != null) {
+                    try {
+                        inoutputParameter = Stream.of(inoutput).collect(Collectors.toMap(
                                 x -> x.getValue().getIdShort(),
-                                x -> ElementValueMapper.toValue(x.getValue())));
+                                LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x.getValue()))));
+                    }
+                    catch (ValueMappingException e) {
+                        throw new AssetConnectionException(
+                                String.format("%s - could not exract value of inoutput parameters",
+                                        baseErrorMessage),
+                                e);
+                    }
+                }
                 if (methodArguments.length != (inputParameter.size() + inoutputParameter.size())) {
                     throw new AssetConnectionException(String.format("%s - argument count mismatch (expected: %d, provided input arguments: %d, provided inoutput arguments: %d)",
                             baseErrorMessage,
@@ -412,10 +438,11 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                             nodeId,
                             actualParameters)).get();
                 }
-                catch (InterruptedException | ExecutionException ex) {
+                catch (InterruptedException | ExecutionException e) {
                     throw new AssetConnectionException(String.format("%s - executing OPC UA method failed (nodeId: %s)",
                             baseErrorMessage,
-                            operationProvider.getNodeId()));
+                            providerConfig.getNodeId()),
+                            e);
                 }
                 OperationVariable[] result = new OperationVariable[outputVariables.length];
                 for (int i = 0; i < methodOutputArguments.length; i++) {
@@ -423,12 +450,19 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                     for (int j = 0; j < outputVariables.length; j++) {
                         if (Objects.equals(argumentName, outputVariables[j].getValue().getIdShort())) {
                             SubmodelElement element = outputVariables[j].getValue();
-                            Datatype targetType = ((PropertyValue) ElementValueMapper.toValue(element)).getValue().getDataType();
+                            Datatype targetType;
+                            try {
+                                targetType = ((PropertyValue) ElementValueMapper.toValue(element)).getValue().getDataType();
+                            }
+                            catch (ValueMappingException e) {
+                                throw new AssetConnectionException(
+                                        String.format("%s - could not exract value of results variable with idShort '%s'",
+                                                baseErrorMessage,
+                                                element.getIdShort()),
+                                        e);
+                            }
                             TypedValue<?> newValue = valueConverter.convert(methodResult.getOutputArguments()[i], targetType);
-                            // TODO better use deep copy?
-                            DefaultProperty newProperty = new DefaultProperty.Builder()
-                                    .idShort(element.getIdShort())
-                                    .build();
+                            Property newProperty = DeepCopyHelper.deepCopy(element, Property.class);
                             ElementValueMapper.setValue(newProperty,
                                     PropertyValue.builder()
                                             .value(newValue)
@@ -468,7 +502,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
      *             defined
      */
     @Override
-    public void registerSubscriptionProvider(Reference reference, OpcUaSubscriptionProviderConfig subscriptionProvider) throws AssetConnectionException {
+    public void registerSubscriptionProvider(Reference reference, OpcUaSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
         final String baseErrorMessage = "error registering subscription provider";
         TypeInfo typeInfo = serviceContext.getTypeInfo(reference);
         if (typeInfo == null) {
@@ -499,36 +533,38 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
         this.subscriptionProviders.put(reference, new AssetSubscriptionProvider() {
             @Override
             public void addNewDataListener(NewDataListener listener) throws AssetConnectionException {
-                if (!subscriptions.containsKey(subscriptionProvider.getNodeId())) {
+                if (!subscriptions.containsKey(providerConfig.getNodeId())) {
                     SubscriptionHandler handler = new SubscriptionHandler();
                     handler.datatype = datatype;
                     try {
                         handler.originalValue = client.readValue(0, TimestampsToReturn.Neither,
-                                client.getAddressSpace().getVariableNode(parseNodeId(subscriptionProvider.getNodeId())).getNodeId()).get();
+                                client.getAddressSpace().getVariableNode(parseNodeId(providerConfig.getNodeId())).getNodeId()).get();
                     }
-                    catch (UaException | InterruptedException | ExecutionException ex) {
-                        logger.warn("{} - reading initial value of subscribed node failed (reference: {}, nodeId: {})",
+                    catch (UaException | InterruptedException | ExecutionException e) {
+                        LOGGER.warn("{} - reading initial value of subscribed node failed (reference: {}, nodeId: {})",
                                 baseErrorMessage,
                                 AasUtils.asString(reference),
-                                subscriptionProvider.getNodeId());
+                                providerConfig.getNodeId(),
+                                e);
                     }
                     try {
                         handler.dataItem = opcUaSubscription.createDataItem(
-                                parseNodeId(subscriptionProvider.getNodeId()),
+                                parseNodeId(providerConfig.getNodeId()),
                                 LambdaExceptionHelper.rethrowConsumer(
                                         x -> {
                                             x.addDataValueListener(LambdaExceptionHelper.rethrowConsumer(v -> handler.notify(v)));
                                         }));
                     }
-                    catch (UaException ex) {
-                        logger.warn("{} - could not create subscrption item (reference: {}, nodeId: {})",
+                    catch (UaException e) {
+                        LOGGER.warn("{} - could not create subscrption item (reference: {}, nodeId: {})",
                                 baseErrorMessage,
                                 AasUtils.asString(reference),
-                                subscriptionProvider.getNodeId());
+                                providerConfig.getNodeId(),
+                                e);
                     }
-                    subscriptions.put(subscriptionProvider.getNodeId(), handler);
+                    subscriptions.put(providerConfig.getNodeId(), handler);
                 }
-                List<NewDataListener> listeners = subscriptions.get(subscriptionProvider.getNodeId()).listeners;
+                List<NewDataListener> listeners = subscriptions.get(providerConfig.getNodeId()).listeners;
                 if (!listeners.contains(listener)) {
                     listeners.add(listener);
                 }
@@ -538,23 +574,23 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
             @Override
             public void removeNewDataListener(NewDataListener listener) throws AssetConnectionException {
 
-                if (subscriptions.containsKey(subscriptionProvider.getNodeId())) {
-                    SubscriptionHandler handler = subscriptions.get(subscriptionProvider.getNodeId());
+                if (subscriptions.containsKey(providerConfig.getNodeId())) {
+                    SubscriptionHandler handler = subscriptions.get(providerConfig.getNodeId());
                     if (handler.listeners.contains(listener)) {
                         handler.listeners.remove(listener);
                     }
                     if (handler.listeners.isEmpty()) {
                         try {
                             handler.dataItem.delete();
-                            subscriptions.remove(subscriptionProvider.getNodeId());
+                            subscriptions.remove(providerConfig.getNodeId());
                         }
-                        catch (UaException ex) {
+                        catch (UaException e) {
                             throw new AssetConnectionException(
                                     String.format("%s - removing subscription failed (reference: %s, nodeId: %s)",
                                             baseErrorMessage,
                                             AasUtils.asString(reference),
-                                            subscriptionProvider.getNodeId()),
-                                    ex);
+                                            providerConfig.getNodeId()),
+                                    e);
                         }
                     }
                 }
@@ -575,7 +611,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
      * @throws AssetConnectionException if nodeId could not be parsed
      */
     @Override
-    public void registerValueProvider(Reference reference, OpcUaValueProviderConfig valueProvider) throws AssetConnectionException {
+    public void registerValueProvider(Reference reference, OpcUaValueProviderConfig providerConfig) throws AssetConnectionException {
         final String baseErrorMessage = "error registering value provider";
         TypeInfo typeInfo = serviceContext.getTypeInfo(reference);
         if (typeInfo == null) {
@@ -605,12 +641,14 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
         }
         final VariableNode node;
         try {
-            node = client.getAddressSpace().getVariableNode(parseNodeId(valueProvider.getNodeId()));
+            node = client.getAddressSpace().getVariableNode(parseNodeId(providerConfig.getNodeId()));
         }
-        catch (UaException ex) {
-            throw new AssetConnectionException(String.format("%s - could not parse nodeId (nodeId: %s)",
-                    baseErrorMessage,
-                    valueProvider.getNodeId()), ex);
+        catch (UaException e) {
+            throw new AssetConnectionException(
+                    String.format("%s - could not parse nodeId (nodeId: %s)",
+                            baseErrorMessage,
+                            providerConfig.getNodeId()),
+                    e);
         }
         this.valueProviders.put(reference, new AssetValueProvider() {
             @Override
@@ -691,8 +729,8 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                         try {
                             listener.newDataReceived(newAasValue);
                         }
-                        catch (Exception ex) {
-                            logger.debug("exception while invoking newDataReceived handler", ex);
+                        catch (Exception e) {
+                            LOGGER.debug("exception while invoking newDataReceived handler", e);
                         }
                     }
                 }

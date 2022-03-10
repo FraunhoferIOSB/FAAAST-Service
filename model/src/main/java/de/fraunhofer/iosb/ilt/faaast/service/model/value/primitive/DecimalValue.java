@@ -44,8 +44,8 @@ public class DecimalValue extends TypedValue<BigDecimal> {
         try {
             this.setValue(new BigDecimal(value));
         }
-        catch (NumberFormatException ex) {
-            throw new ValueFormatException(ex);
+        catch (NumberFormatException e) {
+            throw new ValueFormatException(e);
         }
     }
 

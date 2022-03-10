@@ -12,24 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentFormat;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 
 
 /**
- * * Config file for MQTT-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
+ * Config file for MQTT-based
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider}.
  */
-public class MqttValueProviderConfig implements AssetValueProviderConfig {
+public class MqttSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
 
     private ContentFormat contentFormat;
     private String topic;
     private String query;
 
-    public MqttValueProviderConfig() {
+    public MqttSubscriptionProviderConfig() {
         this.contentFormat = ContentFormat.DEFAULT;
     }
 
@@ -68,7 +68,7 @@ public class MqttValueProviderConfig implements AssetValueProviderConfig {
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends MqttValueProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public static abstract class AbstractBuilder<T extends MqttSubscriptionProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B query(String value) {
             getBuildingInstance().setQuery(value);
@@ -88,7 +88,7 @@ public class MqttValueProviderConfig implements AssetValueProviderConfig {
         }
     }
 
-    public static class Builder extends AbstractBuilder<MqttValueProviderConfig, Builder> {
+    public static class Builder extends AbstractBuilder<MqttSubscriptionProviderConfig, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -97,8 +97,8 @@ public class MqttValueProviderConfig implements AssetValueProviderConfig {
 
 
         @Override
-        protected MqttValueProviderConfig newBuildingInstance() {
-            return new MqttValueProviderConfig();
+        protected MqttSubscriptionProviderConfig newBuildingInstance() {
+            return new MqttSubscriptionProviderConfig();
         }
     }
 }

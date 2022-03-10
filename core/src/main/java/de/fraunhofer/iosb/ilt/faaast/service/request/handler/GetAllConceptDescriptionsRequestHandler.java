@@ -30,8 +30,8 @@ import java.util.List;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllConceptDescriptionsRequestHandler extends RequestHandler<GetAllConceptDescriptionsRequest, GetAllConceptDescriptionsResponse> {
 
@@ -43,17 +43,11 @@ public class GetAllConceptDescriptionsRequestHandler extends RequestHandler<GetA
     @Override
     public GetAllConceptDescriptionsResponse process(GetAllConceptDescriptionsRequest request) {
         GetAllConceptDescriptionsResponse response = new GetAllConceptDescriptionsResponse();
-
-        try {
-            List<ConceptDescription> conceptDescriptions = persistence.get(null, null, null, request.getOutputModifier());
-            response.setPayload(conceptDescriptions);
-            response.setStatusCode(StatusCode.Success);
-            if (conceptDescriptions != null) {
-                conceptDescriptions.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
-            }
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
+        List<ConceptDescription> conceptDescriptions = persistence.get(null, null, null, request.getOutputModifier());
+        response.setPayload(conceptDescriptions);
+        response.setStatusCode(StatusCode.Success);
+        if (conceptDescriptions != null) {
+            conceptDescriptions.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
         }
         return response;
     }

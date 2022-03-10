@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -37,6 +38,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -44,10 +47,12 @@ import java.util.concurrent.TimeoutException;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(InvokeOperationSyncRequestHandler.class);
 
     public InvokeOperationSyncRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
@@ -55,26 +60,18 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
 
 
     @Override
-    public InvokeOperationSyncResponse process(InvokeOperationSyncRequest request) {
+    public InvokeOperationSyncResponse process(InvokeOperationSyncRequest request) throws ValueMappingException, ResourceNotFoundException {
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
         InvokeOperationSyncResponse response = new InvokeOperationSyncResponse();
-        try {
-            //Check if submodelelement does exist
-            Operation operation = (Operation) persistence.get(reference, new OutputModifier());
-            publishOperationInvokeEventMessage(reference,
-                    toValues(request.getInputArguments()),
-                    toValues(request.getInoutputArguments()));
+        //Check if submodelelement does exist
+        Operation operation = (Operation) persistence.get(reference, new OutputModifier());
+        publishOperationInvokeEventMessage(reference,
+                toValues(request.getInputArguments()),
+                toValues(request.getInoutputArguments()));
 
-            OperationResult operationResult = executeOperationSync(reference, request);
-            response.setPayload(operationResult);
-            response.setStatusCode(StatusCode.Success);
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        OperationResult operationResult = executeOperationSync(reference, request);
+        response.setPayload(operationResult);
+        response.setStatusCode(StatusCode.Success);
         publishOperationFinishEventMessage(reference,
                 toValues(response.getPayload().getOutputArguments()),
                 toValues(response.getPayload().getInoutputArguments()));
@@ -104,7 +101,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
                         .outputArguments(Arrays.asList(outputVariables))
                         .build();
             }
-            catch (TimeoutException ex) {
+            catch (TimeoutException e) {
                 future.cancel(true);
                 result = OperationResult.builder()
                         .requestId(request.getRequestId())
@@ -112,7 +109,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
                         .executionState(ExecutionState.Timeout)
                         .build();
             }
-            catch (Exception ex) {
+            catch (Exception e) {
                 result = OperationResult.builder()
                         .requestId(request.getRequestId())
                         .inoutputArguments(request.getInoutputArguments())

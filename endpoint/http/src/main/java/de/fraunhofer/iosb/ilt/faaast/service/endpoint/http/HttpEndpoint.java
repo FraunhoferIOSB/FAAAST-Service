@@ -78,16 +78,16 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
             try {
                 handler.stop();
             }
-            catch (Exception ex) {
-                logger.debug("stopping HTTP handler failed", ex);
+            catch (Exception e) {
+                logger.debug("stopping HTTP handler failed", e);
             }
         }
         try {
             server.stop();
             server.join();
         }
-        catch (Exception ex) {
-            logger.debug("HTTP endpoint did non shutdown correctly", ex);
+        catch (Exception e) {
+            logger.debug("HTTP endpoint did non shutdown correctly", e);
         }
     }
 }

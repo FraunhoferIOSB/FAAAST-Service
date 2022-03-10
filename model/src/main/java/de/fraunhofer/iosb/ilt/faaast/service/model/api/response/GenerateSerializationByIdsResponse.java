@@ -15,29 +15,22 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import java.util.List;
 
 
 /**
  * Chapter 4.4.2
  */
-public class GenerateSerializationByIdsResponse extends BaseResponseWithPayload<List<AssetAdministrationShell>> {
+public class GenerateSerializationByIdsResponse extends BaseResponseWithPayload<byte[]> {
+
     public static GenerateSerializationByIdsResponse.Builder builder() {
         return new GenerateSerializationByIdsResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<GenerateSerializationByIdsResponse, GenerateSerializationByIdsResponse.Builder> {
+    public static class Builder extends AbstractBuilder<byte[], GenerateSerializationByIdsResponse, GenerateSerializationByIdsResponse.Builder> {
 
         @Override
         protected GenerateSerializationByIdsResponse.Builder getSelf() {
             return this;
-        }
-
-
-        public GenerateSerializationByIdsResponse.Builder payload(List<AssetAdministrationShell> value) {
-            getBuildingInstance().setPayload(value);
-            return getSelf();
         }
 
 
