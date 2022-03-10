@@ -194,7 +194,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testGETSpecificShellEvent() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(HTTP_SHELLS + "/"
@@ -219,7 +219,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testPUTSpecificShellEvent() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
@@ -244,7 +244,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testDELETESpecificShellEvent() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
@@ -265,7 +265,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testGET_AASShell_Event() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String url = HTTP_SHELLS + "/"
@@ -310,7 +310,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testPUT_AASShellEvent() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
@@ -334,7 +334,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testGETAssetInformationEvent() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String url = HTTP_SHELLS + "/"
@@ -362,7 +362,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testPutAssetInformationEvent() throws InterruptedException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.getAssetInformation().setAssetKind(AssetKind.TYPE);
@@ -387,7 +387,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testGETSubmodelReferencesEvent() throws InterruptedException {
         String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0)
                 .getIdentification().getIdentifier());
@@ -412,7 +412,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testPOSTSubmodelReferenceEvent() throws InterruptedException {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
         Reference newReference = new DefaultReference.Builder().key(new DefaultKey.Builder().value("test").idType(KeyType.IRI).build()).build();
@@ -440,7 +440,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testDELETESubmodelReferenceEvent() throws InterruptedException {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
         String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0).getIdentification().getIdentifier());
@@ -479,7 +479,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testGetSubmodelsEvent() throws SerializationException, InterruptedException {
         Submodel expected = environment.getSubmodels().get(1);
         String semnaticId = EncodingHelper.base64UrlEncode(new JsonSerializer().write(expected.getSemanticId()));
@@ -504,7 +504,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testPostSubmodelsEvent() throws SerializationException, InterruptedException {
         Submodel expected = new DefaultSubmodel.Builder()
                 .identification(new DefaultIdentifier.Builder()
@@ -554,7 +554,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testGetSpecificSubmodelEvent() throws SerializationException, InterruptedException {
         Submodel expected = environment.getSubmodels().get(1);
         String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
@@ -612,7 +612,7 @@ public class TestIntegrationHttpEndpoint {
     }
 
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void testDELETESubmodelElementEvent() throws InterruptedException {
         Submodel expected = environment.getSubmodels().get(0);
         String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
