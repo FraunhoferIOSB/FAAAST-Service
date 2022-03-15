@@ -78,9 +78,9 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
-                            <descriptors>
-                                <descriptor>src/assembly/assembly.xml</descriptor>
-                            </descriptors>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
                         </configuration>
                     </execution>
                 </executions>
@@ -95,10 +95,14 @@
                     <injar>${project.build.finalName}-jar-with-dependencies.jar</injar>
                     <outjar>${project.build.finalName}-obfuscated.jar</outjar>
                     <outputDirectory>${project.build.directory}</outputDirectory>
-                    <proguardInclude>${basedir}/proguard.conf</proguardInclude>
                     <libs>
                         <lib>${java.home}/jmods/</lib>
                     </libs>
+                    <options>
+                        <option>-dontwarn</option>
+                        <option>-dontnote</option>
+                        <option>-keep class !com.prosysopc.** { *; }</option>
+                    </options>
                 </configuration>
                 <dependencies>
                     <dependency>
