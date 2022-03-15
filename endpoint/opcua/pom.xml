@@ -111,7 +111,6 @@
                         <option>-keep class * extends com.prosysopc.ua.server.nodes.BaseNode { *; }</option>
                         <option>-adaptresourcefilenames **.xml</option>
                         <option>-keep class !com.prosysopc.** { *; }</option>
-                        <option>-keep class !opc.i4aas.** { *; }</option>
                     </options>
                 </configuration>
                 <dependencies>
