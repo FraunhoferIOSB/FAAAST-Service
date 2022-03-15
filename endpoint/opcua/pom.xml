@@ -102,14 +102,16 @@
                         <option>-dontwarn</option>
                         <option>-dontnote</option>
                         <option>-dontoptimize</option>
-                        <option>-keepattributes Signature</option>
+                        <option>-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod</option>
                         <option>-keepclassmembers,allowoptimization enum * {
                         	public static **[] values();
                         	public static ** valueOf(java.lang.String);
                         }</option>
                         <option>-keepclassmembers class * { public &lt;init&gt;(...); }</option>
+                        <option>-keep class * extends com.prosysopc.ua.server.nodes.BaseNode { *; }</option>
                         <option>-adaptresourcefilenames **.xml</option>
                         <option>-keep class !com.prosysopc.** { *; }</option>
+                        <option>-keep class !opc.i4aas.** { *; }</option>
                     </options>
                 </configuration>
                 <dependencies>
