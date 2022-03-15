@@ -49,7 +49,7 @@ import org.apache.http.HttpStatus;
 import org.junit.*;
 
 
-public class TestIntegrationHttpEndpoint {
+public class IntegrationTestHttpEndpointIT {
 
     static Service service;
     static AssetAdministrationShellEnvironment environment;
