@@ -101,6 +101,14 @@
                     <options>
                         <option>-dontwarn</option>
                         <option>-dontnote</option>
+                        <option>-dontoptimize</option>
+                        <option>-keepattributes Signature</option>
+                        <option>-keepclassmembers,allowoptimization enum * {
+                        	public static **[] values();
+                        	public static ** valueOf(java.lang.String);
+                        }</option>
+                        <option>-keepclassmembers class * { public &lt;init&gt;(...); }</option>
+                        <option>-adaptresourcefilenames **.xml</option>
                         <option>-keep class !com.prosysopc.** { *; }</option>
                     </options>
                 </configuration>
