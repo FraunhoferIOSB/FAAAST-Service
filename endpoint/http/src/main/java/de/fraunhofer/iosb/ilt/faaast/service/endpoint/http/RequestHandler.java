@@ -22,7 +22,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.*;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import jakarta.servlet.ServletException;
@@ -103,15 +107,17 @@ public class RequestHandler extends AbstractHandler {
 
 
     /**
-     * Send result/error response which includes result object including message object
+     * Send result/error response which includes result object including message
+     * object
      *
      * @param response http response object
      * @param httpStatusCode http status code
      * @param errorMessage clear text error message
      */
     private void sendResultResponse(HttpServletResponse response, int httpStatusCode, MessageType messageType, String errorMessage) throws IOException {
-        if (errorMessage.isEmpty())
+        if (errorMessage.isEmpty()) {
             errorMessage = HttpStatus.getMessage(httpStatusCode);
+        }
         Message message = Message.builder()
                 .messageType(messageType)
                 .text(errorMessage)

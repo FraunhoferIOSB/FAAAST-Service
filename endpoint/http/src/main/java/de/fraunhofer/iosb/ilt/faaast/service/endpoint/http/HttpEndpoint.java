@@ -17,15 +17,16 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * Implementation of HTTP endpoint. Accepts http request and maps them to Request objects
- * passes them to the service and expects a response object which is streamed as
- * json response to the http client
+ * Implementation of HTTP endpoint. Accepts http request and maps them to
+ * Request objects passes them to the service and expects a response object
+ * which is streamed as json response to the http client
  */
 public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 

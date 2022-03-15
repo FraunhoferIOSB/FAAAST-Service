@@ -28,7 +28,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.*;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetAdministrationShellResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
@@ -239,8 +244,8 @@ public class HttpEndpointTest {
                 .statusCode(StatusCode.Success)
                 .payload(null)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort) +
-                "/submodel/submodel-elements/ExampleRelationshipElement?level=normal&level=deep");
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
+                + "/submodel/submodel-elements/ExampleRelationshipElement?level=normal&level=deep");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
@@ -252,8 +257,8 @@ public class HttpEndpointTest {
                 .statusCode(StatusCode.Success)
                 .payload(null)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort) +
-                "/submodel/submodel-elements/ExampleRelationshipElement?level=normal&content=");
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
+                + "/submodel/submodel-elements/ExampleRelationshipElement?level=normal&content=");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 
@@ -265,8 +270,8 @@ public class HttpEndpointTest {
                 .statusCode(StatusCode.Success)
                 .payload(null)
                 .build());
-        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort) +
-                "/submodel/submodel-elements/ExampleRelationshipElement?level=normal&bogus");
+        ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(idShort)
+                + "/submodel/submodel-elements/ExampleRelationshipElement?level=normal&bogus");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
     }
 

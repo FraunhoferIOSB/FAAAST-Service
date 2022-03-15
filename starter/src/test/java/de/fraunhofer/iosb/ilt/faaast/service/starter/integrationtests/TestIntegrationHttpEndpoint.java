@@ -14,7 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.*;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.deleteCall;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.getCall;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.getListCall;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.postCall;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.putCall;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.retrieveResourceFromResponse;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.retrieveResourceFromResponseList;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.setUpEventCheck;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
@@ -34,7 +41,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import io.adminshell.aas.v3.model.*;
+import io.adminshell.aas.v3.model.AssetAdministrationShell;
+import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.AssetInformation;
+import io.adminshell.aas.v3.model.AssetKind;
+import io.adminshell.aas.v3.model.IdentifierType;
+import io.adminshell.aas.v3.model.KeyType;
+import io.adminshell.aas.v3.model.LangString;
+import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.Submodel;
+import io.adminshell.aas.v3.model.SubmodelElement;
+import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
@@ -46,7 +63,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class TestIntegrationHttpEndpoint {
