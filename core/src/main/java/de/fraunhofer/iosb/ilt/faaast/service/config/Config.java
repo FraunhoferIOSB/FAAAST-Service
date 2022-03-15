@@ -36,8 +36,24 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiatio
 @JsonTypeIdResolver(ConfigTypeResolver.class)
 public abstract class Config<T extends Configurable> {
 
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        return (getClass() == obj.getClass());
+    }
+
+
+    public int hashCode() {
+        return 7;
+    }
+
+
     /**
-     * Utilify method to get the concrete type of the corresponding
+     * Utility method to get the concrete type of the corresponding
      * implementation.
      *
      * @return the type of the corresponding implementation

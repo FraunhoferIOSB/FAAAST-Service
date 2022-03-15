@@ -26,23 +26,6 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
  */
 public class PersistenceConfig<T extends Persistence> extends Config<T> {
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        return (getClass() == obj.getClass());
-    }
-
-
-    @Override
-    public int hashCode() {
-        return 7;
-    }
-
     /**
      * Abstract builder class that should be used for builders of inheriting
      * classes.
