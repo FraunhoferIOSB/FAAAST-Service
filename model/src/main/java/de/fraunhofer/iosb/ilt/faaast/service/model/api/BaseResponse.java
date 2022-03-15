@@ -26,11 +26,13 @@ public abstract class BaseResponse implements Response {
     private StatusCode statusCode;
     private Result result;
 
+    @Override
     public Result getResult() {
         return result;
     }
 
 
+    @Override
     public void setResult(Result result) {
         this.result = result;
     }
@@ -45,11 +47,13 @@ public abstract class BaseResponse implements Response {
     }
 
 
+    @Override
     public StatusCode getStatusCode() {
         return statusCode;
     }
 
 
+    @Override
     public void setStatusCode(StatusCode statusCode) {
         this.statusCode = statusCode;
         if (statusCode.isSuccess(statusCode))

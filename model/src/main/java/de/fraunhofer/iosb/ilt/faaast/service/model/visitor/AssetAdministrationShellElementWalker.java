@@ -79,6 +79,7 @@ import io.adminshell.aas.v3.model.ValueList;
 import io.adminshell.aas.v3.model.ValueReferencePair;
 import io.adminshell.aas.v3.model.View;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;
@@ -1024,23 +1025,18 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
                             }
                         }).collect(Collectors.toList());
                 for (Method method: methods) {
-                    extracted(visitor, obj, method);
+                    try {
+                        method.setAccessible(true);
+                        method.invoke(visitor, obj);
+                    }
+                    catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                        logger.debug(String.format("invoking visit(%s) method via refection failed", method.getParameterTypes()[0].getSimpleName()), e);
+                    }
                 }
             }
-            catch (Exception ex) {
+            catch (SecurityException ex) {
                 logger.debug("invoking visit method via refection failed", ex);
             }
-        }
-    }
-
-
-    private void extracted(AssetAdministrationShellElementVisitor visitor, Object obj, Method method) {
-        try {
-            method.setAccessible(true);
-            method.invoke(visitor, obj);
-        }
-        catch (Exception ex) {
-            logger.debug(String.format("invoking visit(%s) method via refection failed", method.getParameterTypes()[0].getSimpleName()), ex);
         }
     }
 

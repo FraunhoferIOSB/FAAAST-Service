@@ -55,6 +55,8 @@ public interface AssetOperationProvider extends AssetProvider {
             Thread.currentThread().interrupt();
             throw new AssetConnectionException("invoking operation failed because of timeout", ex);
         }
+        // TODO check if 1:1 assignment of each value is needed
+        inoutput = modifiedInoutput.get();
         return result.get();
     }
 

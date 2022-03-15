@@ -16,10 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
@@ -58,8 +56,6 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
         InvokeOperationSyncResponse response = new InvokeOperationSyncResponse();
         try {
-            //Check if submodelelement does exist
-            persistence.get(reference, new OutputModifier());
             publishOperationInvokeEventMessage(reference,
                     toValues(request.getInputArguments()),
                     toValues(request.getInoutputArguments()));
@@ -67,9 +63,6 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
             OperationResult operationResult = executeOperationSync(reference, request);
             response.setPayload(operationResult);
             response.setStatusCode(StatusCode.Success);
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
         }
         catch (Exception ex) {
             response.setStatusCode(StatusCode.ServerInternalError);

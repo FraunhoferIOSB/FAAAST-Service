@@ -23,15 +23,15 @@ import java.util.UUID;
  */
 public class SubscriptionId {
 
-    private final UUID localSubscriptionId;
+    private final UUID value;
 
     public SubscriptionId() {
-        this.localSubscriptionId = UUID.randomUUID();
+        this.value = UUID.randomUUID();
     }
 
 
-    public UUID getSubscriptionId() {
-        return localSubscriptionId;
+    public UUID getValue() {
+        return value;
     }
 
 
@@ -44,12 +44,12 @@ public class SubscriptionId {
             return false;
         }
         SubscriptionId that = (SubscriptionId) o;
-        return Objects.equals(localSubscriptionId, that.localSubscriptionId);
+        return Objects.equals(value, that.value);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(localSubscriptionId);
+        return Objects.hash(value);
     }
 }

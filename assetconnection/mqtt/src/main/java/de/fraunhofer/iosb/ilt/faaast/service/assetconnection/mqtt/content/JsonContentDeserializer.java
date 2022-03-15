@@ -47,7 +47,7 @@ public class JsonContentDeserializer implements ContentDeserializer {
         try {
             String value = raw;
             if (query != null) {
-                value = getString(query, typeInfo, value);
+                value = extractValueString(query, typeInfo, value);
             }
             return deserializer.readValue(value, typeInfo);
         }
@@ -57,7 +57,7 @@ public class JsonContentDeserializer implements ContentDeserializer {
     }
 
 
-    private String getString(String query, TypeInfo<?> typeInfo, String value) throws AssetConnectionException {
+    private String extractValueString(String query, TypeInfo<?> typeInfo, String value) throws AssetConnectionException {
         try {
             value = JsonPath.read(value, query).toString();
 
