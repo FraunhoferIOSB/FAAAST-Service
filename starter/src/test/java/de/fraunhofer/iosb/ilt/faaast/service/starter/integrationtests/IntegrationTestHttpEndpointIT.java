@@ -69,7 +69,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class TestIntegrationHttpEndpoint {
+public class IntegrationTestHttpEndpointIT {
 
     static Service service;
     static AssetAdministrationShellEnvironment environment;

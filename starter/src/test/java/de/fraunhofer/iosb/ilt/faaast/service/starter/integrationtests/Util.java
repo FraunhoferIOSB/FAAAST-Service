@@ -227,7 +227,7 @@ public class Util {
         final long DEFAULT_TIMEOUT = 1000;
         AtomicBoolean fired = new AtomicBoolean(false);
         CountDownLatch condition = new CountDownLatch(1);
-        SubscriptionId subscriptionId = TestIntegrationHttpEndpoint.messageBus.subscribe(SubscriptionInfo.create(clazz, x -> {
+        SubscriptionId subscriptionId = IntegrationTestHttpEndpointIT.messageBus.subscribe(SubscriptionInfo.create(clazz, x -> {
             if (ElementReadEventMessage.class.isAssignableFrom(x.getClass())) {
                 Assert.assertEquals(expected, ((ElementReadEventMessage) x).getValue());
                 fired.set(true);
@@ -249,7 +249,7 @@ public class Util {
         call.get();
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         Assert.assertTrue(fired.get());
-        TestIntegrationHttpEndpoint.messageBus.unsubscribe(subscriptionId);
+        IntegrationTestHttpEndpointIT.messageBus.unsubscribe(subscriptionId);
     }
 
 }

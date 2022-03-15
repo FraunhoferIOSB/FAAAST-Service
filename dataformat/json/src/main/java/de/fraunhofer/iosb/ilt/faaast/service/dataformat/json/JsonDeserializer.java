@@ -71,6 +71,7 @@ public class JsonDeserializer implements Deserializer {
     private static final String ERROR_MSG_TYPEINFO_MUST_BE_CONATINERTYPEINFO = "typeInfo must be of type ContainerTypeInfo";
     private static final String ERROR_MSG_ROOT_TYPE_INFO_MUST_BE_NON_NULL = "root type information must be non-null";
     private static final String ERROR_MSG_CONTENT_TYPE_MUST_BE_NON_NULL = "content type must be non-null";
+    private static final String ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL = "typeInfo must be non-null";
 
     public JsonDeserializer() {
         this.wrapper = new DeserializerWrapper(x -> modifyMapper(x));
@@ -108,10 +109,9 @@ public class JsonDeserializer implements Deserializer {
      */
     @Override
     public <T extends ElementValue> T readValue(String json, TypeInfo typeInfo) throws DeserializationException {
-        final String TYPEINFO_MUST_BE_NON_NULL = "typeInfo must be non-null";
         final String MISSING_ROOT_TYPE = "missing root type information";
         if (typeInfo == null) {
-            throw new IllegalArgumentException(TYPEINFO_MUST_BE_NON_NULL);
+            throw new IllegalArgumentException(ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL);
         }
         if (typeInfo.getType() == null) {
             throw new DeserializationException(MISSING_ROOT_TYPE);
@@ -188,7 +188,7 @@ public class JsonDeserializer implements Deserializer {
     @Override
     public <T extends ElementValue> List<T> readValueList(String json, TypeInfo typeInfo) throws DeserializationException {
         if (typeInfo == null) {
-            throw new IllegalArgumentException("typeInfo must be non-null");
+            throw new IllegalArgumentException(ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL);
         }
         if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new DeserializationException(ERROR_MSG_TYPEINFO_MUST_BE_CONATINERTYPEINFO);
@@ -226,7 +226,7 @@ public class JsonDeserializer implements Deserializer {
     @Override
     public <K, V extends ElementValue> Map<K, V> readValueMap(String json, TypeInfo typeInfo) throws DeserializationException {
         if (typeInfo == null) {
-            throw new IllegalArgumentException("typeInfo must be non-null");
+            throw new IllegalArgumentException(ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL);
         }
         if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new DeserializationException(ERROR_MSG_TYPEINFO_MUST_BE_CONATINERTYPEINFO);
