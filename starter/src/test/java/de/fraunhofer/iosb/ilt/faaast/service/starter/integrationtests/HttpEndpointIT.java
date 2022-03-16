@@ -69,10 +69,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class IntegrationTestHttpEndpointIT {
+public class HttpEndpointIT {
 
-    static Service service;
-    static AssetAdministrationShellEnvironment environment;
+    private static Service service;
+    private static AssetAdministrationShellEnvironment environment;
     public static MessageBus messageBus;
 
     private static final String HOST = "http://localhost";
