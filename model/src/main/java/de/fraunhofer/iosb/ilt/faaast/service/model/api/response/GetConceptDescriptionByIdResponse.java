@@ -22,21 +22,16 @@ import io.adminshell.aas.v3.model.ConceptDescription;
  * Chapter 6.4.3
  */
 public class GetConceptDescriptionByIdResponse extends BaseResponseWithPayload<ConceptDescription> {
+
     public static GetConceptDescriptionByIdResponse.Builder builder() {
         return new GetConceptDescriptionByIdResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<GetConceptDescriptionByIdResponse, GetConceptDescriptionByIdResponse.Builder> {
+    public static class Builder extends AbstractBuilder<ConceptDescription, GetConceptDescriptionByIdResponse, GetConceptDescriptionByIdResponse.Builder> {
 
         @Override
         protected GetConceptDescriptionByIdResponse.Builder getSelf() {
             return this;
-        }
-
-
-        public GetConceptDescriptionByIdResponse.Builder payload(ConceptDescription value) {
-            getBuildingInstance().setPayload(value);
-            return getSelf();
         }
 
 

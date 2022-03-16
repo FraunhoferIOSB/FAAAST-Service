@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal;
 
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ChangeEventMessage;
@@ -71,7 +72,7 @@ public class MessageBusInternalTest {
 
 
     @Test
-    public void testExactTypeSubscription() throws InterruptedException {
+    public void testExactTypeSubscription() throws InterruptedException, MessageBusException {
         MessageBusInternal messageBus = new MessageBusInternal();
         messageBus.start();
         CountDownLatch condition = new CountDownLatch(1);

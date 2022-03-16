@@ -64,8 +64,8 @@ public class ReferablePersistenceManager extends PersistenceManager {
             SubmodelElement submodelElement = AasUtils.resolve(reference, this.aasEnvironment, SubmodelElement.class);
             return DeepCopyHelper.deepCopy(submodelElement, submodelElement.getClass());
         }
-        catch (IllegalArgumentException ex) {
-            throw new ResourceNotFoundException(reference);
+        catch (IllegalArgumentException e) {
+            throw new ResourceNotFoundException(reference, e);
         }
     }
 

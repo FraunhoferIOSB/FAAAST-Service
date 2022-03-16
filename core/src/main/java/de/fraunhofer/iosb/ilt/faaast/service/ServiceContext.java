@@ -36,6 +36,8 @@ public interface ServiceContext {
      * @return type information of the referenced element, empty
      *         {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo} if
      *         no matching type is found, null if reference is null
+     * @throws IllegalArgumentException if reference can not be resolved on AAS
+     *             environment of the service
      */
     public TypeInfo getTypeInfo(Reference reference);
 
@@ -46,6 +48,7 @@ public interface ServiceContext {
      * @param request request to execute
      * @return result of executing the request
      * @throws IllegalArgumentException if request is null
+     * @throws RuntimeException if no handler for the request can be found
      */
     public Response execute(Request request);
 
@@ -56,9 +59,8 @@ public interface ServiceContext {
      *
      * @return a deep copied AssetAdministrationShellEnvironment instance of the
      *         service
-     * @throws java.lang.Exception
      */
-    public AssetAdministrationShellEnvironment getAASEnvironment() throws Exception;
+    public AssetAdministrationShellEnvironment getAASEnvironment();
 
 
     /**

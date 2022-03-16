@@ -27,17 +27,11 @@ public class InvokeOperationSyncResponse extends BaseResponseWithPayload<Operati
         return new InvokeOperationSyncResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<InvokeOperationSyncResponse, InvokeOperationSyncResponse.Builder> {
+    public static class Builder extends AbstractBuilder<OperationResult, InvokeOperationSyncResponse, InvokeOperationSyncResponse.Builder> {
 
         @Override
         protected InvokeOperationSyncResponse.Builder getSelf() {
             return this;
-        }
-
-
-        public InvokeOperationSyncResponse.Builder payload(OperationResult value) {
-            getBuildingInstance().setPayload(value);
-            return getSelf();
         }
 
 

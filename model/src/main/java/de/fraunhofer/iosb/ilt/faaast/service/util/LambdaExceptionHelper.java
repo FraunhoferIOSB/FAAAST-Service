@@ -71,8 +71,8 @@ public class LambdaExceptionHelper {
             try {
                 consumer.accept(t);
             }
-            catch (Exception exception) {
-                throwAsUnchecked(exception);
+            catch (Exception e) {
+                throwAsUnchecked(e);
             }
         };
     }
@@ -95,8 +95,8 @@ public class LambdaExceptionHelper {
             try {
                 biConsumer.accept(t, u);
             }
-            catch (Exception exception) {
-                throwAsUnchecked(exception);
+            catch (Exception e) {
+                throwAsUnchecked(e);
             }
         };
     }
@@ -119,8 +119,8 @@ public class LambdaExceptionHelper {
             try {
                 return function.apply(t);
             }
-            catch (Exception exception) {
-                throwAsUnchecked(exception);
+            catch (Exception e) {
+                throwAsUnchecked(e);
                 return null;
             }
         };
@@ -143,8 +143,8 @@ public class LambdaExceptionHelper {
             try {
                 return supplier.get();
             }
-            catch (Exception exception) {
-                throwAsUnchecked(exception);
+            catch (Exception e) {
+                throwAsUnchecked(e);
                 return null;
             }
         };
@@ -152,8 +152,8 @@ public class LambdaExceptionHelper {
 
 
     @SuppressWarnings("unchecked")
-    private static <E extends Throwable> void throwAsUnchecked(Exception exception) throws E {
-        throw (E) exception;
+    private static <E extends Throwable> void throwAsUnchecked(Exception e) throws E {
+        throw (E) e;
     }
 
 }

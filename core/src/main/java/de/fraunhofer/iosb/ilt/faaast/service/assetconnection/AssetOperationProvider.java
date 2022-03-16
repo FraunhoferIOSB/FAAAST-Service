@@ -56,9 +56,9 @@ public interface AssetOperationProvider extends AssetProvider {
         try {
             condition.await();
         }
-        catch (InterruptedException ex) {
+        catch (InterruptedException x) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException("invoking operation failed because of timeout", ex);
+            throw new AssetConnectionException("invoking operation failed because of timeout", x);
         }
         if (inoutput == null && result.get() != null && result.get().length > 0) {
             throw new IllegalArgumentException(String.format("%s - provided: none, actual: %d", BASE_ERROR_MSG, result.get().length));

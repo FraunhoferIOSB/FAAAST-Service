@@ -107,7 +107,7 @@ public class JsonSerializerTest {
                     try {
                         return Files.readString(x.getValue().toPath());
                     }
-                    catch (IOException ex) {
+                    catch (IOException e) {
                         Assert.fail(String.format("error reading file %s", x.getValue()));
                     }
                     return "";

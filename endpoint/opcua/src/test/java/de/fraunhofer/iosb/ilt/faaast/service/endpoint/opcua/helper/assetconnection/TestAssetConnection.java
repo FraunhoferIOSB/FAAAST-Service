@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestAssetConnection implements AssetConnection<TestAssetConnectionConfig, TestValueProviderConfig, TestOperationProviderConfig, TestSubscriptionProviderConfig> {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestAssetConnection.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestAssetConnection.class);
 
     private final Map<Reference, AssetValueProvider> valueProviders;
     private final Map<Reference, AssetOperationProvider> operationProviders;
@@ -60,7 +60,7 @@ public class TestAssetConnection implements AssetConnection<TestAssetConnectionC
             operationProviders.put(reference, new AssetOperationProvider() {
                 @Override
                 public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-                    logger.info("method invoked!");
+                    LOGGER.info("method invoked!");
                     return operationProvider.getOutputArgs().toArray(OperationVariable[]::new);
                     //return new OperationVariable[0];
                 }
@@ -73,8 +73,8 @@ public class TestAssetConnection implements AssetConnection<TestAssetConnectionC
                 }
             });
         }
-        catch (Exception ex) {
-            logger.error("registerOperationProvider error", ex);
+        catch (Exception e) {
+            LOGGER.error("registerOperationProvider error", e);
         }
     }
 
@@ -140,7 +140,7 @@ public class TestAssetConnection implements AssetConnection<TestAssetConnectionC
 
 
     @Override
-    public void init(CoreConfig coreConfig, TestAssetConnectionConfig config, ServiceContext context) throws Exception {
-        logger.info("init called");
+    public void init(CoreConfig coreConfig, TestAssetConnectionConfig config, ServiceContext context) {
+        LOGGER.info("init called");
     }
 }

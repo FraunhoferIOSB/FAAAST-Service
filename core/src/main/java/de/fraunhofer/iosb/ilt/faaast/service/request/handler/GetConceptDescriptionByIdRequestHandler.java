@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -30,8 +31,8 @@ import io.adminshell.aas.v3.model.ConceptDescription;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetConceptDescriptionByIdRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetConceptDescriptionByIdResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetConceptDescriptionByIdRequestHandler extends RequestHandler<GetConceptDescriptionByIdRequest, GetConceptDescriptionByIdResponse> {
 
@@ -41,22 +42,13 @@ public class GetConceptDescriptionByIdRequestHandler extends RequestHandler<GetC
 
 
     @Override
-    public GetConceptDescriptionByIdResponse process(GetConceptDescriptionByIdRequest request) {
+    public GetConceptDescriptionByIdResponse process(GetConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException {
         GetConceptDescriptionByIdResponse response = new GetConceptDescriptionByIdResponse();
-
-        try {
-            ConceptDescription conceptDescription = (ConceptDescription) persistence.get(request.getId(), request.getOutputModifier());
-            response.setPayload(conceptDescription);
-            response.setStatusCode(StatusCode.Success);
-            if (conceptDescription != null) {
-                publishElementReadEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
-            }
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
+        ConceptDescription conceptDescription = (ConceptDescription) persistence.get(request.getId(), request.getOutputModifier());
+        response.setPayload(conceptDescription);
+        response.setStatusCode(StatusCode.Success);
+        if (conceptDescription != null) {
+            publishElementReadEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
         }
         return response;
     }

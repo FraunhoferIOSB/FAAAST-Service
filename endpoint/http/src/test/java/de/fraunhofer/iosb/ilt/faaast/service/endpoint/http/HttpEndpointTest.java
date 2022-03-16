@@ -38,6 +38,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -102,16 +103,16 @@ public class HttpEndpointTest {
             try {
                 client.stop();
             }
-            catch (Exception ex) {
-                logger.info("error stopping HTTP client", ex);
+            catch (Exception e) {
+                logger.info("error stopping HTTP client", e);
             }
         }
         if (endpoint != null) {
             try {
                 endpoint.stop();
             }
-            catch (Exception ex) {
-                logger.info("error stopping HTTP endpoint", ex);
+            catch (Exception e) {
+                logger.info("error stopping HTTP endpoint", e);
             }
         }
     }
@@ -357,7 +358,7 @@ public class HttpEndpointTest {
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         List<ElementValue> actual = deserializer.readValueList(new String(response.getContent()), TypeExtractor.extractTypeInfo(submodelElements));
         List<ElementValue> expected = submodelElements.stream()
-                .map(x -> (ElementValue) ElementValueMapper.toValue(x))
+                .map(LambdaExceptionHelper.rethrowFunction(x -> (ElementValue) ElementValueMapper.toValue(x)))
                 .collect(Collectors.toList());
         Assert.assertEquals(expected, actual);
     }

@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AasServiceMethodManagerListener implements CallableListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(AasServiceMethodManagerListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AasServiceMethodManagerListener.class);
 
     private final OpcUaEndpoint endpoint;
     private final AasServiceNodeManager nodeManager;
@@ -89,11 +89,11 @@ public class AasServiceMethodManagerListener implements CallableListener {
 
         // Handle method calls
         // Note that the outputs array is already allocated
-        logger.info("onCall: method " + methodId.toString() + ": called. InputArguments: " + Arrays.toString(inputArguments));
+        LOGGER.info("onCall: method " + methodId.toString() + ": called. InputArguments: " + Arrays.toString(inputArguments));
 
         try {
             if (endpoint == null) {
-                logger.warn("onCall: no Endpoint available");
+                LOGGER.warn("onCall: no Endpoint available");
             }
             else {
                 SubmodelElementData data = nodeManager.getAasData(objectId);
@@ -107,16 +107,16 @@ public class AasServiceMethodManagerListener implements CallableListener {
                     retval = true;
                 }
                 else {
-                    logger.info("onCall: Property for " + objectId.toString() + " not found");
+                    LOGGER.info("onCall: Property for " + objectId.toString() + " not found");
                 }
             }
         }
         catch (StatusException se) {
-            logger.error("onCall StatusException", se);
+            LOGGER.error("onCall StatusException", se);
             throw se;
         }
         catch (Throwable ex) {
-            logger.error("onCall Exception", ex);
+            LOGGER.error("onCall Exception", ex);
             throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError);
         }
 

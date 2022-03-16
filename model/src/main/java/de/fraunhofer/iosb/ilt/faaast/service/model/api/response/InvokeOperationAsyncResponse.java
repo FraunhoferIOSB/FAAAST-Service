@@ -22,21 +22,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle
  * Chahpter 4.3.12
  */
 public class InvokeOperationAsyncResponse extends BaseResponseWithPayload<OperationHandle> {
+
     public static InvokeOperationAsyncResponse.Builder builder() {
         return new InvokeOperationAsyncResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<InvokeOperationAsyncResponse, InvokeOperationAsyncResponse.Builder> {
+    public static class Builder extends AbstractBuilder<OperationHandle, InvokeOperationAsyncResponse, InvokeOperationAsyncResponse.Builder> {
 
         @Override
         protected InvokeOperationAsyncResponse.Builder getSelf() {
             return this;
-        }
-
-
-        public InvokeOperationAsyncResponse.Builder payload(OperationHandle value) {
-            getBuildingInstance().setPayload(value);
-            return getSelf();
         }
 
 

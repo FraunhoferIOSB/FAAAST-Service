@@ -23,13 +23,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 
 
 /**
- * Not supported yet!
- * Class to handle a
+ * Not supported yet! Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GenerateSerializationByIdsRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GenerateSerializationByIdsResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GenerateSerializationByIdsRequestHandler extends RequestHandler<GenerateSerializationByIdsRequest, GenerateSerializationByIdsResponse> {
 
@@ -41,14 +40,10 @@ public class GenerateSerializationByIdsRequestHandler extends RequestHandler<Gen
     @Override
     public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request) {
         GenerateSerializationByIdsResponse response = new GenerateSerializationByIdsResponse();
-
-        try {
-            //TODO: implement Serialization
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        response.setContentType(request.getSerializationFormat().getContentType());
+        //TODO implement Serialization
+        // this requires uniform interface for de-/serializers, which can only be detected through reflection because otherwise we will have circular dependencies
+        response.setStatusCode(StatusCode.ServerInternalError);
         return response;
     }
 }

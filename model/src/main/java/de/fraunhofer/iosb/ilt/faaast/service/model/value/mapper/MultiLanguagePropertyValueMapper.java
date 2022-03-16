@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 
-public class MultiLanguagePropertyValueMapper extends DataValueMapper<MultiLanguageProperty, MultiLanguagePropertyValue> {
+public class MultiLanguagePropertyValueMapper implements DataValueMapper<MultiLanguageProperty, MultiLanguagePropertyValue> {
 
     @Override
     public MultiLanguagePropertyValue toValue(MultiLanguageProperty submodelElement) {
@@ -37,9 +37,7 @@ public class MultiLanguagePropertyValueMapper extends DataValueMapper<MultiLangu
 
     @Override
     public MultiLanguageProperty setValue(MultiLanguageProperty submodelElement, MultiLanguagePropertyValue value) {
-        if (submodelElement == null || value == null) {
-            return null;
-        }
+        DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setValues(new ArrayList<>(value.getLangStringSet()));
         return submodelElement;
     }

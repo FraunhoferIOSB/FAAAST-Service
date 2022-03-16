@@ -18,10 +18,18 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 
 
+/**
+ * Indicates that a desired resource cannot be found.
+ */
 public class ResourceNotFoundException extends Exception {
 
     public ResourceNotFoundException(String message) {
         super(message);
+    }
+
+
+    public ResourceNotFoundException(Reference reference, Throwable cause) {
+        this("Resource not found with ID Path: " + AasUtils.asString(reference), cause);
     }
 
 

@@ -14,14 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.exception;
 
+/**
+ * Indicates underlying {@link Configurable} class of configuration could not be instantiated.
+ */
 public class ConfigurationInstantiationException extends ConfigurationException {
     public ConfigurationInstantiationException() {
         super();
     }
 
 
-    public ConfigurationInstantiationException(String s) {
-        super(s);
+    public ConfigurationInstantiationException(String message) {
+        super(message);
     }
 
 

@@ -23,8 +23,8 @@ import java.util.Objects;
  */
 public abstract class BaseResponse implements Response {
 
-    private StatusCode statusCode;
-    private Result result;
+    protected StatusCode statusCode;
+    protected Result result;
 
     @Override
     public Result getResult() {

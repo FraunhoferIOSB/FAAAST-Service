@@ -51,8 +51,8 @@ public class JsonContentDeserializer implements ContentDeserializer {
             }
             return deserializer.readValue(value, typeInfo);
         }
-        catch (DeserializationException ex) {
-            throw new AssetConnectionException("parsing JSON value failed", ex);
+        catch (DeserializationException e) {
+            throw new AssetConnectionException("parsing JSON value failed", e);
         }
     }
 
@@ -67,8 +67,8 @@ public class JsonContentDeserializer implements ContentDeserializer {
                 value = "\"" + value + "\"";
             }
         }
-        catch (RuntimeException ex) {
-            throw new AssetConnectionException(String.format("invalid JSON path expression '%s'", query), ex);
+        catch (RuntimeException e) {
+            throw new AssetConnectionException(String.format("invalid JSON path expression '%s'", query), e);
         }
         return value;
     }

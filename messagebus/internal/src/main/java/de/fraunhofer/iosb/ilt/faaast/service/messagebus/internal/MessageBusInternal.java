@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
@@ -57,15 +58,15 @@ public class MessageBusInternal implements MessageBus<MessageBusInternalConfig>,
     }
 
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws java.lang.InterruptedException
-     */
     @Override
-    public void publish(EventMessage message) throws InterruptedException {
+    public void publish(EventMessage message) throws MessageBusException {
         if (message != null) {
-            messageQueue.put(message);
+            try {
+                messageQueue.put(message);
+            }
+            catch (InterruptedException e) {
+                throw new MessageBusException("adding message to queue failed", e);
+            }
         }
     }
 

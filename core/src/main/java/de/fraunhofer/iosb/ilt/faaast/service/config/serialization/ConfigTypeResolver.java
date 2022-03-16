@@ -66,8 +66,8 @@ public class ConfigTypeResolver extends TypeIdResolverBase {
             TypeToken<?> resolvedType = TypeToken.of(type).resolveType(Configurable.class.getTypeParameters()[0]);
             return context.constructType(resolvedType.getRawType());
         }
-        catch (ClassNotFoundException ex) {
-            throw new IOException(String.format("class '%s' not found in classplath", id), ex);
+        catch (ClassNotFoundException e) {
+            throw new IOException(String.format("class '%s' not found in classplath", id), e);
         }
     }
 

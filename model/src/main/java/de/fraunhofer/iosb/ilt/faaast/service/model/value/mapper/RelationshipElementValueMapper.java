@@ -19,7 +19,7 @@ import io.adminshell.aas.v3.model.RelationshipElement;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 
 
-public class RelationshipElementValueMapper extends DataValueMapper<RelationshipElement, RelationshipElementValue> {
+public class RelationshipElementValueMapper implements DataValueMapper<RelationshipElement, RelationshipElementValue> {
 
     @Override
     public RelationshipElementValue toValue(RelationshipElement submodelElement) {
@@ -35,9 +35,7 @@ public class RelationshipElementValueMapper extends DataValueMapper<Relationship
 
     @Override
     public RelationshipElement setValue(RelationshipElement submodelElement, RelationshipElementValue value) {
-        if (submodelElement == null || value == null) {
-            return null;
-        }
+        DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setFirst(new DefaultReference.Builder().keys(value.getFirst()).build());
         submodelElement.setSecond(new DefaultReference.Builder().keys(value.getSecond()).build());
         return submodelElement;

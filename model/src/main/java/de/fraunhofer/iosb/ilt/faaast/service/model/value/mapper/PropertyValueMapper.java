@@ -14,16 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import io.adminshell.aas.v3.model.Property;
 
 
-public class PropertyValueMapper extends DataValueMapper<Property, PropertyValue> {
+public class PropertyValueMapper implements DataValueMapper<Property, PropertyValue> {
 
     @Override
-    public PropertyValue toValue(Property submodelElement) {
+    public PropertyValue toValue(Property submodelElement) throws ValueMappingException {
         if (submodelElement == null) {
             return null;
         }
@@ -31,9 +32,8 @@ public class PropertyValueMapper extends DataValueMapper<Property, PropertyValue
         try {
             propertyValue.setValue(TypedValueFactory.create(submodelElement.getValueType(), submodelElement.getValue()));
         }
-        catch (ValueFormatException ex) {
-            // TODO properly throw?
-            throw new IllegalArgumentException("invalid data value");
+        catch (ValueFormatException e) {
+            throw new ValueMappingException("invalid data value", e);
         }
         return propertyValue;
     }
@@ -41,9 +41,7 @@ public class PropertyValueMapper extends DataValueMapper<Property, PropertyValue
 
     @Override
     public Property setValue(Property submodelElement, PropertyValue value) {
-        if (submodelElement == null || value == null) {
-            return null;
-        }
+        DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setValueType(value.getValue().getDataType().getName());
         submodelElement.setValue(value.getValue().asString());
         return submodelElement;

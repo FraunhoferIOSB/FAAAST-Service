@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 
 
 /**
@@ -32,9 +33,9 @@ public interface Configurable<T extends Config> {
      * @param coreConfig coreConfig
      * @param config an instance of the corresponding configuration class
      * @param serviceContext service context this element is running under
-     * @throws java.lang.Exception if initialization fails
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException if initialization fails
      */
-    public void init(CoreConfig coreConfig, T config, ServiceContext serviceContext) throws Exception;
+    public void init(CoreConfig coreConfig, T config, ServiceContext serviceContext) throws ConfigurationInitializationException;
 
 
     /**

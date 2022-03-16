@@ -23,6 +23,7 @@ import java.util.Objects;
  * Chapter 4.5.3
  */
 public class GetAASXByPackageIdResponse extends BaseResponseWithPayload<AASXPackageBase> {
+
     private String filename;
 
     public String getFilename() {
@@ -37,12 +38,15 @@ public class GetAASXByPackageIdResponse extends BaseResponseWithPayload<AASXPack
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-        if (!super.equals(o))
+        }
+        if (!super.equals(o)) {
             return false;
+        }
         GetAASXByPackageIdResponse that = (GetAASXByPackageIdResponse) o;
         return Objects.equals(filename, that.filename);
     }
@@ -58,7 +62,7 @@ public class GetAASXByPackageIdResponse extends BaseResponseWithPayload<AASXPack
         return new GetAASXByPackageIdResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<GetAASXByPackageIdResponse, GetAASXByPackageIdResponse.Builder> {
+    public static class Builder extends AbstractBuilder<AASXPackageBase, GetAASXByPackageIdResponse, GetAASXByPackageIdResponse.Builder> {
 
         @Override
         protected GetAASXByPackageIdResponse.Builder getSelf() {
@@ -66,8 +70,8 @@ public class GetAASXByPackageIdResponse extends BaseResponseWithPayload<AASXPack
         }
 
 
-        public GetAASXByPackageIdResponse.Builder payload(AASXPackageBase value) {
-            getBuildingInstance().setPayload(value);
+        public GetAASXByPackageIdResponse.Builder filename(String value) {
+            getBuildingInstance().setFilename(value);
             return getSelf();
         }
 

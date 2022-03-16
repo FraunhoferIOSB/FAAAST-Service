@@ -20,6 +20,7 @@ import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USE
 import static org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig.USER_TOKEN_POLICY_X509;
 
 import java.io.File;
+import java.io.IOException;
 import java.security.KeyPair;
 import java.security.Security;
 import java.security.cert.X509Certificate;
@@ -52,14 +53,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Helper class to run embedded OPC UA server
- *
- * @author Michael Jacoby
  */
 public class EmbeddedOpcUaServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(EmbeddedOpcUaServer.class);
-    private int tcpPort;
-    private int httpsPort;
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedOpcUaServer.class);
+    private final int tcpPort;
+    private final int httpsPort;
 
     static {
         // Required for SecurityPolicy.Aes256_Sha256_RsaPss
@@ -68,32 +67,33 @@ public class EmbeddedOpcUaServer {
 
     private OpcUaServer server;
 
-    public EmbeddedOpcUaServer(IdentityValidator identityValidator, int port, int httpsPort) throws Exception {
-        this.tcpPort = port;
+    /**
+     * Starts an embedded OPC UA server.
+     *
+     * @param identityValidator identity validator to use
+     * @param tcpPort TCP port to use
+     * @param httpsPort HTTPS port to use
+     * @throws Exception if initialization of server fails
+     */
+    public EmbeddedOpcUaServer(IdentityValidator identityValidator, int tcpPort, int httpsPort) throws Exception {
+        this.tcpPort = tcpPort;
         this.httpsPort = httpsPort;
         File securityTempDir = new File(System.getProperty("java.io.tmpdir"), "security");
         if (!securityTempDir.exists() && !securityTempDir.mkdirs()) {
-            throw new Exception("unable to create security temp dir: " + securityTempDir);
+            throw new IOException("unable to create security temp dir: " + securityTempDir);
         }
-
         DefaultCertificateManager certificateManager = new DefaultCertificateManager();
         File pkiDir = securityTempDir.toPath().resolve("pki").toFile();
         DefaultTrustListManager trustListManager = new DefaultTrustListManager(pkiDir);
-        logger.info("pki dir: {}", pkiDir.getAbsolutePath());
-
+        LOGGER.info("pki dir: {}", pkiDir.getAbsolutePath());
         DefaultServerCertificateValidator certificateValidator = new DefaultServerCertificateValidator(trustListManager);
-
         KeyPair httpsKeyPair = SelfSignedCertificateGenerator.generateRsaKeyPair(2048);
-
         SelfSignedHttpsCertificateBuilder httpsCertificateBuilder = new SelfSignedHttpsCertificateBuilder(httpsKeyPair);
         httpsCertificateBuilder.setCommonName(HostnameUtil.getHostname());
         HostnameUtil.getHostnames("0.0.0.0").forEach(httpsCertificateBuilder::addDnsName);
         X509Certificate httpsCertificate = httpsCertificateBuilder.build();
-
         X509IdentityValidator x509IdentityValidator = new X509IdentityValidator(c -> true);
-
         Set<EndpointConfiguration> endpointConfigurations = createEndpointConfigurations(httpsCertificate);
-
         OpcUaServerConfig serverConfig = OpcUaServerConfig.builder()
                 .setApplicationUri("applicationUri")
                 .setApplicationName(LocalizedText.english("Eclipse Milo OPC UA Example Server"))

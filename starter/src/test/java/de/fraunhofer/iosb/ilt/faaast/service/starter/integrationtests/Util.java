@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests;
 
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
@@ -223,7 +224,7 @@ public class Util {
     }
 
 
-    public static void setUpEventCheck(Referable expected, Class<? extends EventMessage> clazz, Supplier<?> call) throws InterruptedException {
+    public static void setUpEventCheck(Referable expected, Class<? extends EventMessage> clazz, Supplier<?> call) throws InterruptedException, MessageBusException {
         final long DEFAULT_TIMEOUT = 1000;
         AtomicBoolean fired = new AtomicBoolean(false);
         CountDownLatch condition = new CountDownLatch(1);

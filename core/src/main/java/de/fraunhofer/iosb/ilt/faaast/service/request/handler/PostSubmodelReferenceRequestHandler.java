@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -31,8 +32,8 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelReferenceRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelReferenceResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class PostSubmodelReferenceRequestHandler extends RequestHandler<PostSubmodelReferenceRequest, PostSubmodelReferenceResponse> {
 
@@ -42,25 +43,16 @@ public class PostSubmodelReferenceRequestHandler extends RequestHandler<PostSubm
 
 
     @Override
-    public PostSubmodelReferenceResponse process(PostSubmodelReferenceRequest request) {
+    public PostSubmodelReferenceResponse process(PostSubmodelReferenceRequest request) throws ResourceNotFoundException, MessageBusException {
         PostSubmodelReferenceResponse response = new PostSubmodelReferenceResponse();
-
-        try {
-            AssetAdministrationShell aas = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
-            if (!aas.getSubmodels().contains(request.getSubmodelRef())) {
-                aas.getSubmodels().add(request.getSubmodelRef());
-            }
-            persistence.put(aas);
-            response.setPayload(request.getSubmodelRef());
-            response.setStatusCode(StatusCode.SuccessCreated);
-            publishElementUpdateEventMessage(AasUtils.toReference(aas), aas);
+        AssetAdministrationShell aas = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
+        if (!aas.getSubmodels().contains(request.getSubmodelRef())) {
+            aas.getSubmodels().add(request.getSubmodelRef());
         }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        persistence.put(aas);
+        response.setPayload(request.getSubmodelRef());
+        response.setStatusCode(StatusCode.SuccessCreated);
+        publishElementUpdateEventMessage(AasUtils.toReference(aas), aas);
         return response;
     }
 

@@ -48,8 +48,8 @@ public class GetAllSubmodelsBySemanticIdRequestMapper extends RequestMapperWithO
                     .outputModifier(outputModifier)
                     .build();
         }
-        catch (DeserializationException ex) {
-            throw new InvalidRequestException(String.format("error deserializing %s", QUERYPARAM));
+        catch (DeserializationException e) {
+            throw new InvalidRequestException(String.format("error deserializing %s", QUERYPARAM), e);
         }
     }
 

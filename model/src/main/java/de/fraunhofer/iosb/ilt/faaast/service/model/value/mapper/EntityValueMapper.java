@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.Entity;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
@@ -22,16 +24,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class EntityValueMapper extends DataValueMapper<Entity, EntityValue> {
+public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {
 
     @Override
-    public EntityValue toValue(Entity submodelElement) {
+    public EntityValue toValue(Entity submodelElement) throws ValueMappingException {
         if (submodelElement == null) {
             return null;
         }
         return EntityValue.builder()
                 .entityType(submodelElement.getEntityType())
-                .statements(submodelElement.getStatements().stream().collect(Collectors.toMap(x -> x.getIdShort(), x -> ElementValueMapper.toValue(x))))
+                .statements(submodelElement.getStatements().stream()
+                        .collect(Collectors.toMap(
+                                x -> x.getIdShort(),
+                                LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x)))))
                 .globalAssetId(submodelElement.getGlobalAssetId() != null ? submodelElement.getGlobalAssetId().getKeys() : List.of())
                 .build();
     }
@@ -39,9 +44,7 @@ public class EntityValueMapper extends DataValueMapper<Entity, EntityValue> {
 
     @Override
     public Entity setValue(Entity submodelElement, EntityValue value) {
-        if (submodelElement == null || value == null) {
-            return null;
-        }
+        DataValueMapper.super.setValue(submodelElement, value);
         for (SubmodelElement statement: submodelElement.getStatements()) {
             if (value.getStatements().containsKey(statement.getIdShort())) {
                 ElementValueMapper.setValue(statement, value.getStatements().get(statement.getIdShort()));

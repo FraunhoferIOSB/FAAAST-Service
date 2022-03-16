@@ -41,8 +41,8 @@ public class LongValue extends TypedValue<Long> {
         try {
             this.setValue(Long.parseLong(value));
         }
-        catch (NumberFormatException ex) {
-            throw new ValueFormatException(ex);
+        catch (NumberFormatException e) {
+            throw new ValueFormatException(e);
         }
     }
 
