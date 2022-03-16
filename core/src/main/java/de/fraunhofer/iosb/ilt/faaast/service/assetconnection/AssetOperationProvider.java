@@ -16,10 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.OperationVariable;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 
 /**
@@ -40,6 +42,7 @@ public interface AssetOperationProvider extends AssetProvider {
      *             when invoking operation on asset connection fails
      */
     public default OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
+        final String BASE_ERROR_MSG = "inoutput argument mismatch";
         final AtomicReference<OperationVariable[]> result = new AtomicReference<>();
         final AtomicReference<OperationVariable[]> modifiedInoutput = new AtomicReference<>();
         CountDownLatch condition = new CountDownLatch(1);
@@ -55,8 +58,23 @@ public interface AssetOperationProvider extends AssetProvider {
             Thread.currentThread().interrupt();
             throw new AssetConnectionException("invoking operation failed because of timeout", ex);
         }
-        // TODO check if 1:1 assignment of each value is needed
-        inoutput = modifiedInoutput.get();
+        if (inoutput == null && result.get() != null && result.get().length > 0) {
+            throw new RuntimeException(String.format("%s - provided: none, actual: %d", BASE_ERROR_MSG, result.get().length));
+        }
+        if (result.get() == null && inoutput != null && inoutput.length > 0) {
+            throw new RuntimeException(String.format("%s - provided: %d, actual: none", BASE_ERROR_MSG, inoutput.length));
+        }
+        if (inoutput.length != inoutput.length) {
+            throw new RuntimeException(String.format("%s - provided: %d, actual: %d", BASE_ERROR_MSG, inoutput.length, result.get().length));
+        }
+        for (int i = 0; i < inoutput.length; i++) {
+            final OperationVariable variable = inoutput[i];
+            inoutput[i] = Stream.of(result.get())
+                    .filter(x -> Objects.equals(x.getValue().getIdShort(), variable.getValue().getIdShort()))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException(
+                            String.format("%s - variable provided but not found in actual ouput (idShort: %s)", BASE_ERROR_MSG, variable.getValue().getIdShort())));
+        }
         return result.get();
     }
 
