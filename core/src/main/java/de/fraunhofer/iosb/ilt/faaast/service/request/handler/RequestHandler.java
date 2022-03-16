@@ -61,7 +61,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
     protected final MessageBus messageBus;
     protected final AssetConnectionManager assetConnectionManager;
 
-    protected RequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+    public RequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         this.persistence = persistence;
         this.messageBus = messageBus;
         this.assetConnectionManager = assetConnectionManager;
