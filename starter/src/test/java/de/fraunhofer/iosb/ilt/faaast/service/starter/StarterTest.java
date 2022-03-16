@@ -50,6 +50,7 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
+
 public class StarterTest {
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StarterTest.class);
@@ -64,19 +65,23 @@ public class StarterTest {
         cmd.setOut(new PrintWriter(new StringWriter()));
     }
 
+
     @BeforeClass
     public static void initialize() throws IOException {
         Files.copy(Paths.get("src/test/resources/AASFull.json"), Paths.get("aasenvironment.json"), StandardCopyOption.REPLACE_EXISTING);
     }
 
+
     @AfterClass
     public static void cleanup() {
         try {
             Files.deleteIfExists(Paths.get("aasenvironment.json"));
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             LOGGER.warn("error removing temp file 'aasenvironment.json'");
         }
     }
+
 
     private ServiceConfig getExpectedDefaultServiceConfig() {
         return new ServiceConfig.Builder()
@@ -87,6 +92,7 @@ public class StarterTest {
                 .build();
     }
 
+
     @Test
     public void testCreateConfig() throws IOException, Exception {
         ServiceConfig expected = getExpectedDefaultServiceConfig();
@@ -94,6 +100,7 @@ public class StarterTest {
 
         Assert.assertEquals(expected, actual);
     }
+
 
     @Test
     public void testCreateConfigWithProperties() throws IOException, Exception {
@@ -106,6 +113,7 @@ public class StarterTest {
         Assert.assertEquals(expected, actual);
     }
 
+
     @Test
     public void testGetDefaultConfig() throws IOException, Exception {
         ServiceConfig expected = getExpectedDefaultServiceConfig();
@@ -113,6 +121,7 @@ public class StarterTest {
 
         Assert.assertEquals(expected, actual);
     }
+
 
     @Test
     public void testGetDefaultConfigWithProperties() throws IOException, Exception {
@@ -128,6 +137,7 @@ public class StarterTest {
         Assert.assertEquals(expected, actual);
     }
 
+
     @Test
     public void testGetAASEnvironmentDefault() {
         AssetAdministrationShellEnvironment expected = new DefaultAssetAdministrationShellEnvironment();
@@ -135,17 +145,20 @@ public class StarterTest {
         Assert.assertEquals(expected, actual);
     }
 
+
     @Test
     public void testGetAASEnvironmentFromFileJSON() throws IOException, DeserializationException, Exception {
         String filePath = "src/test/resources/AASFull.json";
         testAASEnvironment(filePath, new JsonDeserializer());
     }
 
+
     @Test
     public void testGetAASEnvironmentFromFileXML() throws IOException, DeserializationException, Exception {
         String filePath = "src/test/resources/AASFull.xml";
         testAASEnvironment(filePath, new XmlDeserializer());
     }
+
 
     @Test
     @Ignore("Not Yet")
@@ -154,6 +167,7 @@ public class StarterTest {
         testAASEnvironment(filePath, new AmlDeserializer());
     }
 
+
     @Test
     @Ignore("Not yet")
     public void testGetAASEnvironmentFromFileOPCUA() throws IOException, DeserializationException, Exception {
@@ -161,11 +175,13 @@ public class StarterTest {
         testAASEnvironment(filePath, new I4AASDeserializer());
     }
 
+
     @Test
     public void testGetAASEnvironmentFromFileRDF() throws IOException, DeserializationException, Exception {
         String filePath = "src/test/resources/AASFull.rdf";
         testAASEnvironment(filePath, new io.adminshell.aas.v3.dataformat.rdf.Serializer());
     }
+
 
     private void testAASEnvironment(String filePath, Deserializer deserializer) throws Exception, FileNotFoundException, DeserializationException {
         AssetAdministrationShellEnvironment expected = deserializer.read(new File(filePath));
@@ -173,11 +189,13 @@ public class StarterTest {
         Assert.assertEquals(expected, actual);
     }
 
+
     @Test(expected = DeserializationException.class)
     public void testGetAASEnvironmentFail() throws IOException, DeserializationException, Exception {
         String filePath = "src/test/resources/AASSimple.xmasl";
         AASEnvironmentHelper.fromFile(new File(filePath));
     }
+
 
     @Test
     public void testCMDConfigFile() {
@@ -187,6 +205,7 @@ public class StarterTest {
         cmd.execute();
         Assert.assertEquals(Application.DEFAULT_CONFIG_PATH, application.configFilePath);
     }
+
 
     @Test
     public void testCMDConfigFileThroughEnvironmentVariable() throws Exception {
@@ -198,6 +217,7 @@ public class StarterTest {
 
         Assert.assertEquals("myConfig.json", actual);
     }
+
 
     @Test
     public void testCMDConfigParameterThroughEnvironmentVariable() throws Exception {
@@ -212,6 +232,7 @@ public class StarterTest {
         Assert.assertEquals("9999", actual.get("endpoints.0.port"));
     }
 
+
     @Test
     public void testCMDaasEnv() {
         cmd.execute("-e", "myAAS.json");
@@ -224,6 +245,7 @@ public class StarterTest {
         Assert.assertEquals(true, application.useEmptyAASEnvironment);
     }
 
+
     @Test
     public void testCMDaasEnvThroughEnvironmentVariable() throws Exception {
         String actual = withEnvironmentVariable(application.AASENV_FILE_PATH_ENVIRONMENT_VARIABLE, "myAAS.json")
@@ -234,6 +256,7 @@ public class StarterTest {
 
         Assert.assertEquals("myAAS.json", actual);
     }
+
 
     @Test
     public void testCMDPriority() throws Exception {
@@ -254,6 +277,7 @@ public class StarterTest {
         Assert.assertEquals("myConfig.json", actual);
     }
 
+
     @Test
     public void testCMDautoComplete() {
         cmd.execute("--no-autoCompleteConfig");
@@ -262,6 +286,7 @@ public class StarterTest {
         cmd.execute();
         Assert.assertEquals(true, application.autoCompleteConfiguration);
     }
+
 
     @Test
     public void testCMDvalidation() {
@@ -272,11 +297,13 @@ public class StarterTest {
         Assert.assertEquals(true, application.validateAASEnv);
     }
 
+
     @Test
     public void testCMDproperties() {
         cmd.execute("-Dcore.requestHandlerThreadPoolSize=42");
         Assert.assertEquals("42", application.properties.get("core.requestHandlerThreadPoolSize"));
     }
+
 
     @Test
     public void testCMDendpoints() {
