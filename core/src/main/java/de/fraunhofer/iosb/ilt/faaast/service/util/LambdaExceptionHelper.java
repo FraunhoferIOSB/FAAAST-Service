@@ -51,14 +51,21 @@ public class LambdaExceptionHelper {
 
     @FunctionalInterface
     public interface RunnableWithExceptions<E extends Exception> {
+
         void run() throws E;
     }
 
     /**
-     * .forEach(rethrowConsumer(name ->
-     * System.out.println(Class.forName(name)))); or
-     * .forEach(rethrowConsumer(ClassNameUtil::println));
+     * Wraps a {@link Consumer} throwing an Exception to be conveniently used in
+     * functional expressions.
+     *
+     * @param <T> type of the consumer
+     * @param <E> type of the potentially thrown exception
+     * @param consumer the actual consumer
+     * @return a wrapping consumer
+     * @throws E if execution of underlying consumer throws given exception
      */
+    @java.lang.SuppressWarnings("java:S1130")
     public static <T, E extends Exception> Consumer<T> rethrowConsumer(ConsumerWithExceptions<T, E> consumer) throws E {
         return t -> {
             try {
@@ -71,6 +78,18 @@ public class LambdaExceptionHelper {
     }
 
 
+    /**
+     * Wraps a {@link BiConsumer} throwing an Exception to be conveniently used
+     * in functional expressions.
+     *
+     * @param <T> first type of the biconsumer
+     * @param <U> second type of the biconsumer
+     * @param <E> type of the potentially thrown exception
+     * @param biConsumer the actual biconsumer
+     * @return a wrapping biconsumer
+     * @throws E if execution of underlying biconsumer throws given exception
+     */
+    @java.lang.SuppressWarnings("java:S1130")
     public static <T, U, E extends Exception> BiConsumer<T, U> rethrowBiConsumer(BiConsumerWithExceptions<T, U, E> biConsumer) throws E {
         return (t, u) -> {
             try {
@@ -84,9 +103,17 @@ public class LambdaExceptionHelper {
 
 
     /**
-     * .map(rethrowFunction(name -> Class.forName(name))) or
-     * .map(rethrowFunction(Class::forName))
+     * Wraps a {@link Function} throwing an Exception to be conveniently used in
+     * functional expressions.
+     *
+     * @param <T> input type of the function
+     * @param <R> result type of the function
+     * @param <E> type of the potentially thrown exception
+     * @param function the actual function
+     * @return a wrapping function
+     * @throws E if execution of underlying function throws given exception
      */
+    @java.lang.SuppressWarnings("java:S1130")
     public static <T, R, E extends Exception> Function<T, R> rethrowFunction(FunctionWithExceptions<T, R, E> function) throws E {
         return t -> {
             try {
@@ -101,60 +128,26 @@ public class LambdaExceptionHelper {
 
 
     /**
-     * rethrowSupplier(() -> new StringJoiner(new String(new byte[]{77, 97, 114,
-     * 107}, "UTF-8"))),
+     * Wraps a {@link Supplier} throwing an Exception to be conveniently used in
+     * functional expressions.
+     *
+     * @param <T> type of the supplier
+     * @param <E> type of the potentially thrown exception
+     * @param supplier the actual supplier
+     * @return a wrapping supplier
+     * @throws E if execution of underlying supplierthrows given exception
      */
-    public static <T, E extends Exception> Supplier<T> rethrowSupplier(SupplierWithExceptions<T, E> function) throws E {
+    @java.lang.SuppressWarnings("java:S1130")
+    public static <T, E extends Exception> Supplier<T> rethrowSupplier(SupplierWithExceptions<T, E> supplier) throws E {
         return () -> {
             try {
-                return function.get();
+                return supplier.get();
             }
             catch (Exception exception) {
                 throwAsUnchecked(exception);
                 return null;
             }
         };
-    }
-
-
-    /**
-     * uncheck(() -> Class.forName("xxx"));
-     */
-    public static void uncheck(RunnableWithExceptions t) {
-        try {
-            t.run();
-        }
-        catch (Exception exception) {
-            throwAsUnchecked(exception);
-        }
-    }
-
-
-    /**
-     * uncheck(() -> Class.forName("xxx"));
-     */
-    public static <R, E extends Exception> R uncheck(SupplierWithExceptions<R, E> supplier) {
-        try {
-            return supplier.get();
-        }
-        catch (Exception exception) {
-            throwAsUnchecked(exception);
-            return null;
-        }
-    }
-
-
-    /**
-     * uncheck(Class::forName, "xxx");
-     */
-    public static <T, R, E extends Exception> R uncheck(FunctionWithExceptions<T, R, E> function, T t) {
-        try {
-            return function.apply(t);
-        }
-        catch (Exception exception) {
-            throwAsUnchecked(exception);
-            return null;
-        }
     }
 
 
