@@ -41,6 +41,7 @@ import com.prosysopc.ua.stack.core.Argument;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.types.opcua.BaseObjectType;
 import com.prosysopc.ua.types.opcua.DictionaryEntryType;
+import com.prosysopc.ua.types.opcua.FolderType;
 import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import com.prosysopc.ua.types.opcua.server.FolderTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
@@ -266,9 +267,20 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     @Override
     protected void init() throws StatusException, UaNodeFactoryException {
-        super.init();
+        try {
+            super.init();
 
-        createAddressSpace();
+            createAddressSpace();
+        }
+        catch (ServiceResultException ex) {
+            throw new StatusException(ex);
+        }
+        catch (ServiceException ex) {
+            throw new StatusException(ex.getServiceResult(), ex);
+        }
+        catch (AddressSpaceException ex) {
+            throw new StatusException(ex.getMessage(), ex);
+        }
     }
 
 
@@ -312,7 +324,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Creates the address space of the OPC UA Server.
      */
-    private void createAddressSpace() {
+    private void createAddressSpace() throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
         try {
             logger.info("createAddressSpace");
 
@@ -323,14 +335,20 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Throwable ex) {
             logger.error("createAddressSpace Exception", ex);
+            throw ex;
         }
     }
 
 
     /**
      * Creates the AAS nodes in the address space.
+     * 
+     * @throws StatusException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws AddressSpaceException If the operation fails
+     * @throws ServiceResultException If the operation fails
      */
-    private void createAasNodes() {
+    private void createAasNodes() throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
         try {
             if (aasEnvironment != null) {
                 // add AASEnvironmentType
@@ -360,6 +378,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Throwable ex) {
             logger.error("createAasNodes Exception", ex);
+            throw ex;
         }
     }
 
@@ -1663,7 +1682,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 logger.info("addAasEnvironmentNode " + name + "; to ObjectsFolder");
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
                 NodeId nid = createNodeId(objectsFolder, browseName);
-                aasEnvironmentNode = createInstance(AASEnvironmentType.class, nid, browseName, LocalizedText.english(name));
+                FolderType ft = createInstance(AASEnvironmentType.class, nid, browseName, LocalizedText.english(name));
+                logger.info("addAasEnvironmentNode: Created class: " + ft.getClass().getName());
+                aasEnvironmentNode = (AASEnvironmentType) ft;
 
                 objectsFolder.addComponent(aasEnvironmentNode);
             }

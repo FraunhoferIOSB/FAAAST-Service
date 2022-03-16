@@ -15,10 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import com.prosysopc.ua.ApplicationIdentity;
+import com.prosysopc.ua.SecureIdentityException;
 import com.prosysopc.ua.UaApplication;
 import com.prosysopc.ua.UaApplication.Protocol;
 import com.prosysopc.ua.UserTokenPolicies;
 import com.prosysopc.ua.server.UaServer;
+import com.prosysopc.ua.server.UaServerException;
 import com.prosysopc.ua.server.UserValidator;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
@@ -39,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasCertific
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceIoManagerListener;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.EnumSet;
@@ -88,8 +91,12 @@ public class Server {
 
     /**
      * Starts the server
+     * 
+     * @throws UaServerException If an error occurs
+     * @throws IOException If an error occurs
+     * @throws SecureIdentityException If an error occurs
      */
-    public void startup() {
+    public void startup() throws UaServerException, IOException, SecureIdentityException {
         try {
             String hostName;
             hostName = InetAddress.getLocalHost().getHostName();
@@ -322,6 +329,7 @@ public class Server {
         }
         catch (Throwable ex) {
             logger.error("startup Exception", ex);
+            throw ex;
         }
     }
 
