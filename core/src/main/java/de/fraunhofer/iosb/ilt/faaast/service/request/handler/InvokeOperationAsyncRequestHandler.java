@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(InvokeOperationAsyncRequestHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InvokeOperationAsyncRequestHandler.class);
 
     public InvokeOperationAsyncRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

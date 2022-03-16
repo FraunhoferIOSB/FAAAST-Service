@@ -156,6 +156,7 @@ public class Application implements Runnable {
             }
             else {
                 if (Objects.equal(aasEnvironmentFile, DEFAULT_AASENV_FILE)) {
+                    @java.lang.SuppressWarnings("java:S2095")
                     List<Path> aasEnvFiles = Files.find(Paths.get(""), 1, (file, attributes) -> file.toFile().getName().matches(DEFAULT_AASENV_FILE_NAME_PATTERN))
                             .collect(Collectors.toList());
                     if (aasEnvFiles.isEmpty()) {
