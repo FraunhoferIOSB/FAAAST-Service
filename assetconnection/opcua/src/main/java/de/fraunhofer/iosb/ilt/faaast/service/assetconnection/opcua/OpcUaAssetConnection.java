@@ -249,7 +249,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
             catch (NumberFormatException ex) {
                 UShort actualNamespaceIndex = client.getNamespaceTable().getIndex(namespace);
                 if (actualNamespaceIndex == null) {
-                    throw new RuntimeException(String.format("could not resolve namespace '%s'", namespace));
+                    throw new IllegalArgumentException(String.format("could not resolve namespace '%s'", namespace));
                 }
                 namespaceIndex = actualNamespaceIndex.intValue();
             }
@@ -522,7 +522,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                         handler.dataItem = opcUaSubscription.createDataItem(
                                 parseNodeId(subscriptionProvider.getNodeId()),
                                 LambdaExceptionHelper.rethrowConsumer(
-                                        x -> x.addDataValueListener(LambdaExceptionHelper.rethrowConsumer(v -> handler.notify(v)))));
+                                        x -> x.addDataValueListener(LambdaExceptionHelper.rethrowConsumer(handler::notify))));
                     }
                     catch (UaException ex) {
                         logger.warn("{} - could not create subscrption item (reference: {}, nodeId: {})",

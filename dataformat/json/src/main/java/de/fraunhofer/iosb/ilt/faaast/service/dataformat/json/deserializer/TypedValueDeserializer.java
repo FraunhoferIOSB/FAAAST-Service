@@ -47,7 +47,7 @@ public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
     public TypedValue deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
         TypeInfo typeInfo = ContextAwareElementValueDeserializer.getTypeInfo(context);
         if (typeInfo == null || !ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
-            throw new RuntimeException("missing datatype information");
+            throw new IllegalArgumentException("missing datatype information");
         }
         Datatype datatype = ((ElementValueTypeInfo) typeInfo).getDatatype();
         try {

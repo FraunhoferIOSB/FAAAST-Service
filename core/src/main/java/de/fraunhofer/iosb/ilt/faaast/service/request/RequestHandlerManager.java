@@ -143,7 +143,7 @@ public class RequestHandlerManager {
         }
         if (!handlers.containsKey(request.getClass())) {
             // TODO throwing exceptions vs returning response, probably throwing is better here
-            throw new RuntimeException("no handler defined for this request");
+            throw new IllegalArgumentException("no handler defined for this request");
         }
         return (O) handlers.get(request.getClass()).process(request);
     }

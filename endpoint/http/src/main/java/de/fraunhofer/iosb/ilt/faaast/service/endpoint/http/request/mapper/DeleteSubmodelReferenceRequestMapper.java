@@ -66,7 +66,7 @@ public class DeleteSubmodelReferenceRequestMapper extends RequestMapper {
 
         }
         catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
-            throw new RuntimeException("error parsing reference from id", ex);
+            throw new IllegalArgumentException("error parsing reference from id", ex);
         }
     }
 

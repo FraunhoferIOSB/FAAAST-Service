@@ -34,7 +34,7 @@ public class RangeValueMapper extends DataValueMapper<Range, RangeValue> {
         }
         catch (ValueFormatException ex) {
             // TODO properly throw?
-            throw new RuntimeException("invalid data value");
+            throw new IllegalArgumentException("invalid data value");
         }
         return rangeValue;
     }

@@ -33,7 +33,7 @@ public class PropertyValueMapper extends DataValueMapper<Property, PropertyValue
         }
         catch (ValueFormatException ex) {
             // TODO properly throw?
-            throw new RuntimeException("invalid data value");
+            throw new IllegalArgumentException("invalid data value");
         }
         return propertyValue;
     }

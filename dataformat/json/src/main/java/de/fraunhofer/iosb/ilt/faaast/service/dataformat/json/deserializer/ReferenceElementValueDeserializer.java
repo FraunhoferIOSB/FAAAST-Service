@@ -58,13 +58,13 @@ public class ReferenceElementValueDeserializer extends ContextAwareElementValueD
                 .collect(Collectors.toList())) {
             if (element.isObject()) {
                 if (!element.has(JsonFieldNames.REFERENCE_ELEMENT_VALUE_ID_TYPE)) {
-                    throw new RuntimeException(String.format(MISSING_PROPERTY, JsonFieldNames.REFERENCE_ELEMENT_VALUE_ID_TYPE));
+                    throw new IllegalArgumentException(String.format(MISSING_PROPERTY, JsonFieldNames.REFERENCE_ELEMENT_VALUE_ID_TYPE));
                 }
                 if (!element.has(JsonFieldNames.REFERENCE_ELEMENT_VALUE_TYPE)) {
-                    throw new RuntimeException(String.format(MISSING_PROPERTY, JsonFieldNames.REFERENCE_ELEMENT_VALUE_TYPE));
+                    throw new IllegalArgumentException(String.format(MISSING_PROPERTY, JsonFieldNames.REFERENCE_ELEMENT_VALUE_TYPE));
                 }
                 if (!element.has(JsonFieldNames.REFERENCE_ELEMENT_VALUE_VALUE)) {
-                    throw new RuntimeException(String.format(MISSING_PROPERTY, JsonFieldNames.REFERENCE_ELEMENT_VALUE_VALUE));
+                    throw new IllegalArgumentException(String.format(MISSING_PROPERTY, JsonFieldNames.REFERENCE_ELEMENT_VALUE_VALUE));
                 }
                 builder.key(context.readTreeAsValue(
                         element.get(JsonFieldNames.REFERENCE_ELEMENT_VALUE_ID_TYPE), KeyType.class),
