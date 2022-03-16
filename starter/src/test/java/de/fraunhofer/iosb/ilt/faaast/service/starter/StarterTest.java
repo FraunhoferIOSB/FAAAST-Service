@@ -47,11 +47,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 
 public class StarterTest {
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StarterTest.class);
     private final ConfigFactory configFactory = new ConfigFactory();
     private Application application;
     private CommandLine cmd;
@@ -61,20 +63,23 @@ public class StarterTest {
         application = new Application();
         cmd = new CommandLine(application);
         cmd.setOut(new PrintWriter(new StringWriter()));
-        // copy aas file
-
     }
 
 
     @BeforeClass
     public static void initialize() throws IOException {
-        Files.copy(Paths.get("src/test/resources/AASFull.json."), Paths.get("aasenvironment.json"), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(Paths.get("./src/test/resources/AASFull.json."), Paths.get("./aasenvironment.json"), StandardCopyOption.REPLACE_EXISTING);
     }
 
 
     @AfterClass
-    public static void cleanup() throws IOException {
-        Files.deleteIfExists(Paths.get("aasenvironment.json"));
+    public static void cleanup() {
+        try {
+            Files.deleteIfExists(Paths.get("./aasenvironment.json"));
+        }
+        catch (IOException ex) {
+            LOGGER.warn("error removing temp file 'aasenvironment.json'");
+        }
     }
 
 
