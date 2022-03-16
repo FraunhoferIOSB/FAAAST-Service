@@ -62,7 +62,7 @@ public class ElementValueTypeInfo extends TypeInfo<String> {
         return Objects.hash(super.hashCode(), datatype);
     }
 
-    public static abstract class AbstractBuilder<T extends ElementValueTypeInfo, B extends AbstractBuilder<T, B>> extends TypeInfo.AbstractBuilder<String, T, B> {
+    public abstract static class AbstractBuilder<T extends ElementValueTypeInfo, B extends AbstractBuilder<T, B>> extends TypeInfo.AbstractBuilder<String, T, B> {
 
         public B datatype(Datatype value) {
             getBuildingInstance().setDatatype(value);

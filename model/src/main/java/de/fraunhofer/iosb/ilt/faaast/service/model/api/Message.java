@@ -92,7 +92,7 @@ public class Message {
         return new Builder();
     }
 
-    private static abstract class AbstractBuilder<T extends Message, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    private abstract static class AbstractBuilder<T extends Message, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B messageType(MessageType value) {
             getBuildingInstance().setMessageType(value);

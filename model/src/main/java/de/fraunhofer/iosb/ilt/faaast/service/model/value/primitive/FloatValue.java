@@ -39,10 +39,10 @@ public class FloatValue extends TypedValue<Float> {
             return;
         }
         try {
-            this.setValue((Float) Float.parseFloat(value));
+            this.setValue(Float.parseFloat(value));
         }
-        catch (NumberFormatException ex) {
-            throw new ValueFormatException(ex);
+        catch (NumberFormatException e) {
+            throw new ValueFormatException(e);
         }
     }
 

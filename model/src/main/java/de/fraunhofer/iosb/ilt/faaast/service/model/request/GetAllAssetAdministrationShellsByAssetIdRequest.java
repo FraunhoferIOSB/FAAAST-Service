@@ -67,7 +67,7 @@ public class GetAllAssetAdministrationShellsByAssetIdRequest extends RequestWith
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllAssetAdministrationShellsByAssetIdRequest, B extends AbstractBuilder<T, B>>
+    public abstract static class AbstractBuilder<T extends GetAllAssetAdministrationShellsByAssetIdRequest, B extends AbstractBuilder<T, B>>
             extends RequestWithModifier.AbstractBuilder<T, B> {
 
         public B assetId(IdentifierKeyValuePair value) {

@@ -57,7 +57,7 @@ public class HttpResponse extends HttpMessage {
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends HttpResponse, B extends AbstractBuilder<T, B>> extends HttpMessage.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends HttpResponse, B extends AbstractBuilder<T, B>> extends HttpMessage.AbstractBuilder<T, B> {
 
         public B message(String value) {
             getBuildingInstance().setMessage(value);

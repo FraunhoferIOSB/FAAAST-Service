@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
  * @author Tino Bischoff
  */
 public class OpcUaEndpoint2Test {
-    private static final Logger logger = LoggerFactory.getLogger(OpcUaEndpoint2Test.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint2Test.class);
 
     private static final int OPC_TCP_PORT = 18123;
     private static final long DEFAULT_TIMEOUT = 1000;
@@ -86,7 +86,7 @@ public class OpcUaEndpoint2Test {
      */
     @BeforeClass
     public static void startTest() throws ConfigurationException, Exception {
-        logger.trace("startTest");
+        LOGGER.trace("startTest");
 
         CoreConfig coreConfig = new CoreConfig();
 
@@ -106,7 +106,7 @@ public class OpcUaEndpoint2Test {
      */
     @AfterClass
     public static void stopTest() {
-        logger.trace("stopTest");
+        LOGGER.trace("stopTest");
         if (endpoint != null) {
             endpoint.stop();
         }

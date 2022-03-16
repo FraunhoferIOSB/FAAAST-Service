@@ -52,7 +52,7 @@ public abstract class HttpMessage {
         this.body = body;
     }
 
-    public static abstract class AbstractBuilder<T extends HttpMessage, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends HttpMessage, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B body(String value) {
             getBuildingInstance().setBody(value);

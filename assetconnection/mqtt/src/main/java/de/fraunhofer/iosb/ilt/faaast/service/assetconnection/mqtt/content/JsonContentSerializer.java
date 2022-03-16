@@ -47,8 +47,8 @@ public class JsonContentSerializer implements ContentSerializer {
             }
             return serializer.write(value);
         }
-        catch (SerializationException ex) {
-            throw new AssetConnectionException("serializing value to JSON failed", ex);
+        catch (SerializationException e) {
+            throw new AssetConnectionException("serializing value to JSON failed", e);
         }
     }
 }

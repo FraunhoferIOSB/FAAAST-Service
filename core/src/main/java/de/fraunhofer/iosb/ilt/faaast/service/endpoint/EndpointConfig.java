@@ -26,27 +26,6 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
  */
 public class EndpointConfig<T extends Endpoint> extends Config<T> {
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        return true;
-    }
-
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        return hash;
-    }
-
     /**
      * Abstract builder class that should be used for builders of inheriting
      * classes.
@@ -55,7 +34,7 @@ public class EndpointConfig<T extends Endpoint> extends Config<T> {
      * @param <C> type of the config to build
      * @param <B> type of this builder, needed for inheritance builder pattern
      */
-    public static abstract class AbstractBuilder<T extends Endpoint, C extends EndpointConfig<T>, B extends AbstractBuilder<T, C, B>> extends ExtendableBuilder<C, B> {
+    public abstract static class AbstractBuilder<T extends Endpoint, C extends EndpointConfig<T>, B extends AbstractBuilder<T, C, B>> extends ExtendableBuilder<C, B> {
 
     }
 

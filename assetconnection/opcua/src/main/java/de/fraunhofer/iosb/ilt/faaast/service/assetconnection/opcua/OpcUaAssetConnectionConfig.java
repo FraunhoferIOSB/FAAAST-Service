@@ -60,7 +60,7 @@ public class OpcUaAssetConnectionConfig
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends OpcUaAssetConnectionConfig, B extends AbstractBuilder<T, B>>
+    public abstract static class AbstractBuilder<T extends OpcUaAssetConnectionConfig, B extends AbstractBuilder<T, B>>
             extends
             AssetConnectionConfig.AbstractBuilder<OpcUaAssetConnectionConfig, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig, OpcUaAssetConnection, B> {
 

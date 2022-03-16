@@ -74,7 +74,7 @@ public class FileValue extends DataElementValue {
         return Objects.hash(mimeType, value);
     }
 
-    public static abstract class AbstractBuilder<T extends FileValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends FileValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B mimeType(String value) {
             getBuildingInstance().setMimeType(value);

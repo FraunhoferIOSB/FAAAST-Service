@@ -41,9 +41,9 @@ import java.util.Set;
  * Each persistence instance needs one instance of an Asset Administration Shell Environment.
  * There can only be one running instance of a persistence implementation.
  *
- * @param <T> type of the corresponding configuration class
+ * @param <C> type of the corresponding configuration class
  */
-public interface Persistence<T extends PersistenceConfig> extends Configurable<T> {
+public interface Persistence<C extends PersistenceConfig> extends Configurable<C> {
 
     /**
      * Set the AssetAdministrationShellEnvironment<br>

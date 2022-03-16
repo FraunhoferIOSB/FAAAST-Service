@@ -12,16 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.serialization;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider;
+
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+
 
 /**
- * Enum describing supported serialization formats
+ * * Config file for MQTT-based
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
  */
-public enum SerializationFormat {
-    JSON,
-    XML,
-    RDF,
-    AML,
-    AASX,
-    UANODESET
-}
+public class MqttOperationProviderConfig implements AssetOperationProviderConfig {}

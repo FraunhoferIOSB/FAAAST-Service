@@ -74,7 +74,7 @@ public class MultiLanguagePropertyValue extends DataElementValue {
         return Objects.hash(langStringSet);
     }
 
-    public static abstract class AbstractBuilder<T extends MultiLanguagePropertyValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends MultiLanguagePropertyValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B values(Set<LangString> value) {
             getBuildingInstance().setLangStringSet(value);

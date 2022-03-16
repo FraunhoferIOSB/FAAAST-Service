@@ -29,8 +29,8 @@ import io.adminshell.aas.v3.model.ConceptDescription;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PostConceptDescriptionRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostConceptDescriptionResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class PostConceptDescriptionRequestHandler extends RequestHandler<PostConceptDescriptionRequest, PostConceptDescriptionResponse> {
 
@@ -40,18 +40,12 @@ public class PostConceptDescriptionRequestHandler extends RequestHandler<PostCon
 
 
     @Override
-    public PostConceptDescriptionResponse process(PostConceptDescriptionRequest request) {
+    public PostConceptDescriptionResponse process(PostConceptDescriptionRequest request) throws Exception {
         PostConceptDescriptionResponse response = new PostConceptDescriptionResponse();
-
-        try {
-            ConceptDescription conceptDescription = (ConceptDescription) persistence.put(request.getConceptDescription());
-            response.setPayload(conceptDescription);
-            response.setStatusCode(StatusCode.SuccessCreated);
-            publishElementCreateEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        ConceptDescription conceptDescription = (ConceptDescription) persistence.put(request.getConceptDescription());
+        response.setPayload(conceptDescription);
+        response.setStatusCode(StatusCode.SuccessCreated);
+        publishElementCreateEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
         return response;
     }
 

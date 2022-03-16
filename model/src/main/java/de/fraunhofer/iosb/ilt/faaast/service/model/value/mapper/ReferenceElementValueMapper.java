@@ -19,7 +19,7 @@ import io.adminshell.aas.v3.model.ReferenceElement;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 
 
-public class ReferenceElementValueMapper extends DataValueMapper<ReferenceElement, ReferenceElementValue> {
+public class ReferenceElementValueMapper implements DataValueMapper<ReferenceElement, ReferenceElementValue> {
 
     @Override
     public ReferenceElementValue toValue(ReferenceElement submodelElement) {
@@ -34,9 +34,7 @@ public class ReferenceElementValueMapper extends DataValueMapper<ReferenceElemen
 
     @Override
     public ReferenceElement setValue(ReferenceElement submodelElement, ReferenceElementValue value) {
-        if (submodelElement == null || value == null) {
-            return null;
-        }
+        DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setValue(new DefaultReference.Builder()
                 .keys(value.getKeys())
                 .build());

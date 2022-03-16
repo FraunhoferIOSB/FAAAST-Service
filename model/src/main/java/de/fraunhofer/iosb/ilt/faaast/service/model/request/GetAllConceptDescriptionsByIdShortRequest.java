@@ -59,7 +59,7 @@ public class GetAllConceptDescriptionsByIdShortRequest extends RequestWithModifi
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllConceptDescriptionsByIdShortRequest, B extends AbstractBuilder<T, B>>
+    public abstract static class AbstractBuilder<T extends GetAllConceptDescriptionsByIdShortRequest, B extends AbstractBuilder<T, B>>
             extends RequestWithModifier.AbstractBuilder<T, B> {
 
         public B idShort(String value) {

@@ -42,13 +42,13 @@ public class ValueCollectionDeserializer extends CollectionDeserializer {
     public CollectionDeserializer createContextual(DeserializationContext context,
                                                    BeanProperty property)
             throws JsonMappingException {
-        return new ValueCollectionDeserializer((CollectionDeserializer) super.createContextual(context, property));
+        return new ValueCollectionDeserializer(super.createContextual(context, property));
     }
 
 
     @Override
     public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        return deserialize(p, ctxt, new ArrayList<Object>());
+        return deserialize(p, ctxt, new ArrayList<>());
     }
 
 
@@ -58,7 +58,6 @@ public class ValueCollectionDeserializer extends CollectionDeserializer {
         if (typeInfo == null || !ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             return super.deserialize(parser, context, result);
         }
-        ContainerTypeInfo containerTypeInfo = (ContainerTypeInfo) typeInfo;
         JsonNode node = context.readTree(parser);
         if (!node.isArray()) {
             return context.reportBadDefinition(Collection.class, "expected array");

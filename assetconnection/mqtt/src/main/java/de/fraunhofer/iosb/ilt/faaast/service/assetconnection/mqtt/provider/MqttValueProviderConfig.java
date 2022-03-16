@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentFormat;
@@ -68,7 +68,7 @@ public class MqttValueProviderConfig implements AssetValueProviderConfig {
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends MqttValueProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends MqttValueProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B query(String value) {
             getBuildingInstance().setQuery(value);

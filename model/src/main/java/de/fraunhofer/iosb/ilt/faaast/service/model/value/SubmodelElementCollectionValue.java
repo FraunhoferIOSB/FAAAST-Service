@@ -62,7 +62,7 @@ public class SubmodelElementCollectionValue extends DataElementValue {
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends SubmodelElementCollectionValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends SubmodelElementCollectionValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B values(Map<String, ElementValue> value) {
             getBuildingInstance().setValues(value);

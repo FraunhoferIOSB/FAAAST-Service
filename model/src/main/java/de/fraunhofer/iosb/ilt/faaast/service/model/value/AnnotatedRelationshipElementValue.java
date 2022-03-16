@@ -59,7 +59,7 @@ public class AnnotatedRelationshipElementValue extends RelationshipElementValue 
         return Objects.hash(super.hashCode(), annotations);
     }
 
-    public static abstract class AbstractBuilder<T extends AnnotatedRelationshipElementValue, B extends AbstractBuilder<T, B>>
+    public abstract static class AbstractBuilder<T extends AnnotatedRelationshipElementValue, B extends AbstractBuilder<T, B>>
             extends RelationshipElementValue.AbstractBuilder<T, B> {
 
         public B annotations(Map<String, DataElementValue> value) {

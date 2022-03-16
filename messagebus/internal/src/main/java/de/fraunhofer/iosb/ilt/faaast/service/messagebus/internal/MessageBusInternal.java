@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
@@ -23,59 +24,65 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * MessageBusInternal: Implements the internal MessageBus interface
  * subscribe/unsubscribe and publishes/dispatches EventMessages to subscribers
  */
-public class MessageBusInternal implements MessageBus<MessageBusInternalConfig>, Runnable {
+public class MessageBusInternal implements MessageBus<MessageBusInternalConfig> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageBusInternal.class);
     private final BlockingQueue<EventMessage> messageQueue;
 
     private final AtomicBoolean running;
     private final Map<SubscriptionId, SubscriptionInfo> subscriptions;
+    private final ExecutorService executor;
+    private MessageBusInternalConfig config;
 
     public MessageBusInternal() {
         running = new AtomicBoolean(false);
         subscriptions = new ConcurrentHashMap<>();
         messageQueue = new LinkedBlockingDeque<>();
+        executor = Executors.newSingleThreadExecutor();
     }
 
 
     @Override
     public MessageBusInternalConfig asConfig() {
-        return null;
+        return config;
     }
 
 
     @Override
-    public void init(CoreConfig coreConfig, MessageBusInternalConfig config, ServiceContext context) {
+    public void init(CoreConfig coreConfig, MessageBusInternalConfig config, ServiceContext serviceContext) {
+        this.config = config;
         running.set(false);
     }
 
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws java.lang.InterruptedException
-     */
     @Override
-    public void publish(EventMessage message) throws InterruptedException {
+    public void publish(EventMessage message) throws MessageBusException {
         if (message != null) {
-            messageQueue.put(message);
+            try {
+                messageQueue.put(message);
+            }
+            catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new MessageBusException("adding message to queue failed", e);
+            }
         }
     }
 
 
-    /**
-     * Take an EventMessage from the queue. Iterate over all subscribers and
-     * check which filter applies and call the subscription handler
-     */
-    @Override
-    public void run() {
+    private void run() {
         running.set(true);
         try {
             while (running.get()) {
@@ -97,13 +104,21 @@ public class MessageBusInternal implements MessageBus<MessageBusInternalConfig>,
 
     @Override
     public void start() {
-        new Thread(this).start();
+        executor.submit(() -> run());
     }
 
 
     @Override
     public void stop() {
         running.set(false);
+        executor.shutdown();
+        try {
+            executor.awaitTermination(2, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException e) {
+            LOGGER.error("interrupted while waiting for shutdown.", e);
+            Thread.currentThread().interrupt();
+        }
     }
 
 

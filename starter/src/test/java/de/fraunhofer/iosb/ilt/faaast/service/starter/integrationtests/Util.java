@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests;
 
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
@@ -30,6 +31,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import org.apache.http.HttpResponse;
@@ -221,9 +224,11 @@ public class Util {
     }
 
 
-    public static void setUpEventCheck(Referable expected, Class<? extends EventMessage> clazz, Supplier<?> call) {
+    public static void setUpEventCheck(Referable expected, Class<? extends EventMessage> clazz, Supplier<?> call) throws InterruptedException, MessageBusException {
+        final long DEFAULT_TIMEOUT = 1000;
         AtomicBoolean fired = new AtomicBoolean(false);
-        SubscriptionId subscriptionId = IntegrationTestHttpEndpoint.messageBus.subscribe(SubscriptionInfo.create(clazz, x -> {
+        CountDownLatch condition = new CountDownLatch(1);
+        SubscriptionId subscriptionId = HttpEndpointIT.messageBus.subscribe(SubscriptionInfo.create(clazz, x -> {
             if (ElementReadEventMessage.class.isAssignableFrom(x.getClass())) {
                 Assert.assertEquals(expected, ((ElementReadEventMessage) x).getValue());
                 fired.set(true);
@@ -243,8 +248,9 @@ public class Util {
 
         }));
         call.get();
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         Assert.assertTrue(fired.get());
-        IntegrationTestHttpEndpoint.messageBus.unsubscribe(subscriptionId);
+        HttpEndpointIT.messageBus.unsubscribe(subscriptionId);
     }
 
 }

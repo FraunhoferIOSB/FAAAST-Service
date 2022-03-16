@@ -25,7 +25,7 @@ public abstract class RequestWithModifier<T extends Response> extends BaseReques
 
     protected OutputModifier outputModifier;
 
-    public RequestWithModifier() {
+    protected RequestWithModifier() {
         this.outputModifier = OutputModifier.DEFAULT;
     }
 
@@ -39,7 +39,7 @@ public abstract class RequestWithModifier<T extends Response> extends BaseReques
         this.outputModifier = outputModifier;
     }
 
-    public static abstract class AbstractBuilder<T extends RequestWithModifier, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends RequestWithModifier, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B outputModifier(OutputModifier value) {
             getBuildingInstance().setOutputModifier(value);

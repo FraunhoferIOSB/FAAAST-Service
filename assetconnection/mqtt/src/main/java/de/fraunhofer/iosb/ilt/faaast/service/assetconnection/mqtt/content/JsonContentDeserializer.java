@@ -47,23 +47,29 @@ public class JsonContentDeserializer implements ContentDeserializer {
         try {
             String value = raw;
             if (query != null) {
-                try {
-                    value = JsonPath.read(value, query).toString();
-
-                    if (typeInfo != null
-                            && ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())
-                            && ((ElementValueTypeInfo) typeInfo).getDatatype() == Datatype.String) {
-                        value = "\"" + value + "\"";
-                    }
-                }
-                catch (RuntimeException ex) {
-                    throw new AssetConnectionException(String.format("invalid JSON path expression '%s'", query), ex);
-                }
+                value = extractValueString(query, typeInfo, value);
             }
             return deserializer.readValue(value, typeInfo);
         }
-        catch (DeserializationException ex) {
-            throw new AssetConnectionException("parsing JSON value failed", ex);
+        catch (DeserializationException e) {
+            throw new AssetConnectionException("parsing JSON value failed", e);
         }
+    }
+
+
+    private String extractValueString(String query, TypeInfo<?> typeInfo, String value) throws AssetConnectionException {
+        try {
+            value = JsonPath.read(value, query).toString();
+
+            if (typeInfo != null
+                    && ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())
+                    && ((ElementValueTypeInfo) typeInfo).getDatatype() == Datatype.String) {
+                value = "\"" + value + "\"";
+            }
+        }
+        catch (RuntimeException e) {
+            throw new AssetConnectionException(String.format("invalid JSON path expression '%s'", query), e);
+        }
+        return value;
     }
 }

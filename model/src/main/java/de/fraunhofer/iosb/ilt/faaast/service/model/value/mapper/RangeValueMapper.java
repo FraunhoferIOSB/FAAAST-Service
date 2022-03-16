@@ -14,16 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import io.adminshell.aas.v3.model.Range;
 
 
-public class RangeValueMapper extends DataValueMapper<Range, RangeValue> {
+public class RangeValueMapper implements DataValueMapper<Range, RangeValue> {
 
     @Override
-    public RangeValue toValue(Range submodelElement) {
+    public RangeValue toValue(Range submodelElement) throws ValueMappingException {
         if (submodelElement == null) {
             return null;
         }
@@ -32,9 +33,8 @@ public class RangeValueMapper extends DataValueMapper<Range, RangeValue> {
             rangeValue.setMin(TypedValueFactory.create(submodelElement.getValueType(), submodelElement.getMin()));
             rangeValue.setMax(TypedValueFactory.create(submodelElement.getValueType(), submodelElement.getMax()));
         }
-        catch (ValueFormatException ex) {
-            // TODO properly throw?
-            throw new RuntimeException("invalid data value");
+        catch (ValueFormatException e) {
+            throw new ValueMappingException("invalid data value", e);
         }
         return rangeValue;
     }
@@ -42,9 +42,7 @@ public class RangeValueMapper extends DataValueMapper<Range, RangeValue> {
 
     @Override
     public Range setValue(Range submodelElement, RangeValue value) {
-        if (submodelElement == null || value == null) {
-            return null;
-        }
+        DataValueMapper.super.setValue(submodelElement, value);
         if (value.getMin() != null) {
             submodelElement.setValueType(value.getMin().getDataType().getName());
             submodelElement.setMin(value.getMin().asString());
@@ -59,7 +57,6 @@ public class RangeValueMapper extends DataValueMapper<Range, RangeValue> {
         else {
             submodelElement.setMax(null);
         }
-
         return submodelElement;
     }
 

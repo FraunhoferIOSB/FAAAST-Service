@@ -14,7 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.*;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.deleteCall;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.getCall;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.getListCall;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.postCall;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.putCall;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.retrieveResourceFromResponse;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.retrieveResourceFromResponseList;
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.integrationtests.Util.setUpEventCheck;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
@@ -23,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
@@ -33,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.AssetInformation;
@@ -50,9 +59,7 @@ import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.http.HttpResponse;
@@ -63,10 +70,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class IntegrationTestHttpEndpoint {
+public class HttpEndpointIT {
 
-    static Service service;
-    static AssetAdministrationShellEnvironment environment;
+    private static Service service;
+    private static AssetAdministrationShellEnvironment environment;
     public static MessageBus messageBus;
 
     private static final String HOST = "http://localhost";
@@ -133,7 +140,7 @@ public class IntegrationTestHttpEndpoint {
                 .collect(Collectors.toList());
 
         String assetIdsParameter = "[{\"key\": \"globalAssetId\",\"value\":\"" + assetIdValue + "\"}]";
-        HttpResponse response = getListCall(HTTP_SHELLS + "?assetIds=" + Base64.getUrlEncoder().encodeToString(assetIdsParameter.getBytes(StandardCharsets.UTF_8)));
+        HttpResponse response = getListCall(HTTP_SHELLS + "?assetIds=" + EncodingHelper.base64UrlEncode(assetIdsParameter));
         Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
         List<AssetAdministrationShell> actual = retrieveResourceFromResponseList(response, AssetAdministrationShell.class);
@@ -142,7 +149,7 @@ public class IntegrationTestHttpEndpoint {
 
 
     @Test
-    public void testGETShellsEvent() {
+    public void testGETShellsEvent() throws MessageBusException {
         List<AssetAdministrationShell> actual = new ArrayList<>();
         List<AssetAdministrationShell> expected = environment.getAssetAdministrationShells();
         SubscriptionId subscriptionId = messageBus.subscribe(SubscriptionInfo.create(ElementReadEventMessage.class, x -> {
@@ -173,7 +180,7 @@ public class IntegrationTestHttpEndpoint {
 
 
     @Test
-    public void testPOSTShellEvent() {
+    public void testPOSTShellEvent() throws InterruptedException, MessageBusException {
         AssetAdministrationShell newShell = getNewShell();
         setUpEventCheck(newShell, ElementCreateEventMessage.class, () -> postCall(HTTP_SHELLS, newShell, AssetAdministrationShell.class));
     }
@@ -195,9 +202,7 @@ public class IntegrationTestHttpEndpoint {
     public void testGETSpecificShell() throws IOException, DeserializationException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         HttpResponse actual = getCall(HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8)));
-
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier()));
         Assert.assertEquals(expected, retrieveResourceFromResponse(actual, AssetAdministrationShell.class));
         Assert.assertEquals(HttpStatus.SC_OK, actual.getStatusLine().getStatusCode());
     }
@@ -210,12 +215,11 @@ public class IntegrationTestHttpEndpoint {
     }
 
 
-    @Test
-    public void testGETSpecificShellEvent() {
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testGETSpecificShellEvent() throws InterruptedException, MessageBusException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8)),
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier()),
                 AssetAdministrationShell.class));
     }
 
@@ -225,9 +229,7 @@ public class IntegrationTestHttpEndpoint {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
-
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         HttpResponse response = putCall(url, expected);
         Assert.assertEquals(expected, retrieveResourceFromResponse(response, AssetAdministrationShell.class));
         //TODO: StatusCode of spec seems to be wrong 204
@@ -238,13 +240,12 @@ public class IntegrationTestHttpEndpoint {
     }
 
 
-    @Test
-    public void testPUTSpecificShellEvent() {
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testPUTSpecificShellEvent() throws InterruptedException, MessageBusException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected, AssetAdministrationShell.class));
     }
 
@@ -252,8 +253,7 @@ public class IntegrationTestHttpEndpoint {
     @Test
     public void testDELETESpecificShell() throws IOException, DeserializationException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier;
         HttpResponse response = deleteCall(url);
         //TODO: StatusCode of spec seems to be wrong 204
@@ -265,11 +265,10 @@ public class IntegrationTestHttpEndpoint {
     }
 
 
-    @Test
-    public void testDELETESpecificShellEvent() {
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testDELETESpecificShellEvent() throws InterruptedException, MessageBusException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier;
         setUpEventCheck(expected, ElementDeleteEventMessage.class, () -> deleteCall(url));
     }
@@ -279,8 +278,7 @@ public class IntegrationTestHttpEndpoint {
     public void testGET_AASShell() throws IOException, DeserializationException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         HttpResponse actual = getCall(HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
                 + "/aas");
 
         Assert.assertEquals(expected, retrieveResourceFromResponse(actual, AssetAdministrationShell.class));
@@ -288,12 +286,11 @@ public class IntegrationTestHttpEndpoint {
     }
 
 
-    @Test
-    public void testGET_AASShell_Event() {
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testGET_AASShell_Event() throws InterruptedException, MessageBusException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
                 + "/aas";
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(url));
     }
@@ -308,8 +305,7 @@ public class IntegrationTestHttpEndpoint {
     private void call_GET_AASShell_Content(String content, Object expected, Class<?> expectedClass) throws IOException, DeserializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         HttpResponse actual = getCall(HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(aas
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(aas.getIdentification().getIdentifier())
                 + "/aas?content=" + content);
 
         Assert.assertEquals(expected, retrieveResourceFromResponse(actual, expectedClass));
@@ -322,8 +318,7 @@ public class IntegrationTestHttpEndpoint {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
                 + "/aas";
 
         HttpResponse response = putCall(url, expected);
@@ -336,13 +331,12 @@ public class IntegrationTestHttpEndpoint {
     }
 
 
-    @Test
-    public void testPUT_AASShellEvent() {
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testPUT_AASShellEvent() throws InterruptedException, MessageBusException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
                 + "/aas";
         setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected, AssetAdministrationShell.class));
     }
@@ -352,8 +346,8 @@ public class IntegrationTestHttpEndpoint {
     public void testGETAssetInformation() throws IOException, DeserializationException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         HttpResponse actual = getCall(HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected
+                        .getIdentification().getIdentifier())
                 + "/aas/asset-information");
 
         Assert.assertEquals(expected.getAssetInformation(), retrieveResourceFromResponse(actual, AssetInformation.class));
@@ -361,12 +355,11 @@ public class IntegrationTestHttpEndpoint {
     }
 
 
-    @Test
-    public void testGETAssetInformationEvent() {
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testGETAssetInformationEvent() throws InterruptedException, MessageBusException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
                 + "/aas/asset-information";
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(url));
     }
@@ -378,8 +371,7 @@ public class IntegrationTestHttpEndpoint {
         AssetInformation expected = aas.getAssetInformation();
         expected.setAssetKind(AssetKind.TYPE);
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(aas
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(aas.getIdentification().getIdentifier())
                 + "/aas/asset-information";
         HttpResponse response = putCall(url, expected);
 
@@ -391,13 +383,12 @@ public class IntegrationTestHttpEndpoint {
     }
 
 
-    @Test
-    public void testPutAssetInformationEvent() {
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testPutAssetInformationEvent() throws InterruptedException, MessageBusException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.getAssetInformation().setAssetKind(AssetKind.TYPE);
         String url = HTTP_SHELLS + "/"
-                + Base64.getUrlEncoder().encodeToString(expected
-                        .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8))
+                + EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier())
                 + "/aas/asset-information";
         setUpEventCheck(expected, ElementUpdateEventMessage.class, () -> putCall(url, expected.getAssetInformation()));
     }
@@ -406,8 +397,8 @@ public class IntegrationTestHttpEndpoint {
     @Test
     public void testGETSubmodelReferences() throws IOException, DeserializationException {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
-        String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0)
+                .getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels";
         HttpResponse response = getListCall(url);
         Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
@@ -417,10 +408,10 @@ public class IntegrationTestHttpEndpoint {
     }
 
 
-    @Test
-    public void testGETSubmodelReferencesEvent() {
-        String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testGETSubmodelReferencesEvent() throws InterruptedException, MessageBusException {
+        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0)
+                .getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels";
         setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementReadEventMessage.class, () -> getListCall(url));
     }
@@ -431,8 +422,8 @@ public class IntegrationTestHttpEndpoint {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
         Reference newReference = new DefaultReference.Builder().key(new DefaultKey.Builder().value("test").idType(KeyType.IRI).build()).build();
         expected.add(newReference);
-        String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0)
+                .getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels";
         HttpResponse response = postCall(url, newReference);
         Assert.assertEquals(HttpStatus.SC_CREATED, response.getStatusLine().getStatusCode());
@@ -442,13 +433,12 @@ public class IntegrationTestHttpEndpoint {
     }
 
 
-    @Test
-    public void testPOSTSubmodelReferenceEvent() {
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testPOSTSubmodelReferenceEvent() throws InterruptedException, MessageBusException {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
         Reference newReference = new DefaultReference.Builder().key(new DefaultKey.Builder().value("test").idType(KeyType.IRI).build()).build();
         expected.add(newReference);
-        String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0).getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels";
         setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementUpdateEventMessage.class, () -> postCall(url, newReference));
     }
@@ -457,10 +447,10 @@ public class IntegrationTestHttpEndpoint {
     @Test
     public void testDELETESubmodelReference() throws IOException, DeserializationException {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
-        String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0)
+                .getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels/"
-                + Base64.getUrlEncoder().encodeToString(expected.get(0).getKeys().get(0).getValue().getBytes(StandardCharsets.UTF_8));
+                + EncodingHelper.base64UrlEncode(expected.get(0).getKeys().get(0).getValue());
         HttpResponse response = deleteCall(url);
 
         //TODO: StatusCode of spec seems to be wrong 204
@@ -471,13 +461,12 @@ public class IntegrationTestHttpEndpoint {
     }
 
 
-    @Test
-    public void testDELETESubmodelReferenceEvent() {
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testDELETESubmodelReferenceEvent() throws InterruptedException, MessageBusException {
         List<Reference> expected = environment.getAssetAdministrationShells().get(0).getSubmodels();
-        String identifier = Base64.getUrlEncoder().encodeToString(environment.getAssetAdministrationShells().get(0)
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(environment.getAssetAdministrationShells().get(0).getIdentification().getIdentifier());
         String url = HTTP_SHELLS + "/" + identifier + "/aas/submodels/"
-                + Base64.getUrlEncoder().encodeToString(expected.get(0).getKeys().get(0).getValue().getBytes(StandardCharsets.UTF_8));
+                + EncodingHelper.base64UrlEncode(expected.get(0).getKeys().get(0).getValue());
         expected.remove(0);
         setUpEventCheck(environment.getAssetAdministrationShells().get(0), ElementUpdateEventMessage.class, () -> deleteCall(url));
     }
@@ -505,16 +494,16 @@ public class IntegrationTestHttpEndpoint {
     @Test
     public void testGetSubmodelsWithSemanticId() throws SerializationException {
         Submodel expected = environment.getSubmodels().get(1);
-        String semnaticId = Base64.getUrlEncoder().encodeToString(new JsonSerializer().write(expected.getSemanticId()).getBytes(StandardCharsets.UTF_8));
+        String semnaticId = EncodingHelper.base64UrlEncode(new JsonSerializer().write(expected.getSemanticId()));
         List<Submodel> actual = getListCall(HTTP_SUBMODELS + "?semanticId=" + semnaticId, Submodel.class);
         Assert.assertEquals(List.of(expected), actual);
     }
 
 
-    @Test
-    public void testGetSubmodelsEvent() throws SerializationException {
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testGetSubmodelsEvent() throws SerializationException, InterruptedException, MessageBusException {
         Submodel expected = environment.getSubmodels().get(1);
-        String semnaticId = Base64.getUrlEncoder().encodeToString(new JsonSerializer().write(expected.getSemanticId()).getBytes(StandardCharsets.UTF_8));
+        String semnaticId = EncodingHelper.base64UrlEncode(new JsonSerializer().write(expected.getSemanticId()));
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getListCall(HTTP_SUBMODELS + "?semanticId=" + semnaticId));
     }
 
@@ -536,8 +525,8 @@ public class IntegrationTestHttpEndpoint {
     }
 
 
-    @Test
-    public void testPostSubmodelsEvent() throws SerializationException {
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testPostSubmodelsEvent() throws SerializationException, InterruptedException, MessageBusException {
         Submodel expected = new DefaultSubmodel.Builder()
                 .identification(new DefaultIdentifier.Builder()
                         .idType(IdentifierType.IRI)
@@ -551,7 +540,7 @@ public class IntegrationTestHttpEndpoint {
     @Test
     public void testGetSpecificSubmodel() throws SerializationException, IOException, DeserializationException {
         Submodel expected = environment.getSubmodels().get(1);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected.getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SUBMODELS + "/" + identifier + "/submodel";
         HttpResponse response = getCall(url);
         Submodel actual = retrieveResourceFromResponse(response, Submodel.class);
@@ -562,9 +551,9 @@ public class IntegrationTestHttpEndpoint {
 
 
     @Test
-    public void testGetSpecificSubmodelContent() throws SerializationException, IOException, DeserializationException {
+    public void testGetSpecificSubmodelContent() throws SerializationException, IOException, DeserializationException, InterruptedException, MessageBusException {
         Submodel expected = environment.getSubmodels().get(3);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected.getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SUBMODELS + "/" + identifier + "/submodel?content=normal";
         HttpResponse response = getCall(url);
         Submodel actual = retrieveResourceFromResponse(response, Submodel.class);
@@ -586,18 +575,18 @@ public class IntegrationTestHttpEndpoint {
     }
 
 
-    @Test
-    public void testGetSpecificSubmodelEvent() throws SerializationException {
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testGetSpecificSubmodelEvent() throws SerializationException, InterruptedException, MessageBusException {
         Submodel expected = environment.getSubmodels().get(1);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected.getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(HTTP_SUBMODELS + "/" + identifier + "/submodel"));
     }
 
 
     @Test
-    public void testGetSpecificSubmodelLevel() throws SerializationException, IOException, DeserializationException {
+    public void testGetSpecificSubmodelLevel() throws SerializationException, IOException, DeserializationException, InterruptedException, MessageBusException {
         Submodel expected = environment.getSubmodels().get(2);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected.getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String baseUrl = HTTP_SUBMODELS + "/" + identifier + "/submodel";
 
         //Level = deep
@@ -631,8 +620,8 @@ public class IntegrationTestHttpEndpoint {
     @Test
     public void testDELETESubmodelElement() throws IOException, DeserializationException {
         Submodel expected = environment.getSubmodels().get(0);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected
+                .getIdentification().getIdentifier());
         String url = HTTP_SUBMODELS + "/" + identifier + "/submodel/submodel-elements/" + expected.getSubmodelElements().get(0).getIdShort();
         HttpResponse response = deleteCall(url);
         //TODO: StatusCode of spec seems to be wrong 204
@@ -644,11 +633,10 @@ public class IntegrationTestHttpEndpoint {
     }
 
 
-    @Test
-    public void testDELETESubmodelElementEvent() {
+    @Test(expected = Test.None.class /* no exception expected */)
+    public void testDELETESubmodelElementEvent() throws InterruptedException, MessageBusException {
         Submodel expected = environment.getSubmodels().get(0);
-        String identifier = Base64.getUrlEncoder().encodeToString(expected
-                .getIdentification().getIdentifier().getBytes(StandardCharsets.UTF_8));
+        String identifier = EncodingHelper.base64UrlEncode(expected.getIdentification().getIdentifier());
         String url = HTTP_SUBMODELS + "/" + identifier + "/submodel/submodel-elements/" + expected.getSubmodelElements().get(0).getIdShort();
         setUpEventCheck(expected.getSubmodelElements().get(0), ElementDeleteEventMessage.class, () -> deleteCall(url));
     }

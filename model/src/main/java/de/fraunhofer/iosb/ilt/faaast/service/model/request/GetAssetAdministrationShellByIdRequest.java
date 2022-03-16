@@ -60,7 +60,7 @@ public class GetAssetAdministrationShellByIdRequest extends RequestWithModifier<
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAssetAdministrationShellByIdRequest, B extends AbstractBuilder<T, B>>
+    public abstract static class AbstractBuilder<T extends GetAssetAdministrationShellByIdRequest, B extends AbstractBuilder<T, B>>
             extends RequestWithModifier.AbstractBuilder<T, B> {
 
         public B id(Identifier value) {

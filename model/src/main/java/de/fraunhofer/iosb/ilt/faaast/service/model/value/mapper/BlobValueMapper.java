@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import io.adminshell.aas.v3.model.Blob;
 
 
-public class BlobValueMapper extends DataValueMapper<Blob, BlobValue> {
+public class BlobValueMapper implements DataValueMapper<Blob, BlobValue> {
 
     @Override
     public BlobValue toValue(Blob submodelElement) {
@@ -34,9 +34,7 @@ public class BlobValueMapper extends DataValueMapper<Blob, BlobValue> {
 
     @Override
     public Blob setValue(Blob submodelElement, BlobValue value) {
-        if (submodelElement == null || value == null) {
-            return null;
-        }
+        DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setValue(value.getValue());
         submodelElement.setMimeType(value.getMimeType());
         return submodelElement;

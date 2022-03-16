@@ -42,7 +42,7 @@ public class TypeExtractor {
             MAP_GENERIC_TOKEN = Map.class.getMethod("get", Object.class).getGenericReturnType();
         }
         catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("static initialization of TypeExtractor failed", e);
         }
     }
 
@@ -54,7 +54,7 @@ public class TypeExtractor {
         if (SubmodelElement.class.isAssignableFrom(type)) {
             ElementValueTypeInfo.Builder builder = ElementValueTypeInfo.builder();
             SubmodelElement submodelElement = (SubmodelElement) obj;
-            builder.type(ElementValueMapper.getValueClass((Class<? extends SubmodelElement>) submodelElement.getClass()));
+            builder.type(ElementValueMapper.getValueClass(submodelElement.getClass()));
             if (AnnotatedRelationshipElement.class.isAssignableFrom(type)) {
                 AnnotatedRelationshipElement annotatedRelationshipElement = (AnnotatedRelationshipElement) obj;
                 annotatedRelationshipElement.getAnnotations().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));

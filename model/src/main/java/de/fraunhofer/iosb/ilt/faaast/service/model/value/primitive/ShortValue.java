@@ -39,10 +39,10 @@ public class ShortValue extends TypedValue<Short> {
             return;
         }
         try {
-            this.setValue((Short) Short.parseShort(value));
+            this.setValue(Short.parseShort(value));
         }
-        catch (NumberFormatException ex) {
-            throw new ValueFormatException(ex);
+        catch (NumberFormatException e) {
+            throw new ValueFormatException(e);
         }
     }
 

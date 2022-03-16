@@ -23,21 +23,16 @@ import java.util.List;
  * Chapter 6.2.2
  */
 public class GetAllAssetAdministrationShellsResponse extends BaseResponseWithPayload<List<AssetAdministrationShell>> {
+
     public static GetAllAssetAdministrationShellsResponse.Builder builder() {
         return new GetAllAssetAdministrationShellsResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<GetAllAssetAdministrationShellsResponse, GetAllAssetAdministrationShellsResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<AssetAdministrationShell>, GetAllAssetAdministrationShellsResponse, GetAllAssetAdministrationShellsResponse.Builder> {
 
         @Override
         protected GetAllAssetAdministrationShellsResponse.Builder getSelf() {
             return this;
-        }
-
-
-        public GetAllAssetAdministrationShellsResponse.Builder payload(List<AssetAdministrationShell> value) {
-            getBuildingInstance().setPayload(value);
-            return getSelf();
         }
 
 

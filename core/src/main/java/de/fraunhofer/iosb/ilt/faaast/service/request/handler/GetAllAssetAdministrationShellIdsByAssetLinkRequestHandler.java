@@ -23,13 +23,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 
 
 /**
- * Not supported yet!
- * Class to handle a
+ * Not supported yet! Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellIdsByAssetLinkRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellIdsByAssetLinkResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
         extends RequestHandler<GetAllAssetAdministrationShellIdsByAssetLinkRequest, GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
@@ -42,15 +41,9 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
     @Override
     public GetAllAssetAdministrationShellIdsByAssetLinkResponse process(GetAllAssetAdministrationShellIdsByAssetLinkRequest request) {
         GetAllAssetAdministrationShellIdsByAssetLinkResponse response = new GetAllAssetAdministrationShellIdsByAssetLinkResponse();
-        try {
-            //TODO: implement
-            //TODO: How to distinguish between GlobalAssetId and SpecificAssetId?
-
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        //TODO: implement
+        //TODO: How to distinguish between GlobalAssetId and SpecificAssetId?
+        response.setStatusCode(StatusCode.ServerInternalError);
         return response;
     }
 }

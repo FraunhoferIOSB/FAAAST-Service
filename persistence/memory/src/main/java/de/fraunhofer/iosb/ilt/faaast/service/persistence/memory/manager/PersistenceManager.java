@@ -22,7 +22,7 @@ import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
  */
 public abstract class PersistenceManager {
 
-    public AssetAdministrationShellEnvironment aasEnvironment;
+    protected AssetAdministrationShellEnvironment aasEnvironment;
 
     public void setAasEnvironment(AssetAdministrationShellEnvironment aasEnvironment) {
         this.aasEnvironment = aasEnvironment;

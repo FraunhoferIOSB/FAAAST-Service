@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -22,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -38,8 +41,8 @@ import java.util.Objects;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelElementByPathRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelElementByPathResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
 
@@ -49,36 +52,27 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
 
 
     @Override
-    public PutSubmodelElementByPathResponse process(PutSubmodelElementByPathRequest request) {
+    public PutSubmodelElementByPathResponse process(PutSubmodelElementByPathRequest request)
+            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException {
         PutSubmodelElementByPathResponse response = new PutSubmodelElementByPathResponse();
-        try {
-            Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
 
-            //Check if submodelelement does exist
-            SubmodelElement currentSubmodelElement = persistence.get(reference, new QueryModifier.Builder()
-                    .extend(Extend.WithoutBLOBValue)
-                    .level(Level.Core)
-                    .build());
-            SubmodelElement newSubmodelElement = request.getSubmodelElement();
+        //Check if submodelelement does exist
+        SubmodelElement currentSubmodelElement = persistence.get(reference, new QueryModifier.Builder()
+                .extend(Extend.WithoutBLOBValue)
+                .level(Level.Core)
+                .build());
+        SubmodelElement newSubmodelElement = request.getSubmodelElement();
 
-            ElementValue oldValue = ElementValueMapper.toValue(currentSubmodelElement);
-            ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
-            currentSubmodelElement = persistence.put(null, reference, newSubmodelElement);
-            response.setPayload(currentSubmodelElement);
-            response.setStatusCode(StatusCode.Success);
-
-            if (!Objects.equals(oldValue, newValue)) {
-                writeValueToAssetConnection(reference, ElementValueMapper.toValue(currentSubmodelElement));
-            }
-
-            publishElementUpdateEventMessage(reference, currentSubmodelElement);
+        ElementValue oldValue = ElementValueMapper.toValue(currentSubmodelElement);
+        ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
+        currentSubmodelElement = persistence.put(null, reference, newSubmodelElement);
+        response.setPayload(currentSubmodelElement);
+        response.setStatusCode(StatusCode.Success);
+        if (!Objects.equals(oldValue, newValue)) {
+            writeValueToAssetConnection(reference, ElementValueMapper.toValue(currentSubmodelElement));
         }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        publishElementUpdateEventMessage(reference, currentSubmodelElement);
         return response;
     }
 

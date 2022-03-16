@@ -58,7 +58,7 @@ public class DeleteSubmodelByIdRequest extends BaseRequest<DeleteSubmodelByIdRes
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends DeleteSubmodelByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends DeleteSubmodelByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();

@@ -21,5 +21,5 @@ public enum ContentFormat {
     JSON,
     XML;
 
-    public static ContentFormat DEFAULT = JSON;
+    public static final ContentFormat DEFAULT = JSON;
 }

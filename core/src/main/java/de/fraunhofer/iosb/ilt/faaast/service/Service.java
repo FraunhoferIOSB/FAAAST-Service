@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
@@ -31,8 +32,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import io.adminshell.aas.v3.dataformat.DeserializationException;
-import io.adminshell.aas.v3.dataformat.SerializationException;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Operation;
@@ -52,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Service implements ServiceContext {
 
-    private static Logger logger = LoggerFactory.getLogger(Service.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(Service.class);
     private AssetAdministrationShellEnvironment aasEnvironment;
     private AssetConnectionManager assetConnectionManager;
     private ServiceConfig config;
@@ -74,17 +73,18 @@ public class Service implements ServiceContext {
      * @throws IllegalArgumentException if aasEnvironment is null
      * @throws IllegalArgumentException if persistence is null
      * @throws IllegalArgumentException if messageBus is null
-     * @throws IllegalArgumentException if creating a deep copy of
-     *             aasEnvironment fails
+     * @throws RuntimeException if creating a deep copy of aasEnvironment fails
      * @throws ConfigurationException the configuration the
      *             {@link AssetConnectionManager} fails
+     * @throws AssetConnectionException when initializing asset connections
+     *             fails
      */
     public Service(CoreConfig coreConfig,
             AssetAdministrationShellEnvironment aasEnvironment,
             Persistence persistence,
             MessageBus messageBus,
             List<Endpoint> endpoints,
-            List<AssetConnection> assetConnections) throws ConfigurationException {
+            List<AssetConnection> assetConnections) throws ConfigurationException, AssetConnectionException {
         if (coreConfig == null) {
             throw new IllegalArgumentException("coreConfig must be non-null");
         }
@@ -99,17 +99,12 @@ public class Service implements ServiceContext {
         }
         if (endpoints == null) {
             this.endpoints = new ArrayList<>();
-            logger.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
+            LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
         }
         else {
             this.endpoints = endpoints;
         }
-        try {
-            this.aasEnvironment = DeepCopyHelper.deepCopy(aasEnvironment);
-        }
-        catch (SerializationException | DeserializationException e) {
-            throw new IllegalArgumentException("Could not deep copy AAS Environment", e);
-        }
+        this.aasEnvironment = DeepCopyHelper.deepCopy(aasEnvironment);
         this.config = ServiceConfig.builder()
                 .core(coreConfig)
                 .build();
@@ -127,9 +122,11 @@ public class Service implements ServiceContext {
      * @param config service configuration
      * @throws IllegalArgumentException if config is null
      * @throws ConfigurationException if invalid configuration is provided
+     * @throws AssetConnectionException when initializing asset connections
+     *             fails
      */
     public Service(AssetAdministrationShellEnvironment aasEnvironment, ServiceConfig config)
-            throws ConfigurationException {
+            throws ConfigurationException, AssetConnectionException {
         if (config == null) {
             throw new IllegalArgumentException("config must be non-null");
         }
@@ -173,7 +170,7 @@ public class Service implements ServiceContext {
 
 
     @Override
-    public AssetAdministrationShellEnvironment getAASEnvironment() throws SerializationException, DeserializationException {
+    public AssetAdministrationShellEnvironment getAASEnvironment() {
         return DeepCopyHelper.deepCopy(this.aasEnvironment);
     }
 
@@ -206,14 +203,10 @@ public class Service implements ServiceContext {
      * the new AssetAdministrationShellEnvironment.
      *
      * @param aasEnvironment which will be used in the service
+     * @throws RuntimeException if creating deep copy of aasEnvironment fails
      */
     public void setAASEnvironment(AssetAdministrationShellEnvironment aasEnvironment) {
-        try {
-            this.aasEnvironment = DeepCopyHelper.deepCopy(aasEnvironment);
-        }
-        catch (SerializationException | DeserializationException e) {
-            logger.warn("Could not deep copy AAS Environment", e);
-        }
+        this.aasEnvironment = DeepCopyHelper.deepCopy(aasEnvironment);
     }
 
 
@@ -231,18 +224,18 @@ public class Service implements ServiceContext {
      * @throws Exception when starting failed
      */
     public void start() throws Exception {
-        logger.info("Get command for starting FA³ST Service");
+        LOGGER.info("Get command for starting FA³ST Service");
         if (this.aasEnvironment == null) {
-            logger.error("AssetAdministrationEnvironment must be non-null");
+            LOGGER.error("AssetAdministrationEnvironment must be non-null");
             throw new IllegalArgumentException("AssetAdministrationEnvironment must be non-null");
         }
         persistence.setEnvironment(this.aasEnvironment);
         messageBus.start();
         for (Endpoint endpoint: endpoints) {
-            logger.info("Starting endpoint {}", endpoint.getClass().getSimpleName());
+            LOGGER.info("Starting endpoint {}", endpoint.getClass().getSimpleName());
             endpoint.start();
         }
-        logger.info("FA³ST Service is running!");
+        LOGGER.info("FA³ST Service is running!");
     }
 
 
@@ -251,13 +244,13 @@ public class Service implements ServiceContext {
      * endpoints
      */
     public void stop() {
-        logger.info("Get command for stopping FA³ST Service");
+        LOGGER.info("Get command for stopping FA³ST Service");
         messageBus.stop();
         endpoints.forEach(Endpoint::stop);
     }
 
 
-    private void init() throws ConfigurationException {
+    private void init() throws ConfigurationException, AssetConnectionException {
         if (config.getPersistence() == null) {
             throw new InvalidConfigurationException("config.persistence must be non-null");
         }
@@ -277,7 +270,7 @@ public class Service implements ServiceContext {
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
             // TODO maybe be less restrictive and only print warning
             //throw new InvalidConfigurationException("at least endpoint must be defined in the configuration");
-            logger.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
+            LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
         }
         else {
             endpoints = new ArrayList<>();

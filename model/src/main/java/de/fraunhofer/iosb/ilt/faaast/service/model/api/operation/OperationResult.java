@@ -111,7 +111,7 @@ public class OperationResult {
         return new Builder();
     }
 
-    private static abstract class AbstractBuilder<T extends OperationResult, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    private abstract static class AbstractBuilder<T extends OperationResult, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B requestId(String value) {
             getBuildingInstance().setRequestId(value);

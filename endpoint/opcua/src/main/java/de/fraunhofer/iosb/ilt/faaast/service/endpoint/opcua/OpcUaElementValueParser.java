@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class OpcUaElementValueParser implements ElementValueParser {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpcUaElementValueParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaElementValueParser.class);
 
     /**
      * Creates a new instance of OpcUaElementValueParser
@@ -53,13 +53,14 @@ public class OpcUaElementValueParser implements ElementValueParser {
                 retval = (ElementValue) raw;
             }
             else {
-                logger.warn("parse: invalid raw value");
+                LOGGER.warn("parse: invalid raw value");
                 throw new IllegalArgumentException("raw not an ElementValue");
             }
         }
-        catch (Exception ex) {
-            logger.error("parse error", ex);
-            throw ex;
+        catch (Exception e) {
+            // TODO don't log and rethrow!
+            LOGGER.error("parse error", e);
+            throw e;
         }
 
         return retval;

@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import io.adminshell.aas.v3.model.SubmodelElement;
 
@@ -25,15 +26,17 @@ import io.adminshell.aas.v3.model.SubmodelElement;
  * @param <I> type of submodel element
  * @param <O> type if element value
  */
-public abstract class DataValueMapper<I extends SubmodelElement, O extends ElementValue> {
+public interface DataValueMapper<I extends SubmodelElement, O extends ElementValue> {
 
     /**
-     * Provides the value representation of a submodel element
+     * Provides the value representation of a submodel element. Returns null
+     * when input is null.
      *
      * @param submodelElement the submodel element
      * @return the value representation
+     * @throws ValueMappingException if mapping fails
      */
-    public abstract O toValue(I submodelElement);
+    public O toValue(I submodelElement) throws ValueMappingException;
 
 
     /**
@@ -42,7 +45,17 @@ public abstract class DataValueMapper<I extends SubmodelElement, O extends Eleme
      * @param submodelElement the submodel element to set the value on
      * @param value the value to set
      * @return the updated submodel element with the new value
+     * @throws IllegalArgumentException if submodelElement is null
+     * @throws IllegalArgumentException if value is null
      */
-    public abstract I setValue(I submodelElement, O value);
+    public default I setValue(I submodelElement, O value) {
+        if (submodelElement == null) {
+            throw new IllegalArgumentException("submodelElement must be non-null");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("value must be non-null");
+        }
+        return submodelElement;
+    }
 
 }

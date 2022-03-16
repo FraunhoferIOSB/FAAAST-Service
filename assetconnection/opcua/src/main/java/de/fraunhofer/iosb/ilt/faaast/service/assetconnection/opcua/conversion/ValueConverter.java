@@ -138,11 +138,11 @@ public class ValueConverter {
             try {
                 return TypedValueFactory.create(targetType, value.getValue().toString());
             }
-            catch (ValueFormatException ex) {
+            catch (ValueFormatException e) {
                 throw new ValueConversionException(String.format("error converting value (value: %s, target datatype: %s",
                         value.getValue().toString(),
                         targetType),
-                        ex);
+                        e);
             }
         }
 

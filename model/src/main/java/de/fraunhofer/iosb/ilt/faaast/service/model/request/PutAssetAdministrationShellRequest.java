@@ -70,7 +70,7 @@ public class PutAssetAdministrationShellRequest extends BaseRequest<PutAssetAdmi
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends PutAssetAdministrationShellRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PutAssetAdministrationShellRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -32,8 +33,8 @@ import java.util.List;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelReferencesRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelReferencesResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllSubmodelsReferencesRequestHandler extends RequestHandler<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
 
@@ -43,21 +44,13 @@ public class GetAllSubmodelsReferencesRequestHandler extends RequestHandler<GetA
 
 
     @Override
-    public GetAllSubmodelReferencesResponse process(GetAllSubmodelReferencesRequest request) {
+    public GetAllSubmodelReferencesResponse process(GetAllSubmodelReferencesRequest request) throws ResourceNotFoundException, MessageBusException {
         GetAllSubmodelReferencesResponse response = new GetAllSubmodelReferencesResponse();
-        try {
-            AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), request.getOutputModifier());
-            List<Reference> submodelReferences = shell.getSubmodels();
-            response.setPayload(submodelReferences);
-            response.setStatusCode(StatusCode.Success);
-            publishElementReadEventMessage(AasUtils.toReference(shell), shell);
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), request.getOutputModifier());
+        List<Reference> submodelReferences = shell.getSubmodels();
+        response.setPayload(submodelReferences);
+        response.setStatusCode(StatusCode.Success);
+        publishElementReadEventMessage(AasUtils.toReference(shell), shell);
         return response;
     }
 }

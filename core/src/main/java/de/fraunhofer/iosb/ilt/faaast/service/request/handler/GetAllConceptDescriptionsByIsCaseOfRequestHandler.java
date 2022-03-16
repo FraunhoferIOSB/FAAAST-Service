@@ -15,11 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIsCaseOfResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIsCaseOfRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import java.util.List;
@@ -30,8 +32,8 @@ import java.util.List;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIsCaseOfRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIsCaseOfResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllConceptDescriptionsByIsCaseOfRequestHandler extends RequestHandler<GetAllConceptDescriptionsByIsCaseOfRequest, GetAllConceptDescriptionsByIsCaseOfResponse> {
 
@@ -41,19 +43,13 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestHandler extends RequestHa
 
 
     @Override
-    public GetAllConceptDescriptionsByIsCaseOfResponse process(GetAllConceptDescriptionsByIsCaseOfRequest request) {
+    public GetAllConceptDescriptionsByIsCaseOfResponse process(GetAllConceptDescriptionsByIsCaseOfRequest request) throws MessageBusException {
         GetAllConceptDescriptionsByIsCaseOfResponse response = new GetAllConceptDescriptionsByIsCaseOfResponse();
-
-        try {
-            List<ConceptDescription> conceptDescriptions = persistence.get(null, request.getIsCaseOf(), null, request.getOutputModifier());
-            response.setPayload(conceptDescriptions);
-            response.setStatusCode(StatusCode.Success);
-            if (conceptDescriptions != null) {
-                conceptDescriptions.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
-            }
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
+        List<ConceptDescription> conceptDescriptions = persistence.get(null, request.getIsCaseOf(), null, request.getOutputModifier());
+        response.setPayload(conceptDescriptions);
+        response.setStatusCode(StatusCode.Success);
+        if (conceptDescriptions != null) {
+            conceptDescriptions.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(x), x)));
         }
         return response;
     }

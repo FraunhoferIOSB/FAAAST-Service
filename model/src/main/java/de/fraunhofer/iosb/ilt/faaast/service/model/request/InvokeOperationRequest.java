@@ -37,7 +37,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends BaseReq
     protected long timeout;
     protected String requestId;
 
-    public InvokeOperationRequest() {
+    protected InvokeOperationRequest() {
         this.path = new ArrayList<>();
         this.inputArguments = new ArrayList<>();
         this.inoutputArguments = new ArrayList<>();
@@ -129,7 +129,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends BaseReq
         this.timeout = timeout;
     }
 
-    public static abstract class AbstractBuilder<T extends InvokeOperationRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends InvokeOperationRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();

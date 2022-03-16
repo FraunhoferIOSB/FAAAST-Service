@@ -74,7 +74,7 @@ public class OpcUaValueProviderConfig implements AssetValueProviderConfig {
         }
     }
 
-    private static abstract class AbstractBuilder<T extends OpcUaValueProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    private abstract static class AbstractBuilder<T extends OpcUaValueProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B nodeId(String value) {
             getBuildingInstance().setNodeId(value);

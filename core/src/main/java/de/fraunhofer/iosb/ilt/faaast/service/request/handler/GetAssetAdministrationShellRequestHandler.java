@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -30,8 +31,8 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAssetAdministrationShellRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetAdministrationShellResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAssetAdministrationShellRequestHandler extends RequestHandler<GetAssetAdministrationShellRequest, GetAssetAdministrationShellResponse> {
 
@@ -41,20 +42,12 @@ public class GetAssetAdministrationShellRequestHandler extends RequestHandler<Ge
 
 
     @Override
-    public GetAssetAdministrationShellResponse process(GetAssetAdministrationShellRequest request) {
+    public GetAssetAdministrationShellResponse process(GetAssetAdministrationShellRequest request) throws ResourceNotFoundException, MessageBusException {
         GetAssetAdministrationShellResponse response = new GetAssetAdministrationShellResponse();
-        try {
-            AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), request.getOutputModifier());
-            response.setPayload(shell);
-            response.setStatusCode(StatusCode.Success);
-            publishElementReadEventMessage(AasUtils.toReference(shell), shell);
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), request.getOutputModifier());
+        response.setPayload(shell);
+        response.setStatusCode(StatusCode.Success);
+        publishElementReadEventMessage(AasUtils.toReference(shell), shell);
         return response;
     }
 

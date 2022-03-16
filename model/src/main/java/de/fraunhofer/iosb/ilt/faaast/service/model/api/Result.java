@@ -72,7 +72,7 @@ public class Result {
         return new Builder();
     }
 
-    private static abstract class AbstractBuilder<T extends Result, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    private abstract static class AbstractBuilder<T extends Result, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B success(boolean value) {
             getBuildingInstance().setSuccess(value);

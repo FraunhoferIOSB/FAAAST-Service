@@ -79,6 +79,7 @@ import io.adminshell.aas.v3.model.ValueList;
 import io.adminshell.aas.v3.model.ValueReferencePair;
 import io.adminshell.aas.v3.model.View;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;
@@ -987,8 +988,8 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
                     method.get().invoke(this, obj);
                 }
             }
-            catch (Exception ex) {
-                logger.debug("invoking visit method via refection failed", ex);
+            catch (Exception e) {
+                logger.debug("invoking visit method via refection failed", e);
             }
         }
     }
@@ -1028,13 +1029,15 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
                         method.setAccessible(true);
                         method.invoke(visitor, obj);
                     }
-                    catch (Exception ex) {
-                        logger.debug(String.format("invoking visit(%s) method via refection failed", method.getParameterTypes()[0].getSimpleName()), ex);
+                    catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                        logger.debug(String.format("invoking visit(%s) method via refection failed",
+                                method.getParameterTypes()[0].getSimpleName()),
+                                e);
                     }
                 }
             }
-            catch (Exception ex) {
-                logger.debug("invoking visit method via refection failed", ex);
+            catch (SecurityException e) {
+                logger.debug("invoking visit method via refection failed", e);
             }
         }
     }
@@ -1042,7 +1045,7 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
     /**
      * Enum of supported walking modes
      */
-    public static enum WalkingMode {
+    public enum WalkingMode {
         /**
          * Visit an element after visiting all of its subelements
          */
@@ -1052,10 +1055,10 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
          */
         VisitBeforeDescent;
 
-        public static WalkingMode DEFAULT = VisitBeforeDescent;
+        public static final WalkingMode DEFAULT = VisitBeforeDescent;
     }
 
-    public static abstract class AbstractBuilder<T extends AssetAdministrationShellElementWalker, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends AssetAdministrationShellElementWalker, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B before(AssetAdministrationShellElementVisitor value) {
             getBuildingInstance().before = value;

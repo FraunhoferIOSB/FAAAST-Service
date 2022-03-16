@@ -76,7 +76,7 @@ public class RangeValue<T> extends DataElementValue {
         return Objects.hash(min, max);
     }
 
-    public static abstract class AbstractBuilder<T extends RangeValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends RangeValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B min(TypedValue value) {
             getBuildingInstance().setMin(value);

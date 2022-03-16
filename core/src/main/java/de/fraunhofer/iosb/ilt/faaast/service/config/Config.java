@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.serialization.ConfigTypeResolver;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiationException;
 
 
@@ -36,8 +37,24 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiatio
 @JsonTypeIdResolver(ConfigTypeResolver.class)
 public abstract class Config<T extends Configurable> {
 
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        return (getClass() == obj.getClass());
+    }
+
+
+    public int hashCode() {
+        return 7;
+    }
+
+
     /**
-     * Utilify method to get the concrete type of the corresponding
+     * Utility method to get the concrete type of the corresponding
      * implementation.
      *
      * @return the type of the corresponding implementation
@@ -60,14 +77,14 @@ public abstract class Config<T extends Configurable> {
      * de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiationException
      *             when creating a new instance fails
      */
-    public T newInstance(CoreConfig coreConfig, ServiceContext context) throws ConfigurationInstantiationException {
+    public T newInstance(CoreConfig coreConfig, ServiceContext context) throws ConfigurationException {
         try {
             T result = getImplementationType().newInstance();
             result.init(coreConfig, this, context);
             return result;
         }
-        catch (Exception ex) {
-            throw new ConfigurationInstantiationException(ex);
+        catch (IllegalAccessException | InstantiationException e) {
+            throw new ConfigurationInstantiationException("error instantiating configuration implementation class", e);
         }
     }
 }

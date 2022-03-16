@@ -71,7 +71,7 @@ public class SpecificAssetIdentification implements AssetIdentification {
         return new GlobalAssetIdentification.Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends SpecificAssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends SpecificAssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B key(String value) {
             getBuildingInstance().setKey(value);

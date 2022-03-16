@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
@@ -27,19 +28,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 public class AssetConnectionManager {
 
-    private List<AssetConnection> connections;
+    private final List<AssetConnection> connections;
     private final CoreConfig coreConfig;
     private final ServiceContext serviceContext;
 
-    public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections, ServiceContext context) throws ConfigurationException {
+    public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections, ServiceContext context) throws ConfigurationException, AssetConnectionException {
         this.coreConfig = coreConfig;
         this.connections = connections != null ? connections : new ArrayList<>();
         this.serviceContext = context;
@@ -47,24 +46,16 @@ public class AssetConnectionManager {
         for (var assetConnection: connections) {
             final Map<Reference, AssetSubscriptionProvider> subscriptionProviders = assetConnection.getSubscriptionProviders();
             for (var subscriptionInfo: subscriptionProviders.entrySet()) {
-                try {
-                    subscriptionInfo.getValue().addNewDataListener(new NewDataListener() {
-                        @Override
-                        public void newDataReceived(DataElementValue data) {
-                            serviceContext.execute(SetSubmodelElementValueByPathRequest.builder()
-                                    .id(new DefaultIdentifier.Builder()
-                                            .identifier(subscriptionInfo.getKey().getKeys().get(0).getValue())
-                                            .idType(IdentifierType.IRI)
-                                            .build())
-                                    .path(subscriptionInfo.getKey().getKeys().subList(1, subscriptionInfo.getKey().getKeys().size()))
-                                    .value(data)
-                                    .build());
-                        }
-                    });
-                }
-                catch (AssetConnectionException ex) {
-                    Logger.getLogger(AssetConnectionManager.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                subscriptionInfo.getValue().addNewDataListener((DataElementValue data) -> {
+                    serviceContext.execute(SetSubmodelElementValueByPathRequest.builder()
+                            .id(new DefaultIdentifier.Builder()
+                                    .identifier(subscriptionInfo.getKey().getKeys().get(0).getValue())
+                                    .idType(IdentifierType.IRI)
+                                    .build())
+                            .path(subscriptionInfo.getKey().getKeys().subList(1, subscriptionInfo.getKey().getKeys().size()))
+                            .value(data)
+                            .build());
+                });
             }
         }
     }
@@ -80,34 +71,16 @@ public class AssetConnectionManager {
      *             when provided connectionConfig is invalid
      */
     public void add(AssetConnectionConfig<? extends AssetConnection, ? extends AssetValueProviderConfig, ? extends AssetOperationProviderConfig, ? extends AssetSubscriptionProviderConfig> connectionConfig)
-            throws ConfigurationException {
-        AssetConnection newConnection = (AssetConnection) connectionConfig.newInstance(coreConfig, serviceContext);
+            throws ConfigurationException, AssetConnectionException {
+        AssetConnection newConnection = connectionConfig.newInstance(coreConfig, serviceContext);
         if (connections.stream().anyMatch(x -> Objects.equals(x, newConnection))) {
             AssetConnection connection = connections.stream().filter(x -> Objects.equals(x, newConnection)).findFirst().get();
-            connectionConfig.getValueProviders().forEach((k, v) -> {
-                try {
-                    connection.registerValueProvider(k, (AssetValueProviderConfig) v);
-                }
-                catch (AssetConnectionException ex) {
-                    // TODO rethrow
-                }
-            });
-            connectionConfig.getOperationProviders().forEach((k, v) -> {
-                try {
-                    connection.registerOperationProvider(k, (AssetOperationProviderConfig) v);
-                }
-                catch (AssetConnectionException ex) {
-                    // TODO rethrow
-                }
-            });
-            connectionConfig.getSubscriptionProviders().forEach((k, v) -> {
-                try {
-                    connection.registerSubscriptionProvider(k, (AssetSubscriptionProviderConfig) v);
-                }
-                catch (AssetConnectionException ex) {
-                    // TODO rethrow
-                }
-            });
+            connectionConfig.getValueProviders().forEach(LambdaExceptionHelper.rethrowBiConsumer(
+                    (k, v) -> connection.registerValueProvider(k, (AssetValueProviderConfig) v)));
+            connectionConfig.getSubscriptionProviders().forEach(LambdaExceptionHelper.rethrowBiConsumer(
+                    (k, v) -> connection.registerSubscriptionProvider(k, (AssetSubscriptionProviderConfig) v)));
+            connectionConfig.getOperationProviders().forEach(LambdaExceptionHelper.rethrowBiConsumer(
+                    (k, v) -> connection.registerOperationProvider(k, (AssetOperationProviderConfig) v)));
         }
         else {
             connections.add(newConnection);
