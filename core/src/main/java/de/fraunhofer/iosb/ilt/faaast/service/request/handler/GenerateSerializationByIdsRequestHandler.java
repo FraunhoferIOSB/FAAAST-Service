@@ -43,7 +43,7 @@ public class GenerateSerializationByIdsRequestHandler extends RequestHandler<Gen
         response.setContentType(request.getSerializationFormat().getContentType());
         //TODO implement Serialization
         // this requires uniform interface for de-/serializers, which can only be detected through reflection because otherwise we will have circular dependencies
-        response.setStatusCode(StatusCode.ServerInternalError);
+        response.setStatusCode(StatusCode.SERVER_INTERNAL_ERROR);
         return response;
     }
 }

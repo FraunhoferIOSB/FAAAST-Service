@@ -59,8 +59,8 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
 
         //Check if submodelelement does exist
         SubmodelElement currentSubmodelElement = persistence.get(reference, new QueryModifier.Builder()
-                .extend(Extend.WithoutBLOBValue)
-                .level(Level.Core)
+                .extend(Extend.WITHOUT_BLOB_VALUE)
+                .level(Level.CORE)
                 .build());
         SubmodelElement newSubmodelElement = request.getSubmodelElement();
 
@@ -68,7 +68,7 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
         ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
         currentSubmodelElement = persistence.put(null, reference, newSubmodelElement);
         response.setPayload(currentSubmodelElement);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         if (!Objects.equals(oldValue, newValue)) {
             writeValueToAssetConnection(reference, ElementValueMapper.toValue(currentSubmodelElement));
         }

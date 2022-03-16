@@ -40,7 +40,7 @@ public class ValueConverter {
     public ValueConverter() {
         this.aasToOpcUaConverters = new HashMap<>();
         this.opcUaToAasConverters = new HashMap<>();
-        register(Datatype.Integer, Identifiers.Integer, new AasToOpcUaValueConverter() {
+        register(Datatype.INTEGER, Identifiers.Integer, new AasToOpcUaValueConverter() {
             @Override
             public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
                 return new Variant(((BigInteger) value.getValue()).intValueExact());

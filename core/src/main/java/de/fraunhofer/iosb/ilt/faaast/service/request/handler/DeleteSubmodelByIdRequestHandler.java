@@ -47,7 +47,7 @@ public class DeleteSubmodelByIdRequestHandler extends RequestHandler<DeleteSubmo
         DeleteSubmodelByIdResponse response = new DeleteSubmodelByIdResponse();
         Submodel submodel = (Submodel) persistence.get(request.getId(), new QueryModifier());
         persistence.remove(request.getId());
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         //TODO: Delete AssetConnections of underlying submodel elements?
         publishElementDeleteEventMessage(AasUtils.toReference(submodel), submodel);
         return response;

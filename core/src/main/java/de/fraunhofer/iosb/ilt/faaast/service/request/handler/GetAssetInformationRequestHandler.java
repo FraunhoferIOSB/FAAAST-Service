@@ -47,7 +47,7 @@ public class GetAssetInformationRequestHandler extends RequestHandler<GetAssetIn
         GetAssetInformationResponse response = new GetAssetInformationResponse();
         AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
         response.setPayload(shell.getAssetInformation());
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         publishElementReadEventMessage(AasUtils.toReference(shell), shell);
         return response;
     }

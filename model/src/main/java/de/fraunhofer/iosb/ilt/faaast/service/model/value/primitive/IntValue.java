@@ -49,6 +49,6 @@ public class IntValue extends TypedValue<Integer> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Int;
+        return Datatype.INT;
     }
 }

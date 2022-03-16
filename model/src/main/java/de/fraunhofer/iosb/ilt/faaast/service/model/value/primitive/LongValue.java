@@ -49,7 +49,7 @@ public class LongValue extends TypedValue<Long> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Long;
+        return Datatype.LONG;
     }
 
 }

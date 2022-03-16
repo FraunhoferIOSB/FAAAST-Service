@@ -84,7 +84,7 @@ public class OpcUaAssetConnectionTest {
     @Test
     public void testSubscriptionProvider()
             throws AssetConnectionException, InterruptedException, ValueFormatException, ExecutionException, UaException, ConfigurationInitializationException {
-        testSubscribe("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.Double, "0.1"));
+        testSubscribe("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "0.1"));
     }
 
 
@@ -169,10 +169,10 @@ public class OpcUaAssetConnectionTest {
 
     @Test
     public void testValueProvider() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
-        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.Double, "3.3"));
-        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/String", PropertyValue.of(Datatype.String, "hello world!"));
-        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Integer", PropertyValue.of(Datatype.Integer, "42"));
-        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Boolean", PropertyValue.of(Datatype.Boolean, "true"));
+        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "3.3"));
+        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/String", PropertyValue.of(Datatype.STRING, "hello world!"));
+        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Integer", PropertyValue.of(Datatype.INTEGER, "42"));
+        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Boolean", PropertyValue.of(Datatype.BOOLEAN, "true"));
     }
 
 
@@ -268,27 +268,27 @@ public class OpcUaAssetConnectionTest {
         String nodeIdSqrt = "ns=2;s=HelloWorld/sqrt(x)";
         testInvokeOperation(nodeIdSqrt,
                 true,
-                Map.of("x", PropertyValue.of(Datatype.Double, "4.0")),
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0")),
                 null,
                 null,
-                Map.of("x", PropertyValue.of(Datatype.Double, "2.0")));
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "2.0")));
         testInvokeOperation(nodeIdSqrt,
                 false,
-                Map.of("x", PropertyValue.of(Datatype.Double, "4.0")),
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0")),
                 null,
                 null,
-                Map.of("x", PropertyValue.of(Datatype.Double, "2.0")));
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "2.0")));
         testInvokeOperation(nodeIdSqrt,
                 true,
                 null,
-                Map.of("x", PropertyValue.of(Datatype.Double, "4.0")),
-                Map.of("x", PropertyValue.of(Datatype.Double, "2.0")),
-                Map.of("x", PropertyValue.of(Datatype.Double, "2.0")));
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0")),
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "2.0")),
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "2.0")));
         testInvokeOperation(nodeIdSqrt,
                 false,
                 null,
-                Map.of("x", PropertyValue.of(Datatype.Double, "4.0")),
-                Map.of("x", PropertyValue.of(Datatype.Double, "2.0")),
-                Map.of("x", PropertyValue.of(Datatype.Double, "2.0")));
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0")),
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "2.0")),
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "2.0")));
     }
 }

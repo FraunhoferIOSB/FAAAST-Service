@@ -21,12 +21,12 @@ import java.util.stream.Stream;
  * Datatypes defined in AAS specification
  */
 public enum Datatype {
-    String("string", StringValue.class),
-    Boolean("boolean", BooleanValue.class),
-    Decimal("decimal", DecimalValue.class),
-    Integer("integer", IntegerValue.class),
-    Double("double", DoubleValue.class),
-    Float("float", FloatValue.class),
+    STRING("string", StringValue.class),
+    BOOLEAN("boolean", BooleanValue.class),
+    DECIMAL("decimal", DecimalValue.class),
+    INTEGER("integer", IntegerValue.class),
+    DOUBLE("double", DoubleValue.class),
+    FLOAT("float", FloatValue.class),
     // TODO implement all data types
     //    Date,
     //    Time,
@@ -39,10 +39,10 @@ public enum Datatype {
     //    Duration,
     //    YearMonthDuration,
     //    DayTimeDuration,
-    Byte("byte", ByteValue.class),
-    Short("short", ShortValue.class),
-    Int("int", IntValue.class),
-    Long("long", LongValue.class), //    UnsignedByte,
+    BYTE("byte", ByteValue.class),
+    SHORT("short", ShortValue.class),
+    INT("int", IntValue.class),
+    LONG("long", LongValue.class), //    UnsignedByte,
     //    UnsignedShort,
     //    UnsignedInt,
     //    UnsignedLong,
@@ -56,7 +56,7 @@ public enum Datatype {
     //    LangString
     ;
 
-    public static final Datatype DEFAULT = Datatype.String;
+    public static final Datatype DEFAULT = Datatype.STRING;
 
     /**
      * Finds datatype from string. Matching is case-sensitive. If no match is

@@ -48,7 +48,7 @@ public class PutAssetAdministrationShellRequestHandler extends RequestHandler<Pu
         AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getAas().getIdentification(), new OutputModifier());
         shell = (AssetAdministrationShell) persistence.put(request.getAas());
         response.setPayload(shell);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         publishElementUpdateEventMessage(AasUtils.toReference(shell), shell);
         return response;
     }

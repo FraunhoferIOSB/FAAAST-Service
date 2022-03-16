@@ -47,7 +47,7 @@ public class GetAllConceptDescriptionsByIdShortRequestHandler extends RequestHan
         GetAllConceptDescriptionsByIdShortResponse response = new GetAllConceptDescriptionsByIdShortResponse();
         List<ConceptDescription> conceptDescriptions = persistence.get(request.getIdShort(), null, null, request.getOutputModifier());
         response.setPayload(conceptDescriptions);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         if (conceptDescriptions != null) {
             conceptDescriptions.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(x), x)));
         }

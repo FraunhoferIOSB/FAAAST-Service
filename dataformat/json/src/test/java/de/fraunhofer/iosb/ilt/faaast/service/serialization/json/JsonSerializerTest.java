@@ -114,7 +114,7 @@ public class JsonSerializerTest {
                 })
                 .collect(Collectors.joining(",", "[", "]"));
         String actual = serializer.write(data.keySet(), new OutputModifier.Builder()
-                .content(Content.Value)
+                .content(Content.VALUE)
                 .build());
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }

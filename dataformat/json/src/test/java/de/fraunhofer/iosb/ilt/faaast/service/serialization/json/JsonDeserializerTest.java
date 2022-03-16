@@ -178,20 +178,20 @@ public class JsonDeserializerTest {
     @Test
     public void testProperty() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValue(PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE);
-        compareValue(PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE, PropertyValue.class, Datatype.String);
+        compareValue(PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE, PropertyValue.class, Datatype.STRING);
         compareValue(PropertyValues.PROPERTY_DOUBLE, PropertyValues.PROPERTY_DOUBLE_FILE);
-        compareValue(PropertyValues.PROPERTY_DOUBLE, PropertyValues.PROPERTY_DOUBLE_FILE, PropertyValue.class, Datatype.Double);
+        compareValue(PropertyValues.PROPERTY_DOUBLE, PropertyValues.PROPERTY_DOUBLE_FILE, PropertyValue.class, Datatype.DOUBLE);
         compareValue(PropertyValues.PROPERTY_INT, PropertyValues.PROPERTY_INT_FILE);
-        compareValue(PropertyValues.PROPERTY_INT, PropertyValues.PROPERTY_INT_FILE, PropertyValue.class, Datatype.Int);
+        compareValue(PropertyValues.PROPERTY_INT, PropertyValues.PROPERTY_INT_FILE, PropertyValue.class, Datatype.INT);
     }
 
 
     @Test
     public void testRange() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
         compareValue(PropertyValues.RANGE_DOUBLE, PropertyValues.RANGE_DOUBLE_FILE);
-        compareValue(PropertyValues.RANGE_DOUBLE, PropertyValues.RANGE_DOUBLE_FILE, RangeValue.class, Datatype.Double);
+        compareValue(PropertyValues.RANGE_DOUBLE, PropertyValues.RANGE_DOUBLE_FILE, RangeValue.class, Datatype.DOUBLE);
         compareValue(PropertyValues.RANGE_INT, PropertyValues.RANGE_INT_FILE);
-        compareValue(PropertyValues.RANGE_INT, PropertyValues.RANGE_INT_FILE, RangeValue.class, Datatype.Int);
+        compareValue(PropertyValues.RANGE_INT, PropertyValues.RANGE_INT_FILE, RangeValue.class, Datatype.INT);
     }
 
 

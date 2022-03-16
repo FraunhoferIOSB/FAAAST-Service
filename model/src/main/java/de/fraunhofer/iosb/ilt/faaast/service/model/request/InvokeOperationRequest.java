@@ -41,7 +41,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends BaseReq
         this.path = new ArrayList<>();
         this.inputArguments = new ArrayList<>();
         this.inoutputArguments = new ArrayList<>();
-        this.content = Content.Normal;
+        this.content = Content.NORMAL;
         this.timeout = DEFAULT_TIMEOUT;
         this.requestId = UUID.randomUUID().toString();
     }

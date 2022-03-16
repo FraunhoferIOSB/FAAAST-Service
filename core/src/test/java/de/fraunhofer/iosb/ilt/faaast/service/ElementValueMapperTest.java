@@ -71,7 +71,7 @@ public class ElementValueMapperTest {
                         .build())
                 .annotation(new DefaultProperty.Builder()
                         .idShort(value.getAnnotations().keySet().iterator().next())
-                        .valueType(Datatype.String.getName())
+                        .valueType(Datatype.STRING.getName())
                         .value("foo")
                         .build())
                 .build();
@@ -92,7 +92,7 @@ public class ElementValueMapperTest {
                         .build())
                 .annotation(new DefaultProperty.Builder()
                         .idShort(expected.getAnnotations().keySet().iterator().next())
-                        .valueType(Datatype.String.getName())
+                        .valueType(Datatype.STRING.getName())
                         .value("foo")
                         .build())
                 .build();
@@ -125,7 +125,7 @@ public class ElementValueMapperTest {
                                 .type(KeyElements.PROPERTY)
                                 .value("property2")
                                 .build()))
-                .annotation("property", PropertyValue.of(Datatype.String, "foo"))
+                .annotation("property", PropertyValue.of(Datatype.STRING, "foo"))
                 .build();
     }
 
@@ -170,7 +170,7 @@ public class ElementValueMapperTest {
                         .build())
                 .build();
         EntityValue value = EntityValue.builder()
-                .statement("property", PropertyValue.of(Datatype.String, "foo"))
+                .statement("property", PropertyValue.of(Datatype.STRING, "foo"))
                 .entityType(EntityType.SELF_MANAGED_ENTITY)
                 .globalAssetId(List.of(new DefaultKey.Builder()
                         .idType(KeyType.IRI)
@@ -186,7 +186,7 @@ public class ElementValueMapperTest {
         SubmodelElement expected = new DefaultEntity.Builder()
                 .statement(new DefaultProperty.Builder()
                         .idShort(value.getStatements().keySet().iterator().next())
-                        .valueType(Datatype.String.getName())
+                        .valueType(Datatype.STRING.getName())
                         .value("foo")
                         .build())
                 .entityType(value.getEntityType())
@@ -202,7 +202,7 @@ public class ElementValueMapperTest {
     @Test
     public void testEntityToValueMapping() throws ValueFormatException, ValueMappingException {
         EntityValue expected = EntityValue.builder()
-                .statement("property", PropertyValue.of(Datatype.String, "foo"))
+                .statement("property", PropertyValue.of(Datatype.STRING, "foo"))
                 .entityType(EntityType.SELF_MANAGED_ENTITY)
                 .globalAssetId(List.of(new DefaultKey.Builder()
                         .idType(KeyType.IRI)
@@ -219,7 +219,7 @@ public class ElementValueMapperTest {
                 .statement(new DefaultProperty.Builder()
                         .category("Test")
                         .idShort(expected.getStatements().keySet().iterator().next())
-                        .valueType(Datatype.String.getName())
+                        .valueType(Datatype.STRING.getName())
                         .value("foo")
                         .build())
                 .entityType(expected.getEntityType())
@@ -310,7 +310,7 @@ public class ElementValueMapperTest {
 
     @Test
     public void testPropertyToValueMapping() throws ValueFormatException, ValueMappingException {
-        PropertyValue expected = PropertyValue.of(Datatype.String, "foo");
+        PropertyValue expected = PropertyValue.of(Datatype.STRING, "foo");
         SubmodelElement input = new DefaultProperty.Builder()
                 .category("Test")
                 .idShort("TestProperty")

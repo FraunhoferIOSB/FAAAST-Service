@@ -48,7 +48,7 @@ public class PostSubmodelRequestHandler extends RequestHandler<PostSubmodelReque
         PostSubmodelResponse response = new PostSubmodelResponse();
         Submodel submodel = (Submodel) persistence.put(request.getSubmodel());
         response.setPayload(submodel);
-        response.setStatusCode(StatusCode.SuccessCreated);
+        response.setStatusCode(StatusCode.SUCCESS_CREATED);
         Reference reference = AasUtils.toReference(submodel);
         readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
         publishElementCreateEventMessage(reference, submodel);

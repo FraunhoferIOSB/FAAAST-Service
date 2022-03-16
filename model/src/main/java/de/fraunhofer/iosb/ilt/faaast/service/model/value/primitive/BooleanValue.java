@@ -40,7 +40,7 @@ public class BooleanValue extends TypedValue<Boolean> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Boolean;
+        return Datatype.BOOLEAN;
     }
 
 }

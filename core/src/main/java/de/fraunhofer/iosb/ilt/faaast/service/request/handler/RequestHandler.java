@@ -61,7 +61,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
     protected final MessageBus messageBus;
     protected final AssetConnectionManager assetConnectionManager;
 
-    public RequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+    protected RequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         this.persistence = persistence;
         this.messageBus = messageBus;
         this.assetConnectionManager = assetConnectionManager;
@@ -225,11 +225,10 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
      *             if reading from asset connection fails
      */
     protected void writeValueToAssetConnection(Reference reference, ElementValue value) throws AssetConnectionException {
-        if (this.assetConnectionManager.hasValueProvider(reference)) {
-            if (DataElementValue.class.isAssignableFrom(value.getClass())) {
-                AssetValueProvider assetValueProvider = this.assetConnectionManager.getValueProvider(reference);
-                assetValueProvider.setValue((DataElementValue) value);
-            }
+        if (this.assetConnectionManager.hasValueProvider(reference) &&
+                DataElementValue.class.isAssignableFrom(value.getClass())) {
+            AssetValueProvider assetValueProvider = this.assetConnectionManager.getValueProvider(reference);
+            assetValueProvider.setValue((DataElementValue) value);
         }
     }
 
@@ -278,13 +277,13 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
         }
         for (SubmodelElement x: submodelElements) {
             Reference reference = AasUtils.toReference(parentReference, x);
-            if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
-                if (((SubmodelElementCollection) x).getValues() != null) {
-                    readValueFromAssetConnectionAndUpdatePersistence(reference,
-                            new ArrayList<>(((SubmodelElementCollection) x).getValues()));
-                    return;
-                }
+            if (SubmodelElementCollection.class.isAssignableFrom(x.getClass()) &&
+                    ((SubmodelElementCollection) x).getValues() != null) {
+                readValueFromAssetConnectionAndUpdatePersistence(reference,
+                        new ArrayList<>(((SubmodelElementCollection) x).getValues()));
+                return;
             }
+
             if (this.assetConnectionManager.hasValueProvider(reference)) {
                 ElementValue currentValue = ElementValueMapper.toValue(x);
                 ElementValue assetValue = this.assetConnectionManager.getValueProvider(reference).getValue();

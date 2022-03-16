@@ -49,7 +49,7 @@ public class ByteValue extends TypedValue<Byte> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Byte;
+        return Datatype.BYTE;
     }
 
 }

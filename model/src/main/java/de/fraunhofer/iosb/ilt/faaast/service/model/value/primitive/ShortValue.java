@@ -49,7 +49,7 @@ public class ShortValue extends TypedValue<Short> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Short;
+        return Datatype.SHORT;
     }
 
 }

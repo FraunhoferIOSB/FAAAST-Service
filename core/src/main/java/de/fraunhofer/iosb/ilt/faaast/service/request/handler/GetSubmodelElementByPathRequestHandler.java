@@ -63,7 +63,7 @@ public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSu
             publishValueChangeEventMessage(reference, oldValue, valueFromAssetConnection);
         }
         response.setPayload(submodelElement);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         publishElementReadEventMessage(reference, submodelElement);
         return response;
     }

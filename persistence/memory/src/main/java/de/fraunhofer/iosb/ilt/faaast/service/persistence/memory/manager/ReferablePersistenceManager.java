@@ -54,7 +54,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
         if (reference == null || reference.getKeys() == null || modifier == null || this.aasEnvironment == null) {
             return null;
         }
-        if (modifier.getExtend() == Extend.WithoutBLOBValue) {
+        if (modifier.getExtend() == Extend.WITHOUT_BLOB_VALUE) {
             if (reference.getKeys().get(reference.getKeys().size() - 1).getType() == KeyElements.BLOB) {
                 return null;
             }

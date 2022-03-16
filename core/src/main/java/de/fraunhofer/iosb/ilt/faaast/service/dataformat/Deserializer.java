@@ -378,7 +378,7 @@ public interface Deserializer {
      * @throws DeserializationException if deserialization fails
      */
     public default <T extends ElementValue> T readValue(String json, Class<T> type) throws DeserializationException {
-        return readValue(json, type, Datatype.String);
+        return readValue(json, type, Datatype.STRING);
     }
 
 

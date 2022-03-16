@@ -393,7 +393,7 @@ public class RequestMappingManagerTest {
         Request expected = GetAllSubmodelElementsRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .outputModifier(new OutputModifier.Builder()
-                        .level(Level.Deep)
+                        .level(Level.DEEP)
                         .build())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -450,7 +450,7 @@ public class RequestMappingManagerTest {
         Request expected = GetAssetAdministrationShellRequest.builder()
                 .id(AAS.getIdentification())
                 .outputModifier(new OutputModifier.Builder()
-                        .content(Content.Value)
+                        .content(Content.VALUE)
                         .build())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -550,7 +550,7 @@ public class RequestMappingManagerTest {
                 .id(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .outputModifier(new OutputModifier.Builder()
-                        .level(Level.Deep)
+                        .level(Level.DEEP)
                         .build())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -585,7 +585,7 @@ public class RequestMappingManagerTest {
                 .path(ReferenceHelper.toKeys(OPERATION_REF))
                 .inputArguments(OPERATION.getInputVariables())
                 .inoutputArguments(OPERATION.getInoutputVariables())
-                .content(Content.Normal)
+                .content(Content.NORMAL)
                 .build();
 
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -607,7 +607,7 @@ public class RequestMappingManagerTest {
                 .path(ReferenceHelper.toKeys(OPERATION_REF))
                 .inputArguments(OPERATION.getInputVariables())
                 .inoutputArguments(OPERATION.getInoutputVariables())
-                .content(Content.Value)
+                .content(Content.VALUE)
                 .build();
 
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -629,7 +629,7 @@ public class RequestMappingManagerTest {
                 .path(ReferenceHelper.toKeys(OPERATION_REF))
                 .inputArguments(OPERATION.getInputVariables())
                 .inoutputArguments(OPERATION.getInoutputVariables())
-                .content(Content.Normal)
+                .content(Content.NORMAL)
                 .build();
 
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -650,7 +650,7 @@ public class RequestMappingManagerTest {
                 .path(ReferenceHelper.toKeys(OPERATION_REF))
                 .inputArguments(OPERATION.getInputVariables())
                 .inoutputArguments(OPERATION.getInoutputVariables())
-                .content(Content.Value)
+                .content(Content.VALUE)
                 .build();
 
         Request actual = mappingManager.map(HttpRequest.builder()

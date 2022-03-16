@@ -52,7 +52,7 @@ public class IntegerValue extends TypedValue<BigInteger> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Integer;
+        return Datatype.INTEGER;
     }
 
 }

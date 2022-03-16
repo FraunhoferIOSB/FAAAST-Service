@@ -51,7 +51,7 @@ public class GetAllSubmodelsBySemanticIdRequestHandler extends RequestHandler<Ge
         GetAllSubmodelsBySemanticIdResponse response = new GetAllSubmodelsBySemanticIdResponse();
         List<Submodel> submodels = persistence.get(null, request.getSemanticId(), request.getOutputModifier());
         response.setPayload(submodels);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         if (submodels != null) {
             for (Submodel submodel: submodels) {
                 Reference reference = AasUtils.toReference(submodel);

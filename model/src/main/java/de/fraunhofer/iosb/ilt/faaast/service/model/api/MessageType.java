@@ -18,8 +18,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api;
  * Model class representing defined message types.
  */
 public enum MessageType {
-    Info,
-    Warning,
-    Error,
-    Exception
+    INFO,
+    WARNING,
+    ERROR,
+    EXCEPTION
 }

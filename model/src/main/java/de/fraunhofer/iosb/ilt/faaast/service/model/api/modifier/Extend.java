@@ -21,10 +21,10 @@ import java.util.stream.Stream;
  * Enum of different extend options
  */
 public enum Extend {
-    WithoutBLOBValue,
-    WithBLOBValue;
+    WITHOUT_BLOB_VALUE,
+    WITH_BLOB_VALUE;
 
-    public static final Extend DEFAULT = Extend.WithoutBLOBValue;
+    public static final Extend DEFAULT = Extend.WITHOUT_BLOB_VALUE;
 
     public static Extend fromString(String value) {
         return Stream.of(Extend.values())

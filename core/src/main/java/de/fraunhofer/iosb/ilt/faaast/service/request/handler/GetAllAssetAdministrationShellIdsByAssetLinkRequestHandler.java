@@ -43,7 +43,7 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
         GetAllAssetAdministrationShellIdsByAssetLinkResponse response = new GetAllAssetAdministrationShellIdsByAssetLinkResponse();
         //TODO: implement
         //TODO: How to distinguish between GlobalAssetId and SpecificAssetId?
-        response.setStatusCode(StatusCode.ServerInternalError);
+        response.setStatusCode(StatusCode.SERVER_INTERNAL_ERROR);
         return response;
     }
 }

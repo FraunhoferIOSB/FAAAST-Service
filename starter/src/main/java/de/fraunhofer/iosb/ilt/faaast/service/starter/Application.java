@@ -20,12 +20,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.AASEnvironmentHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.validator.ShaclValidator;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -68,8 +70,10 @@ public class Application implements Runnable {
     private final Map<String, Class<? extends EndpointConfig>> availableEndpoints = new HashMap<>() {
         {
             put("http", HttpEndpointConfig.class);
-            //only usable if OPCUA Endpoint dependency in pom can be resolved
-            //put("ocua", OpcUaEndpointConfig.class);
+            /**
+             * only usable if OPCUA Endpoint dependency in pom can be resolved
+             * put("opcua", OpcUaEndpointConfig.class);
+             */
         }
     };
 
@@ -190,7 +194,8 @@ public class Application implements Runnable {
     }
 
 
-    private List<Config> getCustomConfigComponents() throws Exception {
+    private List<Config> getCustomConfigComponents()
+            throws InvalidConfigurationException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         List<Config> customConfigs = new ArrayList<>();
         if (endpoints != null && !endpoints.isEmpty()) {
             for (String endpoint: endpoints) {
@@ -198,7 +203,7 @@ public class Application implements Runnable {
                     customConfigs.add(availableEndpoints.get(endpoint.toLowerCase()).getDeclaredConstructor().newInstance());
                 }
                 else {
-                    throw new Exception("Endpoint '" + endpoint + "' is not supported. Supported endpoints: " + availableEndpoints.keySet());
+                    throw new InvalidConfigurationException("Endpoint '" + endpoint + "' is not supported. Supported endpoints: " + availableEndpoints.keySet());
                 }
             }
         }

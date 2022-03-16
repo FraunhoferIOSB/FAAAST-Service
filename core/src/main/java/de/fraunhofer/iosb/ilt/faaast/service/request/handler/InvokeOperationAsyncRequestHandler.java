@@ -64,7 +64,7 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
         OperationHandle operationHandle = executeOperationAsync(reference, request);
         response.setPayload(operationHandle);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         publishOperationInvokeEventMessage(reference,
                 toValues(request.getInputArguments()),
                 toValues(request.getInoutputArguments()));
@@ -85,12 +85,12 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
                 new OperationResult.Builder()
                         .requestId(request.getRequestId())
                         .inoutputArguments(request.getInoutputArguments())
-                        .executionState(ExecutionState.Running)
+                        .executionState(ExecutionState.RUNNING)
                         .build());
         try {
             BiConsumer<OperationVariable[], OperationVariable[]> callback = LambdaExceptionHelper.rethrowBiConsumer((x, y) -> {
                 OperationResult operationResult = persistence.getOperationResult(operationHandle.getHandleId());
-                operationResult.setExecutionState(ExecutionState.Completed);
+                operationResult.setExecutionState(ExecutionState.COMPLETED);
                 operationResult.setOutputArguments(Arrays.asList(x));
                 operationResult.setInoutputArguments(Arrays.asList(y));
 
@@ -107,7 +107,7 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
         }
         catch (AssetConnectionException | ValueMappingException e) {
             OperationResult operationResult = persistence.getOperationResult(operationHandle.getHandleId());
-            operationResult.setExecutionState(ExecutionState.Failed);
+            operationResult.setExecutionState(ExecutionState.FAILED);
             operationResult.setInoutputArguments(request.getInoutputArguments());
             persistence.putOperationContext(operationHandle.getHandleId(), operationHandle.getRequestId(), operationResult);
             try {

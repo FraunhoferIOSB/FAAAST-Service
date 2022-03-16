@@ -51,7 +51,7 @@ public class PostSubmodelReferenceRequestHandler extends RequestHandler<PostSubm
         }
         persistence.put(aas);
         response.setPayload(request.getSubmodelRef());
-        response.setStatusCode(StatusCode.SuccessCreated);
+        response.setStatusCode(StatusCode.SUCCESS_CREATED);
         publishElementUpdateEventMessage(AasUtils.toReference(aas), aas);
         return response;
     }

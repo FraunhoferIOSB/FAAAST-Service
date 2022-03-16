@@ -18,7 +18,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error;
  * ErrorLevel for {@link ErrorEventMessage}
  */
 public enum ErrorLevel {
-    Info,
-    Warn,
-    Error
+    INFO,
+    WARN,
+    ERROR
 }

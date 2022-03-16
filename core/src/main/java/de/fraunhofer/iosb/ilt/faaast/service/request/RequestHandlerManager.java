@@ -155,10 +155,10 @@ public class RequestHandlerManager {
             return (O) handlers.get(request.getClass()).process(request);
         }
         catch (ResourceNotFoundException e) {
-            return createResponse(request, StatusCode.ClientErrorResourceNotFound);
+            return createResponse(request, StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND);
         }
         catch (Exception e) {
-            return createResponse(request, StatusCode.ServerInternalError);
+            return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR);
         }
     }
 

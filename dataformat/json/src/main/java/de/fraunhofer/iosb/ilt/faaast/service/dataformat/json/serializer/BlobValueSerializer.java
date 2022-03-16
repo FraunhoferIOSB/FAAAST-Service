@@ -46,7 +46,7 @@ public class BlobValueSerializer extends ModifierAwareSerializer<BlobValue> {
         if (value != null) {
             generator.writeStartObject();
             generator.writeStringField(JsonFieldNames.BLOB_VALUE_MIME_TYPE, value.getMimeType());
-            if (extend == Extend.WithBLOBValue) {
+            if (extend == Extend.WITH_BLOB_VALUE) {
                 generator.writeStringField(JsonFieldNames.BLOB_VALUE_VALUE, new String(Base64.encodeBase64(value.getValue())));
             }
             generator.writeEndObject();

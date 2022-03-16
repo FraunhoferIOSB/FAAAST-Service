@@ -51,7 +51,7 @@ public class GetAllSubmodelsByIdShortRequestHandler extends RequestHandler<GetAl
         GetAllSubmodelsByIdShortResponse response = new GetAllSubmodelsByIdShortResponse();
         List<Submodel> submodels = persistence.get(request.getIdShort(), (Reference) null, request.getOutputModifier());
         response.setPayload(submodels);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         if (submodels != null) {
             for (Submodel submodel: submodels) {
                 Reference reference = AasUtils.toReference(submodel);
