@@ -118,6 +118,7 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
      * @param type target type
      * @return map of sub-values identified by their idShort as key
      * @throws IOException as reading node fails
+     * @throws IllegalArgumentException if no type information can be found
      */
     protected <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) throws IOException {
         Map<String, T> result = new HashMap<>();
@@ -139,7 +140,7 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
         for (Map.Entry<String, JsonNode> childNode: childNodes.entrySet()) {
             TypeInfo childTypeInfo = (TypeInfo) typeInfo.getElements().get(childNode.getKey());
             if (childTypeInfo == null || childTypeInfo.getType() == null) {
-                throw new RuntimeException(String.format("no type information found for element (idShort: %s)", childNode.getKey()));
+                throw new IllegalArgumentException(String.format("no type information found for element (idShort: %s)", childNode.getKey()));
             }
             result.put(childNode.getKey(), (T) context.setAttribute(VALUE_TYPE_CONTEXT, childTypeInfo)
                     .readTreeAsValue(childNode.getValue(), childTypeInfo.getType()));

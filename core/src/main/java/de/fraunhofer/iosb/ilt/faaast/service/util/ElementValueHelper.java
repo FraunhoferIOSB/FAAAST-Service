@@ -44,7 +44,7 @@ public class ElementValueHelper {
             MAP_GENERIC_TOKEN = Map.class.getMethod("get", Object.class).getGenericReturnType();
         }
         catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("static initialization of ElementValueHelper failed", e);
         }
     }
 
