@@ -49,7 +49,7 @@ public class IdentifierTest {
 
     @Test
     public void testHttpComplexIRI() {
-        testIRI("http://example.com/demo/aas/1/1/1234859590,(Property)[IdShort]Temperature");
+        testIRI("http://example.com/demo/aas/1/1/1234859590");
     }
 
 
