@@ -75,6 +75,7 @@ public class MessageBusInternal implements MessageBus<MessageBusInternalConfig> 
                 messageQueue.put(message);
             }
             catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw new MessageBusException("adding message to queue failed", e);
             }
         }
