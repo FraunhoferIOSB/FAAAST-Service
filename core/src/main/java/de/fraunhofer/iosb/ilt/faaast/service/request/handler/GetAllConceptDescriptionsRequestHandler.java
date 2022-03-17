@@ -47,7 +47,7 @@ public class GetAllConceptDescriptionsRequestHandler extends RequestHandler<GetA
         GetAllConceptDescriptionsResponse response = new GetAllConceptDescriptionsResponse();
         List<ConceptDescription> conceptDescriptions = persistence.get(null, null, null, request.getOutputModifier());
         response.setPayload(conceptDescriptions);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         if (conceptDescriptions != null) {
             conceptDescriptions.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(x), x)));
         }

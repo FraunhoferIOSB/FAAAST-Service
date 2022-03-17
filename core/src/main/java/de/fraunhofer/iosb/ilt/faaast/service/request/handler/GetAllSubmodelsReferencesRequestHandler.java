@@ -49,7 +49,7 @@ public class GetAllSubmodelsReferencesRequestHandler extends RequestHandler<GetA
         AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), request.getOutputModifier());
         List<Reference> submodelReferences = shell.getSubmodels();
         response.setPayload(submodelReferences);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         publishElementReadEventMessage(AasUtils.toReference(shell), shell);
         return response;
     }

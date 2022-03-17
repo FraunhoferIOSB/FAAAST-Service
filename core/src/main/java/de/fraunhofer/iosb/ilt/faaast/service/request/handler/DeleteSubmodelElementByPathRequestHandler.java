@@ -50,7 +50,7 @@ public class DeleteSubmodelElementByPathRequestHandler extends RequestHandler<De
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
         SubmodelElement submodelElement = persistence.get(reference, new QueryModifier());
         persistence.remove(reference);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         publishElementDeleteEventMessage(reference, submodelElement);
         return response;
     }

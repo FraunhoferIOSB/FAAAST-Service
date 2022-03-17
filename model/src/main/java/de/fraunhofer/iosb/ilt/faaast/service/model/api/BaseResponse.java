@@ -39,7 +39,7 @@ public abstract class BaseResponse implements Response {
 
 
     protected BaseResponse() {
-        this.statusCode = StatusCode.ServerInternalError;
+        this.statusCode = StatusCode.SERVER_INTERNAL_ERROR;
         this.result = Result.builder()
                 .success(false)
                 .message(new Message())

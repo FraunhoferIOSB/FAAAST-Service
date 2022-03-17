@@ -50,10 +50,10 @@ public class ValueOnlyJsonSerializerTest {
 
     @Test
     public void testBlob() throws SerializationException, JSONException, IOException, ValueMappingException {
-        compare(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extend.WithBLOBValue);
-        compare(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extend.WithoutBLOBValue);
-        compareValue(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extend.WithBLOBValue);
-        compareValue(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extend.WithoutBLOBValue);
+        compare(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extend.WITH_BLOB_VALUE);
+        compare(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extend.WITHOUT_BLOB_VALUE);
+        compareValue(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extend.WITH_BLOB_VALUE);
+        compareValue(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extend.WITHOUT_BLOB_VALUE);
     }
 
 

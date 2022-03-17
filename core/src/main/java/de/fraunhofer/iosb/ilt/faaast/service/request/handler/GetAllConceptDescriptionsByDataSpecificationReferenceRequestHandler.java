@@ -48,7 +48,7 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestHandler
         GetAllConceptDescriptionsByDataSpecificationReferenceResponse response = new GetAllConceptDescriptionsByDataSpecificationReferenceResponse();
         List<ConceptDescription> conceptDescriptions = persistence.get(null, null, request.getDataSpecificationReference(), request.getOutputModifier());
         response.setPayload(conceptDescriptions);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         if (conceptDescriptions != null) {
             conceptDescriptions.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(x), x)));
         }

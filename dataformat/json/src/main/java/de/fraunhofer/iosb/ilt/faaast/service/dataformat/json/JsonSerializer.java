@@ -55,7 +55,7 @@ public class JsonSerializer implements Serializer {
 
     @Override
     public String write(Object obj, OutputModifier modifier) throws SerializationException {
-        if (modifier != null && modifier.getContent() == Content.Value) {
+        if (modifier != null && modifier.getContent() == Content.VALUE) {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());
         }
         if (obj != null && ElementValue.class.isAssignableFrom(obj.getClass())) {

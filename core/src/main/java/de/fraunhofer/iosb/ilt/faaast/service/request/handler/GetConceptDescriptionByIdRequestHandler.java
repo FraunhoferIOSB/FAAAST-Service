@@ -46,7 +46,7 @@ public class GetConceptDescriptionByIdRequestHandler extends RequestHandler<GetC
         GetConceptDescriptionByIdResponse response = new GetConceptDescriptionByIdResponse();
         ConceptDescription conceptDescription = (ConceptDescription) persistence.get(request.getId(), request.getOutputModifier());
         response.setPayload(conceptDescription);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         if (conceptDescription != null) {
             publishElementReadEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
         }

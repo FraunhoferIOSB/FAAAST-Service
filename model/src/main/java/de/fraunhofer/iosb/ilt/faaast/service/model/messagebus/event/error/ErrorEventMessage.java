@@ -33,7 +33,7 @@ public class ErrorEventMessage extends EventMessage {
      * Default Constructor creating ErrorEventMessage with errorLevel = Info
      */
     public ErrorEventMessage() {
-        this.errorLevel = ErrorLevel.Info;
+        this.errorLevel = ErrorLevel.INFO;
     }
 
 

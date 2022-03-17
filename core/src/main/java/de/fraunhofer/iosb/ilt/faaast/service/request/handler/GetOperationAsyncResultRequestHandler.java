@@ -43,7 +43,7 @@ public class GetOperationAsyncResultRequestHandler extends RequestHandler<GetOpe
         GetOperationAsyncResultResponse response = new GetOperationAsyncResultResponse();
         OperationResult operationResult = persistence.getOperationResult(request.getHandleId());
         response.setPayload(operationResult);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         return response;
     }
 }

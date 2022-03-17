@@ -35,23 +35,23 @@ public class HttpHelper {
      */
     public static int toHttpStatusCode(StatusCode statusCode) {
         switch (statusCode) {
-            case Success:
+            case SUCCESS:
                 return HttpStatus.OK_200;
-            case SuccessCreated:
+            case SUCCESS_CREATED:
                 return HttpStatus.CREATED_201;
-            case SuccessNoContent:
+            case SUCCESS_NO_CONTENT:
                 return HttpStatus.NO_CONTENT_204;
-            case ClientForbidden:
+            case CLIENT_FORBIDDEN:
                 return HttpStatus.FORBIDDEN_403;
-            case ClientErrorBadRequest:
+            case CLIENT_ERROR_BAD_REQUEST:
                 return HttpStatus.BAD_REQUEST_400;
-            case ClientMethodNotAllowed:
+            case CLIENT_METHOD_NOT_ALLOWED:
                 return HttpStatus.METHOD_NOT_ALLOWED_405;
-            case ClientErrorResourceNotFound:
+            case CLIENT_ERROR_RESOURCE_NOT_FOUND:
                 return HttpStatus.NOT_FOUND_404;
-            case ServerInternalError:
+            case SERVER_INTERNAL_ERROR:
                 return HttpStatus.INTERNAL_SERVER_ERROR_500;
-            case ServerErrorBadGateway:
+            case SERVER_ERROR_BAD_GATEWAY:
                 return HttpStatus.BAD_GATEWAY_502;
             default:
                 throw new IllegalArgumentException(String.format("unsupported status code '%s'", statusCode.name()));

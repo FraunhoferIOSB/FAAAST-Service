@@ -48,7 +48,7 @@ public class GetAllAssetAdministrationShellsRequestHandler extends RequestHandle
         GetAllAssetAdministrationShellsResponse response = new GetAllAssetAdministrationShellsResponse();
         List<AssetAdministrationShell> shells = persistence.get(null, (List<AssetIdentification>) null, request.getOutputModifier());
         response.setPayload(shells);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         if (shells != null) {
             shells.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(x), x)));
         }

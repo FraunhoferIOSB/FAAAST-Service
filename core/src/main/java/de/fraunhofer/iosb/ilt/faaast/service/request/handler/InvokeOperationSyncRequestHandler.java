@@ -69,7 +69,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
 
         OperationResult operationResult = executeOperationSync(reference, request);
         response.setPayload(operationResult);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         publishOperationFinishEventMessage(reference,
                 toValues(response.getPayload().getOutputArguments()),
                 toValues(response.getPayload().getInoutputArguments()));
@@ -100,7 +100,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
             OperationVariable[] outputVariables = future.get(request.getTimeout(), TimeUnit.MILLISECONDS);
             result = OperationResult.builder()
                     .requestId(request.getRequestId())
-                    .executionState(ExecutionState.Completed)
+                    .executionState(ExecutionState.COMPLETED)
                     .inoutputArguments(request.getInoutputArguments())
                     .outputArguments(Arrays.asList(outputVariables))
                     .build();
@@ -110,7 +110,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
             result = OperationResult.builder()
                     .requestId(request.getRequestId())
                     .inoutputArguments(request.getInoutputArguments())
-                    .executionState(ExecutionState.Timeout)
+                    .executionState(ExecutionState.TIMEOUT)
                     .build();
             Thread.currentThread().interrupt();
         }
@@ -118,7 +118,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
             result = OperationResult.builder()
                     .requestId(request.getRequestId())
                     .inoutputArguments(request.getInoutputArguments())
-                    .executionState(ExecutionState.Failed)
+                    .executionState(ExecutionState.FAILED)
                     .build();
             Thread.currentThread().interrupt();
         }

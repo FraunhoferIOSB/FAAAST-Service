@@ -56,7 +56,7 @@ public class GetAllSubmodelElementsRequestHandler extends RequestHandler<GetAllS
         List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, null, request.getOutputModifier());
         readValueFromAssetConnectionAndUpdatePersistence(reference, submodelElements);
         response.setPayload(submodelElements);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         if (submodelElements != null) {
             submodelElements.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(reference, x), x)));
         }

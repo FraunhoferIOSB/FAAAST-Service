@@ -49,7 +49,7 @@ public class GetAllAssetAdministrationShellsByIdShortRequestHandler
         GetAllAssetAdministrationShellsByIdShortResponse response = new GetAllAssetAdministrationShellsByIdShortResponse();
         List<AssetAdministrationShell> shells = persistence.get(request.getIdShort(), (List<AssetIdentification>) null, request.getOutputModifier());
         response.setPayload(shells);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         if (shells != null) {
             shells.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(x), x)));
         }

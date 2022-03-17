@@ -18,10 +18,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.operation;
  * Enum for execution states of an operation
  */
 public enum ExecutionState {
-    Initiated,
-    Running,
-    Completed,
-    Canceled,
-    Failed,
-    Timeout
+    INITIATED,
+    RUNNING,
+    COMPLETED,
+    CANCELED,
+    FAILED,
+    TIMEOUT
 }

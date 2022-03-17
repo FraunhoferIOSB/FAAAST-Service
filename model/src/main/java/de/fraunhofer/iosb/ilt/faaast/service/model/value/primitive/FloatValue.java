@@ -49,7 +49,7 @@ public class FloatValue extends TypedValue<Float> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Float;
+        return Datatype.FLOAT;
     }
 
 }

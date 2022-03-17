@@ -201,7 +201,7 @@ public class RequestHandlerManagerTest {
         GetAllAssetAdministrationShellsResponse response = manager.execute(request);
         GetAllAssetAdministrationShellsResponse expected = new GetAllAssetAdministrationShellsResponse.Builder()
                 .payload(environment.getAssetAdministrationShells())
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -239,7 +239,7 @@ public class RequestHandlerManagerTest {
         GetAllAssetAdministrationShellsByAssetIdResponse response = manager.execute(request);
         GetAllAssetAdministrationShellsByAssetIdResponse expected = new GetAllAssetAdministrationShellsByAssetIdResponse.Builder()
                 .payload(List.of(environment.getAssetAdministrationShells().get(0), environment.getAssetAdministrationShells().get(1)))
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -255,7 +255,7 @@ public class RequestHandlerManagerTest {
         GetAllAssetAdministrationShellsByIdShortResponse response = manager.execute(request);
         GetAllAssetAdministrationShellsByIdShortResponse expected = new GetAllAssetAdministrationShellsByIdShortResponse.Builder()
                 .payload(environment.getAssetAdministrationShells())
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -271,7 +271,7 @@ public class RequestHandlerManagerTest {
         PostAssetAdministrationShellResponse response = manager.execute(request);
         PostAssetAdministrationShellResponse expected = new PostAssetAdministrationShellResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0))
-                .statusCode(StatusCode.SuccessCreated)
+                .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -288,7 +288,7 @@ public class RequestHandlerManagerTest {
         GetAssetAdministrationShellByIdResponse response = manager.execute(request);
         GetAssetAdministrationShellByIdResponse expected = new GetAssetAdministrationShellByIdResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0))
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -304,7 +304,7 @@ public class RequestHandlerManagerTest {
         PutAssetAdministrationShellByIdResponse response = manager.execute(request);
         PutAssetAdministrationShellByIdResponse expected = new PutAssetAdministrationShellByIdResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0))
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -319,7 +319,7 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteAssetAdministrationShellByIdResponse response = manager.execute(request);
         DeleteAssetAdministrationShellByIdResponse expected = new DeleteAssetAdministrationShellByIdResponse.Builder()
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
         verify(persistence).remove(environment.getAssetAdministrationShells().get(0).getIdentification());
@@ -336,7 +336,7 @@ public class RequestHandlerManagerTest {
         GetAssetAdministrationShellResponse response = manager.execute(request);
         GetAssetAdministrationShellResponse expected = new GetAssetAdministrationShellResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0))
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -355,7 +355,7 @@ public class RequestHandlerManagerTest {
         PutAssetAdministrationShellResponse response = manager.execute(request);
         PutAssetAdministrationShellResponse expected = new PutAssetAdministrationShellResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0))
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -371,7 +371,7 @@ public class RequestHandlerManagerTest {
         GetAssetInformationResponse response = manager.execute(request);
         GetAssetInformationResponse expected = new GetAssetInformationResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0).getAssetInformation())
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -389,7 +389,7 @@ public class RequestHandlerManagerTest {
                 .build();
         PutAssetInformationResponse response = manager.execute(request);
         PutAssetInformationResponse expected = new PutAssetInformationResponse.Builder()
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -405,7 +405,7 @@ public class RequestHandlerManagerTest {
                 .build();
         GetAllSubmodelReferencesResponse response = manager.execute(request);
         GetAllSubmodelReferencesResponse expected = new GetAllSubmodelReferencesResponse.Builder()
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .payload(environment.getAssetAdministrationShells().get(0).getSubmodels())
                 .build();
         Assert.assertEquals(expected, response);
@@ -424,7 +424,7 @@ public class RequestHandlerManagerTest {
                 .build();
         PostSubmodelReferenceResponse response = manager.execute(request);
         PostSubmodelReferenceResponse expected = new PostSubmodelReferenceResponse.Builder()
-                .statusCode(StatusCode.SuccessCreated)
+                .statusCode(StatusCode.SUCCESS_CREATED)
                 .payload(SUBMODEL_ELEMENT_REF)
                 .build();
         Assert.assertEquals(expected, response);
@@ -441,7 +441,7 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteSubmodelReferenceResponse response = manager.execute(request);
         DeleteSubmodelReferenceResponse expected = new DeleteSubmodelReferenceResponse.Builder()
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -458,7 +458,7 @@ public class RequestHandlerManagerTest {
         GetAllSubmodelsResponse response = manager.execute(request);
         GetAllSubmodelsResponse expected = new GetAllSubmodelsResponse.Builder()
                 .payload(environment.getSubmodels())
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -475,7 +475,7 @@ public class RequestHandlerManagerTest {
         GetAllSubmodelsBySemanticIdResponse response = manager.execute(request);
         GetAllSubmodelsBySemanticIdResponse expected = new GetAllSubmodelsBySemanticIdResponse.Builder()
                 .payload(environment.getSubmodels())
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -492,7 +492,7 @@ public class RequestHandlerManagerTest {
         GetAllSubmodelsByIdShortResponse response = manager.execute(request);
         GetAllSubmodelsByIdShortResponse expected = new GetAllSubmodelsByIdShortResponse.Builder()
                 .payload(environment.getSubmodels())
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -508,7 +508,7 @@ public class RequestHandlerManagerTest {
         PostSubmodelResponse response = manager.execute(request);
         PostSubmodelResponse expected = new PostSubmodelResponse.Builder()
                 .payload(environment.getSubmodels().get(0))
-                .statusCode(StatusCode.SuccessCreated)
+                .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -525,7 +525,7 @@ public class RequestHandlerManagerTest {
         GetSubmodelByIdResponse response = manager.execute(request);
         GetSubmodelByIdResponse expected = new GetSubmodelByIdResponse.Builder()
                 .payload(environment.getSubmodels().get(0))
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -542,7 +542,7 @@ public class RequestHandlerManagerTest {
         PutSubmodelByIdResponse response = manager.execute(request);
         PutSubmodelByIdResponse expected = new PutSubmodelByIdResponse.Builder()
                 .payload(environment.getSubmodels().get(0))
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -557,7 +557,7 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteSubmodelByIdResponse response = manager.execute(request);
         DeleteSubmodelByIdResponse expected = new DeleteSubmodelByIdResponse.Builder()
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
         verify(persistence).remove(environment.getSubmodels().get(0).getIdentification());
@@ -575,7 +575,7 @@ public class RequestHandlerManagerTest {
         GetSubmodelResponse response = manager.execute(request);
         GetSubmodelResponse expected = new GetSubmodelResponse.Builder()
                 .payload(environment.getSubmodels().get(0))
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -594,7 +594,7 @@ public class RequestHandlerManagerTest {
         PutSubmodelResponse response = manager.execute(request);
         PutSubmodelResponse expected = new PutSubmodelResponse.Builder()
                 .payload(environment.getSubmodels().get(0))
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -612,7 +612,7 @@ public class RequestHandlerManagerTest {
         GetAllSubmodelElementsResponse response = manager.execute(request);
         GetAllSubmodelElementsResponse expected = new GetAllSubmodelElementsResponse.Builder()
                 .payload(environment.getSubmodels().get(0).getSubmodelElements())
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -629,7 +629,7 @@ public class RequestHandlerManagerTest {
                 .build();
         PostSubmodelElementResponse response = manager.execute(request);
         PostSubmodelElementResponse expected = new PostSubmodelElementResponse.Builder()
-                .statusCode(StatusCode.SuccessCreated)
+                .statusCode(StatusCode.SUCCESS_CREATED)
                 .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .build();
         Assert.assertEquals(expected, response);
@@ -663,7 +663,7 @@ public class RequestHandlerManagerTest {
                 .build();
         GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
                 .payload(expected_submodelElement)
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -680,7 +680,7 @@ public class RequestHandlerManagerTest {
         PostSubmodelElementByPathResponse response = manager.execute(request);
         PostSubmodelElementByPathResponse expected = new PostSubmodelElementByPathResponse.Builder()
                 .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
-                .statusCode(StatusCode.SuccessCreated)
+                .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -711,7 +711,7 @@ public class RequestHandlerManagerTest {
         PutSubmodelElementByPathResponse response = manager.execute(request);
         PutSubmodelElementByPathResponse expected = new PutSubmodelElementByPathResponse.Builder()
                 .payload(newSubmodelElement)
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
         verify(assetValueProvider).setValue(ElementValueMapper.toValue(newSubmodelElement));
@@ -740,7 +740,7 @@ public class RequestHandlerManagerTest {
 
         Response response = manager.execute(request);
         SetSubmodelElementValueByPathResponse expected = new SetSubmodelElementValueByPathResponse.Builder()
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
         verify(assetValueProvider).setValue(propertyValue);
@@ -761,7 +761,7 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteSubmodelElementByPathResponse response = manager.execute(request);
         DeleteSubmodelElementByPathResponse expected = new DeleteSubmodelElementByPathResponse.Builder()
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
         verify(persistence).remove(reference);
@@ -851,7 +851,7 @@ public class RequestHandlerManagerTest {
 
         InvokeOperationSyncResponse actualResponse = manager.execute(invokeOperationSyncRequest);
         InvokeOperationSyncResponse expectedResponse = new InvokeOperationSyncResponse.Builder()
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .payload(new OperationResult.Builder()
                         .requestId("1")
                         .inoutputArguments(List.of(new DefaultOperationVariable.Builder()
@@ -861,7 +861,7 @@ public class RequestHandlerManagerTest {
                                         .build())
                                 .build()))
                         .outputArguments(operation.getInputVariables())
-                        .executionState(ExecutionState.Completed)
+                        .executionState(ExecutionState.COMPLETED)
                         .build())
                 .build();
 
@@ -895,7 +895,7 @@ public class RequestHandlerManagerTest {
         GetAllConceptDescriptionsResponse response = manager.execute(request);
         GetAllConceptDescriptionsResponse expected = new GetAllConceptDescriptionsResponse.Builder()
                 .payload(environment.getConceptDescriptions())
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -912,7 +912,7 @@ public class RequestHandlerManagerTest {
         GetAllConceptDescriptionsByIdShortResponse response = manager.execute(request);
         GetAllConceptDescriptionsByIdShortResponse expected = new GetAllConceptDescriptionsByIdShortResponse.Builder()
                 .payload(environment.getConceptDescriptions())
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -930,7 +930,7 @@ public class RequestHandlerManagerTest {
         GetAllConceptDescriptionsByIsCaseOfResponse response = manager.execute(request);
         GetAllConceptDescriptionsByIsCaseOfResponse expected = new GetAllConceptDescriptionsByIsCaseOfResponse.Builder()
                 .payload(environment.getConceptDescriptions())
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -948,7 +948,7 @@ public class RequestHandlerManagerTest {
         GetAllConceptDescriptionsByDataSpecificationReferenceResponse response = manager.execute(request);
         GetAllConceptDescriptionsByDataSpecificationReferenceResponse expected = new GetAllConceptDescriptionsByDataSpecificationReferenceResponse.Builder()
                 .payload(environment.getConceptDescriptions())
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -964,7 +964,7 @@ public class RequestHandlerManagerTest {
         PostConceptDescriptionResponse response = manager.execute(request);
         PostConceptDescriptionResponse expected = new PostConceptDescriptionResponse.Builder()
                 .payload(environment.getConceptDescriptions().get(0))
-                .statusCode(StatusCode.SuccessCreated)
+                .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -981,7 +981,7 @@ public class RequestHandlerManagerTest {
         GetConceptDescriptionByIdResponse response = manager.execute(request);
         GetConceptDescriptionByIdResponse expected = new GetConceptDescriptionByIdResponse.Builder()
                 .payload(environment.getConceptDescriptions().get(0))
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -997,7 +997,7 @@ public class RequestHandlerManagerTest {
         PutConceptDescriptionByIdResponse response = manager.execute(request);
         PutConceptDescriptionByIdResponse expected = new PutConceptDescriptionByIdResponse.Builder()
                 .payload(environment.getConceptDescriptions().get(0))
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
     }
@@ -1012,7 +1012,7 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteConceptDescriptionByIdResponse response = manager.execute(request);
         DeleteConceptDescriptionByIdResponse expected = new DeleteConceptDescriptionByIdResponse.Builder()
-                .statusCode(StatusCode.Success)
+                .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
         verify(persistence).remove(environment.getConceptDescriptions().get(0).getIdentification());

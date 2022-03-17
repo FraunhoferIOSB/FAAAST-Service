@@ -996,7 +996,7 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
 
 
     private void visitAfter(Object obj) {
-        if (mode == WalkingMode.VisitAfterDescent) {
+        if (mode == WalkingMode.VISIT_AFTER_DESCENT) {
             walk(visitor, obj);
         }
         walk(after, obj);
@@ -1005,7 +1005,7 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
 
     private void visitBefore(Object obj) {
         walk(before, obj);
-        if (mode == WalkingMode.VisitBeforeDescent) {
+        if (mode == WalkingMode.VISIT_BEFORE_DESCENT) {
             walk(visitor, obj);
         }
     }
@@ -1049,13 +1049,13 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
         /**
          * Visit an element after visiting all of its subelements
          */
-        VisitAfterDescent,
+        VISIT_AFTER_DESCENT,
         /**
          * Visit an element before visiting all of its subelements
          */
-        VisitBeforeDescent;
+        VISIT_BEFORE_DESCENT;
 
-        public static final WalkingMode DEFAULT = VisitBeforeDescent;
+        public static final WalkingMode DEFAULT = VISIT_BEFORE_DESCENT;
     }
 
     public abstract static class AbstractBuilder<T extends AssetAdministrationShellElementWalker, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

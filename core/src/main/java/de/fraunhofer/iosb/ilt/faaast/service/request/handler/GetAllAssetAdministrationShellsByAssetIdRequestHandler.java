@@ -80,7 +80,7 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
 
         List<AssetAdministrationShell> shells = new ArrayList<>(persistence.get(null, assetIdentifications, request.getOutputModifier()));
         response.setPayload(shells);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         shells.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(x), x)));
         return response;
     }

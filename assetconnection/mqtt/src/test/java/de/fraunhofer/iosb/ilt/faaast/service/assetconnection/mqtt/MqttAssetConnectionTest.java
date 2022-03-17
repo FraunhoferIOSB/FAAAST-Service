@@ -180,15 +180,15 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testSubscriptionProviderJsonProperty() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
-        testSubscriptionProvider(ContentFormat.JSON, "7", PropertyValue.of(Datatype.Int, "7"));
-        testSubscriptionProvider(ContentFormat.JSON, "\"hello world\"", PropertyValue.of(Datatype.String, "hello world"));
+        testSubscriptionProvider(ContentFormat.JSON, "7", PropertyValue.of(Datatype.INT, "7"));
+        testSubscriptionProvider(ContentFormat.JSON, "\"hello world\"", PropertyValue.of(Datatype.STRING, "hello world"));
     }
 
 
     @Test
     public void testSubscriptionProviderJsonPropertyWithQuery() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
-        testSubscriptionProvider(ContentFormat.JSON, "{\"foo\": 123, \"bar\": 7}", "$.bar", PropertyValue.of(Datatype.Int, "7"));
-        testSubscriptionProvider(ContentFormat.JSON, "{\"foo\": \"hello\", \"bar\": \"world\"}", "$.bar", PropertyValue.of(Datatype.String, "world"));
+        testSubscriptionProvider(ContentFormat.JSON, "{\"foo\": 123, \"bar\": 7}", "$.bar", PropertyValue.of(Datatype.INT, "7"));
+        testSubscriptionProvider(ContentFormat.JSON, "{\"foo\": \"hello\", \"bar\": \"world\"}", "$.bar", PropertyValue.of(Datatype.STRING, "world"));
     }
 
 
@@ -196,7 +196,7 @@ public class MqttAssetConnectionTest {
     public void testValueProviderProperty()
             throws AssetConnectionException, InterruptedException, ValueFormatException, MqttException, JSONException, ConfigurationInitializationException {
         String expected = "\"hello world\"";
-        String actual = invokeValueProvider(ContentFormat.JSON, PropertyValue.of(Datatype.String, "hello world"), null);
+        String actual = invokeValueProvider(ContentFormat.JSON, PropertyValue.of(Datatype.STRING, "hello world"), null);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
@@ -205,7 +205,7 @@ public class MqttAssetConnectionTest {
     public void testValueProviderPropertyWithQuery()
             throws AssetConnectionException, InterruptedException, ValueFormatException, MqttException, JSONException, ConfigurationInitializationException {
         String expected = "{\"foo\": \"hello world\"}";
-        String actual = invokeValueProvider(ContentFormat.JSON, PropertyValue.of(Datatype.String, "hello world"), "$.foo");
+        String actual = invokeValueProvider(ContentFormat.JSON, PropertyValue.of(Datatype.STRING, "hello world"), "$.foo");
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 

@@ -26,7 +26,7 @@ public class OutputModifier extends QueryModifier {
     protected Content content;
 
     public OutputModifier() {
-        this.content = Content.Normal;
+        this.content = Content.NORMAL;
     }
 
 

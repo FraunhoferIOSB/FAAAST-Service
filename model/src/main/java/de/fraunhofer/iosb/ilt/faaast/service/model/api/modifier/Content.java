@@ -21,18 +21,18 @@ import java.util.stream.Stream;
  * Enum of different content options
  */
 public enum Content {
-    Normal,
-    Value,
-    Trimmed, // defined in swagger but not specification
-    Reference,
-    Path;
+    NORMAL,
+    VALUE,
+    TRIMMED, // defined in swagger but not specification
+    REFERENCE,
+    PATH;
 
-    public static final Content DEFAULT = Content.Normal;
+    public static final Content DEFAULT = Content.NORMAL;
 
     public static Content fromString(String value) {
         return Stream.of(Content.values())
                 .filter(x -> x.name().equalsIgnoreCase(value))
                 .findAny()
-                .orElse(Content.Normal);
+                .orElse(Content.NORMAL);
     }
 }

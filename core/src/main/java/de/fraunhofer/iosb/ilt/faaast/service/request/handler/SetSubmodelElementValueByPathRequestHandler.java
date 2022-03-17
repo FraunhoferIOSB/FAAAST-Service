@@ -54,14 +54,14 @@ public class SetSubmodelElementValueByPathRequestHandler extends RequestHandler<
         SetSubmodelElementValueByPathResponse response = new SetSubmodelElementValueByPathResponse();
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
         SubmodelElement submodelElement = persistence.get(reference, new OutputModifier.Builder()
-                .extend(Extend.WithBLOBValue)
+                .extend(Extend.WITH_BLOB_VALUE)
                 .build());
         ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
         ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
         ElementValueMapper.setValue(submodelElement, newValue);
         writeValueToAssetConnection(reference, newValue);
         persistence.put(null, reference, submodelElement);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         publishValueChangeEventMessage(reference, oldValue, newValue);
         return response;
     }

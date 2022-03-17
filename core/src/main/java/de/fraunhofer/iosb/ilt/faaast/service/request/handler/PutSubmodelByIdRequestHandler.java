@@ -53,12 +53,12 @@ public class PutSubmodelByIdRequestHandler extends RequestHandler<PutSubmodelByI
         //check if resource does exist
         Submodel submodel = (Submodel) persistence.get(request.getSubmodel().getIdentification(),
                 new QueryModifier.Builder()
-                        .extend(Extend.WithoutBLOBValue)
-                        .level(Level.Core)
+                        .extend(Extend.WITHOUT_BLOB_VALUE)
+                        .level(Level.CORE)
                         .build());
         submodel = (Submodel) persistence.put(request.getSubmodel());
         response.setPayload(submodel);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         Reference reference = AasUtils.toReference(submodel);
         readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
         publishElementUpdateEventMessage(reference, submodel);

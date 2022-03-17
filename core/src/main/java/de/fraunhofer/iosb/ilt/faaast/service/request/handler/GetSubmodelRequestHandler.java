@@ -49,7 +49,7 @@ public class GetSubmodelRequestHandler extends RequestHandler<GetSubmodelRequest
         GetSubmodelResponse response = new GetSubmodelResponse();
         Submodel submodel = (Submodel) persistence.get(request.getId(), request.getOutputModifier());
         response.setPayload(submodel);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
 
         Reference reference = AasUtils.toReference(submodel);
         readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());

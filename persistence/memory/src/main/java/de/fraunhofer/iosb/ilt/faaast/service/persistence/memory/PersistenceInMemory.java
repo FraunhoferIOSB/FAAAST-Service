@@ -270,7 +270,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     public OperationHandle putOperationContext(String handleId, String requestId, OperationResult operationResult) {
         if (operationResult == null) {
             operationResult = new OperationResult.Builder()
-                    .executionState(ExecutionState.Initiated)
+                    .executionState(ExecutionState.INITIATED)
                     .requestId(requestId)
                     .build();
         }

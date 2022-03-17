@@ -21,10 +21,10 @@ import java.util.stream.Stream;
  * Enum of different level options
  */
 public enum Level {
-    Deep,
-    Core;
+    DEEP,
+    CORE;
 
-    public static final Level DEFAULT = Level.Core;
+    public static final Level DEFAULT = Level.CORE;
 
     public static Level fromString(String value) {
         return Stream.of(Level.values())

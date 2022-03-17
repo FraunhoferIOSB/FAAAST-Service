@@ -52,7 +52,7 @@ public class DecimalValue extends TypedValue<BigDecimal> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Decimal;
+        return Datatype.DECIMAL;
     }
 
 }

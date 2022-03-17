@@ -49,7 +49,7 @@ public class DoubleValue extends TypedValue<Double> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Double;
+        return Datatype.DOUBLE;
     }
 
 }

@@ -48,7 +48,7 @@ public class PutConceptDescriptionByIdRequestHandler extends RequestHandler<PutC
         ConceptDescription conceptDescription = (ConceptDescription) persistence.get(request.getConceptDescription().getIdentification(), new OutputModifier());
         conceptDescription = (ConceptDescription) persistence.put(request.getConceptDescription());
         response.setPayload(conceptDescription);
-        response.setStatusCode(StatusCode.Success);
+        response.setStatusCode(StatusCode.SUCCESS);
         publishElementUpdateEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
         return response;
     }

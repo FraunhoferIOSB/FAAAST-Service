@@ -63,7 +63,7 @@ public class JsonContentDeserializer implements ContentDeserializer {
 
             if (typeInfo != null
                     && ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())
-                    && ((ElementValueTypeInfo) typeInfo).getDatatype() == Datatype.String) {
+                    && ((ElementValueTypeInfo) typeInfo).getDatatype() == Datatype.STRING) {
                 value = "\"" + value + "\"";
             }
         }

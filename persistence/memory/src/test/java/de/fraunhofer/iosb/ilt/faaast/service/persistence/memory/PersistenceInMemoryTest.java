@@ -94,7 +94,7 @@ public class PersistenceInMemoryTest {
         String SUBMODEL_ELEMENT_COLLECTION_IDSHORT = "ExampleSubmodelCollectionUnordered";
         String SUBMODEL_ELEMENT_IDSHORT = "ExampleBlob";
         Reference reference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, SUBMODEL_ELEMENT_IDSHORT);
-        QueryModifier queryModifier = new QueryModifier.Builder().extend(Extend.WithBLOBValue).build();
+        QueryModifier queryModifier = new QueryModifier.Builder().extend(Extend.WITH_BLOB_VALUE).build();
 
         SubmodelElement actualSubmodelElement = persistence.get(reference, queryModifier);
         SubmodelElement expectedSubmodelElementExpected = ((SubmodelElementCollection) environment.getSubmodels().stream()
@@ -470,7 +470,7 @@ public class PersistenceInMemoryTest {
 
         Reference reference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, submodelElement.getIdShort());
         this.persistence.put(null, reference, changedSubmodelElement);
-        SubmodelElement actualSubmodelelement = this.persistence.get(reference, new QueryModifier.Builder().extend(Extend.WithBLOBValue).build());
+        SubmodelElement actualSubmodelelement = this.persistence.get(reference, new QueryModifier.Builder().extend(Extend.WITH_BLOB_VALUE).build());
 
         Assert.assertEquals(changedSubmodelElement, actualSubmodelelement);
     }
@@ -584,7 +584,7 @@ public class PersistenceInMemoryTest {
         String SUBMODEL_ELEMENT_IDSHORT = "ExampleBlob";
 
         Reference reference = Util.createReference(AAS_IDENTIFIER, SUBMODEL_IDENTIFIER, SUBMODEL_ELEMENT_COLLECTION_IDSHORT, SUBMODEL_ELEMENT_IDSHORT);
-        QueryModifier queryModifier = new QueryModifier.Builder().extend(Extend.WithBLOBValue).build();
+        QueryModifier queryModifier = new QueryModifier.Builder().extend(Extend.WITH_BLOB_VALUE).build();
         Identifier submodelId = new DefaultIdentifier.Builder()
                 .idType(IdentifierType.IRI)
                 .identifier(SUBMODEL_IDENTIFIER)
@@ -597,7 +597,7 @@ public class PersistenceInMemoryTest {
                         .getValues().stream().filter(z -> z.getIdShort().equalsIgnoreCase(SUBMODEL_ELEMENT_IDSHORT)).findFirst().get();
 
         Assert.assertEquals(expected, actual);
-        queryModifier = new QueryModifier.Builder().extend(Extend.WithoutBLOBValue).build();
+        queryModifier = new QueryModifier.Builder().extend(Extend.WITHOUT_BLOB_VALUE).build();
         actual = this.persistence.get(reference, queryModifier);
         expected = null;
 
@@ -609,7 +609,7 @@ public class PersistenceInMemoryTest {
     public void testQueryModifierLevel() throws ResourceNotFoundException {
         String SUBMODEL_IDENTIFIER = "https://acplt.org/Test_Submodel_Mandatory";
 
-        QueryModifier queryModifier = new QueryModifier.Builder().level(Level.Deep).build();
+        QueryModifier queryModifier = new QueryModifier.Builder().level(Level.DEEP).build();
         Identifier submodelId = new DefaultIdentifier.Builder()
                 .idType(IdentifierType.IRI)
                 .identifier(SUBMODEL_IDENTIFIER)
@@ -620,7 +620,7 @@ public class PersistenceInMemoryTest {
         Submodel actual = (Submodel) this.persistence.get(submodelId, queryModifier);
         Assert.assertEquals(expected, actual);
 
-        queryModifier = new QueryModifier.Builder().level(Level.Core).build();
+        queryModifier = new QueryModifier.Builder().level(Level.CORE).build();
         actual = (Submodel) this.persistence.get(submodelId, queryModifier);
         List<SubmodelElement> submodelElementCollections = actual.getSubmodelElements().stream().filter(x -> SubmodelElementCollection.class.isAssignableFrom(x.getClass()))
                 .collect(Collectors.toList());
@@ -632,7 +632,7 @@ public class PersistenceInMemoryTest {
     public void testOperationHandle() {
         OperationResult expectedResult = new OperationResult.Builder()
                 .requestId("Test")
-                .executionState(ExecutionState.Initiated)
+                .executionState(ExecutionState.INITIATED)
                 .build();
 
         OperationHandle actualOperationHandle = this.persistence.putOperationContext(null, "Test", expectedResult);
@@ -651,12 +651,12 @@ public class PersistenceInMemoryTest {
     public void testUpdateOperationResult() {
         OperationResult expectedResult = new OperationResult.Builder()
                 .requestId("Test")
-                .executionState(ExecutionState.Initiated)
+                .executionState(ExecutionState.INITIATED)
                 .build();
 
         OperationHandle actualOperationHandle = this.persistence.putOperationContext(null, "Test", expectedResult);
 
-        expectedResult.setExecutionState(ExecutionState.Completed);
+        expectedResult.setExecutionState(ExecutionState.COMPLETED);
         expectedResult.setExecutionResult(new Result.Builder()
                 .message(new Message.Builder()
                         .code("test")

@@ -44,7 +44,7 @@ public class PostAssetAdministrationShellRequestHandler extends RequestHandler<P
         PostAssetAdministrationShellResponse response = new PostAssetAdministrationShellResponse();
         AssetAdministrationShell shell = (AssetAdministrationShell) persistence.put(request.getAas());
         response.setPayload(shell);
-        response.setStatusCode(StatusCode.SuccessCreated);
+        response.setStatusCode(StatusCode.SUCCESS_CREATED);
         publishElementCreateEventMessage(AasUtils.toReference(shell), shell);
         return response;
     }

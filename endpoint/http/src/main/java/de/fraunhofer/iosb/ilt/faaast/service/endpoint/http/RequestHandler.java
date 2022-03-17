@@ -91,7 +91,7 @@ public class RequestHandler extends AbstractHandler {
             apiRequest = mappingManager.map(httpRequest);
         }
         catch (InvalidRequestException | IllegalArgumentException e) {
-            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, MessageType.Error, e.getMessage());
+            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, MessageType.ERROR, e.getMessage());
             baseRequest.setHandled(true);
             return;
         }
@@ -140,17 +140,17 @@ public class RequestHandler extends AbstractHandler {
 
     private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request apiRequest) throws IOException, SerializationException {
         if (apiRequest == null) {
-            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, MessageType.Error, "");
+            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, MessageType.ERROR, "");
             return;
         }
         Response apiResponse = serviceContext.execute(apiRequest);
         if (apiResponse == null) {
-            sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, MessageType.Error, "");
+            sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, MessageType.ERROR, "");
             return;
         }
         int statusCode = HttpHelper.toHttpStatusCode(apiResponse.getStatusCode());
         if (!apiResponse.getResult().getSuccess() || !HttpStatus.isSuccess(statusCode)) {
-            sendResultResponse(response, statusCode, MessageType.Error, HttpStatus.getMessage((statusCode)));
+            sendResultResponse(response, statusCode, MessageType.ERROR, HttpStatus.getMessage((statusCode)));
         }
         else if (BaseResponseWithPayload.class.isAssignableFrom(apiResponse.getClass())) {
             try {
@@ -164,7 +164,7 @@ public class RequestHandler extends AbstractHandler {
                 }
             }
             catch (SerializationException e) {
-                sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, MessageType.Exception, e.getMessage());
+                sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, MessageType.EXCEPTION, e.getMessage());
             }
         }
         else {
