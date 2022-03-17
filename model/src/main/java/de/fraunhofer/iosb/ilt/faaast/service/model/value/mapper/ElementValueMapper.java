@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ElementValueMapper {
 
-    private static Logger logger = LoggerFactory.getLogger(ElementValueMapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElementValueMapper.class);
     private static Map<Class<? extends SubmodelElement>, ? extends DataValueMapper> mappers;
 
     private static void init() {
@@ -58,13 +58,13 @@ public class ElementValueMapper {
                                     return constructor.newInstance();
                                 }
                                 catch (NoSuchMethodException | SecurityException e) {
-                                    logger.warn("element-value mapper implementation could not be loaded, "
+                                    LOGGER.warn("element-value mapper implementation could not be loaded, "
                                             + "reason: missing constructor (implementation class: {})",
                                             x.getName(),
                                             e);
                                 }
                                 catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                                    logger.warn("element-value mapper implementation  could not be loaded, "
+                                    LOGGER.warn("element-value mapper implementation  could not be loaded, "
                                             + "reason: calling constructor failed (implementation class: {}",
                                             x.getName(),
                                             e);

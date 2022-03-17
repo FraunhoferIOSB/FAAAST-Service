@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
-    private static Logger logger = LoggerFactory.getLogger(HttpEndpoint.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpEndpoint.class);
     private HttpEndpointConfig config;
     private ServiceContext serviceContext;
     private Server server;
@@ -80,7 +80,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
                 handler.stop();
             }
             catch (Exception e) {
-                logger.debug("stopping HTTP handler failed", e);
+                LOGGER.debug("stopping HTTP handler failed", e);
             }
         }
         try {
@@ -88,7 +88,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
             server.join();
         }
         catch (Exception e) {
-            logger.debug("HTTP endpoint did non shutdown correctly", e);
+            LOGGER.debug("HTTP endpoint did non shutdown correctly", e);
             Thread.currentThread().interrupt();
         }
     }

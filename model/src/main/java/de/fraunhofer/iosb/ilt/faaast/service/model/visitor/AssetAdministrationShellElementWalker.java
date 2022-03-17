@@ -96,7 +96,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AssetAdministrationShellElementWalker implements AssetAdministrationShellElementVisitor {
 
-    private static Logger logger = LoggerFactory.getLogger(AssetAdministrationShellElementWalker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssetAdministrationShellElementWalker.class);
 
     public static Builder builder() {
         return new Builder();
@@ -989,7 +989,7 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
                 }
             }
             catch (Exception e) {
-                logger.debug("invoking visit method via refection failed", e);
+                LOGGER.debug("invoking visit method via refection failed", e);
             }
         }
     }
@@ -1030,14 +1030,14 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
                         method.invoke(visitor, obj);
                     }
                     catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                        logger.debug(String.format("invoking visit(%s) method via refection failed",
+                        LOGGER.debug(String.format("invoking visit(%s) method via refection failed",
                                 method.getParameterTypes()[0].getSimpleName()),
                                 e);
                     }
                 }
             }
             catch (SecurityException e) {
-                logger.debug("invoking visit method via refection failed", e);
+                LOGGER.debug("invoking visit method via refection failed", e);
             }
         }
     }

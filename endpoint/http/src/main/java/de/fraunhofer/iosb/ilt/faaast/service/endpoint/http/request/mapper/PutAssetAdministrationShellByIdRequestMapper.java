@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PutAssetAdministrationShellByIdRequestMapper extends RequestMapper {
 
-    private static Logger logger = LoggerFactory.getLogger(PutAssetAdministrationShellByIdRequestMapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PutAssetAdministrationShellByIdRequestMapper.class);
     private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
     private static final String PATTERN = "(?!.*/aas)^shells/(.*)$";
 

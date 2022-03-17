@@ -293,7 +293,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
             }
     };
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     private volatile Thread eventThread;
     private volatile boolean keepPostingEvents = true;
@@ -403,7 +403,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                         eventNode.delete();
                     }
                     catch (Throwable e) {
-                        logger.error("Error creating EventNode: {}", e.getMessage(), e);
+                        LOGGER.error("Error creating EventNode: {}", e.getMessage(), e);
                     }
 
                     try {
@@ -701,7 +701,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
             dataAccessFolder.addOrganizes(node);
         }
         catch (UaException e) {
-            logger.error("Error creating AnalogItemType instance: {}", e.getMessage(), e);
+            LOGGER.error("Error creating AnalogItemType instance: {}", e.getMessage(), e);
         }
     }
 
@@ -834,7 +834,7 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
                     false));
         }
         catch (UaException e) {
-            logger.error("Error creating MyObjectType instance: {}", e.getMessage(), e);
+            LOGGER.error("Error creating MyObjectType instance: {}", e.getMessage(), e);
         }
     }
 
