@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
 
 public class HttpEndpointTest {
 
-    private static Logger logger = LoggerFactory.getLogger(HttpEndpointTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpEndpointTest.class);
     private static final String HOST = "localhost";
     private static int port;
     private static HttpClient client;
@@ -104,7 +104,7 @@ public class HttpEndpointTest {
                 client.stop();
             }
             catch (Exception e) {
-                logger.info("error stopping HTTP client", e);
+                LOGGER.info("error stopping HTTP client", e);
             }
         }
         if (endpoint != null) {
@@ -112,7 +112,7 @@ public class HttpEndpointTest {
                 endpoint.stop();
             }
             catch (Exception e) {
-                logger.info("error stopping HTTP endpoint", e);
+                LOGGER.info("error stopping HTTP endpoint", e);
             }
         }
     }
@@ -310,8 +310,8 @@ public class HttpEndpointTest {
         ContentResponse response = execute(HttpMethod.GET, "/shells");
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         // TODO: server not returning character encoding
-        logger.info("http response encoding: {}", response.getEncoding());
-        logger.info("http response content: {}", new String(response.getContent(), "UTF-8"));
+        LOGGER.info("http response encoding: {}", response.getEncoding());
+        LOGGER.info("http response content: {}", new String(response.getContent(), "UTF-8"));
         List<AssetAdministrationShell> actualPayload = deserializer.readList(new String(response.getContent(), "UTF-8"), AssetAdministrationShell.class);
         Assert.assertEquals(expectedPayload, actualPayload);
     }

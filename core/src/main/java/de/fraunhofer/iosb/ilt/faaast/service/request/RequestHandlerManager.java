@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RequestHandlerManager {
 
-    private static Logger logger = LoggerFactory.getLogger(RequestHandlerManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandlerManager.class);
     private Map<Class<? extends Request>, ? extends RequestHandler> handlers;
     private ExecutorService requestHandlerExecutorService;
     private final CoreConfig coreConfig;
@@ -88,14 +88,14 @@ public class RequestHandlerManager {
                                     return constructor.newInstance(constructorArgs);
                                 }
                                 catch (NoSuchMethodException | SecurityException e) {
-                                    logger.warn("request handler implementation could not be loaded, "
+                                    LOGGER.warn("request handler implementation could not be loaded, "
                                             + "reason: missing constructor (implementation class: {}, required constructor signature: {}",
                                             x.getName(),
                                             constructorArgTypes,
                                             e);
                                 }
                                 catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                                    logger.warn("request handler implementation could not be loaded, "
+                                    LOGGER.warn("request handler implementation could not be loaded, "
                                             + "reason: calling constructor failed (implementation class: {}, constructor arguments: {}",
                                             x.getName(),
                                             constructorArgs,
@@ -127,10 +127,10 @@ public class RequestHandlerManager {
             }
         }
         catch (InterruptedException e) {
-            logger.error("Interrupted while waiting for shutdown.", e);
+            LOGGER.error("Interrupted while waiting for shutdown.", e);
             Thread.currentThread().interrupt();
         }
-        logger.warn("RequestHandlerManager stopped with {} unfinished requests.",
+        LOGGER.warn("RequestHandlerManager stopped with {} unfinished requests.",
                 requestHandlerExecutorService.shutdownNow().size());
     }
 

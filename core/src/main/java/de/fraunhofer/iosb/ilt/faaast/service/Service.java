@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Service implements ServiceContext {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(Service.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Service.class);
     private AssetAdministrationShellEnvironment aasEnvironment;
     private AssetConnectionManager assetConnectionManager;
     private ServiceConfig config;
