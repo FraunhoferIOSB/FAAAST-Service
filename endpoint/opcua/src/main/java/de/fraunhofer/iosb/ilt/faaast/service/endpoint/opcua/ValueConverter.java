@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ValueConverter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ValueConverter.class);
+    private static final Logger logger = LoggerFactory.getLogger(ValueConverter.class);
 
     /**
      * Creates a new instance of ValueConverter
@@ -156,13 +156,13 @@ public class ValueConverter {
                     retval = Identifiers.UtcTime;
                     break;
                 default:
-                    LOGGER.warn("convertValueTypeStringToNodeId: Unknown type: " + valueType);
+                    logger.warn("convertValueTypeStringToNodeId: Unknown type: " + valueType);
                     retval = NodeId.NULL;
                     break;
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("convertValueTypeStringToNodeId Exception", ex);
+            logger.error("convertValueTypeStringToNodeId Exception", ex);
             throw ex;
         }
 
@@ -206,7 +206,7 @@ public class ValueConverter {
                     break;
 
                 case "integer":
-                    LOGGER.warn("stringToValueType: Integer not supported");
+                    logger.warn("stringToValueType: Integer not supported");
                     retval = AASValueTypeDataType.Int64;
                     break;
 
@@ -251,17 +251,17 @@ public class ValueConverter {
                     break;
 
                 case "decimal":
-                    LOGGER.warn("stringToValueType: Decimal not supported!");
+                    logger.warn("stringToValueType: Decimal not supported!");
                     retval = AASValueTypeDataType.Int64;
                     break;
 
                 default:
-                    LOGGER.warn("stringToValueType: unknown value: " + value);
+                    logger.warn("stringToValueType: unknown value: " + value);
                     throw new IllegalArgumentException("unknown value: " + value);
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("stringToValueType Exception", ex);
+            logger.error("stringToValueType Exception", ex);
             throw ex;
         }
 
@@ -300,7 +300,7 @@ public class ValueConverter {
                 break;
 
             case Decimal:
-                LOGGER.warn("datatypeToValueType: Decimal not supported!");
+                logger.warn("datatypeToValueType: Decimal not supported!");
                 retval = AASValueTypeDataType.Int64;
                 break;
 
@@ -309,7 +309,7 @@ public class ValueConverter {
                 break;
 
             case Integer:
-                LOGGER.warn("datatypeToValueType: Integer not supported - map to Long!");
+                logger.warn("datatypeToValueType: Integer not supported - map to Long!");
                 retval = AASValueTypeDataType.Int64;
                 break;
 
@@ -322,7 +322,7 @@ public class ValueConverter {
                 break;
 
             default:
-                LOGGER.warn("datatypeToValueType: unknown type: " + type);
+                logger.warn("datatypeToValueType: unknown type: " + type);
                 throw new IllegalArgumentException("unknown type: " + type);
         }
 
@@ -340,7 +340,7 @@ public class ValueConverter {
     public static AASModelingKindDataType convertModelingKind(ModelingKind value) {
         AASModelingKindDataType retval;
         if (value == null) {
-            LOGGER.warn("convertModelingKind: value == null");
+            logger.warn("convertModelingKind: value == null");
             retval = AASModelingKindDataType.Instance;
         }
         else {
@@ -352,7 +352,7 @@ public class ValueConverter {
                     retval = AASModelingKindDataType.Template;
                     break;
                 default:
-                    LOGGER.warn("convertModelingKind: unknown value " + value);
+                    logger.warn("convertModelingKind: unknown value " + value);
                     throw new IllegalArgumentException("unknown ModelingKind: " + value);
             }
         }
@@ -381,7 +381,7 @@ public class ValueConverter {
                 retval = AASIdentifierTypeDataType.IRDI;
                 break;
             default:
-                LOGGER.warn("convertIdentifierType: unknown value " + value);
+                logger.warn("convertIdentifierType: unknown value " + value);
                 throw new IllegalArgumentException("unknown IdentifierType: " + value);
         }
         return retval;
@@ -404,7 +404,7 @@ public class ValueConverter {
                 retval = AASAssetKindDataType.Type;
                 break;
             default:
-                LOGGER.warn("convertAssetKind: unknown value " + value);
+                logger.warn("convertAssetKind: unknown value " + value);
                 throw new IllegalArgumentException("unknown KeyType: " + value);
         }
         return retval;
@@ -442,7 +442,7 @@ public class ValueConverter {
                 break;
 
             default:
-                LOGGER.warn("getEntityType: unknown value: " + value);
+                logger.warn("getEntityType: unknown value: " + value);
                 throw new IllegalArgumentException("unknown value: " + value);
         }
 
@@ -468,7 +468,7 @@ public class ValueConverter {
             retval = arr.toArray(LocalizedText[]::new);
         }
         catch (Throwable ex) {
-            LOGGER.error("getLocalizedTextFromLangStringSet Exception", ex);
+            logger.error("getLocalizedTextFromLangStringSet Exception", ex);
             throw ex;
         }
 
@@ -495,7 +495,7 @@ public class ValueConverter {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("getLangStringSetFromLocalizedText Exception", ex);
+            logger.error("getLangStringSetFromLocalizedText Exception", ex);
             throw ex;
         }
 
@@ -547,7 +547,7 @@ public class ValueConverter {
                     break;
 
                 case BASIC_EVENT:
-                    LOGGER.warn("getKeyElementsDataTypeFromKeyElements: BASIC_EVENT not available in AASKeyElementsDataType");
+                    logger.warn("getKeyElementsDataTypeFromKeyElements: BASIC_EVENT not available in AASKeyElementsDataType");
                     throw new IllegalArgumentException("BASIC_EVENT not available in AASKeyElementsDataType");
 
                 case BLOB:
@@ -615,12 +615,12 @@ public class ValueConverter {
                     break;
 
                 default:
-                    LOGGER.warn("getKeyElementsDataType: unknown KeyElement: " + keyElement);
+                    logger.warn("getKeyElementsDataType: unknown KeyElement: " + keyElement);
                     break;
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("getKeyElementsDataType Exception", ex);
+            logger.error("getKeyElementsDataType Exception", ex);
             throw ex;
         }
 
@@ -736,12 +736,12 @@ public class ValueConverter {
                     break;
 
                 default:
-                    LOGGER.warn("getKeyElements: unknown AASKeyElementsDataType: " + value);
+                    logger.warn("getKeyElements: unknown AASKeyElementsDataType: " + value);
                     break;
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("getKeyElements Exception", ex);
+            logger.error("getKeyElements Exception", ex);
             throw ex;
         }
 
@@ -775,7 +775,7 @@ public class ValueConverter {
                 retval = AASKeyTypeDataType.IRI;
                 break;
             default:
-                LOGGER.warn("getAasKeyType: unknown value " + value);
+                logger.warn("getAasKeyType: unknown value " + value);
                 throw new IllegalArgumentException("unknown KeyType: " + value);
         }
 
@@ -809,7 +809,7 @@ public class ValueConverter {
                 retval = KeyType.IRI;
                 break;
             default:
-                LOGGER.warn("getKeyType: unknown value " + value);
+                logger.warn("getKeyType: unknown value " + value);
                 throw new IllegalArgumentException("unknown AASKeyTypeDataType: " + value);
         }
 
@@ -838,7 +838,7 @@ public class ValueConverter {
             retval = new DefaultReference.Builder().keys(keys).build();
         }
         catch (Throwable ex) {
-            LOGGER.error("getReferenceFromKeys Exception", ex);
+            logger.error("getReferenceFromKeys Exception", ex);
             throw ex;
         }
 
@@ -959,12 +959,12 @@ public class ValueConverter {
                     break;
                 }
                 default:
-                    LOGGER.warn("setSubmodelElementValue: SubmodelElement " + submodelElement.getIdShort() + ": unkown type " + type);
+                    logger.warn("setSubmodelElementValue: SubmodelElement " + submodelElement.getIdShort() + ": unkown type " + type);
                     throw new IllegalArgumentException("unkown type " + type);
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("setSubmodelElementValue Exception", ex);
+            logger.error("setSubmodelElementValue Exception", ex);
             throw ex;
         }
     }
@@ -1048,12 +1048,12 @@ public class ValueConverter {
                 }
 
                 default:
-                    LOGGER.warn("getSubmodelElementValue: SubmodelElement " + submodelElement.getIdShort() + ": unkown or invalid type " + type);
+                    logger.warn("getSubmodelElementValue: SubmodelElement " + submodelElement.getIdShort() + ": unkown or invalid type " + type);
                     throw new IllegalArgumentException("unkown type " + type);
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("getSubmodelElementValue Exception", ex);
+            logger.error("getSubmodelElementValue Exception", ex);
             throw ex;
         }
 

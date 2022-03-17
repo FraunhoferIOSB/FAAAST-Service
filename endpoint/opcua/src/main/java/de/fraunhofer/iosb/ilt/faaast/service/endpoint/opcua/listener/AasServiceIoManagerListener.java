@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AasServiceIoManagerListener implements IoManagerListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AasServiceIoManagerListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(AasServiceIoManagerListener.class);
 
     private final OpcUaEndpoint endpoint;
     private final AasServiceNodeManager nodeManager;
@@ -217,7 +217,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
     @Override
     public boolean onWriteNonValue(ServiceContext sc, NodeId nodeid, UaNode uanode, UnsignedInteger ui, DataValue dv) throws StatusException {
         if (uanode != null) {
-            LOGGER.trace("onWriteNonValue: Node BrowseName" + uanode.getBrowseName());
+            logger.trace("onWriteNonValue: Node BrowseName" + uanode.getBrowseName());
         }
         return false;
     }
@@ -248,22 +248,22 @@ public class AasServiceIoManagerListener implements IoManagerListener {
      */
     @Override
     public boolean onWriteValue(ServiceContext sc, NodeId nodeId, UaValueNode uvn, NumericRange indexRange, DataValue dv) throws StatusException {
-        LOGGER.info(
+        logger.info(
                 "onWriteValue: nodeId=" + nodeId + (uvn != null ? " node=" + uvn.getBrowseName() : "") + (indexRange != null ? " indexRange=" + indexRange : "") + " value=" + dv);
 
         try {
             if (endpoint == null) {
-                LOGGER.warn("onWriteValue: no Endpoint available");
+                logger.warn("onWriteValue: no Endpoint available");
             }
             else if (dv.getStatusCode().isNotGood()) {
-                LOGGER.warn("onWriteValue: StatusCode not good");
+                logger.warn("onWriteValue: StatusCode not good");
             }
             else {
                 boolean rv;
                 SubmodelElementData data = nodeManager.getAasData(nodeId);
                 if (data != null) {
                     if (data.getType() == null) {
-                        LOGGER.warn("onWriteValue: Node " + nodeId + ": unkown type");
+                        logger.warn("onWriteValue: Node " + nodeId + ": unkown type");
                         rv = false;
                     }
                     else {
@@ -273,21 +273,21 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                     }
                 }
                 else {
-                    LOGGER.warn("onWriteValue: Node " + nodeId + ": SubmodelElementData not found");
+                    logger.warn("onWriteValue: Node " + nodeId + ": SubmodelElementData not found");
                     rv = false;
                 }
 
                 if (rv) {
-                    LOGGER.debug("onWriteValue: NodeId " + nodeId.toString() + " written successfully");
+                    logger.debug("onWriteValue: NodeId " + nodeId.toString() + " written successfully");
                 }
                 else {
-                    LOGGER.info("onWriteValue: NodeId " + nodeId.toString() + " write failed");
+                    logger.info("onWriteValue: NodeId " + nodeId.toString() + " write failed");
                     throw new StatusException(StatusCodes.Bad_InternalError);
                 }
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("onWriteValue Exception", ex);
+            logger.error("onWriteValue Exception", ex);
             throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError);
         }
 

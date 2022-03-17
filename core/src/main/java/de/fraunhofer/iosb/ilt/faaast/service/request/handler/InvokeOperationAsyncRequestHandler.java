@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InvokeOperationAsyncRequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(InvokeOperationAsyncRequestHandler.class);
 
     public InvokeOperationAsyncRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
@@ -116,7 +116,7 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
                         toValues(operationResult.getInoutputArguments()));
             }
             catch (ValueMappingException e2) {
-                LOGGER.warn("could not publish operation finished event message because mapping result to value objects failed", e2);
+                logger.warn("could not publish operation finished event message because mapping result to value objects failed", e2);
             }
         }
         return operationHandle;

@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint.class);
+    private static final Logger logger = LoggerFactory.getLogger(OpcUaEndpoint.class);
 
     private ServiceContext service;
     private AssetAdministrationShellEnvironment aasEnvironment;
@@ -119,10 +119,10 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         try {
             server = new Server(currentConfig.getTcpPort(), aasEnvironment, this);
             server.startup();
-            LOGGER.info("server started");
+            logger.info("server started");
         }
         catch (Exception e) {
-            LOGGER.error("Error starting OPC UA Server", e);
+            logger.error("Error starting OPC UA Server", e);
             throw new RuntimeException("OPC UA server could not be started", e);
         }
     }
@@ -139,12 +139,12 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
         try {
             if (server != null) {
-                LOGGER.info("stop server. Currently running: " + server.isRunning());
+                logger.info("stop server. Currently running: " + server.isRunning());
                 server.shutdown(currentConfig.getSecondsTillShutdown());
             }
         }
         catch (Exception e) {
-            LOGGER.error("Error stopping OPC UA Server", e);
+            logger.error("Error stopping OPC UA Server", e);
             throw new RuntimeException("OPC UA server could not be stopped", e);
         }
     }
@@ -191,7 +191,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
                 MultiLanguageProperty mlp = (MultiLanguageProperty) element;
                 if ((mlp.getValues() != null) && (mlp.getValues().size() > 1)) {
                     for (int i = 0; i < mlp.getValues().size(); i++) {
-                        LOGGER.info("writeValue: MLP " + i + ": " + mlp.getValues().get(i).getValue());
+                        logger.info("writeValue: MLP " + i + ": " + mlp.getValues().get(i).getValue());
                     }
                 }
             }
@@ -202,19 +202,19 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
                 MultiLanguagePropertyValue mlpv = (MultiLanguagePropertyValue) request.getRawValue();
                 if ((mlpv.getLangStringSet() != null) && (mlpv.getLangStringSet().size() > 1)) {
                     for (int i = 0; i < mlpv.getLangStringSet().size(); i++) {
-                        LOGGER.info("writeValue: MLPV " + i + ": " + mlpv.getLangStringSet().toArray()[i]);
+                        logger.info("writeValue: MLPV " + i + ": " + mlpv.getLangStringSet().toArray()[i]);
                     }
                 }
             }
 
             Response response = service.execute(request);
-            LOGGER.info("writeValue: Submodel " + submodel.getIdentification().getIdentifier() + "; Element " + element.getIdShort() + "; Status: " + response.getStatusCode());
+            logger.info("writeValue: Submodel " + submodel.getIdentification().getIdentifier() + "; Element " + element.getIdShort() + "; Status: " + response.getStatusCode());
             if (isSuccess(response.getStatusCode())) {
                 retval = true;
             }
         }
         catch (Exception e) {
-            LOGGER.error("writeValue error", e);
+            logger.error("writeValue error", e);
         }
 
         return retval;
@@ -250,21 +250,21 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             // execute method
             InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
             if (isSuccess(response.getStatusCode())) {
-                LOGGER.info("callOperation: Operation " + operation.getIdShort() + " executed successfully");
+                logger.info("callOperation: Operation " + operation.getIdShort() + " executed successfully");
             }
             else if (response.getStatusCode() == StatusCode.ClientMethodNotAllowed) {
-                LOGGER.warn("callOperation: Operation " + operation.getIdShort() + " error executing operation: " + response.getStatusCode());
+                logger.warn("callOperation: Operation " + operation.getIdShort() + " error executing operation: " + response.getStatusCode());
                 throw new StatusException(StatusCodes.Bad_NotExecutable);
             }
             else {
-                LOGGER.warn("callOperation: Operation " + operation.getIdShort() + " error executing operation: " + response.getStatusCode());
+                logger.warn("callOperation: Operation " + operation.getIdShort() + " error executing operation: " + response.getStatusCode());
                 throw new StatusException(StatusCodes.Bad_UnexpectedError);
             }
 
             outputArguments = response.getPayload().getOutputArguments();
         }
         catch (Exception e) {
-            LOGGER.error("callOperation error", e);
+            logger.error("callOperation error", e);
             throw e;
         }
 

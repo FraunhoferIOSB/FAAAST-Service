@@ -94,7 +94,7 @@ import org.slf4j.LoggerFactory;
  */
 public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectionConfig, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaAssetConnection.class);
+    private static final Logger logger = LoggerFactory.getLogger(OpcUaAssetConnection.class);
     private static final ValueConverter valueConverter = new ValueConverter();
 
     private static final String NODE_ID_SEPARATOR = ";";
@@ -162,7 +162,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                     subscription.dataItem.delete();
                 }
                 catch (UaException e) {
-                    LOGGER.info("unsubscribing from OPC UA asset connection on connection closing failed", e);
+                    logger.info("unsubscribing from OPC UA asset connection on connection closing failed", e);
                 }
             }
             subscriptions.clear();
@@ -262,7 +262,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
             }
         }
         else {
-            LOGGER.debug("no namespace provided for node. Using default: ns=0 (nodeId: {}", nodeId);
+            logger.debug("no namespace provided for node. Using default: ns=0 (nodeId: {}", nodeId);
         }
         return NodeId.parse(nodeId.replace(ns.get(), NS_PREFIX + namespaceIndex));
     }
@@ -547,7 +547,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                     }
                     catch (UaException | InterruptedException | ExecutionException e) {
                         Thread.currentThread().interrupt();
-                        LOGGER.warn("{} - reading initial value of subscribed node failed (reference: {}, nodeId: {})",
+                        logger.warn("{} - reading initial value of subscribed node failed (reference: {}, nodeId: {})",
                                 baseErrorMessage,
                                 AasUtils.asString(reference),
                                 providerConfig.getNodeId(),
@@ -560,7 +560,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                                         x -> x.addDataValueListener(LambdaExceptionHelper.rethrowConsumer(handler::notify))));
                     }
                     catch (UaException e) {
-                        LOGGER.warn("{} - could not create subscrption item (reference: {}, nodeId: {})",
+                        logger.warn("{} - could not create subscrption item (reference: {}, nodeId: {})",
                                 baseErrorMessage,
                                 AasUtils.asString(reference),
                                 providerConfig.getNodeId(),
@@ -736,7 +736,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                             listener.newDataReceived(newAasValue);
                         }
                         catch (Exception e) {
-                            LOGGER.debug("exception while invoking newDataReceived handler", e);
+                            logger.debug("exception while invoking newDataReceived handler", e);
                         }
                     }
                 }

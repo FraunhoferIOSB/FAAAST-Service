@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class MqttSubscriptionProvider implements AssetSubscriptionProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MqttSubscriptionProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(MqttSubscriptionProvider.class);
     private final MqttClient client;
     private final MqttSubscriptionProviderConfig providerConfig;
     private final Reference reference;
@@ -51,7 +51,7 @@ public class MqttSubscriptionProvider implements AssetSubscriptionProvider {
         client.setCallback(new MqttCallback() {
             @Override
             public void connectionLost(Throwable throwable) {
-                LOGGER.debug("MQTT asset connection lost (reference: {}, url: {})",
+                logger.debug("MQTT asset connection lost (reference: {}, url: {})",
                         AasUtils.asString(reference),
                         client.getServerURI(),
                         throwable);

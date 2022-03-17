@@ -172,7 +172,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * The logger for this class
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(AasServiceNodeManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(AasServiceNodeManager.class);
 
     /**
      * The AAS environment associated with this Node Manager
@@ -281,7 +281,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             unsubscribeMessageBus();
         }
         catch (Throwable ex) {
-            LOGGER.error("close Exception", ex);
+            logger.error("close Exception", ex);
         }
 
         super.close();
@@ -299,10 +299,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
         if (submodelElementAasMap.containsKey(node)) {
             retval = submodelElementAasMap.get(node);
-            LOGGER.debug("getAasSubmodelElement: NodeId: " + node + "; Property " + retval);
+            logger.debug("getAasSubmodelElement: NodeId: " + node + "; Property " + retval);
         }
         else {
-            LOGGER.info("Node " + node.toString() + " not found in submodelElementMap");
+            logger.info("Node " + node.toString() + " not found in submodelElementMap");
         }
 
         return retval;
@@ -314,7 +314,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void createAddressSpace() {
         try {
-            LOGGER.info("createAddressSpace");
+            logger.info("createAddressSpace");
 
             aasMethodManagerListener = new AasServiceMethodManagerListener(endpoint, this);
 
@@ -322,7 +322,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             subscribeMessageBus();
         }
         catch (Throwable ex) {
-            LOGGER.error("createAddressSpace Exception", ex);
+            logger.error("createAddressSpace Exception", ex);
         }
     }
 
@@ -359,7 +359,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("createAasNodes Exception", ex);
+            logger.error("createAasNodes Exception", ex);
         }
     }
 
@@ -379,7 +379,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAssetAdministrationShells Exception", ex);
+            logger.error("addAssetAdministrationShells Exception", ex);
             throw ex;
         }
     }
@@ -437,7 +437,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             referableMap.put(AasUtils.toReference(aas), new ObjectData(aas, aasShell));
         }
         catch (Throwable ex) {
-            LOGGER.error("addAssetAdministrationShell Exception", ex);
+            logger.error("addAssetAdministrationShell Exception", ex);
             throw ex;
         }
     }
@@ -498,7 +498,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addConceptDescriptions Exception", ex);
+            logger.error("addConceptDescriptions Exception", ex);
             throw ex;
         }
     }
@@ -534,7 +534,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addIdentifiable Exception", ex);
+            logger.error("addIdentifiable Exception", ex);
         }
     }
 
@@ -569,7 +569,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addIdentifiable Exception", ex);
+            logger.error("addIdentifiable Exception", ex);
         }
     }
 
@@ -604,7 +604,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addIdentifiable Exception", ex);
+            logger.error("addIdentifiable Exception", ex);
         }
     }
 
@@ -639,7 +639,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addIdentifiable Exception", ex);
+            logger.error("addIdentifiable Exception", ex);
         }
     }
 
@@ -692,7 +692,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAdminInfProperties Exception", ex);
+            logger.error("addAdminInfProperties Exception", ex);
         }
     }
 
@@ -732,7 +732,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addConceptDescriptionReference Exception", ex);
+            logger.error("addConceptDescriptionReference Exception", ex);
             throw ex;
         }
     }
@@ -787,7 +787,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             refNode.setKeys(keyList.toArray(AASKeyDataType[]::new));
         }
         catch (Throwable ex) {
-            LOGGER.error("setAasReferenceData Exception", ex);
+            logger.error("setAasReferenceData Exception", ex);
             throw ex;
         }
     }
@@ -857,7 +857,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAssetInformation Exception", ex);
+            logger.error("addAssetInformation Exception", ex);
             throw ex;
         }
     }
@@ -882,7 +882,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             addAasReferenceList(node, billOfMaterials, "BillOfMaterial");
         }
         catch (Throwable ex) {
-            LOGGER.error("addBillOfMaterials Exception", ex);
+            logger.error("addBillOfMaterials Exception", ex);
             throw ex;
         }
     }
@@ -919,7 +919,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             retval = addAasReference(node, ref, name, opc.i4aas.ObjectTypeIds.AASReferenceType.getNamespaceUri(), readOnly);
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasReferenceAasNS Exception", ex);
+            logger.error("addAasReferenceAasNS Exception", ex);
             throw ex;
         }
 
@@ -947,7 +947,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 NodeId nid = getDefaultNodeId();
                 AASReferenceType nodeRef = createInstance(AASReferenceType.class, nid, browseName, LocalizedText.english(name));
 
-                LOGGER.debug("addAasReference: add Node " + nid + " to Node " + node.getNodeId());
+                logger.debug("addAasReference: add Node " + nid + " to Node " + node.getNodeId());
 
                 setAasReferenceData(ref, nodeRef, readOnly);
 
@@ -957,7 +957,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasReference Exception", ex);
+            logger.error("addAasReference Exception", ex);
             throw ex;
         }
 
@@ -1010,7 +1010,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     if (!aasFile.getValue().isEmpty()) {
                         java.io.File f = new java.io.File(aasFile.getValue());
                         if (!f.exists()) {
-                            LOGGER.warn("addAasFile: File '" + f.getAbsolutePath() + "' does not exist!");
+                            logger.warn("addAasFile: File '" + f.getAbsolutePath() + "' does not exist!");
                         }
                         else {
                             // File Object: include only when the file exists
@@ -1045,7 +1045,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasFile Exception", ex);
+            logger.error("addAasFile Exception", ex);
             throw ex;
         }
     }
@@ -1070,7 +1070,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             fileNode.addProperty(myProperty);
         }
         catch (Throwable ex) {
-            LOGGER.error("addFileFileNode Exception", ex);
+            logger.error("addFileFileNode Exception", ex);
             throw ex;
         }
     }
@@ -1128,7 +1128,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addSubmodelElementBaseData Exception", ex);
+            logger.error("addSubmodelElementBaseData Exception", ex);
             throw ex;
         }
     }
@@ -1148,7 +1148,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             // if entry not found: perhaps create a new one?
         }
         catch (Throwable ex) {
-            LOGGER.error("addSemanticId Exception", ex);
+            logger.error("addSemanticId Exception", ex);
             throw ex;
         }
     }
@@ -1180,7 +1180,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addEmbeddedDataSpecifications Exception", ex);
+            logger.error("addEmbeddedDataSpecifications Exception", ex);
             throw ex;
         }
     }
@@ -1212,7 +1212,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addEmbeddedDataSpecifications Exception", ex);
+            logger.error("addEmbeddedDataSpecifications Exception", ex);
             throw ex;
         }
     }
@@ -1244,7 +1244,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addEmbeddedDataSpecifications Exception", ex);
+            logger.error("addEmbeddedDataSpecifications Exception", ex);
             throw ex;
         }
     }
@@ -1277,7 +1277,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addEmbeddedDataSpecifications Exception", ex);
+            logger.error("addEmbeddedDataSpecifications Exception", ex);
             throw ex;
         }
     }
@@ -1306,7 +1306,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addEmbeddedDataSpecifications Exception", ex);
+            logger.error("addEmbeddedDataSpecifications Exception", ex);
             throw ex;
         }
     }
@@ -1328,7 +1328,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addDescriptions Exception", ex);
+            logger.error("addDescriptions Exception", ex);
             throw ex;
         }
     }
@@ -1350,7 +1350,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addDescriptions Exception", ex);
+            logger.error("addDescriptions Exception", ex);
         }
     }
 
@@ -1363,7 +1363,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void addQualifierNode(UaNode node) {
         try {
             String name = AASSubmodelElementType.QUALIFIER;
-            LOGGER.info("addQualifierNode " + name + "; to Node: " + node.toString());
+            logger.info("addQualifierNode " + name + "; to Node: " + node.toString());
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASQualifierList.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
             NodeId nid = createNodeId(node, browseName);
             AASQualifierList listNode = createInstance(AASQualifierList.class, nid, browseName, LocalizedText.english(name));
@@ -1371,7 +1371,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             node.addComponent(listNode);
         }
         catch (Throwable ex) {
-            LOGGER.error("addQualifierNode Exception", ex);
+            logger.error("addQualifierNode Exception", ex);
         }
     }
 
@@ -1402,7 +1402,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addQualifiers Exception", ex);
+            logger.error("addQualifiers Exception", ex);
             throw ex;
         }
     }
@@ -1424,7 +1424,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            LOGGER.info("addQualifier " + name + "; to Node: " + node.toString());
+            logger.info("addQualifier " + name + "; to Node: " + node.toString());
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASQualifierType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
             NodeId nid = createNodeId(node, browseName);
             AASQualifierType qualifierNode = createInstance(AASQualifierType.class, nid, browseName, LocalizedText.english(name));
@@ -1464,7 +1464,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             node.addComponent(qualifierNode);
         }
         catch (Throwable ex) {
-            LOGGER.error("addQualifier Exception", ex);
+            logger.error("addQualifier Exception", ex);
             throw ex;
         }
     }
@@ -1488,7 +1488,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            LOGGER.info("addSpecificAssetIds " + name + "; to Node: " + assetInfoNode.toString());
+            logger.info("addSpecificAssetIds " + name + "; to Node: " + assetInfoNode.toString());
             AASIdentifierKeyValuePairList listNode = assetInfoNode.getSpecificAssetIdNode();
             boolean created = false;
 
@@ -1510,7 +1510,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addSpecificAssetIds Exception", ex);
+            logger.error("addSpecificAssetIds Exception", ex);
             throw ex;
         }
     }
@@ -1547,7 +1547,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            LOGGER.info("addIdentifierKeyValuePair " + name + "; to Node: " + node.toString());
+            logger.info("addIdentifierKeyValuePair " + name + "; to Node: " + node.toString());
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASIdentifierKeyValuePairType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
             NodeId nid = createNodeId(node, browseName);
             AASIdentifierKeyValuePairType identifierPairNode = createInstance(AASIdentifierKeyValuePairType.class, nid, browseName, LocalizedText.english(name));
@@ -1557,7 +1557,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             node.addComponent(identifierPairNode);
         }
         catch (Throwable ex) {
-            LOGGER.error("addIdentifierKeyValuePair Exception", ex);
+            logger.error("addIdentifierKeyValuePair Exception", ex);
             throw ex;
         }
     }
@@ -1610,7 +1610,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("setIdentifierKeyValuePairData Exception", ex);
+            logger.error("setIdentifierKeyValuePairData Exception", ex);
             throw ex;
         }
     }
@@ -1633,7 +1633,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            LOGGER.info("addAasReferenceList " + name + "; to Node: " + node.toString());
+            logger.info("addAasReferenceList " + name + "; to Node: " + node.toString());
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
             NodeId nid = getDefaultNodeId();
             AASReferenceList referenceListNode = createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
@@ -1646,7 +1646,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             node.addComponent(referenceListNode);
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasReferenceList Exception", ex);
+            logger.error("addAasReferenceList Exception", ex);
             throw ex;
         }
     }
@@ -1660,7 +1660,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             final UaObject objectsFolder = getServer().getNodeManagerRoot().getObjectsFolder();
             if (aasEnvironment != null) {
                 String name = "AASEnvironment";
-                LOGGER.info("addAasEnvironmentNode " + name + "; to ObjectsFolder");
+                logger.info("addAasEnvironmentNode " + name + "; to ObjectsFolder");
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
                 NodeId nid = createNodeId(objectsFolder, browseName);
                 aasEnvironmentNode = createInstance(AASEnvironmentType.class, nid, browseName, LocalizedText.english(name));
@@ -1669,7 +1669,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasEnvironmentNode Exception", ex);
+            logger.error("addAasEnvironmentNode Exception", ex);
             throw ex;
         }
     }
@@ -1693,7 +1693,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             String name = asset.getIdShort();
             String displayName = "Asset:" + name;
-            LOGGER.info("addAsset " + name + "; to Node: " + node.toString());
+            logger.info("addAsset " + name + "; to Node: " + node.toString());
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
             NodeId nid = createNodeId(node, browseName);
             AASAssetType assetNode = createInstance(AASAssetType.class, nid, browseName, LocalizedText.english(displayName));
@@ -1708,7 +1708,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             referableMap.put(AasUtils.toReference(asset), new ObjectData(asset, assetNode));
         }
         catch (Throwable ex) {
-            LOGGER.error("addAsset Exception", ex);
+            logger.error("addAsset Exception", ex);
             throw ex;
         }
     }
@@ -1736,7 +1736,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     nid = getDefaultNodeId();
                 }
 
-                LOGGER.trace("addSubmodel: create Submodel " + submodel.getIdShort() + "; NodeId: " + nid.toString());
+                logger.trace("addSubmodel: create Submodel " + submodel.getIdShort() + "; NodeId: " + nid.toString());
                 AASSubmodelType smNode = createInstance(AASSubmodelType.class, nid, browseName, LocalizedText.english(displayName));
 
                 // ModelingKind
@@ -1780,11 +1780,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 referableMap.put(AasUtils.toReference(submodel), new ObjectData(submodel, smNode));
             }
             else {
-                LOGGER.warn("addSubmodel: IdShort is empty!");
+                logger.warn("addSubmodel: IdShort is empty!");
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addSubmodel Exception", ex);
+            logger.error("addSubmodel Exception", ex);
             throw ex;
         }
     }
@@ -1841,13 +1841,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         addAasSubmodelElementCollection(node, (SubmodelElementCollection) elem, submodel, parentRef, ordered);
                     }
                     else if (elem != null) {
-                        LOGGER.warn("addSubmodelElements: unknown SubmodelElement: " + elem.getIdShort() + "; Class " + elem.getClass());
+                        logger.warn("addSubmodelElements: unknown SubmodelElement: " + elem.getIdShort() + "; Class " + elem.getClass());
                     }
                 }
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addSubmodelElements Exception", ex);
+            logger.error("addSubmodelElements Exception", ex);
             throw ex;
         }
     }
@@ -1887,12 +1887,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     addAasMultiLanguageProperty(node, (MultiLanguageProperty) aasDataElement, submodel, parentRef, ordered);
                 }
                 else {
-                    LOGGER.warn("addAasDataElement: unknown DataElement: " + aasDataElement.getIdShort() + "; Class " + aasDataElement.getClass());
+                    logger.warn("addAasDataElement: unknown DataElement: " + aasDataElement.getIdShort() + "; Class " + aasDataElement.getClass());
                 }
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasDataElement Exception", ex);
+            logger.error("addAasDataElement Exception", ex);
             throw ex;
         }
     }
@@ -1938,7 +1938,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
             }
 
-            LOGGER.info("addAasProperty: add Property " + nid.toString());
+            logger.info("addAasProperty: add Property " + nid.toString());
 
             if (ordered) {
                 node.addReference(prop, Identifiers.HasOrderedComponent, false);
@@ -1950,7 +1950,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             referableMap.put(propRef, new ObjectData(aasProperty, prop, submodel));
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasProperty Exception", ex);
+            logger.error("addAasProperty Exception", ex);
         }
     }
 
@@ -1970,7 +1970,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             LocalizedText displayName = LocalizedText.english(AASPropertyType.VALUE);
 
             submodelElementAasMap.put(myPropertyId, new SubmodelElementData(aasProperty, submodel, SubmodelElementData.Type.PROPERTY_VALUE, propRef));
-            LOGGER.debug("setPropertyValueAndType: NodeId " + myPropertyId + "; Property: " + aasProperty);
+            logger.debug("setPropertyValueAndType: NodeId " + myPropertyId + "; Property: " + aasProperty);
 
             if (submodel != null) {
                 submodelElementOpcUAMap.put(propRef, prop);
@@ -2156,7 +2156,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                //                    break;
                 //
                 default:
-                    LOGGER.warn("setValueAndType: Property " + prop.getBrowseName().getName() + ": Unknown type: " + aasProperty.getValueType() + "; use string as default");
+                    logger.warn("setValueAndType: Property " + prop.getBrowseName().getName() + ": Unknown type: " + aasProperty.getValueType() + "; use string as default");
                     PlainProperty<String> myDefaultProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
                     myDefaultProperty.setDataTypeId(Identifiers.String);
                     myDefaultProperty.setValue(aasProperty.getValue());
@@ -2170,7 +2170,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("setPropertyValueAndType Exception", ex);
+            logger.error("setPropertyValueAndType Exception", ex);
         }
     }
 
@@ -2190,7 +2190,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             throw new IllegalArgumentException("value is null");
         }
 
-        LOGGER.debug("setPropertyValue: " + property.getBrowseName().getName() + " to " + value.getValue());
+        logger.debug("setPropertyValue: " + property.getBrowseName().getName() + " to " + value.getValue());
 
         try {
             // special treatment for some not directly supported types
@@ -2288,7 +2288,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             //            }
         }
         catch (Throwable ex) {
-            LOGGER.error("setPropertyValue Exception", ex);
+            logger.error("setPropertyValue Exception", ex);
             throw ex;
         }
     }
@@ -2330,7 +2330,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     }
 
                     submodelElementAasMap.put(blobNode.getValueNode().getNodeId(), new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE, blobRef));
-                    LOGGER.debug("addAasBlob: NodeId " + blobNode.getValueNode().getNodeId() + "; Blob: " + aasBlob);
+                    logger.debug("addAasBlob: NodeId " + blobNode.getValueNode().getNodeId() + "; Blob: " + aasBlob);
 
                     submodelElementOpcUAMap.put(blobRef, blobNode);
 
@@ -2348,7 +2348,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasBlob Exception", ex);
+            logger.error("addAasBlob Exception", ex);
             throw ex;
         }
     }
@@ -2370,7 +2370,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             node.addProperty(myProperty);
         }
         catch (Throwable ex) {
-            LOGGER.error("addBlobValueNode Exception", ex);
+            logger.error("addBlobValueNode Exception", ex);
             throw ex;
         }
     }
@@ -2422,7 +2422,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasReferenceElement Exception", ex);
+            logger.error("addAasReferenceElement Exception", ex);
             throw ex;
         }
     }
@@ -2466,7 +2466,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasRange Exception", ex);
+            logger.error("addAasRange Exception", ex);
             throw ex;
         }
     }
@@ -2853,7 +2853,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                    }
                 //                    break;
                 default:
-                    LOGGER.warn("setRangeValueAndType: Range " + range.getBrowseName().getName() + ": Unknown type: " + valueType + "; use string as default");
+                    logger.warn("setRangeValueAndType: Range " + range.getBrowseName().getName() + ": Unknown type: " + valueType + "; use string as default");
                     if (minValue != null) {
                         PlainProperty<String> myStringProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
                         myStringProperty.setDataTypeId(Identifiers.String);
@@ -2873,7 +2873,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("setRangeValueAndType Exception", ex);
+            logger.error("setRangeValueAndType Exception", ex);
         }
     }
 
@@ -2932,7 +2932,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasMultiLanguageProperty Exception", ex);
+            logger.error("addAasMultiLanguageProperty Exception", ex);
             throw ex;
         }
     }
@@ -2960,7 +2960,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             myLTProperty.setDescription(new LocalizedText("", ""));
         }
         catch (Throwable ex) {
-            LOGGER.error("addMultiLanguageValueNode Exception", ex);
+            logger.error("addMultiLanguageValueNode Exception", ex);
             throw ex;
         }
     }
@@ -3003,7 +3003,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasCapability Exception", ex);
+            logger.error("addAasCapability Exception", ex);
             throw ex;
         }
     }
@@ -3081,7 +3081,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasEntity Exception", ex);
+            logger.error("addAasEntity Exception", ex);
             throw ex;
         }
     }
@@ -3109,7 +3109,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             // for operations we put the corresponding operation object into the map
             submodelElementAasMap.put(nid, new SubmodelElementData(aasOperation, submodel, SubmodelElementData.Type.OPERATION, operRef));
-            LOGGER.debug("addAasOperation: NodeId " + nid + "; Property: " + aasOperation);
+            logger.debug("addAasOperation: NodeId " + nid + "; Property: " + aasOperation);
 
             // add method
             NodeId myMethodId = new NodeId(getNamespaceIndex(), nid.getValue().toString() + "." + name);
@@ -3148,7 +3148,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             referableMap.put(operRef, new ObjectData(aasOperation, oper, submodel));
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasOperation Exception", ex);
+            logger.error("addAasOperation Exception", ex);
         }
     }
 
@@ -3172,7 +3172,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
                 NodeId type = ValueConverter.convertValueTypeStringToNodeId(prop.getValueType());
                 if (type.isNullNodeId()) {
-                    LOGGER.warn("setOperationArgument: Property " + prop.getIdShort() + ": Unknown type: " + prop.getValueType());
+                    logger.warn("setOperationArgument: Property " + prop.getIdShort() + ": Unknown type: " + prop.getValueType());
 
                     // Default type is String. That's what we receive from the AAS Service
                     arg.setDataType(Identifiers.String);
@@ -3182,11 +3182,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
             }
             else {
-                LOGGER.warn("setOperationArgument: unknown Argument type");
+                logger.warn("setOperationArgument: unknown Argument type");
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("setOperationArgument Exception", ex);
+            logger.error("setOperationArgument Exception", ex);
             throw ex;
         }
     }
@@ -3233,7 +3233,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasEvent Exception", ex);
+            logger.error("addAasEvent Exception", ex);
             throw ex;
         }
     }
@@ -3248,11 +3248,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void setBasicEventData(AASEventType eventNode, BasicEvent aasEvent) {
         try {
             if (aasEvent.getObserved() != null) {
-                LOGGER.warn("setBasicEventData: not implemented! Event: " + eventNode.getBrowseName().getName());
+                logger.warn("setBasicEventData: not implemented! Event: " + eventNode.getBrowseName().getName());
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("setBasicEventData Exception", ex);
+            logger.error("setBasicEventData Exception", ex);
             throw ex;
         }
     }
@@ -3314,7 +3314,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addAasRelationshipElement Exception", ex);
+            logger.error("addAasRelationshipElement Exception", ex);
             throw ex;
         }
     }
@@ -3351,7 +3351,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             retval = relElemNode;
         }
         catch (Throwable ex) {
-            LOGGER.error("createAnnotatedRelationshipElement Exception", ex);
+            logger.error("createAnnotatedRelationshipElement Exception", ex);
             throw ex;
         }
 
@@ -3424,7 +3424,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("createAasSubmodelElementCollection Exception", ex);
+            logger.error("createAasSubmodelElementCollection Exception", ex);
             throw ex;
         }
     }
@@ -3448,7 +3448,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             retval = orderedNode;
         }
         catch (Throwable ex) {
-            LOGGER.error("createAasOrderedSubmodelElementCollection Exception", ex);
+            logger.error("createAasOrderedSubmodelElementCollection Exception", ex);
             throw ex;
         }
 
@@ -3474,13 +3474,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             String name = "Submodel";
             AASReferenceList referenceListNode = node.getSubmodelNode();
-            LOGGER.info("addSubmodelReferences: add " + submodelRefs.size() + " Submodels to Node: " + node.toString());
+            logger.info("addSubmodelReferences: add " + submodelRefs.size() + " Submodels to Node: " + node.toString());
             boolean added = false;
             if (referenceListNode == null) {
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
                 NodeId nid = createNodeId(node, browseName);
                 referenceListNode = createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
-                LOGGER.info("addSubmodelReferences: add Node " + referenceListNode.getNodeId() + "to Node" + node.getNodeId());
+                logger.info("addSubmodelReferences: add Node " + referenceListNode.getNodeId() + "to Node" + node.getNodeId());
                 added = true;
             }
 
@@ -3504,7 +3504,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         refNode.addReference(submodelNode, Identifiers.HasAddIn, false);
                     }
                     else {
-                        LOGGER.warn("addSubmodelReferences: Submodel " + ref + " not found in submodelRefMap");
+                        logger.warn("addSubmodelReferences: Submodel " + ref + " not found in submodelRefMap");
                     }
                 }
             }
@@ -3514,7 +3514,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("addSubmodelReferences Exception", ex);
+            logger.error("addSubmodelReferences Exception", ex);
             throw ex;
         }
     }
@@ -3526,13 +3526,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void subscribeMessageBus() {
         try {
             if (messageBus != null) {
-                LOGGER.debug("subscribeMessageBus: subscribe ValueChangeEvents");
+                logger.debug("subscribeMessageBus: subscribe ValueChangeEvents");
                 SubscriptionInfo info = SubscriptionInfo.create(ValueChangeEventMessage.class, (t) -> {
                     try {
                         valueChanged(t.getElement(), t.getNewValue(), t.getOldValue());
                     }
                     catch (StatusException e) {
-                        LOGGER.error("valueChanged Exception", e);
+                        logger.error("valueChanged Exception", e);
                     }
                 });
                 SubscriptionId rv = messageBus.subscribe(info);
@@ -3543,7 +3543,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         elementCreated(x.getElement(), x.getValue());
                     }
                     catch (Exception e) {
-                        LOGGER.error("elementCreated Exception", e);
+                        logger.error("elementCreated Exception", e);
                     }
                 });
                 rv = messageBus.subscribe(info);
@@ -3554,7 +3554,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         elementDeleted(x.getElement());
                     }
                     catch (Exception e) {
-                        LOGGER.error("elementDeleted Exception", e);
+                        logger.error("elementDeleted Exception", e);
                     }
                 });
                 rv = messageBus.subscribe(info);
@@ -3565,18 +3565,18 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         elementUpdated(x.getElement(), x.getValue());
                     }
                     catch (Exception e) {
-                        LOGGER.error("elementUpdated Exception", e);
+                        logger.error("elementUpdated Exception", e);
                     }
                 });
                 rv = messageBus.subscribe(info);
                 subscriptions.add(rv);
             }
             else {
-                LOGGER.warn("MessageBus not available!");
+                logger.warn("MessageBus not available!");
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("subscribeMessageBus Exception", ex);
+            logger.error("subscribeMessageBus Exception", ex);
             throw ex;
         }
     }
@@ -3595,7 +3595,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             updateSubmodelElementValue(element, newValue, oldValue);
         }
         catch (Throwable ex) {
-            LOGGER.error("valueChanged Exception", ex);
+            logger.error("valueChanged Exception", ex);
             throw ex;
         }
     }
@@ -3620,7 +3620,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            LOGGER.debug("elementCreated called. Reference " + AasUtils.asString(element));
+            logger.debug("elementCreated called. Reference " + AasUtils.asString(element));
 
             // The element is the parent object where the value is added
             ObjectData parent = null;
@@ -3628,7 +3628,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 parent = referableMap.get(element);
             }
             else {
-                LOGGER.info("elementCreated: element not found in referableMap: " + AasUtils.asString(element));
+                logger.info("elementCreated: element not found in referableMap: " + AasUtils.asString(element));
             }
 
             if (value instanceof ConceptDescription) {
@@ -3658,7 +3658,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         addEmbeddedDataSpecifications((AASAssetType) parent.getNode(), List.of((EmbeddedDataSpecification) value));
                     }
                     else {
-                        LOGGER.warn("elementCreated: EmbeddedDataSpecification parent class not found");
+                        logger.warn("elementCreated: EmbeddedDataSpecification parent class not found");
                     }
                 }
                 else if (value instanceof Constraint) {
@@ -3669,29 +3669,29 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         addQualifiers(((AASSubmodelElementType) parent.getNode()).getQualifierNode(), List.of((Constraint) value));
                     }
                     else {
-                        LOGGER.warn("elementCreated: Constraint parent class not found");
+                        logger.warn("elementCreated: Constraint parent class not found");
                     }
                 }
                 else if (value instanceof SubmodelElement) {
                     if (parent.getNode() instanceof AASSubmodelType) {
-                        LOGGER.info("elementCreated: call addSubmodelElements");
+                        logger.info("elementCreated: call addSubmodelElements");
                         addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), (Submodel) parent.getReferable(), element);
                     }
                     else if (parent.getNode() instanceof AASSubmodelElementType) {
-                        LOGGER.info("elementCreated: call addSubmodelElements");
+                        logger.info("elementCreated: call addSubmodelElements");
                         addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), parent.getSubmodel(), element);
                     }
                     else {
-                        LOGGER.warn("elementCreated: SubmodelElement parent class not found: " + parent.getNode().getNodeId().toString() + "; " + parent.getNode());
+                        logger.warn("elementCreated: SubmodelElement parent class not found: " + parent.getNode().getNodeId().toString() + "; " + parent.getNode());
                     }
                 }
             }
             else {
-                LOGGER.warn("elementCreated: element not found: " + AasUtils.asString(element));
+                logger.warn("elementCreated: element not found: " + AasUtils.asString(element));
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("elementCreated Exception", ex);
+            logger.error("elementCreated Exception", ex);
             throw ex;
         }
     }
@@ -3709,7 +3709,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            LOGGER.debug("elementDeleted called. Reference " + AasUtils.asString(element));
+            logger.debug("elementDeleted called. Reference " + AasUtils.asString(element));
 
             // The element is the object that should be deleted
             ObjectData data = null;
@@ -3720,7 +3720,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 referableMap.remove(element);
             }
             else {
-                LOGGER.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(element));
+                logger.info("elementDeleted: element not found in referableMap: " + AasUtils.asString(element));
             }
 
             if (data != null) {
@@ -3729,7 +3729,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("elementDeleted Exception", ex);
+            logger.error("elementDeleted Exception", ex);
             throw ex;
         }
     }
@@ -3754,7 +3754,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            LOGGER.debug("elementUpdated called. Reference " + AasUtils.asString(element));
+            logger.debug("elementUpdated called. Reference " + AasUtils.asString(element));
 
             // Currently we implement update as delete and create. 
             elementDeleted(element);
@@ -3769,7 +3769,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             elementCreated(element, value);
         }
         catch (Throwable ex) {
-            LOGGER.error("elementUpdated Exception", ex);
+            logger.error("elementUpdated Exception", ex);
             throw ex;
         }
     }
@@ -3781,14 +3781,14 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void unsubscribeMessageBus() {
         try {
             if (messageBus != null) {
-                LOGGER.info("unsubscribe from the MessageBus");
+                logger.info("unsubscribe from the MessageBus");
                 for (int i = 0; i < subscriptions.size(); i++) {
                     messageBus.unsubscribe(subscriptions.get(i));
                 }
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("unsubscribeMessageBus Exception", ex);
+            logger.error("unsubscribeMessageBus Exception", ex);
             throw ex;
         }
         finally {
@@ -3813,13 +3813,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             throw new IllegalArgumentException("newValue is null");
         }
 
-        LOGGER.debug("updateSubmodelElementValue");
+        logger.debug("updateSubmodelElementValue");
         if (submodelElementOpcUAMap.containsKey(reference)) {
             AASSubmodelElementType subElem = submodelElementOpcUAMap.get(reference);
             setSubmodelElementValue(subElem, newValue);
         }
         else {
-            LOGGER.warn("SubmodelElement " + reference.toString() + " not found in submodelElementOpcUAMap");
+            logger.warn("SubmodelElement " + reference.toString() + " not found in submodelElementOpcUAMap");
         }
     }
 
@@ -3833,7 +3833,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void setSubmodelElementValue(AASSubmodelElementType subElem, ElementValue value) throws StatusException {
         try {
-            LOGGER.debug("setSubmodelElementValue: " + subElem.getBrowseName().getName());
+            logger.debug("setSubmodelElementValue: " + subElem.getBrowseName().getName());
 
             // changed the order because of an error in the derivation hierarchy of ElementValue
             // perhaps the order will be changed back to normal as soon as the error is fixed
@@ -3847,11 +3847,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 setDataElementValue(subElem, (DataElementValue) value);
             }
             else {
-                LOGGER.warn("SubmodelElement " + subElem.getBrowseName().getName() + " type not supported");
+                logger.warn("SubmodelElement " + subElem.getBrowseName().getName() + " type not supported");
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("setSubmodelElementValue Exception", ex);
+            logger.error("setSubmodelElementValue Exception", ex);
             throw ex;
         }
     }
@@ -3884,7 +3884,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 UaNode[] annotationNodes = annotatedElement.getAnnotationNode().getComponents();
                 Map<String, DataElementValue> valueMap = annotatedValue.getAnnotations();
                 if (annotationNodes.length != valueMap.size()) {
-                    LOGGER.warn("Size of Value (" + valueMap.size() + ") doesn't match the number of AnnotationNodes (" + annotationNodes.length + ")");
+                    logger.warn("Size of Value (" + valueMap.size() + ") doesn't match the number of AnnotationNodes (" + annotationNodes.length + ")");
                     throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
                 }
 
@@ -3896,12 +3896,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
             }
             else {
-                LOGGER.info("setRelationshipValue: No AnnotatedRelationshipElement " + aasElement.getBrowseName().getName());
+                logger.info("setRelationshipValue: No AnnotatedRelationshipElement " + aasElement.getBrowseName().getName());
             }
 
         }
         catch (Throwable ex) {
-            LOGGER.error("setAnnotatedRelationshipValue Exception", ex);
+            logger.error("setAnnotatedRelationshipValue Exception", ex);
             throw ex;
         }
     }
@@ -3942,12 +3942,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 setMultiLanguagePropertyValue((AASMultiLanguagePropertyType) node, (MultiLanguagePropertyValue) value);
             }
             else {
-                LOGGER.warn("setDataElementValue: unknown or invalid DataElement or value: " + node.getBrowseName().getName() + "; Class: " + node.getClass() + "; Value Class: "
+                logger.warn("setDataElementValue: unknown or invalid DataElement or value: " + node.getBrowseName().getName() + "; Class: " + node.getClass() + "; Value Class: "
                         + value.getClass());
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("setDataElementValue Exception", ex);
+            logger.error("setDataElementValue Exception", ex);
             throw ex;
         }
     }
@@ -3979,7 +3979,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("setFileValue Exception", ex);
+            logger.error("setFileValue Exception", ex);
             throw ex;
         }
     }
@@ -4014,7 +4014,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("setBlobValue Exception", ex);
+            logger.error("setBlobValue Exception", ex);
             throw ex;
         }
     }
@@ -4040,7 +4040,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             setAasReferenceData(ref, refElement.getValueNode());
         }
         catch (Throwable ex) {
-            LOGGER.error("setReferenceElementValue Exception", ex);
+            logger.error("setReferenceElementValue Exception", ex);
             throw ex;
         }
     }
@@ -4079,7 +4079,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             range.setMax(objmax);
         }
         catch (Throwable ex) {
-            LOGGER.error("setRangeValue Exception", ex);
+            logger.error("setRangeValue Exception", ex);
             throw ex;
         }
     }
@@ -4109,7 +4109,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             multiLangProp.getValueNode().setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
         }
         catch (Throwable ex) {
-            LOGGER.error("setMultiLanguagePropertyValue Exception", ex);
+            logger.error("setMultiLanguagePropertyValue Exception", ex);
             throw ex;
         }
     }
@@ -4146,7 +4146,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             if (statementNode != null) {
                 UaNode[] statementNodes = statementNode.getComponents();
                 if (statementNodes.length != valueMap.size()) {
-                    LOGGER.warn("Size of Value (" + valueMap.size() + ") doesn't match the number of StatementNodes (" + statementNodes.length + ")");
+                    logger.warn("Size of Value (" + valueMap.size() + ") doesn't match the number of StatementNodes (" + statementNodes.length + ")");
                     throw new IllegalArgumentException("Size of Value doesn't match the number of StatementNodes");
                 }
 
@@ -4160,7 +4160,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("setEntityValue Exception", ex);
+            logger.error("setEntityValue Exception", ex);
             throw ex;
         }
     }
@@ -4203,7 +4203,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             node.addProperty(myProperty);
         }
         catch (Throwable ex) {
-            LOGGER.error("addQualifierValueNode Exception", ex);
+            logger.error("addQualifierValueNode Exception", ex);
             throw ex;
         }
     }
@@ -4244,7 +4244,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Throwable ex) {
             // This exception is not thrown here. We ignore the error.
-            LOGGER.error("removeFromMaps Exception", ex);
+            logger.error("removeFromMaps Exception", ex);
         }
     }
 
@@ -4258,51 +4258,51 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void doRemoveFromMaps(AASSubmodelElementType element, Reference reference, Referable referable) {
         try {
-            LOGGER.debug("doRemoveFromMaps: remove SubmodelElement " + AasUtils.asString(reference));
+            logger.debug("doRemoveFromMaps: remove SubmodelElement " + AasUtils.asString(reference));
 
             if (submodelElementOpcUAMap.containsKey(reference)) {
                 submodelElementOpcUAMap.remove(reference);
-                LOGGER.debug("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: " + AasUtils.asString(reference));
+                logger.debug("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: " + AasUtils.asString(reference));
             }
 
             if (element instanceof AASPropertyType) {
                 AASPropertyType prop = (AASPropertyType) element;
                 if (submodelElementAasMap.containsKey(prop.getValueNode().getNodeId())) {
                     submodelElementAasMap.remove(prop.getValueNode().getNodeId());
-                    LOGGER.debug("doRemoveFromMaps: remove Property NodeId " + prop.getValueNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove Property NodeId " + prop.getValueNode().getNodeId());
                 }
             }
             else if (element instanceof AASRangeType) {
                 AASRangeType range = (AASRangeType) element;
                 if (submodelElementAasMap.containsKey(range.getMinNode().getNodeId())) {
                     submodelElementAasMap.remove(range.getMinNode().getNodeId());
-                    LOGGER.debug("doRemoveFromMaps: remove Range Min NodeId " + range.getMinNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove Range Min NodeId " + range.getMinNode().getNodeId());
                 }
 
                 if (submodelElementAasMap.containsKey(range.getMaxNode().getNodeId())) {
                     submodelElementAasMap.remove(range.getMaxNode().getNodeId());
-                    LOGGER.debug("doRemoveFromMaps: remove Range Max NodeId " + range.getMaxNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove Range Max NodeId " + range.getMaxNode().getNodeId());
                 }
             }
             else if (element instanceof AASOperationType) {
                 AASOperationType oper = (AASOperationType) element;
                 if (submodelElementAasMap.containsKey(oper.getOperationNode().getNodeId())) {
                     submodelElementAasMap.remove(oper.getOperationNode().getNodeId());
-                    LOGGER.debug("doRemoveFromMaps: remove Operation NodeId " + oper.getOperationNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove Operation NodeId " + oper.getOperationNode().getNodeId());
                 }
             }
             else if (element instanceof AASBlobType) {
                 AASBlobType blob = (AASBlobType) element;
                 if (submodelElementAasMap.containsKey(blob.getValueNode().getNodeId())) {
                     submodelElementAasMap.remove(blob.getValueNode().getNodeId());
-                    LOGGER.debug("doRemoveFromMaps: remove Blob NodeId " + blob.getValueNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove Blob NodeId " + blob.getValueNode().getNodeId());
                 }
             }
             else if (element instanceof AASMultiLanguagePropertyType) {
                 AASMultiLanguagePropertyType mlp = (AASMultiLanguagePropertyType) element;
                 if (submodelElementAasMap.containsKey(mlp.getValueNode().getNodeId())) {
                     submodelElementAasMap.remove(mlp.getValueNode().getNodeId());
-                    LOGGER.debug("doRemoveFromMaps: remove AASMultiLanguageProperty NodeId " + mlp.getValueNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove AASMultiLanguageProperty NodeId " + mlp.getValueNode().getNodeId());
                 }
             }
             else if (element instanceof AASReferenceElementType) {
@@ -4310,7 +4310,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 NodeId nid = refElem.getValueNode().getKeysNode().getNodeId();
                 if (submodelElementAasMap.containsKey(nid)) {
                     submodelElementAasMap.remove(nid);
-                    LOGGER.debug("doRemoveFromMaps: remove AASReferenceElement NodeId " + nid);
+                    logger.debug("doRemoveFromMaps: remove AASReferenceElement NodeId " + nid);
                 }
             }
             else if (element instanceof AASRelationshipElementType) {
@@ -4318,13 +4318,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 NodeId nid = relElem.getFirstNode().getKeysNode().getNodeId();
                 if (submodelElementAasMap.containsKey(nid)) {
                     submodelElementAasMap.remove(nid);
-                    LOGGER.debug("doRemoveFromMaps: remove AASRelationshipElement First NodeId " + nid);
+                    logger.debug("doRemoveFromMaps: remove AASRelationshipElement First NodeId " + nid);
                 }
 
                 nid = relElem.getSecondNode().getKeysNode().getNodeId();
                 if (submodelElementAasMap.containsKey(nid)) {
                     submodelElementAasMap.remove(nid);
-                    LOGGER.debug("doRemoveFromMaps: remove AASRelationshipElement Second NodeId " + nid);
+                    logger.debug("doRemoveFromMaps: remove AASRelationshipElement Second NodeId " + nid);
                 }
 
                 if (relElem instanceof AASAnnotatedRelationshipElementType) {
@@ -4342,13 +4342,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     NodeId nid = ent.getGlobalAssetIdNode().getKeysNode().getNodeId();
                     if (submodelElementAasMap.containsKey(nid)) {
                         submodelElementAasMap.remove(nid);
-                        LOGGER.debug("doRemoveFromMaps: remove Entity GlobalAssetId NodeId " + nid);
+                        logger.debug("doRemoveFromMaps: remove Entity GlobalAssetId NodeId " + nid);
                     }
                 }
 
                 if (submodelElementAasMap.containsKey(ent.getEntityTypeNode().getNodeId())) {
                     submodelElementAasMap.remove(ent.getEntityTypeNode().getNodeId());
-                    LOGGER.debug("doRemoveFromMaps: remove Entity EntityType NodeId " + ent.getEntityTypeNode().getNodeId());
+                    logger.debug("doRemoveFromMaps: remove Entity EntityType NodeId " + ent.getEntityTypeNode().getNodeId());
                 }
             }
             else if (referable instanceof SubmodelElementCollection) {
@@ -4361,7 +4361,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             // Capability and File are currently not relevant here
         }
         catch (Throwable ex) {
-            LOGGER.error("doRemoveFromMaps Exception", ex);
+            logger.error("doRemoveFromMaps Exception", ex);
             throw ex;
         }
     }
@@ -4388,11 +4388,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 referableMap.remove(ref);
             }
             else {
-                LOGGER.info("doRemoveFromMaps: element not found in referableMap: " + AasUtils.asString(ref));
+                logger.info("doRemoveFromMaps: element not found in referableMap: " + AasUtils.asString(ref));
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("doRemoveFromMaps Exception", ex);
+            logger.error("doRemoveFromMaps Exception", ex);
             throw ex;
         }
     }
@@ -4406,7 +4406,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void doRemoveFromMaps(Reference reference, Submodel submodel) {
         try {
-            LOGGER.debug("doRemoveFromMaps: remove submodel " + AasUtils.asString(reference));
+            logger.debug("doRemoveFromMaps: remove submodel " + AasUtils.asString(reference));
 
             for (SubmodelElement element: submodel.getSubmodelElements()) {
                 doRemoveFromMaps(reference, element);
@@ -4417,7 +4417,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
         catch (Throwable ex) {
-            LOGGER.error("doRemoveFromMaps (SM) Exception", ex);
+            logger.error("doRemoveFromMaps (SM) Exception", ex);
             throw ex;
         }
     }

@@ -51,7 +51,7 @@ import picocli.CommandLine.Option;
 @Command(name = "FAAAST_Starter", mixinStandardHelpOptions = true, version = "0.1", description = "Starts a FAAAST Service")
 public class Application implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
+    private static final Logger logger = LoggerFactory.getLogger(Application.class);
     public static final String DEFAULT_CONFIG_PATH = "config.json";
     public static final String DEFAULT_AASENV_FILE_NAME = "aasenvironment.*";
     public static final String DEFAULT_AASENV_FILE_NAME_PATTERN = "aasenvironment\\..*";
@@ -109,7 +109,7 @@ public class Application implements Runnable {
     public List<String> endpoints;
 
     public static void main(String[] args) throws Exception {
-        LOGGER.info("Start configuration of FAAAST Service");
+        logger.info("Start configuration of FAAAST Service");
         new CommandLine(new Application()).execute(args);
 
         CountDownLatch doneSignal = new CountDownLatch(1);
@@ -128,12 +128,12 @@ public class Application implements Runnable {
         try {
             doneSignal.await();
             if (service != null) {
-                LOGGER.info("Shutting down FA³ST Service");
+                logger.info("Shutting down FA³ST Service");
                 service.stop();
             }
         }
         catch (InterruptedException e) {
-            LOGGER.warn("Interrupted!", e);
+            logger.warn("Interrupted!", e);
             Thread.currentThread().interrupt();
         }
     }
@@ -151,7 +151,7 @@ public class Application implements Runnable {
             ServiceConfig config = configFactory.toServiceConfig(configFilePath, autoCompleteConfiguration, properties, customConfigComponents);
             AssetAdministrationShellEnvironment environment = null;
             if (useEmptyAASEnvironment) {
-                LOGGER.info("Using empty Asset Administration Shell Environment");
+                logger.info("Using empty Asset Administration Shell Environment");
                 environment = AASEnvironmentHelper.newEmpty();
             }
             else {
@@ -160,31 +160,31 @@ public class Application implements Runnable {
                     List<Path> aasEnvFiles = Files.find(Paths.get(""), 1, (file, attributes) -> file.toFile().getName().matches(DEFAULT_AASENV_FILE_NAME_PATTERN))
                             .collect(Collectors.toList());
                     if (aasEnvFiles.isEmpty()) {
-                        LOGGER.info("no AAS environment file found (pattern: {})", DEFAULT_AASENV_FILE_NAME_PATTERN);
+                        logger.info("no AAS environment file found (pattern: {})", DEFAULT_AASENV_FILE_NAME_PATTERN);
                         return;
                     }
                     if (aasEnvFiles.size() > 1) {
-                        LOGGER.info("found more than one AAS environment file - use '-e' resp. '--environmentFile' to specify which one to use");
+                        logger.info("found more than one AAS environment file - use '-e' resp. '--environmentFile' to specify which one to use");
                         return;
                     }
                     aasEnvironmentFile = aasEnvFiles.get(0).toFile();
                 }
                 environment = AASEnvironmentHelper.fromFile(aasEnvironmentFile);
-                LOGGER.info("Successfully parsed Asset Administration Shell Environment");
+                logger.info("Successfully parsed Asset Administration Shell Environment");
             }
             if (validateAASEnv) {
                 validate(environment);
             }
             service = new Service(environment, config);
             service.start();
-            LOGGER.info("FAAAST Service is running!");
+            logger.info("FAAAST Service is running!");
         }
         catch (Exception e) {
             if (service != null) {
                 service.stop();
             }
-            LOGGER.error(e.getMessage());
-            LOGGER.error("Abort starting FAAAST Service");
+            logger.error(e.getMessage());
+            logger.error("Abort starting FAAAST Service");
         }
 
     }
@@ -211,9 +211,9 @@ public class Application implements Runnable {
         if (!env.isEmpty()) {
             Map<String, String> cleanedEnvs = new HashMap<>();
             env.stream().forEach(x -> cleanedEnvs.put(x.getKey().replace(CONFIG_PARAMETER_ENV_PREFIX, ""), x.getValue()));
-            LOGGER.info("Got following configuration parameters through environment variables:");
+            logger.info("Got following configuration parameters through environment variables:");
             cleanedEnvs.forEach((key, value) -> {
-                LOGGER.info("  -- {}={}", key, value);
+                logger.info("  -- {}={}", key, value);
                 properties.put(key, value);
             });
         }
@@ -223,21 +223,21 @@ public class Application implements Runnable {
     private void readFilePathsOverEnvironmentVariables() {
         if (System.getenv(CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE) != null && !System.getenv(CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE).isBlank()) {
             configFilePath = System.getenv(CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE);
-            LOGGER.info("Read environment variable '" + CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE + "' and override config file path");
+            logger.info("Read environment variable '" + CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE + "' and override config file path");
         }
         if (System.getenv(AASENV_FILE_PATH_ENVIRONMENT_VARIABLE) != null && !System.getenv(AASENV_FILE_PATH_ENVIRONMENT_VARIABLE).isBlank()) {
             aasEnvironmentFile = new File(System.getenv(AASENV_FILE_PATH_ENVIRONMENT_VARIABLE));
-            LOGGER.info("Read environment variable '{}={}'", AASENV_FILE_PATH_ENVIRONMENT_VARIABLE, aasEnvironmentFile);
+            logger.info("Read environment variable '{}={}'", AASENV_FILE_PATH_ENVIRONMENT_VARIABLE, aasEnvironmentFile);
         }
     }
 
 
     private void validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
-        LOGGER.debug("Validate Asset Administration Shell Environment model");
+        logger.debug("Validate Asset Administration Shell Environment model");
         ShaclValidator shaclValidator = ShaclValidator.getInstance();
         ValidationReport report = shaclValidator.validateGetReport(aasEnv);
         if (report.conforms()) {
-            LOGGER.info("Valid Asset Administration Shell Environment model");
+            logger.info("Valid Asset Administration Shell Environment model");
         }
         ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
         ShLib.printReport(validationResultStream, report);

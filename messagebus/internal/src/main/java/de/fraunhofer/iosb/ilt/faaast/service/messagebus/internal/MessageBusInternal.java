@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MessageBusInternal implements MessageBus<MessageBusInternalConfig> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MessageBusInternal.class);
+    private static final Logger logger = LoggerFactory.getLogger(MessageBusInternal.class);
     private final BlockingQueue<EventMessage> messageQueue;
 
     private final AtomicBoolean running;
@@ -116,7 +116,7 @@ public class MessageBusInternal implements MessageBus<MessageBusInternalConfig> 
             executor.awaitTermination(2, TimeUnit.SECONDS);
         }
         catch (InterruptedException e) {
-            LOGGER.error("interrupted while waiting for shutdown.", e);
+            logger.error("interrupted while waiting for shutdown.", e);
             Thread.currentThread().interrupt();
         }
     }

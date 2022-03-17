@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Server {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
+    private static final Logger logger = LoggerFactory.getLogger(Server.class);
     private static final String APPLICATION_NAME = "Fraunhofer IOSB AAS OPC UA Server";
     private static final String APPLICATION_URI = "urn:hostname:Fraunhofer:OPCUA:AasServer";
     private static final int CERT_KEY_SIZE = 2048;
@@ -153,7 +153,7 @@ public class Server {
             // Note that it requires Java 7 or later to work in practice in Windows
             // server.setBindAddresses(EndpointUtil.getInetAddresses(server.isEnableIPv6()));
             // *** Certificates
-            LOGGER.info("Loading certificates..");
+            logger.info("Loading certificates..");
 
             File privatePath = new File(applicationCertificateStore.getBaseDir(), "private");
 
@@ -321,7 +321,7 @@ public class Server {
             running = true;
         }
         catch (Throwable ex) {
-            LOGGER.error("startup Exception", ex);
+            logger.error("startup Exception", ex);
         }
     }
 
@@ -393,10 +393,10 @@ public class Server {
             // My I/O Manager Listener
             aasNodeManager.getIoManager().addListeners(new AasServiceIoManagerListener(endpoint, aasNodeManager));
 
-            LOGGER.info("Address space created.");
+            logger.info("Address space created.");
         }
         catch (Throwable ex) {
-            LOGGER.error("createAddressSpace Exception", ex);
+            logger.error("createAddressSpace Exception", ex);
         }
     }
 
@@ -407,14 +407,14 @@ public class Server {
     private void loadI4AasNodes() {
         long start = System.currentTimeMillis();
         try {
-            LOGGER.info("loadI4AasNodes start I4AAS");
+            logger.info("loadI4AasNodes start I4AAS");
             server.getAddressSpace().loadModel(opc.i4aas.server.ServerInformationModel.getLocationURI());
         }
         catch (Throwable ex) {
-            LOGGER.error("loadI4AasNodes Exception", ex);
+            logger.error("loadI4AasNodes Exception", ex);
         }
 
         long dauer = System.currentTimeMillis() - start;
-        LOGGER.info("loadI4AasNodes end. Dauer: " + dauer + " ms");
+        logger.info("loadI4AasNodes end. Dauer: " + dauer + " ms");
     }
 }

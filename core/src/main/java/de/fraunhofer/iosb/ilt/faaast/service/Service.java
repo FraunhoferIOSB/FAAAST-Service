@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Service implements ServiceContext {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(Service.class);
+    private static Logger logger = LoggerFactory.getLogger(Service.class);
     private AssetAdministrationShellEnvironment aasEnvironment;
     private AssetConnectionManager assetConnectionManager;
     private ServiceConfig config;
@@ -99,7 +99,7 @@ public class Service implements ServiceContext {
         }
         if (endpoints == null) {
             this.endpoints = new ArrayList<>();
-            LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
+            logger.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
         }
         else {
             this.endpoints = endpoints;
@@ -224,18 +224,18 @@ public class Service implements ServiceContext {
      * @throws Exception when starting failed
      */
     public void start() throws Exception {
-        LOGGER.info("Get command for starting FA³ST Service");
+        logger.info("Get command for starting FA³ST Service");
         if (this.aasEnvironment == null) {
-            LOGGER.error("AssetAdministrationEnvironment must be non-null");
+            logger.error("AssetAdministrationEnvironment must be non-null");
             throw new IllegalArgumentException("AssetAdministrationEnvironment must be non-null");
         }
         persistence.setEnvironment(this.aasEnvironment);
         messageBus.start();
         for (Endpoint endpoint: endpoints) {
-            LOGGER.info("Starting endpoint {}", endpoint.getClass().getSimpleName());
+            logger.info("Starting endpoint {}", endpoint.getClass().getSimpleName());
             endpoint.start();
         }
-        LOGGER.info("FA³ST Service is running!");
+        logger.info("FA³ST Service is running!");
     }
 
 
@@ -244,7 +244,7 @@ public class Service implements ServiceContext {
      * endpoints
      */
     public void stop() {
-        LOGGER.info("Get command for stopping FA³ST Service");
+        logger.info("Get command for stopping FA³ST Service");
         messageBus.stop();
         endpoints.forEach(Endpoint::stop);
     }
@@ -270,7 +270,7 @@ public class Service implements ServiceContext {
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
             // TODO maybe be less restrictive and only print warning
             //throw new InvalidConfigurationException("at least endpoint must be defined in the configuration");
-            LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
+            logger.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
         }
         else {
             endpoints = new ArrayList<>();

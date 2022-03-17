@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EmbeddedOpcUaServer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedOpcUaServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(EmbeddedOpcUaServer.class);
     private final int tcpPort;
     private final int httpsPort;
 
@@ -85,7 +85,7 @@ public class EmbeddedOpcUaServer {
         DefaultCertificateManager certificateManager = new DefaultCertificateManager();
         File pkiDir = securityTempDir.toPath().resolve("pki").toFile();
         DefaultTrustListManager trustListManager = new DefaultTrustListManager(pkiDir);
-        LOGGER.info("pki dir: {}", pkiDir.getAbsolutePath());
+        logger.info("pki dir: {}", pkiDir.getAbsolutePath());
         DefaultServerCertificateValidator certificateValidator = new DefaultServerCertificateValidator(trustListManager);
         KeyPair httpsKeyPair = SelfSignedCertificateGenerator.generateRsaKeyPair(2048);
         SelfSignedHttpsCertificateBuilder httpsCertificateBuilder = new SelfSignedHttpsCertificateBuilder(httpsKeyPair);

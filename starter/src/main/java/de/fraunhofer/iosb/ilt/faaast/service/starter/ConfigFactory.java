@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConfigFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConfigFactory.class);
     public static final String DEFAULT_CONFIG_JSON = "default-config.json";
 
     private ObjectMapper mapper = new ObjectMapper()
@@ -132,31 +132,31 @@ public class ConfigFactory {
         try {
             JsonNode configNode = mapper.readTree(Files.readString(Path.of(pathToConfigFile)));
             ServiceConfig serviceConfig = mapper.readValue(mapper.writeValueAsString(configNode), ServiceConfig.class);
-            LOGGER.info("Read config file '" + pathToConfigFile + "'");
+            logger.info("Read config file '" + pathToConfigFile + "'");
             if (autoCompleteConfiguration) {
                 autocompleteServiceConfiguration(serviceConfig);
             }
             if (customConfigs != null && !customConfigs.isEmpty()) {
-                LOGGER.debug("Applying costum config components to config file");
+                logger.debug("Applying costum config components to config file");
                 applyToServiceConfig(serviceConfig, customConfigs);
             }
 
             if (commandLineProperties != null && !commandLineProperties.isEmpty()) {
-                LOGGER.debug("Applying properties to config file");
+                logger.debug("Applying properties to config file");
                 serviceConfig = applyCommandlineProperties(commandLineProperties, serviceConfig);
             }
 
-            LOGGER.info("Successfully read config file");
-            LOGGER.debug("Used configuration file\n" + mapper.writeValueAsString(serviceConfig));
+            logger.info("Successfully read config file");
+            logger.debug("Used configuration file\n" + mapper.writeValueAsString(serviceConfig));
             return serviceConfig;
         }
         catch (NoSuchFileException e) {
             if (pathToConfigFile.equalsIgnoreCase(Application.DEFAULT_CONFIG_PATH)) {
-                LOGGER.info("No custom configuration file was found");
-                LOGGER.info("Using default configuration file");
+                logger.info("No custom configuration file was found");
+                logger.info("Using default configuration file");
                 ServiceConfig serviceConfig = getDefaultServiceConfig(commandLineProperties);
                 applyToServiceConfig(serviceConfig, customConfigs);
-                LOGGER.debug("Used configuration file\n" + mapper.writeValueAsString(serviceConfig));
+                logger.debug("Used configuration file\n" + mapper.writeValueAsString(serviceConfig));
                 return serviceConfig;
             }
             else {
@@ -174,23 +174,23 @@ public class ConfigFactory {
         ServiceConfig defaultConfig = getDefaultServiceConfig();
         if (serviceConfig.getCore() == null) {
             serviceConfig.setCore(defaultConfig.getCore());
-            LOGGER.debug("No configuration for core was found");
-            LOGGER.debug("Using default configuration for core");
+            logger.debug("No configuration for core was found");
+            logger.debug("Using default configuration for core");
         }
         if (serviceConfig.getEndpoints() == null || serviceConfig.getEndpoints().size() == 0) {
             serviceConfig.setEndpoints(defaultConfig.getEndpoints());
-            LOGGER.debug("No configuration for endpoints was found");
-            LOGGER.debug("Using default configuration for endpoints");
+            logger.debug("No configuration for endpoints was found");
+            logger.debug("Using default configuration for endpoints");
         }
         if (serviceConfig.getPersistence() == null) {
             serviceConfig.setPersistence(defaultConfig.getPersistence());
-            LOGGER.debug("No configuration for persistence was found");
-            LOGGER.debug("Using default configuration for persistence");
+            logger.debug("No configuration for persistence was found");
+            logger.debug("Using default configuration for persistence");
         }
         if (serviceConfig.getMessageBus() == null) {
             serviceConfig.setMessageBus(defaultConfig.getMessageBus());
-            LOGGER.debug("No configuration for messagebus was found");
-            LOGGER.debug("Using default configuration for messagebus");
+            logger.debug("No configuration for messagebus was found");
+            logger.debug("Using default configuration for messagebus");
         }
     }
 
@@ -213,7 +213,7 @@ public class ConfigFactory {
                 throw new Exception("Configuration Error: Could not find attribute with path '" + prop.getKey() + "' in config file");
             }
             ((ObjectNode) jsonNode).put(pathList.get(pathList.size() - 1), prop.getValue().toString());
-            LOGGER.debug("Apply config property '" + prop.getKey() + "' with value '" + prop.getValue().toString() + "'");
+            logger.debug("Apply config property '" + prop.getKey() + "' with value '" + prop.getValue().toString() + "'");
         }
         return mapper.readValue(mapper.writeValueAsString(configNode), ServiceConfig.class);
     }
@@ -244,7 +244,7 @@ public class ConfigFactory {
     private void applyToServiceConfig(ServiceConfig serviceConfig, List<Config> configs) throws Exception {
         boolean isEndpointAlreadySet = false;
         for (Config c: configs) {
-            LOGGER.debug("Apply custom config parameter '" + c.getClass().getSimpleName() + "'");
+            logger.debug("Apply custom config parameter '" + c.getClass().getSimpleName() + "'");
             if (EndpointConfig.class.isAssignableFrom(c.getClass())) {
                 //if yet no endpoint was set remove old enpoints (most likely default endpoint) and set new endpoint
                 //else add the new endpoint to the existing list of endpoints

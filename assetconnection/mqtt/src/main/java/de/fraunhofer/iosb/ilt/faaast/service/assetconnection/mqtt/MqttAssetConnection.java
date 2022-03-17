@@ -66,7 +66,7 @@ import org.slf4j.LoggerFactory;
 public class MqttAssetConnection
         implements AssetConnection<MqttAssetConnectionConfig, MqttValueProviderConfig, MqttOperationProviderConfig, MqttSubscriptionProviderConfig> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MqttAssetConnection.class);
+    private static final Logger logger = LoggerFactory.getLogger(MqttAssetConnection.class);
     private MqttClient client;
     private MqttAssetConnectionConfig config;
     private final Map<Reference, AssetOperationProvider> operationProviders;
@@ -95,14 +95,14 @@ public class MqttAssetConnection
                     client.disconnect();
                 }
                 catch (MqttException e) {
-                    LOGGER.debug("MQTT connection could not be properly closed", e);
+                    logger.debug("MQTT connection could not be properly closed", e);
                 }
             }
             try {
                 client.close(true);
             }
             catch (MqttException e) {
-                LOGGER.debug("MQTT connection could not be properly closed", e);
+                logger.debug("MQTT connection could not be properly closed", e);
             }
         }
     }

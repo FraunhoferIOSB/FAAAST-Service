@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 public class AASEnvironmentHelper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AASEnvironmentHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(AASEnvironmentHelper.class);
     private static Map<DataFormat, Deserializer> deserializers;
 
     static {
@@ -76,7 +76,7 @@ public class AASEnvironmentHelper {
         }
         String fileExtension = FilenameUtils.getExtension(file.getName());
         if (!dataFormat.getFileExtensions().contains(fileExtension)) {
-            LOGGER.warn("attempting to read AAS environment file with unsupported file extension (data format: {}, supported file extensions: {}, actual file extension: {}",
+            logger.warn("attempting to read AAS environment file with unsupported file extension (data format: {}, supported file extensions: {}, actual file extension: {}",
                     dataFormat,
                     dataFormat.getFileExtensions().stream().collect(Collectors.joining(",")),
                     fileExtension);

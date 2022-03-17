@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(InvokeOperationSyncRequestHandler.class);
+    private static Logger logger = LoggerFactory.getLogger(InvokeOperationSyncRequestHandler.class);
 
     public InvokeOperationSyncRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

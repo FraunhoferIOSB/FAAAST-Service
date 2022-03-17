@@ -53,7 +53,7 @@ import picocli.CommandLine;
 
 public class StarterTest {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StarterTest.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StarterTest.class);
     private final ConfigFactory configFactory = new ConfigFactory();
     private Application application;
     private CommandLine cmd;
@@ -78,7 +78,7 @@ public class StarterTest {
             Files.deleteIfExists(Paths.get("aasenvironment.json"));
         }
         catch (IOException ex) {
-            LOGGER.warn("error removing temp file 'aasenvironment.json'");
+            logger.warn("error removing temp file 'aasenvironment.json'");
         }
     }
 
