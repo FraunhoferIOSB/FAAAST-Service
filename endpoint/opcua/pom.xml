@@ -95,23 +95,10 @@
                     <injar>${project.build.finalName}-jar-with-dependencies.jar</injar>
                     <outjar>${project.build.finalName}-obfuscated.jar</outjar>
                     <outputDirectory>${project.build.directory}</outputDirectory>
+                    <proguardInclude>${basedir}/proguard.conf</proguardInclude>
                     <libs>
                         <lib>${java.home}/jmods/</lib>
                     </libs>
-                    <options>
-                        <option>-dontwarn</option>
-                        <option>-dontnote</option>
-                        <option>-dontoptimize</option>
-                        <option>-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod</option>
-                        <option>-keepclassmembers,allowoptimization enum * {
-                        	public static **[] values();
-                        	public static ** valueOf(java.lang.String);
-                        }</option>
-                        <option>-keepclassmembers class * { public &lt;init&gt;(...); }</option>
-                        <option>-keep class * extends com.prosysopc.ua.server.nodes.BaseNode { *; }</option>
-                        <option>-adaptresourcefilenames **.xml</option>
-                        <option>-keep class !com.prosysopc.** { *; }</option>
-                    </options>
                 </configuration>
                 <dependencies>
                     <dependency>
