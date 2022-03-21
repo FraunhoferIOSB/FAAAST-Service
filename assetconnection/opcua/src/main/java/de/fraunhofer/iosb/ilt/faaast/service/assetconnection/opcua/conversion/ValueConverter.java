@@ -40,7 +40,7 @@ public class ValueConverter {
     public ValueConverter() {
         this.aasToOpcUaConverters = new HashMap<>();
         this.opcUaToAasConverters = new HashMap<>();
-        register(Datatype.Integer, Identifiers.Integer, new AasToOpcUaValueConverter() {
+        register(Datatype.INTEGER, Identifiers.Integer, new AasToOpcUaValueConverter() {
             @Override
             public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
                 return new Variant(((BigInteger) value.getValue()).intValueExact());
@@ -138,11 +138,11 @@ public class ValueConverter {
             try {
                 return TypedValueFactory.create(targetType, value.getValue().toString());
             }
-            catch (ValueFormatException ex) {
+            catch (ValueFormatException e) {
                 throw new ValueConversionException(String.format("error converting value (value: %s, target datatype: %s",
                         value.getValue().toString(),
                         targetType),
-                        ex);
+                        e);
             }
         }
 

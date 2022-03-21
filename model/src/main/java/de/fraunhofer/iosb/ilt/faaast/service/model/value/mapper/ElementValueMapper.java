@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
 import com.google.common.reflect.TypeToken;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.MostSpecificClassComparator;
 import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ElementValueMapper {
 
-    private static Logger logger = LoggerFactory.getLogger(ElementValueMapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElementValueMapper.class);
     private static Map<Class<? extends SubmodelElement>, ? extends DataValueMapper> mappers;
 
     private static void init() {
@@ -47,8 +48,7 @@ public class ElementValueMapper {
                     .enableAllInfo()
                     .acceptPackages(DataValueMapper.class.getPackageName())
                     .scan();
-
-            mappers = scanResult.getSubclasses(DataValueMapper.class).loadClasses().stream()
+            mappers = scanResult.getClassesImplementing(DataValueMapper.class).loadClasses().stream()
                     .map(x -> (Class<? extends DataValueMapper>) x)
                     .collect(Collectors.toMap(
                             x -> (Class<? extends SubmodelElement>) TypeToken.of(x).resolveType(DataValueMapper.class.getTypeParameters()[0]).getRawType(),
@@ -57,15 +57,17 @@ public class ElementValueMapper {
                                     Constructor<? extends DataValueMapper> constructor = x.getConstructor();
                                     return constructor.newInstance();
                                 }
-                                catch (NoSuchMethodException | SecurityException ex) {
-                                    logger.warn("element-value mapper implementation could not be loaded, "
+                                catch (NoSuchMethodException | SecurityException e) {
+                                    LOGGER.warn("element-value mapper implementation could not be loaded, "
                                             + "reason: missing constructor (implementation class: {})",
-                                            x.getName());
+                                            x.getName(),
+                                            e);
                                 }
-                                catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                                    logger.warn("element-value mapper implementation  could not be loaded, "
+                                catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                                    LOGGER.warn("element-value mapper implementation  could not be loaded, "
                                             + "reason: calling constructor failed (implementation class: {}",
-                                            x.getName());
+                                            x.getName(),
+                                            e);
                                 }
                                 return null;
                             }));
@@ -83,16 +85,18 @@ public class ElementValueMapper {
      * @param <O> type of the output ElementValue
      * @return a value representation of the submodel element
      * @throws IllegalArgumentException if submodelElement is null
-     * @throws IllegalArgumentException is no mapper for type of submodelElement
+     * @throws ValueMappingException is no mapper for type of submodelElement
      *             can be found
+     * @throws ValueMappingException if mapping fails
      */
-    public static <I extends SubmodelElement, O extends ElementValue> O toValue(SubmodelElement submodelElement) {
+    public static <I extends SubmodelElement, O extends ElementValue> O toValue(SubmodelElement submodelElement) throws ValueMappingException {
         init();
         if (submodelElement == null) {
             throw new IllegalArgumentException("submodelElement must be non-null");
         }
-        if (!mappers.containsKey(ReflectionHelper.getAasInterface(submodelElement.getClass()))) {
-            throw new IllegalArgumentException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
+        Class<?> aasInterface = ReflectionHelper.getAasInterface(submodelElement.getClass());
+        if (!mappers.containsKey(aasInterface)) {
+            throw new ValueMappingException("no mapper defined for AAS type " + aasInterface.getSimpleName());
         }
         return (O) mappers.get(ReflectionHelper.getAasInterface(submodelElement.getClass())).toValue(submodelElement);
     }

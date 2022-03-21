@@ -39,17 +39,17 @@ public class LongValue extends TypedValue<Long> {
             return;
         }
         try {
-            this.setValue((Long) Long.parseLong(value));
+            this.setValue(Long.parseLong(value));
         }
-        catch (NumberFormatException ex) {
-            throw new ValueFormatException(ex);
+        catch (NumberFormatException e) {
+            throw new ValueFormatException(e);
         }
     }
 
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Long;
+        return Datatype.LONG;
     }
 
 }

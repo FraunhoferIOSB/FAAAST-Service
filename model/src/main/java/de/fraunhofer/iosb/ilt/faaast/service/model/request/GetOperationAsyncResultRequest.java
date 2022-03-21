@@ -79,7 +79,7 @@ public class GetOperationAsyncResultRequest extends RequestWithModifier<GetOpera
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetOperationAsyncResultRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetOperationAsyncResultRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
 
         public B handleId(String value) {
             getBuildingInstance().setHandleId(value);

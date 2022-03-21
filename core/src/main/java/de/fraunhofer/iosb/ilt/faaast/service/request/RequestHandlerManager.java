@@ -17,9 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.request;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.TypeInstantiationException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestHandler;
 import io.github.classgraph.ClassGraph;
@@ -41,7 +44,8 @@ import org.slf4j.LoggerFactory;
  * Finds available RequestHandlers and handles execution (sync or async)
  */
 public class RequestHandlerManager {
-    private static Logger logger = LoggerFactory.getLogger(RequestHandlerManager.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandlerManager.class);
     private Map<Class<? extends Request>, ? extends RequestHandler> handlers;
     private ExecutorService requestHandlerExecutorService;
     private final CoreConfig coreConfig;
@@ -83,17 +87,19 @@ public class RequestHandlerManager {
                                     Constructor<? extends RequestHandler> constructor = x.getConstructor(constructorArgTypes);
                                     return constructor.newInstance(constructorArgs);
                                 }
-                                catch (NoSuchMethodException | SecurityException ex) {
-                                    logger.warn("request handler implementation could not be loaded, "
+                                catch (NoSuchMethodException | SecurityException e) {
+                                    LOGGER.warn("request handler implementation could not be loaded, "
                                             + "reason: missing constructor (implementation class: {}, required constructor signature: {}",
                                             x.getName(),
-                                            constructorArgTypes);
+                                            constructorArgTypes,
+                                            e);
                                 }
-                                catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                                    logger.warn("request handler implementation could not be loaded, "
+                                catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                                    LOGGER.warn("request handler implementation could not be loaded, "
                                             + "reason: calling constructor failed (implementation class: {}, constructor arguments: {}",
                                             x.getName(),
-                                            constructorArgs);
+                                            constructorArgs,
+                                            e);
                                 }
                                 return null;
                             }));
@@ -110,8 +116,8 @@ public class RequestHandlerManager {
 
 
     /**
-     * Properly shuts down this instance and releases all resources. Do not call any methods on this instance after calling
-     * this method.
+     * Properly shuts down this instance and releases all resources. Do not call
+     * any methods on this instance after calling this method.
      */
     public void shutdown() {
         requestHandlerExecutorService.shutdown();
@@ -120,18 +126,18 @@ public class RequestHandlerManager {
                 return;
             }
         }
-        catch (InterruptedException ex) {
-            logger.error("Interrupted while waiting for shutdown.", ex);
+        catch (InterruptedException e) {
+            LOGGER.error("Interrupted while waiting for shutdown.", e);
             Thread.currentThread().interrupt();
         }
-        logger.warn("RequestHandlerManager stopped with {} unfinished requests.",
+        LOGGER.warn("RequestHandlerManager stopped with {} unfinished requests.",
                 requestHandlerExecutorService.shutdownNow().size());
     }
 
 
     /**
      * Executes a request synchroniously.
-     * 
+     *
      * @param <I> type of request/input
      * @param <O> type of response/output
      * @param request the request to execute
@@ -143,19 +149,40 @@ public class RequestHandlerManager {
         }
         if (!handlers.containsKey(request.getClass())) {
             // TODO throwing exceptions vs returning response, probably throwing is better here
-            throw new RuntimeException("no handler defined for this request");
+            throw new IllegalArgumentException("no handler defined for this request");
         }
-        return (O) handlers.get(request.getClass()).process(request);
+        try {
+            return (O) handlers.get(request.getClass()).process(request);
+        }
+        catch (ResourceNotFoundException e) {
+            return createResponse(request, StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND);
+        }
+        catch (Exception e) {
+            return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR);
+        }
+    }
+
+
+    private static <I extends Request<O>, O extends Response> O createResponse(I request, StatusCode statusCode) {
+        try {
+            O response = (O) TypeToken.of(request.getClass()).resolveType(Request.class.getTypeParameters()[0]).getRawType().getConstructor().newInstance();
+            response.setStatusCode(statusCode);
+            return response;
+        }
+        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            throw new TypeInstantiationException("executing request failed and failure could not be properly handled", e);
+        }
     }
 
 
     /**
      * Executes a request asynchroniously.
-     * 
+     *
      * @param <I> type of request/input
      * @param <O> type of response/output
      * @param request the request to execute
-     * @param callback callback handler which is called with the response once the request has been executed
+     * @param callback callback handler which is called with the response once
+     *            the request has been executed
      */
     public <I extends Request<O>, O extends Response> void executeAsync(I request, Consumer<O> callback) {
         if (request == null) {
@@ -164,8 +191,6 @@ public class RequestHandlerManager {
         if (callback == null) {
             throw new IllegalArgumentException("callback must be non-null");
         }
-        requestHandlerExecutorService.submit(() -> {
-            callback.accept(execute(request));
-        });
+        requestHandlerExecutorService.submit(() -> callback.accept(execute(request)));
     }
 }

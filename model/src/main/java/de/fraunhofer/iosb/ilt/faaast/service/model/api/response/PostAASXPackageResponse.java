@@ -21,21 +21,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
  * Chapter 4.5.4
  */
 public class PostAASXPackageResponse extends BaseResponseWithPayload<String> {
+
     public static PostAASXPackageResponse.Builder builder() {
         return new PostAASXPackageResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<PostAASXPackageResponse, PostAASXPackageResponse.Builder> {
+    public static class Builder extends AbstractBuilder<String, PostAASXPackageResponse, PostAASXPackageResponse.Builder> {
 
         @Override
         protected PostAASXPackageResponse.Builder getSelf() {
             return this;
-        }
-
-
-        public PostAASXPackageResponse.Builder payload(String value) {
-            getBuildingInstance().setPayload(value);
-            return getSelf();
         }
 
 

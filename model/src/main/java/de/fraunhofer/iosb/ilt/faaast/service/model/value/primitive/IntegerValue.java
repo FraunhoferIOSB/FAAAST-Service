@@ -44,15 +44,15 @@ public class IntegerValue extends TypedValue<BigInteger> {
         try {
             this.setValue(new BigInteger(value));
         }
-        catch (NumberFormatException ex) {
-            throw new ValueFormatException(ex);
+        catch (NumberFormatException e) {
+            throw new ValueFormatException(e);
         }
     }
 
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Integer;
+        return Datatype.INTEGER;
     }
 
 }

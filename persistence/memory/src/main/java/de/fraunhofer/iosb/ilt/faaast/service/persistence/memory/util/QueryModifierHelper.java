@@ -78,7 +78,7 @@ public class QueryModifierHelper {
 
     private static void applyQueryModifierExtend(Referable referable, QueryModifier modifier) {
         Predicate<SubmodelElement> removeFilter = x -> Blob.class.isAssignableFrom(x.getClass());
-        if (modifier.getExtend() == Extend.WithoutBLOBValue) {
+        if (modifier.getExtend() == Extend.WITHOUT_BLOB_VALUE) {
             if (Submodel.class.isAssignableFrom(referable.getClass())) {
                 ((Submodel) referable).getSubmodelElements().removeIf(removeFilter);
             }
@@ -90,10 +90,10 @@ public class QueryModifierHelper {
 
 
     private static void applyQueryModifierLevel(Referable referable, QueryModifier modifier) {
-        if (modifier.getLevel() == Level.Deep) {
+        if (modifier.getLevel() == Level.DEEP) {
             //nothing to do here
         }
-        else if (modifier.getLevel() == Level.Core) {
+        else if (modifier.getLevel() == Level.CORE) {
             if (Submodel.class.isAssignableFrom(referable.getClass())) {
                 ((Submodel) referable).getSubmodelElements().forEach(x -> {
                     if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {

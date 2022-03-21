@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
 import io.adminshell.aas.v3.model.File;
 
 
-public class FileValueMapper extends DataValueMapper<File, FileValue> {
+public class FileValueMapper implements DataValueMapper<File, FileValue> {
 
     @Override
     public FileValue toValue(File submodelElement) {
@@ -34,9 +34,7 @@ public class FileValueMapper extends DataValueMapper<File, FileValue> {
 
     @Override
     public File setValue(File submodelElement, FileValue value) {
-        if (submodelElement == null || value == null) {
-            return null;
-        }
+        DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setValue(value.getValue());
         submodelElement.setMimeType(value.getMimeType());
         return submodelElement;

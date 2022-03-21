@@ -14,13 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelElementsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
@@ -34,8 +38,8 @@ import java.util.List;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelElementsRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllSubmodelElementsRequestHandler extends RequestHandler<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
 
@@ -45,24 +49,16 @@ public class GetAllSubmodelElementsRequestHandler extends RequestHandler<GetAllS
 
 
     @Override
-    public GetAllSubmodelElementsResponse process(GetAllSubmodelElementsRequest request) {
+    public GetAllSubmodelElementsResponse process(GetAllSubmodelElementsRequest request)
+            throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException {
         GetAllSubmodelElementsResponse response = new GetAllSubmodelElementsResponse();
-        try {
-            Reference reference = ReferenceHelper.toReference(request.getId(), Submodel.class);
-            List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, null, request.getOutputModifier());
-            readValueFromAssetConnectionAndUpdatePersistence(reference, submodelElements);
-            response.setPayload(submodelElements);
-            response.setStatusCode(StatusCode.Success);
-
-            if (submodelElements != null) {
-                submodelElements.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(reference, x), x));
-            }
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
+        Reference reference = ReferenceHelper.toReference(request.getId(), Submodel.class);
+        List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, null, request.getOutputModifier());
+        readValueFromAssetConnectionAndUpdatePersistence(reference, submodelElements);
+        response.setPayload(submodelElements);
+        response.setStatusCode(StatusCode.SUCCESS);
+        if (submodelElements != null) {
+            submodelElements.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(reference, x), x)));
         }
         return response;
     }

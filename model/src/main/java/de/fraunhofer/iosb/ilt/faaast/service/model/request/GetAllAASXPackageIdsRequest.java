@@ -65,7 +65,7 @@ public class GetAllAASXPackageIdsRequest extends BaseRequest<GetAllAASXPackageId
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllAASXPackageIdsRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetAllAASXPackageIdsRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
         public B aasId(Identifier value) {
             getBuildingInstance().getAasId().add(value);
             return getSelf();

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -31,8 +32,8 @@ import io.adminshell.aas.v3.model.ConceptDescription;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteConceptDescriptionByIdRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteConceptDescriptionByIdResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class DeleteConceptDescriptionByIdRequestHandler extends RequestHandler<DeleteConceptDescriptionByIdRequest, DeleteConceptDescriptionByIdResponse> {
 
@@ -42,21 +43,12 @@ public class DeleteConceptDescriptionByIdRequestHandler extends RequestHandler<D
 
 
     @Override
-    public DeleteConceptDescriptionByIdResponse process(DeleteConceptDescriptionByIdRequest request) {
+    public DeleteConceptDescriptionByIdResponse process(DeleteConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException {
         DeleteConceptDescriptionByIdResponse response = new DeleteConceptDescriptionByIdResponse();
-
-        try {
-            ConceptDescription conceptDescription = (ConceptDescription) persistence.get(request.getId(), new QueryModifier());
-            persistence.remove(request.getId());
-            response.setStatusCode(StatusCode.Success);
-            publishElementDeleteEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        ConceptDescription conceptDescription = (ConceptDescription) persistence.get(request.getId(), new QueryModifier());
+        persistence.remove(request.getId());
+        response.setStatusCode(StatusCode.SUCCESS);
+        publishElementDeleteEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
         return response;
     }
 

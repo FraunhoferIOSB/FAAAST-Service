@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -34,8 +35,8 @@ import io.adminshell.aas.v3.model.SubmodelElement;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementByPathRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementByPathResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class PostSubmodelElementByPathRequestHandler extends RequestHandler<PostSubmodelElementByPathRequest, PostSubmodelElementByPathResponse> {
 
@@ -45,24 +46,16 @@ public class PostSubmodelElementByPathRequestHandler extends RequestHandler<Post
 
 
     @Override
-    public PostSubmodelElementByPathResponse process(PostSubmodelElementByPathRequest request) {
+    public PostSubmodelElementByPathResponse process(PostSubmodelElementByPathRequest request) throws ResourceNotFoundException, ValueMappingException, Exception {
         PostSubmodelElementByPathResponse response = new PostSubmodelElementByPathResponse();
-        try {
-            Reference parentReference = ReferenceHelper.toReference(request.getId(), Submodel.class);
-            Reference childReference = AasUtils.toReference(parentReference, request.getSubmodelElement());
-            SubmodelElement submodelElement = persistence.put(parentReference, null, request.getSubmodelElement());
-            response.setPayload(submodelElement);
-            response.setStatusCode(StatusCode.SuccessCreated);
+        Reference parentReference = ReferenceHelper.toReference(request.getId(), Submodel.class);
+        Reference childReference = AasUtils.toReference(parentReference, request.getSubmodelElement());
+        SubmodelElement submodelElement = persistence.put(parentReference, null, request.getSubmodelElement());
+        response.setPayload(submodelElement);
+        response.setStatusCode(StatusCode.SUCCESS_CREATED);
 
-            writeValueToAssetConnection(childReference, ElementValueMapper.toValue(submodelElement));
-            publishElementCreateEventMessage(parentReference, submodelElement);
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        writeValueToAssetConnection(childReference, ElementValueMapper.toValue(submodelElement));
+        publishElementCreateEventMessage(parentReference, submodelElement);
         return response;
     }
 

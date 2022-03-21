@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -30,8 +32,8 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAssetInformationRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetInformationResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAssetInformationRequestHandler extends RequestHandler<GetAssetInformationRequest, GetAssetInformationResponse> {
 
@@ -41,18 +43,12 @@ public class GetAssetInformationRequestHandler extends RequestHandler<GetAssetIn
 
 
     @Override
-    public GetAssetInformationResponse process(GetAssetInformationRequest request) {
+    public GetAssetInformationResponse process(GetAssetInformationRequest request) throws ResourceNotFoundException, MessageBusException {
         GetAssetInformationResponse response = new GetAssetInformationResponse();
-
-        try {
-            AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
-            response.setPayload(shell.getAssetInformation());
-            response.setStatusCode(StatusCode.Success);
-            publishElementReadEventMessage(AasUtils.toReference(shell), shell);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
+        response.setPayload(shell.getAssetInformation());
+        response.setStatusCode(StatusCode.SUCCESS);
+        publishElementReadEventMessage(AasUtils.toReference(shell), shell);
         return response;
     }
 

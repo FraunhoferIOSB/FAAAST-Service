@@ -70,8 +70,8 @@ public abstract class RequestMapper {
         try {
             return deserializer.read(httpRequest.getBody(), type);
         }
-        catch (DeserializationException ex) {
-            throw new InvalidRequestException("error parsing body", ex);
+        catch (DeserializationException e) {
+            throw new InvalidRequestException("error parsing body", e);
         }
     }
 
@@ -89,8 +89,8 @@ public abstract class RequestMapper {
         try {
             return deserializer.readList(httpRequest.getBody(), type);
         }
-        catch (DeserializationException ex) {
-            throw new InvalidRequestException("error parsing body", ex);
+        catch (DeserializationException e) {
+            throw new InvalidRequestException("error parsing body", e);
         }
     }
 

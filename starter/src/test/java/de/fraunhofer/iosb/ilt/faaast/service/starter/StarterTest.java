@@ -16,15 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.util.AASEnvironmentHelper;
 import io.adminshell.aas.v3.dataformat.DeserializationException;
 import io.adminshell.aas.v3.dataformat.Deserializer;
 import io.adminshell.aas.v3.dataformat.aml.AmlDeserializer;
@@ -38,35 +35,51 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 
 public class StarterTest {
 
-    ObjectMapper mapper = new ObjectMapper()
-            .enable(SerializationFeature.INDENT_OUTPUT)
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-
-    ConfigFactory configFactory = new ConfigFactory();
-    AASEnvironmentFactory environmentFactory = new AASEnvironmentFactory();
-
-    Application application;
-    CommandLine cmd;
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StarterTest.class);
+    private final ConfigFactory configFactory = new ConfigFactory();
+    private Application application;
+    private CommandLine cmd;
 
     @Before
-    public void initCmd() {
+    public void initCmd() throws IOException {
         application = new Application();
         cmd = new CommandLine(application);
-        StringWriter sw = new StringWriter();
-        cmd.setOut(new PrintWriter(sw));
+        cmd.setOut(new PrintWriter(new StringWriter()));
+    }
+
+
+    @BeforeClass
+    public static void initialize() throws IOException {
+        Files.copy(Paths.get("src/test/resources/AASFull.json"), Paths.get("aasenvironment.json"), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+
+    @AfterClass
+    public static void cleanup() {
+        try {
+            Files.deleteIfExists(Paths.get("aasenvironment.json"));
+        }
+        catch (IOException ex) {
+            LOGGER.warn("error removing temp file 'aasenvironment.json'");
+        }
     }
 
 
@@ -128,7 +141,7 @@ public class StarterTest {
     @Test
     public void testGetAASEnvironmentDefault() {
         AssetAdministrationShellEnvironment expected = new DefaultAssetAdministrationShellEnvironment();
-        AssetAdministrationShellEnvironment actual = environmentFactory.getEmptyAASEnvironment();
+        AssetAdministrationShellEnvironment actual = AASEnvironmentHelper.newEmpty();
         Assert.assertEquals(expected, actual);
     }
 
@@ -148,7 +161,7 @@ public class StarterTest {
 
 
     @Test
-    @Ignore
+    @Ignore("Not Yet")
     public void testGetAASEnvironmentFromFileAML() throws IOException, DeserializationException, Exception {
         String filePath = "src/test/resources/AASFull.aml";
         testAASEnvironment(filePath, new AmlDeserializer());
@@ -156,7 +169,7 @@ public class StarterTest {
 
 
     @Test
-    @Ignore
+    @Ignore("Not yet")
     public void testGetAASEnvironmentFromFileOPCUA() throws IOException, DeserializationException, Exception {
         String filePath = "src/test/resources/AASSimple.xml";
         testAASEnvironment(filePath, new I4AASDeserializer());
@@ -172,21 +185,15 @@ public class StarterTest {
 
     private void testAASEnvironment(String filePath, Deserializer deserializer) throws Exception, FileNotFoundException, DeserializationException {
         AssetAdministrationShellEnvironment expected = deserializer.read(new File(filePath));
-        AssetAdministrationShellEnvironment actual = environmentFactory.getAASEnvironment(filePath);
+        AssetAdministrationShellEnvironment actual = AASEnvironmentHelper.fromFile(new File(filePath));
         Assert.assertEquals(expected, actual);
     }
 
 
-    @Test
+    @Test(expected = DeserializationException.class)
     public void testGetAASEnvironmentFail() throws IOException, DeserializationException, Exception {
         String filePath = "src/test/resources/AASSimple.xmasl";
-        try {
-            environmentFactory.getAASEnvironment(filePath);
-        }
-        catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        Assert.assertThrows(Exception.class, () -> environmentFactory.getAASEnvironment(filePath));
+        AASEnvironmentHelper.fromFile(new File(filePath));
     }
 
 
@@ -229,10 +236,10 @@ public class StarterTest {
     @Test
     public void testCMDaasEnv() {
         cmd.execute("-e", "myAAS.json");
-        Assert.assertEquals("myAAS.json", application.aasEnvironmentFilePath);
+        Assert.assertEquals("myAAS.json", application.aasEnvironmentFile.getName());
 
         cmd.execute();
-        Assert.assertEquals(Application.DEFAULT_AASENV_PATH, application.aasEnvironmentFilePath);
+        Assert.assertTrue(application.aasEnvironmentFile.exists());
 
         cmd.execute("--emptyEnvironment");
         Assert.assertEquals(true, application.useEmptyAASEnvironment);
@@ -244,7 +251,7 @@ public class StarterTest {
         String actual = withEnvironmentVariable(application.AASENV_FILE_PATH_ENVIRONMENT_VARIABLE, "myAAS.json")
                 .execute(() -> {
                     new CommandLine(application).execute();
-                    return application.aasEnvironmentFilePath;
+                    return application.aasEnvironmentFile.getName();
                 });
 
         Assert.assertEquals("myAAS.json", actual);
@@ -256,7 +263,7 @@ public class StarterTest {
         String actual = withEnvironmentVariable(application.AASENV_FILE_PATH_ENVIRONMENT_VARIABLE, "myAAS.json")
                 .execute(() -> {
                     new CommandLine(application).execute("-e", "AAS.json");
-                    return application.aasEnvironmentFilePath;
+                    return application.aasEnvironmentFile.getName();
                 });
 
         Assert.assertEquals("myAAS.json", actual);

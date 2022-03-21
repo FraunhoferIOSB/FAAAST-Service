@@ -24,7 +24,7 @@ public class SearchOptions {
     private Depth depth;
 
     public SearchOptions() {
-        this.depth = Depth.Recursive;
+        this.depth = Depth.RECURSIVE;
     }
 
 

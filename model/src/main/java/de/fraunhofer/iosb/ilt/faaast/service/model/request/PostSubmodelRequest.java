@@ -58,7 +58,7 @@ public class PostSubmodelRequest extends BaseRequest<PostSubmodelResponse> {
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends PostSubmodelRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PostSubmodelRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
         public B submodel(Submodel value) {
             getBuildingInstance().setSubmodel(value);
             return getSelf();

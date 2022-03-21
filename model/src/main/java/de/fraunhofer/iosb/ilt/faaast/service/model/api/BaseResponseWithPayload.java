@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
+import com.google.common.net.MediaType;
 import java.util.Objects;
 
 
@@ -22,7 +23,8 @@ import java.util.Objects;
  */
 public abstract class BaseResponseWithPayload<T> extends BaseResponse {
 
-    private T payload;
+    protected T payload;
+    protected MediaType contentType = MediaType.ANY_TYPE;
 
     public T getPayload() {
         return payload;
@@ -46,14 +48,39 @@ public abstract class BaseResponseWithPayload<T> extends BaseResponse {
             return false;
         }
         BaseResponseWithPayload<?> that = (BaseResponseWithPayload<?>) o;
-        return Objects.equals(payload, that.payload)
-                && (getStatusCode() == that.getStatusCode());
+        return super.equals(that)
+                && Objects.equals(payload, that.payload)
+                && Objects.equals(contentType, that.contentType);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), payload);
+        return Objects.hash(super.hashCode(), payload, contentType);
+    }
+
+
+    public MediaType getContentType() {
+        return contentType;
+    }
+
+
+    public void setContentType(MediaType contentType) {
+        this.contentType = contentType;
+    }
+
+    public abstract static class AbstractBuilder<T, R extends BaseResponseWithPayload<T>, B extends AbstractBuilder<T, R, B>> extends BaseResponse.AbstractBuilder<R, B> {
+
+        public B payload(T value) {
+            getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        public B contentType(MediaType value) {
+            getBuildingInstance().setContentType(value);
+            return getSelf();
+        }
     }
 
 }

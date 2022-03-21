@@ -14,10 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsBySemanticIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsBySemanticIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -31,8 +35,8 @@ import java.util.List;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsBySemanticIdRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsBySemanticIdResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllSubmodelsBySemanticIdRequestHandler extends RequestHandler<GetAllSubmodelsBySemanticIdRequest, GetAllSubmodelsBySemanticIdResponse> {
 
@@ -42,22 +46,18 @@ public class GetAllSubmodelsBySemanticIdRequestHandler extends RequestHandler<Ge
 
 
     @Override
-    public GetAllSubmodelsBySemanticIdResponse process(GetAllSubmodelsBySemanticIdRequest request) {
+    public GetAllSubmodelsBySemanticIdResponse process(GetAllSubmodelsBySemanticIdRequest request)
+            throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
         GetAllSubmodelsBySemanticIdResponse response = new GetAllSubmodelsBySemanticIdResponse();
-        try {
-            List<Submodel> submodels = persistence.get(null, request.getSemanticId(), request.getOutputModifier());
-            response.setPayload(submodels);
-            response.setStatusCode(StatusCode.Success);
-            if (submodels != null) {
-                for (Submodel submodel: submodels) {
-                    Reference reference = AasUtils.toReference(submodel);
-                    readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
-                    publishElementReadEventMessage(reference, submodel);
-                }
+        List<Submodel> submodels = persistence.get(null, request.getSemanticId(), request.getOutputModifier());
+        response.setPayload(submodels);
+        response.setStatusCode(StatusCode.SUCCESS);
+        if (submodels != null) {
+            for (Submodel submodel: submodels) {
+                Reference reference = AasUtils.toReference(submodel);
+                readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
+                publishElementReadEventMessage(reference, submodel);
             }
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
         }
         return response;
     }

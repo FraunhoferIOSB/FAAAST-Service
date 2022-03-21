@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.TypeInstantiationException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
@@ -59,8 +60,8 @@ public class TypedValueFactory {
             result.fromString(value);
             return result;
         }
-        catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-            throw new RuntimeException(String.format("could not create typed value (datatype: %s, value: %s)", datatype.getName(), value, ex));
+        catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            throw new TypeInstantiationException(String.format("could not create typed value (datatype: %s, value: %s)", datatype.getName(), value, e));
         }
 
     }

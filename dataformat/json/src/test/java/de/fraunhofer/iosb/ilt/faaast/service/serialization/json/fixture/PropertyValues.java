@@ -60,7 +60,7 @@ public class PropertyValues {
             .entityType(EntityType.SELF_MANAGED_ENTITY)
             .statement(new DefaultProperty.Builder()
                     .idShort("MaxRotationSpeed")
-                    .valueType(Datatype.Int.getName())
+                    .valueType(Datatype.INT.getName())
                     .value("5000")
                     .build())
             .globalAssetId(AasUtils.parseReference("(GlobalReference)[IRI]http://customer.com/demo/asset/1/1/MySubAsset"))
@@ -81,7 +81,7 @@ public class PropertyValues {
             .category("category")
             .idShort("propDouble")
             .kind(ModelingKind.INSTANCE)
-            .valueType(Datatype.Double.getName())
+            .valueType(Datatype.DOUBLE.getName())
             .value("42.17")
             .build();
 
@@ -89,7 +89,7 @@ public class PropertyValues {
             .category("category")
             .idShort("propInt")
             .kind(ModelingKind.INSTANCE)
-            .valueType(Datatype.Int.getName())
+            .valueType(Datatype.INT.getName())
             .value("42")
             .build();
     public static final Property PROPERTY_STRING = new DefaultProperty.Builder()
@@ -101,7 +101,7 @@ public class PropertyValues {
     public static final Range RANGE_DOUBLE = new DefaultRange.Builder()
             .idShort("rangeDouble")
             .kind(ModelingKind.INSTANCE)
-            .valueType(Datatype.Double.getName())
+            .valueType(Datatype.DOUBLE.getName())
             .min("3.0")
             .max("5.0")
             .build();
@@ -115,7 +115,7 @@ public class PropertyValues {
     public static final Range RANGE_INT = new DefaultRange.Builder()
             .idShort("rangeInt")
             .kind(ModelingKind.INSTANCE)
-            .valueType(Datatype.Int.getName())
+            .valueType(Datatype.INT.getName())
             .min("17")
             .max("42")
             .build();

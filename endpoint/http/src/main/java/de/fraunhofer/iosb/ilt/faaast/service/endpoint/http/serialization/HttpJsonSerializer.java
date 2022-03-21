@@ -25,8 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationReques
 public class HttpJsonSerializer extends JsonSerializer {
 
     public HttpJsonSerializer() {
-        super(x -> {
-            x.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class);
-        });
+        super(x -> x.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class));
     }
 }

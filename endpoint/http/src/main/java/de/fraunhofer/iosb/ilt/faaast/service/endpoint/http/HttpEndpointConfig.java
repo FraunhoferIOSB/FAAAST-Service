@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import java.util.Objects;
 
 
 /**
@@ -37,5 +38,24 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
+        HttpEndpointConfig that = (HttpEndpointConfig) o;
+        return port == that.port;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), port);
     }
 }

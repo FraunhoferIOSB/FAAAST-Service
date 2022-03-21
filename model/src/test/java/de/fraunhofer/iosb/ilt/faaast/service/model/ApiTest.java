@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.ClientErrorBadRequest;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.CLIENT_ERROR_BAD_REQUEST;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteAASXPackageByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteAllAssetLinksByIdResponse;
@@ -39,7 +39,7 @@ public class ApiTest {
     public void testEqualsNotSame() {
         DeleteSubmodelByIdResponse deleteSubmodelByIdResponseA = new DeleteSubmodelByIdResponse();
         DeleteSubmodelByIdResponse deleteSubmodelByIdResponseB = new DeleteSubmodelByIdResponse();
-        deleteSubmodelByIdResponseB.setStatusCode(ClientErrorBadRequest);
+        deleteSubmodelByIdResponseB.setStatusCode(CLIENT_ERROR_BAD_REQUEST);
         Assert.assertNotEquals(deleteSubmodelByIdResponseA, deleteSubmodelByIdResponseB);
     }
 
@@ -55,7 +55,7 @@ public class ApiTest {
     public void testHashCode() {
         DeleteSubmodelByIdResponse deleteSubmodelByIdResponseA = new DeleteSubmodelByIdResponse();
         DeleteSubmodelByIdResponse deleteSubmodelByIdResponseB = new DeleteSubmodelByIdResponse();
-        deleteSubmodelByIdResponseB.setStatusCode(ClientErrorBadRequest);
+        deleteSubmodelByIdResponseB.setStatusCode(CLIENT_ERROR_BAD_REQUEST);
         Assert.assertNotEquals(deleteSubmodelByIdResponseA.hashCode(), deleteSubmodelByIdResponseB.hashCode());
     }
 

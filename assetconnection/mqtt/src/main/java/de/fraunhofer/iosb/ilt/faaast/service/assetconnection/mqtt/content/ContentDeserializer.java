@@ -37,5 +37,5 @@ public interface ContentDeserializer {
      * @return the parsed value
      * @throws AssetConnectionException if reading the value failed
      */
-    public DataElementValue read(String raw, String query, TypeInfo typeInfo) throws AssetConnectionException;
+    public DataElementValue read(String raw, String query, TypeInfo<?> typeInfo) throws AssetConnectionException;
 }

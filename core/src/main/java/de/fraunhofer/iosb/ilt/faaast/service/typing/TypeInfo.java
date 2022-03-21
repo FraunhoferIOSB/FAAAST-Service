@@ -61,7 +61,7 @@ public abstract class TypeInfo<T> {
         return Objects.hash(elements, type);
     }
 
-    public static abstract class AbstractBuilder<P, T extends TypeInfo<P>, B extends AbstractBuilder<P, T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<P, T extends TypeInfo<P>, B extends AbstractBuilder<P, T, B>> extends ExtendableBuilder<T, B> {
 
         public B type(Class<?> value) {
             getBuildingInstance().setType(value);

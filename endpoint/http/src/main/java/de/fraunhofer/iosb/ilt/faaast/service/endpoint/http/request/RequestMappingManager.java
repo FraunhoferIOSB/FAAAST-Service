@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RequestMappingManager {
 
-    private static Logger logger = LoggerFactory.getLogger(RequestMappingManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestMappingManager.class);
     private List<RequestMapper> mappers;
     protected ServiceContext serviceContext;
 
@@ -60,17 +60,21 @@ public class RequestMappingManager {
                             Constructor<RequestMapper> constructor = x.getConstructor(ServiceContext.class);
                             return constructor.newInstance(serviceContext);
                         }
-                        catch (NoSuchMethodException | SecurityException ex) {
-                            logger.warn("request mapper implementation could not be loaded, "
-                                    + "reason: missing constructor (implementation class: {}, required constructor signature: {}",
-                                    x.getName());
+                        catch (NoSuchMethodException | SecurityException e) {
+                            LOGGER.warn("request mapper implementation could not be loaded, "
+                                    + "reason: missing constructor (implementation class: {}, required constructor signature: {})",
+                                    x.getName(),
+                                    ServiceContext.class.getName(),
+                                    e);
                         }
-                        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                            logger.warn("request mapper implementation could not be loaded, "
-                                    + "reason: calling constructor failed (implementation class: {}, constructor arguments: {}",
-                                    x.getName());
+                        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                            LOGGER.warn("request mapper implementation could not be loaded, "
+                                    + "reason: calling constructor failed (implementation class: {}, constructor arguments: {})",
+                                    x.getName(),
+                                    ServiceContext.class.getName(),
+                                    e);
                         }
-                        logger.debug("unable to instantiate class {}", x.getName());
+                        LOGGER.debug("unable to instantiate class {}", x.getName());
                         return null;
                     })
                     .filter(x -> x != null)

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByAssetIdResponse;
@@ -23,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentificati
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
@@ -39,8 +41,8 @@ import java.util.List;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByAssetIdRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByAssetIdResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
         extends RequestHandler<GetAllAssetAdministrationShellsByAssetIdRequest, GetAllAssetAdministrationShellsByAssetIdResponse> {
@@ -51,40 +53,35 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
 
 
     @Override
-    public GetAllAssetAdministrationShellsByAssetIdResponse process(GetAllAssetAdministrationShellsByAssetIdRequest request) {
+    public GetAllAssetAdministrationShellsByAssetIdResponse process(GetAllAssetAdministrationShellsByAssetIdRequest request) throws MessageBusException {
         GetAllAssetAdministrationShellsByAssetIdResponse response = new GetAllAssetAdministrationShellsByAssetIdResponse();
-        try {
-            List<AssetIdentification> assetIdentifications = new ArrayList<>();
-            List<IdentifierKeyValuePair> identifierKeyValuePairs = request.getAssetIds();
-            for (IdentifierKeyValuePair pair: identifierKeyValuePairs) {
-                AssetIdentification id = null;
-                if (pair.getKey().equalsIgnoreCase("globalAssetId")) {
-                    id = new GlobalAssetIdentification.Builder()
-                            .reference(new DefaultReference.Builder().key(new DefaultKey.Builder()
-                                    .idType(KeyType.IRI)
-                                    .type(KeyElements.GLOBAL_REFERENCE)
-                                    .value(pair.getValue())
-                                    .build())
-                                    .build())
-                            .build();
-                }
-                else {
-                    id = new SpecificAssetIdentification.Builder()
-                            .value(pair.getValue())
-                            .key(pair.getKey())
-                            .build();
-                }
-                assetIdentifications.add(id);
+        List<AssetIdentification> assetIdentifications = new ArrayList<>();
+        List<IdentifierKeyValuePair> identifierKeyValuePairs = request.getAssetIds();
+        for (IdentifierKeyValuePair pair: identifierKeyValuePairs) {
+            AssetIdentification id = null;
+            if (pair.getKey().equalsIgnoreCase("globalAssetId")) {
+                id = new GlobalAssetIdentification.Builder()
+                        .reference(new DefaultReference.Builder().key(new DefaultKey.Builder()
+                                .idType(KeyType.IRI)
+                                .type(KeyElements.GLOBAL_REFERENCE)
+                                .value(pair.getValue())
+                                .build())
+                                .build())
+                        .build();
             }
+            else {
+                id = new SpecificAssetIdentification.Builder()
+                        .value(pair.getValue())
+                        .key(pair.getKey())
+                        .build();
+            }
+            assetIdentifications.add(id);
+        }
 
-            List<AssetAdministrationShell> shells = new ArrayList<>(persistence.get(null, assetIdentifications, request.getOutputModifier()));
-            response.setPayload(shells);
-            response.setStatusCode(StatusCode.Success);
-            shells.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        List<AssetAdministrationShell> shells = new ArrayList<>(persistence.get(null, assetIdentifications, request.getOutputModifier()));
+        response.setPayload(shells);
+        response.setStatusCode(StatusCode.SUCCESS);
+        shells.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(x), x)));
         return response;
     }
 

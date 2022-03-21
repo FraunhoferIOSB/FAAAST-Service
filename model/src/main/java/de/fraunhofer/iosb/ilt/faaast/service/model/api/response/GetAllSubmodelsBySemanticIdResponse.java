@@ -23,21 +23,16 @@ import java.util.List;
  * Chapter 6.3.4
  */
 public class GetAllSubmodelsBySemanticIdResponse extends BaseResponseWithPayload<List<Submodel>> {
+
     public static GetAllSubmodelsBySemanticIdResponse.Builder builder() {
         return new GetAllSubmodelsBySemanticIdResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<GetAllSubmodelsBySemanticIdResponse, GetAllSubmodelsBySemanticIdResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<Submodel>, GetAllSubmodelsBySemanticIdResponse, GetAllSubmodelsBySemanticIdResponse.Builder> {
 
         @Override
         protected GetAllSubmodelsBySemanticIdResponse.Builder getSelf() {
             return this;
-        }
-
-
-        public GetAllSubmodelsBySemanticIdResponse.Builder payload(List<Submodel> value) {
-            getBuildingInstance().setPayload(value);
-            return getSelf();
         }
 
 

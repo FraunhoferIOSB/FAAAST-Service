@@ -57,7 +57,7 @@ public class DeleteAASXPackageByIdRequest extends BaseRequest<DeleteAASXPackageB
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends DeleteAASXPackageByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends DeleteAASXPackageByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
         public B packageId(String value) {
             getBuildingInstance().setPackageId(value);
             return getSelf();

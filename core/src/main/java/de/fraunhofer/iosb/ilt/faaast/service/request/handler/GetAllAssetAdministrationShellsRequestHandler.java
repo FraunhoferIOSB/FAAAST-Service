@@ -15,12 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import java.util.List;
@@ -31,8 +33,8 @@ import java.util.List;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetAllAssetAdministrationShellsRequestHandler extends RequestHandler<GetAllAssetAdministrationShellsRequest, GetAllAssetAdministrationShellsResponse> {
 
@@ -42,18 +44,13 @@ public class GetAllAssetAdministrationShellsRequestHandler extends RequestHandle
 
 
     @Override
-    public GetAllAssetAdministrationShellsResponse process(GetAllAssetAdministrationShellsRequest request) {
+    public GetAllAssetAdministrationShellsResponse process(GetAllAssetAdministrationShellsRequest request) throws MessageBusException {
         GetAllAssetAdministrationShellsResponse response = new GetAllAssetAdministrationShellsResponse();
-        try {
-            List<AssetAdministrationShell> shells = persistence.get(null, (List<AssetIdentification>) null, request.getOutputModifier());
-            response.setPayload(shells);
-            response.setStatusCode(StatusCode.Success);
-            if (shells != null) {
-                shells.forEach(x -> publishElementReadEventMessage(AasUtils.toReference(x), x));
-            }
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
+        List<AssetAdministrationShell> shells = persistence.get(null, (List<AssetIdentification>) null, request.getOutputModifier());
+        response.setPayload(shells);
+        response.setStatusCode(StatusCode.SUCCESS);
+        if (shells != null) {
+            shells.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(x), x)));
         }
         return response;
     }

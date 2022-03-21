@@ -75,10 +75,7 @@ public class CoreConfig {
             return false;
         }
         final CoreConfig other = (CoreConfig) obj;
-        if (!Objects.equals(this.requestHandlerThreadPoolSize, other.requestHandlerThreadPoolSize)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.requestHandlerThreadPoolSize, other.requestHandlerThreadPoolSize);
     }
 
     /**

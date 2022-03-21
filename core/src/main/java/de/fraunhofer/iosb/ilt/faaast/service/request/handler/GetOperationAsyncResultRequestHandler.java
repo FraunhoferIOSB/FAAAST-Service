@@ -28,8 +28,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetOperationAsyncResultRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetOperationAsyncResultResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetOperationAsyncResultRequestHandler extends RequestHandler<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
 
@@ -41,15 +41,9 @@ public class GetOperationAsyncResultRequestHandler extends RequestHandler<GetOpe
     @Override
     public GetOperationAsyncResultResponse process(GetOperationAsyncResultRequest request) {
         GetOperationAsyncResultResponse response = new GetOperationAsyncResultResponse();
-
-        try {
-            OperationResult operationResult = persistence.getOperationResult(request.getHandleId());
-            response.setPayload(operationResult);
-            response.setStatusCode(StatusCode.Success);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        OperationResult operationResult = persistence.getOperationResult(request.getHandleId());
+        response.setPayload(operationResult);
+        response.setStatusCode(StatusCode.SUCCESS);
         return response;
     }
 }

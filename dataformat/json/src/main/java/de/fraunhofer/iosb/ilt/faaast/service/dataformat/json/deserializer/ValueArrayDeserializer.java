@@ -53,7 +53,6 @@ public class ValueArrayDeserializer extends ContainerDeserializerBase<Object[]> 
         if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             return context.reportBadDefinition(Collection.class, "type information mismatch - must be of type ContainerTypeInfo");
         }
-        ContainerTypeInfo containerTypeInfo = (ContainerTypeInfo) typeInfo;
         JsonNode node = context.readTree(parser);
         if (!node.isArray()) {
             return context.reportBadDefinition(Collection.class, "expected array");

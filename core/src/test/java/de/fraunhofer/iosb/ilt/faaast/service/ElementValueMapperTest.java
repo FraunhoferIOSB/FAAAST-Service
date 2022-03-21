@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -70,7 +71,7 @@ public class ElementValueMapperTest {
                         .build())
                 .annotation(new DefaultProperty.Builder()
                         .idShort(value.getAnnotations().keySet().iterator().next())
-                        .valueType(Datatype.String.getName())
+                        .valueType(Datatype.STRING.getName())
                         .value("foo")
                         .build())
                 .build();
@@ -80,7 +81,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testAnnotatedRelationshipElementToValueMapping() throws ValueFormatException {
+    public void testAnnotatedRelationshipElementToValueMapping() throws ValueFormatException, ValueMappingException {
         AnnotatedRelationshipElementValue expected = createAnnotatedRelationshipElementValue();
         SubmodelElement input = new DefaultAnnotatedRelationshipElement.Builder()
                 .first(new DefaultReference.Builder()
@@ -91,7 +92,7 @@ public class ElementValueMapperTest {
                         .build())
                 .annotation(new DefaultProperty.Builder()
                         .idShort(expected.getAnnotations().keySet().iterator().next())
-                        .valueType(Datatype.String.getName())
+                        .valueType(Datatype.STRING.getName())
                         .value("foo")
                         .build())
                 .build();
@@ -124,7 +125,7 @@ public class ElementValueMapperTest {
                                 .type(KeyElements.PROPERTY)
                                 .value("property2")
                                 .build()))
-                .annotation("property", PropertyValue.of(Datatype.String, "foo"))
+                .annotation("property", PropertyValue.of(Datatype.STRING, "foo"))
                 .build();
     }
 
@@ -147,7 +148,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testBlobToValueMapping() {
+    public void testBlobToValueMapping() throws ValueMappingException {
         BlobValue expected = BlobValue.builder()
                 .mimeType("application/json")
                 .value("foo")
@@ -169,7 +170,7 @@ public class ElementValueMapperTest {
                         .build())
                 .build();
         EntityValue value = EntityValue.builder()
-                .statement("property", PropertyValue.of(Datatype.String, "foo"))
+                .statement("property", PropertyValue.of(Datatype.STRING, "foo"))
                 .entityType(EntityType.SELF_MANAGED_ENTITY)
                 .globalAssetId(List.of(new DefaultKey.Builder()
                         .idType(KeyType.IRI)
@@ -185,7 +186,7 @@ public class ElementValueMapperTest {
         SubmodelElement expected = new DefaultEntity.Builder()
                 .statement(new DefaultProperty.Builder()
                         .idShort(value.getStatements().keySet().iterator().next())
-                        .valueType(Datatype.String.getName())
+                        .valueType(Datatype.STRING.getName())
                         .value("foo")
                         .build())
                 .entityType(value.getEntityType())
@@ -199,9 +200,9 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testEntityToValueMapping() throws ValueFormatException {
+    public void testEntityToValueMapping() throws ValueFormatException, ValueMappingException {
         EntityValue expected = EntityValue.builder()
-                .statement("property", PropertyValue.of(Datatype.String, "foo"))
+                .statement("property", PropertyValue.of(Datatype.STRING, "foo"))
                 .entityType(EntityType.SELF_MANAGED_ENTITY)
                 .globalAssetId(List.of(new DefaultKey.Builder()
                         .idType(KeyType.IRI)
@@ -218,7 +219,7 @@ public class ElementValueMapperTest {
                 .statement(new DefaultProperty.Builder()
                         .category("Test")
                         .idShort(expected.getStatements().keySet().iterator().next())
-                        .valueType(Datatype.String.getName())
+                        .valueType(Datatype.STRING.getName())
                         .value("foo")
                         .build())
                 .entityType(expected.getEntityType())
@@ -249,7 +250,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testFileToValueMapping() {
+    public void testFileToValueMapping() throws ValueMappingException {
         FileValue expected = FileValue.builder()
                 .mimeType("application/json")
                 .value("{}")
@@ -264,7 +265,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testMultiLanguagePropertyToValueMapping() {
+    public void testMultiLanguagePropertyToValueMapping() throws ValueMappingException {
         MultiLanguagePropertyValue expected = MultiLanguagePropertyValue.builder()
                 .value("deutsch", "de")
                 .value("english", "en")
@@ -308,8 +309,8 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testPropertyToValueMapping() throws ValueFormatException {
-        PropertyValue expected = PropertyValue.of(Datatype.String, "foo");
+    public void testPropertyToValueMapping() throws ValueFormatException, ValueMappingException {
+        PropertyValue expected = PropertyValue.of(Datatype.STRING, "foo");
         SubmodelElement input = new DefaultProperty.Builder()
                 .category("Test")
                 .idShort("TestProperty")
@@ -340,7 +341,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testRangeToValueMapping() {
+    public void testRangeToValueMapping() throws ValueMappingException {
         RangeValue expected = RangeValue.builder()
                 .min(new DoubleValue(2.3))
                 .max(new DoubleValue(5.1))
@@ -376,7 +377,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testReferenceElementToValueMapping() {
+    public void testReferenceElementToValueMapping() throws ValueMappingException {
         ReferenceElementValue expected = ReferenceElementValue.builder()
                 .key(KeyType.IRI, KeyElements.SUBMODEL, "http://example.org/submodel/1")
                 .key(KeyType.ID_SHORT, KeyElements.PROPERTY, "property1")
@@ -433,7 +434,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testRelationshipElementToValueMapping() {
+    public void testRelationshipElementToValueMapping() throws ValueMappingException {
         RelationshipElementValue expected = RelationshipElementValue.builder()
                 .first(List.of(
                         new DefaultKey.Builder()
@@ -472,7 +473,7 @@ public class ElementValueMapperTest {
 
 
     @Test
-    public void testSubmodelElementCollectionToValueMapping() {
+    public void testSubmodelElementCollectionToValueMapping() throws ValueMappingException {
         PropertyValue propertyValue = PropertyValue.builder().value(new StringValue("testValue")).build();
         PropertyValue propertyValue2 = PropertyValue.builder().value(new StringValue("testValue2")).build();
         SubmodelElementCollectionValue expected = SubmodelElementCollectionValue.builder()

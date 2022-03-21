@@ -40,6 +40,6 @@ public class StringValue extends TypedValue<String> {
 
     @Override
     public Datatype getDataType() {
-        return Datatype.String;
+        return Datatype.STRING;
     }
 }

@@ -28,8 +28,8 @@ public class QueryModifier {
     protected Extend extend;
 
     public QueryModifier() {
-        this.level = Level.Deep;
-        this.extend = Extend.WithoutBLOBValue;
+        this.level = Level.DEEP;
+        this.extend = Extend.WITHOUT_BLOB_VALUE;
     }
 
 

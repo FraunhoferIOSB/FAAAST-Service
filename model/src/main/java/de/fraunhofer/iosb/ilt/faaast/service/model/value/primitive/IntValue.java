@@ -39,16 +39,16 @@ public class IntValue extends TypedValue<Integer> {
             return;
         }
         try {
-            this.setValue((Integer) Integer.parseInt(value));
+            this.setValue(Integer.parseInt(value));
         }
-        catch (NumberFormatException ex) {
-            throw new ValueFormatException(ex);
+        catch (NumberFormatException e) {
+            throw new ValueFormatException(e);
         }
     }
 
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Int;
+        return Datatype.INT;
     }
 }

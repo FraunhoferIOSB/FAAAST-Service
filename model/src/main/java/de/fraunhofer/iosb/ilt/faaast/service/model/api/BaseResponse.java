@@ -23,21 +23,23 @@ import java.util.Objects;
  */
 public abstract class BaseResponse implements Response {
 
-    private StatusCode statusCode;
-    private Result result;
+    protected StatusCode statusCode;
+    protected Result result;
 
+    @Override
     public Result getResult() {
         return result;
     }
 
 
+    @Override
     public void setResult(Result result) {
         this.result = result;
     }
 
 
-    public BaseResponse() {
-        this.statusCode = StatusCode.ServerInternalError;
+    protected BaseResponse() {
+        this.statusCode = StatusCode.SERVER_INTERNAL_ERROR;
         this.result = Result.builder()
                 .success(false)
                 .message(new Message())
@@ -45,11 +47,13 @@ public abstract class BaseResponse implements Response {
     }
 
 
+    @Override
     public StatusCode getStatusCode() {
         return statusCode;
     }
 
 
+    @Override
     public void setStatusCode(StatusCode statusCode) {
         this.statusCode = statusCode;
         if (statusCode.isSuccess(statusCode))
@@ -73,7 +77,7 @@ public abstract class BaseResponse implements Response {
         return Objects.hash(statusCode, result);
     }
 
-    public static abstract class AbstractBuilder<T extends BaseResponse, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends BaseResponse, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B statusCode(StatusCode value) {
             getBuildingInstance().setStatusCode(value);

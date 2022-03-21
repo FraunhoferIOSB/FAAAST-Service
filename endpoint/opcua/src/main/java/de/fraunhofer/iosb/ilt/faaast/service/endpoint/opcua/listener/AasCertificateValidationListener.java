@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AasCertificateValidationListener implements DefaultCertificateValidatorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(AasCertificateValidationListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AasCertificateValidationListener.class);
 
     /**
      * Handle certificate validation. The method is called once the actual
@@ -49,10 +49,10 @@ public class AasCertificateValidationListener implements DefaultCertificateValid
     public ValidationResult onValidate(Cert cert, ApplicationDescription ad, EnumSet<CertificateCheck> passedChecks) {
 
         try {
-            logger.info("onValidate: " + ad + ", " + CertificateUtils.getApplicationUriOfCertificate(cert));
+            LOGGER.info("onValidate: " + ad + ", " + CertificateUtils.getApplicationUriOfCertificate(cert));
         }
         catch (Throwable ex) {
-            logger.error("createAndAddNodes Exception", ex);
+            LOGGER.error("createAndAddNodes Exception", ex);
         }
 
         /*

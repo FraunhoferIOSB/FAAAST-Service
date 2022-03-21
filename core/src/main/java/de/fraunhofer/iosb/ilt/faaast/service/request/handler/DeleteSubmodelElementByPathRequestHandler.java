@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -33,8 +34,8 @@ import io.adminshell.aas.v3.model.SubmodelElement;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelElementByPathRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelElementByPathResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class DeleteSubmodelElementByPathRequestHandler extends RequestHandler<DeleteSubmodelElementByPathRequest, DeleteSubmodelElementByPathResponse> {
 
@@ -44,22 +45,13 @@ public class DeleteSubmodelElementByPathRequestHandler extends RequestHandler<De
 
 
     @Override
-    public DeleteSubmodelElementByPathResponse process(DeleteSubmodelElementByPathRequest request) {
+    public DeleteSubmodelElementByPathResponse process(DeleteSubmodelElementByPathRequest request) throws ResourceNotFoundException, MessageBusException {
         DeleteSubmodelElementByPathResponse response = new DeleteSubmodelElementByPathResponse();
-
-        try {
-            Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
-            SubmodelElement submodelElement = persistence.get(reference, new QueryModifier());
-            persistence.remove(reference);
-            response.setStatusCode(StatusCode.Success);
-            publishElementDeleteEventMessage(reference, submodelElement);
-        }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+        SubmodelElement submodelElement = persistence.get(reference, new QueryModifier());
+        persistence.remove(reference);
+        response.setStatusCode(StatusCode.SUCCESS);
+        publishElementDeleteEventMessage(reference, submodelElement);
         return response;
     }
 }

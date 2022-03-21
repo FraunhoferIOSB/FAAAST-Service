@@ -17,19 +17,20 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * Implementation of HTTP endpoint. Accepts http request and maps them to Request objects
- * passes them to the service and expects a response object which is streamed as
- * json response to the http client
+ * Implementation of HTTP endpoint. Accepts http request and maps them to
+ * Request objects passes them to the service and expects a response object
+ * which is streamed as json response to the http client
  */
 public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
-    private static Logger logger = LoggerFactory.getLogger(HttpEndpoint.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpEndpoint.class);
     private HttpEndpointConfig config;
     private ServiceContext serviceContext;
     private Server server;
@@ -67,7 +68,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         server = new Server(config.getPort());
         handler = new RequestHandler(serviceContext);
         server.setHandler(handler);
-        server.setErrorHandler(new ErrorHandler());
+        server.setErrorHandler(new HttpErrorHandler());
         server.start();
     }
 
@@ -78,16 +79,17 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
             try {
                 handler.stop();
             }
-            catch (Exception ex) {
-                logger.debug("stopping HTTP handler failed", ex);
+            catch (Exception e) {
+                LOGGER.debug("stopping HTTP handler failed", e);
             }
         }
         try {
             server.stop();
             server.join();
         }
-        catch (Exception ex) {
-            logger.debug("HTTP endpoint did non shutdown correctly", ex);
+        catch (Exception e) {
+            LOGGER.debug("HTTP endpoint did non shutdown correctly", e);
+            Thread.currentThread().interrupt();
         }
     }
 }

@@ -15,6 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttValueProviderConfig;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -73,10 +76,7 @@ public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetCo
         if (!Objects.equals(this.serverUri, other.serverUri)) {
             return false;
         }
-        if (!Objects.equals(this.clientId, other.clientId)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.clientId, other.clientId);
     }
 
 
@@ -84,7 +84,7 @@ public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetCo
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends MqttAssetConnectionConfig, B extends AbstractBuilder<T, B>>
+    public abstract static class AbstractBuilder<T extends MqttAssetConnectionConfig, B extends AbstractBuilder<T, B>>
             extends
             AssetConnectionConfig.AbstractBuilder<MqttAssetConnectionConfig, MqttValueProviderConfig, MqttOperationProviderConfig, MqttSubscriptionProviderConfig, MqttAssetConnection, B> {
 

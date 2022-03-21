@@ -24,7 +24,7 @@ import org.eclipse.jetty.server.Request;
 /**
  * HTTP handler that is called to render error pages
  */
-public class ErrorHandler extends org.eclipse.jetty.server.handler.ErrorHandler {
+public class HttpErrorHandler extends org.eclipse.jetty.server.handler.ErrorHandler {
 
     @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {

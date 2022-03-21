@@ -14,11 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -35,8 +38,8 @@ import java.util.Objects;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelElementByPathRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelElementByPathResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSubmodelElementByPathRequest, GetSubmodelElementByPathResponse> {
 
@@ -46,36 +49,22 @@ public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSu
 
 
     @Override
-    public GetSubmodelElementByPathResponse process(GetSubmodelElementByPathRequest request) {
+    public GetSubmodelElementByPathResponse process(GetSubmodelElementByPathRequest request)
+            throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException {
         GetSubmodelElementByPathResponse response = new GetSubmodelElementByPathResponse();
-        try {
-            Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
-            SubmodelElement submodelElement = persistence.get(reference, request.getOutputModifier());
-            ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
-
-            //read value from AssetConnection if one exist
-            //and update value in persistence if differs
-            ElementValue valueFromAssetConnection = readDataElementValueFromAssetConnection(reference);
-            if (valueFromAssetConnection != null
-                    && !Objects.equals(valueFromAssetConnection, oldValue)) {
-                submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection);
-                persistence.put(null, reference, submodelElement);
-                // TODO @Jens
-                // better publishValueChangeEventMessage(reference, oldValue, oldValue) ???
-                publishElementUpdateEventMessage(reference, submodelElement);
-            }
-
-            response.setPayload(submodelElement);
-            response.setStatusCode(StatusCode.Success);
-            publishElementReadEventMessage(reference, submodelElement);
-
+        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+        SubmodelElement submodelElement = persistence.get(reference, request.getOutputModifier());
+        ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
+        ElementValue valueFromAssetConnection = readDataElementValueFromAssetConnection(reference);
+        if (valueFromAssetConnection != null
+                && !Objects.equals(valueFromAssetConnection, oldValue)) {
+            submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection);
+            persistence.put(null, reference, submodelElement);
+            publishValueChangeEventMessage(reference, oldValue, valueFromAssetConnection);
         }
-        catch (ResourceNotFoundException ex) {
-            response.setStatusCode(StatusCode.ClientErrorResourceNotFound);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        response.setPayload(submodelElement);
+        response.setStatusCode(StatusCode.SUCCESS);
+        publishElementReadEventMessage(reference, submodelElement);
         return response;
     }
 }

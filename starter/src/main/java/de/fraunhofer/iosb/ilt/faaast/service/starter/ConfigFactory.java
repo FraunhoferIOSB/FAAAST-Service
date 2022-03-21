@@ -150,7 +150,7 @@ public class ConfigFactory {
             LOGGER.debug("Used configuration file\n" + mapper.writeValueAsString(serviceConfig));
             return serviceConfig;
         }
-        catch (NoSuchFileException ex) {
+        catch (NoSuchFileException e) {
             if (pathToConfigFile.equalsIgnoreCase(Application.DEFAULT_CONFIG_PATH)) {
                 LOGGER.info("No custom configuration file was found");
                 LOGGER.info("Using default configuration file");
@@ -164,8 +164,8 @@ public class ConfigFactory {
             }
 
         }
-        catch (IOException ex) {
-            throw new Exception("Configuration Error: " + ex.getMessage());
+        catch (IOException e) {
+            throw new Exception("Configuration Error: " + e.getMessage());
         }
     }
 

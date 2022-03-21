@@ -71,7 +71,7 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
         return new Builder();
     }
 
-    private static abstract class AbstractBuilder<T extends OpcUaSubscriptionProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    private abstract static class AbstractBuilder<T extends OpcUaSubscriptionProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B nodeId(String value) {
             getBuildingInstance().setNodeId(value);

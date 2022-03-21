@@ -14,15 +14,37 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.typing;
 
+import java.util.Objects;
+
+
 public class ContainerTypeInfo<T> extends TypeInfo<T> {
 
     private Class<?> contentType;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
+        ContainerTypeInfo<?> that = (ContainerTypeInfo<?>) o;
+        return Objects.equals(this.contentType, that.contentType);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), contentType);
+    }
+
 
     public static <T> Builder<T> builder() {
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<P, T extends ContainerTypeInfo<P>, B extends AbstractBuilder<P, T, B>> extends TypeInfo.AbstractBuilder<P, T, B> {
+    public abstract static class AbstractBuilder<P, T extends ContainerTypeInfo<P>, B extends AbstractBuilder<P, T, B>> extends TypeInfo.AbstractBuilder<P, T, B> {
 
         public B contentType(Class<?> value) {
             getBuildingInstance().setContentType(value);

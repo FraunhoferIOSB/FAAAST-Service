@@ -76,7 +76,7 @@ public class PropertyValue extends DataElementValue {
         return Objects.hash(value);
     }
 
-    public static abstract class AbstractBuilder<T extends PropertyValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PropertyValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B value(TypedValue value) {
             getBuildingInstance().setValue(value);

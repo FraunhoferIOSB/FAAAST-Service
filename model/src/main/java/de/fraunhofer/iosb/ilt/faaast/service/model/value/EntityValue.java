@@ -95,7 +95,7 @@ public class EntityValue extends ElementValue {
         return Objects.hash(statements, entityType, globalAssetId);
     }
 
-    public static abstract class AbstractBuilder<T extends EntityValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends EntityValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B statements(Map<String, ElementValue> value) {
             getBuildingInstance().setStatements(value);

@@ -57,7 +57,7 @@ public class GlobalAssetIdentification implements AssetIdentification {
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GlobalAssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GlobalAssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
         public B reference(Reference value) {
             getBuildingInstance().setReference(value);
             return getSelf();

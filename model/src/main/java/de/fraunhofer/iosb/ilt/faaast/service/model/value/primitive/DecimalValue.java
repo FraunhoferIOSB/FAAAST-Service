@@ -44,15 +44,15 @@ public class DecimalValue extends TypedValue<BigDecimal> {
         try {
             this.setValue(new BigDecimal(value));
         }
-        catch (NumberFormatException ex) {
-            throw new ValueFormatException(ex);
+        catch (NumberFormatException e) {
+            throw new ValueFormatException(e);
         }
     }
 
 
     @Override
     public Datatype getDataType() {
-        return Datatype.Decimal;
+        return Datatype.DECIMAL;
     }
 
 }

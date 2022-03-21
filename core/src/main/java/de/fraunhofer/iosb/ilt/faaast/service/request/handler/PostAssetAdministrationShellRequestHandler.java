@@ -29,8 +29,8 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PostAssetAdministrationShellRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostAssetAdministrationShellResponse}.
- * Is responsible for communication with the persistence and sends the corresponding events to the
- * message bus.
+ * Is responsible for communication with the persistence and sends the
+ * corresponding events to the message bus.
  */
 public class PostAssetAdministrationShellRequestHandler extends RequestHandler<PostAssetAdministrationShellRequest, PostAssetAdministrationShellResponse> {
 
@@ -40,18 +40,12 @@ public class PostAssetAdministrationShellRequestHandler extends RequestHandler<P
 
 
     @Override
-    public PostAssetAdministrationShellResponse process(PostAssetAdministrationShellRequest request) {
+    public PostAssetAdministrationShellResponse process(PostAssetAdministrationShellRequest request) throws Exception {
         PostAssetAdministrationShellResponse response = new PostAssetAdministrationShellResponse();
-
-        try {
-            AssetAdministrationShell shell = (AssetAdministrationShell) persistence.put(request.getAas());
-            response.setPayload(shell);
-            response.setStatusCode(StatusCode.SuccessCreated);
-            publishElementCreateEventMessage(AasUtils.toReference(shell), shell);
-        }
-        catch (Exception ex) {
-            response.setStatusCode(StatusCode.ServerInternalError);
-        }
+        AssetAdministrationShell shell = (AssetAdministrationShell) persistence.put(request.getAas());
+        response.setPayload(shell);
+        response.setStatusCode(StatusCode.SUCCESS_CREATED);
+        publishElementCreateEventMessage(AasUtils.toReference(shell), shell);
         return response;
     }
 }

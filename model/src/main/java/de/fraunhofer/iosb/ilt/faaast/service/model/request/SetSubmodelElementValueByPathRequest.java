@@ -104,7 +104,7 @@ public class SetSubmodelElementValueByPathRequest<T> extends BaseRequest<SetSubm
         return new Builder<>();
     }
 
-    public static abstract class AbstractBuilder<U, T extends SetSubmodelElementValueByPathRequest<U>, B extends AbstractBuilder<U, T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<U, T extends SetSubmodelElementValueByPathRequest<U>, B extends AbstractBuilder<U, T, B>> extends ExtendableBuilder<T, B> {
 
         public B id(Identifier value) {
             getBuildingInstance().setId(value);

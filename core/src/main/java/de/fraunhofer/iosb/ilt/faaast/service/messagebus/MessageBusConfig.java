@@ -34,7 +34,7 @@ public class MessageBusConfig<T extends MessageBus> extends Config<T> {
      * @param <C> type of the config to build
      * @param <B> type of this builder, needed for inheritance builder pattern
      */
-    public static abstract class AbstractBuilder<T extends MessageBus, C extends MessageBusConfig<T>, B extends MessageBusConfig.AbstractBuilder<T, C, B>>
+    public abstract static class AbstractBuilder<T extends MessageBus, C extends MessageBusConfig<T>, B extends MessageBusConfig.AbstractBuilder<T, C, B>>
             extends ExtendableBuilder<C, B> {
 
     }

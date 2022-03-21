@@ -23,21 +23,17 @@ import java.util.List;
  * Chapter 7.2.2
  */
 public class GetAllAssetAdministrationShellIdsByAssetLinkResponse extends BaseResponseWithPayload<List<Identifier>> {
+
     public static GetAllAssetAdministrationShellIdsByAssetLinkResponse.Builder builder() {
         return new GetAllAssetAdministrationShellIdsByAssetLinkResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<GetAllAssetAdministrationShellIdsByAssetLinkResponse, GetAllAssetAdministrationShellIdsByAssetLinkResponse.Builder> {
+    public static class Builder
+            extends AbstractBuilder<List<Identifier>, GetAllAssetAdministrationShellIdsByAssetLinkResponse, GetAllAssetAdministrationShellIdsByAssetLinkResponse.Builder> {
 
         @Override
         protected GetAllAssetAdministrationShellIdsByAssetLinkResponse.Builder getSelf() {
             return this;
-        }
-
-
-        public GetAllAssetAdministrationShellIdsByAssetLinkResponse.Builder payload(List<Identifier> value) {
-            getBuildingInstance().setPayload(value);
-            return getSelf();
         }
 
 

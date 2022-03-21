@@ -90,7 +90,7 @@ import org.slf4j.LoggerFactory;
  */
 public class OpcUaEndpointTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpcUaEndpointTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointTest.class);
 
     private static final int OPC_TCP_PORT = 18123;
     private static final long DEFAULT_TIMEOUT = 1000;
@@ -128,7 +128,7 @@ public class OpcUaEndpointTest {
      */
     @AfterClass
     public static void stopTest() {
-        logger.trace("stopTest");
+        LOGGER.trace("stopTest");
         if (endpoint != null) {
             endpoint.stop();
         }
@@ -294,9 +294,9 @@ public class OpcUaEndpointTest {
         valueChangeMessage.setElement(propRef);
         //PropertyValue propertyValue = new PropertyValue();
         //propertyValue.setValue(new IntValue(oldValue));
-        valueChangeMessage.setOldValue(PropertyValue.of(Datatype.Int, oldValue.toString()));
+        valueChangeMessage.setOldValue(PropertyValue.of(Datatype.INT, oldValue.toString()));
         //propertyValue.setValue(new IntValue(newValue));
-        valueChangeMessage.setNewValue(PropertyValue.of(Datatype.Int, newValue.toString()));
+        valueChangeMessage.setNewValue(PropertyValue.of(Datatype.INT, newValue.toString()));
         service.getMessageBus().publish(valueChangeMessage);
         Thread.sleep(100);
 
@@ -404,9 +404,9 @@ public class OpcUaEndpointTest {
 
         ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
         valueChangeMessage.setElement(propRef);
-        valueChangeMessage.setOldValue(PropertyValue.of(Datatype.Int, "5000"));
+        valueChangeMessage.setOldValue(PropertyValue.of(Datatype.INT, "5000"));
         Integer newValue = 5005;
-        valueChangeMessage.setNewValue(PropertyValue.of(Datatype.Int, newValue.toString()));
+        valueChangeMessage.setNewValue(PropertyValue.of(Datatype.INT, newValue.toString()));
         service.getMessageBus().publish(valueChangeMessage);
 
         Thread.sleep(DEFAULT_TIMEOUT);

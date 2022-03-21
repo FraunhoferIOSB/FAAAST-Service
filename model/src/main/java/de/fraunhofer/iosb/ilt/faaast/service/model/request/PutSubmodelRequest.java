@@ -73,7 +73,7 @@ public class PutSubmodelRequest extends RequestWithModifier<PutSubmodelResponse>
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends PutSubmodelRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PutSubmodelRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
 
         public B id(Identifier value) {
             getBuildingInstance().setId(value);

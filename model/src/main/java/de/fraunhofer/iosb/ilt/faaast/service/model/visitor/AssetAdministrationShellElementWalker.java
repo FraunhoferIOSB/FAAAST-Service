@@ -79,6 +79,7 @@ import io.adminshell.aas.v3.model.ValueList;
 import io.adminshell.aas.v3.model.ValueReferencePair;
 import io.adminshell.aas.v3.model.View;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;
@@ -95,7 +96,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AssetAdministrationShellElementWalker implements AssetAdministrationShellElementVisitor {
 
-    private static Logger logger = LoggerFactory.getLogger(AssetAdministrationShellElementWalker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssetAdministrationShellElementWalker.class);
 
     public static Builder builder() {
         return new Builder();
@@ -987,15 +988,15 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
                     method.get().invoke(this, obj);
                 }
             }
-            catch (Exception ex) {
-                logger.debug("invoking visit method via refection failed", ex);
+            catch (Exception e) {
+                LOGGER.debug("invoking visit method via refection failed", e);
             }
         }
     }
 
 
     private void visitAfter(Object obj) {
-        if (mode == WalkingMode.VisitAfterDescent) {
+        if (mode == WalkingMode.VISIT_AFTER_DESCENT) {
             walk(visitor, obj);
         }
         walk(after, obj);
@@ -1004,7 +1005,7 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
 
     private void visitBefore(Object obj) {
         walk(before, obj);
-        if (mode == WalkingMode.VisitBeforeDescent) {
+        if (mode == WalkingMode.VISIT_BEFORE_DESCENT) {
             walk(visitor, obj);
         }
     }
@@ -1028,13 +1029,15 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
                         method.setAccessible(true);
                         method.invoke(visitor, obj);
                     }
-                    catch (Exception ex) {
-                        logger.debug(String.format("invoking visit(%s) method via refection failed", method.getParameterTypes()[0].getSimpleName()), ex);
+                    catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                        LOGGER.debug(String.format("invoking visit(%s) method via refection failed",
+                                method.getParameterTypes()[0].getSimpleName()),
+                                e);
                     }
                 }
             }
-            catch (Exception ex) {
-                logger.debug("invoking visit method via refection failed", ex);
+            catch (SecurityException e) {
+                LOGGER.debug("invoking visit method via refection failed", e);
             }
         }
     }
@@ -1042,20 +1045,20 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
     /**
      * Enum of supported walking modes
      */
-    public static enum WalkingMode {
+    public enum WalkingMode {
         /**
          * Visit an element after visiting all of its subelements
          */
-        VisitAfterDescent,
+        VISIT_AFTER_DESCENT,
         /**
          * Visit an element before visiting all of its subelements
          */
-        VisitBeforeDescent;
+        VISIT_BEFORE_DESCENT;
 
-        public static WalkingMode DEFAULT = VisitBeforeDescent;
+        public static final WalkingMode DEFAULT = VISIT_BEFORE_DESCENT;
     }
 
-    public static abstract class AbstractBuilder<T extends AssetAdministrationShellElementWalker, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends AssetAdministrationShellElementWalker, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B before(AssetAdministrationShellElementVisitor value) {
             getBuildingInstance().before = value;

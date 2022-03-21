@@ -59,7 +59,7 @@ public class GetAllSubmodelsByIdShortRequest extends RequestWithModifier<GetAllS
         return new Builder();
     }
 
-    public static abstract class AbstractBuilder<T extends GetAllSubmodelsByIdShortRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetAllSubmodelsByIdShortRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
 
         public B idShort(String value) {
             getBuildingInstance().setIdShort(value);

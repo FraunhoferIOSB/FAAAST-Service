@@ -60,10 +60,10 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      *
      * @param reference Reference to the AAS element that this provider will map
      *            to
-     * @param operationProvider AssetOperationProvider instance to use
+     * @param providerConfig AssetOperationProvider instance to use
      * @throws AssetConnectionException if registering provider fails
      */
-    public void registerOperationProvider(Reference reference, O operationProvider) throws AssetConnectionException;
+    public void registerOperationProvider(Reference reference, O providerConfig) throws AssetConnectionException;
 
 
     /**
@@ -71,10 +71,10 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      *
      * @param reference Reference to the AAS element that this provider will map
      *            to
-     * @param subscriptionProvider AssetSubscriptionProvider instance to use
+     * @param providerConfig AssetSubscriptionProvider instance to use
      * @throws AssetConnectionException if registering provider fails
      */
-    public void registerSubscriptionProvider(Reference reference, S subscriptionProvider) throws AssetConnectionException;
+    public void registerSubscriptionProvider(Reference reference, S providerConfig) throws AssetConnectionException;
 
 
     /**
@@ -82,10 +82,10 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      *
      * @param reference Reference to the AAS element that this provider will map
      *            to
-     * @param valueProvider AssetValueProvider instance to use
+     * @param providerConfig AssetValueProvider instance to use
      * @throws AssetConnectionException if registering provider fails
      */
-    public void registerValueProvider(Reference reference, V valueProvider) throws AssetConnectionException;
+    public void registerValueProvider(Reference reference, V providerConfig) throws AssetConnectionException;
 
 
     /**

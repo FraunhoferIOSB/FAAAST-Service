@@ -107,14 +107,14 @@ public class JsonSerializerTest {
                     try {
                         return Files.readString(x.getValue().toPath());
                     }
-                    catch (IOException ex) {
+                    catch (IOException e) {
                         Assert.fail(String.format("error reading file %s", x.getValue()));
                     }
                     return "";
                 })
                 .collect(Collectors.joining(",", "[", "]"));
         String actual = serializer.write(data.keySet(), new OutputModifier.Builder()
-                .content(Content.Value)
+                .content(Content.VALUE)
                 .build());
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
