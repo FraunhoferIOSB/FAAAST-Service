@@ -5,6 +5,10 @@
     <artifactId>service</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
+    <name>FAAAAST-Service</name>
+    <description>An implementation of the Asset Administration Shell</description>
+    <url>https://github.com/FraunhoferIOSB/FAAAST-Service</url>
+    <inceptionYear>2022</inceptionYear>
     <organization>
         <name>Fraunhofer IOSB</name>
         <url>http://iosb.fraunhofer.de</url>
@@ -16,6 +20,20 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <developers>
+        <developer>
+            <name>Michael Jacoby</name>
+            <email>michael.jacoby@iosb.fraunhofer.de</email>
+            <organization>Fraunhofer IOSB</organization>
+            <organizationUrl>https://www.iosb.fraunhofer.de</organizationUrl>
+        </developer>
+        <developer>
+            <name>Jens Mueller</name>
+            <email>jens.mueller@iosb.fraunhofer.de</email>
+            <organization>Fraunhofer IOSB</organization>
+            <organizationUrl>https://www.iosb.fraunhofer.de</organizationUrl>
+        </developer>
+    </developers>
     <modules>
         <module>core</module>
         <module>model</module>
@@ -29,6 +47,26 @@
         <module>dataformat/json</module>
         <module>starter</module>
     </modules>
+    <scm>
+        <connection>scm:git:git://github.com/FraunhoferIOSB/FAAAST-Service.git</connection>
+        <developerConnection>scm:git:ssh://github.com:FraunhoferIOSB/FAAAST-Service.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/FraunhoferIOSB/FAAAST-Service/tree/main</url>
+    </scm>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/FraunhoferIOSB/FAAAST-Service/issues</url>
+    </issueManagement>
+    <distributionManagement>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
     <properties>
         <aas.version>1.2.0</aas.version>
         <classgraph.version>4.8.141</classgraph.version>
@@ -340,7 +378,7 @@
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
                             <autoReleaseAfterClose>false</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
