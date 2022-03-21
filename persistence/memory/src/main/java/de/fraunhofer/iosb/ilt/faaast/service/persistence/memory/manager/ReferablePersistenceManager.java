@@ -48,7 +48,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
      * @param reference of the submodel element
      * @param modifier of the return value
      * @return the searched submodel or null
-     * @throws ResourceNotFoundException
+     * @throws ResourceNotFoundException if resource is not found
      */
     public SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier) throws ResourceNotFoundException {
         if (reference == null || reference.getKeys() == null || modifier == null || this.aasEnvironment == null) {
@@ -73,12 +73,10 @@ public class ReferablePersistenceManager extends PersistenceManager {
     /**
      * Get the submodel elements associated to the reference.
      * Supported are two possible parents of submodel elements:
-     * <p>
      * <ul>
      * <li>{@link io.adminshell.aas.v3.model.Submodel}
      * <li>{@link io.adminshell.aas.v3.model.SubmodelElementCollection}
      * </ul>
-     * <p>
      * If the semanticId is not null the submodel element list filtered by the semantic id
      *
      * @param reference to the submodel or submodel element collection
@@ -126,8 +124,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
 
 
     /**
-     * Create or update a submodel element.
-     * Parent reference and reference of the submodel element must not both be null.
+     * Create or update a submodel element.Parent reference and reference of the submodel element must not both be null.
      * Otherwise the location of the submodel element cannot be determined.
      * Supported parent references could be references to a
      * <ul>
@@ -141,6 +138,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
      * @param referenceToSubmodelElement reference to the submodel element
      * @param submodelElement which should be updated or created
      * @return the updated or created submodel element
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if resource is not found
      */
     public SubmodelElement putSubmodelElement(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException {
         if ((parent == null && referenceToSubmodelElement == null) || submodelElement == null) {
@@ -195,6 +193,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
      * Remove a {@link io.adminshell.aas.v3.model.Referable}
      *
      * @param reference of the referable which should be removed
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if resource is not found
      */
     public void remove(Reference reference) throws ResourceNotFoundException {
         if (reference == null) {

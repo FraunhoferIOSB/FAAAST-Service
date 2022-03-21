@@ -101,7 +101,7 @@ public class JsonDeserializer implements Deserializer {
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws IllegalArgumentException if typeInfo is null
      * @throws DeserializationException if typeInfo does not contain type
@@ -139,7 +139,7 @@ public class JsonDeserializer implements Deserializer {
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws IllegalArgumentException if typeInfo is null
      * @throws IllegalArgumentException if typeInfo is not a
@@ -175,7 +175,7 @@ public class JsonDeserializer implements Deserializer {
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws IllegalArgumentException if typeInfo is null
      * @throws IllegalArgumentException if typeInfo is not a
@@ -213,7 +213,7 @@ public class JsonDeserializer implements Deserializer {
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws IllegalArgumentException if typeInfo is null
      * @throws IllegalArgumentException if typeInfo is not a

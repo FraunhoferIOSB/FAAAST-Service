@@ -37,7 +37,7 @@ public class JsonContentDeserializer implements ContentDeserializer {
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws AssetConnectionException if deserialization fails or invalid JSON
      *             path expression

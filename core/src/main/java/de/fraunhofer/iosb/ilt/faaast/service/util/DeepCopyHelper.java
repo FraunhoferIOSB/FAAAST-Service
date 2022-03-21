@@ -27,13 +27,11 @@ import java.util.stream.Collectors;
 
 /**
  * Helper class with methods to create deep copies of
- * <p>
  * <ul>
  * <li>{@link io.adminshell.aas.v3.model.Identifiable}
  * <li>{@link io.adminshell.aas.v3.model.Referable}
  * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
  * </ul>
- * <p>
  */
 public class DeepCopyHelper {
 

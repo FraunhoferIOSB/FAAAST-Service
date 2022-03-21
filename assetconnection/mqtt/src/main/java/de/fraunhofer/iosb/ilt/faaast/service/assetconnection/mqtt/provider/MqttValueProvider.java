@@ -50,7 +50,7 @@ public class MqttValueProvider implements AssetValueProvider {
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws UnsupportedOperationException as this operation is not supported
      */

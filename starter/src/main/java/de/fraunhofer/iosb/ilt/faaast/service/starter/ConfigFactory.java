@@ -61,7 +61,7 @@ public class ConfigFactory {
      * Get the default {@link de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig}
      *
      * @return the default Service Configuration
-     * @throws Exception
+     * @throws Exception if fails
      */
     public ServiceConfig getDefaultServiceConfig() throws Exception {
         return getDefaultServiceConfig(new HashMap<>());
@@ -73,7 +73,7 @@ public class ConfigFactory {
      *
      * @param properties the adjustments for the default configuration file.
      * @return the adjusted default configuration
-     * @throws Exception
+     * @throws Exception if fails
      */
     public ServiceConfig getDefaultServiceConfig(Map<String, Object> properties) throws Exception {
         if (properties == null) {
@@ -91,9 +91,9 @@ public class ConfigFactory {
     /**
      * Parses a given file to a {@link de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig} object
      *
-     * @param configFile
+     * @param configFile config file
      * @return the parsed ServiceConfig object
-     * @throws Exception
+     * @throws Exception if fails
      */
     public ServiceConfig toServiceConfig(File configFile) throws Exception {
         return toServiceConfig(Files.readString(configFile.toPath()));
@@ -103,9 +103,9 @@ public class ConfigFactory {
     /**
      * Parses a given file path to a {@link de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig} object
      *
-     * @param pathToConfigFile
+     * @param pathToConfigFile path to config file
      * @return the parsed ServiceConfig object
-     * @throws Exception
+     * @throws Exception if fails
      */
     public ServiceConfig toServiceConfig(String pathToConfigFile) throws Exception {
         return toServiceConfig(pathToConfigFile, true, new HashMap<>(), null);
@@ -116,13 +116,13 @@ public class ConfigFactory {
      * Parses a given file path to a {@link de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig} object.
      * Adjust it with the given properties.
      *
-     * @param pathToConfigFile
+     * @param pathToConfigFile path to config file
      * @param autoCompleteConfiguration if yes then missing components in the given config file are added
      *            with default values
      * @param commandLineProperties the adjustments for the default configuration file.
      * @param customConfigs list of custom configuration which should be applied
      * @return the parsed ServiceConfig object
-     * @throws Exception
+     * @throws Exception if fails
      */
     public ServiceConfig toServiceConfig(String pathToConfigFile,
                                          boolean autoCompleteConfiguration,

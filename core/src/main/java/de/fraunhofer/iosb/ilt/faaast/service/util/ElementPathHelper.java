@@ -29,12 +29,10 @@ import java.util.stream.Stream;
 
 /**
  * Helper class with methods to read/write element paths from/to
- * <p>
  * <ul>
  * <li>{@link io.adminshell.aas.v3.model.Reference}
  * <li>{@link io.adminshell.aas.v3.model.Key}
  * </ul>
- * <p>
  */
 public class ElementPathHelper {
 

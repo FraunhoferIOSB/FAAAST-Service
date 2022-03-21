@@ -102,7 +102,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
      * @param reference of the element
      * @param referable the instance
      * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException
+     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
      */
     public void publishElementCreateEventMessage(Reference reference, Referable referable) throws MessageBusException {
         ElementCreateEventMessage eventMessage = new ElementCreateEventMessage();
@@ -118,7 +118,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
      * @param reference of the element
      * @param referable the instance
      * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException
+     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
      */
     protected void publishElementReadEventMessage(Reference reference, Referable referable) throws MessageBusException {
         ElementReadEventMessage eventMessage = new ElementReadEventMessage();
@@ -134,7 +134,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
      * @param reference of the element
      * @param referable the instance
      * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException
+     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
      */
     protected void publishElementUpdateEventMessage(Reference reference, Referable referable) throws MessageBusException {
         ElementUpdateEventMessage eventMessage = new ElementUpdateEventMessage();
@@ -150,7 +150,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
      * @param reference of the element
      * @param referable the instance
      * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException
+     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
      */
     protected void publishElementDeleteEventMessage(Reference reference, Referable referable) throws MessageBusException {
         ElementDeleteEventMessage eventMessage = new ElementDeleteEventMessage();
@@ -167,7 +167,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
      * @param oldValue the value of the element before the change
      * @param newValue the new value of the element
      * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException
+     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
      */
     protected void publishValueChangeEventMessage(Reference reference, ElementValue oldValue, ElementValue newValue) throws MessageBusException {
         ValueChangeEventMessage eventMessage = new ValueChangeEventMessage();
@@ -185,7 +185,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
      * @param input of the operation
      * @param inoutput of the operation
      * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException
+     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
      */
     protected void publishOperationInvokeEventMessage(Reference reference, List<ElementValue> input, List<ElementValue> inoutput) throws MessageBusException {
         OperationInvokeEventMessage eventMessage = new OperationInvokeEventMessage();
@@ -203,7 +203,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
      * @param output of the operation
      * @param inoutput of the operation
      * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException
+     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
      */
     protected void publishOperationFinishEventMessage(Reference reference, List<ElementValue> output, List<ElementValue> inoutput) throws MessageBusException {
         OperationFinishEventMessage eventMessage = new OperationFinishEventMessage();
@@ -255,7 +255,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
 
     /**
      * Check for each SubmodelElement if there is an AssetConnection.If yes read
-     * the value from it and compare it to the current value. If they differ
+     * the value from it and compare it to the current value.If they differ
      * from each other update the submodelelement with the value from the
      * AssetConnection.
      *
@@ -269,6 +269,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
      * @throws
      * de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException
      *             if mapping value read from asset connection fails
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
      */
     protected void readValueFromAssetConnectionAndUpdatePersistence(Reference parentReference, List<SubmodelElement> submodelElements)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {

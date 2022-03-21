@@ -269,7 +269,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws AssetConnectionException if nodeId could not be parsed
      * @throws AssetConnectionException if nodeId does not refer to a method
@@ -498,7 +498,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws AssetConnectionException if reference does not point to a
      *             {@link io.adminshell.aas.v3.model.Property}
@@ -605,7 +605,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws AssetConnectionException if reference does not point to a
      *             {@link io.adminshell.aas.v3.model.Property}

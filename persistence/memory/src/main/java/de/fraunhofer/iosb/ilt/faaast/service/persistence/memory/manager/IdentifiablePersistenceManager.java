@@ -39,33 +39,29 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Class to handle {@link io.adminshell.aas.v3.model.Identifiable}
  * Following identifiables are supported:
- * <p>
  * <ul>
  * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
  * <li>{@link io.adminshell.aas.v3.model.Submodel}
  * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
  * <li>{@link io.adminshell.aas.v3.model.Asset}
  * </ul>
- * <p>
  */
 public class IdentifiablePersistenceManager extends PersistenceManager {
 
     /**
      * Get an identifiable by its identifier
      * Following identifiables are supported:
-     * <p>
      * <ul>
      * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
      * <li>{@link io.adminshell.aas.v3.model.Submodel}
      * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
      * <li>{@link io.adminshell.aas.v3.model.Asset}
      * </ul>
-     * <p>
      *
      * @param id of the Identifiable
      * @param <T> type of the Identifiable
      * @return the Identifiable
-     * @throws ResourceNotFoundException
+     * @throws ResourceNotFoundException if resource is not found
      */
     public <T extends Identifiable> T getIdentifiableById(Identifier id) throws ResourceNotFoundException {
         if (id == null || this.aasEnvironment == null) {
@@ -88,12 +84,10 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
     /**
      * Get a list of asset administration shells by idShort or by a list of assetIds.
      * The assetIds could contain two types
-     * <p>
      * <ul>
      * <li>{@link de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification}
      * <li>{@link de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification}
      * </ul>
-     * <p>
      * If both parameters are null all asset administration shells will be returned.
      *
      * @param idShort of the searched asset administration shells
@@ -225,15 +219,13 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
     /**
      * Remove an identifiable by its identifier.
      * Following identifiables are supported:
-     * <p>
      * <ul>
      * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
      * <li>{@link io.adminshell.aas.v3.model.Submodel}
      * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
      * <li>{@link io.adminshell.aas.v3.model.Asset}
      * </ul>
-     * <p>
-     *
+     * 
      * @param id of the indetifiable which should be removed
      * @throws ResourceNotFoundException if there is no identifiable with such an identifer
      */
@@ -278,15 +270,13 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
     /**
      * Create or Update an identifiable
      * Following identifiables are supported:
-     * <p>
      * <ul>
      * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
      * <li>{@link io.adminshell.aas.v3.model.Submodel}
      * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
      * <li>{@link io.adminshell.aas.v3.model.Asset}
      * </ul>
-     * <p>
-     *
+     * 
      * @param identifiable which should be added or updated
      * @return the added or updated identifiable
      */
