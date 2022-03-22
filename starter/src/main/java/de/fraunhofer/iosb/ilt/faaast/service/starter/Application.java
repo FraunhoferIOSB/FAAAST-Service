@@ -243,6 +243,7 @@ public class Application implements Runnable {
         ValidationReport report = shaclValidator.validateGetReport(aasEnv);
         if (report.conforms()) {
             LOGGER.info("Valid Asset Administration Shell Environment model");
+            return;
         }
         ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
         ShLib.printReport(validationResultStream, report);
