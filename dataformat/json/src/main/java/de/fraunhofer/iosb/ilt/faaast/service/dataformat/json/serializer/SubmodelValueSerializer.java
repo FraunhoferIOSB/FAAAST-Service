@@ -59,7 +59,7 @@ public class SubmodelValueSerializer extends StdSerializer<Submodel> {
                 }
             }
             else {
-                LOGGER.trace("skipping element for value serialization as it is not supported (idShort: {}, entity type: {}",
+                LOGGER.trace("skipping element for value serialization as it is not supported (idShort: {}, entity type: {})",
                         element.getIdShort(),
                         ReflectionHelper.getModelType(element.getClass()));
             }

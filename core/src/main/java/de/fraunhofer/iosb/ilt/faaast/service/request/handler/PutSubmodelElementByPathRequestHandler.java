@@ -65,7 +65,7 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
                 .build());
         SubmodelElement newSubmodelElement = request.getSubmodelElement();
 
-        if (ElementValueHelper.isValueOnlySupported(currentSubmodelElement.getClass())) {
+        if (ElementValueHelper.isSerializableAsValue(currentSubmodelElement.getClass())) {
             ElementValue oldValue = ElementValueMapper.toValue(currentSubmodelElement);
             ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
             if (!Objects.equals(oldValue, newValue)) {

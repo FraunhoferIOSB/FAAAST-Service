@@ -55,7 +55,7 @@ public class PostSubmodelElementByPathRequestHandler extends RequestHandler<Post
         response.setPayload(submodelElement);
         response.setStatusCode(StatusCode.SUCCESS_CREATED);
 
-        if (ElementValueHelper.isValueOnlySupported(submodelElement.getClass())) {
+        if (ElementValueHelper.isSerializableAsValue(submodelElement.getClass())) {
             writeValueToAssetConnection(childReference, ElementValueMapper.toValue(submodelElement));
         }
         publishElementCreateEventMessage(parentReference, submodelElement);

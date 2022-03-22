@@ -47,7 +47,8 @@ public class ReferenceElementValueSerializer extends StdSerializer<ReferenceElem
     public void serialize(ReferenceElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
         if (value != null) {
             if (value.getKeys() == null) {
-                generator.writeArray(new String[0], 0, 0);
+                generator.writeStartArray();
+                generator.writeEndArray();
             }
             else if (value.getKeys().stream().allMatch(x -> x.getType() == KeyElements.GLOBAL_REFERENCE)) {
                 // global reference

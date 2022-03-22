@@ -26,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelElementByP
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
@@ -55,11 +54,10 @@ public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSu
         GetSubmodelElementByPathResponse response = new GetSubmodelElementByPathResponse();
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
         SubmodelElement submodelElement = persistence.get(reference, request.getOutputModifier());
-        if (ElementValueHelper.isValueOnlySupported(submodelElement.getClass())) {
+        ElementValue valueFromAssetConnection = readDataElementValueFromAssetConnection(reference);
+        if (valueFromAssetConnection != null) {
             ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
-            ElementValue valueFromAssetConnection = readDataElementValueFromAssetConnection(reference);
-            if (valueFromAssetConnection != null
-                    && !Objects.equals(valueFromAssetConnection, oldValue)) {
+            if (!Objects.equals(valueFromAssetConnection, oldValue)) {
                 submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection);
                 persistence.put(null, reference, submodelElement);
                 publishValueChangeEventMessage(reference, oldValue, valueFromAssetConnection);
