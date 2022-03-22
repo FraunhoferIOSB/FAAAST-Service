@@ -34,6 +34,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
@@ -64,6 +66,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -563,15 +566,13 @@ public class HttpEndpointIT {
         String finalUrl = url;
         setUpEventCheck(expected, ElementReadEventMessage.class, () -> getCall(finalUrl));
 
-        //TODO: Fix value serialization of DefaultOperation
-        /*
-         * url = HTTP_SUBMODELS + "/" + identifier + "/submodel?content=value";
-         * response = getCall(url);
-         * Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-         * Assert.assertEquals(new JsonSerializer().write(expected, new
-         * OutputModifier.Builder().content(Content.Value).build()),
-         * EntityUtils.toString(response.getEntity()));
-         */
+        url = HTTP_SUBMODELS + "/" + identifier + "/submodel?content=value";
+        response = getCall(url);
+        Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(new JsonSerializer().write(expected,
+                new OutputModifier.Builder().content(Content.VALUE).build()),
+                EntityUtils.toString(response.getEntity()));
+
     }
 
 
