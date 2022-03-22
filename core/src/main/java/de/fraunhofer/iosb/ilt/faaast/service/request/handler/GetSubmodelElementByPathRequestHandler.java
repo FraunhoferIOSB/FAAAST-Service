@@ -54,13 +54,14 @@ public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSu
         GetSubmodelElementByPathResponse response = new GetSubmodelElementByPathResponse();
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
         SubmodelElement submodelElement = persistence.get(reference, request.getOutputModifier());
-        ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
         ElementValue valueFromAssetConnection = readDataElementValueFromAssetConnection(reference);
-        if (valueFromAssetConnection != null
-                && !Objects.equals(valueFromAssetConnection, oldValue)) {
-            submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection);
-            persistence.put(null, reference, submodelElement);
-            publishValueChangeEventMessage(reference, oldValue, valueFromAssetConnection);
+        if (valueFromAssetConnection != null) {
+            ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
+            if (!Objects.equals(valueFromAssetConnection, oldValue)) {
+                submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection);
+                persistence.put(null, reference, submodelElement);
+                publishValueChangeEventMessage(reference, oldValue, valueFromAssetConnection);
+            }
         }
         response.setPayload(submodelElement);
         response.setStatusCode(StatusCode.SUCCESS);

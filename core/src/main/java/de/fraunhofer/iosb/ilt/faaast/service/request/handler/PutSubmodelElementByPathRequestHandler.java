@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelElementByP
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
@@ -64,14 +65,17 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
                 .build());
         SubmodelElement newSubmodelElement = request.getSubmodelElement();
 
-        ElementValue oldValue = ElementValueMapper.toValue(currentSubmodelElement);
-        ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
+        if (ElementValueHelper.isSerializableAsValue(currentSubmodelElement.getClass())) {
+            ElementValue oldValue = ElementValueMapper.toValue(currentSubmodelElement);
+            ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
+            if (!Objects.equals(oldValue, newValue)) {
+                writeValueToAssetConnection(reference, ElementValueMapper.toValue(newSubmodelElement));
+                publishValueChangeEventMessage(reference, oldValue, newValue);
+            }
+        }
         currentSubmodelElement = persistence.put(null, reference, newSubmodelElement);
         response.setPayload(currentSubmodelElement);
         response.setStatusCode(StatusCode.SUCCESS);
-        if (!Objects.equals(oldValue, newValue)) {
-            writeValueToAssetConnection(reference, ElementValueMapper.toValue(currentSubmodelElement));
-        }
         publishElementUpdateEventMessage(reference, currentSubmodelElement);
         return response;
     }
