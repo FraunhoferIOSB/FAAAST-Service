@@ -279,45 +279,45 @@ public class ValueConverter {
         AASValueTypeDataType retval;
 
         switch (type) {
-            case Double:
+            case DOUBLE:
                 retval = AASValueTypeDataType.Double;
                 break;
 
-            case Int:
+            case INT:
                 retval = AASValueTypeDataType.Int32;
                 break;
 
-            case String:
+            case STRING:
                 retval = AASValueTypeDataType.String;
                 break;
 
-            case Boolean:
+            case BOOLEAN:
                 retval = AASValueTypeDataType.Boolean;
                 break;
 
-            case Byte:
+            case BYTE:
                 retval = AASValueTypeDataType.SByte;
                 break;
 
-            case Decimal:
+            case DECIMAL:
                 LOGGER.warn("datatypeToValueType: Decimal not supported!");
                 retval = AASValueTypeDataType.Int64;
                 break;
 
-            case Float:
+            case FLOAT:
                 retval = AASValueTypeDataType.Float;
                 break;
 
-            case Integer:
+            case INTEGER:
                 LOGGER.warn("datatypeToValueType: Integer not supported - map to Long!");
                 retval = AASValueTypeDataType.Int64;
                 break;
 
-            case Long:
+            case LONG:
                 retval = AASValueTypeDataType.Int64;
                 break;
 
-            case Short:
+            case SHORT:
                 retval = AASValueTypeDataType.Int16;
                 break;
 

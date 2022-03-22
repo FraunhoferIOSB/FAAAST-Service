@@ -242,7 +242,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             request.setId(submodel.getIdentification());
             request.setPath(path);
             request.setInputArguments(inputVariables);
-            request.setContent(Content.Normal);
+            request.setContent(Content.NORMAL);
 
             requestCounter++;
             request.setRequestId(Integer.toString(requestCounter));
@@ -252,7 +252,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             if (isSuccess(response.getStatusCode())) {
                 LOGGER.info("callOperation: Operation " + operation.getIdShort() + " executed successfully");
             }
-            else if (response.getStatusCode() == StatusCode.ClientMethodNotAllowed) {
+            else if (response.getStatusCode() == StatusCode.CLIENT_METHOD_NOT_ALLOWED) {
                 LOGGER.warn("callOperation: Operation " + operation.getIdShort() + " error executing operation: " + response.getStatusCode());
                 throw new StatusException(StatusCodes.Bad_NotExecutable);
             }
@@ -280,7 +280,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      */
     private static boolean isSuccess(StatusCode code) {
         boolean retval = false;
-        if ((code == StatusCode.Success) || (code == StatusCode.SuccessCreated) || (code == StatusCode.SuccessNoContent)) {
+        if ((code == StatusCode.SUCCESS) || (code == StatusCode.SUCCESS_CREATED) || (code == StatusCode.SUCCESS_NO_CONTENT)) {
             retval = true;
         }
 
