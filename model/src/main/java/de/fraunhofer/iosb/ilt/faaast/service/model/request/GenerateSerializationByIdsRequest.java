@@ -28,6 +28,7 @@ import java.util.Objects;
  * Chapter 4.4.2
  */
 public class GenerateSerializationByIdsRequest extends BaseRequest<GenerateSerializationByIdsResponse> {
+
     private List<Identifier> aasIds;
     private List<Identifier> submodelIds;
     private boolean includeConceptDescriptions;
@@ -83,10 +84,12 @@ public class GenerateSerializationByIdsRequest extends BaseRequest<GenerateSeria
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         GenerateSerializationByIdsRequest that = (GenerateSerializationByIdsRequest) o;
         return Objects.equals(includeConceptDescriptions, that.includeConceptDescriptions)
                 && Objects.equals(aasIds, that.aasIds)
@@ -106,6 +109,7 @@ public class GenerateSerializationByIdsRequest extends BaseRequest<GenerateSeria
     }
 
     public abstract static class AbstractBuilder<T extends GenerateSerializationByIdsRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B aasIds(List<Identifier> value) {
             getBuildingInstance().setAasIds(value);
             return getSelf();

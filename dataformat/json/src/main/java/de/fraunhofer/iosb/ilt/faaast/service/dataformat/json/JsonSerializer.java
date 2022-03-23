@@ -15,19 +15,19 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.Serializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EnumSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.ModifierAwareSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import io.adminshell.aas.v3.dataformat.json.modeltype.ModelTypeProcessor;
 import java.util.List;
-import java.util.function.Consumer;
 
 
 /**
@@ -42,14 +42,20 @@ public class JsonSerializer implements Serializer {
     private final SerializerWrapper wrapper;
 
     public JsonSerializer() {
-        this.wrapper = new SerializerWrapper();
+        this.wrapper = new SerializerWrapper(this::modifyMapper);
         this.valueOnlySerializer = new ValueOnlyJsonSerializer();
     }
 
 
-    public JsonSerializer(Consumer<JsonMapper> modifier) {
-        this.wrapper = new SerializerWrapper(modifier);
-        this.valueOnlySerializer = new ValueOnlyJsonSerializer();
+    /**
+     * Modifies Jackson JsonMapper
+     *
+     * @param mapper mapper to modify
+     */
+    protected void modifyMapper(JsonMapper mapper) {
+        SimpleModule module = new SimpleModule();
+        ReflectionHelper.ENUMS.forEach(x -> module.addSerializer(x, new EnumSerializer()));
+        mapper.registerModule(module);
     }
 
 
@@ -60,15 +66,6 @@ public class JsonSerializer implements Serializer {
         }
         if (obj != null && ElementValue.class.isAssignableFrom(obj.getClass())) {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());
-        }
-        if (obj != null && Result.class.isAssignableFrom(obj.getClass())) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                return mapper.writeValueAsString(obj);
-            }
-            catch (JsonProcessingException e) {
-                throw new SerializationException("serialization failed", e);
-            }
         }
         try {
             JsonMapper mapper = wrapper.getMapper();

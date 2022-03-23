@@ -24,6 +24,7 @@ import java.util.Objects;
  * Chapter 7.2.5
  */
 public class DeleteAllAssetLinksByIdRequest extends BaseRequest<DeleteAllAssetLinksByIdResponse> {
+
     private String aasIdentifier;
 
     public String getAasIdentifier() {
@@ -38,10 +39,12 @@ public class DeleteAllAssetLinksByIdRequest extends BaseRequest<DeleteAllAssetLi
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         DeleteAllAssetLinksByIdRequest that = (DeleteAllAssetLinksByIdRequest) o;
         return Objects.equals(aasIdentifier, that.aasIdentifier);
     }
@@ -58,6 +61,7 @@ public class DeleteAllAssetLinksByIdRequest extends BaseRequest<DeleteAllAssetLi
     }
 
     public abstract static class AbstractBuilder<T extends DeleteAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B aasIdentifier(String value) {
             getBuildingInstance().setAasIdentifier(value);
             return getSelf();

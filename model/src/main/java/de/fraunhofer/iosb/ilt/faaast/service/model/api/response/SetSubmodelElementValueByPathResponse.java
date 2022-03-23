@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponse;
  * Chapter 4.3.9
  */
 public class SetSubmodelElementValueByPathResponse extends BaseResponse {
+
     public static SetSubmodelElementValueByPathResponse.Builder builder() {
         return new SetSubmodelElementValueByPathResponse.Builder();
     }

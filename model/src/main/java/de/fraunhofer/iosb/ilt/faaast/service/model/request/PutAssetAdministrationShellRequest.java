@@ -26,6 +26,7 @@ import java.util.Objects;
  * Chapter 4.2.3
  */
 public class PutAssetAdministrationShellRequest extends BaseRequest<PutAssetAdministrationShellResponse> {
+
     private Identifier id;
     private AssetAdministrationShell aas;
 
@@ -51,10 +52,12 @@ public class PutAssetAdministrationShellRequest extends BaseRequest<PutAssetAdmi
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PutAssetAdministrationShellRequest that = (PutAssetAdministrationShellRequest) o;
         return Objects.equals(aas, that.aas);
     }
@@ -71,6 +74,7 @@ public class PutAssetAdministrationShellRequest extends BaseRequest<PutAssetAdmi
     }
 
     public abstract static class AbstractBuilder<T extends PutAssetAdministrationShellRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();

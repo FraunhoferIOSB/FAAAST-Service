@@ -25,6 +25,7 @@ import java.util.Objects;
  * Chapter 6.3.6
  */
 public class PostSubmodelRequest extends BaseRequest<PostSubmodelResponse> {
+
     private Submodel submodel;
 
     public Submodel getSubmodel() {
@@ -39,10 +40,12 @@ public class PostSubmodelRequest extends BaseRequest<PostSubmodelResponse> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PostSubmodelRequest that = (PostSubmodelRequest) o;
         return Objects.equals(submodel, that.submodel);
     }
@@ -59,6 +62,7 @@ public class PostSubmodelRequest extends BaseRequest<PostSubmodelResponse> {
     }
 
     public abstract static class AbstractBuilder<T extends PostSubmodelRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B submodel(Submodel value) {
             getBuildingInstance().setSubmodel(value);
             return getSelf();

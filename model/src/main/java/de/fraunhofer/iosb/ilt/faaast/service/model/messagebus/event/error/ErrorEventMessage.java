@@ -69,12 +69,15 @@ public class ErrorEventMessage extends EventMessage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-        if (!super.equals(o))
+        }
+        if (!super.equals(o)) {
             return false;
+        }
         ErrorEventMessage that = (ErrorEventMessage) o;
         return Objects.equals(exception, that.exception)
                 && Objects.equals(throwingSource, that.throwingSource)

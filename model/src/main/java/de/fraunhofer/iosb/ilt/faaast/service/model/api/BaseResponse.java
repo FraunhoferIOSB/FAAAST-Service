@@ -56,17 +56,20 @@ public abstract class BaseResponse implements Response {
     @Override
     public void setStatusCode(StatusCode statusCode) {
         this.statusCode = statusCode;
-        if (statusCode.isSuccess(statusCode))
+        if (statusCode.isSuccess(statusCode)) {
             this.result.setSuccess(true);
+        }
     }
 
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         BaseResponse that = (BaseResponse) o;
         return statusCode == that.statusCode && Objects.equals(result, that.result);
     }
