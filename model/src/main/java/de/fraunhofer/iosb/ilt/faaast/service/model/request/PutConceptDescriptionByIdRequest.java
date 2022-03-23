@@ -26,6 +26,7 @@ import java.util.Objects;
  * Chapter 6.4.8
  */
 public class PutConceptDescriptionByIdRequest extends BaseRequest<PutConceptDescriptionByIdResponse> {
+
     private Identifier id;
     private ConceptDescription conceptDescription;
 
@@ -51,10 +52,12 @@ public class PutConceptDescriptionByIdRequest extends BaseRequest<PutConceptDesc
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PutConceptDescriptionByIdRequest that = (PutConceptDescriptionByIdRequest) o;
         return Objects.equals(id, that.id)
                 && Objects.equals(conceptDescription, that.conceptDescription);
@@ -72,6 +75,7 @@ public class PutConceptDescriptionByIdRequest extends BaseRequest<PutConceptDesc
     }
 
     public abstract static class AbstractBuilder<T extends PutConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();

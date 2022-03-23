@@ -25,6 +25,7 @@ import java.util.Objects;
  * Chapter 6.2.8
  */
 public class DeleteAssetAdministrationShellByIdRequest extends BaseRequest<DeleteAssetAdministrationShellByIdResponse> {
+
     private Identifier id;
 
     public Identifier getId() {
@@ -39,10 +40,12 @@ public class DeleteAssetAdministrationShellByIdRequest extends BaseRequest<Delet
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         DeleteAssetAdministrationShellByIdRequest that = (DeleteAssetAdministrationShellByIdRequest) o;
         return Objects.equals(id, that.id);
     }
@@ -59,6 +62,7 @@ public class DeleteAssetAdministrationShellByIdRequest extends BaseRequest<Delet
     }
 
     public abstract static class AbstractBuilder<T extends DeleteAssetAdministrationShellByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();

@@ -26,6 +26,7 @@ import java.util.Objects;
  * Chapter 4.2.8
  */
 public class PutAssetInformationRequest extends BaseRequest<PutAssetInformationResponse> {
+
     private Identifier id;
     private AssetInformation assetInfo;
 
@@ -51,10 +52,12 @@ public class PutAssetInformationRequest extends BaseRequest<PutAssetInformationR
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PutAssetInformationRequest that = (PutAssetInformationRequest) o;
         return Objects.equals(assetInfo, that.assetInfo);
     }
@@ -71,6 +74,7 @@ public class PutAssetInformationRequest extends BaseRequest<PutAssetInformationR
     }
 
     public abstract static class AbstractBuilder<T extends PutAssetInformationRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B assetInformation(AssetInformation value) {
             getBuildingInstance().setAssetInformation(value);
             return getSelf();

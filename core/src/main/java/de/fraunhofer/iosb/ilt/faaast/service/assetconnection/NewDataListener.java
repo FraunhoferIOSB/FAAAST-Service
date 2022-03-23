@@ -24,7 +24,7 @@ public interface NewDataListener {
 
     /**
      * Notifies when new data has been received.
-     * 
+     *
      * @param data the new data
      */
     public void newDataReceived(DataElementValue data);

@@ -23,6 +23,7 @@ import org.junit.Test;
 
 
 public class IdentifierTest {
+
     private void testIRI(String value) {
         IdentifierType actual = IdentifierHelper.guessIdentifierType(value);
         Assert.assertEquals(IdentifierType.IRI, actual);

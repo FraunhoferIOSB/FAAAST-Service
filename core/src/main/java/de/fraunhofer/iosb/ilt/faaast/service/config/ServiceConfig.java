@@ -36,7 +36,7 @@ public class ServiceConfig {
 
     /**
      * Returns a new builder for this class.
-     * 
+     *
      * @return a new builder for this class
      */
     public static Builder builder() {
@@ -77,7 +77,7 @@ public class ServiceConfig {
 
     /**
      * Gets the configured asset connections.
-     * 
+     *
      * @return the configured asset connections
      */
     public List<AssetConnectionConfig> getAssetConnections() {
@@ -87,7 +87,7 @@ public class ServiceConfig {
 
     /**
      * Sets the asset connections.
-     * 
+     *
      * @param assetConnections the asset connections to set
      */
     public void setAssetConnections(List<AssetConnectionConfig> assetConnections) {
@@ -97,7 +97,7 @@ public class ServiceConfig {
 
     /**
      * Gets the core configuration.
-     * 
+     *
      * @return the core configuration
      */
     public CoreConfig getCore() {
@@ -107,7 +107,7 @@ public class ServiceConfig {
 
     /**
      * Sets the core configuration.
-     * 
+     *
      * @param core the core configuration to set
      */
     public void setCore(CoreConfig core) {
@@ -117,7 +117,7 @@ public class ServiceConfig {
 
     /**
      * Gets the configured endpoints.
-     * 
+     *
      * @return the configured endpoints
      */
     public List<EndpointConfig> getEndpoints() {
@@ -127,7 +127,7 @@ public class ServiceConfig {
 
     /**
      * Sets the endpoints.
-     * 
+     *
      * @param endpoints the endpoints to set
      */
     public void setEndpoints(List<EndpointConfig> endpoints) {
@@ -137,7 +137,7 @@ public class ServiceConfig {
 
     /**
      * Gets the persistence configuration
-     * 
+     *
      * @return the persistence configuration
      */
     public PersistenceConfig getPersistence() {
@@ -147,7 +147,7 @@ public class ServiceConfig {
 
     /**
      * Sets the persistence.
-     * 
+     *
      * @param persistence the persistence to set
      */
     public void setPersistence(PersistenceConfig persistence) {
@@ -184,7 +184,7 @@ public class ServiceConfig {
 
         /**
          * Sets the core config.
-         * 
+         *
          * @param value the core config
          * @return the builder
          */
@@ -196,7 +196,7 @@ public class ServiceConfig {
 
         /**
          * Sets the persistence config.
-         * 
+         *
          * @param value the persistence config
          * @return the builder
          */
@@ -208,7 +208,7 @@ public class ServiceConfig {
 
         /**
          * Sets the messageBus config.
-         * 
+         *
          * @param value the messageBus config
          * @return the builder
          */
@@ -220,7 +220,7 @@ public class ServiceConfig {
 
         /**
          * Sets the asset connections.
-         * 
+         *
          * @param value the asset connections
          * @return the builder
          */
@@ -232,7 +232,7 @@ public class ServiceConfig {
 
         /**
          * Adds an asset connection to the current list of asset connections.
-         * 
+         *
          * @param value the asset connection to add
          * @return the builder
          */
@@ -244,7 +244,7 @@ public class ServiceConfig {
 
         /**
          * Sets the endpoints.
-         * 
+         *
          * @param value the endpoints
          * @return the builder
          */
@@ -256,7 +256,7 @@ public class ServiceConfig {
 
         /**
          * Adds an endpoint to the current list of endpoints.
-         * 
+         *
          * @param value the endpoint to add
          * @return the builder
          */
@@ -268,7 +268,7 @@ public class ServiceConfig {
 
         /**
          * Builds a new instance of ServiceConfig as defined by the builder.
-         * 
+         *
          * @return a new instance of ServiceConfig as defined by the builder
          */
         public ServiceConfig build() {

@@ -27,6 +27,7 @@ import java.util.Objects;
  * Chapter 7.2.2
  */
 public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends BaseRequest<GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
+
     private List<IdentifierKeyValuePair> assetIdentifierPairs;
 
     public GetAllAssetAdministrationShellIdsByAssetLinkRequest() {
@@ -46,10 +47,12 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends BaseReq
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         GetAllAssetAdministrationShellIdsByAssetLinkRequest that = (GetAllAssetAdministrationShellIdsByAssetLinkRequest) o;
         return Objects.equals(assetIdentifierPairs, that.assetIdentifierPairs);
     }
@@ -66,6 +69,7 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequest extends BaseReq
     }
 
     public abstract static class AbstractBuilder<T extends GetAllAssetAdministrationShellIdsByAssetLinkRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B assetIdentifierPair(IdentifierKeyValuePair value) {
             getBuildingInstance().getAssetIdentifierPairs().add(value);
             return getSelf();

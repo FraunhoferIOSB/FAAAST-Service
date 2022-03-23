@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponse;
  * Chapter 4.5.6
  */
 public class DeleteAASXPackageByIdResponse extends BaseResponse {
+
     public static DeleteAASXPackageByIdResponse.Builder builder() {
         return new DeleteAASXPackageByIdResponse.Builder();
     }

@@ -28,6 +28,7 @@ import java.util.Objects;
  * Chapter 4.5.4
  */
 public class PostAASXPackageRequest extends BaseRequest<PostAASXPackageResponse> {
+
     private List<Identifier> aasIds;
     private AASXPackageBase file;
     private String filename;
@@ -69,10 +70,12 @@ public class PostAASXPackageRequest extends BaseRequest<PostAASXPackageResponse>
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PostAASXPackageRequest that = (PostAASXPackageRequest) o;
         return Objects.equals(aasIds, that.aasIds)
                 && Objects.equals(file, that.file)
@@ -91,6 +94,7 @@ public class PostAASXPackageRequest extends BaseRequest<PostAASXPackageResponse>
     }
 
     public abstract static class AbstractBuilder<T extends PostAASXPackageRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B aasId(Identifier value) {
             getBuildingInstance().getAasIds().add(value);
             return getSelf();

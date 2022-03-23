@@ -25,6 +25,7 @@ import java.util.Objects;
  * Chapter 6.2.6
  */
 public class PostAssetAdministrationShellRequest extends BaseRequest<PostAssetAdministrationShellResponse> {
+
     private AssetAdministrationShell aas;
 
     public AssetAdministrationShell getAas() {
@@ -39,10 +40,12 @@ public class PostAssetAdministrationShellRequest extends BaseRequest<PostAssetAd
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PostAssetAdministrationShellRequest that = (PostAssetAdministrationShellRequest) o;
         return Objects.equals(aas, that.aas);
     }
@@ -59,6 +62,7 @@ public class PostAssetAdministrationShellRequest extends BaseRequest<PostAssetAd
     }
 
     public abstract static class AbstractBuilder<T extends PostAssetAdministrationShellRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B aas(AssetAdministrationShell value) {
             getBuildingInstance().setAas(value);
             return getSelf();
