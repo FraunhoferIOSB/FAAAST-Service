@@ -189,7 +189,7 @@ The basic structure of a configuration is the following
 	"messageBus" : {
 		// message bus configuration
 	},
-	"assetConnection": [
+	"assetConnections": [
 		// asset connection configurations, multiple allowed
 	]
 }
