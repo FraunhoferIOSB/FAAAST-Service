@@ -47,13 +47,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tino Bischoff
  */
+@SuppressWarnings("java:S2139")
 public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint.class);
 
     private ServiceContext service;
     private AssetAdministrationShellEnvironment aasEnvironment;
-    private MessageBus messageBus;
+    private MessageBus<?> messageBus;
     private OpcUaEndpointConfig currentConfig;
     private Server server;
     private int requestCounter;
@@ -74,7 +75,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      *
      * @return The MessageBus
      */
-    public MessageBus getMessageBus() {
+    @SuppressWarnings("java:S1452")
+    public MessageBus<?> getMessageBus() {
         return messageBus;
     }
 
@@ -139,7 +141,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
         try {
             if (server != null) {
-                LOGGER.info("stop server. Currently running: " + server.isRunning());
+                LOGGER.info("stop server. Currently running: {}", server.isRunning());
                 server.shutdown(currentConfig.getSecondsTillShutdown());
             }
         }
@@ -191,7 +193,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
                 MultiLanguageProperty mlp = (MultiLanguageProperty) element;
                 if ((mlp.getValues() != null) && (mlp.getValues().size() > 1)) {
                     for (int i = 0; i < mlp.getValues().size(); i++) {
-                        LOGGER.info("writeValue: MLP " + i + ": " + mlp.getValues().get(i).getValue());
+                        LOGGER.info("writeValue: MLP {}: {}", i, mlp.getValues().get(i).getValue());
                     }
                 }
             }
@@ -202,13 +204,13 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
                 MultiLanguagePropertyValue mlpv = (MultiLanguagePropertyValue) request.getRawValue();
                 if ((mlpv.getLangStringSet() != null) && (mlpv.getLangStringSet().size() > 1)) {
                     for (int i = 0; i < mlpv.getLangStringSet().size(); i++) {
-                        LOGGER.info("writeValue: MLPV " + i + ": " + mlpv.getLangStringSet().toArray()[i]);
+                        LOGGER.info("writeValue: MLPV {}: {}", i, mlpv.getLangStringSet().toArray()[i]);
                     }
                 }
             }
 
             Response response = service.execute(request);
-            LOGGER.info("writeValue: Submodel " + submodel.getIdentification().getIdentifier() + "; Element " + element.getIdShort() + "; Status: " + response.getStatusCode());
+            LOGGER.info("writeValue: Submodel {}; Element {}; Status: {}", submodel.getIdentification().getIdentifier(), element.getIdShort(), response.getStatusCode());
             if (isSuccess(response.getStatusCode())) {
                 retval = true;
             }
@@ -250,14 +252,14 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             // execute method
             InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
             if (isSuccess(response.getStatusCode())) {
-                LOGGER.info("callOperation: Operation " + operation.getIdShort() + " executed successfully");
+                LOGGER.info("callOperation: Operation {} executed successfully", operation.getIdShort());
             }
             else if (response.getStatusCode() == StatusCode.CLIENT_METHOD_NOT_ALLOWED) {
-                LOGGER.warn("callOperation: Operation " + operation.getIdShort() + " error executing operation: " + response.getStatusCode());
+                LOGGER.warn("callOperation: Operation {} error executing operation: {}", operation.getIdShort(), response.getStatusCode());
                 throw new StatusException(StatusCodes.Bad_NotExecutable);
             }
             else {
-                LOGGER.warn("callOperation: Operation " + operation.getIdShort() + " error executing operation: " + response.getStatusCode());
+                LOGGER.warn("callOperation: Operation {} error executing operation: {}", operation.getIdShort(), response.getStatusCode());
                 throw new StatusException(StatusCodes.Bad_UnexpectedError);
             }
 

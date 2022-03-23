@@ -28,12 +28,6 @@ public class OpcUaElementValueParser implements ElementValueParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaElementValueParser.class);
 
     /**
-     * Creates a new instance of OpcUaElementValueParser
-     */
-    public OpcUaElementValueParser() {}
-
-
-    /**
      * Parse the given raw value.
      * Here the raw value is already an ElementValue
      * 
@@ -48,19 +42,13 @@ public class OpcUaElementValueParser implements ElementValueParser {
         }
 
         ElementValue retval = null;
-        try {
-            if (raw instanceof ElementValue) {
-                retval = (ElementValue) raw;
-            }
-            else {
-                LOGGER.warn("parse: invalid raw value");
-                throw new IllegalArgumentException("raw not an ElementValue");
-            }
+
+        if (raw instanceof ElementValue) {
+            retval = (ElementValue) raw;
         }
-        catch (Exception e) {
-            // TODO don't log and rethrow!
-            LOGGER.error("parse error", e);
-            throw e;
+        else {
+            LOGGER.warn("parse: invalid raw value");
+            throw new IllegalArgumentException("raw not an ElementValue");
         }
 
         return retval;
