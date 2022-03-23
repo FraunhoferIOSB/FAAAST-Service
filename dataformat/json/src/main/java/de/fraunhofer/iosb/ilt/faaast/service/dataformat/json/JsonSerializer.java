@@ -42,7 +42,7 @@ public class JsonSerializer implements Serializer {
     private final SerializerWrapper wrapper;
 
     public JsonSerializer() {
-        this.wrapper = new SerializerWrapper(x -> modifyMapper(x));
+        this.wrapper = new SerializerWrapper(this::modifyMapper);
         this.valueOnlySerializer = new ValueOnlyJsonSerializer();
     }
 

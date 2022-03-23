@@ -43,10 +43,7 @@ public class GetAssetInformationRequest extends BaseRequest<GetAssetInformationR
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        return true;
+        return !(o == null || getClass() != o.getClass());
     }
 
 

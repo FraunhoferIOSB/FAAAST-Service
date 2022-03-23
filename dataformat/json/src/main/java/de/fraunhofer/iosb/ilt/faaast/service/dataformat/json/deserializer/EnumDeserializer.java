@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -43,7 +42,7 @@ public class EnumDeserializer<T extends Enum> extends JsonDeserializer<T> {
 
 
     @Override
-    public T deserialize(JsonParser parser, DeserializationContext context) throws IOException, JsonProcessingException {
+    public T deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         return (T) Enum.valueOf(type, AasUtils.deserializeEnumName(parser.getText()));
     }
 }
