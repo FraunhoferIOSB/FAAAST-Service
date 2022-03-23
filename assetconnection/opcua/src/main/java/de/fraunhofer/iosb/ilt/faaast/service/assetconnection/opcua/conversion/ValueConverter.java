@@ -22,6 +22,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.eclipse.milo.opcua.sdk.server.events.conversions.ImplicitConversions;
 import org.eclipse.milo.opcua.stack.core.BuiltinDataType;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
@@ -105,15 +106,22 @@ public class ValueConverter {
      * @throws ValueConversionException if value or targetType are null
      * @throws ValueConversionException if conversion fails
      */
-    public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
+    public TypedValue convert(Variant value, Datatype targetType) throws ValueConversionException {
         if (value == null) {
             throw new ValueConversionException("value must be non-null");
         }
         if (targetType == null) {
             throw new ValueConversionException("targetType value must be non-null");
         }
+        if (value.getDataType() == null || value.getDataType().isEmpty()) {
+            throw new ValueConversionException(String.format("unabled to determine datatype of OPC UA value (value: %s)", value));
+        }
+        Optional<NodeId> valueDatatype = value.getDataType().get().toNodeId(null);
+        if (valueDatatype.isEmpty()) {
+            throw new ValueConversionException(String.format("unabled to determine nodeId of datatype of OPC UA value (datatype: %s)", value.getDataType().get()));
+        }
         OpcUaToAasValueConverter converter = opcUaToAasConverters.getOrDefault(
-                new ConversionTypeInfo(targetType, value.getDataType().get().toNodeId(null).get()),
+                new ConversionTypeInfo(targetType, valueDatatype.get()),
                 new DefaultConverter());
         return converter.convert(value, targetType);
     }

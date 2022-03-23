@@ -35,9 +35,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
+import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.jena.shacl.ValidationReport;
 import org.apache.jena.shacl.lib.ShLib;
 import org.slf4j.Logger;
@@ -59,13 +62,28 @@ public class Application implements Runnable {
     public static final String DEFAULT_AASENV_FILE_NAME_PATTERN = "aasenvironment\\..*";
     public static final File DEFAULT_AASENV_FILE = new File(DEFAULT_AASENV_FILE_NAME);
 
-    private static final String FAAAST_ENV_PREFIX = "faaast.";
-    private static final String CONFIG_PARAMETER_ENV_PREFIX = FAAAST_ENV_PREFIX + "configParameter.";
+    private static final String ENV_PATH_SEPERATOR = ".";
 
-    public static final String CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE = FAAAST_ENV_PREFIX + "configFilePath";
-    public static final String AASENV_FILE_PATH_ENVIRONMENT_VARIABLE = FAAAST_ENV_PREFIX + "aasEnvFilePath";
+    private static final String ENV_FAAAST_KEY = "faaast";
+    private static final String ENV_CONFIG_KEY = "config";
+    private static final String ENV_CONFIG_FILE_KEY = "configFilePath";
+    private static final String ENV_AAS_FILE_KEY = "aasEnvFilePath";
 
-    private static Service service;
+    private static final String ENV_CONFIG_PREFIX = prefix(ENV_FAAAST_KEY, ENV_CONFIG_KEY);
+
+    protected static final String ENV_CONFIG_FILE_PATH = path(ENV_FAAAST_KEY, ENV_CONFIG_FILE_KEY);
+    protected static final String ENV_AAS_FILE_PATH = path(ENV_FAAAST_KEY, ENV_AAS_FILE_KEY);
+
+    private static String path(String... args) {
+        return Stream.of(args).collect(Collectors.joining(ENV_PATH_SEPERATOR));
+    }
+
+
+    private static String prefix(String... args) {
+        return path(args) + ENV_PATH_SEPERATOR;
+    }
+
+    private Service service;
 
     private final Map<String, Class<? extends EndpointConfig>> availableEndpoints = new HashMap<>() {
         {
@@ -113,33 +131,8 @@ public class Application implements Runnable {
     public List<String> endpoints;
 
     public static void main(String[] args) throws Exception {
-        LOGGER.info("Start configuration of FAAAST Service");
+        LOGGER.info("Starting FA³ST Service...");
         new CommandLine(new Application()).execute(args);
-
-        CountDownLatch doneSignal = new CountDownLatch(1);
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            /**
-             * This handler will be called on Control-C pressed
-             */
-            @Override
-            public void run() {
-                // Decrement counter.
-                // It will became 0 and main thread who waits for this barrier could continue run (and fulfill all proper shutdown steps)
-                doneSignal.countDown();
-            }
-        });
-        // Here we enter wait state until control-c will be pressed
-        try {
-            doneSignal.await();
-            if (service != null) {
-                LOGGER.info("Shutting down FA³ST Service");
-                service.stop();
-            }
-        }
-        catch (InterruptedException e) {
-            LOGGER.warn("Interrupted!", e);
-            Thread.currentThread().interrupt();
-        }
     }
 
 
@@ -147,11 +140,8 @@ public class Application implements Runnable {
     public void run() {
         try {
             ConfigFactory configFactory = new ConfigFactory();
-            readConfigurationParametersOverEnvironmentVariables();
-            readFilePathsOverEnvironmentVariables();
-
+            readEnvParameter();
             List<Config> customConfigComponents = getCustomConfigComponents();
-
             ServiceConfig config = configFactory.toServiceConfig(configFilePath, autoCompleteConfiguration, properties, customConfigComponents);
             AssetAdministrationShellEnvironment environment = null;
             if (useEmptyAASEnvironment) {
@@ -161,7 +151,10 @@ public class Application implements Runnable {
             else {
                 if (Objects.equal(aasEnvironmentFile, DEFAULT_AASENV_FILE)) {
                     @java.lang.SuppressWarnings("java:S2095")
-                    List<Path> aasEnvFiles = Files.find(Paths.get(""), 1, (file, attributes) -> file.toFile().getName().matches(DEFAULT_AASENV_FILE_NAME_PATTERN))
+                    List<Path> aasEnvFiles = Files.find(Paths.get(""), 1,
+                            (file, attributes) -> file.toFile()
+                                    .getName()
+                                    .matches(DEFAULT_AASENV_FILE_NAME_PATTERN))
                             .collect(Collectors.toList());
                     if (aasEnvFiles.isEmpty()) {
                         LOGGER.info("no AAS environment file found (pattern: {})", DEFAULT_AASENV_FILE_NAME_PATTERN);
@@ -182,15 +175,34 @@ public class Application implements Runnable {
             service = new Service(environment, config);
             service.start();
             LOGGER.info("FAAAST Service is running!");
+            waitForEnter();
         }
         catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+        finally {
             if (service != null) {
                 service.stop();
             }
-            LOGGER.error(e.getMessage());
             LOGGER.error("Abort starting FAAAST Service");
         }
+    }
 
+
+    @SuppressWarnings("empty-statement")
+    private static void waitForEnter() {
+        try {
+            System.out.println("\nPress ENTER to exit.\n");
+            ExecutorService es = Executors.newFixedThreadPool(1);
+            es.submit(() -> {
+                Scanner scanner = new Scanner(System.in);
+                while (!scanner.hasNextLine());
+            }).get();
+            es.shutdown();
+        }
+        catch (InterruptedException | ExecutionException e) {
+            LOGGER.warn("error while waiting for user input", e);
+        }
     }
 
 
@@ -211,28 +223,27 @@ public class Application implements Runnable {
     }
 
 
-    private void readConfigurationParametersOverEnvironmentVariables() {
-        Set<Map.Entry<String, String>> env = System.getenv().entrySet().stream().filter(x -> x.getKey().contains(CONFIG_PARAMETER_ENV_PREFIX)).collect(Collectors.toSet());
-        if (!env.isEmpty()) {
-            Map<String, String> cleanedEnvs = new HashMap<>();
-            env.stream().forEach(x -> cleanedEnvs.put(x.getKey().replace(CONFIG_PARAMETER_ENV_PREFIX, ""), x.getValue()));
-            LOGGER.info("Got following configuration parameters through environment variables:");
-            cleanedEnvs.forEach((key, value) -> {
-                LOGGER.info("  -- {}={}", key, value);
-                properties.put(key, value);
-            });
+    private void readEnvParameter() {
+        boolean envUsed = false;
+        LOGGER.info("searching environment for configuration...");
+        if (System.getenv(ENV_CONFIG_FILE_PATH) != null && !System.getenv(ENV_CONFIG_FILE_PATH).isBlank()) {
+            configFilePath = System.getenv(ENV_CONFIG_FILE_PATH);
+            LOGGER.info(" -- {}={}", ENV_CONFIG_FILE_KEY, configFilePath);
+            envUsed = true;
         }
-    }
-
-
-    private void readFilePathsOverEnvironmentVariables() {
-        if (System.getenv(CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE) != null && !System.getenv(CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE).isBlank()) {
-            configFilePath = System.getenv(CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE);
-            LOGGER.info("Read environment variable '" + CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE + "' and override config file path");
+        if (System.getenv(ENV_AAS_FILE_PATH) != null && !System.getenv(ENV_AAS_FILE_PATH).isBlank()) {
+            aasEnvironmentFile = new File(System.getenv(ENV_AAS_FILE_PATH));
+            LOGGER.info(" -- {}={}", ENV_AAS_FILE_KEY, aasEnvironmentFile);
+            envUsed = true;
         }
-        if (System.getenv(AASENV_FILE_PATH_ENVIRONMENT_VARIABLE) != null && !System.getenv(AASENV_FILE_PATH_ENVIRONMENT_VARIABLE).isBlank()) {
-            aasEnvironmentFile = new File(System.getenv(AASENV_FILE_PATH_ENVIRONMENT_VARIABLE));
-            LOGGER.info("Read environment variable '{}={}'", AASENV_FILE_PATH_ENVIRONMENT_VARIABLE, aasEnvironmentFile);
+        properties = System.getenv().entrySet().stream()
+                .filter(x -> x.getKey().startsWith(ENV_CONFIG_PREFIX))
+                .collect(Collectors.toMap(
+                        x -> x.getKey().substring(ENV_CONFIG_PREFIX.length() - 1),
+                        x -> x.getValue()));
+        properties.entrySet().forEach(x -> LOGGER.info("  -- {]={}", x.getKey(), x.getValue()));
+        if (!envUsed && properties.isEmpty()) {
+            LOGGER.info("no configuration found in environment");
         }
     }
 

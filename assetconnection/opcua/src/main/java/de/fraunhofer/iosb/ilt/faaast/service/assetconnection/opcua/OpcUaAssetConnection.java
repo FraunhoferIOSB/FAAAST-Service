@@ -260,11 +260,12 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                 }
                 namespaceIndex = actualNamespaceIndex.intValue();
             }
+            return NodeId.parse(nodeId.replace(ns.get(), NS_PREFIX + namespaceIndex));
         }
         else {
-            LOGGER.debug("no namespace provided for node. Using default: ns=0 (nodeId: {}", nodeId);
+            LOGGER.debug("nodeId does not contain a namespace - using default: ns=0 (nodeId: {})", nodeId);
+            return NodeId.parse(String.format("ns=0;%s", nodeId));
         }
-        return NodeId.parse(nodeId.replace(ns.get(), NS_PREFIX + namespaceIndex));
     }
 
 

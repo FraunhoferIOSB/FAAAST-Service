@@ -209,7 +209,7 @@ public class StarterTest {
 
     @Test
     public void testCMDConfigFileThroughEnvironmentVariable() throws Exception {
-        String actual = withEnvironmentVariable(application.CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE, "myConfig.json")
+        String actual = withEnvironmentVariable(Application.ENV_CONFIG_FILE_PATH, "myConfig.json")
                 .execute(() -> {
                     new CommandLine(application).execute();
                     return application.configFilePath;
@@ -248,7 +248,7 @@ public class StarterTest {
 
     @Test
     public void testCMDaasEnvThroughEnvironmentVariable() throws Exception {
-        String actual = withEnvironmentVariable(application.AASENV_FILE_PATH_ENVIRONMENT_VARIABLE, "myAAS.json")
+        String actual = withEnvironmentVariable(Application.ENV_AAS_FILE_PATH, "myAAS.json")
                 .execute(() -> {
                     new CommandLine(application).execute();
                     return application.aasEnvironmentFile.getName();
@@ -260,7 +260,7 @@ public class StarterTest {
 
     @Test
     public void testCMDPriority() throws Exception {
-        String actual = withEnvironmentVariable(application.AASENV_FILE_PATH_ENVIRONMENT_VARIABLE, "myAAS.json")
+        String actual = withEnvironmentVariable(Application.ENV_AAS_FILE_PATH, "myAAS.json")
                 .execute(() -> {
                     new CommandLine(application).execute("-e", "AAS.json");
                     return application.aasEnvironmentFile.getName();
@@ -268,7 +268,7 @@ public class StarterTest {
 
         Assert.assertEquals("myAAS.json", actual);
 
-        actual = withEnvironmentVariable(application.CONFIG_FILE_PATH_ENVIRONMENT_VARIABLE, "myConfig.json")
+        actual = withEnvironmentVariable(Application.ENV_CONFIG_FILE_PATH, "myConfig.json")
                 .execute(() -> {
                     new CommandLine(application).execute("-c", "con.json");
                     return application.configFilePath;

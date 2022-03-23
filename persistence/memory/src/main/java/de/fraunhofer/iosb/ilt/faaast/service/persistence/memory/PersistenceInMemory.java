@@ -73,7 +73,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
     @Override
     public void init(CoreConfig coreConfig, PersistenceInMemoryConfig config, ServiceContext context) {
-
+        // intentionally empty
     }
 
 
