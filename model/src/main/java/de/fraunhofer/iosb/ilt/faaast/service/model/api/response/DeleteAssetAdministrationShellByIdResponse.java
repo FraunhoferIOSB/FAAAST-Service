@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponse;
  * Chapter 6.2.8
  */
 public class DeleteAssetAdministrationShellByIdResponse extends BaseResponse {
+
     public static DeleteAssetAdministrationShellByIdResponse.Builder builder() {
         return new DeleteAssetAdministrationShellByIdResponse.Builder();
     }

@@ -27,6 +27,7 @@ import java.util.Objects;
  * Chapter 4.5.2
  */
 public class GetAllAASXPackageIdsRequest extends BaseRequest<GetAllAASXPackageIdsResponse> {
+
     private List<Identifier> aasId;
 
     public GetAllAASXPackageIdsRequest() {
@@ -46,10 +47,12 @@ public class GetAllAASXPackageIdsRequest extends BaseRequest<GetAllAASXPackageId
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         GetAllAASXPackageIdsRequest that = (GetAllAASXPackageIdsRequest) o;
         return Objects.equals(aasId, that.aasId);
     }
@@ -66,6 +69,7 @@ public class GetAllAASXPackageIdsRequest extends BaseRequest<GetAllAASXPackageId
     }
 
     public abstract static class AbstractBuilder<T extends GetAllAASXPackageIdsRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B aasId(Identifier value) {
             getBuildingInstance().getAasId().add(value);
             return getSelf();

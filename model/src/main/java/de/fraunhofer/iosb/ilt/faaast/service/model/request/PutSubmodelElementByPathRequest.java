@@ -29,6 +29,7 @@ import java.util.Objects;
  * Chapter 4.3.8
  */
 public class PutSubmodelElementByPathRequest extends BaseRequest<PutSubmodelElementByPathResponse> {
+
     private Identifier id;
     private List<Key> path;
     private SubmodelElement submodelElement;
@@ -70,10 +71,12 @@ public class PutSubmodelElementByPathRequest extends BaseRequest<PutSubmodelElem
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PutSubmodelElementByPathRequest that = (PutSubmodelElementByPathRequest) o;
         return Objects.equals(id, that.id) && Objects.equals(path, that.path) && Objects.equals(submodelElement, that.submodelElement);
     }
@@ -90,6 +93,7 @@ public class PutSubmodelElementByPathRequest extends BaseRequest<PutSubmodelElem
     }
 
     public abstract static class AbstractBuilder<T extends PutSubmodelElementByPathRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();

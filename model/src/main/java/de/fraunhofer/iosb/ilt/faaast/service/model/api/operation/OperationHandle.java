@@ -22,6 +22,7 @@ import java.util.Objects;
  * An operation handle is used to identify async operations after invocation
  */
 public class OperationHandle {
+
     private String requestId;
     private String handleId;
 
@@ -47,10 +48,12 @@ public class OperationHandle {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         OperationHandle that = (OperationHandle) o;
         return Objects.equals(requestId, that.requestId) && Objects.equals(handleId, that.handleId);
     }

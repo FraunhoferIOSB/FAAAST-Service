@@ -24,6 +24,7 @@ import java.util.Objects;
  * Chapter 4.5.6
  */
 public class DeleteAASXPackageByIdRequest extends BaseRequest<DeleteAASXPackageByIdResponse> {
+
     private String packageId;
 
     public String getPackageId() {
@@ -38,10 +39,12 @@ public class DeleteAASXPackageByIdRequest extends BaseRequest<DeleteAASXPackageB
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         DeleteAASXPackageByIdRequest that = (DeleteAASXPackageByIdRequest) o;
         return Objects.equals(packageId, that.packageId);
     }
@@ -58,6 +61,7 @@ public class DeleteAASXPackageByIdRequest extends BaseRequest<DeleteAASXPackageB
     }
 
     public abstract static class AbstractBuilder<T extends DeleteAASXPackageByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B packageId(String value) {
             getBuildingInstance().setPackageId(value);
             return getSelf();

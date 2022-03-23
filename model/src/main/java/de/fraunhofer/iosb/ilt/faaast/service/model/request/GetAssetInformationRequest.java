@@ -25,6 +25,7 @@ import java.util.Objects;
  * Chapter 4.2.7
  */
 public class GetAssetInformationRequest extends BaseRequest<GetAssetInformationResponse> {
+
     private Identifier id;
 
     public Identifier getId() {
@@ -39,11 +40,10 @@ public class GetAssetInformationRequest extends BaseRequest<GetAssetInformationR
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        return true;
+        }
+        return !(o == null || getClass() != o.getClass());
     }
 
 
@@ -58,6 +58,7 @@ public class GetAssetInformationRequest extends BaseRequest<GetAssetInformationR
     }
 
     public abstract static class AbstractBuilder<T extends GetAssetInformationRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();

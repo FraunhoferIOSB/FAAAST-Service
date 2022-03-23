@@ -409,7 +409,7 @@ public class HttpEndpointTest {
                 .build();
         ContentResponse response = response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode("Whatever") + "/aas");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
-        actual.getMessage().get(0).setTimestamp(message.getTimestamp());
+        actual.getMessages().get(0).setTimestamp(message.getTimestamp());
         Assert.assertEquals(result, actual);
     }
 
@@ -428,7 +428,7 @@ public class HttpEndpointTest {
                 .build();
         ContentResponse response = execute(HttpMethod.GET, "/shellsX/");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
-        actual.getMessage().get(0).setTimestamp(message.getTimestamp());
+        actual.getMessages().get(0).setTimestamp(message.getTimestamp());
         Assert.assertEquals(result, actual);
     }
 
@@ -452,7 +452,7 @@ public class HttpEndpointTest {
                 .build();
         ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(id.toString()) + "/submodel/submodel-elements/Invalid");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
-        actual.getMessage().get(0).setTimestamp(message.getTimestamp());
+        actual.getMessages().get(0).setTimestamp(message.getTimestamp());
         Assert.assertEquals(result, actual);
     }
 

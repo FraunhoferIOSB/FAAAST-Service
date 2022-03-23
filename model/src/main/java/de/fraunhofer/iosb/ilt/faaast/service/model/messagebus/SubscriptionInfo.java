@@ -157,10 +157,12 @@ public class SubscriptionInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         SubscriptionInfo that = (SubscriptionInfo) o;
         return Objects.equals(subscribedEvents, that.subscribedEvents) && Objects.equals(handler, that.handler) && Objects.equals(filter, that.filter);
     }

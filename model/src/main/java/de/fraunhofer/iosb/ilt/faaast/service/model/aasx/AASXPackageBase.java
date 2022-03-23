@@ -18,6 +18,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.aasx;
  * @TODO: Not implemented yet
  */
 public class AASXPackageBase implements AASXPackage {
+
     @Override
     public byte[] getBytes() {
         return new byte[0];

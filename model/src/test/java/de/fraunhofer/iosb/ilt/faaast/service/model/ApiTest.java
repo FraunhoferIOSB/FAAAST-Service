@@ -27,6 +27,7 @@ import org.junit.Test;
  * Test equals and hashCode methods on sample v3.api.response class
  */
 public class ApiTest {
+
     @Test
     public void testEqualsDifferentSubclassesOfBaseResponse() {
         DeleteAASXPackageByIdResponse deleteAASXPackageByIdResponse = new DeleteAASXPackageByIdResponse();

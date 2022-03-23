@@ -97,13 +97,15 @@ public class HttpRequest extends HttpMessage {
 
     private String[] splitKeyValue(String x, String regex) {
         String split[] = x.split(regex);
-        if (split.length == 2)
+        if (split.length == 2) {
             return split;
-        else
+        }
+        else {
             return new String[] {
                     "illegal",
                     "empty"
             };
+        }
     }
 
 
