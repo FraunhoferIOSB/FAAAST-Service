@@ -68,12 +68,6 @@ public class ValueConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueConverter.class);
 
     /**
-     * Creates a new instance of ValueConverter
-     */
-    public ValueConverter() {}
-
-
-    /**
      * Converts the AAS DataTypeDef into the corresponding OPC UA type (NodeId)
      *
      * @param valueType The desired valueType
@@ -418,8 +412,7 @@ public class ValueConverter {
      * @return The corresponding AASEntityTypeDataType
      */
     public static AASEntityTypeDataType getAasEntityType(EntityType value) {
-        AASEntityTypeDataType retval = AASEntityTypeDataType.valueOf(value.ordinal());
-        return retval;
+        return AASEntityTypeDataType.valueOf(value.ordinal());
     }
 
 

@@ -20,6 +20,7 @@ import com.prosysopc.ua.stack.cert.ValidationResult;
 import com.prosysopc.ua.stack.core.ApplicationDescription;
 import com.prosysopc.ua.stack.transport.security.Cert;
 import com.prosysopc.ua.stack.utils.CertificateUtils;
+import java.security.cert.CertificateParsingException;
 import java.util.EnumSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +52,8 @@ public class AasCertificateValidationListener implements DefaultCertificateValid
         try {
             LOGGER.info("onValidate: " + ad + ", " + CertificateUtils.getApplicationUriOfCertificate(cert));
         }
-        catch (Throwable ex) {
-            LOGGER.error("createAndAddNodes Exception", ex);
+        catch (CertificateParsingException ex) {
+            LOGGER.error("onValidate Exception", ex);
         }
 
         /*
