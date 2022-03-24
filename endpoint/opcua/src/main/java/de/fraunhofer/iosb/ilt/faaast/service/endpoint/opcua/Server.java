@@ -56,12 +56,17 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Tino Bischoff
  */
+@SuppressWarnings({
+        "java:S125",
+        "java:S2139"
+})
 public class Server {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
     private static final String APPLICATION_NAME = "Fraunhofer IOSB AAS OPC UA Server";
     private static final String APPLICATION_URI = "urn:hostname:Fraunhofer:OPCUA:AasServer";
     private static final int CERT_KEY_SIZE = 2048;
+    private static final String PRIV_KEY_PASS = "opcua";
 
     private final int tcpPort;
     private final AssetAdministrationShellEnvironment aasEnvironment;
@@ -69,7 +74,9 @@ public class Server {
 
     private UaServer uaServer;
     private boolean running;
+    @SuppressWarnings("java:S1450")
     private UserValidator userValidator;
+    @SuppressWarnings("java:S1450")
     private AasServiceNodeManager aasNodeManager;
 
     protected final DefaultCertificateValidatorListener validationListener = new AasCertificateValidationListener();
@@ -174,7 +181,8 @@ public class Server {
             // Here we use the IssuerCertificate only to sign the HTTPS certificate
             // (below) and not the Application Instance Certificate.
             KeyPair issuerCertificate = ApplicationIdentity.loadOrCreateIssuerCertificate(
-                    "FraunhoferIosbSampleCA@" + ApplicationIdentity.getActualHostNameWithoutDomain() + "_https_" + CERT_KEY_SIZE, privatePath, "opcua", 3650, false, CERT_KEY_SIZE);
+                    "FraunhoferIosbSampleCA@" + ApplicationIdentity.getActualHostNameWithoutDomain() + "_https_" + CERT_KEY_SIZE, privatePath, PRIV_KEY_PASS, 3650, false,
+                    CERT_KEY_SIZE);
 
             int[] keySizes = new int[] {
                     CERT_KEY_SIZE
@@ -193,14 +201,15 @@ public class Server {
             // Define the Server application identity, including the Application
             // Instance Certificate (but don't sign it with the issuerCertificate as
             // explained above).
-            final ApplicationIdentity identity = ApplicationIdentity.loadOrCreateCertificate(appDescription, "Fraunhofer IOSB", /* Private Key Password */ "opcua",
+            final ApplicationIdentity identity = ApplicationIdentity.loadOrCreateCertificate(appDescription, "Fraunhofer IOSB", /* Private Key Password */ PRIV_KEY_PASS,
                     /* Key File Path */ privatePath, /* Issuer Certificate & Private Key */ null, /* Key Sizes for instance certificates to create */ keySizes,
                     /* Enable renewing the certificate */ true);
 
             // Create the HTTPS certificate bound to the hostname.
             // The HTTPS certificate must be created, if you enable HTTPS.
             hostName = ApplicationIdentity.getActualHostName();
-            identity.setHttpsCertificate(ApplicationIdentity.loadOrCreateHttpsCertificate(appDescription, hostName, "opcua", issuerCertificate, privatePath, true, CERT_KEY_SIZE));
+            identity.setHttpsCertificate(
+                    ApplicationIdentity.loadOrCreateHttpsCertificate(appDescription, hostName, PRIV_KEY_PASS, issuerCertificate, privatePath, true, CERT_KEY_SIZE));
 
             uaServer.setApplicationIdentity(identity);
 
@@ -327,7 +336,7 @@ public class Server {
 
             running = true;
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("startup Exception", ex);
             throw ex;
         }
@@ -403,7 +412,7 @@ public class Server {
 
             LOGGER.info("Address space created.");
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("createAddressSpace Exception", ex);
         }
     }
@@ -418,11 +427,11 @@ public class Server {
             LOGGER.info("loadI4AasNodes start I4AAS");
             uaServer.getAddressSpace().loadModel(opc.i4aas.server.ServerInformationModel.getLocationURI());
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("loadI4AasNodes Exception", ex);
         }
 
         long dauer = System.currentTimeMillis() - start;
-        LOGGER.info("loadI4AasNodes end. Dauer: " + dauer + " ms");
+        LOGGER.info("loadI4AasNodes end. Dauer: {} ms", dauer);
     }
 }

@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tino Bischoff
  */
+@SuppressWarnings("java:S2139")
 public class AasServiceIoManagerListener implements IoManagerListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AasServiceIoManagerListener.class);
@@ -118,11 +119,6 @@ public class AasServiceIoManagerListener implements IoManagerListener {
         // The WriteMask defines the writable attributes, except for Value,
         // which is controlled by UserAccessLevel (above)
 
-        // The following would deny write access for anonymous users:
-        // if
-        // (serviceContext.getSession().getUserIdentity().getType().equals(
-        // UserTokenType.Anonymous))
-        // return AttributeWriteMask.of();
         return AttributeWriteMask.of(AttributeWriteMask.Fields.values());
     }
 
@@ -148,10 +144,6 @@ public class AasServiceIoManagerListener implements IoManagerListener {
      */
     @Override
     public boolean onReadNonValue(ServiceContext sc, NodeId nodeid, UaNode uanode, UnsignedInteger ui, DataValue dv) throws StatusException {
-        //        if (uanode != null) {
-        //            logger.trace("onReadNonValue: Node BrowseName" + uanode.getBrowseName());
-        //        }
-
         return false;
     }
 
@@ -183,10 +175,6 @@ public class AasServiceIoManagerListener implements IoManagerListener {
      */
     @Override
     public boolean onReadValue(ServiceContext sc, NodeId nodeId, UaValueNode uvn, NumericRange nr, TimestampsToReturn ttr, DateTime dt, DataValue dv) throws StatusException {
-        //        if (logger.isDebugEnabled()) {
-        //            logger.debug("onReadValue: nodeId=" + nodeId + (uvn != null ? " node=" + uvn.getBrowseName() : ""));
-        //        }
-
         return false;
     }
 
@@ -217,7 +205,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
     @Override
     public boolean onWriteNonValue(ServiceContext sc, NodeId nodeid, UaNode uanode, UnsignedInteger ui, DataValue dv) throws StatusException {
         if (uanode != null) {
-            LOGGER.trace("onWriteNonValue: Node BrowseName" + uanode.getBrowseName());
+            LOGGER.trace("onWriteNonValue: Node BrowseName {}", uanode.getBrowseName());
         }
         return false;
     }
@@ -249,7 +237,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
     @Override
     public boolean onWriteValue(ServiceContext sc, NodeId nodeId, UaValueNode uvn, NumericRange indexRange, DataValue dv) throws StatusException {
         LOGGER.info(
-                "onWriteValue: nodeId=" + nodeId + (uvn != null ? " node=" + uvn.getBrowseName() : "") + (indexRange != null ? " indexRange=" + indexRange : "") + " value=" + dv);
+                "onWriteValue: nodeId={}{}{} value={}", nodeId, uvn != null ? " node=" + uvn.getBrowseName() : "", indexRange != null ? " indexRange=" + indexRange : "", dv);
 
         try {
             if (endpoint == null) {
@@ -263,7 +251,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                 SubmodelElementData data = nodeManager.getAasData(nodeId);
                 if (data != null) {
                     if (data.getType() == null) {
-                        LOGGER.warn("onWriteValue: Node " + nodeId + ": unkown type");
+                        LOGGER.warn("onWriteValue: Node {}: unkown type", nodeId);
                         rv = false;
                     }
                     else {
@@ -273,20 +261,20 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                     }
                 }
                 else {
-                    LOGGER.warn("onWriteValue: Node " + nodeId + ": SubmodelElementData not found");
+                    LOGGER.warn("onWriteValue: Node {}: SubmodelElementData not found", nodeId);
                     rv = false;
                 }
 
                 if (rv) {
-                    LOGGER.debug("onWriteValue: NodeId " + nodeId.toString() + " written successfully");
+                    LOGGER.debug("onWriteValue: NodeId {} written successfully", nodeId);
                 }
                 else {
-                    LOGGER.info("onWriteValue: NodeId " + nodeId.toString() + " write failed");
+                    LOGGER.info("onWriteValue: NodeId {} write failed", nodeId);
                     throw new StatusException(StatusCodes.Bad_InternalError);
                 }
             }
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("onWriteValue Exception", ex);
             throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError);
         }

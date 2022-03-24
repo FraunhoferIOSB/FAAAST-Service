@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Tino Bischoff
  */
+@SuppressWarnings("rawtypes")
 public class OpcUaElementValueParser implements ElementValueParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaElementValueParser.class);

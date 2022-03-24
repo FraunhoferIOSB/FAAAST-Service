@@ -63,9 +63,21 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tino Bischoff
  */
+@SuppressWarnings({
+        "java:S3252",
+        "java:S2139"
+})
 public class ValueConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueConverter.class);
+
+    /**
+     * Private constructor to prevent class from being instantiated.
+     */
+    private ValueConverter() {
+        throw new IllegalStateException("Utility class");
+    }
+
 
     /**
      * Converts the AAS DataTypeDef into the corresponding OPC UA type (NodeId)
@@ -150,12 +162,12 @@ public class ValueConverter {
                     retval = Identifiers.UtcTime;
                     break;
                 default:
-                    LOGGER.warn("convertValueTypeStringToNodeId: Unknown type: " + valueType);
+                    LOGGER.warn("convertValueTypeStringToNodeId: Unknown type: {}", valueType);
                     retval = NodeId.NULL;
                     break;
             }
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("convertValueTypeStringToNodeId Exception", ex);
             throw ex;
         }
@@ -250,11 +262,11 @@ public class ValueConverter {
                     break;
 
                 default:
-                    LOGGER.warn("stringToValueType: unknown value: " + value);
+                    LOGGER.warn("stringToValueType: unknown value: {}", value);
                     throw new IllegalArgumentException("unknown value: " + value);
             }
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("stringToValueType Exception", ex);
             throw ex;
         }
@@ -316,7 +328,7 @@ public class ValueConverter {
                 break;
 
             default:
-                LOGGER.warn("datatypeToValueType: unknown type: " + type);
+                LOGGER.warn("datatypeToValueType: unknown type: {}", type);
                 throw new IllegalArgumentException("unknown type: " + type);
         }
 
@@ -346,7 +358,7 @@ public class ValueConverter {
                     retval = AASModelingKindDataType.Template;
                     break;
                 default:
-                    LOGGER.warn("convertModelingKind: unknown value " + value);
+                    LOGGER.warn("convertModelingKind: unknown value {}", value);
                     throw new IllegalArgumentException("unknown ModelingKind: " + value);
             }
         }
@@ -375,7 +387,7 @@ public class ValueConverter {
                 retval = AASIdentifierTypeDataType.IRDI;
                 break;
             default:
-                LOGGER.warn("convertIdentifierType: unknown value " + value);
+                LOGGER.warn("convertIdentifierType: unknown value {}", value);
                 throw new IllegalArgumentException("unknown IdentifierType: " + value);
         }
         return retval;
@@ -398,7 +410,7 @@ public class ValueConverter {
                 retval = AASAssetKindDataType.Type;
                 break;
             default:
-                LOGGER.warn("convertAssetKind: unknown value " + value);
+                LOGGER.warn("convertAssetKind: unknown value {}", value);
                 throw new IllegalArgumentException("unknown KeyType: " + value);
         }
         return retval;
@@ -435,7 +447,7 @@ public class ValueConverter {
                 break;
 
             default:
-                LOGGER.warn("getEntityType: unknown value: " + value);
+                LOGGER.warn("getEntityType: unknown value: {}", value);
                 throw new IllegalArgumentException("unknown value: " + value);
         }
 
@@ -454,13 +466,11 @@ public class ValueConverter {
 
         try {
             ArrayList<LocalizedText> arr = new ArrayList<>();
-            value.forEach(ls -> {
-                arr.add(new LocalizedText(ls.getValue(), ls.getLanguage()));
-            });
+            value.forEach(ls -> arr.add(new LocalizedText(ls.getValue(), ls.getLanguage())));
 
             retval = arr.toArray(LocalizedText[]::new);
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("getLocalizedTextFromLangStringSet Exception", ex);
             throw ex;
         }
@@ -487,7 +497,7 @@ public class ValueConverter {
                 retval.add(new LangString(lt.getText(), lt.getLocaleId()));
             }
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("getLangStringSetFromLocalizedText Exception", ex);
             throw ex;
         }
@@ -608,11 +618,11 @@ public class ValueConverter {
                     break;
 
                 default:
-                    LOGGER.warn("getKeyElementsDataType: unknown KeyElement: " + keyElement);
+                    LOGGER.warn("getKeyElementsDataType: unknown KeyElement: {}", keyElement);
                     break;
             }
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("getKeyElementsDataType Exception", ex);
             throw ex;
         }
@@ -729,11 +739,11 @@ public class ValueConverter {
                     break;
 
                 default:
-                    LOGGER.warn("getKeyElements: unknown AASKeyElementsDataType: " + value);
+                    LOGGER.warn("getKeyElements: unknown AASKeyElementsDataType: {}", value);
                     break;
             }
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("getKeyElements Exception", ex);
             throw ex;
         }
@@ -768,7 +778,7 @@ public class ValueConverter {
                 retval = AASKeyTypeDataType.IRI;
                 break;
             default:
-                LOGGER.warn("getAasKeyType: unknown value " + value);
+                LOGGER.warn("getAasKeyType: unknown value {}", value);
                 throw new IllegalArgumentException("unknown KeyType: " + value);
         }
 
@@ -802,7 +812,7 @@ public class ValueConverter {
                 retval = KeyType.IRI;
                 break;
             default:
-                LOGGER.warn("getKeyType: unknown value " + value);
+                LOGGER.warn("getKeyType: unknown value {}", value);
                 throw new IllegalArgumentException("unknown AASKeyTypeDataType: " + value);
         }
 
@@ -830,7 +840,7 @@ public class ValueConverter {
             }
             retval = new DefaultReference.Builder().keys(keys).build();
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("getReferenceFromKeys Exception", ex);
             throw ex;
         }
@@ -952,11 +962,11 @@ public class ValueConverter {
                     break;
                 }
                 default:
-                    LOGGER.warn("setSubmodelElementValue: SubmodelElement " + submodelElement.getIdShort() + ": unkown type " + type);
+                    LOGGER.warn("setSubmodelElementValue: SubmodelElement {}: unkown type {}", submodelElement.getIdShort(), type);
                     throw new IllegalArgumentException("unkown type " + type);
             }
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("setSubmodelElementValue Exception", ex);
             throw ex;
         }
@@ -1029,6 +1039,7 @@ public class ValueConverter {
      * @param type The desired type
      * @return The corresponding value
      */
+    @SuppressWarnings("java:S1301")
     public static Variant getSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type) {
         Variant retval;
 
@@ -1041,11 +1052,11 @@ public class ValueConverter {
                 }
 
                 default:
-                    LOGGER.warn("getSubmodelElementValue: SubmodelElement " + submodelElement.getIdShort() + ": unkown or invalid type " + type);
+                    LOGGER.warn("getSubmodelElementValue: SubmodelElement {}: unkown or invalid type {}", submodelElement.getIdShort(), type);
                     throw new IllegalArgumentException("unkown type " + type);
             }
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("getSubmodelElementValue Exception", ex);
             throw ex;
         }
