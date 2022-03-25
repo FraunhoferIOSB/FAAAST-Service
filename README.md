@@ -1,8 +1,5 @@
 
-# FA³ST Service
-[![Build Status](https://github.com/FraunhoferIOSB/FAAAST-Service/workflows/Maven%20Build/badge.svg)](https://github.com/FraunhoferIOSB/FAAAST-Service/actions)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/25f6aafbdb0a4b5e8ba23672ec9411e5)](https://www.codacy.com/gh/FraunhoferIOSB/FAAAST-Service/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FraunhoferIOSB/FAAAST-Service&amp;utm_campaign=Badge_Grade)
-
+# FA³ST Service [![Build Status](https://github.com/FraunhoferIOSB/FAAAST-Service/workflows/Maven%20Build/badge.svg)](https://github.com/FraunhoferIOSB/FAAAST-Service/actions) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/25f6aafbdb0a4b5e8ba23672ec9411e5)](https://www.codacy.com/gh/FraunhoferIOSB/FAAAST-Service/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FraunhoferIOSB/FAAAST-Service&amp;utm_campaign=Badge_Grade) [![Docker badge](https://img.shields.io/docker/pulls/fraunhoferiosb/faaast-service.svg)](https://hub.docker.com/r/fraunhoferiosb/faaast-service/)
 
 ![FA³ST Logo Light](./documentation/images/Fa3st-Service_positiv.png/#gh-light-mode-only "FA³ST Service Logo")
 ![FA³ST Logo Dark](./documentation/images/Fa3st-Service_negativ.png/#gh-dark-mode-only "FA³ST Service Logo")
@@ -58,17 +55,16 @@ The following code starts a FA³ST Service with a HTTP endpoint on port 8080.
 
 ```java
 String pathToYourAASEnvironment = "{pathTo}\\FAAAST-Service\\misc\\examples\\demoAAS.json";
-Service service = new Service(
-		new ServiceConfig.Builder()
-				.core(new CoreConfig.Builder()
-						.requestHandlerThreadPoolSize(2)
-						.build())
-				.persistence(new PersistenceInMemoryConfig())
-				.endpoint(new HttpEndpointConfig())
-				.messageBus(new MessageBusInternalConfig())
-				.build());
-service.setAASEnvironment(new AASEnvironmentFactory()
-		.getAASEnvironment(pathToYourAASEnvironment));
+AssetAdministrationShellEnvironment environment = AASEnvironmentHelper.fromFile(new File(pathToYourAASEnvironment));
+Service service = new Service(environment,
+    new ServiceConfig.Builder()
+	    .core(new CoreConfig.Builder()
+		    .requestHandlerThreadPoolSize(2)
+		    .build())
+	    .persistence(new PersistenceInMemoryConfig())
+	    .endpoint(new HttpEndpointConfig())
+	    .messageBus(new MessageBusInternalConfig())
+	    .build());
 service.start();
 ```
 Afterwards, you can reach the running FA³ST Service via `http://localhost:8080/shells`.
