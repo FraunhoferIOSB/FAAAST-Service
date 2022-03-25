@@ -4,7 +4,11 @@
 
 ![FA³ST Logo Light](./documentation/images/Fa3st-Service_positiv.png/#gh-light-mode-only "FA³ST Service Logo")
 ![FA³ST Logo Dark](./documentation/images/Fa3st-Service_negativ.png/#gh-dark-mode-only "FA³ST Service Logo")
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=FraunhoferIOSB_FAAAST-Service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=FraunhoferIOSB_FAAAST-Service) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=FraunhoferIOSB_FAAAST-Service&metric=bugs)](https://sonarcloud.io/summary/new_code?id=FraunhoferIOSB_FAAAST-Service)
+<!--
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=FraunhoferIOSB_FAAAST-Service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=FraunhoferIOSB_FAAAST-Service) 
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=FraunhoferIOSB_FAAAST-Service&metric=bugs)](https://sonarcloud.io/summary/new_code?id=FraunhoferIOSB_FAAAST-Service)
+-->
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/25f6aafbdb0a4b5e8ba23672ec9411e5)](https://www.codacy.com/gh/FraunhoferIOSB/FAAAST-Service/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FraunhoferIOSB/FAAAST-Service&amp;utm_campaign=Badge_Grade)
 
 The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service implements the [Asset Administration Shell (AAS) specification from the platform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and builds an easy-to-use web service based on a custom AAS model instance. If you are not familiar with AAS you can find additional information [here](#about-the-project).
 
