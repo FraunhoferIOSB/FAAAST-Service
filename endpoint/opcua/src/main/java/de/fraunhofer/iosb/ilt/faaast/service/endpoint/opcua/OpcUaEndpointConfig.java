@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import java.util.Objects;
 
 
 /**
@@ -30,6 +31,25 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
     public OpcUaEndpointConfig() {
         this.tcpPort = DEFAULT_PORT;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
+        OpcUaEndpointConfig that = (OpcUaEndpointConfig) o;
+        return tcpPort == that.tcpPort && secondsTillShutdown == that.secondsTillShutdown;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), tcpPort, secondsTillShutdown);
     }
 
 

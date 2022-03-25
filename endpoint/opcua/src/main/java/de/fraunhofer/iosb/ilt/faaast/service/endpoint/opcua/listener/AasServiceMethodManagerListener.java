@@ -30,7 +30,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
-import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +40,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tino Bischoff
  */
+@SuppressWarnings("java:S2139")
 public class AasServiceMethodManagerListener implements CallableListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AasServiceMethodManagerListener.class);
@@ -89,7 +89,7 @@ public class AasServiceMethodManagerListener implements CallableListener {
 
         // Handle method calls
         // Note that the outputs array is already allocated
-        LOGGER.info("onCall: method " + methodId.toString() + ": called. InputArguments: " + Arrays.toString(inputArguments));
+        LOGGER.info("onCall: method {}: called. InputArguments: {}", methodId, inputArguments);
 
         try {
             if (endpoint == null) {
@@ -107,7 +107,7 @@ public class AasServiceMethodManagerListener implements CallableListener {
                     retval = true;
                 }
                 else {
-                    LOGGER.info("onCall: Property for " + objectId.toString() + " not found");
+                    LOGGER.info("onCall: Property for {} not found", objectId);
                 }
             }
         }
@@ -115,7 +115,7 @@ public class AasServiceMethodManagerListener implements CallableListener {
             LOGGER.error("onCall StatusException", se);
             throw se;
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("onCall Exception", ex);
             throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError);
         }
