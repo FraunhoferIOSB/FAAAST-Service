@@ -57,14 +57,14 @@ The following code starts a FA³ST Service with a HTTP endpoint on port 8080.
 String pathToYourAASEnvironment = "{pathTo}\\FAAAST-Service\\misc\\examples\\demoAAS.json";
 AssetAdministrationShellEnvironment environment = AASEnvironmentHelper.fromFile(new File(pathToYourAASEnvironment));
 Service service = new Service(environment,
-    new ServiceConfig.Builder()
-	    .core(new CoreConfig.Builder()
-		    .requestHandlerThreadPoolSize(2)
-		    .build())
-	    .persistence(new PersistenceInMemoryConfig())
-	    .endpoint(new HttpEndpointConfig())
-	    .messageBus(new MessageBusInternalConfig())
-	    .build());
+	new ServiceConfig.Builder()
+		.core(new CoreConfig.Builder()
+			.requestHandlerThreadPoolSize(2)
+			.build())
+		.persistence(new PersistenceInMemoryConfig())
+		.endpoint(new HttpEndpointConfig())
+		.messageBus(new MessageBusInternalConfig())
+		.build());
 service.start();
 ```
 Afterwards, you can reach the running FA³ST Service via `http://localhost:8080/shells`.
