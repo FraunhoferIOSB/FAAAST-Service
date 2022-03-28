@@ -22,6 +22,9 @@ import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
  */
 public abstract class PersistenceManager {
 
+    public static final String ERROR_MSG_RESOURCE_NOT_FOUND_BY_REF = "Resource not found by reference %s";
+    public static final String ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID = "Resource not found by id %s";
+
     protected AssetAdministrationShellEnvironment aasEnvironment;
 
     public void setAasEnvironment(AssetAdministrationShellEnvironment aasEnvironment) {

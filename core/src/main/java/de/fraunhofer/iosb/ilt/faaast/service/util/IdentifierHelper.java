@@ -110,4 +110,17 @@ public class IdentifierHelper {
                 .idType(IdentifierHelper.guessIdentifierType(value))
                 .build();
     }
+
+
+    /**
+     * Transforms an {@link io.adminshell.aas.v3.model.Identifier} to a string
+     * with format [IDType]value.
+     * E.g. [IRI]http://example.com/abc123
+     * 
+     * @param id the identifier which should be transformed to string
+     * @return the string representation for the identifier
+     */
+    public static String asString(Identifier id) {
+        return String.format("[%s]%s", id.getIdType().toString(), id.getIdentifier());
+    }
 }

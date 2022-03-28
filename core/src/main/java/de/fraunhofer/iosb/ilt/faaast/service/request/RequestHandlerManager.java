@@ -19,6 +19,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -29,6 +31,7 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -155,22 +158,27 @@ public class RequestHandlerManager {
             return (O) handlers.get(request.getClass()).process(request);
         }
         catch (ResourceNotFoundException e) {
-            return createResponse(request, StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND);
+            return createResponse(request, StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND, e);
         }
         catch (Exception e) {
-            return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR);
+            return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR, e);
         }
     }
 
 
-    private static <I extends Request<O>, O extends Response> O createResponse(I request, StatusCode statusCode) {
+    private static <I extends Request<O>, O extends Response> O createResponse(I request, StatusCode statusCode, Exception e) {
         try {
             O response = (O) TypeToken.of(request.getClass()).resolveType(Request.class.getTypeParameters()[0]).getRawType().getConstructor().newInstance();
             response.setStatusCode(statusCode);
+            response.getResult().setMessages(Arrays.asList(
+                    new Message.Builder()
+                            .text(e.getMessage())
+                            .messageType(MessageType.ERROR)
+                            .build()));
             return response;
         }
-        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new TypeInstantiationException("executing request failed and failure could not be properly handled", e);
+        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
+            throw new TypeInstantiationException("executing request failed and failure could not be properly handled", ex);
         }
     }
 

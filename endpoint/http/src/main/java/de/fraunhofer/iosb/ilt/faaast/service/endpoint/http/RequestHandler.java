@@ -39,6 +39,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
@@ -92,7 +93,7 @@ public class RequestHandler extends AbstractHandler {
             apiRequest = mappingManager.map(httpRequest);
         }
         catch (InvalidRequestException | IllegalArgumentException e) {
-            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, MessageType.ERROR, e.getMessage());
+            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, MessageType.ERROR, e.getMessage(), null);
             baseRequest.setHandled(true);
             return;
         }
@@ -115,42 +116,53 @@ public class RequestHandler extends AbstractHandler {
      * @param httpStatusCode http status code
      * @param errorMessage clear text error message
      */
-    private void sendResultResponse(HttpServletResponse response, int httpStatusCode, MessageType messageType, String errorMessage) throws IOException {
+    private void sendResultResponse(HttpServletResponse response, int httpStatusCode, MessageType messageType, String errorMessage, Response apiResponse) throws IOException {
         if (errorMessage.isEmpty()) {
             errorMessage = HttpStatus.getMessage(httpStatusCode);
         }
+
+        List<Message> messages = null;
+        if (apiResponse != null) {
+            String finalErrorMessage = errorMessage;
+            messages = apiResponse.getResult().getMessages().stream().map(x -> Message.builder()
+                    .messageType(x.getMessageType() != null ? x.getMessageType() : messageType)
+                    .text(x.getText() != null ? x.getText() : finalErrorMessage)
+                    .code(x.getCode() != null ? x.getCode() : HttpStatus.getMessage(httpStatusCode))
+                    .timestamp(new Date())
+                    .build()).collect(Collectors.toList());
+        }
         Result result = Result.builder()
                 .success(false)
-                .message(Message.builder()
-                        .messageType(messageType)
-                        .text(errorMessage)
-                        .code(HttpStatus.getMessage(httpStatusCode))
-                        .timestamp(new Date())
-                        .build())
+                .messages(messages != null ? messages
+                        : List.of(Message.builder()
+                                .messageType(messageType)
+                                .text(errorMessage)
+                                .code(HttpStatus.getMessage(httpStatusCode))
+                                .timestamp(new Date())
+                                .build()))
                 .build();
         try {
             sendJson(response, httpStatusCode, serializer.write(result));
         }
         catch (SerializationException e) {
-            // TODO shouldn't an error status code and updated error message be sent?
-            send(response, httpStatusCode, errorMessage);
+            sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, MessageType.EXCEPTION, e.getMessage(), null);
         }
     }
 
 
     private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request apiRequest) throws IOException, SerializationException {
         if (apiRequest == null) {
-            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, MessageType.ERROR, "");
+            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, MessageType.ERROR, "", null);
             return;
         }
         Response apiResponse = serviceContext.execute(apiRequest);
         if (apiResponse == null) {
-            sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, MessageType.ERROR, "");
+            sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, MessageType.ERROR, "", apiResponse);
             return;
         }
         int statusCode = HttpHelper.toHttpStatusCode(apiResponse.getStatusCode());
         if (!apiResponse.getResult().getSuccess() || !HttpStatus.isSuccess(statusCode)) {
-            sendResultResponse(response, statusCode, MessageType.ERROR, HttpStatus.getMessage((statusCode)));
+            sendResultResponse(response, statusCode, MessageType.ERROR, "", apiResponse);
         }
         else if (BaseResponseWithPayload.class.isAssignableFrom(apiResponse.getClass())) {
             try {
@@ -164,7 +176,7 @@ public class RequestHandler extends AbstractHandler {
                 }
             }
             catch (SerializationException e) {
-                sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, MessageType.EXCEPTION, e.getMessage());
+                sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, MessageType.EXCEPTION, e.getMessage(), null);
             }
         }
         else {

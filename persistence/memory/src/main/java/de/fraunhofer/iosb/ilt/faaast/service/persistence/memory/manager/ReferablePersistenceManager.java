@@ -41,8 +41,6 @@ import java.util.stream.Collectors;
  */
 public class ReferablePersistenceManager extends PersistenceManager {
 
-    private static final String ERROR_MSG_RESOURCE_NOT_FOUND_BY_REF = "Resource not found by reference %s";
-
     /**
      * Get a submodel element by its reference
      *
