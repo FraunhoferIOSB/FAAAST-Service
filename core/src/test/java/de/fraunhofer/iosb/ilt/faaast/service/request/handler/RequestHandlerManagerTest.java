@@ -17,9 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
@@ -30,7 +28,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -134,6 +135,7 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;
+import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.KeyElements;
@@ -1000,6 +1002,99 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS)
                 .build();
         Assert.assertEquals(expected, response);
+    }
+
+
+    @Test
+    public void testGetIdentifiableWithInvalidIdRequest() throws ResourceNotFoundException {
+        when(persistence.get(argThat((Identifier t) -> true), any()))
+                .thenThrow(new ResourceNotFoundException("Resource not found with id"));
+        GetSubmodelByIdRequest request = new GetSubmodelByIdRequest.Builder().build();
+        GetSubmodelByIdResponse response = manager.execute(request);
+        GetSubmodelByIdResponse expected = new GetSubmodelByIdResponse.Builder()
+                .result(new Result.Builder()
+                        .message(new Message.Builder()
+                                .text("Resource not found with id")
+                                .messageType(MessageType.ERROR)
+                                .build())
+                        .build())
+                .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
+                .build();
+        Assert.assertEquals(expected, response);
+    }
+
+
+    @Test
+    public void testGetReferableWithInvalidIdRequest() throws ResourceNotFoundException {
+        when(persistence.get(argThat((Reference r) -> true), any()))
+                .thenThrow(new ResourceNotFoundException("Resource not found with id"));
+        GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
+        GetSubmodelElementByPathResponse response = manager.execute(request);
+        GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
+                .result(new Result.Builder()
+                        .message(new Message.Builder()
+                                .text("Resource not found with id")
+                                .messageType(MessageType.ERROR)
+                                .build())
+                        .build())
+                .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
+                .build();
+        Assert.assertEquals(expected, response);
+    }
+
+
+    @Test
+    public void testGetReferableWithMessageBusExceptionRequest() throws ResourceNotFoundException, MessageBusException {
+        when(persistence.get(argThat((Reference r) -> true), any()))
+                .thenReturn(new DefaultProperty());
+        doThrow(new MessageBusException("Invalid Messagbus Call")).when(messageBus).publish(any());
+        GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
+        GetSubmodelElementByPathResponse response = manager.execute(request);
+        GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
+                .result(new Result.Builder()
+                        .message(new Message.Builder()
+                                .text("Invalid Messagbus Call")
+                                .messageType(MessageType.EXCEPTION)
+                                .build())
+                        .build())
+                .statusCode(StatusCode.SERVER_INTERNAL_ERROR)
+                .build();
+        Assert.assertEquals(expected, response);
+    }
+
+
+    @Test
+    public void testGetValueWithInvalidAssetConnectionRequest() throws ResourceNotFoundException, AssetConnectionException {
+        when(persistence.get(argThat((Reference r) -> true), any()))
+                .thenReturn(new DefaultProperty());
+        AssetValueProvider assetValueProvider = mock(AssetValueProvider.class);
+        when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
+        when(assetConnectionManager.getValueProvider(any())).thenReturn(assetValueProvider);
+        when(assetValueProvider.getValue()).thenThrow(new AssetConnectionException("Invalid Assetconnection"));
+        GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
+        GetSubmodelElementByPathResponse response = manager.execute(request);
+        GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
+                .result(new Result.Builder()
+                        .message(new Message.Builder()
+                                .text("Invalid Assetconnection")
+                                .messageType(MessageType.EXCEPTION)
+                                .build())
+                        .build())
+                .statusCode(StatusCode.SERVER_INTERNAL_ERROR)
+                .build();
+        Assert.assertEquals(expected, response);
+    }
+
+
+    private GetSubmodelElementByPathRequest getExampleGetSubmodelElementByPathRequest() {
+        return new GetSubmodelElementByPathRequest.Builder()
+                .path(List.of(new DefaultKey.Builder()
+                        .value("testProperty")
+                        .type(KeyElements.PROPERTY)
+                        .idType(KeyType.ID_SHORT)
+                        .build()))
+                .id(new DefaultIdentifier.Builder().identifier("test").idType(IdentifierType.IRI).build())
+                .build();
     }
 
 

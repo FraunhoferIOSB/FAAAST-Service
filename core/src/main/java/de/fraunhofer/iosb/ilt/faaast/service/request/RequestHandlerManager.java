@@ -31,7 +31,7 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -158,22 +158,22 @@ public class RequestHandlerManager {
             return (O) handlers.get(request.getClass()).process(request);
         }
         catch (ResourceNotFoundException e) {
-            return createResponse(request, StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND, e);
+            return createResponse(request, StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND, MessageType.ERROR, e);
         }
         catch (Exception e) {
-            return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR, e);
+            return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR, MessageType.EXCEPTION, e);
         }
     }
 
 
-    private static <I extends Request<O>, O extends Response> O createResponse(I request, StatusCode statusCode, Exception e) {
+    private static <I extends Request<O>, O extends Response> O createResponse(I request, StatusCode statusCode, MessageType messageType, Exception e) {
         try {
             O response = (O) TypeToken.of(request.getClass()).resolveType(Request.class.getTypeParameters()[0]).getRawType().getConstructor().newInstance();
             response.setStatusCode(statusCode);
-            response.getResult().setMessages(Arrays.asList(
+            response.getResult().setMessages(List.of(
                     new Message.Builder()
                             .text(e.getMessage())
-                            .messageType(MessageType.ERROR)
+                            .messageType(messageType)
                             .build()));
             return response;
         }
