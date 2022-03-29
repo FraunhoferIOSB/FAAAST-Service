@@ -78,7 +78,7 @@ public class RequestHandler extends AbstractHandler {
             }
         };
         HttpRequest httpRequest = HttpRequest.builder()
-                .path(request.getRequestURI())
+                .path(request.getRequestURI().replaceAll("/$", ""))
                 .query(request.getQueryString())
                 .body(reader.lines().collect(Collectors.joining(System.lineSeparator())))
                 .method(HttpMethod.valueOf(request.getMethod()))
