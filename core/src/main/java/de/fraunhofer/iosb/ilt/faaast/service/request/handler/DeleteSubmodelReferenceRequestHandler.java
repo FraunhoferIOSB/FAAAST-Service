@@ -48,7 +48,7 @@ public class DeleteSubmodelReferenceRequestHandler extends RequestHandler<Delete
         AssetAdministrationShell aas = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
         aas.getSubmodels().remove(request.getSubmodelRef());
         persistence.put(aas);
-        response.setStatusCode(StatusCode.SUCCESS);
+        response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         publishElementUpdateEventMessage(AasUtils.toReference(aas), aas);
         return response;
     }

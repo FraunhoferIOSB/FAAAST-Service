@@ -29,6 +29,14 @@ public class Message {
     private String code;
     private Date timestamp;
 
+    public Message() {
+        this.messageType = MessageType.INFO;
+        this.text = "";
+        this.code = "";
+        this.timestamp = new Date();
+    }
+
+
     public MessageType getMessageType() {
         return messageType;
     }

@@ -12,16 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service;
+package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-// TODO unclear if needed
-public class ServiceTest {
-    //    @Test
-    //    public void testGetAllAssetAdministrationShellRequest() throws ConfigurationException {
-    //        ServiceConfig config = new ServiceConfig();
-    //        config.setCore(new CoreConfig());
-    //        Service service = new Service(config);
-    //        GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
-    //        service.execute(request);
-    //    }
+/**
+ * Utility class providing constants
+ */
+public class Constants {
+    public static final String KEY_GLOBAL_ASSET_ID = "globalAssetId";
+
+    private Constants() {}
 }

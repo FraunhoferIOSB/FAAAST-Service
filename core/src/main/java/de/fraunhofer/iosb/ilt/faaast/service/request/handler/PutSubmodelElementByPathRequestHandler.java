@@ -20,8 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -59,10 +57,7 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
 
         //Check if submodelelement does exist
-        SubmodelElement currentSubmodelElement = persistence.get(reference, new QueryModifier.Builder()
-                .extend(Extend.WITHOUT_BLOB_VALUE)
-                .level(Level.CORE)
-                .build());
+        SubmodelElement currentSubmodelElement = persistence.get(reference, QueryModifier.DEFAULT);
         SubmodelElement newSubmodelElement = request.getSubmodelElement();
 
         if (ElementValueHelper.isSerializableAsValue(currentSubmodelElement.getClass())) {

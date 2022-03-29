@@ -68,6 +68,17 @@ public class Result {
     }
 
 
+    public static Result error(String message) {
+        return builder()
+                .success(false)
+                .message(Message.builder()
+                        .messageType(MessageType.ERROR)
+                        .text(message)
+                        .build())
+                .build();
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }

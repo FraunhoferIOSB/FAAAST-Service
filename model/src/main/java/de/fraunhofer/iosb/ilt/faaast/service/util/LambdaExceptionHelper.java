@@ -151,9 +151,70 @@ public class LambdaExceptionHelper {
     }
 
 
+    /**
+     * Wraps a Supplier interface and rethrows all exceptions as
+     * RuntimeException.
+     *
+     * @param <T> result type of the supplier
+     * @param supplier the supplier to wrap
+     * @return wrapped supplier
+     * @throws RuntimeException if calling the supplier fails
+     */
+    public static <T> Supplier<T> wrap(SupplierWithExceptions<T, Exception> supplier) {
+        return () -> {
+            try {
+                return supplier.get();
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+
+    /**
+     * Wraps a Consumer interface and rethrows all exceptions as
+     * RuntimeException.
+     *
+     * @param <T> input type of the consumer
+     * @param consumer the consumer to wrap
+     * @return wrapped consumer
+     * @throws RuntimeException if calling the consumer fails
+     */
+    public static <T> Consumer<T> wrap(ConsumerWithExceptions<T, Exception> consumer) {
+        return arg -> {
+            try {
+                consumer.accept(arg);
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+
+    /**
+     * Wraps a Runnable interface and rethrows all exceptions as
+     * RuntimeException.
+     *
+     * @param runnable the runnable to wrap
+     * @return wrapped runnable
+     * @throws RuntimeException if calling the runnable fails
+     */
+    public static Runnable wrap(Runnable runnable) {
+        return () -> {
+            try {
+                runnable.run();
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+
     @SuppressWarnings("unchecked")
     private static <E extends Throwable> void throwAsUnchecked(Exception e) throws E {
         throw (E) e;
     }
-
 }

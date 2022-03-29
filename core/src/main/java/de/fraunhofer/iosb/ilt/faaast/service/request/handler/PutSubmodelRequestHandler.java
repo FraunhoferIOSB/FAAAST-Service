@@ -20,8 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -51,12 +49,8 @@ public class PutSubmodelRequestHandler extends RequestHandler<PutSubmodelRequest
     public PutSubmodelResponse process(PutSubmodelRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
         PutSubmodelResponse response = new PutSubmodelResponse();
         //check if resource does exist
-        Submodel submodel = (Submodel) persistence.get(request.getSubmodel().getIdentification(),
-                new QueryModifier.Builder()
-                        .extend(Extend.WITHOUT_BLOB_VALUE)
-                        .level(Level.CORE)
-                        .build());
-        submodel = (Submodel) persistence.put(request.getSubmodel());
+        persistence.get(request.getSubmodel().getIdentification(), QueryModifier.DEFAULT);
+        Submodel submodel = (Submodel) persistence.put(request.getSubmodel());
         response.setPayload(submodel);
         response.setStatusCode(StatusCode.SUCCESS);
         Reference reference = AasUtils.toReference(submodel);

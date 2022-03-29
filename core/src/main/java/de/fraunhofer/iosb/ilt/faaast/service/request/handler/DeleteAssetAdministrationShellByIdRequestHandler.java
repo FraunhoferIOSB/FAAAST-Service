@@ -47,7 +47,7 @@ public class DeleteAssetAdministrationShellByIdRequestHandler extends RequestHan
         DeleteAssetAdministrationShellByIdResponse response = new DeleteAssetAdministrationShellByIdResponse();
         AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
         persistence.remove(request.getId());
-        response.setStatusCode(StatusCode.SUCCESS);
+        response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         publishElementDeleteEventMessage(AasUtils.toReference(shell), shell);
         return response;
     }

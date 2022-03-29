@@ -14,49 +14,43 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelByIdResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelByIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelReferencesResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelReferencesRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.Submodel;
+import java.util.List;
 
 
 /**
  * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelByIdRequest}
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelReferencesRequest}
  * in the service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelByIdResponse}.
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelReferencesResponse}.
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class PutSubmodelByIdRequestHandler extends RequestHandler<PutSubmodelByIdRequest, PutSubmodelByIdResponse> {
+public class GetAllSubmodelReferencesRequestHandler extends RequestHandler<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
 
-    public PutSubmodelByIdRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+    public GetAllSubmodelReferencesRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
     }
 
 
     @Override
-    public PutSubmodelByIdResponse process(PutSubmodelByIdRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
-        PutSubmodelByIdResponse response = new PutSubmodelByIdResponse();
-        //check if resource does exist
-        persistence.get(request.getSubmodel().getIdentification(), QueryModifier.DEFAULT);
-        Submodel submodel = (Submodel) persistence.put(request.getSubmodel());
-        response.setPayload(submodel);
+    public GetAllSubmodelReferencesResponse process(GetAllSubmodelReferencesRequest request) throws ResourceNotFoundException, MessageBusException {
+        GetAllSubmodelReferencesResponse response = new GetAllSubmodelReferencesResponse();
+        AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), request.getOutputModifier());
+        List<Reference> submodelReferences = shell.getSubmodels();
+        response.setPayload(submodelReferences);
         response.setStatusCode(StatusCode.SUCCESS);
-        Reference reference = AasUtils.toReference(submodel);
-        readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
-        publishElementUpdateEventMessage(reference, submodel);
+        publishElementReadEventMessage(AasUtils.toReference(shell), shell);
         return response;
     }
-
 }

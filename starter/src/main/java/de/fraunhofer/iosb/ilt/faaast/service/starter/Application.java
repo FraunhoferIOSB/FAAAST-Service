@@ -56,23 +56,26 @@ import picocli.CommandLine.Option;
 @Command(name = "FAAAST_Starter", mixinStandardHelpOptions = true, version = "0.1", description = "Starts a FAAAST Service")
 public class Application implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
-    public static final String DEFAULT_CONFIG_PATH = "config.json";
     public static final String DEFAULT_AASENV_FILE_NAME = "aasenvironment.*";
-    public static final String DEFAULT_AASENV_FILE_NAME_PATTERN = "aasenvironment\\..*";
     public static final File DEFAULT_AASENV_FILE = new File(DEFAULT_AASENV_FILE_NAME);
-
-    private static final String ENV_PATH_SEPERATOR = ".";
-
-    private static final String ENV_FAAAST_KEY = "faaast";
-    private static final String ENV_CONFIG_KEY = "config";
-    private static final String ENV_CONFIG_FILE_KEY = "configFilePath";
+    public static final String DEFAULT_AASENV_FILE_NAME_PATTERN = "aasenvironment\\..*";
+    public static final String DEFAULT_CONFIG_PATH = "config.json";
     private static final String ENV_AAS_FILE_KEY = "aasEnvFilePath";
+    private static final String ENV_CONFIG_FILE_KEY = "configFilePath";
+    private static final String ENV_CONFIG_KEY = "config";
+    private static final String ENV_FAAAST_KEY = "faaast";
 
     private static final String ENV_CONFIG_PREFIX = prefix(ENV_FAAAST_KEY, ENV_CONFIG_KEY);
-
-    protected static final String ENV_CONFIG_FILE_PATH = path(ENV_FAAAST_KEY, ENV_CONFIG_FILE_KEY);
+    private static final String ENV_PATH_SEPERATOR = ".";
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
     protected static final String ENV_AAS_FILE_PATH = path(ENV_FAAAST_KEY, ENV_AAS_FILE_KEY);
+    protected static final String ENV_CONFIG_FILE_PATH = path(ENV_FAAAST_KEY, ENV_CONFIG_FILE_KEY);
+
+    public static void main(String[] args) throws Exception {
+        LOGGER.info("Starting FA³ST Service...");
+        new CommandLine(new Application()).execute(args);
+    }
+
 
     private static String path(String... args) {
         return Stream.of(args).collect(Collectors.joining(ENV_PATH_SEPERATOR));
@@ -83,23 +86,22 @@ public class Application implements Runnable {
         return path(args) + ENV_PATH_SEPERATOR;
     }
 
-    private Service service;
 
-    private final Map<String, Class<? extends EndpointConfig>> availableEndpoints = new HashMap<>() {
-        {
-            put("http", HttpEndpointConfig.class);
-            /**
-             * only usable if OPCUA Endpoint dependency in pom can be resolved
-             * put("opcua", OpcUaEndpointConfig.class);
-             */
+    @SuppressWarnings("empty-statement")
+    private static void waitForEnter() {
+        try {
+            System.out.println("\nPress ENTER to exit.\n");
+            ExecutorService es = Executors.newFixedThreadPool(1);
+            es.submit(() -> {
+                Scanner scanner = new Scanner(System.in);
+                while (!scanner.hasNextLine());
+            }).get();
+            es.shutdown();
         }
-    };
-
-    @Option(names = {
-            "-c",
-            "--configFile"
-    }, description = "The config file path. Default Value = ${DEFAULT-VALUE}", defaultValue = DEFAULT_CONFIG_PATH)
-    public String configFilePath;
+        catch (InterruptedException | ExecutionException e) {
+            LOGGER.warn("error while waiting for user input", e);
+        }
+    }
 
     @Option(names = {
             "-e",
@@ -111,30 +113,37 @@ public class Application implements Runnable {
             "--no-autoCompleteConfig"
     }, negatable = true, description = "Autocompletes the configuration with default values for required configuration sections. True by default")
     public boolean autoCompleteConfiguration = true;
+    @Option(names = {
+            "-c",
+            "--configFile"
+    }, description = "The config file path. Default Value = ${DEFAULT-VALUE}", defaultValue = DEFAULT_CONFIG_PATH)
+    public String configFilePath;
+    @Option(names = "--endpoints", arity = "0..*")
+    public List<String> endpoints;
 
     @Option(names = {
-            "--no-modelValidation"
-    }, negatable = true, description = "Validates the AAS Environment. True by default")
-    public boolean validateAASEnv = true;
-
+            "-D"
+    }, mapFallbackValue = "", paramLabel = "KEY=VALUE")
+    public Map<String, Object> properties = new HashMap<>();
     @Option(names = {
             "--emptyEnvironment"
     }, description = "Starts the FA³ST service with an empty Asset Administration Shell Environment. False by default")
     public boolean useEmptyAASEnvironment = false;
 
     @Option(names = {
-            "-D"
-    }, mapFallbackValue = "", paramLabel = "KEY=VALUE")
-    public Map<String, Object> properties = new HashMap<>();
-
-    @Option(names = "--endpoints", arity = "0..*")
-    public List<String> endpoints;
-
-    public static void main(String[] args) throws Exception {
-        LOGGER.info("Starting FA³ST Service...");
-        new CommandLine(new Application()).execute(args);
-    }
-
+            "--no-modelValidation"
+    }, negatable = true, description = "Validates the AAS Environment. True by default")
+    public boolean validateAASEnv = true;
+    private final Map<String, Class<? extends EndpointConfig>> availableEndpoints = new HashMap<>() {
+        {
+            put("http", HttpEndpointConfig.class);
+            /**
+             * only usable if OPCUA Endpoint dependency in pom can be resolved
+             * put("opcua", OpcUaEndpointConfig.class);
+             */
+        }
+    };
+    private Service service;
 
     @Override
     public void run() {
@@ -185,23 +194,6 @@ public class Application implements Runnable {
                 service.stop();
             }
             LOGGER.error("Abort starting FAAAST Service");
-        }
-    }
-
-
-    @SuppressWarnings("empty-statement")
-    private static void waitForEnter() {
-        try {
-            System.out.println("\nPress ENTER to exit.\n");
-            ExecutorService es = Executors.newFixedThreadPool(1);
-            es.submit(() -> {
-                Scanner scanner = new Scanner(System.in);
-                while (!scanner.hasNextLine());
-            }).get();
-            es.shutdown();
-        }
-        catch (InterruptedException | ExecutionException e) {
-            LOGGER.warn("error while waiting for user input", e);
         }
     }
 

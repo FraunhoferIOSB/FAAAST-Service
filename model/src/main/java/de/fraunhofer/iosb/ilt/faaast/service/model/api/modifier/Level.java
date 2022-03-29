@@ -24,7 +24,7 @@ public enum Level {
     DEEP,
     CORE;
 
-    public static final Level DEFAULT = Level.CORE;
+    public static final Level DEFAULT = Level.DEEP;
 
     public static Level fromString(String value) {
         return Stream.of(Level.values())

@@ -203,7 +203,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getAssetAdministrationShells())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -241,7 +241,7 @@ public class RequestHandlerManagerTest {
                 .payload(List.of(environment.getAssetAdministrationShells().get(0), environment.getAssetAdministrationShells().get(1)))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -257,7 +257,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getAssetAdministrationShells())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -273,7 +273,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getAssetAdministrationShells().get(0))
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -290,7 +290,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getAssetAdministrationShells().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -319,9 +319,9 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteAssetAdministrationShellByIdResponse response = manager.execute(request);
         DeleteAssetAdministrationShellByIdResponse expected = new DeleteAssetAdministrationShellByIdResponse.Builder()
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
         verify(persistence).remove(environment.getAssetAdministrationShells().get(0).getIdentification());
     }
 
@@ -338,7 +338,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getAssetAdministrationShells().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -357,7 +357,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getAssetAdministrationShells().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -373,7 +373,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getAssetAdministrationShells().get(0).getAssetInformation())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -389,9 +389,9 @@ public class RequestHandlerManagerTest {
                 .build();
         PutAssetInformationResponse response = manager.execute(request);
         PutAssetInformationResponse expected = new PutAssetInformationResponse.Builder()
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -427,7 +427,21 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .payload(SUBMODEL_ELEMENT_REF)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
+    }
+
+
+    private static void assertEqualsExceptTime(Response expected, Response actual) {
+        removeTimeFromMesage(expected);
+        removeTimeFromMesage(actual);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    private static void removeTimeFromMesage(Response response) {
+        if (response != null && response.getResult() != null && response.getResult().getMessage() != null) {
+            response.getResult().getMessage().forEach(x -> x.setTimestamp(null));
+        }
     }
 
 
@@ -441,9 +455,9 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteSubmodelReferenceResponse response = manager.execute(request);
         DeleteSubmodelReferenceResponse expected = new DeleteSubmodelReferenceResponse.Builder()
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -460,7 +474,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -477,7 +491,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -494,7 +508,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -510,7 +524,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels().get(0))
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -527,7 +541,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -544,7 +558,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -559,7 +573,7 @@ public class RequestHandlerManagerTest {
         DeleteSubmodelByIdResponse expected = new DeleteSubmodelByIdResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
         verify(persistence).remove(environment.getSubmodels().get(0).getIdentification());
     }
 
@@ -577,7 +591,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -596,7 +610,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -614,7 +628,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels().get(0).getSubmodelElements())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -632,7 +646,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -665,7 +679,7 @@ public class RequestHandlerManagerTest {
                 .payload(expected_submodelElement)
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -682,7 +696,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -713,7 +727,7 @@ public class RequestHandlerManagerTest {
                 .payload(newSubmodelElement)
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
         verify(assetValueProvider).setValue(ElementValueMapper.toValue(newSubmodelElement));
     }
 
@@ -742,7 +756,7 @@ public class RequestHandlerManagerTest {
         SetSubmodelElementValueByPathResponse expected = new SetSubmodelElementValueByPathResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
         verify(assetValueProvider).setValue(propertyValue);
     }
 
@@ -763,7 +777,7 @@ public class RequestHandlerManagerTest {
         DeleteSubmodelElementByPathResponse expected = new DeleteSubmodelElementByPathResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
         verify(persistence).remove(reference);
     }
 
@@ -864,8 +878,7 @@ public class RequestHandlerManagerTest {
                         .executionState(ExecutionState.COMPLETED)
                         .build())
                 .build();
-
-        Assert.assertEquals(expectedResponse, actualResponse);
+        assertEqualsExceptTime(expectedResponse, actualResponse);
     }
 
     class CustomAssetOperationProvider implements AssetOperationProvider {
@@ -897,7 +910,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getConceptDescriptions())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -914,7 +927,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getConceptDescriptions())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -932,7 +945,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getConceptDescriptions())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -950,7 +963,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getConceptDescriptions())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -966,7 +979,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getConceptDescriptions().get(0))
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -983,7 +996,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getConceptDescriptions().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -999,7 +1012,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getConceptDescriptions().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -1012,9 +1025,9 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteConceptDescriptionByIdResponse response = manager.execute(request);
         DeleteConceptDescriptionByIdResponse expected = new DeleteConceptDescriptionByIdResponse.Builder()
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
         verify(persistence).remove(environment.getConceptDescriptions().get(0).getIdentification());
     }
 
