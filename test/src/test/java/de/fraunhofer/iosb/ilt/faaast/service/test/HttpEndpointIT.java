@@ -90,6 +90,11 @@ public class HttpEndpointIT {
     private static AssetAdministrationShellEnvironment environment;
     private static Service service;
 
+    private static void foo() throws Exception {
+
+    }
+
+
     @Before
     public void init() throws Exception {
         environment = AASFull.createEnvironment();
@@ -114,15 +119,99 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testAASRepository_GetAssetAdministrationShells() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
-        Object expected = environment.getAssetAdministrationShells();
+    public void testAASBasicDiscovery_Create() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
+        IdentifierKeyValuePair newIdentifier = new DefaultIdentifierKeyValuePair.Builder()
+                .key("foo")
+                .value("bar")
+                .build();
+        List<IdentifierKeyValuePair> expected = new ArrayList<>();
+        expected.add(newIdentifier);
+        expected.addAll(aas.getAssetInformation().getSpecificAssetIds());
+        expected.add(new DefaultIdentifierKeyValuePair.Builder()
+                .key(Constants.KEY_GLOBAL_ASSET_ID)
+                .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
+                .build());
+        executeAndAssertMultipleEntities(
+                HttpMethod.POST,
+                API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
+                StatusCode.SUCCESS_CREATED,
+                List.of(newIdentifier),
+                expected,
+                IdentifierKeyValuePair.class);
+    }
+
+
+    @Test
+    public void testAASBasicDiscovery_Delete() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
+        aas.getAssetInformation().getSpecificAssetIds().clear();
+        aas.getAssetInformation().setGlobalAssetId(null);
+        executeAndAssert(
+                HttpMethod.DELETE,
+                API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
+                StatusCode.SUCCESS_NO_CONTENT);
         executeAndAssertMultipleEntities(
                 HttpMethod.GET,
-                API_PATHS.aasRepository().assetAdministrationShells(),
+                API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
+                StatusCode.SUCCESS,
+                null,
+                List.of(),
+                IdentifierKeyValuePair.class);
+    }
+
+
+    @Test
+    public void testAASBasicDiscovery_GetAssetAdministrationShells()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+        Object expected = environment.getAssetAdministrationShells().stream()
+                .map(x -> x.getIdentification())
+                .collect(Collectors.toList());
+        executeAndAssertMultipleEntities(
+                HttpMethod.GET,
+                API_PATHS.aasBasicDiscovery().assetAdministrationShells(),
                 StatusCode.SUCCESS,
                 null,
                 expected,
-                AssetAdministrationShell.class);
+                Identifier.class);
+    }
+
+
+    @Test
+    public void testAASBasicDiscovery_GetAssetAdministrationShellsByGlobalAssetId()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+        String assetIdValue = "https://acplt.org/Test_Asset";
+        List<Identifier> expected = environment.getAssetAdministrationShells().stream()
+                .filter(x -> x.getAssetInformation().getGlobalAssetId().getKeys().stream()
+                        .anyMatch(y -> y.getValue().equalsIgnoreCase(assetIdValue)))
+                .map(x -> x.getIdentification())
+                .collect(Collectors.toList());
+        executeAndAssertMultipleEntities(
+                HttpMethod.GET,
+                API_PATHS.aasBasicDiscovery().assetAdministrationShells(Map.of(Constants.KEY_GLOBAL_ASSET_ID, assetIdValue)),
+                StatusCode.SUCCESS,
+                null,
+                expected,
+                Identifier.class);
+    }
+
+
+    @Test
+    public void testAASBasicDiscovery_GetAssetLinks()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
+        List<IdentifierKeyValuePair> expected = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
+        expected.add(new DefaultIdentifierKeyValuePair.Builder()
+                .key(Constants.KEY_GLOBAL_ASSET_ID)
+                .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
+                .build());
+        executeAndAssertMultipleEntities(
+                HttpMethod.GET,
+                API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
+                StatusCode.SUCCESS,
+                null,
+                expected,
+                IdentifierKeyValuePair.class);
     }
 
 
@@ -153,58 +242,6 @@ public class HttpEndpointIT {
                 API_PATHS.aasRepository().assetAdministrationShells(),
                 AssetAdministrationShell.class)
                 .contains(expected));
-    }
-
-
-    private static void foo() throws Exception {
-
-    }
-
-
-    @Test
-    public void testAASRepository_GetAssetAdministrationShell()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementReadEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.GET,
-                                API_PATHS.aasRepository().assetAdministrationShell(expected),
-                                StatusCode.SUCCESS,
-                                null,
-                                expected,
-                                AssetAdministrationShell.class)));
-    }
-
-
-    @Test
-    public void testAASRepository_GetAssetAdministrationShell_NotExists()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        HttpResponse<String> response = HttpHelper.get(API_PATHS.aasRepository().assetAdministrationShell("non-existant"));
-        Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
-    }
-
-
-    @Test
-    public void testAASRepository_UpdateAssetAdministrationShell()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
-        AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
-        expected.setIdShort("changed");
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementUpdateEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.PUT,
-                                API_PATHS.aasRepository().assetAdministrationShell(expected),
-                                StatusCode.SUCCESS,
-                                expected,
-                                expected,
-                                AssetAdministrationShell.class)));
     }
 
 
@@ -240,7 +277,7 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testAssetAdministrationShellInterface_GetAssetAdministrationShell()
+    public void testAASRepository_GetAssetAdministrationShell()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         MessageBusHelper.assertEvent(
@@ -250,7 +287,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> executeAndAssertSingleEntity(
                                 HttpMethod.GET,
-                                API_PATHS.aasInterface(expected).assetAdministrationShell(),
+                                API_PATHS.aasRepository().assetAdministrationShell(expected),
                                 StatusCode.SUCCESS,
                                 null,
                                 expected,
@@ -259,15 +296,28 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testAssetAdministrationShellInterface_GetAssetAdministrationShell_NotExists()
+    public void testAASRepository_GetAssetAdministrationShell_NotExists()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface("non-existant").assetAdministrationShell());
+        HttpResponse<String> response = HttpHelper.get(API_PATHS.aasRepository().assetAdministrationShell("non-existant"));
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
     }
 
 
     @Test
-    public void testAssetAdministrationShellInterface_UpdateAssetAdministrationShell()
+    public void testAASRepository_GetAssetAdministrationShells() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+        Object expected = environment.getAssetAdministrationShells();
+        executeAndAssertMultipleEntities(
+                HttpMethod.GET,
+                API_PATHS.aasRepository().assetAdministrationShells(),
+                StatusCode.SUCCESS,
+                null,
+                expected,
+                AssetAdministrationShell.class);
+    }
+
+
+    @Test
+    public void testAASRepository_UpdateAssetAdministrationShell()
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
@@ -283,57 +333,6 @@ public class HttpEndpointIT {
                                 expected,
                                 expected,
                                 AssetAdministrationShell.class)));
-    }
-
-
-    @Test
-    public void testAssetAdministrationShellInterface_GetAssetInformation()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
-        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        AssetInformation expected = aas.getAssetInformation();
-        // TODO does this trigger any message bus event?
-        executeAndAssertSingleEntity(
-                HttpMethod.GET,
-                API_PATHS.aasInterface(aas).assetInformation(),
-                StatusCode.SUCCESS,
-                null,
-                expected,
-                AssetInformation.class);
-    }
-
-
-    @Test
-    public void testAssetAdministrationShellInterface_UpdateAssetInformation()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
-        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        AssetInformation expected = aas.getAssetInformation();
-        expected.getSpecificAssetIds().add(new DefaultIdentifierKeyValuePair.Builder()
-                .key("foo")
-                .value("bar")
-                .build());
-        // TODO does this trigger any message bus event?
-        executeAndAssertSingleEntity(
-                HttpMethod.PUT,
-                API_PATHS.aasInterface(aas).assetInformation(),
-                StatusCode.SUCCESS_NO_CONTENT,
-                expected,
-                null,
-                AssetInformation.class);
-    }
-
-
-    @Test
-    public void testAssetAdministrationShellInterface_GetSubmodels()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
-        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        Object expected = aas.getSubmodels();
-        executeAndAssertMultipleEntities(
-                HttpMethod.GET,
-                API_PATHS.aasInterface(aas).submodels(),
-                StatusCode.SUCCESS,
-                null,
-                expected,
-                Reference.class);
     }
 
 
@@ -393,6 +392,546 @@ public class HttpEndpointIT {
 
 
     @Test
+    public void testAssetAdministrationShellInterface_GetAssetAdministrationShell()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.GET,
+                                API_PATHS.aasInterface(expected).assetAdministrationShell(),
+                                StatusCode.SUCCESS,
+                                null,
+                                expected,
+                                AssetAdministrationShell.class)));
+    }
+
+
+    @Test
+    public void testAssetAdministrationShellInterface_GetAssetAdministrationShell_NotExists()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface("non-existant").assetAdministrationShell());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
+    }
+
+
+    @Test
+    public void testAssetAdministrationShellInterface_GetAssetInformation()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        AssetInformation expected = aas.getAssetInformation();
+        // TODO does this trigger any message bus event?
+        executeAndAssertSingleEntity(
+                HttpMethod.GET,
+                API_PATHS.aasInterface(aas).assetInformation(),
+                StatusCode.SUCCESS,
+                null,
+                expected,
+                AssetInformation.class);
+    }
+
+
+    @Test
+    public void testAssetAdministrationShellInterface_GetSubmodels()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        Object expected = aas.getSubmodels();
+        executeAndAssertMultipleEntities(
+                HttpMethod.GET,
+                API_PATHS.aasInterface(aas).submodels(),
+                StatusCode.SUCCESS,
+                null,
+                expected,
+                Reference.class);
+    }
+
+
+    @Test
+    public void testAssetAdministrationShellInterface_UpdateAssetAdministrationShell()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
+        expected.setIdShort("changed");
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementUpdateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.PUT,
+                                API_PATHS.aasRepository().assetAdministrationShell(expected),
+                                StatusCode.SUCCESS,
+                                expected,
+                                expected,
+                                AssetAdministrationShell.class)));
+    }
+
+
+    @Test
+    public void testAssetAdministrationShellInterface_UpdateAssetInformation()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        AssetInformation expected = aas.getAssetInformation();
+        expected.getSpecificAssetIds().add(new DefaultIdentifierKeyValuePair.Builder()
+                .key("foo")
+                .value("bar")
+                .build());
+        // TODO does this trigger any message bus event?
+        executeAndAssertSingleEntity(
+                HttpMethod.PUT,
+                API_PATHS.aasInterface(aas).assetInformation(),
+                StatusCode.SUCCESS_NO_CONTENT,
+                expected,
+                null,
+                AssetInformation.class);
+    }
+
+
+    @Test
+    public void testConceptDescriptionRepository_CreateConceptDescription()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        ConceptDescription expected = new DefaultConceptDescription.Builder()
+                .identification(new DefaultIdentifier.Builder()
+                        .idType(IdentifierType.CUSTOM)
+                        .identifier("http://example.org/foo")
+                        .build())
+                .idShort("created")
+                .build();
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementCreateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.POST,
+                                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
+                                StatusCode.SUCCESS_CREATED,
+                                expected,
+                                expected,
+                                ConceptDescription.class)));
+        Assert.assertTrue(HttpHelper.getWithMultipleResult(
+                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
+                ConceptDescription.class)
+                .contains(expected));
+    }
+
+
+    @Test
+    public void testConceptDescriptionRepository_DeleteConceptDescription()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        ConceptDescription expected = environment.getConceptDescriptions().get(0);
+        List<ConceptDescription> before = HttpHelper.getWithMultipleResult(
+                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
+                ConceptDescription.class);
+        Assert.assertTrue(before.contains(expected));
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementDeleteEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssert(
+                                HttpMethod.DELETE,
+                                API_PATHS.conceptDescriptionRepository().conceptDescription(expected),
+                                StatusCode.SUCCESS_NO_CONTENT)));
+        List<ConceptDescription> after = HttpHelper.getWithMultipleResult(
+                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
+                ConceptDescription.class);
+        Assert.assertFalse(after.contains(expected));
+    }
+
+
+    @Test
+    public void testConceptDescriptionRepository_DeleteConceptDescription_NotExists()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        HttpResponse<String> response = HttpHelper.delete(API_PATHS.conceptDescriptionRepository().conceptDescription("non-existant"));
+        Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
+    }
+
+
+    @Test
+    public void testConceptDescriptionRepository_GetConceptDescription()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        ConceptDescription expected = environment.getConceptDescriptions().get(0);
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.GET,
+                                API_PATHS.conceptDescriptionRepository().conceptDescription(expected),
+                                StatusCode.SUCCESS,
+                                null,
+                                expected,
+                                ConceptDescription.class)));
+    }
+
+
+    @Test
+    public void testConceptDescriptionRepository_GetConceptDescription_NotExists()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        HttpResponse<String> response = HttpHelper.get(API_PATHS.conceptDescriptionRepository().conceptDescription("non-existant"));
+        Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
+    }
+
+
+    @Test
+    public void testConceptDescriptionRepository_GetConceptDescriptions()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+        Object expected = environment.getConceptDescriptions();
+        executeAndAssertMultipleEntities(
+                HttpMethod.GET,
+                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
+                StatusCode.SUCCESS,
+                null,
+                expected,
+                ConceptDescription.class);
+    }
+
+
+    @Test
+    public void testConceptDescriptionRepository_UpdateConceptDescription()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        ConceptDescription expected = environment.getConceptDescriptions().get(0);
+        expected.setIdShort("changed");
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementUpdateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.PUT,
+                                API_PATHS.conceptDescriptionRepository().conceptDescription(expected),
+                                StatusCode.SUCCESS,
+                                expected,
+                                expected,
+                                ConceptDescription.class)));
+        Assert.assertTrue(HttpHelper.getWithMultipleResult(
+                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
+                ConceptDescription.class)
+                .contains(expected));
+    }
+
+
+    @Test
+    public void testSubmodelInterface_CreateSubmodelElement()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        Submodel submodel = environment.getSubmodels().get(0);
+        SubmodelElement expected = new DefaultProperty.Builder()
+                .idShort("newProperty")
+                .build();
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementCreateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.POST,
+                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+                                StatusCode.SUCCESS_CREATED,
+                                expected,
+                                expected,
+                                SubmodelElement.class)));
+        List<SubmodelElement> after = HttpHelper.getWithMultipleResult(
+                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+                SubmodelElement.class);
+        Assert.assertTrue(after.contains(expected));
+    }
+
+
+    @Test
+    public void testSubmodelInterface_CreateSubmodelElementWithIdInUrl()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel submodel = environment.getSubmodels().get(0);
+        SubmodelElement expected = new DefaultProperty.Builder()
+                .idShort("newProperty")
+                .build();
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementCreateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.POST,
+                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
+                                StatusCode.SUCCESS_CREATED,
+                                expected,
+                                expected,
+                                SubmodelElement.class)));
+        List<SubmodelElement> after = HttpHelper.getWithMultipleResult(
+                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+                SubmodelElement.class);
+        Assert.assertTrue(after.contains(expected));
+    }
+
+
+    @Test
+    public void testSubmodelInterface_DeleteSubmodelElement()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel submodel = environment.getSubmodels().get(0);
+        SubmodelElement expected = submodel.getSubmodelElements().get(0);
+        List<SubmodelElement> before = HttpHelper.getWithMultipleResult(
+                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+                SubmodelElement.class);
+        Assert.assertTrue(before.contains(expected));
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementDeleteEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssert(
+                                HttpMethod.DELETE,
+                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
+                                StatusCode.SUCCESS)));
+        List<SubmodelElement> after = HttpHelper.getWithMultipleResult(
+                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+                SubmodelElement.class);
+        Assert.assertFalse(after.contains(expected));
+    }
+
+
+    @Test
+    public void testSubmodelInterface_GetSubmodel()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel expected = environment.getSubmodels().get(0);
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.GET,
+                                API_PATHS.submodelRepository().submodelInterface(expected).submodel(),
+                                StatusCode.SUCCESS,
+                                null,
+                                expected,
+                                Submodel.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterface_GetSubmodelElement()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel submodel = environment.getSubmodels().get(0);
+        SubmodelElement expected = submodel.getSubmodelElements().get(0);
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.GET,
+                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
+                                StatusCode.SUCCESS,
+                                null,
+                                expected,
+                                SubmodelElement.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterface_GetSubmodelElements() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+        Submodel submodel = environment.getSubmodels().get(0);
+        List<SubmodelElement> expected = submodel.getSubmodelElements();
+        executeAndAssertMultipleEntities(
+                HttpMethod.GET,
+                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+                StatusCode.SUCCESS,
+                null,
+                expected,
+                SubmodelElement.class);
+    }
+
+
+    @Test
+    public void testSubmodelInterface_GetSubmodel_ContentValue()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel submodel = environment.getSubmodels().get(3);
+        String expected = new JsonSerializer().write(submodel, new OutputModifier.Builder()
+                .content(Content.VALUE)
+                .build());
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                submodel,
+                LambdaExceptionHelper.wrap(
+                        x -> {
+                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Content.VALUE));
+                            Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+                            JSONAssert.assertEquals(expected, response.body(), false);
+                        }));
+    }
+
+
+    @Test
+    public void testSubmodelInterface_GetSubmodel_LevelCore()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel expected = DeepCopyHelper.deepCopy(environment.getSubmodels().get(2), Submodel.class);
+        expected.getSubmodelElements().forEach(x -> {
+            if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
+                ((SubmodelElementCollection) x).getValues().clear();
+            }
+        });
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.GET,
+                                API_PATHS.submodelRepository().submodelInterface(expected).submodel(Level.CORE),
+                                StatusCode.SUCCESS,
+                                null,
+                                expected,
+                                Submodel.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterface_GetSubmodel_LevelDeep()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel expected = environment.getSubmodels().get(2);
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.GET,
+                                API_PATHS.submodelRepository().submodelInterface(expected).submodel(Level.DEEP),
+                                StatusCode.SUCCESS,
+                                null,
+                                expected,
+                                Submodel.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterface_UpdateSubmodel()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        Submodel expected = environment.getSubmodels().get(0);
+        expected.setIdShort("changed");
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementUpdateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.PUT,
+                                API_PATHS.submodelRepository().submodelInterface(expected).submodel(),
+                                StatusCode.SUCCESS,
+                                expected,
+                                expected,
+                                Submodel.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterface_UpdateSubmodelElement()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel submodel = environment.getSubmodels().get(0);
+        SubmodelElement expected = submodel.getSubmodelElements().get(0);
+        expected.getDescriptions().add(new LangString("foo", "en"));
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementUpdateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.PUT,
+                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
+                                StatusCode.SUCCESS,
+                                expected,
+                                expected,
+                                SubmodelElement.class)));
+        List<SubmodelElement> after = HttpHelper.getWithMultipleResult(
+                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
+                SubmodelElement.class);
+        Assert.assertTrue(after.contains(expected));
+    }
+
+
+    @Test
+    public void testSubmodelRepository_CreateSubmodel()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel expected = new DefaultSubmodel.Builder()
+                .identification(new DefaultIdentifier.Builder()
+                        .idType(IdentifierType.IRI)
+                        .identifier("newSubmodel")
+                        .build())
+                .build();
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementCreateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.POST,
+                                API_PATHS.submodelRepository().submodels(),
+                                StatusCode.SUCCESS_CREATED,
+                                expected,
+                                expected,
+                                Submodel.class)));
+        Assert.assertTrue(HttpHelper.getWithMultipleResult(
+                API_PATHS.submodelRepository().submodels(),
+                Submodel.class)
+                .contains(expected));
+    }
+
+
+    @Test
+    public void testSubmodelRepository_DeleteSubmodel()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel expected = environment.getSubmodels().get(1);
+        List<Submodel> before = HttpHelper.getWithMultipleResult(
+                API_PATHS.submodelRepository().submodels(),
+                Submodel.class);
+        Assert.assertTrue(before.contains(expected));
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementDeleteEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssert(HttpMethod.DELETE,
+                                API_PATHS.submodelRepository().submodel(expected),
+                                StatusCode.SUCCESS)));
+        List<Submodel> after = HttpHelper.getWithMultipleResult(
+                API_PATHS.submodelRepository().submodels(),
+                Submodel.class);
+        Assert.assertFalse(after.contains(expected));
+    }
+
+
+    @Test
+    public void testSubmodelRepository_GetSubmodel()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel expected = environment.getSubmodels().get(1);
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> executeAndAssertSingleEntity(
+                                HttpMethod.GET,
+                                API_PATHS.submodelRepository().submodel(expected),
+                                StatusCode.SUCCESS,
+                                null,
+                                expected,
+                                Submodel.class)));
+    }
+
+
+    @Test
+    public void testSubmodelRepository_GetSubmodel_NotExists()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodel("non-existant"));
+        Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
+    }
+
+
+    @Test
     public void testSubmodelRepository_GetSubmodels() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         Object expected = environment.getSubmodels();
         executeAndAssertMultipleEntities(
@@ -434,61 +973,6 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testSubmodelRepository_CreateSubmodel()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        Submodel expected = new DefaultSubmodel.Builder()
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.IRI)
-                        .identifier("newSubmodel")
-                        .build())
-                .build();
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementCreateEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.POST,
-                                API_PATHS.submodelRepository().submodels(),
-                                StatusCode.SUCCESS_CREATED,
-                                expected,
-                                expected,
-                                Submodel.class)));
-        Assert.assertTrue(HttpHelper.getWithMultipleResult(
-                API_PATHS.submodelRepository().submodels(),
-                Submodel.class)
-                .contains(expected));
-    }
-
-
-    @Test
-    public void testSubmodelRepository_GetSubmodel()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        Submodel expected = environment.getSubmodels().get(1);
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementReadEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.GET,
-                                API_PATHS.submodelRepository().submodel(expected),
-                                StatusCode.SUCCESS,
-                                null,
-                                expected,
-                                Submodel.class)));
-    }
-
-
-    @Test
-    public void testSubmodelRepository_GetSubmodel_NotExists()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodel("non-existant"));
-        Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
-    }
-
-
-    @Test
     public void testSubmodelRepository_UpdateSubmodel()
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
         Submodel expected = environment.getSubmodels().get(1);
@@ -508,487 +992,9 @@ public class HttpEndpointIT {
     }
 
 
-    @Test
-    public void testSubmodelRepository_DeleteSubmodel()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        Submodel expected = environment.getSubmodels().get(1);
-        List<Submodel> before = HttpHelper.getWithMultipleResult(
-                API_PATHS.submodelRepository().submodels(),
-                Submodel.class);
-        Assert.assertTrue(before.contains(expected));
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementDeleteEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssert(HttpMethod.DELETE,
-                                API_PATHS.submodelRepository().submodel(expected),
-                                StatusCode.SUCCESS)));
-        List<Submodel> after = HttpHelper.getWithMultipleResult(
-                API_PATHS.submodelRepository().submodels(),
-                Submodel.class);
-        Assert.assertFalse(after.contains(expected));
-    }
-
-
-    @Test
-    public void testSubmodelInterface_GetSubmodel()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        Submodel expected = environment.getSubmodels().get(0);
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementReadEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.GET,
-                                API_PATHS.submodelRepository().submodelInterface(expected).submodel(),
-                                StatusCode.SUCCESS,
-                                null,
-                                expected,
-                                Submodel.class)));
-    }
-
-
-    @Test
-    public void testSubmodelInterface_GetSubmodel_ContentValue()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        Submodel submodel = environment.getSubmodels().get(3);
-        String expected = new JsonSerializer().write(submodel, new OutputModifier.Builder()
-                .content(Content.VALUE)
-                .build());
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementReadEventMessage.class,
-                submodel,
-                LambdaExceptionHelper.wrap(
-                        x -> {
-                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Content.VALUE));
-                            Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
-                            JSONAssert.assertEquals(expected, response.body(), false);
-                        }));
-    }
-
-
-    @Test
-    public void testSubmodelInterface_GetSubmodel_LevelDeep()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        Submodel expected = environment.getSubmodels().get(2);
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementReadEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.GET,
-                                API_PATHS.submodelRepository().submodelInterface(expected).submodel(Level.DEEP),
-                                StatusCode.SUCCESS,
-                                null,
-                                expected,
-                                Submodel.class)));
-    }
-
-
-    @Test
-    public void testSubmodelInterface_GetSubmodel_LevelCore()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        Submodel expected = DeepCopyHelper.deepCopy(environment.getSubmodels().get(2), Submodel.class);
-        expected.getSubmodelElements().forEach(x -> {
-            if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
-                ((SubmodelElementCollection) x).getValues().clear();
-            }
-        });
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementReadEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.GET,
-                                API_PATHS.submodelRepository().submodelInterface(expected).submodel(Level.CORE),
-                                StatusCode.SUCCESS,
-                                null,
-                                expected,
-                                Submodel.class)));
-    }
-
-
-    @Test
-    public void testSubmodelInterface_UpdateSubmodel()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
-        Submodel expected = environment.getSubmodels().get(0);
-        expected.setIdShort("changed");
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementUpdateEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.PUT,
-                                API_PATHS.submodelRepository().submodelInterface(expected).submodel(),
-                                StatusCode.SUCCESS,
-                                expected,
-                                expected,
-                                Submodel.class)));
-    }
-
-
-    @Test
-    public void testSubmodelInterface_GetSubmodelElements() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
-        Submodel submodel = environment.getSubmodels().get(0);
-        List<SubmodelElement> expected = submodel.getSubmodelElements();
-        executeAndAssertMultipleEntities(
-                HttpMethod.GET,
-                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
-                StatusCode.SUCCESS,
-                null,
-                expected,
-                SubmodelElement.class);
-    }
-
-
-    @Test
-    public void testSubmodelInterface_CreateSubmodelElement()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
-        Submodel submodel = environment.getSubmodels().get(0);
-        SubmodelElement expected = new DefaultProperty.Builder()
-                .idShort("newProperty")
-                .build();
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementCreateEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.POST,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
-                                StatusCode.SUCCESS_CREATED,
-                                expected,
-                                expected,
-                                SubmodelElement.class)));
-        List<SubmodelElement> after = HttpHelper.getWithMultipleResult(
-                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
-                SubmodelElement.class);
-        Assert.assertTrue(after.contains(expected));
-    }
-
-
-    @Test
-    public void testSubmodelInterface_GetSubmodelElement()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        Submodel submodel = environment.getSubmodels().get(0);
-        SubmodelElement expected = submodel.getSubmodelElements().get(0);
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementReadEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.GET,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
-                                StatusCode.SUCCESS,
-                                null,
-                                expected,
-                                SubmodelElement.class)));
-    }
-
-
-    @Test
-    public void testSubmodelInterface_CreateSubmodelElementWithIdInUrl()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        Submodel submodel = environment.getSubmodels().get(0);
-        SubmodelElement expected = new DefaultProperty.Builder()
-                .idShort("newProperty")
-                .build();
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementCreateEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.POST,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
-                                StatusCode.SUCCESS_CREATED,
-                                expected,
-                                expected,
-                                SubmodelElement.class)));
-        List<SubmodelElement> after = HttpHelper.getWithMultipleResult(
-                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
-                SubmodelElement.class);
-        Assert.assertTrue(after.contains(expected));
-    }
-
-
-    @Test
-    public void testSubmodelInterface_UpdateSubmodelElement()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        Submodel submodel = environment.getSubmodels().get(0);
-        SubmodelElement expected = submodel.getSubmodelElements().get(0);
-        expected.getDescriptions().add(new LangString("foo", "en"));
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementUpdateEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.PUT,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
-                                StatusCode.SUCCESS,
-                                expected,
-                                expected,
-                                SubmodelElement.class)));
-        List<SubmodelElement> after = HttpHelper.getWithMultipleResult(
-                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
-                SubmodelElement.class);
-        Assert.assertTrue(after.contains(expected));
-    }
-
-
-    @Test
-    public void testSubmodelInterface_DeleteSubmodelElement()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        Submodel submodel = environment.getSubmodels().get(0);
-        SubmodelElement expected = submodel.getSubmodelElements().get(0);
-        List<SubmodelElement> before = HttpHelper.getWithMultipleResult(
-                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
-                SubmodelElement.class);
-        Assert.assertTrue(before.contains(expected));
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementDeleteEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssert(
-                                HttpMethod.DELETE,
-                                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
-                                StatusCode.SUCCESS)));
-        List<SubmodelElement> after = HttpHelper.getWithMultipleResult(
-                API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
-                SubmodelElement.class);
-        Assert.assertFalse(after.contains(expected));
-    }
-
-
-    @Test
-    public void testConceptDescriptionRepository_GetConceptDescriptions()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
-        Object expected = environment.getConceptDescriptions();
-        executeAndAssertMultipleEntities(
-                HttpMethod.GET,
-                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
-                StatusCode.SUCCESS,
-                null,
-                expected,
-                ConceptDescription.class);
-    }
-
-
-    @Test
-    public void testConceptDescriptionRepository_CreateConceptDescription()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        ConceptDescription expected = new DefaultConceptDescription.Builder()
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.CUSTOM)
-                        .identifier("http://example.org/foo")
-                        .build())
-                .idShort("created")
-                .build();
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementCreateEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.POST,
-                                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
-                                StatusCode.SUCCESS_CREATED,
-                                expected,
-                                expected,
-                                ConceptDescription.class)));
-        Assert.assertTrue(HttpHelper.getWithMultipleResult(
-                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
-                ConceptDescription.class)
-                .contains(expected));
-    }
-
-
-    @Test
-    public void testConceptDescriptionRepository_GetConceptDescription()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        ConceptDescription expected = environment.getConceptDescriptions().get(0);
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementReadEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.GET,
-                                API_PATHS.conceptDescriptionRepository().conceptDescription(expected),
-                                StatusCode.SUCCESS,
-                                null,
-                                expected,
-                                ConceptDescription.class)));
-    }
-
-
-    @Test
-    public void testConceptDescriptionRepository_GetConceptDescription_NotExists()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        HttpResponse<String> response = HttpHelper.get(API_PATHS.conceptDescriptionRepository().conceptDescription("non-existant"));
-        Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
-    }
-
-
-    @Test
-    public void testConceptDescriptionRepository_DeleteConceptDescription_NotExists()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        HttpResponse<String> response = HttpHelper.delete(API_PATHS.conceptDescriptionRepository().conceptDescription("non-existant"));
-        Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
-    }
-
-
-    @Test
-    public void testConceptDescriptionRepository_UpdateConceptDescription()
-            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
-        ConceptDescription expected = environment.getConceptDescriptions().get(0);
-        expected.setIdShort("changed");
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementUpdateEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
-                                HttpMethod.PUT,
-                                API_PATHS.conceptDescriptionRepository().conceptDescription(expected),
-                                StatusCode.SUCCESS,
-                                expected,
-                                expected,
-                                ConceptDescription.class)));
-        Assert.assertTrue(HttpHelper.getWithMultipleResult(
-                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
-                ConceptDescription.class)
-                .contains(expected));
-    }
-
-
-    @Test
-    public void testConceptDescriptionRepository_DeleteConceptDescription()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        ConceptDescription expected = environment.getConceptDescriptions().get(0);
-        List<ConceptDescription> before = HttpHelper.getWithMultipleResult(
-                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
-                ConceptDescription.class);
-        Assert.assertTrue(before.contains(expected));
-        MessageBusHelper.assertEvent(
-                messageBus,
-                ElementDeleteEventMessage.class,
-                expected,
-                LambdaExceptionHelper.wrap(
-                        x -> executeAndAssert(
-                                HttpMethod.DELETE,
-                                API_PATHS.conceptDescriptionRepository().conceptDescription(expected),
-                                StatusCode.SUCCESS_NO_CONTENT)));
-        List<ConceptDescription> after = HttpHelper.getWithMultipleResult(
-                API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
-                ConceptDescription.class);
-        Assert.assertFalse(after.contains(expected));
-    }
-
-
-    @Test
-    public void testAASBasicDiscovery_GetAssetAdministrationShells()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
-        Object expected = environment.getAssetAdministrationShells().stream()
-                .map(x -> x.getIdentification())
-                .collect(Collectors.toList());
-        executeAndAssertMultipleEntities(
-                HttpMethod.GET,
-                API_PATHS.aasBasicDiscovery().assetAdministrationShells(),
-                StatusCode.SUCCESS,
-                null,
-                expected,
-                Identifier.class);
-    }
-
-
-    @Test
-    public void testAASBasicDiscovery_GetAssetAdministrationShellsByGlobalAssetId()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
-        String assetIdValue = "https://acplt.org/Test_Asset";
-        List<Identifier> expected = environment.getAssetAdministrationShells().stream()
-                .filter(x -> x.getAssetInformation().getGlobalAssetId().getKeys().stream()
-                        .anyMatch(y -> y.getValue().equalsIgnoreCase(assetIdValue)))
-                .map(x -> x.getIdentification())
-                .collect(Collectors.toList());
-        executeAndAssertMultipleEntities(
-                HttpMethod.GET,
-                API_PATHS.aasBasicDiscovery().assetAdministrationShells(Map.of(Constants.KEY_GLOBAL_ASSET_ID, assetIdValue)),
-                StatusCode.SUCCESS,
-                null,
-                expected,
-                Identifier.class);
-    }
-
-
-    @Test
-    public void testAASBasicDiscovery_GetAssetLinks()
-            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
-        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
-        List<IdentifierKeyValuePair> expected = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
-        expected.add(new DefaultIdentifierKeyValuePair.Builder()
-                .key(Constants.KEY_GLOBAL_ASSET_ID)
-                .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
-                .build());
-        executeAndAssertMultipleEntities(
-                HttpMethod.GET,
-                API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
-                StatusCode.SUCCESS,
-                null,
-                expected,
-                IdentifierKeyValuePair.class);
-    }
-
-
-    @Test
-    public void testAASBasicDiscovery_Create() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
-        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
-        IdentifierKeyValuePair newIdentifier = new DefaultIdentifierKeyValuePair.Builder()
-                .key("foo")
-                .value("bar")
-                .build();
-        List<IdentifierKeyValuePair> expected = new ArrayList<>();
-        expected.add(newIdentifier);
-        expected.addAll(aas.getAssetInformation().getSpecificAssetIds());
-        expected.add(new DefaultIdentifierKeyValuePair.Builder()
-                .key(Constants.KEY_GLOBAL_ASSET_ID)
-                .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
-                .build());
-        executeAndAssertMultipleEntities(
-                HttpMethod.POST,
-                API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
-                StatusCode.SUCCESS_CREATED,
-                List.of(newIdentifier),
-                expected,
-                IdentifierKeyValuePair.class);
-    }
-
-
-    @Test
-    public void testAASBasicDiscovery_Delete() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
-        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
-        aas.getAssetInformation().getSpecificAssetIds().clear();
-        aas.getAssetInformation().setGlobalAssetId(null);
-        executeAndAssert(
-                HttpMethod.DELETE,
-                API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
-                StatusCode.SUCCESS_NO_CONTENT);
-        executeAndAssertMultipleEntities(
-                HttpMethod.GET,
-                API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
-                StatusCode.SUCCESS,
-                null,
-                List.of(),
-                IdentifierKeyValuePair.class);
+    private void executeAndAssert(HttpMethod method, String url, StatusCode statusCode)
+            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
+        executeAndAssertSingleEntity(method, url, statusCode, null, null, null);
     }
 
 
@@ -1000,12 +1006,6 @@ public class HttpEndpointIT {
             Object actual = HttpHelper.readResponseList(response, type);
             Assert.assertEquals(expected, actual);
         }
-    }
-
-
-    private void executeAndAssert(HttpMethod method, String url, StatusCode statusCode)
-            throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
-        executeAndAssertSingleEntity(method, url, statusCode, null, null, null);
     }
 
 
