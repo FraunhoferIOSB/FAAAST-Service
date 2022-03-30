@@ -306,7 +306,7 @@ public class RequestHandlerManagerTest {
                 .payload(environment.getAssetAdministrationShells().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
@@ -408,7 +408,7 @@ public class RequestHandlerManagerTest {
                 .statusCode(StatusCode.SUCCESS)
                 .payload(environment.getAssetAdministrationShells().get(0).getSubmodels())
                 .build();
-        Assert.assertEquals(expected, response);
+        assertEqualsExceptTime(expected, response);
     }
 
 
