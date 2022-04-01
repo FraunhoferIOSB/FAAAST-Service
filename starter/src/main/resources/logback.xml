@@ -1,41 +1,36 @@
 <configuration scan="true">
 
-    <property name="HOME_LOG" value="logs/app.log"/>
-
+    <property name="LOG_DIR" value="logs/app.log"/>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <!--
-            <pattern>%d{HH:mm:ss.SSS} [%16thread] %-5level %30logger{30} - %msg%n</pattern>
-            -->
-            <pattern>%d{HH:mm:ss.SSS} [%5thread] %-5level %35logger{30} - %msg%n</pattern>
+            <!--<charset>UTF-8</charset>-->
+            <pattern>%date{yyyy-MM-dd HH:mm:ss} %msg %n</pattern>
         </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
     </appender>
-
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${HOME_LOG}</file>
+        <file>${LOG_DIR}</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!-- daily rollover. Make sure the path matches the one in the file element or else
-            the rollover logs are placed in the working directory. -->
+            <!-- daily rollover -->
             <fileNamePattern>logs/archived/app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <!-- each archived file, size max 10MB -->
             <maxFileSize>10MB</maxFileSize>
-            <!-- total size of all archive files, if total size > 20GB, it will delete old archived file -->
-            <totalSizeCap>20GB</totalSizeCap>
-            <!-- 60 days to keep -->
+            <totalSizeCap>100MB</totalSizeCap>
+            <!-- in days -->
             <maxHistory>60</maxHistory>
         </rollingPolicy>
         <encoder>
             <pattern>%d %p %c{1.} [%t] %m%n</pattern>
         </encoder>
     </appender>
-
-    <logger name="de.fraunhofer.iosb.ilt.faaast.service.starter" level="debug" additivity="false">
+    <logger name="de.fraunhofer.iosb.ilt.faaast.service.starter" level="info" additivity="false">
         <appender-ref ref="STDOUT"/>
+    </logger>
+    <logger name="de.fraunhofer.iosb.ilt.faaast.service.starter" level="debug" additivity="false">
         <appender-ref ref="FILE"/>
     </logger>
-
     <root level="error">
         <appender-ref ref="STDOUT"/>
     </root>
-
 </configuration>

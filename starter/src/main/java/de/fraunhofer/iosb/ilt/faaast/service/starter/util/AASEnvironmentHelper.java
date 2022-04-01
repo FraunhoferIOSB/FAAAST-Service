@@ -41,6 +41,7 @@ public class AASEnvironmentHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AASEnvironmentHelper.class);
     private static Map<DataFormat, Deserializer> deserializers;
+    public static final AssetAdministrationShellEnvironment EMPTY_AAS = new DefaultAssetAdministrationShellEnvironment.Builder().build();
 
     static {
         deserializers = Map.of(DataFormat.JSON, new JsonDeserializer(),
@@ -129,16 +130,5 @@ public class AASEnvironmentHelper {
                         potentialDataFormats.stream()
                                 .map(x -> x.name())
                                 .collect(Collectors.joining(","))));
-    }
-
-
-    /**
-     * Returns a new empty instance of
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     *
-     * @return an empty Asset Administration Shell Environment
-     */
-    public static AssetAdministrationShellEnvironment newEmpty() {
-        return new DefaultAssetAdministrationShellEnvironment.Builder().build();
     }
 }
