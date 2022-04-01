@@ -111,7 +111,7 @@ public class ServiceConfigHelper {
                 document.set(jsonPath, v);
             }
             catch (JsonPathException e) {
-                throw new JsonPathException(String.format("updating property failed (key: {}, value: {})", k, v, e));
+                throw new JsonPathException(String.format("updating property failed (key: %s, value: %s)", k, v, e));
             }
         });
         return mapper.treeToValue(document.json(), ServiceConfig.class);
@@ -152,9 +152,9 @@ public class ServiceConfigHelper {
 
     public static void apply(ServiceConfig config, List<Config> configs) throws InvalidConfigurationException {
         if (config != null && configs != null) {
-            applyMultiple(configs, EndpointConfig.class, x -> config.setEndpoints(x));
-            applySingle(configs, PersistenceConfig.class, x -> config.setPersistence(x));
-            applySingle(configs, MessageBusConfig.class, x -> config.setMessageBus(x));
+            applyMultiple(configs, EndpointConfig.class, config::setEndpoints);
+            applySingle(configs, PersistenceConfig.class, config::setPersistence);
+            applySingle(configs, MessageBusConfig.class, config::setMessageBus);
             applyMultiple(configs, AssetConnectionConfig.class, x -> config.getAssetConnections().addAll(x));
         }
     }

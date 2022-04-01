@@ -32,13 +32,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.jena.shacl.ValidationReport;
@@ -68,7 +71,7 @@ public class App implements Runnable {
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-    private static Service service;
+    private static AtomicReference<Service> serviceRef = new AtomicReference<>();
     // commands
     protected static final String COMMAND_CONFIG = "--config";
     protected static final String COMMAND_MODEL = "--model";
@@ -90,6 +93,8 @@ public class App implements Runnable {
 
     @Spec
     private CommandSpec spec;
+
+    private Service service;
 
     private static String indent(String value, int steps) {
         return String.format(String.format("%%%ds%s", INDENT_DEFAULT + (INDENT_STEP * steps), value), "");
@@ -131,8 +136,8 @@ public class App implements Runnable {
         }
         finally {
             LOGGER.info("Shutting down FA³ST Service...");
-            if (service != null) {
-                service.stop();
+            if (serviceRef.get() != null) {
+                serviceRef.get().stop();
             }
             LOGGER.info("FA³ST Service successfully shut down");
             SHUTDOWN_FINISHED.countDown();
@@ -219,18 +224,23 @@ public class App implements Runnable {
             service = new Service(model, config);
             LOGGER.info("Starting FA³ST Service...");
             LOGGER.debug("Using configuration file: ");
-            try {
-                LOGGER.debug(mapper.writeValueAsString(config));
-            }
-            catch (JsonProcessingException e) {
-                LOGGER.debug("Printing config failed", e);
-            }
+            printConfig(config);
             service.start();
             LOGGER.info("FA³ST Service successfully started");
             LOGGER.info("Press CTRL + C to stop");
         }
         catch (Exception e) {
             LOGGER.error("Unexpected exception encountered while execution FA³ST Service", e);
+        }
+    }
+
+
+    private void printConfig(ServiceConfig config) {
+        try {
+            LOGGER.debug(mapper.writeValueAsString(config));
+        }
+        catch (JsonProcessingException e) {
+            LOGGER.debug("Printing config failed", e);
         }
     }
 
@@ -264,7 +274,7 @@ public class App implements Runnable {
             LOGGER.info("Config: {} (default location)", configFile.getAbsoluteFile());
             return ServiceConfigHelper.load(configFile);
         }
-        LOGGER.info("Config: empty (default)", configFile.getAbsoluteFile());
+        LOGGER.info("Config: empty (default)");
         return ServiceConfigHelper.DEFAULT_SERVICE_CONFIG;
     }
 
@@ -292,23 +302,27 @@ public class App implements Runnable {
             LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
             return AASEnvironmentHelper.fromFile(defaultModel.get());
         }
-        LOGGER.info("Model: empty (default)", configFile.getAbsoluteFile());
+        LOGGER.info("Model: empty (default)");
         return AASEnvironmentHelper.EMPTY_AAS;
     }
 
 
-    private Optional<File> findDefaultModel() throws DeserializationException {
+    private Optional<File> findDefaultModel() {
         try {
-            List<File> modelFiles = Files.find(Paths.get(""), 1,
+            List<File> modelFiles;
+            try (Stream<File> stream = Files.find(Paths.get(""), 1,
                     (file, attributes) -> file.toFile()
                             .getName()
                             .matches(MODEL_FILENAME_PATTERN))
-                    .map(x -> x.toFile())
-                    .collect(Collectors.toList());
+                    .map(Path::toFile)) {
+                modelFiles = stream.collect(Collectors.toList());
+            }
             if (modelFiles.size() > 1) {
                 LOGGER.warn("Found multiple model files matching the default pattern. To use a specific one use command '{} <filename>' (files found: {}, file pattern: {})",
                         COMMAND_MODEL,
-                        modelFiles.stream().map(x -> x.getName()).collect(Collectors.joining(",", "[", "]")),
+                        modelFiles.stream()
+                                .map(File::getName)
+                                .collect(Collectors.joining(",", "[", "]")),
                         MODEL_FILENAME_PATTERN);
             }
             return modelFiles.stream().findFirst();
@@ -323,8 +337,9 @@ public class App implements Runnable {
         Map<String, String> envParameters = System.getenv().entrySet().stream()
                 .filter(x -> x.getKey().startsWith(ENV_CONFIG_EXTENSION_PREFIX))
                 .filter(x -> !properties.containsKey(x.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length() - 1)))
-                .collect(Collectors.toMap(x -> x.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length()),
-                        x -> x.getValue()));
+                .collect(Collectors.toMap(
+                        x -> x.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length()),
+                        Entry::getValue));
         Map<String, String> result = new HashMap<>(envParameters);
         for (var property: properties.entrySet()) {
             if (property.getKey().startsWith(ENV_CONFIG_EXTENSION_PREFIX)) {
@@ -362,9 +377,7 @@ public class App implements Runnable {
         }
         ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
         ShLib.printReport(validationResultStream, report);
-        LOGGER.info("Model validation failed with the following error(s):{}{}",
-                System.lineSeparator(),
-                validationResultStream.toString());
+        LOGGER.info("Model validation failed with the following error(s):{}{}", System.lineSeparator(), validationResultStream);
         return false;
     }
 }
