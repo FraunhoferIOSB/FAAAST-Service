@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.Annota
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ContextAwareElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.EntityValueDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.EnumDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.MultiLanguagePropertyValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.PropertyValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.RangeValueDeserializer;
@@ -55,6 +56,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollecti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import io.adminshell.aas.v3.dataformat.json.modeltype.ModelTypeProcessor;
 import java.io.IOException;
 import java.util.List;
@@ -312,6 +314,7 @@ public class JsonDeserializer implements Deserializer {
         module.addDeserializer(EntityValue.class, new EntityValueDeserializer());
         module.addDeserializer(ElementValue.class, new ElementValueDeserializer());
         module.addDeserializer(RangeValue.class, new RangeValueDeserializer());
+        ReflectionHelper.ENUMS.forEach(x -> module.addDeserializer(x, new EnumDeserializer(x)));
         mapper.registerModule(module);
     }
 

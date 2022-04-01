@@ -99,7 +99,7 @@ public class CoreConfig {
 
         /**
          * Builds a new instance of CoreConfig as defined by the builder.
-         * 
+         *
          * @return a new instance of CoreConfig as defined by the builder
          */
         public CoreConfig build() {

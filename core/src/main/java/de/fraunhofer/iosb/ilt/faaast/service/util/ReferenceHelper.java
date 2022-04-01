@@ -119,15 +119,15 @@ public class ReferenceHelper {
                 null
         };
         for (Key k: keys) {
-            if (env.getAssetAdministrationShells().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue()) ||
-                    x.getIdShort().equalsIgnoreCase(k.getValue()))) {
+            if (env.getAssetAdministrationShells().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
+                    || x.getIdShort().equalsIgnoreCase(k.getValue()))) {
                 k.setType(KeyElements.ASSET_ADMINISTRATION_SHELL);
                 continue;
             }
 
             env.getSubmodels().forEach(x -> {
-                if (x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue()) ||
-                        x.getIdShort().equalsIgnoreCase(k.getValue())) {
+                if (x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
+                        || x.getIdShort().equalsIgnoreCase(k.getValue())) {
                     k.setType(KeyElements.SUBMODEL);
                     parent[0] = x;
                 }
@@ -136,13 +136,13 @@ public class ReferenceHelper {
                 continue;
             }
 
-            if (env.getConceptDescriptions().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue()) ||
-                    x.getIdShort().equalsIgnoreCase(k.getValue()))) {
+            if (env.getConceptDescriptions().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
+                    || x.getIdShort().equalsIgnoreCase(k.getValue()))) {
                 k.setType(KeyElements.CONCEPT_DESCRIPTION);
                 continue;
             }
-            if (env.getAssets().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue()) ||
-                    x.getIdShort().equalsIgnoreCase(k.getValue()))) {
+            if (env.getAssets().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
+                    || x.getIdShort().equalsIgnoreCase(k.getValue()))) {
                 k.setType(KeyElements.ASSET);
                 continue;
             }

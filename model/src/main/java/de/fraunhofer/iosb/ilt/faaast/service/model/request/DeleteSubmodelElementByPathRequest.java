@@ -28,6 +28,7 @@ import java.util.Objects;
  * Chapter 4.3.10
  */
 public class DeleteSubmodelElementByPathRequest extends BaseRequest<DeleteSubmodelElementByPathResponse> {
+
     private Identifier id;
     private List<Key> path;
 
@@ -58,10 +59,12 @@ public class DeleteSubmodelElementByPathRequest extends BaseRequest<DeleteSubmod
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         DeleteSubmodelElementByPathRequest that = (DeleteSubmodelElementByPathRequest) o;
         return Objects.equals(id, that.id) && Objects.equals(path, that.path);
     }
@@ -78,6 +81,7 @@ public class DeleteSubmodelElementByPathRequest extends BaseRequest<DeleteSubmod
     }
 
     public abstract static class AbstractBuilder<T extends DeleteSubmodelElementByPathRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();

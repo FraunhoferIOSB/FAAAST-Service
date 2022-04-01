@@ -28,6 +28,7 @@ import java.util.UUID;
 
 
 public abstract class InvokeOperationRequest<T extends Response> extends BaseRequest<T> {
+
     private static final long DEFAULT_TIMEOUT = 1000;
     protected Identifier id;
     protected Content content;
@@ -99,10 +100,12 @@ public abstract class InvokeOperationRequest<T extends Response> extends BaseReq
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         InvokeOperationRequest that = (InvokeOperationRequest) o;
         return Objects.equals(id, that.id)
                 && Objects.equals(content, that.content)
@@ -130,6 +133,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends BaseReq
     }
 
     public abstract static class AbstractBuilder<T extends InvokeOperationRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();

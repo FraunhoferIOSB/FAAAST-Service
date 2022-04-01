@@ -19,6 +19,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.exception;
  * using class regarding to content. This Exception should not be used for any errors during de-/serialization.
  */
 public class InvalidConfigurationException extends ConfigurationException {
+
     public InvalidConfigurationException() {}
 
 

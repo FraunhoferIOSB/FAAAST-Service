@@ -25,6 +25,7 @@ import java.util.Objects;
  * Chapter 6.4.7
  */
 public class PostConceptDescriptionRequest extends BaseRequest<PostConceptDescriptionResponse> {
+
     private ConceptDescription conceptDescription;
 
     public ConceptDescription getConceptDescription() {
@@ -39,10 +40,12 @@ public class PostConceptDescriptionRequest extends BaseRequest<PostConceptDescri
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PostConceptDescriptionRequest that = (PostConceptDescriptionRequest) o;
         return Objects.equals(conceptDescription, that.conceptDescription);
     }
@@ -59,6 +62,7 @@ public class PostConceptDescriptionRequest extends BaseRequest<PostConceptDescri
     }
 
     public abstract static class AbstractBuilder<T extends PostConceptDescriptionRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B conceptDescription(ConceptDescription value) {
             getBuildingInstance().setConceptDescription(value);
             return getSelf();

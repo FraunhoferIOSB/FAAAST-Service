@@ -235,7 +235,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testWriteRelationshipElementValue Browse Result Null", bpres);
-        Assert.assertTrue("testWriteRelationshipElementValue Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testWriteRelationshipElementValue Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testWriteRelationshipElementValue Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -296,7 +296,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testWriteSubmodelElementCollectionValue Browse Result Null", bpres);
-        Assert.assertTrue("testWriteSubmodelElementCollectionValue Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testWriteSubmodelElementCollectionValue Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testWriteSubmodelElementCollectionValue Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -349,7 +349,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testWriteSubmodelElementCollectionValue2 Browse Result Null", bpres);
-        Assert.assertTrue("testWriteSubmodelElementCollectionValue2 Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testWriteSubmodelElementCollectionValue2 Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testWriteSubmodelElementCollectionValue2 Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -398,7 +398,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testWriteMultiLanguagePropertyValue Browse Result Null", bpres);
-        Assert.assertTrue("testWriteMultiLanguagePropertyValue Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testWriteMultiLanguagePropertyValue Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testWriteMultiLanguagePropertyValue Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -452,7 +452,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testWriteEntityGlobalAssetId Browse Result Null", bpres);
-        Assert.assertTrue("testWriteEntityGlobalAssetId Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testWriteEntityGlobalAssetId Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testWriteEntityGlobalAssetId Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -510,7 +510,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testCallOperationSuccess Browse Result Null", bpres);
-        Assert.assertTrue("testCallOperationSuccess Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testCallOperationSuccess Browse Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testCallOperationSuccess Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -575,7 +575,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testCallOperationArgsMissing Browse Result Null", bpres);
-        Assert.assertTrue("testCallOperationArgsMissing Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testCallOperationArgsMissing Browse Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testCallOperationArgsMissing Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -612,6 +612,7 @@ public class OpcUaEndpointFullTest {
      * @throws Exception If the operation fails
      */
     @Test
+    @SuppressWarnings("java:S2925")
     public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
@@ -635,7 +636,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
-        Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testAddProperty Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
 
         // Send event to MessageBus
@@ -658,7 +659,7 @@ public class OpcUaEndpointFullTest {
         // check that the element is there now
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testAddProperty Browse Result Null", bpres);
-        Assert.assertTrue("testAddProperty Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testAddProperty Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testAddProperty Browse Result Good", bpres[0].getStatusCode().isGood());
 
         System.out.println("disconnect client");
@@ -675,6 +676,7 @@ public class OpcUaEndpointFullTest {
      * @throws Exception If the operation fails
      */
     @Test
+    @SuppressWarnings("java:S2925")
     public void testDeleteSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
@@ -698,7 +700,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testDeleteSubmodel Browse Result Null", bpres);
-        Assert.assertTrue("testDeleteSubmodel Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testDeleteSubmodel Browse Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testDeleteSubmodel Browse Result 1 Good", bpres[0].getStatusCode().isGood());
         Assert.assertTrue("testDeleteSubmodel Browse Result 2 Good", bpres[1].getStatusCode().isGood());
 
@@ -714,7 +716,7 @@ public class OpcUaEndpointFullTest {
         // check that the element is not there anymore
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testDeleteSubmodel Browse Result Null", bpres);
-        Assert.assertTrue("testDeleteSubmodel Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testDeleteSubmodel Browse Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testDeleteSubmodel Browse Result 1 Bad", bpres[0].getStatusCode().isBad());
         Assert.assertTrue("testDeleteSubmodel Browse Result 2 Bad", bpres[1].getStatusCode().isBad());
 
@@ -732,6 +734,7 @@ public class OpcUaEndpointFullTest {
      * @throws Exception If the operation fails
      */
     @Test
+    @SuppressWarnings("java:S2925")
     public void testDeleteCapability() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
@@ -755,7 +758,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testDeleteCapability Browse Result Null", bpres);
-        Assert.assertTrue("testDeleteCapability Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testDeleteCapability Browse Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testDeleteCapability Browse Result 1 Good", bpres[0].getStatusCode().isGood());
         Assert.assertTrue("testDeleteCapability Browse Result 2 Good", bpres[1].getStatusCode().isGood());
 
@@ -772,7 +775,7 @@ public class OpcUaEndpointFullTest {
         // check that the element is not there anymore
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testDeleteCapability Browse Result Null", bpres);
-        Assert.assertTrue("testDeleteCapability Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testDeleteCapability Browse Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testDeleteCapability Browse Result 1 Bad", bpres[0].getStatusCode().isBad());
         Assert.assertTrue("testDeleteCapability Browse Result 2 Bad", bpres[1].getStatusCode().isBad());
 
@@ -809,7 +812,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testOrderedSubmodelElementCollection Browse Result Null", bpres);
-        Assert.assertTrue("testOrderedSubmodelElementCollection Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testOrderedSubmodelElementCollection Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testOrderedSubmodelElementCollection Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -855,7 +858,7 @@ public class OpcUaEndpointFullTest {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testUnorderedSubmodelElementCollection Browse Result Null", bpres);
-        Assert.assertTrue("testUnorderedSubmodelElementCollection Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("testUnorderedSubmodelElementCollection Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("testUnorderedSubmodelElementCollection Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();

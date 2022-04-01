@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change;
+
 /**
  * Event message indicating that an element has been updated
  */

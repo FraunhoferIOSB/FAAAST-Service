@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponse;
  * Chapter 7.2.5
  */
 public class DeleteAllAssetLinksByIdResponse extends BaseResponse {
+
     public static DeleteAllAssetLinksByIdResponse.Builder builder() {
         return new DeleteAllAssetLinksByIdResponse.Builder();
     }

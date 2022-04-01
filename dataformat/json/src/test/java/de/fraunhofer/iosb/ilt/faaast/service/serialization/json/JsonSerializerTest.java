@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.PropertyValues;
@@ -30,6 +31,7 @@ import io.adminshell.aas.v3.model.impl.DefaultAssetInformation;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +45,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 
 public class JsonSerializerTest {
 
-    JsonSerializer serializer = new JsonSerializer();
+    private final JsonSerializer serializer = new JsonSerializer();
 
     @Test
     public void testIdentifiableSerialization() throws Exception {
@@ -51,7 +53,6 @@ public class JsonSerializerTest {
                 .idShort("testShell")
                 .assetInformation(new DefaultAssetInformation.Builder().assetKind(AssetKind.INSTANCE).build())
                 .build();
-
         compareToAdminShellIoSerialization(shell);
     }
 
@@ -66,7 +67,6 @@ public class JsonSerializerTest {
                         .idShort("testShell2")
                         .assetInformation(new DefaultAssetInformation.Builder().assetKind(AssetKind.INSTANCE).build())
                         .build());
-
         compareToAdminShellIoSerialization(shells);
     }
 
@@ -77,7 +77,6 @@ public class JsonSerializerTest {
                 .idShort("testShell")
                 .value("Test")
                 .build();
-
         compareToAdminShellIoSerialization(property);
     }
 
@@ -116,7 +115,19 @@ public class JsonSerializerTest {
         String actual = serializer.write(data.keySet(), new OutputModifier.Builder()
                 .content(Content.VALUE)
                 .build());
-        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
+        compare(expected, actual);
+    }
+
+
+    @Test
+    public void testEnumsWithCustomNaming() throws SerializationException {
+        Assert.assertEquals("\"SuccessCreated\"", serializer.write(StatusCode.SUCCESS_CREATED));
+    }
+
+
+    @Test
+    public void testEnumsWithoutCustomNaming() throws SerializationException {
+        Assert.assertEquals("\"UTF-8\"", serializer.write(StandardCharsets.UTF_8));
     }
 
 
@@ -131,7 +142,6 @@ public class JsonSerializerTest {
     private void compareToAdminShellIoSerialization(Referable referable) throws Exception {
         String expected = new io.adminshell.aas.v3.dataformat.json.JsonSerializer().write(referable);
         String actual = serializer.write(referable, new OutputModifier.Builder().build());
-
         compare(expected, actual);
     }
 
@@ -139,13 +149,12 @@ public class JsonSerializerTest {
     private void compareToAdminShellIoSerialization(List<Referable> referables) throws Exception {
         String expected = new io.adminshell.aas.v3.dataformat.json.JsonSerializer().write(referables);
         String actual = serializer.write(referables, new OutputModifier.Builder().build());
-
         compare(expected, actual);
     }
 
 
-    private void compare(String expected, String actual) {
-        Assert.assertEquals(expected, actual);
+    private void compare(String expected, String actual) throws JSONException {
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
 }

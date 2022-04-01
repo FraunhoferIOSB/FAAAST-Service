@@ -91,10 +91,12 @@ public class OperationResult {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         OperationResult that = (OperationResult) o;
         return Objects.equals(requestId, that.requestId) && Objects.equals(outputArguments, that.outputArguments) && Objects.equals(inoutputArguments, that.inoutputArguments)
                 && Objects.equals(executionResult, that.executionResult) && executionState == that.executionState;

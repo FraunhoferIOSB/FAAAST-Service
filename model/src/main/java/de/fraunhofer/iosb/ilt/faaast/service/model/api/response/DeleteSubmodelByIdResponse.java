@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponse;
  * Chapter 6.3.8
  */
 public class DeleteSubmodelByIdResponse extends BaseResponse {
+
     public static DeleteSubmodelByIdResponse.Builder builder() {
         return new DeleteSubmodelByIdResponse.Builder();
     }

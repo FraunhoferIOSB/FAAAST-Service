@@ -21,6 +21,7 @@ import java.util.Objects;
  * Model class for search options
  */
 public class SearchOptions {
+
     private Depth depth;
 
     public SearchOptions() {
@@ -40,10 +41,12 @@ public class SearchOptions {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         SearchOptions that = (SearchOptions) o;
         return depth == that.depth;
     }

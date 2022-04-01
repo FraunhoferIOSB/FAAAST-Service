@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -52,6 +54,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
  */
 public class RequestHandler extends AbstractHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
     private ServiceContext serviceContext;
     private RequestMappingManager mappingManager;
     private HttpJsonSerializer serializer;
@@ -68,16 +71,14 @@ public class RequestHandler extends AbstractHandler {
 
     @Override
     public void handle(String string, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-
         BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8)) {
             @Override
             public void close() throws IOException {
                 request.getInputStream().close();
             }
         };
-
         HttpRequest httpRequest = HttpRequest.builder()
-                .path(request.getRequestURI())
+                .path(request.getRequestURI().replaceAll("/$", ""))
                 .query(request.getQueryString())
                 .body(reader.lines().collect(Collectors.joining(System.lineSeparator())))
                 .method(HttpMethod.valueOf(request.getMethod()))
@@ -100,7 +101,7 @@ public class RequestHandler extends AbstractHandler {
             executeAndSend(response, apiRequest);
         }
         catch (SerializationException e) {
-            e.printStackTrace();
+            LOGGER.error("error serializing HTTP response", e);
         }
         baseRequest.setHandled(true);
     }
@@ -118,15 +119,14 @@ public class RequestHandler extends AbstractHandler {
         if (errorMessage.isEmpty()) {
             errorMessage = HttpStatus.getMessage(httpStatusCode);
         }
-        Message message = Message.builder()
-                .messageType(messageType)
-                .text(errorMessage)
-                .code(HttpStatus.getMessage(httpStatusCode)) // Technology-dependent status or error code
-                .timestamp(new Date())
-                .build();
         Result result = Result.builder()
                 .success(false)
-                .message(message)
+                .message(Message.builder()
+                        .messageType(messageType)
+                        .text(errorMessage)
+                        .code(HttpStatus.getMessage(httpStatusCode))
+                        .timestamp(new Date())
+                        .build())
                 .build();
         try {
             sendJson(response, httpStatusCode, serializer.write(result));

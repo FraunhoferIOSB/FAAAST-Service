@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.exception;
 
 public abstract class ConfigurationException extends Exception {
+
     protected ConfigurationException() {
         super();
     }

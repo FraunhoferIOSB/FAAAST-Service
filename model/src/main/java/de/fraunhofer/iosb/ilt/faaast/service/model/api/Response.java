@@ -19,6 +19,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api;
  * specification Part 2.
  */
 public interface Response {
+
     public Result getResult();
 
 
