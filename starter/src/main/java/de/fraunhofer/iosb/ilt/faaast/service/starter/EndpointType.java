@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 
@@ -22,14 +23,14 @@ public enum EndpointType {
     HTTP(HttpEndpointConfig.class),
     OPCUA(HttpEndpointConfig.class);
 
-    private final Class<? extends EndpointConfig<?>> implementation;
+    private final Class<? extends EndpointConfig<? extends Endpoint>> implementation;
 
-    private EndpointType(Class<? extends EndpointConfig<?>> implementation) {
+    private EndpointType(Class<? extends EndpointConfig<? extends Endpoint>> implementation) {
         this.implementation = implementation;
     }
 
 
-    public Class<? extends EndpointConfig<?>> getImplementation() {
+    public Class<? extends EndpointConfig<? extends Endpoint>> getImplementation() {
         return implementation;
     }
 }
