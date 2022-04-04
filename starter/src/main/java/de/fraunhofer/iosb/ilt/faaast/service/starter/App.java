@@ -236,11 +236,13 @@ public class App implements Runnable {
 
 
     private void printConfig(ServiceConfig config) {
-        try {
-            LOGGER.debug(mapper.writeValueAsString(config));
-        }
-        catch (JsonProcessingException e) {
-            LOGGER.debug("Printing config failed", e);
+        if (LOGGER.isDebugEnabled()) {
+            try {
+                LOGGER.debug(mapper.writeValueAsString(config));
+            }
+            catch (JsonProcessingException e) {
+                LOGGER.debug("Printing config failed", e);
+            }
         }
     }
 
@@ -317,7 +319,7 @@ public class App implements Runnable {
                     .map(Path::toFile)) {
                 modelFiles = stream.collect(Collectors.toList());
             }
-            if (modelFiles.size() > 1) {
+            if (modelFiles.size() > 1 && LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Found multiple model files matching the default pattern. To use a specific one use command '{} <filename>' (files found: {}, file pattern: {})",
                         COMMAND_MODEL,
                         modelFiles.stream()
@@ -377,7 +379,9 @@ public class App implements Runnable {
         }
         ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
         ShLib.printReport(validationResultStream, report);
-        LOGGER.info("Model validation failed with the following error(s):{}{}", System.lineSeparator(), validationResultStream);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Model validation failed with the following error(s):{}{}", System.lineSeparator(), validationResultStream);
+        }
         return false;
     }
 }

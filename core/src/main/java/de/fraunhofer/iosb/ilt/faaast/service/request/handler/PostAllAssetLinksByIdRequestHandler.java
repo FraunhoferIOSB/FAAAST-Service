@@ -104,7 +104,7 @@ public class PostAllAssetLinksByIdRequestHandler extends RequestHandler<PostAllA
             }
         }
         aas = (AssetAdministrationShell) persistence.put(aas);
-        List<IdentifierKeyValuePair> result = new ArrayList(aas.getAssetInformation().getSpecificAssetIds());
+        List<IdentifierKeyValuePair> result = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
         if (aas.getAssetInformation().getGlobalAssetId() != null
                 && aas.getAssetInformation().getGlobalAssetId().getKeys() != null
                 && !aas.getAssetInformation().getGlobalAssetId().getKeys().isEmpty()) {

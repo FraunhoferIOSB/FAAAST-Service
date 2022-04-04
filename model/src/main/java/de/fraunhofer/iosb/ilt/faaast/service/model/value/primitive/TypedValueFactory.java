@@ -33,7 +33,7 @@ public class TypedValueFactory {
      * @return typed value representation
      * @throws ValueFormatException if value cannot be converted to datatype
      */
-    public static TypedValue create(String datatypeName, String value) throws ValueFormatException {
+    public static TypedValue<?> create(String datatypeName, String value) throws ValueFormatException {
         return create(Datatype.fromName(datatypeName), value);
     }
 
@@ -49,7 +49,7 @@ public class TypedValueFactory {
      * @throws ValueFormatException if value cannot be converted to datatype
      * @throws RuntimeException if instantiating new class fails
      */
-    public static TypedValue create(Datatype datatype, String value) throws ValueFormatException {
+    public static TypedValue<?> create(Datatype datatype, String value) throws ValueFormatException {
         if (datatype == null) {
             throw new IllegalArgumentException("datatype most be non-null");
         }

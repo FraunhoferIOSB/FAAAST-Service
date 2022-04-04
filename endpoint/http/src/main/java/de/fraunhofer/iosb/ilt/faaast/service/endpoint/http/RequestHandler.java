@@ -40,8 +40,6 @@ import java.util.stream.Collectors;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -51,7 +49,6 @@ import org.slf4j.LoggerFactory;
  */
 public class RequestHandler extends AbstractHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
     private ServiceContext serviceContext;
     private RequestMappingManager mappingManager;
     private HttpJsonSerializer serializer;

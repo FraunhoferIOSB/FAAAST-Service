@@ -106,7 +106,7 @@ public class ValueConverter {
      * @throws ValueConversionException if value or targetType are null
      * @throws ValueConversionException if conversion fails
      */
-    public TypedValue convert(Variant value, Datatype targetType) throws ValueConversionException {
+    public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
         if (value == null) {
             throw new ValueConversionException("value must be non-null");
         }

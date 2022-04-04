@@ -32,5 +32,5 @@ public interface OpcUaToAasValueConverter {
      * @return AAS-compliant value
      * @throws ValueConversionException if conversion fails
      */
-    public TypedValue convert(Variant value, Datatype targetType) throws ValueConversionException;
+    public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException;
 }
