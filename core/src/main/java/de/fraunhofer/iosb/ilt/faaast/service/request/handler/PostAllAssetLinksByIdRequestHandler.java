@@ -22,7 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostAllAssetLinksByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Constants;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
@@ -58,7 +58,7 @@ public class PostAllAssetLinksByIdRequestHandler extends RequestHandler<PostAllA
         PostAllAssetLinksByIdResponse response = new PostAllAssetLinksByIdResponse();
         AssetAdministrationShell aas = (AssetAdministrationShell) persistence.get(request.getId(), QueryModifier.DEFAULT);
         List<IdentifierKeyValuePair> globalKeys = request.getAssetLinks().stream()
-                .filter(x -> Constants.KEY_GLOBAL_ASSET_ID.equals(x.getKey()))
+                .filter(x -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(x.getKey()))
                 .collect(Collectors.toList());
         if (!globalKeys.isEmpty()) {
             if (globalKeys.size() == 1 && globalKeys.get(0) != null) {
@@ -76,13 +76,13 @@ public class PostAllAssetLinksByIdRequestHandler extends RequestHandler<PostAllA
             else {
                 response.setError(StatusCode.CLIENT_ERROR_BAD_REQUEST,
                         String.format("request can contain at most 1 element with key '%s', but %d found",
-                                Constants.KEY_GLOBAL_ASSET_ID,
+                                FaaastConstants.KEY_GLOBAL_ASSET_ID,
                                 globalKeys.size()));
                 return response;
             }
         }
         List<IdentifierKeyValuePair> newSpecificAssetIds = request.getAssetLinks().stream()
-                .filter(x -> !Objects.equals(Constants.KEY_GLOBAL_ASSET_ID, x.getKey()))
+                .filter(x -> !Objects.equals(FaaastConstants.KEY_GLOBAL_ASSET_ID, x.getKey()))
                 .collect(Collectors.toList());
         for (var newSpecificAssetId: newSpecificAssetIds) {
             List<IdentifierKeyValuePair> existingLinks = aas.getAssetInformation().getSpecificAssetIds().stream()
@@ -109,7 +109,7 @@ public class PostAllAssetLinksByIdRequestHandler extends RequestHandler<PostAllA
                 && aas.getAssetInformation().getGlobalAssetId().getKeys() != null
                 && !aas.getAssetInformation().getGlobalAssetId().getKeys().isEmpty()) {
             result.add(new DefaultIdentifierKeyValuePair.Builder()
-                    .key(Constants.KEY_GLOBAL_ASSET_ID)
+                    .key(FaaastConstants.KEY_GLOBAL_ASSET_ID)
                     .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
                     .build());
         }

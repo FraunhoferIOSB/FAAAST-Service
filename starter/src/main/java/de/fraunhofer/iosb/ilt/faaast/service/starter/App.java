@@ -62,11 +62,11 @@ import picocli.CommandLine.Spec;
 @Command(name = "FA³ST Service Starter", mixinStandardHelpOptions = true, version = "0.1", description = "Starts a FA³ST Service")
 public class App implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
     private static final int INDENT_DEFAULT = 20;
     private static final int INDENT_STEP = 3;
-    private static final CountDownLatch SHUTDOWN_REQUESTED = new CountDownLatch(1);
+    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
     private static final CountDownLatch SHUTDOWN_FINISHED = new CountDownLatch(1);
+    private static final CountDownLatch SHUTDOWN_REQUESTED = new CountDownLatch(1);
     private static final ObjectMapper mapper = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
@@ -75,36 +75,50 @@ public class App implements Runnable {
     // commands
     protected static final String COMMAND_CONFIG = "--config";
     protected static final String COMMAND_MODEL = "--model";
+    // config
+    protected static final String CONFIG_FILENAME_DEFAULT = "config.json";
+    protected static final String ENV_CONFIG_KEY = "config";
+    protected static final String ENV_EXTENSION_KEY = "extension";
+    protected static final String ENV_FAAAST_KEY = "faaast";
+    protected static final String ENV_CONFIG_FILE_PATH = envPath(ENV_FAAAST_KEY, ENV_CONFIG_KEY);
+
+    protected static final String ENV_CONFIG_EXTENSION_PREFIX = envPath(ENV_FAAAST_KEY, ENV_CONFIG_KEY, ENV_EXTENSION_KEY, "");
+    protected static final String ENV_MODEL_KEY = "model";
+    protected static final String ENV_MODEL_FILE_PATH = envPath(ENV_FAAAST_KEY, ENV_MODEL_KEY);
+    // environment
+    protected static final String ENV_PATH_SEPERATOR = ".";
     // model
     protected static final String MODEL_FILENAME_DEFAULT = "aasenvironment.*";
     protected static final String MODEL_FILENAME_PATTERN = "aasenvironment\\..*";
-    // config
-    protected static final String CONFIG_FILENAME_DEFAULT = "config.json";
-    // environment
-    protected static final String ENV_PATH_SEPERATOR = ".";
-    protected static final String ENV_FAAAST_KEY = "faaast";
-    protected static final String ENV_MODEL_KEY = "model";
-    protected static final String ENV_CONFIG_KEY = "config";
-    protected static final String ENV_EXTENSION_KEY = "extension";
 
-    protected static final String ENV_CONFIG_EXTENSION_PREFIX = envPath(ENV_FAAAST_KEY, ENV_CONFIG_KEY, ENV_EXTENSION_KEY, "");
-    protected static final String ENV_MODEL_FILE_PATH = envPath(ENV_FAAAST_KEY, ENV_MODEL_KEY);
-    protected static final String ENV_CONFIG_FILE_PATH = envPath(ENV_FAAAST_KEY, ENV_CONFIG_KEY);
+    @Option(names = "--no-autoCompleteConfig", negatable = true, description = "Autocompletes the configuration with default values for required configuration sections. True by default")
+    public boolean autoCompleteConfiguration = true;
 
+    @Option(names = {
+            "-c",
+            COMMAND_CONFIG
+    }, description = "The config file path. Default Value = ${DEFAULT-VALUE}", defaultValue = CONFIG_FILENAME_DEFAULT)
+    public File configFile;
+
+    @Option(names = "--endpoint", split = ",", description = "Additional endpoints that should be started.")
+    public List<EndpointType> endpoints = new ArrayList<>();
+    @Option(names = {
+            "-m",
+            COMMAND_MODEL
+    }, description = "Asset Administration Shell Environment FilePath. Default Value = ${DEFAULT-VALUE}", defaultValue = MODEL_FILENAME_DEFAULT)
+    public File modelFile;
+
+    @Parameters(description = "Additional properties to override values of configuration using JSONPath notation withtout starting '$.' (see https://goessner.net/articles/JsonPath/)")
+    public Map<String, String> properties = new HashMap<>();
+
+    @Option(names = "--emptyModel", description = "Starts the FA³ST service with an empty Asset Administration Shell Environment. False by default")
+    public boolean useEmptyModel = false;
+
+    @Option(names = "--no-modelValidation", negatable = true, description = "Validates the AAS Environment. True by default")
+    public boolean validateModel = true;
+    private Service service;
     @Spec
     private CommandSpec spec;
-
-    private Service service;
-
-    private static String indent(String value, int steps) {
-        return String.format(String.format("%%%ds%s", INDENT_DEFAULT + (INDENT_STEP * steps), value), "");
-    }
-
-
-    private static String envPath(String... args) {
-        return Stream.of(args).collect(Collectors.joining(ENV_PATH_SEPERATOR));
-    }
-
 
     public static void main(String[] args) {
         LOGGER.info("Starting FA³ST Service...");
@@ -144,32 +158,30 @@ public class App implements Runnable {
         }
     }
 
-    @Option(names = {
-            "-m",
-            COMMAND_MODEL
-    }, description = "Asset Administration Shell Environment FilePath. Default Value = ${DEFAULT-VALUE}", defaultValue = MODEL_FILENAME_DEFAULT)
-    public File modelFile;
 
-    @Option(names = {
-            "-c",
-            COMMAND_CONFIG
-    }, description = "The config file path. Default Value = ${DEFAULT-VALUE}", defaultValue = CONFIG_FILENAME_DEFAULT)
-    public File configFile;
+    private static String envPath(String... args) {
+        return Stream.of(args).collect(Collectors.joining(ENV_PATH_SEPERATOR));
+    }
 
-    @Option(names = "--no-autoCompleteConfig", negatable = true, description = "Autocompletes the configuration with default values for required configuration sections. True by default")
-    public boolean autoCompleteConfiguration = true;
 
-    @Option(names = "--endpoint", split = ",", description = "Additional endpoints that should be started.")
-    public List<EndpointType> endpoints = new ArrayList<>();
+    private static String indent(String value, int steps) {
+        return String.format(String.format("%%%ds%s", INDENT_DEFAULT + (INDENT_STEP * steps), value), "");
+    }
 
-    @Parameters(description = "Additional properties to override values of configuration using JSONPath notation withtout starting '$.' (see https://goessner.net/articles/JsonPath/)")
-    public Map<String, String> properties = new HashMap<>();
 
-    @Option(names = "--emptyModel", description = "Starts the FA³ST service with an empty Asset Administration Shell Environment. False by default")
-    public boolean useEmptyModel = false;
+    private void validateModelIfRequired(AssetAdministrationShellEnvironment model) {
+        if (validateModel) {
+            try {
+                if (!validate(model)) {
+                    return;
+                }
+            }
+            catch (IOException e) {
+                LOGGER.error("Unexpected exception with validating model", e);
+            }
+        }
+    }
 
-    @Option(names = "--no-modelValidation", negatable = true, description = "Validates the AAS Environment. True by default")
-    public boolean validateModel = true;
 
     @Override
     public void run() {
@@ -190,16 +202,7 @@ public class App implements Runnable {
             LOGGER.error("Error loading model file", e);
             return;
         }
-        if (validateModel) {
-            try {
-                if (!validate(model)) {
-                    return;
-                }
-            }
-            catch (IOException e) {
-                LOGGER.error("Unexpected exception with validating model", e);
-            }
-        }
+        validateModelIfRequired(model);
         if (autoCompleteConfiguration) {
             ServiceConfigHelper.autoComplete(config);
         }
@@ -220,6 +223,11 @@ public class App implements Runnable {
             LOGGER.error("Overriding config properties failed", e);
             return;
         }
+        runService(model, config);
+    }
+
+
+    private void runService(AssetAdministrationShellEnvironment model, ServiceConfig config) {
         try {
             service = new Service(model, config);
             LOGGER.info("Starting FA³ST Service...");
@@ -235,29 +243,29 @@ public class App implements Runnable {
     }
 
 
-    private void printConfig(ServiceConfig config) {
-        if (LOGGER.isDebugEnabled()) {
-            try {
-                LOGGER.debug(mapper.writeValueAsString(config));
+    private Optional<File> findDefaultModel() {
+        try {
+            List<File> modelFiles;
+            try (Stream<File> stream = Files.find(Paths.get(""), 1,
+                    (file, attributes) -> file.toFile()
+                            .getName()
+                            .matches(MODEL_FILENAME_PATTERN))
+                    .map(Path::toFile)) {
+                modelFiles = stream.collect(Collectors.toList());
             }
-            catch (JsonProcessingException e) {
-                LOGGER.debug("Printing config failed", e);
+            if (modelFiles.size() > 1 && LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Found multiple model files matching the default pattern. To use a specific one use command '{} <filename>' (files found: {}, file pattern: {})",
+                        COMMAND_MODEL,
+                        modelFiles.stream()
+                                .map(File::getName)
+                                .collect(Collectors.joining(",", "[", "]")),
+                        MODEL_FILENAME_PATTERN);
             }
+            return modelFiles.stream().findFirst();
         }
-    }
-
-
-    private void printHeader() {
-        LOGGER.info("            _____                                                       ");
-        LOGGER.info("           |___ /                                                       ");
-        LOGGER.info(" ______      |_ \\    _____ _______     _____                 _          ");
-        LOGGER.info("|  ____/\\   ___) | / ____|__   __|    / ____|               (_)         ");
-        LOGGER.info("| |__ /  \\ |____/ | (___    | |      | (___   ___ _ ____   ___  ___ ___ ");
-        LOGGER.info("|  __/ /\\ \\        \\___ \\   | |       \\___ \\ / _ \\ '__\\ \\ / / |/ __/ _ \\");
-        LOGGER.info("| | / ____ \\       ____) |  | |       ____) |  __/ |   \\ V /| | (_|  __/");
-        LOGGER.info("|_|/_/    \\_\\     |_____/   |_|      |_____/ \\___|_|    \\_/ |_|\\___\\___|");
-        LOGGER.info("");
-        LOGGER.info("-------------------------------------------------------------------------");
+        catch (IOException ex) {
+            return Optional.empty();
+        }
     }
 
 
@@ -309,29 +317,46 @@ public class App implements Runnable {
     }
 
 
-    private Optional<File> findDefaultModel() {
-        try {
-            List<File> modelFiles;
-            try (Stream<File> stream = Files.find(Paths.get(""), 1,
-                    (file, attributes) -> file.toFile()
-                            .getName()
-                            .matches(MODEL_FILENAME_PATTERN))
-                    .map(Path::toFile)) {
-                modelFiles = stream.collect(Collectors.toList());
+    private void printConfig(ServiceConfig config) {
+        if (LOGGER.isDebugEnabled()) {
+            try {
+                LOGGER.debug(mapper.writeValueAsString(config));
             }
-            if (modelFiles.size() > 1 && LOGGER.isWarnEnabled()) {
-                LOGGER.warn("Found multiple model files matching the default pattern. To use a specific one use command '{} <filename>' (files found: {}, file pattern: {})",
-                        COMMAND_MODEL,
-                        modelFiles.stream()
-                                .map(File::getName)
-                                .collect(Collectors.joining(",", "[", "]")),
-                        MODEL_FILENAME_PATTERN);
+            catch (JsonProcessingException e) {
+                LOGGER.debug("Printing config failed", e);
             }
-            return modelFiles.stream().findFirst();
         }
-        catch (IOException ex) {
-            return Optional.empty();
+    }
+
+
+    private void printHeader() {
+        LOGGER.info("            _____                                                       ");
+        LOGGER.info("           |___ /                                                       ");
+        LOGGER.info(" ______      |_ \\    _____ _______     _____                 _          ");
+        LOGGER.info("|  ____/\\   ___) | / ____|__   __|    / ____|               (_)         ");
+        LOGGER.info("| |__ /  \\ |____/ | (___    | |      | (___   ___ _ ____   ___  ___ ___ ");
+        LOGGER.info("|  __/ /\\ \\        \\___ \\   | |       \\___ \\ / _ \\ '__\\ \\ / / |/ __/ _ \\");
+        LOGGER.info("| | / ____ \\       ____) |  | |       ____) |  __/ |   \\ V /| | (_|  __/");
+        LOGGER.info("|_|/_/    \\_\\     |_____/   |_|      |_____/ \\___|_|    \\_/ |_|\\___\\___|");
+        LOGGER.info("");
+        LOGGER.info("-------------------------------------------------------------------------");
+    }
+
+
+    private boolean validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
+        LOGGER.debug("Validating model...");
+        ShaclValidator shaclValidator = ShaclValidator.getInstance();
+        ValidationReport report = shaclValidator.validateGetReport(aasEnv);
+        if (report.conforms()) {
+            LOGGER.info("Model successfully validated");
+            return true;
         }
+        ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
+        ShLib.printReport(validationResultStream, report);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Model validation failed with the following error(s):{}{}", System.lineSeparator(), validationResultStream);
+        }
+        return false;
     }
 
 
@@ -366,22 +391,5 @@ public class App implements Runnable {
                             .collect(Collectors.joining(System.lineSeparator())));
         }
         return result;
-    }
-
-
-    private boolean validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
-        LOGGER.debug("Validating model...");
-        ShaclValidator shaclValidator = ShaclValidator.getInstance();
-        ValidationReport report = shaclValidator.validateGetReport(aasEnv);
-        if (report.conforms()) {
-            LOGGER.info("Model successfully validated");
-            return true;
-        }
-        ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
-        ShLib.printReport(validationResultStream, report);
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Model validation failed with the following error(s):{}{}", System.lineSeparator(), validationResultStream);
-        }
-        return false;
     }
 }

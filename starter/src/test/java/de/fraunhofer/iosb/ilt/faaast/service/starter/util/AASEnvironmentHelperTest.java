@@ -32,39 +32,39 @@ import org.junit.Test;
 public class AASEnvironmentHelperTest {
 
     @Test
-    public void testFromFile_JSON() throws IOException, DeserializationException, Exception {
+    public void testFromFileJSON() throws IOException, DeserializationException, Exception {
         assertEquals("src/test/resources/AASFull.json", new JsonDeserializer());
     }
 
 
     @Test
-    public void testFromFile_XML() throws IOException, DeserializationException, Exception {
+    public void testFromFileXML() throws IOException, DeserializationException, Exception {
         assertEquals("src/test/resources/AASFull.xml", new XmlDeserializer());
     }
 
 
     @Test
     @Ignore("Not Yet")
-    public void testFromFile_AML() throws IOException, DeserializationException, Exception {
+    public void testFromFileAML() throws IOException, DeserializationException, Exception {
         assertEquals("src/test/resources/AASFull.aml", new AmlDeserializer());
     }
 
 
     @Test
     @Ignore("Not yet")
-    public void testFromFile_OPCUA() throws IOException, DeserializationException, Exception {
+    public void testFromFileOPCUA() throws IOException, DeserializationException, Exception {
         assertEquals("src/test/resources/AASSimple.xml", new I4AASDeserializer());
     }
 
 
     @Test
-    public void testFromFile_RDF() throws IOException, DeserializationException, Exception {
+    public void testFromFileRDF() throws IOException, DeserializationException, Exception {
         assertEquals("src/test/resources/AASFull.rdf", new io.adminshell.aas.v3.dataformat.rdf.Serializer());
     }
 
 
     @Test(expected = DeserializationException.class)
-    public void testFromFile_FileNotExists() throws IOException, DeserializationException, Exception {
+    public void testFromFileFileNotExists() throws IOException, DeserializationException, Exception {
         AASEnvironmentHelper.fromFile(new File("src/test/resources/AASSimple.foo"));
     }
 

@@ -17,8 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 /**
  * Utility class providing constants
  */
-public class Constants {
+public class FaaastConstants {
     public static final String KEY_GLOBAL_ASSET_ID = "globalAssetId";
 
-    private Constants() {}
+    private FaaastConstants() {}
 }

@@ -22,7 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetLinksByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Constants;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
@@ -54,7 +54,7 @@ public class GetAllAssetLinksByIdRequestHandler extends RequestHandler<GetAllAss
                 && aas.getAssetInformation().getGlobalAssetId().getKeys() != null
                 && !aas.getAssetInformation().getGlobalAssetId().getKeys().isEmpty()) {
             result.add(new DefaultIdentifierKeyValuePair.Builder()
-                    .key(Constants.KEY_GLOBAL_ASSET_ID)
+                    .key(FaaastConstants.KEY_GLOBAL_ASSET_ID)
                     .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
                     .build());
         }

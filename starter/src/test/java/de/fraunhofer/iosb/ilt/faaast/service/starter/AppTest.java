@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
 import com.github.stefanbirkner.systemlambda.SystemLambda;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ConfigParameter;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ParameterConstants;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -29,13 +29,11 @@ import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 
 public class AppTest {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AppTest.class);
     private App application;
     private CommandLine cmd;
 
@@ -83,11 +81,11 @@ public class AppTest {
     @Test
     public void testGetConfigOverrides() throws IOException, Exception {
         Map<String, String> cliProperties = new HashMap<>();
-        cliProperties.put(ConfigParameter.REQUEST_HANDLER_THREAD_POOL_SIZE, "3");
-        cliProperties.put(ConfigParameter.ENDPOINT_0_CLASS, HttpEndpoint.class.getCanonicalName());
+        cliProperties.put(ParameterConstants.REQUEST_HANDLER_THREAD_POOL_SIZE, "3");
+        cliProperties.put(ParameterConstants.ENDPOINT_0_CLASS, HttpEndpoint.class.getCanonicalName());
         Map<String, String> envProperties = new HashMap<>();
-        envProperties.put(ConfigParameter.REQUEST_HANDLER_THREAD_POOL_SIZE, "4");
-        envProperties.put(ConfigParameter.ENDPOINT_0_PORT, "1337");
+        envProperties.put(ParameterConstants.REQUEST_HANDLER_THREAD_POOL_SIZE, "4");
+        envProperties.put(ParameterConstants.ENDPOINT_0_PORT, "1337");
         Map<String, String> expected = new HashMap<>(envProperties);
         expected.putAll(cliProperties);
         String[] args = cliProperties.entrySet().stream()
@@ -102,21 +100,21 @@ public class AppTest {
 
 
     @Test
-    public void testConfigFile_CLI() {
+    public void testConfigFileCLI() {
         cmd.execute("-c", "myConfig.json");
         Assert.assertEquals(new File("myConfig.json"), application.configFile);
     }
 
 
     @Test
-    public void testConfigFile_CLI_Default() {
+    public void testConfigFileCLIDefault() {
         cmd.execute();
         Assert.assertEquals(new File(App.CONFIG_FILENAME_DEFAULT), application.configFile);
     }
 
 
     @Test
-    public void testConfigFile_ENV() throws Exception {
+    public void testConfigFileENV() throws Exception {
         File actual = withEnv(App.ENV_CONFIG_FILE_PATH, "myConfig.json")
                 .execute(() -> {
                     new CommandLine(application).execute();
@@ -127,14 +125,14 @@ public class AppTest {
 
 
     @Test
-    public void testModelFile_CLI() {
+    public void testModelFileCLI() {
         cmd.execute("-m", "myAAS.json");
         Assert.assertEquals(new File("myAAS.json"), application.modelFile);
     }
 
 
     @Test
-    public void testModelFile_ENV() throws Exception {
+    public void testModelFileENV() throws Exception {
         File actual = withEnv(App.ENV_MODEL_FILE_PATH, "myAAS.json")
                 .execute(() -> {
                     new CommandLine(application).execute();
@@ -145,7 +143,7 @@ public class AppTest {
 
 
     @Test
-    public void testModelFile_Prio() throws Exception {
+    public void testModelFilePrio() throws Exception {
         File actual = withEnv(App.ENV_MODEL_FILE_PATH, "env.json")
                 .execute(() -> {
                     new CommandLine(application).execute("-m", "cli.json");
@@ -156,49 +154,49 @@ public class AppTest {
 
 
     @Test
-    public void testUseEmptyModel_CLI() {
+    public void testUseEmptyModelCLI() {
         cmd.execute("--emptyModel");
         Assert.assertEquals(true, application.useEmptyModel);
     }
 
 
     @Test
-    public void testUseEmptyModel_CLI_Default() {
+    public void testUseEmptyModelCLI_Default() {
         cmd.execute();
         Assert.assertEquals(false, application.useEmptyModel);
     }
 
 
     @Test
-    public void testAutoCompleteConfiguration_CLI() {
+    public void testAutoCompleteConfigurationCLI() {
         cmd.execute("--no-autoCompleteConfig");
         Assert.assertEquals(false, application.autoCompleteConfiguration);
     }
 
 
     @Test
-    public void testAutoCompleteConfiguration_CLI_Default() {
+    public void testAutoCompleteConfigurationCLIDefault() {
         cmd.execute();
         Assert.assertEquals(true, application.autoCompleteConfiguration);
     }
 
 
     @Test
-    public void testModelValidation_CLI() {
+    public void testModelValidationCLI() {
         cmd.execute("--no-modelValidation");
         Assert.assertEquals(false, application.validateModel);
     }
 
 
     @Test
-    public void testModelValidation_CLI_Default() {
+    public void testModelValidationCLIDefault() {
         cmd.execute();
         Assert.assertEquals(true, application.validateModel);
     }
 
 
     @Test
-    public void testEndpoints_CLI() {
+    public void testEndpointsCLI() {
         var expected = List.of(EndpointType.HTTP, EndpointType.OPCUA);
 
         cmd.execute("--endpoint", "http", "--endpoint", "opcua");

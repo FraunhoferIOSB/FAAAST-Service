@@ -14,11 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter.util;
 
-public class ConfigParameter {
+public class ParameterConstants {
 
     public static final String REQUEST_HANDLER_THREAD_POOL_SIZE = "core.requestHandlerThreadPoolSize";
     public static final String ENDPOINT_0_CLASS = "endpoints[0].@class";
     public static final String ENDPOINT_0_PORT = "endpoints[0].port";
 
-    private ConfigParameter() {}
+    private ParameterConstants() {}
 }

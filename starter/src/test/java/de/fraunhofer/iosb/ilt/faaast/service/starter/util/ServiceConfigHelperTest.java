@@ -67,9 +67,9 @@ public class ServiceConfigHelperTest {
                 .build();
         ServiceConfig expected = getConfigWithHttpEndpoint();
         ServiceConfig actual = ServiceConfigHelper.withProperties(input,
-                Map.of(ConfigParameter.REQUEST_HANDLER_THREAD_POOL_SIZE, expected.getCore().getRequestHandlerThreadPoolSize(),
-                        ConfigParameter.ENDPOINT_0_CLASS, HttpEndpoint.class.getCanonicalName(),
-                        ConfigParameter.ENDPOINT_0_PORT, 8080));
+                Map.of(ParameterConstants.REQUEST_HANDLER_THREAD_POOL_SIZE, expected.getCore().getRequestHandlerThreadPoolSize(),
+                        ParameterConstants.ENDPOINT_0_CLASS, HttpEndpoint.class.getCanonicalName(),
+                        ParameterConstants.ENDPOINT_0_PORT, 8080));
         Assert.assertEquals(expected, actual);
     }
 
