@@ -147,10 +147,11 @@ public class RequestHandlerManager {
      * @return the reponse to this request
      * @throws TypeInstantiationException if response class could not be
      *             instantiated
+     * @throws IllegalArgumentException if request is null
      */
     public <I extends Request<O>, O extends Response> O execute(I request) {
         if (request == null) {
-            return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR, MessageType.EXCEPTION, "request must be non-null");
+            throw new IllegalArgumentException("request must be non-null");
         }
         if (!handlers.containsKey(request.getClass())) {
             return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR, MessageType.EXCEPTION, "no handler defined for this request");
