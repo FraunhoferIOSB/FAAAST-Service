@@ -41,7 +41,7 @@ import org.junit.Test;
 
 public class JsonDeserializerTest {
 
-    JsonDeserializer deserializer = new JsonDeserializer();
+    private final JsonDeserializer deserializer = new JsonDeserializer();
 
     @Test
     public void testAnnotatedRelationshipElementProperty() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {
@@ -165,7 +165,7 @@ public class JsonDeserializerTest {
                 .toArray();
         TypeInfo typeInfo = TypeExtractor.extractTypeInfo(input.keySet().toArray());
         ElementValue[] actual = deserializer.readValueArray(filesAsJsonArray(input), typeInfo);
-        Assert.assertEquals(expected, actual);
+        Assert.assertArrayEquals(expected, actual);
     }
 
 

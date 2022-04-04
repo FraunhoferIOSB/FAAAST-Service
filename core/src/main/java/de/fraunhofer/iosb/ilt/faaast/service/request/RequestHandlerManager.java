@@ -19,6 +19,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -29,6 +31,7 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -142,35 +145,48 @@ public class RequestHandlerManager {
      * @param <O> type of response/output
      * @param request the request to execute
      * @return the reponse to this request
+     * @throws TypeInstantiationException if response class could not be
+     *             instantiated
+     * @throws IllegalArgumentException if request is null
      */
     public <I extends Request<O>, O extends Response> O execute(I request) {
         if (request == null) {
             throw new IllegalArgumentException("request must be non-null");
         }
         if (!handlers.containsKey(request.getClass())) {
-            // TODO throwing exceptions vs returning response, probably throwing is better here
-            throw new IllegalArgumentException("no handler defined for this request");
+            return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR, MessageType.EXCEPTION, "no handler defined for this request");
         }
         try {
             return (O) handlers.get(request.getClass()).process(request);
         }
         catch (ResourceNotFoundException e) {
-            return createResponse(request, StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND);
+            return createResponse(request, StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND, MessageType.ERROR, e);
         }
         catch (Exception e) {
-            return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR);
+            return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR, MessageType.EXCEPTION, e);
         }
     }
 
 
-    private static <I extends Request<O>, O extends Response> O createResponse(I request, StatusCode statusCode) {
+    private static <I extends Request<O>, O extends Response> O createResponse(I request, StatusCode statusCode, MessageType messageType, Exception e) {
+        return createResponse(request, statusCode, messageType, e.getMessage());
+    }
+
+
+    private static <I extends Request<O>, O extends Response> O createResponse(I request, StatusCode statusCode, MessageType messageType, String message) {
         try {
             O response = (O) TypeToken.of(request.getClass()).resolveType(Request.class.getTypeParameters()[0]).getRawType().getConstructor().newInstance();
             response.setStatusCode(statusCode);
+            response.getResult().setSuccess(false);
+            response.getResult().setMessages(List.of(
+                    new Message.Builder()
+                            .text(message)
+                            .messageType(messageType)
+                            .build()));
             return response;
         }
-        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new TypeInstantiationException("executing request failed and failure could not be properly handled", e);
+        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
+            throw new TypeInstantiationException("executing request failed and failure could not be properly handled", ex);
         }
     }
 

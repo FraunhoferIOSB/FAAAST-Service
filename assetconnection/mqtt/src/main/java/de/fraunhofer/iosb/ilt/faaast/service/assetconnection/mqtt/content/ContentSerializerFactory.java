@@ -32,11 +32,8 @@ public class ContentSerializerFactory {
      * @throws IllegalArgumentException if provided format is not supported
      */
     public static ContentSerializer create(ContentFormat format) {
-        switch (format) {
-            case JSON:
-                return new JsonContentSerializer();
-            case XML:
-                break;
+        if (format == ContentFormat.JSON) {
+            return new JsonContentSerializer();
         }
         throw new IllegalArgumentException(String.format("unsupported content format (%s)", format));
     }

@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentificati
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Asset;
@@ -74,7 +75,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
                 this.aasEnvironment.getAssets());
 
         if (identifiable == null) {
-            throw new ResourceNotFoundException("Resource not found with ID " + id.getIdentifier());
+            throw new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID, IdentifierHelper.asString(id)));
         }
 
         return (T) identifiable;
@@ -238,7 +239,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
 
         Identifiable identifiable = getIdentifiableById(id);
         if (identifiable == null) {
-            throw new ResourceNotFoundException("Resource not found with ID " + id.getIdentifier());
+            throw new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID, IdentifierHelper.asString(id)));
         }
 
         //TODO: use reflection?

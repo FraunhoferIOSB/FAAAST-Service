@@ -32,7 +32,7 @@ public class EncodingHelper {
 
     /**
      * Encode url decoded string with charset UTF-8
-     * 
+     *
      * @param value string to encode
      * @return encoded string
      */
@@ -43,7 +43,7 @@ public class EncodingHelper {
 
     /**
      * Url decode string with charset UTF-8
-     * 
+     *
      * @param value url encoded string
      * @return decoded string
      */
@@ -54,7 +54,7 @@ public class EncodingHelper {
 
     /**
      * Base64 encode string
-     * 
+     *
      * @param value string to encode
      * @return encoded string
      */
@@ -65,7 +65,7 @@ public class EncodingHelper {
 
     /**
      * Decode a base64 encoded string
-     * 
+     *
      * @param value base64 encoded string
      * @return decoded string
      */
@@ -77,7 +77,7 @@ public class EncodingHelper {
 
     /**
      * Base64URL encode string
-     * 
+     *
      * @param value string to encode
      * @return encoded string
      */
@@ -88,7 +88,7 @@ public class EncodingHelper {
 
     /**
      * Decode a base64Url encoded string
-     * 
+     *
      * @param value base64Url encoded string
      * @return decoded string
      */

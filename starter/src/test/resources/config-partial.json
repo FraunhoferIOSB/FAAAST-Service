@@ -1,0 +1,6 @@
+{
+    "endpoints": [{
+            "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+            "port": 8080
+        }]
+}

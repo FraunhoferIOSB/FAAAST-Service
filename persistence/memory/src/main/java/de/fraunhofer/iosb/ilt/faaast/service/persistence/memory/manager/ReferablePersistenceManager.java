@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
  * Class to handle {@link io.adminshell.aas.v3.model.Referable}
  */
 public class ReferablePersistenceManager extends PersistenceManager {
-    private static final String ERROR_MSG_RESOURCE_NOT_FOUND_BY_REF = "Resource not found by reference %s";
 
     /**
      * Get a submodel element by its reference
@@ -77,11 +76,9 @@ public class ReferablePersistenceManager extends PersistenceManager {
      * <li>{@link io.adminshell.aas.v3.model.Submodel}
      * <li>{@link io.adminshell.aas.v3.model.SubmodelElementCollection}
      * </ul>
-     * If the semanticId is not null the submodel element list filtered by the semantic id
      *
      * @param reference to the submodel or submodel element collection
      * @param semanticId of the submodel elements
-     * @return a list of the submodel elements associated to the parent reference
      */
     public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId) throws ResourceNotFoundException {
         if (reference == null) {
@@ -131,8 +128,6 @@ public class ReferablePersistenceManager extends PersistenceManager {
      * <li>{@link io.adminshell.aas.v3.model.Submodel} or to a
      * <li>{@link io.adminshell.aas.v3.model.SubmodelElementCollection}
      * </ul>
-     * To add a new submodel element give the parent reference and the submodel element.
-     * To update an existing submodel element give the reference to the submodel element and the submodel element.
      *
      * @param parent reference to the parent
      * @param referenceToSubmodelElement reference to the submodel element

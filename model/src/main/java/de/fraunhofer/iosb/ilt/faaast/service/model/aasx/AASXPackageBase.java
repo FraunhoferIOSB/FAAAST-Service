@@ -18,6 +18,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.aasx;
  * Base class representing AAS packages.
  */
 public class AASXPackageBase implements AASXPackage {
+
     @Override
     public byte[] getBytes() {
         return new byte[0];

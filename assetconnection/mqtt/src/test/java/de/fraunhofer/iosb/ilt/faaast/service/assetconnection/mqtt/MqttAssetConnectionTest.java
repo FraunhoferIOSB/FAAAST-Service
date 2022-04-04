@@ -67,7 +67,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 public class MqttAssetConnectionTest {
 
     private static final Reference DEFAULT_REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
-    private static final long DEFAULT_TIMEOUT = 1000;
+    private static final long DEFAULT_TIMEOUT = 5000;
     private static final String DEFAULT_TOPIC = "some.mqtt.topic";
     private static final String LOCALHOST = "127.0.0.1";
     private static int mqttPort;

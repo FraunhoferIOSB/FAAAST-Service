@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostAllAssetLinksByIdResponse;
+import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ import java.util.Objects;
  * Chapter 7.2.4
  */
 public class PostAllAssetLinksByIdRequest extends BaseRequest<PostAllAssetLinksByIdResponse> {
-    private String aasIdentifier;
+    private Identifier id;
     private List<IdentifierKeyValuePair> assetLinks;
 
     public PostAllAssetLinksByIdRequest() {
@@ -35,13 +36,13 @@ public class PostAllAssetLinksByIdRequest extends BaseRequest<PostAllAssetLinksB
     }
 
 
-    public String getAasIdentifier() {
-        return aasIdentifier;
+    public Identifier getId() {
+        return id;
     }
 
 
-    public void setAasIdentifier(String aasIdentifier) {
-        this.aasIdentifier = aasIdentifier;
+    public void setId(Identifier id) {
+        this.id = id;
     }
 
 
@@ -62,14 +63,14 @@ public class PostAllAssetLinksByIdRequest extends BaseRequest<PostAllAssetLinksB
         if (o == null || getClass() != o.getClass())
             return false;
         PostAllAssetLinksByIdRequest that = (PostAllAssetLinksByIdRequest) o;
-        return Objects.equals(aasIdentifier, that.aasIdentifier)
+        return Objects.equals(id, that.id)
                 && Objects.equals(assetLinks, that.assetLinks);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(aasIdentifier, assetLinks);
+        return Objects.hash(id, assetLinks);
     }
 
 
@@ -78,8 +79,8 @@ public class PostAllAssetLinksByIdRequest extends BaseRequest<PostAllAssetLinksB
     }
 
     public abstract static class AbstractBuilder<T extends PostAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-        public B aasIdentifier(String value) {
-            getBuildingInstance().setAasIdentifier(value);
+        public B id(Identifier value) {
+            getBuildingInstance().setId(value);
             return getSelf();
         }
 

@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponse;
  * Chapter 4.2.8
  */
 public class PutAssetInformationResponse extends BaseResponse {
+
     public static PutAssetInformationResponse.Builder builder() {
         return new PutAssetInformationResponse.Builder();
     }

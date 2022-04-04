@@ -26,7 +26,13 @@ import java.util.Objects;
 public class Result {
 
     private boolean success;
-    private List<Message> message = new ArrayList<>();
+    private List<Message> messages;
+
+    public Result() {
+        this.success = true;
+        this.messages = new ArrayList<>();
+    }
+
 
     public boolean getSuccess() {
         return success;
@@ -38,13 +44,13 @@ public class Result {
     }
 
 
-    public List<Message> getMessage() {
-        return message;
+    public List<Message> getMessages() {
+        return messages;
     }
 
 
-    public void setMessage(List<Message> message) {
-        this.message = message;
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
     }
 
 
@@ -58,13 +64,35 @@ public class Result {
         }
         Result result = (Result) o;
         return Objects.equals(success, result.success)
-                && Objects.equals(message, result.message);
+                && Objects.equals(messages, result.messages);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(success, message);
+        return Objects.hash(success, messages);
+    }
+
+
+    public static Result error(String message) {
+        return builder()
+                .success(false)
+                .message(Message.builder()
+                        .messageType(MessageType.ERROR)
+                        .text(message)
+                        .build())
+                .build();
+    }
+
+
+    public static Result exception(String message) {
+        return builder()
+                .success(false)
+                .message(Message.builder()
+                        .messageType(MessageType.EXCEPTION)
+                        .text(message)
+                        .build())
+                .build();
     }
 
 
@@ -81,13 +109,13 @@ public class Result {
 
 
         public B messages(List<Message> value) {
-            getBuildingInstance().setMessage(value);
+            getBuildingInstance().setMessages(value);
             return getSelf();
         }
 
 
         public B message(Message value) {
-            getBuildingInstance().getMessage().add(value);
+            getBuildingInstance().getMessages().add(value);
             return getSelf();
         }
 

@@ -47,7 +47,7 @@ public class DeleteConceptDescriptionByIdRequestHandler extends RequestHandler<D
         DeleteConceptDescriptionByIdResponse response = new DeleteConceptDescriptionByIdResponse();
         ConceptDescription conceptDescription = (ConceptDescription) persistence.get(request.getId(), new QueryModifier());
         persistence.remove(request.getId());
-        response.setStatusCode(StatusCode.SUCCESS);
+        response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         publishElementDeleteEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
         return response;
     }

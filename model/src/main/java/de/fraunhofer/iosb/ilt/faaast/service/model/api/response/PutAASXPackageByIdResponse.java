@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponse;
  * Chapter 4.5.5
  */
 public class PutAASXPackageByIdResponse extends BaseResponse {
+
     public static PutAASXPackageByIdResponse.Builder builder() {
         return new PutAASXPackageByIdResponse.Builder();
     }

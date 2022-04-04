@@ -16,18 +16,19 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
+import java.util.List;
 
 
 /**
  * Chapter 7.2.4
  */
-public class PostAllAssetLinksByIdResponse extends BaseResponseWithPayload<IdentifierKeyValuePair> {
+public class PostAllAssetLinksByIdResponse extends BaseResponseWithPayload<List<IdentifierKeyValuePair>> {
 
     public static PostAllAssetLinksByIdResponse.Builder builder() {
         return new PostAllAssetLinksByIdResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<IdentifierKeyValuePair, PostAllAssetLinksByIdResponse, PostAllAssetLinksByIdResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<IdentifierKeyValuePair>, PostAllAssetLinksByIdResponse, PostAllAssetLinksByIdResponse.Builder> {
 
         @Override
         protected PostAllAssetLinksByIdResponse.Builder getSelf() {

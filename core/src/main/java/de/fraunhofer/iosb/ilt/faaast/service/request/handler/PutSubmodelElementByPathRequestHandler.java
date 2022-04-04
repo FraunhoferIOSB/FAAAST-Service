@@ -20,8 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -29,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelElementByP
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
@@ -58,20 +57,20 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
 
         //Check if submodelelement does exist
-        SubmodelElement currentSubmodelElement = persistence.get(reference, new QueryModifier.Builder()
-                .extend(Extend.WITHOUT_BLOB_VALUE)
-                .level(Level.CORE)
-                .build());
+        SubmodelElement currentSubmodelElement = persistence.get(reference, QueryModifier.DEFAULT);
         SubmodelElement newSubmodelElement = request.getSubmodelElement();
 
-        ElementValue oldValue = ElementValueMapper.toValue(currentSubmodelElement);
-        ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
+        if (ElementValueHelper.isSerializableAsValue(currentSubmodelElement.getClass())) {
+            ElementValue oldValue = ElementValueMapper.toValue(currentSubmodelElement);
+            ElementValue newValue = ElementValueMapper.toValue(newSubmodelElement);
+            if (!Objects.equals(oldValue, newValue)) {
+                writeValueToAssetConnection(reference, ElementValueMapper.toValue(newSubmodelElement));
+                publishValueChangeEventMessage(reference, oldValue, newValue);
+            }
+        }
         currentSubmodelElement = persistence.put(null, reference, newSubmodelElement);
         response.setPayload(currentSubmodelElement);
         response.setStatusCode(StatusCode.SUCCESS);
-        if (!Objects.equals(oldValue, newValue)) {
-            writeValueToAssetConnection(reference, ElementValueMapper.toValue(currentSubmodelElement));
-        }
         publishElementUpdateEventMessage(reference, currentSubmodelElement);
         return response;
     }

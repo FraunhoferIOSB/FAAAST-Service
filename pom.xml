@@ -37,8 +37,6 @@
     <modules>
         <module>core</module>
         <module>model</module>
-        <!-- needs to be build separately because of proprietary dependency to prosys -->
-        <!-- <module>endpoint/opcua</module> -->
         <module>endpoint/http</module>
         <module>messagebus/internal</module>
         <module>persistence/memory</module>
@@ -46,6 +44,7 @@
         <module>assetconnection/opcua</module>
         <module>dataformat/json</module>
         <module>starter</module>
+        <module>test</module>
     </modules>
     <scm>
         <connection>scm:git:git://github.com/FraunhoferIOSB/FAAAST-Service.git</connection>
@@ -69,11 +68,12 @@
     </distributionManagement>
     <properties>
         <aas.version>1.2.0</aas.version>
-        <classgraph.version>4.8.141</classgraph.version>
+        <classgraph.version>4.8.143</classgraph.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <flatten.version>1.2.7</flatten.version>
         <guava.version>31.1-jre</guava.version>
+        <jackson-databind.version>2.13.2</jackson-databind.version>
         <jackson.version>2.13.2</jackson.version>
         <jakarta-servlet.version>5.0.0</jakarta-servlet.version>
         <javax-servlet.version>2.5</javax-servlet.version>
@@ -85,11 +85,12 @@
         <maven.compiler.target>11</maven.compiler.target>
         <maven.plugin.assembly.version>3.3.0</maven.plugin.assembly.version>
         <maven.plugin.compiler.version>3.10.1</maven.plugin.compiler.version>
+        <maven.plugin.failsafe.version>3.0.0-M5</maven.plugin.failsafe.version>
         <maven.plugin.gpg.version>3.0.1</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.7</maven.plugin.jacoco.version>
         <maven.plugin.javadoc.version>3.3.2</maven.plugin.javadoc.version>
         <maven.plugin.nexus-staging.version>1.6.12</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>7.0.0</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>7.0.4</maven.plugin.owasp.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
         <milo.version>0.6.4</milo.version>
@@ -97,14 +98,14 @@
         <moquette.version>0.14.3</moquette.version>
         <paho.version>1.2.5</paho.version>
         <plugin.jar.version>3.2.2</plugin.jar.version>
-        <plugin.jib.version>3.2.0</plugin.jib.version>
+        <plugin.jib.version>3.2.1</plugin.jib.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <revision>1.0.0-SNAPSHOT</revision>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.version>1.7.36</slf4j.version>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <spotless.version>2.21.0</spotless.version>
+        <spotless.version>2.22.0</spotless.version>
     </properties>
     <dependencies>
         <dependency>
@@ -275,6 +276,23 @@
                         <id>aggregate-third-party-report</id>
                         <goals>
                             <goal>aggregate-third-party-report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven.plugin.failsafe.version}</version>
+                <configuration>
+                    <includes>
+                        <include>**/*IT</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
                         </goals>
                     </execution>
                 </executions>

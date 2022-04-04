@@ -1,14 +1,12 @@
 
-# FA³ST Service
-
+# FA³ST Service [![Build Status](https://github.com/FraunhoferIOSB/FAAAST-Service/workflows/Maven%20Build/badge.svg)](https://github.com/FraunhoferIOSB/FAAAST-Service/actions) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/25f6aafbdb0a4b5e8ba23672ec9411e5)](https://www.codacy.com/gh/FraunhoferIOSB/FAAAST-Service/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FraunhoferIOSB/FAAAST-Service&amp;utm_campaign=Badge_Grade) [![Docker badge](https://img.shields.io/docker/pulls/fraunhoferiosb/faaast-service.svg)](https://hub.docker.com/r/fraunhoferiosb/faaast-service/)
 
 ![FA³ST Logo Light](./documentation/images/Fa3st-Service_positiv.png/#gh-light-mode-only "FA³ST Service Logo")
 ![FA³ST Logo Dark](./documentation/images/Fa3st-Service_negativ.png/#gh-dark-mode-only "FA³ST Service Logo")
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=FraunhoferIOSB_FAAAST-Service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=FraunhoferIOSB_FAAAST-Service) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=FraunhoferIOSB_FAAAST-Service&metric=bugs)](https://sonarcloud.io/summary/new_code?id=FraunhoferIOSB_FAAAST-Service)
 
 The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service implements the [Asset Administration Shell (AAS) specification from the platform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and builds an easy-to-use web service based on a custom AAS model instance. If you are not familiar with AAS you can find additional information [here](#about-the-project).
 
-| FA³ST Service is currently in an early phase of development. This means that some functionality is not fully tested or even not yet implemented. It is likely that you encounter bugs. It should not be used in productional environments. Contributions in form of issues and pull requests are highly welcome. |
+| FA³ST Service is still under development. Contributions in form of issues and pull requests are highly welcome. |
 |-----------------------------|
 
 ## Getting Started
@@ -57,17 +55,16 @@ The following code starts a FA³ST Service with a HTTP endpoint on port 8080.
 
 ```java
 String pathToYourAASEnvironment = "{pathTo}\\FAAAST-Service\\misc\\examples\\demoAAS.json";
-Service service = new Service(
-		new ServiceConfig.Builder()
-				.core(new CoreConfig.Builder()
-						.requestHandlerThreadPoolSize(2)
-						.build())
-				.persistence(new PersistenceInMemoryConfig())
-				.endpoint(new HttpEndpointConfig())
-				.messageBus(new MessageBusInternalConfig())
-				.build());
-service.setAASEnvironment(new AASEnvironmentFactory()
-		.getAASEnvironment(pathToYourAASEnvironment));
+AssetAdministrationShellEnvironment environment = AASEnvironmentHelper.fromFile(new File(pathToYourAASEnvironment));
+Service service = new Service(environment,
+	new ServiceConfig.Builder()
+		.core(new CoreConfig.Builder()
+			.requestHandlerThreadPoolSize(2)
+			.build())
+		.persistence(new PersistenceInMemoryConfig())
+		.endpoint(new HttpEndpointConfig())
+		.messageBus(new MessageBusInternalConfig())
+		.build());
 service.start();
 ```
 Afterwards, you can reach the running FA³ST Service via `http://localhost:8080/shells`.
@@ -90,11 +87,11 @@ FA³ST Service provides the following functionalities:
 
 Fa³ST Service uses an open architecture and defines interfaces for most functionality. This allows for easy extension by 3rd parties. However, FA³ST Service also includes one or more  useful default implementations for each interface:
 
-- [HTTP Endpoint](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/feature/readme/endpoint/http/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/http/HttpEndpoint.java)
-- [OPC UA Endpoint](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/feature/readme/endpoint/opcua/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/opcua/OpcUaEndpoint.java)
-- [Internal Message Bus](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/feature/readme/messagebus/internal/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/messagebus/internal/MessageBusInternal.java)
-- [MQTT Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/feature/readme/assetconnection/mqtt/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/mqtt/MqttAssetConnection.java)
-- [OPC UA Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/feature/readme/assetconnection/opcua/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/opcua/OpcUaAssetConnection.java)
+- [HTTP Endpoint](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/endpoint/http/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/http/HttpEndpoint.java)
+- [OPC UA Endpoint](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/endpoint/opcua/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/opcua/OpcUaEndpoint.java)
+- [Internal Message Bus](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/messagebus/internal/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/messagebus/internal/MessageBusInternal.java)
+- [MQTT Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/assetconnection/mqtt/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/mqtt/MqttAssetConnection.java)
+- [OPC UA Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/assetconnection/opcua/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/opcua/OpcUaAssetConnection.java)
 
 
 ## Usage with Command Line
@@ -189,7 +186,7 @@ The basic structure of a configuration is the following
 	"messageBus" : {
 		// message bus configuration
 	},
-	"assetConnection": [
+	"assetConnections": [
 		// asset connection configurations, multiple allowed
 	]
 }

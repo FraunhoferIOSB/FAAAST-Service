@@ -19,9 +19,13 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
+import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -29,6 +33,8 @@ import java.io.IOException;
  * submodel as map of idShort and value of all its elements.
  */
 public class SubmodelValueSerializer extends StdSerializer<Submodel> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelValueSerializer.class);
 
     public SubmodelValueSerializer() {
         this(null);
@@ -44,11 +50,18 @@ public class SubmodelValueSerializer extends StdSerializer<Submodel> {
     public void serialize(Submodel value, JsonGenerator generator, SerializerProvider provider) throws IOException {
         generator.writeStartObject();
         for (SubmodelElement element: value.getSubmodelElements()) {
-            try {
-                provider.defaultSerializeField(element.getIdShort(), ElementValueMapper.toValue(element), generator);
+            if (ElementValueHelper.isValueOnlySupported(element)) {
+                try {
+                    provider.defaultSerializeField(element.getIdShort(), ElementValueMapper.toValue(element), generator);
+                }
+                catch (ValueMappingException e) {
+                    provider.reportMappingProblem(e, "error mapping submodel element to value");
+                }
             }
-            catch (ValueMappingException e) {
-                provider.reportMappingProblem(e, "error mapping submodel element to value");
+            else {
+                LOGGER.trace("skipping element for value serialization as it is not supported (idShort: {}, entity type: {})",
+                        element.getIdShort(),
+                        ReflectionHelper.getModelType(element.getClass()));
             }
         }
         generator.writeEndObject();

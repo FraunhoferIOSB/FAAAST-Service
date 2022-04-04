@@ -19,6 +19,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.exception;
  * not be instantiated.
  */
 public class ConfigurationInstantiationException extends ConfigurationException {
+
     public ConfigurationInstantiationException() {
         super();
     }

@@ -26,6 +26,7 @@ import java.util.Objects;
  * Chapter 4.2.5
  */
 public class PostSubmodelReferenceRequest extends BaseRequest<PostSubmodelReferenceResponse> {
+
     private Identifier id;
     private Reference submodelRef;
 
@@ -51,10 +52,12 @@ public class PostSubmodelReferenceRequest extends BaseRequest<PostSubmodelRefere
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PostSubmodelReferenceRequest that = (PostSubmodelReferenceRequest) o;
         return Objects.equals(submodelRef, that.submodelRef);
     }
@@ -71,6 +74,7 @@ public class PostSubmodelReferenceRequest extends BaseRequest<PostSubmodelRefere
     }
 
     public abstract static class AbstractBuilder<T extends PostSubmodelReferenceRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();

@@ -18,5 +18,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.aasx;
  * AASXPackage-Interface
  */
 public interface AASXPackage {
+
     byte[] getBytes();
 }

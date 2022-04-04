@@ -38,10 +38,12 @@ public class GlobalAssetIdentification implements AssetIdentification {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         GlobalAssetIdentification that = (GlobalAssetIdentification) o;
         return Objects.equals(reference, that.reference);
     }
@@ -58,6 +60,7 @@ public class GlobalAssetIdentification implements AssetIdentification {
     }
 
     public abstract static class AbstractBuilder<T extends GlobalAssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B reference(Reference value) {
             getBuildingInstance().setReference(value);
             return getSelf();

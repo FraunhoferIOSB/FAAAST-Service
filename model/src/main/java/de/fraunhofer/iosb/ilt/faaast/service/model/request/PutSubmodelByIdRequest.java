@@ -26,6 +26,7 @@ import java.util.Objects;
  * Chapter 6.3.7
  */
 public class PutSubmodelByIdRequest extends BaseRequest<PutSubmodelByIdResponse> {
+
     private Identifier id;
     private Submodel submodel;
 
@@ -51,10 +52,12 @@ public class PutSubmodelByIdRequest extends BaseRequest<PutSubmodelByIdResponse>
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PutSubmodelByIdRequest that = (PutSubmodelByIdRequest) o;
         return Objects.equals(id, that.id) && Objects.equals(submodel, that.submodel);
     }
@@ -71,6 +74,7 @@ public class PutSubmodelByIdRequest extends BaseRequest<PutSubmodelByIdResponse>
     }
 
     public abstract static class AbstractBuilder<T extends PutSubmodelByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();

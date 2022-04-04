@@ -15,10 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import com.prosysopc.ua.ApplicationIdentity;
+import com.prosysopc.ua.SecureIdentityException;
 import com.prosysopc.ua.UaApplication;
 import com.prosysopc.ua.UaApplication.Protocol;
 import com.prosysopc.ua.UserTokenPolicies;
 import com.prosysopc.ua.server.UaServer;
+import com.prosysopc.ua.server.UaServerException;
 import com.prosysopc.ua.server.UserValidator;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
@@ -39,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasCertific
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceIoManagerListener;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.EnumSet;
@@ -53,20 +56,27 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Tino Bischoff
  */
+@SuppressWarnings({
+        "java:S125",
+        "java:S2139"
+})
 public class Server {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
     private static final String APPLICATION_NAME = "Fraunhofer IOSB AAS OPC UA Server";
     private static final String APPLICATION_URI = "urn:hostname:Fraunhofer:OPCUA:AasServer";
     private static final int CERT_KEY_SIZE = 2048;
+    private static final String PRIV_KEY_PASS = "opcua";
 
     private final int tcpPort;
     private final AssetAdministrationShellEnvironment aasEnvironment;
     private final OpcUaEndpoint endpoint;
 
-    private UaServer server;
+    private UaServer uaServer;
     private boolean running;
+    @SuppressWarnings("java:S1450")
     private UserValidator userValidator;
+    @SuppressWarnings("java:S1450")
     private AasServiceNodeManager aasNodeManager;
 
     protected final DefaultCertificateValidatorListener validationListener = new AasCertificateValidationListener();
@@ -88,8 +98,12 @@ public class Server {
 
     /**
      * Starts the server
+     * 
+     * @throws UaServerException If an error occurs
+     * @throws IOException If an error occurs
+     * @throws SecureIdentityException If an error occurs
      */
-    public void startup() {
+    public void startup() throws UaServerException, IOException, SecureIdentityException {
         try {
             String hostName;
             hostName = InetAddress.getLocalHost().getHostName();
@@ -97,10 +111,10 @@ public class Server {
             ApplicationIdentity.setActualHostName(hostName);
 
             // *** Create the server
-            server = new UaServer();
+            uaServer = new UaServer();
 
             // currently without IPv6
-            server.setEnableIPv6(true);
+            uaServer.setEnableIPv6(true);
 
             // Use PKI files to keep track of the trusted and rejected client
             // certificates...
@@ -108,7 +122,7 @@ public class Server {
             final PkiDirectoryCertificateStore applicationIssuerCertificateStore = new PkiDirectoryCertificateStore("PKI/CA/issuers");
             final DefaultCertificateValidator applicationCertificateValidator = new DefaultCertificateValidator(applicationCertificateStore, applicationIssuerCertificateStore);
 
-            server.setCertificateValidator(applicationCertificateValidator);
+            uaServer.setCertificateValidator(applicationCertificateValidator);
             // ...and react to validation results with a custom handler
             applicationCertificateValidator.setValidationListener(validationListener);
 
@@ -138,7 +152,7 @@ public class Server {
 
             // *** Server Endpoints
             // TCP Port number for the UA TCP protocol
-            server.setPort(Protocol.OpcTcp, tcpPort);
+            uaServer.setPort(Protocol.OpcTcp, tcpPort);
             // TCP Port for the HTTPS protocol - currently disabled
             //server.setPort(Protocol.OpcHttps, httpsPort);
 
@@ -167,7 +181,8 @@ public class Server {
             // Here we use the IssuerCertificate only to sign the HTTPS certificate
             // (below) and not the Application Instance Certificate.
             KeyPair issuerCertificate = ApplicationIdentity.loadOrCreateIssuerCertificate(
-                    "FraunhoferIosbSampleCA@" + ApplicationIdentity.getActualHostNameWithoutDomain() + "_https_" + CERT_KEY_SIZE, privatePath, "opcua", 3650, false, CERT_KEY_SIZE);
+                    "FraunhoferIosbSampleCA@" + ApplicationIdentity.getActualHostNameWithoutDomain() + "_https_" + CERT_KEY_SIZE, privatePath, PRIV_KEY_PASS, 3650, false,
+                    CERT_KEY_SIZE);
 
             int[] keySizes = new int[] {
                     CERT_KEY_SIZE
@@ -186,16 +201,17 @@ public class Server {
             // Define the Server application identity, including the Application
             // Instance Certificate (but don't sign it with the issuerCertificate as
             // explained above).
-            final ApplicationIdentity identity = ApplicationIdentity.loadOrCreateCertificate(appDescription, "Fraunhofer IOSB", /* Private Key Password */ "opcua",
+            final ApplicationIdentity identity = ApplicationIdentity.loadOrCreateCertificate(appDescription, "Fraunhofer IOSB", /* Private Key Password */ PRIV_KEY_PASS,
                     /* Key File Path */ privatePath, /* Issuer Certificate & Private Key */ null, /* Key Sizes for instance certificates to create */ keySizes,
                     /* Enable renewing the certificate */ true);
 
             // Create the HTTPS certificate bound to the hostname.
             // The HTTPS certificate must be created, if you enable HTTPS.
             hostName = ApplicationIdentity.getActualHostName();
-            identity.setHttpsCertificate(ApplicationIdentity.loadOrCreateHttpsCertificate(appDescription, hostName, "opcua", issuerCertificate, privatePath, true, CERT_KEY_SIZE));
+            identity.setHttpsCertificate(
+                    ApplicationIdentity.loadOrCreateHttpsCertificate(appDescription, hostName, PRIV_KEY_PASS, issuerCertificate, privatePath, true, CERT_KEY_SIZE));
 
-            server.setApplicationIdentity(identity);
+            uaServer.setApplicationIdentity(identity);
 
             // *** Security settings
             /*
@@ -249,7 +265,7 @@ public class Server {
              * This creates all possible combinations (NONE pairs only with None) of the configured
              * MessageSecurityModes and SecurityPolicies) for opc.tcp communication.
              */
-            server.getSecurityModes().addAll(SecurityMode.combinations(supportedMessageSecurityModes, supportedSecurityPolicies));
+            uaServer.getSecurityModes().addAll(SecurityMode.combinations(supportedMessageSecurityModes, supportedSecurityPolicies));
 
             /*
              * NOTE! The MessageSecurityMode.None for HTTPS means Application level authentication is not
@@ -258,7 +274,7 @@ public class Server {
              * MessageSecurityMode only affects if the UA certificates are exchanged when forming the
              * Session.
              */
-            server.getHttpsSecurityModes().addAll(SecurityMode.combinations(EnumSet.of(MessageSecurityMode.None, MessageSecurityMode.Sign), supportedSecurityPolicies));
+            uaServer.getHttpsSecurityModes().addAll(SecurityMode.combinations(EnumSet.of(MessageSecurityMode.None, MessageSecurityMode.Sign), supportedSecurityPolicies));
 
             // The TLS security policies to use for HTTPS
             Set<HttpsSecurityPolicy> supportedHttpsSecurityPolicies = new HashSet<>();
@@ -267,21 +283,21 @@ public class Server {
             supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_103);
             // Only these are recommended by the 1.04 Specification
             supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_104);
-            server.getHttpsSettings().setHttpsSecurityPolicies(supportedHttpsSecurityPolicies);
+            uaServer.getHttpsSettings().setHttpsSecurityPolicies(supportedHttpsSecurityPolicies);
 
             // Number of threads to reserve for the HTTPS server, default is 10
             // server.setHttpsWorkerThreadCount(10);
             // Define the certificate validator for the HTTPS certificates;
             // we use the same validator that we use for Application Instance Certificates
-            server.getHttpsSettings().setCertificateValidator(applicationCertificateValidator);
+            uaServer.getHttpsSettings().setCertificateValidator(applicationCertificateValidator);
 
             // Define the supported user authentication methods
-            server.addUserTokenPolicy(UserTokenPolicies.ANONYMOUS);
-            server.addUserTokenPolicy(UserTokenPolicies.SECURE_USERNAME_PASSWORD);
-            server.addUserTokenPolicy(UserTokenPolicies.SECURE_CERTIFICATE);
+            uaServer.addUserTokenPolicy(UserTokenPolicies.ANONYMOUS);
+            uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_USERNAME_PASSWORD);
+            uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_CERTIFICATE);
 
             // Define a validator for checking the user accounts
-            server.setUserValidator(userValidator);
+            uaServer.setUserValidator(userValidator);
 
             // currently skip discovery
             //        // Register to the local discovery server (if present)
@@ -293,14 +309,14 @@ public class Server {
             //        }
             // *** 'init' creates the service handlers and the default endpoints
             // *** according to the settings defined above
-            server.init();
+            uaServer.init();
 
             initBuildInfo();
 
             // "Safety limits" for ill-behaving clients
-            server.getSessionManager().setMaxSessionCount(500);
-            server.getSessionManager().setMaxSessionTimeout(3600000); // one hour
-            server.getSubscriptionManager().setMaxSubscriptionCount(50);
+            uaServer.getSessionManager().setMaxSessionCount(500);
+            uaServer.getSessionManager().setMaxSessionTimeout(3600000); // one hour
+            uaServer.getSubscriptionManager().setMaxSubscriptionCount(50);
 
             /*
              * Safety limits for XXXContinuationPoints. Note! These are the current defaults. Technically a
@@ -308,7 +324,7 @@ public class Server {
              * allocate server-side memory, thus do not use value of 0 (or you can run out of memory).
              * Future SDK releases may improve this.
              */
-            ServerCapabilitiesTypeNode serverCapabilities = server.getAddressSpace().getNodeManagerRoot().getServerData().getServerCapabilitiesNode();
+            ServerCapabilitiesTypeNode serverCapabilities = uaServer.getAddressSpace().getNodeManagerRoot().getServerData().getServerCapabilitiesNode();
             serverCapabilities.setMaxBrowseContinuationPoints(UnsignedShort.MAX_VALUE);
             serverCapabilities.setMaxQueryContinuationPoints(UnsignedShort.MAX_VALUE);
             serverCapabilities.setMaxHistoryContinuationPoints(UnsignedShort.MAX_VALUE);
@@ -316,12 +332,13 @@ public class Server {
             // You can do your own additions to server initializations here
             createAddressSpace();
 
-            server.start();
+            uaServer.start();
 
             running = true;
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("startup Exception", ex);
+            throw ex;
         }
     }
 
@@ -333,7 +350,7 @@ public class Server {
      */
     public void shutdown(int secondsTillShutdown) {
         running = false;
-        server.shutdown(secondsTillShutdown, new LocalizedText("Server stopped", Locale.ENGLISH));
+        uaServer.shutdown(secondsTillShutdown, new LocalizedText("Server stopped", Locale.ENGLISH));
     }
 
 
@@ -354,7 +371,7 @@ public class Server {
         // Initialize BuildInfo - using the version info from the SDK
         // You should replace this with your own build information
 
-        final BuildInfoTypeNode buildInfo = server.getNodeManagerRoot().getServerData().getServerStatusNode().getBuildInfoNode();
+        final BuildInfoTypeNode buildInfo = uaServer.getNodeManagerRoot().getServerData().getServerStatusNode().getBuildInfoNode();
 
         buildInfo.setProductName(APPLICATION_NAME);
 
@@ -388,14 +405,14 @@ public class Server {
             loadI4AasNodes();
 
             // AASService Node Manager
-            aasNodeManager = new AasServiceNodeManager(server, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint);
+            aasNodeManager = new AasServiceNodeManager(uaServer, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint);
 
             // My I/O Manager Listener
             aasNodeManager.getIoManager().addListeners(new AasServiceIoManagerListener(endpoint, aasNodeManager));
 
             LOGGER.info("Address space created.");
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("createAddressSpace Exception", ex);
         }
     }
@@ -408,13 +425,13 @@ public class Server {
         long start = System.currentTimeMillis();
         try {
             LOGGER.info("loadI4AasNodes start I4AAS");
-            server.getAddressSpace().loadModel(opc.i4aas.server.ServerInformationModel.getLocationURI());
+            uaServer.getAddressSpace().loadModel(opc.i4aas.server.ServerInformationModel.getLocationURI());
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             LOGGER.error("loadI4AasNodes Exception", ex);
         }
 
         long dauer = System.currentTimeMillis() - start;
-        LOGGER.info("loadI4AasNodes end. Dauer: " + dauer + " ms");
+        LOGGER.info("loadI4AasNodes end. Dauer: {} ms", dauer);
     }
 }

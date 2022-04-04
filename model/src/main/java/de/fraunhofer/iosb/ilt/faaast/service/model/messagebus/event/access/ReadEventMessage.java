@@ -13,7 +13,47 @@
  * limitations under the License.
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access;
+
+import java.util.Objects;
+
+
 /**
  * Abstract base class for all read event messages that are sent via message bus
+ *
+ * @param <T> value type
  */
-public abstract class ReadEventMessage extends AccessEventMessage {}
+public abstract class ReadEventMessage<T> extends AccessEventMessage {
+
+    protected T value;
+
+    public T getValue() {
+        return value;
+    }
+
+
+    public void setValue(T value) {
+        this.value = value;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        ReadEventMessage<T> that = (ReadEventMessage<T>) o;
+        return Objects.equals(value, that.value);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), value);
+    }
+}

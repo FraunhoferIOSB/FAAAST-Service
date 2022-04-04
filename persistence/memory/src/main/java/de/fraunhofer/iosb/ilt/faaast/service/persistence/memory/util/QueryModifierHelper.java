@@ -97,14 +97,14 @@ public class QueryModifierHelper {
             if (Submodel.class.isAssignableFrom(referable.getClass())) {
                 ((Submodel) referable).getSubmodelElements().forEach(x -> {
                     if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
-                        ((SubmodelElementCollection) x).setValues(null);
+                        ((SubmodelElementCollection) x).getValues().clear();
                     }
                 });
             }
             else if (SubmodelElementCollection.class.isAssignableFrom(referable.getClass())) {
                 ((SubmodelElementCollection) referable).getValues().forEach(x -> {
                     if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
-                        ((SubmodelElementCollection) x).setValues(null);
+                        ((SubmodelElementCollection) x).getValues().clear();
                     }
                 });
             }

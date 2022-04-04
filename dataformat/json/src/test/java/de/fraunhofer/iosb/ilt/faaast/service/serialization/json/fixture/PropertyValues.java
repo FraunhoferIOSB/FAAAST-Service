@@ -36,6 +36,7 @@ import io.adminshell.aas.v3.model.impl.DefaultEntity;
 import io.adminshell.aas.v3.model.impl.DefaultFile;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultMultiLanguageProperty;
+import io.adminshell.aas.v3.model.impl.DefaultOperation;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultRange;
 import io.adminshell.aas.v3.model.impl.DefaultReferenceElement;
@@ -156,6 +157,9 @@ public class PropertyValues {
             .submodelElement(PROPERTY_STRING)
             .submodelElement(RANGE_DOUBLE)
             .submodelElement(ELEMENT_COLLECTION)
+            .submodelElement(new DefaultOperation.Builder()
+                    .idShort("operation1")
+                    .build())
             .build();
     private static final String RESOURCE_PATH = "src/test/resources";
     public static final File SUBMODEL_FILE = new File(RESOURCE_PATH + "/submodel.json");

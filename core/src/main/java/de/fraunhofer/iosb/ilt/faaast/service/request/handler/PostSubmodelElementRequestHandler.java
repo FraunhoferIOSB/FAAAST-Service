@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
@@ -53,8 +54,9 @@ public class PostSubmodelElementRequestHandler extends RequestHandler<PostSubmod
         SubmodelElement submodelElement = persistence.put(parentReference, null, request.getSubmodelElement());
         response.setPayload(submodelElement);
         response.setStatusCode(StatusCode.SUCCESS_CREATED);
-
-        writeValueToAssetConnection(childReference, ElementValueMapper.toValue(submodelElement));
+        if (ElementValueHelper.isSerializableAsValue(submodelElement.getClass())) {
+            writeValueToAssetConnection(childReference, ElementValueMapper.toValue(submodelElement));
+        }
         publishElementCreateEventMessage(parentReference, submodelElement);
         return response;
     }

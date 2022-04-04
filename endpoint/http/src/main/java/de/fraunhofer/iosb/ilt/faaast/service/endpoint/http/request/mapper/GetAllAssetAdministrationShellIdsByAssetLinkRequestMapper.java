@@ -42,10 +42,13 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestMapper extends R
     @Override
     public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
         try {
-            return GetAllAssetAdministrationShellIdsByAssetLinkRequest.builder()
-                    .assetIdentifierPairs(deserializer.readList(EncodingHelper.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM)),
-                            IdentifierKeyValuePair.class))
-                    .build();
+            GetAllAssetAdministrationShellIdsByAssetLinkRequest.Builder builder = GetAllAssetAdministrationShellIdsByAssetLinkRequest.builder();
+            if (httpRequest.getQueryParameters().containsKey(QUERYPARAM)) {
+                builder = builder.assetIdentifierPairs(deserializer.readList(
+                        EncodingHelper.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM)),
+                        IdentifierKeyValuePair.class));
+            }
+            return builder.build();
         }
         catch (DeserializationException e) {
             throw new InvalidRequestException(String.format("error deserializing %s", QUERYPARAM), e);
