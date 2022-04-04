@@ -111,7 +111,7 @@ public class ServiceConfigHelper {
                 document.set(jsonPath, v);
             }
             catch (JsonPathException e) {
-                throw new JsonPathException(String.format("updating property failed (key: %s, value: %s)", k, v, e));
+                throw new JsonPathException(String.format("updating property failed (key: %s, value: %s)", k, v), e);
             }
         });
         return mapper.treeToValue(document.json(), ServiceConfig.class);

@@ -169,17 +169,16 @@ public class App implements Runnable {
     }
 
 
-    private void validateModelIfRequired(AssetAdministrationShellEnvironment model) {
+    private boolean validateModelIfRequired(AssetAdministrationShellEnvironment model) {
         if (validateModel) {
             try {
-                if (!validate(model)) {
-                    return;
-                }
+                return validate(model);
             }
             catch (IOException e) {
                 LOGGER.error("Unexpected exception with validating model", e);
             }
         }
+        return false;
     }
 
 
@@ -202,7 +201,9 @@ public class App implements Runnable {
             LOGGER.error("Error loading model file", e);
             return;
         }
-        validateModelIfRequired(model);
+        if (!validateModelIfRequired(model)) {
+            return;
+        }
         if (autoCompleteConfiguration) {
             ServiceConfigHelper.autoComplete(config);
         }

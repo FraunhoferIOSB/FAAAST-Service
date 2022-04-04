@@ -134,7 +134,7 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request apiRequest) throws IOException, SerializationException {
+    private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request apiRequest) throws SerializationException {
         if (apiRequest == null) {
             sendError(response, StatusCode.CLIENT_ERROR_BAD_REQUEST);
             return;
@@ -169,7 +169,7 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    private void sendSuccess(HttpServletResponse response, int statusCode) throws IOException {
+    private void sendSuccess(HttpServletResponse response, int statusCode) {
         sendSuccess(response, statusCode, null);
     }
 
