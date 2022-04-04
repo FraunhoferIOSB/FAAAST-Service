@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.InternalErrorResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -138,10 +139,12 @@ public class Service implements ServiceContext {
 
     @Override
     public Response execute(Request request) {
-        if (request == null) {
-            throw new IllegalArgumentException("request must be non-null");
+        try {
+            return this.requestHandler.execute(request);
         }
-        return this.requestHandler.execute(request);
+        catch (Exception e) {
+            return new InternalErrorResponse(e.getMessage());
+        }
     }
 
 

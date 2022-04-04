@@ -47,8 +47,6 @@ public interface ServiceContext {
      *
      * @param request request to execute
      * @return result of executing the request
-     * @throws IllegalArgumentException if request is null
-     * @throws RuntimeException if no handler for the request can be found
      */
     public Response execute(Request request);
 

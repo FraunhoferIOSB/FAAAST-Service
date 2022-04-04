@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -130,10 +132,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;
+import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.KeyElements;
@@ -198,12 +202,12 @@ public class RequestHandlerManagerTest {
         when(persistence.get(any(), argThat((List<AssetIdentification> t) -> true), any()))
                 .thenReturn(environment.getAssetAdministrationShells());
         GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
-        GetAllAssetAdministrationShellsResponse response = manager.execute(request);
+        GetAllAssetAdministrationShellsResponse actual = manager.execute(request);
         GetAllAssetAdministrationShellsResponse expected = new GetAllAssetAdministrationShellsResponse.Builder()
                 .payload(environment.getAssetAdministrationShells())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -236,12 +240,12 @@ public class RequestHandlerManagerTest {
         GetAllAssetAdministrationShellsByAssetIdRequest request = new GetAllAssetAdministrationShellsByAssetIdRequest.Builder()
                 .assetIds(assetIds)
                 .build();
-        GetAllAssetAdministrationShellsByAssetIdResponse response = manager.execute(request);
+        GetAllAssetAdministrationShellsByAssetIdResponse actual = manager.execute(request);
         GetAllAssetAdministrationShellsByAssetIdResponse expected = new GetAllAssetAdministrationShellsByAssetIdResponse.Builder()
                 .payload(List.of(environment.getAssetAdministrationShells().get(0), environment.getAssetAdministrationShells().get(1)))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -252,12 +256,12 @@ public class RequestHandlerManagerTest {
         GetAllAssetAdministrationShellsByIdShortRequest request = new GetAllAssetAdministrationShellsByIdShortRequest.Builder()
                 .idShort("Test")
                 .build();
-        GetAllAssetAdministrationShellsByIdShortResponse response = manager.execute(request);
+        GetAllAssetAdministrationShellsByIdShortResponse actual = manager.execute(request);
         GetAllAssetAdministrationShellsByIdShortResponse expected = new GetAllAssetAdministrationShellsByIdShortResponse.Builder()
                 .payload(environment.getAssetAdministrationShells())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -268,12 +272,12 @@ public class RequestHandlerManagerTest {
         PostAssetAdministrationShellRequest request = new PostAssetAdministrationShellRequest.Builder()
                 .aas(environment.getAssetAdministrationShells().get(0))
                 .build();
-        PostAssetAdministrationShellResponse response = manager.execute(request);
+        PostAssetAdministrationShellResponse actual = manager.execute(request);
         PostAssetAdministrationShellResponse expected = new PostAssetAdministrationShellResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0))
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -285,12 +289,12 @@ public class RequestHandlerManagerTest {
                 .id(environment.getAssetAdministrationShells().get(0).getIdentification())
                 .outputModifier(new OutputModifier())
                 .build();
-        GetAssetAdministrationShellByIdResponse response = manager.execute(request);
+        GetAssetAdministrationShellByIdResponse actual = manager.execute(request);
         GetAssetAdministrationShellByIdResponse expected = new GetAssetAdministrationShellByIdResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -301,12 +305,12 @@ public class RequestHandlerManagerTest {
         PutAssetAdministrationShellByIdRequest request = new PutAssetAdministrationShellByIdRequest.Builder()
                 .aas(environment.getAssetAdministrationShells().get(0))
                 .build();
-        PutAssetAdministrationShellByIdResponse response = manager.execute(request);
+        PutAssetAdministrationShellByIdResponse actual = manager.execute(request);
         PutAssetAdministrationShellByIdResponse expected = new PutAssetAdministrationShellByIdResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -317,11 +321,11 @@ public class RequestHandlerManagerTest {
         DeleteAssetAdministrationShellByIdRequest request = new DeleteAssetAdministrationShellByIdRequest().builder()
                 .id(environment.getAssetAdministrationShells().get(0).getIdentification())
                 .build();
-        DeleteAssetAdministrationShellByIdResponse response = manager.execute(request);
+        DeleteAssetAdministrationShellByIdResponse actual = manager.execute(request);
         DeleteAssetAdministrationShellByIdResponse expected = new DeleteAssetAdministrationShellByIdResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).remove(environment.getAssetAdministrationShells().get(0).getIdentification());
     }
 
@@ -333,12 +337,12 @@ public class RequestHandlerManagerTest {
         GetAssetAdministrationShellRequest request = new GetAssetAdministrationShellRequest.Builder()
                 .id(AAS.getIdentification())
                 .build();
-        GetAssetAdministrationShellResponse response = manager.execute(request);
+        GetAssetAdministrationShellResponse actual = manager.execute(request);
         GetAssetAdministrationShellResponse expected = new GetAssetAdministrationShellResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -352,12 +356,12 @@ public class RequestHandlerManagerTest {
                 .aas(environment.getAssetAdministrationShells().get(0))
                 .id(AAS.getIdentification())
                 .build();
-        PutAssetAdministrationShellResponse response = manager.execute(request);
+        PutAssetAdministrationShellResponse actual = manager.execute(request);
         PutAssetAdministrationShellResponse expected = new PutAssetAdministrationShellResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -368,12 +372,12 @@ public class RequestHandlerManagerTest {
         GetAssetInformationRequest request = new GetAssetInformationRequest.Builder()
                 .id(environment.getAssetAdministrationShells().get(0).getIdentification())
                 .build();
-        GetAssetInformationResponse response = manager.execute(request);
+        GetAssetInformationResponse actual = manager.execute(request);
         GetAssetInformationResponse expected = new GetAssetInformationResponse.Builder()
                 .payload(environment.getAssetAdministrationShells().get(0).getAssetInformation())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -387,11 +391,11 @@ public class RequestHandlerManagerTest {
                 .id(environment.getAssetAdministrationShells().get(0).getIdentification())
                 .assetInformation(environment.getAssetAdministrationShells().get(0).getAssetInformation())
                 .build();
-        PutAssetInformationResponse response = manager.execute(request);
+        PutAssetInformationResponse actual = manager.execute(request);
         PutAssetInformationResponse expected = new PutAssetInformationResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -403,12 +407,12 @@ public class RequestHandlerManagerTest {
                 .id(environment.getAssetAdministrationShells().get(0).getIdentification())
                 .outputModifier(new OutputModifier())
                 .build();
-        GetAllSubmodelReferencesResponse response = manager.execute(request);
+        GetAllSubmodelReferencesResponse actual = manager.execute(request);
         GetAllSubmodelReferencesResponse expected = new GetAllSubmodelReferencesResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(environment.getAssetAdministrationShells().get(0).getSubmodels())
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -422,26 +426,12 @@ public class RequestHandlerManagerTest {
                 .id(environment.getAssetAdministrationShells().get(0).getIdentification())
                 .submodelRef(SUBMODEL_ELEMENT_REF)
                 .build();
-        PostSubmodelReferenceResponse response = manager.execute(request);
+        PostSubmodelReferenceResponse actual = manager.execute(request);
         PostSubmodelReferenceResponse expected = new PostSubmodelReferenceResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .payload(SUBMODEL_ELEMENT_REF)
                 .build();
-        assertEqualsExceptTime(expected, response);
-    }
-
-
-    private static void assertEqualsExceptTime(Response expected, Response actual) {
-        removeTimeFromMesage(expected);
-        removeTimeFromMesage(actual);
-        Assert.assertEquals(expected, actual);
-    }
-
-
-    private static void removeTimeFromMesage(Response response) {
-        if (response != null && response.getResult() != null && response.getResult().getMessage() != null) {
-            response.getResult().getMessage().forEach(x -> x.setTimestamp(null));
-        }
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -453,11 +443,11 @@ public class RequestHandlerManagerTest {
                 .id(environment.getAssetAdministrationShells().get(0).getIdentification())
                 .submodelRef(SUBMODEL_ELEMENT_REF)
                 .build();
-        DeleteSubmodelReferenceResponse response = manager.execute(request);
+        DeleteSubmodelReferenceResponse actual = manager.execute(request);
         DeleteSubmodelReferenceResponse expected = new DeleteSubmodelReferenceResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -469,12 +459,12 @@ public class RequestHandlerManagerTest {
         GetAllSubmodelsRequest request = new GetAllSubmodelsRequest.Builder()
                 .outputModifier(new OutputModifier())
                 .build();
-        GetAllSubmodelsResponse response = manager.execute(request);
+        GetAllSubmodelsResponse actual = manager.execute(request);
         GetAllSubmodelsResponse expected = new GetAllSubmodelsResponse.Builder()
                 .payload(environment.getSubmodels())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -486,12 +476,12 @@ public class RequestHandlerManagerTest {
                 .semanticId(SUBMODEL_ELEMENT_REF)
                 .outputModifier(new OutputModifier())
                 .build();
-        GetAllSubmodelsBySemanticIdResponse response = manager.execute(request);
+        GetAllSubmodelsBySemanticIdResponse actual = manager.execute(request);
         GetAllSubmodelsBySemanticIdResponse expected = new GetAllSubmodelsBySemanticIdResponse.Builder()
                 .payload(environment.getSubmodels())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -503,12 +493,12 @@ public class RequestHandlerManagerTest {
                 .idShort("Test")
                 .outputModifier(new OutputModifier())
                 .build();
-        GetAllSubmodelsByIdShortResponse response = manager.execute(request);
+        GetAllSubmodelsByIdShortResponse actual = manager.execute(request);
         GetAllSubmodelsByIdShortResponse expected = new GetAllSubmodelsByIdShortResponse.Builder()
                 .payload(environment.getSubmodels())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -519,12 +509,12 @@ public class RequestHandlerManagerTest {
         PostSubmodelRequest request = new PostSubmodelRequest.Builder()
                 .submodel(environment.getSubmodels().get(0))
                 .build();
-        PostSubmodelResponse response = manager.execute(request);
+        PostSubmodelResponse actual = manager.execute(request);
         PostSubmodelResponse expected = new PostSubmodelResponse.Builder()
                 .payload(environment.getSubmodels().get(0))
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -536,12 +526,12 @@ public class RequestHandlerManagerTest {
                 .id(environment.getSubmodels().get(0).getIdentification())
                 .outputModifier(new OutputModifier())
                 .build();
-        GetSubmodelByIdResponse response = manager.execute(request);
+        GetSubmodelByIdResponse actual = manager.execute(request);
         GetSubmodelByIdResponse expected = new GetSubmodelByIdResponse.Builder()
                 .payload(environment.getSubmodels().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -553,12 +543,12 @@ public class RequestHandlerManagerTest {
                 .id(environment.getSubmodels().get(0).getIdentification())
                 .submodel(environment.getSubmodels().get(0))
                 .build();
-        PutSubmodelByIdResponse response = manager.execute(request);
+        PutSubmodelByIdResponse actual = manager.execute(request);
         PutSubmodelByIdResponse expected = new PutSubmodelByIdResponse.Builder()
                 .payload(environment.getSubmodels().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -569,11 +559,11 @@ public class RequestHandlerManagerTest {
         DeleteSubmodelByIdRequest request = new DeleteSubmodelByIdRequest.Builder()
                 .id(environment.getSubmodels().get(0).getIdentification())
                 .build();
-        DeleteSubmodelByIdResponse response = manager.execute(request);
+        DeleteSubmodelByIdResponse actual = manager.execute(request);
         DeleteSubmodelByIdResponse expected = new DeleteSubmodelByIdResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).remove(environment.getSubmodels().get(0).getIdentification());
     }
 
@@ -586,12 +576,12 @@ public class RequestHandlerManagerTest {
                 .id(environment.getSubmodels().get(0).getIdentification())
                 .outputModifier(new OutputModifier())
                 .build();
-        GetSubmodelResponse response = manager.execute(request);
+        GetSubmodelResponse actual = manager.execute(request);
         GetSubmodelResponse expected = new GetSubmodelResponse.Builder()
                 .payload(environment.getSubmodels().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -605,12 +595,12 @@ public class RequestHandlerManagerTest {
                 .outputModifier(new OutputModifier())
                 .submodel(environment.getSubmodels().get(0))
                 .build();
-        PutSubmodelResponse response = manager.execute(request);
+        PutSubmodelResponse actual = manager.execute(request);
         PutSubmodelResponse expected = new PutSubmodelResponse.Builder()
                 .payload(environment.getSubmodels().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -623,12 +613,12 @@ public class RequestHandlerManagerTest {
                 .id(environment.getSubmodels().get(0).getIdentification())
                 .outputModifier(new OutputModifier())
                 .build();
-        GetAllSubmodelElementsResponse response = manager.execute(request);
+        GetAllSubmodelElementsResponse actual = manager.execute(request);
         GetAllSubmodelElementsResponse expected = new GetAllSubmodelElementsResponse.Builder()
                 .payload(environment.getSubmodels().get(0).getSubmodelElements())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -641,12 +631,12 @@ public class RequestHandlerManagerTest {
                 .id(environment.getSubmodels().get(0).getIdentification())
                 .submodelElement(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .build();
-        PostSubmodelElementResponse response = manager.execute(request);
+        PostSubmodelElementResponse actual = manager.execute(request);
         PostSubmodelElementResponse expected = new PostSubmodelElementResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -668,7 +658,7 @@ public class RequestHandlerManagerTest {
                 .outputModifier(new OutputModifier())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
-        GetSubmodelElementByPathResponse response = manager.execute(request);
+        GetSubmodelElementByPathResponse actual = manager.execute(request);
 
         SubmodelElement expected_submodelElement = new DefaultProperty.Builder()
                 .idShort("testIdShort")
@@ -679,7 +669,7 @@ public class RequestHandlerManagerTest {
                 .payload(expected_submodelElement)
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -691,12 +681,12 @@ public class RequestHandlerManagerTest {
                 .id(environment.getSubmodels().get(0).getIdentification())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
-        PostSubmodelElementByPathResponse response = manager.execute(request);
+        PostSubmodelElementByPathResponse actual = manager.execute(request);
         PostSubmodelElementByPathResponse expected = new PostSubmodelElementByPathResponse.Builder()
                 .payload(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -722,12 +712,12 @@ public class RequestHandlerManagerTest {
                 .id(environment.getSubmodels().get(0).getIdentification())
                 .submodelElement(newSubmodelElement)
                 .build();
-        PutSubmodelElementByPathResponse response = manager.execute(request);
+        PutSubmodelElementByPathResponse actual = manager.execute(request);
         PutSubmodelElementByPathResponse expected = new PutSubmodelElementByPathResponse.Builder()
                 .payload(newSubmodelElement)
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(assetValueProvider).setValue(ElementValueMapper.toValue(newSubmodelElement));
     }
 
@@ -752,11 +742,11 @@ public class RequestHandlerManagerTest {
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
 
-        Response response = manager.execute(request);
+        Response actual = manager.execute(request);
         SetSubmodelElementValueByPathResponse expected = new SetSubmodelElementValueByPathResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(assetValueProvider).setValue(propertyValue);
     }
 
@@ -773,11 +763,11 @@ public class RequestHandlerManagerTest {
                 .id(submodel.getIdentification())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
-        DeleteSubmodelElementByPathResponse response = manager.execute(request);
+        DeleteSubmodelElementByPathResponse actual = manager.execute(request);
         DeleteSubmodelElementByPathResponse expected = new DeleteSubmodelElementByPathResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).remove(reference);
     }
 
@@ -863,8 +853,8 @@ public class RequestHandlerManagerTest {
                         .build())
                 .build();
 
-        InvokeOperationSyncResponse actualResponse = manager.execute(invokeOperationSyncRequest);
-        InvokeOperationSyncResponse expectedResponse = new InvokeOperationSyncResponse.Builder()
+        InvokeOperationSyncResponse actual = manager.execute(invokeOperationSyncRequest);
+        InvokeOperationSyncResponse expected = new InvokeOperationSyncResponse.Builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(new OperationResult.Builder()
                         .requestId("1")
@@ -878,7 +868,7 @@ public class RequestHandlerManagerTest {
                         .executionState(ExecutionState.COMPLETED)
                         .build())
                 .build();
-        assertEqualsExceptTime(expectedResponse, actualResponse);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
     class CustomAssetOperationProvider implements AssetOperationProvider {
@@ -905,12 +895,12 @@ public class RequestHandlerManagerTest {
         GetAllConceptDescriptionsRequest request = new GetAllConceptDescriptionsRequest.Builder()
                 .outputModifier(new OutputModifier())
                 .build();
-        GetAllConceptDescriptionsResponse response = manager.execute(request);
+        GetAllConceptDescriptionsResponse actual = manager.execute(request);
         GetAllConceptDescriptionsResponse expected = new GetAllConceptDescriptionsResponse.Builder()
                 .payload(environment.getConceptDescriptions())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -922,12 +912,12 @@ public class RequestHandlerManagerTest {
                 .outputModifier(new OutputModifier())
                 .idShort(environment.getConceptDescriptions().get(0).getIdShort())
                 .build();
-        GetAllConceptDescriptionsByIdShortResponse response = manager.execute(request);
+        GetAllConceptDescriptionsByIdShortResponse actual = manager.execute(request);
         GetAllConceptDescriptionsByIdShortResponse expected = new GetAllConceptDescriptionsByIdShortResponse.Builder()
                 .payload(environment.getConceptDescriptions())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -940,12 +930,12 @@ public class RequestHandlerManagerTest {
                 .outputModifier(new OutputModifier())
                 .isCaseOf(reference)
                 .build();
-        GetAllConceptDescriptionsByIsCaseOfResponse response = manager.execute(request);
+        GetAllConceptDescriptionsByIsCaseOfResponse actual = manager.execute(request);
         GetAllConceptDescriptionsByIsCaseOfResponse expected = new GetAllConceptDescriptionsByIsCaseOfResponse.Builder()
                 .payload(environment.getConceptDescriptions())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -958,12 +948,12 @@ public class RequestHandlerManagerTest {
                 .outputModifier(new OutputModifier())
                 .dataSpecification(reference)
                 .build();
-        GetAllConceptDescriptionsByDataSpecificationReferenceResponse response = manager.execute(request);
+        GetAllConceptDescriptionsByDataSpecificationReferenceResponse actual = manager.execute(request);
         GetAllConceptDescriptionsByDataSpecificationReferenceResponse expected = new GetAllConceptDescriptionsByDataSpecificationReferenceResponse.Builder()
                 .payload(environment.getConceptDescriptions())
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -974,12 +964,12 @@ public class RequestHandlerManagerTest {
         PostConceptDescriptionRequest request = new PostConceptDescriptionRequest.Builder()
                 .conceptDescription(environment.getConceptDescriptions().get(0))
                 .build();
-        PostConceptDescriptionResponse response = manager.execute(request);
+        PostConceptDescriptionResponse actual = manager.execute(request);
         PostConceptDescriptionResponse expected = new PostConceptDescriptionResponse.Builder()
                 .payload(environment.getConceptDescriptions().get(0))
                 .statusCode(StatusCode.SUCCESS_CREATED)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -991,12 +981,12 @@ public class RequestHandlerManagerTest {
                 .outputModifier(new OutputModifier())
                 .id(environment.getConceptDescriptions().get(0).getIdentification())
                 .build();
-        GetConceptDescriptionByIdResponse response = manager.execute(request);
+        GetConceptDescriptionByIdResponse actual = manager.execute(request);
         GetConceptDescriptionByIdResponse expected = new GetConceptDescriptionByIdResponse.Builder()
                 .payload(environment.getConceptDescriptions().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -1007,12 +997,12 @@ public class RequestHandlerManagerTest {
         PutConceptDescriptionByIdRequest request = new PutConceptDescriptionByIdRequest.Builder()
                 .conceptDescription(environment.getConceptDescriptions().get(0))
                 .build();
-        PutConceptDescriptionByIdResponse response = manager.execute(request);
+        PutConceptDescriptionByIdResponse actual = manager.execute(request);
         PutConceptDescriptionByIdResponse expected = new PutConceptDescriptionByIdResponse.Builder()
                 .payload(environment.getConceptDescriptions().get(0))
                 .statusCode(StatusCode.SUCCESS)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
@@ -1023,12 +1013,85 @@ public class RequestHandlerManagerTest {
         DeleteConceptDescriptionByIdRequest request = new DeleteConceptDescriptionByIdRequest.Builder()
                 .id(environment.getConceptDescriptions().get(0).getIdentification())
                 .build();
-        DeleteConceptDescriptionByIdResponse response = manager.execute(request);
+        DeleteConceptDescriptionByIdResponse actual = manager.execute(request);
         DeleteConceptDescriptionByIdResponse expected = new DeleteConceptDescriptionByIdResponse.Builder()
                 .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
-        assertEqualsExceptTime(expected, response);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).remove(environment.getConceptDescriptions().get(0).getIdentification());
+    }
+
+
+    @Test
+    public void testGetIdentifiableWithInvalidIdRequest() throws ResourceNotFoundException {
+        when(persistence.get(argThat((Identifier t) -> true), any()))
+                .thenThrow(new ResourceNotFoundException("Resource not found with id"));
+        GetSubmodelByIdRequest request = new GetSubmodelByIdRequest.Builder().build();
+        GetSubmodelByIdResponse actual = manager.execute(request);
+        GetSubmodelByIdResponse expected = new GetSubmodelByIdResponse.Builder()
+                .result(Result.error("Resource not found with id"))
+                .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
+                .build();
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+    }
+
+
+    @Test
+    public void testGetReferableWithInvalidIdRequest() throws ResourceNotFoundException {
+        when(persistence.get(argThat((Reference r) -> true), any()))
+                .thenThrow(new ResourceNotFoundException("Resource not found with id"));
+        GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
+        GetSubmodelElementByPathResponse actual = manager.execute(request);
+        GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
+                .result(Result.error("Resource not found with id"))
+                .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
+                .build();
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+    }
+
+
+    @Test
+    public void testGetReferableWithMessageBusExceptionRequest() throws ResourceNotFoundException, MessageBusException {
+        when(persistence.get(argThat((Reference r) -> true), any()))
+                .thenReturn(new DefaultProperty());
+        doThrow(new MessageBusException("Invalid Messagbus Call")).when(messageBus).publish(any());
+        GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
+        GetSubmodelElementByPathResponse actual = manager.execute(request);
+        GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
+                .result(Result.exception("Invalid Messagbus Call"))
+                .statusCode(StatusCode.SERVER_INTERNAL_ERROR)
+                .build();
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+    }
+
+
+    @Test
+    public void testGetValueWithInvalidAssetConnectionRequest() throws ResourceNotFoundException, AssetConnectionException {
+        when(persistence.get(argThat((Reference r) -> true), any()))
+                .thenReturn(new DefaultProperty());
+        AssetValueProvider assetValueProvider = mock(AssetValueProvider.class);
+        when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
+        when(assetConnectionManager.getValueProvider(any())).thenReturn(assetValueProvider);
+        when(assetValueProvider.getValue()).thenThrow(new AssetConnectionException("Invalid Assetconnection"));
+        GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
+        GetSubmodelElementByPathResponse actual = manager.execute(request);
+        GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
+                .result(Result.exception("Invalid Assetconnection"))
+                .statusCode(StatusCode.SERVER_INTERNAL_ERROR)
+                .build();
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+    }
+
+
+    private GetSubmodelElementByPathRequest getExampleGetSubmodelElementByPathRequest() {
+        return new GetSubmodelElementByPathRequest.Builder()
+                .path(List.of(new DefaultKey.Builder()
+                        .value("testProperty")
+                        .type(KeyElements.PROPERTY)
+                        .idType(KeyType.ID_SHORT)
+                        .build()))
+                .id(new DefaultIdentifier.Builder().identifier("test").idType(IdentifierType.IRI).build())
+                .build();
     }
 
 

@@ -12,23 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager;
-
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-
+package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
 /**
- * Base class for implementing code to execute a request to the persistence.
+ * Response class representing internal error.
  */
-public abstract class PersistenceManager {
+public class InternalErrorResponse extends BaseResponse {
 
-    protected static final String ERROR_MSG_RESOURCE_NOT_FOUND_BY_REF = "Resource not found by reference %s";
-    protected static final String ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID = "Resource not found by id %s";
-
-    protected AssetAdministrationShellEnvironment aasEnvironment;
-
-    public void setAasEnvironment(AssetAdministrationShellEnvironment aasEnvironment) {
-        this.aasEnvironment = aasEnvironment;
+    public InternalErrorResponse(String message) {
+        this.statusCode = StatusCode.SERVER_INTERNAL_ERROR;
+        this.result = Result.exception(message);
     }
 
+
+    public InternalErrorResponse() {
+        this("Internal Server Error");
+    }
 }

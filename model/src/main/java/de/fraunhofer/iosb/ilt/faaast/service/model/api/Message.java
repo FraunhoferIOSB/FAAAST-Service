@@ -86,7 +86,10 @@ public class Message {
             return false;
         }
         Message message = (Message) o;
-        return messageType == message.messageType && Objects.equals(text, message.text) && Objects.equals(code, message.code) && Objects.equals(timestamp, message.timestamp);
+        return messageType == message.messageType
+                && Objects.equals(text, message.text)
+                && Objects.equals(code, message.code)
+                && Objects.equals(timestamp, message.timestamp);
     }
 
 

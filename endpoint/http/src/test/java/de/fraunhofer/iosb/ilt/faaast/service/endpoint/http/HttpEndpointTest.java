@@ -22,8 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
@@ -39,6 +37,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -46,7 +45,6 @@ import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultRange;
 import java.net.ServerSocket;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -393,67 +391,39 @@ public class HttpEndpointTest {
 
     @Test
     public void testResultServerError() throws Exception {
+        Result expected = Result.error(HttpStatus.getMessage(500));
         when(serviceContext.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.SERVER_INTERNAL_ERROR)
+                .result(expected)
                 .payload(null)
                 .build());
-        Message message = Message.builder()
-                .text(HttpStatus.getMessage(500))
-                .messageType(MessageType.ERROR)
-                .code(HttpStatus.getMessage(500))
-                .timestamp(new Date())
-                .build();
-        Result result = Result.builder()
-                .message(message)
-                .success(false)
-                .build();
-        ContentResponse response = response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode("Whatever") + "/aas");
+        ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode("Whatever") + "/aas");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
-        actual.getMessages().get(0).setTimestamp(message.getTimestamp());
-        Assert.assertEquals(result, actual);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
     @Test
     public void testResultBadRequest() throws Exception {
-        Message message = Message.builder()
-                .text("no matching request mapper found")
-                .messageType(MessageType.ERROR)
-                .code(HttpStatus.getMessage(400))
-                .timestamp(new Date())
-                .build();
-        Result result = Result.builder()
-                .message(message)
-                .success(false)
-                .build();
+        Result expected = Result.error("no matching request mapper found");
         ContentResponse response = execute(HttpMethod.GET, "/shellsX/");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
-        actual.getMessages().get(0).setTimestamp(message.getTimestamp());
-        Assert.assertEquals(result, actual);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 
     @Test
     public void testResultNotFound() throws Exception {
+        Result expected = Result.error(HttpStatus.getMessage(404));
         when(serviceContext.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .payload(null)
+                .result(expected)
                 .build());
         Identifier id = new DefaultIdentifier();
-        Message message = Message.builder()
-                .text(HttpStatus.getMessage(404))
-                .messageType(MessageType.ERROR)
-                .code(HttpStatus.getMessage(404))
-                .timestamp(new Date())
-                .build();
-        Result result = Result.builder()
-                .message(message)
-                .success(false)
-                .build();
         ContentResponse response = execute(HttpMethod.GET, "/submodels/" + EncodingHelper.base64UrlEncode(id.toString()) + "/submodel/submodel-elements/Invalid");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
-        actual.getMessages().get(0).setTimestamp(message.getTimestamp());
-        Assert.assertEquals(result, actual);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }
 
 }

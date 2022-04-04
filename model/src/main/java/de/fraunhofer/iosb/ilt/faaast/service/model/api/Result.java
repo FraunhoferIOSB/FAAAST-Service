@@ -29,6 +29,7 @@ public class Result {
     private List<Message> messages;
 
     public Result() {
+        this.success = true;
         this.messages = new ArrayList<>();
     }
 
@@ -78,6 +79,17 @@ public class Result {
                 .success(false)
                 .message(Message.builder()
                         .messageType(MessageType.ERROR)
+                        .text(message)
+                        .build())
+                .build();
+    }
+
+
+    public static Result exception(String message) {
+        return builder()
+                .success(false)
+                .message(Message.builder()
+                        .messageType(MessageType.EXCEPTION)
                         .text(message)
                         .build())
                 .build();
