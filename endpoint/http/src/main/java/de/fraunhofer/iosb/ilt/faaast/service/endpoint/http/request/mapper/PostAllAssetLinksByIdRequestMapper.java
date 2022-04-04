@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 
 
@@ -40,7 +41,7 @@ public class PostAllAssetLinksByIdRequestMapper extends RequestMapper {
     @Override
     public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
         return PostAllAssetLinksByIdRequest.builder()
-                .aasIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(2)))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(2))))
                 .assetLinks(parseBodyAsList(httpRequest, IdentifierKeyValuePair.class))
                 .build();
     }

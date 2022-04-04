@@ -15,42 +15,40 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelReferencesResponse;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelReferencesRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteAllAssetLinksByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.Reference;
-import java.util.List;
 
 
 /**
  * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelReferencesRequest}
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteAllAssetLinksByIdRequest}
  * in the service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelReferencesResponse}.
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteAllAssetLinksByIdResponse}.
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class GetAllSubmodelsReferencesRequestHandler extends RequestHandler<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
+public class DeleteAllAssetLinksByIdRequestHandler extends RequestHandler<DeleteAllAssetLinksByIdRequest, DeleteAllAssetLinksByIdResponse> {
 
-    public GetAllSubmodelsReferencesRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+    public DeleteAllAssetLinksByIdRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
     }
 
 
     @Override
-    public GetAllSubmodelReferencesResponse process(GetAllSubmodelReferencesRequest request) throws ResourceNotFoundException, MessageBusException {
-        GetAllSubmodelReferencesResponse response = new GetAllSubmodelReferencesResponse();
-        AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), request.getOutputModifier());
-        List<Reference> submodelReferences = shell.getSubmodels();
-        response.setPayload(submodelReferences);
-        response.setStatusCode(StatusCode.SUCCESS);
-        publishElementReadEventMessage(AasUtils.toReference(shell), shell);
+    public DeleteAllAssetLinksByIdResponse process(DeleteAllAssetLinksByIdRequest request) throws ResourceNotFoundException {
+        DeleteAllAssetLinksByIdResponse response = new DeleteAllAssetLinksByIdResponse();
+        AssetAdministrationShell aas = (AssetAdministrationShell) persistence.get(request.getId(), QueryModifier.DEFAULT);
+        aas.getAssetInformation().setGlobalAssetId(null);
+        aas.getAssetInformation().getSpecificAssetIds().clear();
+        persistence.put(aas);
+        response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         return response;
     }
+
 }

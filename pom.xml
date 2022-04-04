@@ -19,8 +19,6 @@
     <modules>
         <module>core</module>
         <module>model</module>
-        <!-- needs to be build separately because of proprietary dependency to prosys -->
-        <!-- <module>endpoint/opcua</module> -->
         <module>endpoint/http</module>
         <module>messagebus/internal</module>
         <module>persistence/memory</module>
@@ -28,6 +26,7 @@
         <module>assetconnection/opcua</module>
         <module>dataformat/json</module>
         <module>starter</module>
+        <module>test</module>
     </modules>
     <properties>
         <aas.version>1.2.0</aas.version>
@@ -36,6 +35,7 @@
         <container.image.tag>latest</container.image.tag>
         <flatten.version>1.2.7</flatten.version>
         <guava.version>31.1-jre</guava.version>
+        <jackson-databind.version>2.13.2</jackson-databind.version>
         <jackson.version>2.13.2</jackson.version>
         <jakarta-servlet.version>5.0.0</jakarta-servlet.version>
         <javax-servlet.version>2.5</javax-servlet.version>
@@ -47,6 +47,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <maven.plugin.assembly.version>3.3.0</maven.plugin.assembly.version>
         <maven.plugin.compiler.version>3.10.1</maven.plugin.compiler.version>
+        <maven.plugin.failsafe.version>3.0.0-M5</maven.plugin.failsafe.version>
         <maven.plugin.gpg.version>3.0.1</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.7</maven.plugin.jacoco.version>
         <maven.plugin.javadoc.version>3.3.2</maven.plugin.javadoc.version>
@@ -237,6 +238,23 @@
                         <id>aggregate-third-party-report</id>
                         <goals>
                             <goal>aggregate-third-party-report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven.plugin.failsafe.version}</version>
+                <configuration>
+                    <includes>
+                        <include>**/*IT</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
                         </goals>
                     </execution>
                 </executions>

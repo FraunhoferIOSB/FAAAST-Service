@@ -25,9 +25,11 @@ import java.util.regex.Pattern;
 
 
 /**
- * Helper class for handling values of {@link io.adminshell.aas.v3.model.Identifier}
+ * Helper class for handling values of
+ * {@link io.adminshell.aas.v3.model.Identifier}
  */
 public class IdentifierHelper {
+
     private static final Pattern IRDI_PATTERN = Pattern.compile("^\\d{4}-.{1,4}(-.{6}-.-.{6})?#.{2}-.{1,6}#\\d+$");
     private static final Pattern FRAGMENT_PATTERN = Pattern.compile("^#(.+)$");
     private static final Pattern ID_SHORT_PATTERN = Pattern.compile("^[a-zA-Z][a-zA-Z0-9_]+");
@@ -38,8 +40,9 @@ public class IdentifierHelper {
 
 
     /**
-     * check if url is a valid URL {@link io.adminshell.aas.v3.model.Identifier}.
-     * Supported IdentifierTypes: IRI
+     * check if url is a valid URL
+     * {@link io.adminshell.aas.v3.model.Identifier}. Supported IdentifierTypes:
+     * IRI
      *
      * @param value of the identifier
      * @return true/false
@@ -57,8 +60,9 @@ public class IdentifierHelper {
 
 
     /**
-     * Guess the identifier type out of a value of an {@link io.adminshell.aas.v3.model.Identifier}.
-     * Supported IdentifierTypes: IRDI, IRI, CUSTOM
+     * Guess the identifier type out of a value of an
+     * {@link io.adminshell.aas.v3.model.Identifier}. Supported IdentifierTypes:
+     * IRDI, IRI, CUSTOM
      *
      * @param value of the identifier
      * @return the guessed identifier type
@@ -75,8 +79,9 @@ public class IdentifierHelper {
 
 
     /**
-     * Guess the key type out of a value of an {@link io.adminshell.aas.v3.model.Identifier}.
-     * Supported key types: IRDI, IRI, FRAGMENT_ID, ID_SHORT, CUSTOM
+     * Guess the key type out of a value of an
+     * {@link io.adminshell.aas.v3.model.Identifier}. Supported key types: IRDI,
+     * IRI, FRAGMENT_ID, ID_SHORT, CUSTOM
      *
      * @param value of the identifier
      * @return the guessed key type
@@ -99,7 +104,8 @@ public class IdentifierHelper {
 
 
     /**
-     * Create a {@link io.adminshell.aas.v3.model.Identifier} out of an identifier value
+     * Create a {@link io.adminshell.aas.v3.model.Identifier} out of an
+     * identifier value
      *
      * @param value of the identifier
      * @return the parsed identifier with a guessed id type
@@ -109,5 +115,17 @@ public class IdentifierHelper {
                 .identifier(value)
                 .idType(IdentifierHelper.guessIdentifierType(value))
                 .build();
+    }
+
+
+    /**
+     * Transforms an {@link io.adminshell.aas.v3.model.Identifier} to a string
+     * with format [IDType]value. E.g. [IRI]http://example.com/abc123
+     *
+     * @param id the identifier which should be transformed to string
+     * @return the string representation for the identifier
+     */
+    public static String asString(Identifier id) {
+        return String.format("[%s]%s", id.getIdType(), id.getIdentifier());
     }
 }

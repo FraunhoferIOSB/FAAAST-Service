@@ -12,16 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service;
+package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
-// TODO unclear if needed
-public class ServiceTest {
-    //    @Test
-    //    public void testGetAllAssetAdministrationShellRequest() throws ConfigurationException {
-    //        ServiceConfig config = new ServiceConfig();
-    //        config.setCore(new CoreConfig());
-    //        Service service = new Service(config);
-    //        GetAllAssetAdministrationShellsRequest request = new GetAllAssetAdministrationShellsRequest();
-    //        service.execute(request);
-    //    }
+/**
+ * Response class representing internal error.
+ */
+public class InternalErrorResponse extends BaseResponse {
+
+    public InternalErrorResponse(String message) {
+        this.statusCode = StatusCode.SERVER_INTERNAL_ERROR;
+        this.result = Result.exception(message);
+    }
+
+
+    public InternalErrorResponse() {
+        this("Internal Server Error");
+    }
 }

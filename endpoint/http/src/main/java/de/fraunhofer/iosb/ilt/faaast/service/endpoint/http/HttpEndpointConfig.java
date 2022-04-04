@@ -61,4 +61,31 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
     public int hashCode() {
         return Objects.hash(super.hashCode(), port);
     }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private abstract static class AbstractBuilder<T extends HttpEndpointConfig, B extends AbstractBuilder<T, B>> extends EndpointConfig.AbstractBuilder<HttpEndpoint, T, B> {
+
+        public B port(int value) {
+            getBuildingInstance().setPort(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<HttpEndpointConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected HttpEndpointConfig newBuildingInstance() {
+            return new HttpEndpointConfig();
+        }
+    }
 }

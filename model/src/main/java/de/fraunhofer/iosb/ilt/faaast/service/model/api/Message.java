@@ -29,6 +29,14 @@ public class Message {
     private String code;
     private Date timestamp;
 
+    public Message() {
+        this.messageType = MessageType.INFO;
+        this.text = "";
+        this.code = "";
+        this.timestamp = new Date();
+    }
+
+
     public MessageType getMessageType() {
         return messageType;
     }
@@ -78,7 +86,10 @@ public class Message {
             return false;
         }
         Message message = (Message) o;
-        return messageType == message.messageType && Objects.equals(text, message.text) && Objects.equals(code, message.code) && Objects.equals(timestamp, message.timestamp);
+        return messageType == message.messageType
+                && Objects.equals(text, message.text)
+                && Objects.equals(code, message.code)
+                && Objects.equals(timestamp, message.timestamp);
     }
 
 

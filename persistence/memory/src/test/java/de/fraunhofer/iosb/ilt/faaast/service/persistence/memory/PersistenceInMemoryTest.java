@@ -624,7 +624,7 @@ public class PersistenceInMemoryTest {
         actual = (Submodel) this.persistence.get(submodelId, queryModifier);
         List<SubmodelElement> submodelElementCollections = actual.getSubmodelElements().stream().filter(x -> SubmodelElementCollection.class.isAssignableFrom(x.getClass()))
                 .collect(Collectors.toList());
-        Assert.assertTrue(submodelElementCollections.stream().allMatch(x -> ((SubmodelElementCollection) x).getValues() == null));
+        Assert.assertTrue(submodelElementCollections.stream().allMatch(x -> ((SubmodelElementCollection) x).getValues().isEmpty()));
     }
 
 

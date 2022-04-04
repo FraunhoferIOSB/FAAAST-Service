@@ -54,7 +54,6 @@ public class PostSubmodelElementRequestHandler extends RequestHandler<PostSubmod
         SubmodelElement submodelElement = persistence.put(parentReference, null, request.getSubmodelElement());
         response.setPayload(submodelElement);
         response.setStatusCode(StatusCode.SUCCESS_CREATED);
-
         if (ElementValueHelper.isSerializableAsValue(submodelElement.getClass())) {
             writeValueToAssetConnection(childReference, ElementValueMapper.toValue(submodelElement));
         }

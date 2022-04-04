@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetLinksByIdResponse;
+import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
@@ -25,15 +26,15 @@ import java.util.Objects;
  */
 public class GetAllAssetLinksByIdRequest extends BaseRequest<GetAllAssetLinksByIdResponse> {
 
-    private String aasIdentifier;
+    private Identifier id;
 
-    public String getAasIdentifier() {
-        return aasIdentifier;
+    public Identifier getId() {
+        return id;
     }
 
 
-    public void setAasIdentifier(String aasIdentifier) {
-        this.aasIdentifier = aasIdentifier;
+    public void setId(Identifier id) {
+        this.id = id;
     }
 
 
@@ -46,13 +47,13 @@ public class GetAllAssetLinksByIdRequest extends BaseRequest<GetAllAssetLinksByI
             return false;
         }
         GetAllAssetLinksByIdRequest that = (GetAllAssetLinksByIdRequest) o;
-        return Objects.equals(aasIdentifier, that.aasIdentifier);
+        return Objects.equals(id, that.id);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(aasIdentifier);
+        return Objects.hash(id);
     }
 
 
@@ -62,8 +63,8 @@ public class GetAllAssetLinksByIdRequest extends BaseRequest<GetAllAssetLinksByI
 
     public abstract static class AbstractBuilder<T extends GetAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B aasIdentifier(String value) {
-            getBuildingInstance().setAasIdentifier(value);
+        public B id(Identifier value) {
+            getBuildingInstance().setId(value);
             return getSelf();
         }
     }

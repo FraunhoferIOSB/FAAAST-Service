@@ -62,6 +62,12 @@ public abstract class BaseResponse implements Response {
     }
 
 
+    public void setError(StatusCode statusCode, String message) {
+        setStatusCode(statusCode);
+        setResult(Result.error(message));
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

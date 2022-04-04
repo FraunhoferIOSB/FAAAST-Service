@@ -23,11 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappin
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,13 +36,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.Date;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -54,7 +49,6 @@ import org.slf4j.LoggerFactory;
  */
 public class RequestHandler extends AbstractHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
     private ServiceContext serviceContext;
     private RequestMappingManager mappingManager;
     private HttpJsonSerializer serializer;
@@ -92,16 +86,15 @@ public class RequestHandler extends AbstractHandler {
             apiRequest = mappingManager.map(httpRequest);
         }
         catch (InvalidRequestException | IllegalArgumentException e) {
-            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, MessageType.ERROR, e.getMessage());
+            sendError(response, StatusCode.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
             baseRequest.setHandled(true);
             return;
         }
-        //TODO more differentiated error codes (must be generated in mappingManager)
         try {
             executeAndSend(response, apiRequest);
         }
         catch (SerializationException e) {
-            LOGGER.error("error serializing HTTP response", e);
+            sendException(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
         }
         baseRequest.setHandled(true);
     }
@@ -115,87 +108,102 @@ public class RequestHandler extends AbstractHandler {
      * @param httpStatusCode http status code
      * @param errorMessage clear text error message
      */
-    private void sendResultResponse(HttpServletResponse response, int httpStatusCode, MessageType messageType, String errorMessage) throws IOException {
-        if (errorMessage.isEmpty()) {
-            errorMessage = HttpStatus.getMessage(httpStatusCode);
-        }
-        Result result = Result.builder()
-                .success(false)
-                .message(Message.builder()
-                        .messageType(messageType)
-                        .text(errorMessage)
-                        .code(HttpStatus.getMessage(httpStatusCode))
-                        .timestamp(new Date())
-                        .build())
-                .build();
+    private void sendFailure(HttpServletResponse response, StatusCode statusCode, Result result) {
+        int httpStatusCode = HttpHelper.toHttpStatusCode(statusCode);
         try {
             sendJson(response, httpStatusCode, serializer.write(result));
         }
         catch (SerializationException e) {
-            // TODO shouldn't an error status code and updated error message be sent?
-            send(response, httpStatusCode, errorMessage);
+            sendException(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
         }
     }
 
 
-    private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request apiRequest) throws IOException, SerializationException {
+    private void sendError(HttpServletResponse response, StatusCode statusCode) {
+        sendError(response, statusCode, HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode)));
+    }
+
+
+    private void sendError(HttpServletResponse response, StatusCode statusCode, String message) {
+        sendFailure(response, statusCode, Result.error(message));
+    }
+
+
+    private void sendException(HttpServletResponse response, StatusCode statusCode, String message) {
+        sendFailure(response, statusCode, Result.exception(message));
+    }
+
+
+    private void executeAndSend(HttpServletResponse response, de.fraunhofer.iosb.ilt.faaast.service.model.api.Request<? extends Response> apiRequest)
+            throws SerializationException {
         if (apiRequest == null) {
-            sendResultResponse(response, HttpStatus.BAD_REQUEST_400, MessageType.ERROR, "");
+            sendError(response, StatusCode.CLIENT_ERROR_BAD_REQUEST);
             return;
         }
         Response apiResponse = serviceContext.execute(apiRequest);
         if (apiResponse == null) {
-            sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, MessageType.ERROR, "");
+            sendException(response, StatusCode.SERVER_INTERNAL_ERROR, "apiResponse must be non-null");
             return;
         }
         int statusCode = HttpHelper.toHttpStatusCode(apiResponse.getStatusCode());
-        if (!apiResponse.getResult().getSuccess() || !HttpStatus.isSuccess(statusCode)) {
-            sendResultResponse(response, statusCode, MessageType.ERROR, HttpStatus.getMessage((statusCode)));
+        if (apiResponse.getResult() != null && !apiResponse.getResult().getSuccess()) {
+            sendJson(response, statusCode, serializer.write(apiResponse.getResult()));
         }
         else if (BaseResponseWithPayload.class.isAssignableFrom(apiResponse.getClass())) {
             try {
+                Object payload = ((BaseResponseWithPayload) apiResponse).getPayload();
                 if (RequestWithModifier.class.isAssignableFrom(apiRequest.getClass())) {
-                    Object payload = ((BaseResponseWithPayload) apiResponse).getPayload();
-                    OutputModifier outputModifier = ((RequestWithModifier) apiRequest).getOutputModifier();
-                    sendJson(response, statusCode, serializer.write(payload, outputModifier));
+                    sendJson(response, statusCode, serializer.write(payload, ((RequestWithModifier) apiRequest).getOutputModifier()));
                 }
                 else {
                     sendJson(response, statusCode, serializer.write(((BaseResponseWithPayload) apiResponse).getPayload()));
                 }
             }
             catch (SerializationException e) {
-                sendResultResponse(response, HttpStatus.INTERNAL_SERVER_ERROR_500, MessageType.EXCEPTION, e.getMessage());
+                sendException(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
             }
         }
         else {
-            send(response, statusCode);
+            sendSuccess(response, statusCode);
         }
+
     }
 
 
-    private void send(HttpServletResponse response, int statusCode) throws IOException {
-        send(response, statusCode, null);
+    private void sendSuccess(HttpServletResponse response, int statusCode) {
+        sendSuccess(response, statusCode, null);
     }
 
 
-    private void send(HttpServletResponse response, int statusCode, String content) throws IOException {
+    private void sendSuccess(HttpServletResponse response, int statusCode, String content) {
         send(response, statusCode, content, "text/plain");
     }
 
 
-    private void sendJson(HttpServletResponse response, int statusCode, String content) throws IOException {
+    private void sendJson(HttpServletResponse response, int statusCode, String content) {
         send(response, statusCode, content, "application/json");
     }
 
 
-    private void send(HttpServletResponse response, int statusCode, String content, String contentType) throws IOException {
+    private void send(HttpServletResponse response, int statusCode, String content, String contentType) {
         response.setStatus(statusCode);
         if (content != null) {
-            response.setCharacterEncoding("UTF-8");
-            response.setContentType(contentType + "; charset=UTF-8");
-            PrintWriter out = response.getWriter();
-            out.print(content);
-            out.flush();
+            PrintWriter out = null;
+            try {
+                response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+                response.setContentType(String.format("%s; charset=%s", contentType, StandardCharsets.UTF_8.name()));
+                out = response.getWriter();
+                out.print(content);
+                out.flush();
+            }
+            catch (IOException e) {
+                sendException(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
+            }
+            finally {
+                if (out != null) {
+                    out.close();
+                }
+            }
         }
     }
 

@@ -149,7 +149,7 @@ public class RequestMappingManagerTest {
     @Test
     public void testDeleteAllAssetLinksByIdRequest() throws InvalidRequestException {
         Request expected = DeleteAllAssetLinksByIdRequest.builder()
-                .aasIdentifier(AAS.getIdentification().getIdentifier())
+                .id(AAS.getIdentification())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.DELETE)
@@ -322,7 +322,7 @@ public class RequestMappingManagerTest {
     @Test
     public void testGetAllAssetLinksByIdRequest() throws InvalidRequestException {
         Request expected = GetAllAssetLinksByIdRequest.builder()
-                .aasIdentifier(AAS.getIdentification().getIdentifier())
+                .id(AAS.getIdentification())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -703,7 +703,7 @@ public class RequestMappingManagerTest {
     @Test
     public void testPostAllAssetLinksByIdRequest() throws SerializationException, InvalidRequestException {
         Request expected = PostAllAssetLinksByIdRequest.builder()
-                .aasIdentifier(AAS.getIdentification().getIdentifier())
+                .id(AAS.getIdentification())
                 .assetLinks(ASSET_IDENTIFIERS)
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()

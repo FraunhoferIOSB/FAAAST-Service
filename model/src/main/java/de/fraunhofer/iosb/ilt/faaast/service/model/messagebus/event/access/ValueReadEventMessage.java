@@ -15,44 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
-import java.util.Objects;
 
 
 /**
  * Event message indicating that the value of an element has been read
  */
-public class ValueReadEventMessage extends ReadEventMessage {
+public class ValueReadEventMessage extends ReadEventMessage<ElementValue> {
 
-    private ElementValue value;
-
-    public ElementValue getValue() {
-        return value;
-    }
-
-
-    public void setValue(ElementValue value) {
-        this.value = value;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        ValueReadEventMessage that = (ValueReadEventMessage) o;
-        return Objects.equals(value, that.value);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), value);
-    }
 }

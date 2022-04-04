@@ -69,7 +69,7 @@ public class JsonSerializer implements Serializer {
         }
         try {
             JsonMapper mapper = wrapper.getMapper();
-            if (obj != null && List.class.isAssignableFrom(obj.getClass())) {
+            if (obj != null && List.class.isAssignableFrom(obj.getClass()) && !((List) obj).isEmpty()) {
                 ObjectWriter objectWriter = mapper.writerFor(mapper.getTypeFactory()
                         .constructCollectionType(List.class, ((List<Object>) obj).get(0).getClass()))
                         .withAttribute(ModifierAwareSerializer.LEVEL, modifier);
