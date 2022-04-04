@@ -22,14 +22,14 @@ public enum EndpointType {
     HTTP(HttpEndpointConfig.class),
     OPCUA(HttpEndpointConfig.class);
 
-    private final Class<? extends EndpointConfig> implementation;
+    private final Class<? extends EndpointConfig<?>> implementation;
 
-    private EndpointType(Class<? extends EndpointConfig> implementation) {
+    private EndpointType(Class<? extends EndpointConfig<?>> implementation) {
         this.implementation = implementation;
     }
 
 
-    public Class<? extends EndpointConfig> getImplementation() {
+    public Class<? extends EndpointConfig<?>> getImplementation() {
         return implementation;
     }
 }

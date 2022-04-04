@@ -116,7 +116,7 @@ public class App implements Runnable {
 
     @Option(names = "--no-modelValidation", negatable = true, description = "Validates the AAS Environment. True by default")
     public boolean validateModel = true;
-    private Service service;
+
     @Spec
     private CommandSpec spec;
 
@@ -230,11 +230,11 @@ public class App implements Runnable {
 
     private void runService(AssetAdministrationShellEnvironment model, ServiceConfig config) {
         try {
-            service = new Service(model, config);
+            serviceRef.set(new Service(model, config));
             LOGGER.info("Starting FA³ST Service...");
             LOGGER.debug("Using configuration file: ");
             printConfig(config);
-            service.start();
+            serviceRef.get().start();
             LOGGER.info("FA³ST Service successfully started");
             LOGGER.info("Press CTRL + C to stop");
         }

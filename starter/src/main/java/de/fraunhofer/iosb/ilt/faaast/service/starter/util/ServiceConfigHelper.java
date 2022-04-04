@@ -27,6 +27,7 @@ import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
+import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
@@ -118,7 +119,8 @@ public class ServiceConfigHelper {
     }
 
 
-    private static <T extends Config> void applySingle(List<Config> configs, Class<T> configType, Consumer<T> updater) throws InvalidConfigurationException {
+    private static <T extends Config> void applySingle(List<Config<? extends Configurable>> configs, Class<T> configType, Consumer<T> updater)
+            throws InvalidConfigurationException {
         List<T> configsForType = configs.stream()
                 .filter(x -> configType.isAssignableFrom(x.getClass()))
                 .map(x -> (T) x)
@@ -134,7 +136,8 @@ public class ServiceConfigHelper {
     }
 
 
-    private static <T extends Config> void applyMultiple(List<Config> configs, Class<T> configType, Consumer<List<T>> updater) throws InvalidConfigurationException {
+    private static <T extends Config> void applyMultiple(List<Config<? extends Configurable>> configs, Class<T> configType, Consumer<List<T>> updater)
+            throws InvalidConfigurationException {
         List<T> configsForType = configs.stream()
                 .filter(x -> configType.isAssignableFrom(x.getClass()))
                 .map(x -> (T) x)
@@ -150,7 +153,7 @@ public class ServiceConfigHelper {
     }
 
 
-    public static void apply(ServiceConfig config, List<Config> configs) throws InvalidConfigurationException {
+    public static void apply(ServiceConfig config, List<Config<? extends Configurable>> configs) throws InvalidConfigurationException {
         if (config != null && configs != null) {
             applyMultiple(configs, EndpointConfig.class, config::setEndpoints);
             applySingle(configs, PersistenceConfig.class, config::setPersistence);
