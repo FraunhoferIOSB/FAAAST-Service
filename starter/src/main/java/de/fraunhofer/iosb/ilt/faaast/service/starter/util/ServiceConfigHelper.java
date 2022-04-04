@@ -31,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
@@ -64,6 +65,7 @@ public class ServiceConfigHelper {
     public static final ServiceConfig DEFAULT_SERVICE_CONFIG = new ServiceConfig.Builder()
             .core(new CoreConfig.Builder().requestHandlerThreadPoolSize(2).build())
             .persistence(new PersistenceInMemoryConfig())
+            .endpoint(new HttpEndpointConfig())
             .messageBus(new MessageBusInternalConfig())
             .build();
 

@@ -108,7 +108,7 @@ public class App implements Runnable {
     }, description = "Asset Administration Shell Environment FilePath. Default Value = ${DEFAULT-VALUE}", defaultValue = MODEL_FILENAME_DEFAULT)
     public File modelFile;
 
-    @Parameters(description = "Additional properties to override values of configuration using JSONPath notation withtout starting '$.' (see https://goessner.net/articles/JsonPath/)")
+    @Parameters(description = "Additional properties to override values of configuration using JSONPath notation without starting '$.' (see https://goessner.net/articles/JsonPath/)")
     public Map<String, String> properties = new HashMap<>();
 
     @Option(names = "--emptyModel", description = "Starts the FA³ST service with an empty Asset Administration Shell Environment. False by default")
@@ -178,7 +178,7 @@ public class App implements Runnable {
                 LOGGER.error("Unexpected exception with validating model", e);
             }
         }
-        return false;
+        return true;
     }
 
 
@@ -291,14 +291,6 @@ public class App implements Runnable {
 
 
     private AssetAdministrationShellEnvironment getModel() throws DeserializationException {
-        if (useEmptyModel) {
-            LOGGER.info("Model: empty (CLI)");
-            if (validateModel) {
-                LOGGER.info("Model validation is disabled when using empty model");
-                validateModel = false;
-            }
-            return AASEnvironmentHelper.EMPTY_AAS;
-        }
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
             LOGGER.info("Model: {} (CLI)", modelFile.getAbsoluteFile());
             return AASEnvironmentHelper.fromFile(modelFile);
@@ -313,7 +305,14 @@ public class App implements Runnable {
             LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
             return AASEnvironmentHelper.fromFile(defaultModel.get());
         }
-        LOGGER.info("Model: empty (default)");
+        if (useEmptyModel) {
+            LOGGER.info("Model: empty (CLI)");
+        }
+        else {
+            LOGGER.info("Model: empty (default)");
+        }
+        LOGGER.info("Model validation is disabled when using empty model");
+        validateModel = false;
         return AASEnvironmentHelper.EMPTY_AAS;
     }
 
@@ -372,7 +371,7 @@ public class App implements Runnable {
         for (var property: properties.entrySet()) {
             if (property.getKey().startsWith(ENV_CONFIG_EXTENSION_PREFIX)) {
                 String realKey = property.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length());
-                LOGGER.info("Found unneccessary prefix for CLI parameter '{}' (remove prefix '{}' to not receive this message any longer)", realKey, ENV_CONFIG_EXTENSION_PREFIX);
+                LOGGER.info("Found unnecessary prefix for CLI parameter '{}' (remove prefix '{}' to not receive this message any longer)", realKey, ENV_CONFIG_EXTENSION_PREFIX);
                 result.put(realKey, property.getValue());
             }
             else {
