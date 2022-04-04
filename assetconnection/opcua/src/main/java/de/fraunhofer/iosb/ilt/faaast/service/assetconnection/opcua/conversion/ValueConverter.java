@@ -113,7 +113,7 @@ public class ValueConverter {
         if (targetType == null) {
             throw new ValueConversionException("targetType value must be non-null");
         }
-        if (value.getDataType() == null || value.getDataType().isEmpty()) {
+        if (value.getDataType().isEmpty()) {
             throw new ValueConversionException(String.format("unabled to determine datatype of OPC UA value (value: %s)", value));
         }
         Optional<NodeId> valueDatatype = value.getDataType().get().toNodeId(null);
