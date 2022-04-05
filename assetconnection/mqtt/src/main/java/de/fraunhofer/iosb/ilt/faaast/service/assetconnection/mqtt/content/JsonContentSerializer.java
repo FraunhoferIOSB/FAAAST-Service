@@ -33,7 +33,7 @@ public class JsonContentSerializer implements ContentSerializer {
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws AssetConnectionException if serialization fails
      * @throws UnsupportedOperationException if query is not null as JSON path

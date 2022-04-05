@@ -3,8 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
     <artifactId>service</artifactId>
-    <version>${revision}</version>
+    <version>0.1.0</version>
     <packaging>pom</packaging>
+    <name>service</name>
+    <description>An implementation of the Asset Administration Shell</description>
+    <url>https://github.com/FraunhoferIOSB/FAAAST-Service</url>
+    <inceptionYear>2022</inceptionYear>
     <organization>
         <name>Fraunhofer IOSB</name>
         <url>http://iosb.fraunhofer.de</url>
@@ -16,6 +20,20 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <developers>
+        <developer>
+            <name>Michael Jacoby</name>
+            <email>michael.jacoby@iosb.fraunhofer.de</email>
+            <organization>Fraunhofer IOSB</organization>
+            <organizationUrl>https://www.iosb.fraunhofer.de</organizationUrl>
+        </developer>
+        <developer>
+            <name>Jens Mueller</name>
+            <email>jens.mueller@iosb.fraunhofer.de</email>
+            <organization>Fraunhofer IOSB</organization>
+            <organizationUrl>https://www.iosb.fraunhofer.de</organizationUrl>
+        </developer>
+    </developers>
     <modules>
         <module>core</module>
         <module>model</module>
@@ -28,12 +46,31 @@
         <module>starter</module>
         <module>test</module>
     </modules>
+    <scm>
+        <connection>scm:git:git://github.com/FraunhoferIOSB/FAAAST-Service.git</connection>
+        <developerConnection>scm:git:ssh://github.com:FraunhoferIOSB/FAAAST-Service.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/FraunhoferIOSB/FAAAST-Service/tree/main</url>
+    </scm>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/FraunhoferIOSB/FAAAST-Service/issues</url>
+    </issueManagement>
+    <distributionManagement>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
     <properties>
         <aas.version>1.2.0</aas.version>
         <classgraph.version>4.8.143</classgraph.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
-        <flatten.version>1.2.7</flatten.version>
         <guava.version>31.1-jre</guava.version>
         <jackson-databind.version>2.13.2.2</jackson-databind.version>
         <jackson.version>2.13.2</jackson.version>
@@ -62,7 +99,6 @@
         <plugin.jar.version>3.2.2</plugin.jar.version>
         <plugin.jib.version>3.2.1</plugin.jib.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <revision>1.0.0-SNAPSHOT</revision>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.version>1.7.36</slf4j.version>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -120,27 +156,6 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>flatten-maven-plugin</artifactId>
-                <version>${flatten.version}</version>
-                <executions>
-                    <execution>
-                        <id>flatten</id>
-                        <goals>
-                            <goal>flatten</goal>
-                        </goals>
-                        <phase>process-resources</phase>
-                    </execution>
-                    <execution>
-                        <id>flatten.clean</id>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                        <phase>clean</phase>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -304,7 +319,16 @@
             </build>
         </profile>
         <profile>
+            <id>ci-build</id>
+            <modules>
+                <module>endpoint/opcua</module>
+            </modules>
+        </profile>
+        <profile>
             <id>release</id>
+            <modules>
+                <module>endpoint/opcua</module>
+            </modules>
             <build>
                 <plugins>
                     <plugin>

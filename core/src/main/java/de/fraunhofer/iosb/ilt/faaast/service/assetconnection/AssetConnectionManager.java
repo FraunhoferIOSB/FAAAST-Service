@@ -67,8 +67,10 @@ public class AssetConnectionManager {
      * @param connectionConfig the AssetConnectionConfig describing the
      *            AssetConnection to add
      * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException
-     *             when provided connectionConfig is invalid
+     * de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException
+     *             if provided connectionConfig is invalid
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException if initializing asset
+     *             connection fails
      */
     public void add(AssetConnectionConfig<? extends AssetConnection, ? extends AssetValueProviderConfig, ? extends AssetOperationProviderConfig, ? extends AssetSubscriptionProviderConfig> connectionConfig)
             throws ConfigurationException, AssetConnectionException {

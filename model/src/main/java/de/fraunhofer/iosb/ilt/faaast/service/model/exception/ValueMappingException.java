@@ -15,7 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.exception;
 
 /**
- * Indicates that mapping a {@link SubmodelElement} to {@link ElementValue failed}
+ * Indicates that mapping a {@link io.adminshell.aas.v3.model.SubmodelElement} to
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue failed}
  */
 public class ValueMappingException extends Exception {
 

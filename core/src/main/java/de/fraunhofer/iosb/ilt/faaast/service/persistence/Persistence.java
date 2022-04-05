@@ -46,7 +46,9 @@ import java.util.Set;
 public interface Persistence<C extends PersistenceConfig> extends Configurable<C> {
 
     /**
-     * Set the AssetAdministrationShellEnvironment<br>
+     * Set the AssetAdministrationShellEnvironment
+     * 
+     * @param environment environment to set
      */
     public void setEnvironment(AssetAdministrationShellEnvironment environment);
 
@@ -58,6 +60,8 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param modifier QueryModifier to define Level and Extent of the query<br>
      * @param <T> defines the type of the requested Identifiable<br>
      * @return the Identifiable with the given Identifier
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if no resource addressed by id can
+     *             be found
      */
     public <T extends Identifiable> T get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException;
 
@@ -68,6 +72,8 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param reference of the requested Submodel Element<br>
      * @param modifier QueryModifier to define Level and Extent of the query<br>
      * @return the Submodel Element with the given Reference
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if reference does not point to
+     *             valid resource
      */
     public SubmodelElement get(Reference reference, QueryModifier modifier) throws ResourceNotFoundException;
 
@@ -111,6 +117,8 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param semanticId of the Submodel Elements which should be considered. This parameter is optional and may be null<br>
      * @param modifier QueryModifier to define Level and Extent of the query<br>
      * @return List of Submodel Elements
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if reference does not point to
+     *             valid resource
      */
     public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException;
 
@@ -163,6 +171,8 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param referenceToSubmodelElement reference to the submodelelement which should be updated
      * @param submodelElement which should be added to the parent
      * @return the created Submodel Element
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if parent and reference does not
+     *             point to valid resource
      */
     public SubmodelElement put(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException;
 
@@ -183,6 +193,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * Remove an Identifiable<br>
      *
      * @param id of the Identifiable
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if resource is not found
      */
     public void remove(Identifier id) throws ResourceNotFoundException;
 
@@ -191,6 +202,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * Remove a Referable<br>
      *
      * @param reference to the Referable
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if resource is not found
      */
     public void remove(Reference reference) throws ResourceNotFoundException;
 

@@ -116,11 +116,11 @@ public class EnvironmentHelper {
 
 
     /**
-     * Looks for a get method with return type list
+     * Returns the getter method for a given list type or null if no such method exists.
      *
-     * @param listParameterType
-     * @param parent
-     * @return method
+     * @param listParameterType expected type
+     * @param parent parent object
+     * @return method the getter method if exists, null otherwise
      */
     public static Method getGetReferableListMethod(Class<?> listParameterType, Object parent) {
         //TODO: rewrite
@@ -128,7 +128,6 @@ public class EnvironmentHelper {
             Type type = m.getGenericReturnType();
             if (type instanceof ParameterizedType) {
                 ParameterizedType pt = (ParameterizedType) type;
-
                 if (pt.getActualTypeArguments().length == 1) {
                     Type t = pt.getActualTypeArguments()[0];
                     if (Arrays.stream(listParameterType.getInterfaces()).anyMatch(x -> x.getName().equalsIgnoreCase(t.getTypeName()))) {

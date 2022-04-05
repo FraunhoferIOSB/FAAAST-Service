@@ -15,7 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.exception;
 
 /**
- * Indicates underlying {@link Configurable} class of configuration could not be instantiated.
+ * Indicates underlying {@link de.fraunhofer.iosb.ilt.faaast.service.config.Configurable} class of configuration could
+ * not be instantiated.
  */
 public class ConfigurationInstantiationException extends ConfigurationException {
 

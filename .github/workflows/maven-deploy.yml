@@ -43,6 +43,18 @@ jobs:
         distribution: 'adopt'
         java-version: 11
 
+    - name: Install Prosys SDK
+      run : |
+        cd ~
+        sudo apt install p7zip-full
+        curl -u "${{ secrets.OWNCLOUD_PROSYS_SHARE_ID }}:${{ secrets.OWNCLOUD_PROSYS_PASSWORD }}" ${{ secrets.OWNCLOUD_PROSYS_URL }} -o prosys.zip
+        7z x prosys.zip
+        cd ProsysHelper
+        cd maven-integration/maven-install-helper
+        mvn install
+        cd ../../codegen/maven-integration/maven-install-helper
+        mvn install
+
     - name: Build and Deploy with Maven
       env:
         GPG_EXECUTABLE: gpg

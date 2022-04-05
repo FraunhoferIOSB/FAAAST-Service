@@ -75,8 +75,7 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
      * Check if node is a wrapper node for a value
      *
      * @param node node to check
-     * @return true if the node is a wrapper (defined as node.isObject() &&
-     *         node.size() == 1), otherwise false
+     * @return true if the node is a wrapper {@code (defined as node.isObject() && node.size() == 1)}, otherwise false
      */
     protected boolean isWrapped(JsonNode node) {
         return node != null
