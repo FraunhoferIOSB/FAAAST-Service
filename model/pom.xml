@@ -4,11 +4,10 @@
     <parent>
         <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
         <artifactId>service</artifactId>
-        <version>${revision}</version>
+        <version>0.1.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>model</artifactId>
-    <version>${revision}</version>
     <name>model</name>
     <description>Model of the FA³ST Service.</description>
     <properties>

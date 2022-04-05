@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
     <artifactId>service</artifactId>
-    <version>${revision}</version>
+    <version>0.1.0</version>
     <packaging>pom</packaging>
-    <name>FAAAAST-Service</name>
+    <name>service</name>
     <description>An implementation of the Asset Administration Shell</description>
     <url>https://github.com/FraunhoferIOSB/FAAAST-Service</url>
     <inceptionYear>2022</inceptionYear>
@@ -59,11 +59,11 @@
     <distributionManagement>
         <repository>
             <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
         <snapshotRepository>
             <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
     <properties>
@@ -71,7 +71,6 @@
         <classgraph.version>4.8.143</classgraph.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
-        <flatten.version>1.2.7</flatten.version>
         <guava.version>31.1-jre</guava.version>
         <jackson-databind.version>2.13.2</jackson-databind.version>
         <jackson.version>2.13.2</jackson.version>
@@ -100,7 +99,6 @@
         <plugin.jar.version>3.2.2</plugin.jar.version>
         <plugin.jib.version>3.2.1</plugin.jib.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <revision>1.0.0-SNAPSHOT</revision>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.version>1.7.36</slf4j.version>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -158,27 +156,6 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>flatten-maven-plugin</artifactId>
-                <version>${flatten.version}</version>
-                <executions>
-                    <execution>
-                        <id>flatten</id>
-                        <goals>
-                            <goal>flatten</goal>
-                        </goals>
-                        <phase>process-resources</phase>
-                    </execution>
-                    <execution>
-                        <id>flatten.clean</id>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                        <phase>clean</phase>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -343,6 +320,9 @@
         </profile>
         <profile>
             <id>release</id>
+            <modules>
+                <module>endpoint/opcua</module>
+            </modules>
             <build>
                 <plugins>
                     <plugin>
@@ -396,7 +376,7 @@
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
-                            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                             <autoReleaseAfterClose>false</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
