@@ -37,6 +37,7 @@ jobs:
 
     - name: Install Prosys SDK
       run : |
+        cd ~
         sudo apt install p7zip-full
         curl -u "${{ secrets.OWNCLOUD_PROSYS_SHARE_ID }}:${{ secrets.OWNCLOUD_PROSYS_PASSWORD }}" ${{ secrets.OWNCLOUD_PROSYS_URL }} -o prosys.zip
         7z x prosys.zip
