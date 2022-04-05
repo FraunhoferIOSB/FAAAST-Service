@@ -37,20 +37,18 @@ jobs:
 
     - name: Build with Maven
       run: |
-        mvn -B install -DskipTests -Dmaven.javadoc.skip=true
-        #mvn -B install -DskipTests -Dmaven.javadoc.skip=true -P owasp
+        mvn -B install -P ci-build -DskipTests -Dmaven.javadoc.skip=true
 
     - name: Maven Test
       run: |
-        mvn -B verify -Dmaven.javadoc.skip=true
+        mvn -B verify -P ci-build -Dmaven.javadoc.skip=true
 
     - name: Test with Sonar
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-        #mvn -B verify sonar:sonar -Dsonar.projectKey=FraunhoferIOSB_FAAAST-Service -Dmaven.javadoc.skip=true -P coverage
-        mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=FraunhoferIOSB_FAAAST-Service -Dmaven.javadoc.skip=true
+        mvn -B verify -P ci-build org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=FraunhoferIOSB_FAAAST-Service -Dmaven.javadoc.skip=true
 
     - name: Build Docker Image
       run: |

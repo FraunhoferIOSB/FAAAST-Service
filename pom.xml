@@ -319,6 +319,12 @@
             </build>
         </profile>
         <profile>
+            <id>ci-build</id>
+            <modules>
+                <module>endpoint/opcua</module>
+            </modules>
+        </profile>
+        <profile>
             <id>release</id>
             <modules>
                 <module>endpoint/opcua</module>
