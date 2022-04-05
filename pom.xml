@@ -72,11 +72,11 @@
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
         <guava.version>31.1-jre</guava.version>
-        <jackson-databind.version>2.13.2</jackson-databind.version>
+        <jackson-databind.version>2.13.2.2</jackson-databind.version>
         <jackson.version>2.13.2</jackson.version>
         <jakarta-servlet.version>5.0.0</jakarta-servlet.version>
         <javax-servlet.version>2.5</javax-servlet.version>
-        <jetty.version>11.0.8</jetty.version>
+        <jetty.version>11.0.9</jetty.version>
         <jsonassert.version>1.5.0</jsonassert.version>
         <jsonpath.version>2.7.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
@@ -84,7 +84,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <maven.plugin.assembly.version>3.3.0</maven.plugin.assembly.version>
         <maven.plugin.compiler.version>3.10.1</maven.plugin.compiler.version>
-        <maven.plugin.failsafe.version>3.0.0-M5</maven.plugin.failsafe.version>
+        <maven.plugin.failsafe.version>3.0.0-M6</maven.plugin.failsafe.version>
         <maven.plugin.gpg.version>3.0.1</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.7</maven.plugin.jacoco.version>
         <maven.plugin.javadoc.version>3.3.2</maven.plugin.javadoc.version>

@@ -34,7 +34,7 @@ mvn clean install
 To start the Service from command line use the following commands.
 ```sh
 cd /starter/target
-java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
+java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
 ```
 For further information on using the command line see [here](#usage-with-command-line).
 
@@ -106,7 +106,7 @@ If not already done, follow the step in [Building from Source](#building-from-so
 	```
 2. Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
 	```sh
-	java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
+	java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
 	```
 
 Currently we supporting following formats of the Asset Administration Shell Environment model:
@@ -115,30 +115,30 @@ Currently we supporting following formats of the Asset Administration Shell Envi
 
 Following command line parameters could be used:
 ```
--c, --configFile=<configFilePath>
-						The config file path. Default Value = config.json
+[<String=String>...]   		Additional properties to override values of configuration using
+				JSONPath notation without starting '$.' (see https://goessner.net/articles/JsonPath/)
 
--e, --environmentFile=<aasEnvironmentFilePath>
-						Asset Administration Shell Environment FilePath.
-						Default Value = aasenvironment.*
+-c, --config=<configFile>  	The config file path. Default Value = config.json
 
---emptyEnvironment   	Starts the FA³ST service with an empty Asset
-						Administration Shell Environment. False by default
+--emptyModel 			Starts the FA³ST service with an empty Asset Administration Shell Environment.
+				False by default
 
---endpoints[=<endpoints>...]
-						Supported endpoints: http
+--endpoint=<endpoints>[,<endpoints>...]
+				Additional endpoints that should be started.
 
--h, --help              Show this help message and exit.
+-h, --help                 	Show this help message and exit.
+
+-m, --model=<modelFile>    	Asset Administration Shell Environment FilePath.
+				Default Value = aasenvironment.*
 
 --[no-]autoCompleteConfig
-						Autocompletes the configuration with default values
-						for required configuration sections. True by default
+				Autocompletes the configuration with default
+				values for required configuration sections. True
+				by default
 
---[no-]modelValidation
-						Validates the AAS Environment. True by default
-						Currently the model validation is deactivated in all examples
+--[no-]modelValidation 		Validates the AAS Environment. True by default
 
--V, --version           Print version information and exit.
+-V, --version              	Print version information and exit.
 ```
 
 
@@ -158,13 +158,13 @@ You can also override configuration values using environment variables [see deta
 ### Docker CLI
 To start the FA³ST service with an empty AAS environment execute this command.
 ```sh
-docker run --rm -P fraunhoferiosb/faaast-service '--emptyEnvironment' '--no-modelValidation'
+docker run --rm -P fraunhoferiosb/faaast-service '--emptyModel' '--no-modelValidation'
 ```
 To start the FA³ST service with your own AAS environment, place the JSON-file (in this example `demoAAS.json`) containing your enviroment in the current directory and modify the command accordingly.
 ```sh
-docker run --rm -v ../examples/demoAAS.json:/AASEnv.json -e faaast.aasEnvFilePath=AASEnv.json -P fraunhoferiosb/faaast-service '--no-modelValidation'
+docker run --rm -v ../examples/demoAAS.json:/AASEnv.json -e faaast.model=AASEnv.json -P fraunhoferiosb/faaast-service '--no-modelValidation'
 ```
-Similarly to the above examples you can pass more arguments to the FA³ST service by using the CLI or a configuration file as provided in the cfg folder (use the `faaast.configFilePath` environment variable for that).
+Similarly to the above examples you can pass more arguments to the FA³ST service by using the CLI or a configuration file as provided in the cfg folder (use the `faaast.config` environment variable for that).
 
 ## Components
 

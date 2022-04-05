@@ -12,7 +12,7 @@ To start a FA³ST Service from the command line:
 	```
 3. Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
 	```sh
-	java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
+	java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
 	```
 
 Currently we supporting following formats of the Asset Administration Shell Environment model:
@@ -23,23 +23,30 @@ Currently we supporting following formats of the Asset Administration Shell Envi
 
 Following command line parameters could be used:
 ```
--c, --configFile=<configFilePath>
-						The config file path. Default Value = config.json
--e, --environmentFile=<aasEnvironmentFilePath>
-						Asset Administration Shell Environment FilePath.
-							Default Value = aasenvironment.*
-	--emptyEnvironment   Starts the FA³ST service with an empty Asset
-							Administration Shell Environment. False by default
-	--endpoints[=<endpoints>...]
+[<String=String>...]   		Additional properties to override values of configuration using
+				JSONPath notation without starting '$.' (see https://goessner.net/articles/JsonPath/)
 
--h, --help               Show this help message and exit.
-	--[no-]autoCompleteConfig
-						Autocompletes the configuration with default values
-							for required configuration sections. True by
-							default
-	--[no-]modelValidation
-						Validates the AAS Environment. True by default
--V, --version            Print version information and exit.
+-c, --config=<configFile>  	The config file path. Default Value = config.json
+
+--emptyModel 			Starts the FA³ST service with an empty Asset Administration Shell Environment.
+				False by default
+
+--endpoint=<endpoints>[,<endpoints>...]
+				Additional endpoints that should be started.
+
+-h, --help                 	Show this help message and exit.
+
+-m, --model=<modelFile>    	Asset Administration Shell Environment FilePath.
+				Default Value = aasenvironment.*
+
+--[no-]autoCompleteConfig
+				Autocompletes the configuration with default
+				values for required configuration sections. True
+				by default
+
+--[no-]modelValidation 		Validates the AAS Environment. True by default
+
+-V, --version              	Print version information and exit.
 ```
 <hr>
 <p>
@@ -79,29 +86,29 @@ Default Configuration:
 
 
 The FA³ST Service Starter consider following environment variables:
-- `faaast.configFilePath` to use a own configuration file
-- `faaast.aasEnvFilePath` to use a Asset Administration Environment file
+- `faaast.config` to use a own configuration file
+- `faaast.model` to use a Asset Administration Environment file
 
-Environment variables could also be used to adjust some config components in the configuration:
-- `faaast.configParameter.[dot.separated.path]`
+Environment variables could also be used to adjust some config components in the configuration. Therefore, we are using JSONPath notation without starting '$.' (see [here](https://goessner.net/articles/JsonPath/)) with the prefix `faaast.config.extension.`:
+- `faaast.config.extension.[dot.separated.path]`
 
-If you want to change for example the requestHandlerThreadPoolSize in the core configuration, just set the environment variable `faaast.configParameter.core.requestHandlerThreadPoolSize=42`. To access configuration components in a list use the index. For example to change the port of the HTTP endpoint in the default configuration you can set the environment variable `faaast.configParameter.endpoints.0.port=8081`.
+If you want to change for example the requestHandlerThreadPoolSize in the core configuration, just set the environment variable `faaast.config.extension.core.requestHandlerThreadPoolSize=42`. To access configuration components in a list use the index. For example to change the port of the HTTP endpoint in the default configuration you can set the environment variable `faaast.config.extension.endpoints[0].port=8081`.
 
 <hr>
 <p>
 
-You could also use properties to adjust configuration components with the `-D` parameter. To change the `requestHandlerThreadPoolSize` of the core component and the port of the http endpoint use
+You could also use properties to adjust configuration components. To change the `requestHandlerThreadPoolSize` of the core component and the port of the http endpoint use
 ```sh
-java -jar starter-{version}.jar -e {path/to/your/AASEnvironment}
--Dcore.requestHandlerThreadPoolSize=42 -Dendpoints.0.port=8081
+java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
+core.requestHandlerThreadPoolSize=42 endpoints[0].port=8081
 ```
 <hr>
 <p>
 
 #### Special Parameters
 
-The parameter `--endpoints` accepts a list of endpoints which should be started with the service. Currently supported is only `http`. So a execution of
+The parameter `--endpoint` accepts a list of endpoints which should be started with the service. Currently supported is `http` and `opcua`. So a execution of
 ```sh
-java -jar starter-{version}.jar -e {path/to/your/AASEnvironment} --endoints http
+java -jar starter-{version}.jar -m {path/to/your/AASEnvironment} --endoint http
 ```
 leads to a FA³ST Service with the HTTP endpoint implemented in class `de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint`.

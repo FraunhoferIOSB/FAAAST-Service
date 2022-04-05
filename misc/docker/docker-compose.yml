@@ -6,8 +6,8 @@ services:
       - ../examples/demoAAS.json:/AASEnv.json
       - ../examples/exampleConfiguration.json:/config.json
     environment:
-      - faaast.aasEnvFilePath=AASEnv.json
-      - faaast.configFilePath=config.json
+      - faaast.model=AASEnv.json
+      - faaast.config=config.json
     ports:
       - 8080:8080
     command: --no-modelValidation

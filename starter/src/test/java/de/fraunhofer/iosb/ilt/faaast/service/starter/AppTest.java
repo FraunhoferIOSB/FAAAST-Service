@@ -191,7 +191,7 @@ public class AppTest {
     @Test
     public void testModelValidationCLIDefault() {
         cmd.execute();
-        Assert.assertEquals(true, application.validateModel);
+        Assert.assertEquals(false, application.validateModel);
     }
 
 
