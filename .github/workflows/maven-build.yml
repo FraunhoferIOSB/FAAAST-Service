@@ -36,9 +36,9 @@ jobs:
     - name: Install Prosys SDK
       run : |
         cd ~
-        sudo apt install p7zip-full findutils
+        sudo apt install p7zip-full
         curl --show-error --silent --user "${{ secrets.OWNCLOUD_PROSYS_SHARE_ID }}:${{ secrets.OWNCLOUD_PROSYS_PASSWORD }}" ${{ secrets.OWNCLOUD_PROSYS_URL }} --output prosys.zip
-        7z x prosys.zip | FIND /V "ing  " | FIND /V "Igor Pavlov"
+        7z x prosys.zip > /dev/null
         cd ProsysHelper
         cd maven-integration/maven-install-helper
         mvn -B install
