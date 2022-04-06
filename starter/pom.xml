@@ -43,7 +43,6 @@
             <artifactId>endpoint-http</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- needs to be build separately because of proprietary dependency to prosys -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endpoint-opcua</artifactId>
