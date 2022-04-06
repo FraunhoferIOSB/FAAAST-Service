@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature/**
-      - bugfix/**
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -43,17 +41,13 @@ jobs:
         7z x prosys.zip
         cd ProsysHelper
         cd maven-integration/maven-install-helper
-        mvn install
+        mvn -B install
         cd ../../codegen/maven-integration/maven-install-helper
-        mvn install
+        mvn -B install
 
     - name: Build with Maven
       run: |
-        mvn -B install -P ci-build -DskipTests -Dmaven.javadoc.skip=true
-
-    - name: Maven Test
-      run: |
-        mvn -B verify -P ci-build -Dmaven.javadoc.skip=true
+        mvn -B install -P ci-build -DskipTests=true -Dmaven.javadoc.skip=true
 
     - name: Test with Sonar
       env:

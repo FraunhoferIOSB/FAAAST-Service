@@ -297,6 +297,9 @@
         </profile>
         <profile>
             <id>coverage</id>
+            <modules>
+                <module>endpoint/opcua</module>
+            </modules>
             <build>
                 <plugins>
                     <plugin>

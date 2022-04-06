@@ -51,9 +51,9 @@ jobs:
         7z x prosys.zip
         cd ProsysHelper
         cd maven-integration/maven-install-helper
-        mvn install
+        mvn -B install
         cd ../../codegen/maven-integration/maven-install-helper
-        mvn install
+        mvn -B install
 
     - name: Build and Deploy with Maven
       env:

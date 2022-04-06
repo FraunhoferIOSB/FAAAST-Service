@@ -42,10 +42,17 @@ jobs:
         7z x prosys.zip
         cd ProsysHelper
         cd maven-integration/maven-install-helper
-        mvn install
+        mvn -B install
         cd ../../codegen/maven-integration/maven-install-helper
-        mvn install
+        mvn -B install
 
     - name: Build with Maven
       run: |
         mvn -B install -P ci-build -Dmaven.javadoc.skip=true
+
+    - name: Test with Sonar
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        mvn -B verify -P coverage sonar:sonar -Dsonar.projectKey=FraunhoferIOSB_FAAAST-Service -Dmaven.javadoc.skip=true
