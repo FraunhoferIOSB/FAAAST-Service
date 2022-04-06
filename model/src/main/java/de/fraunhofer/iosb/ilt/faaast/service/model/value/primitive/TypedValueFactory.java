@@ -29,7 +29,7 @@ public class TypedValueFactory {
      * string-based value. If datatypeName is unknown, type default to string.
      *
      * @param datatypeName name of the datatype
-     * @param value
+     * @param value value in string representation
      * @return typed value representation
      * @throws ValueFormatException if value cannot be converted to datatype
      */
@@ -43,7 +43,7 @@ public class TypedValueFactory {
      * string-based value.
      *
      * @param datatype datatype to use
-     * @param value
+     * @param value value in string representation
      * @return typed value representation
      * @throws IllegalArgumentException if datatype is null
      * @throws ValueFormatException if value cannot be converted to datatype

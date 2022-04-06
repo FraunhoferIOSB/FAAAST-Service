@@ -43,7 +43,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws IllegalArgumentException is config is null
      */

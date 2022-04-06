@@ -38,12 +38,10 @@ import java.util.stream.Stream;
 
 /**
  * Helper class with methods to handle with
- * <p>
  * <ul>
  * <li>{@link io.adminshell.aas.v3.model.Reference}
  * <li>{@link io.adminshell.aas.v3.model.Key}
  * </ul>
- * <p>
  */
 public class ReferenceHelper {
 

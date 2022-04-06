@@ -44,14 +44,12 @@ import org.slf4j.LoggerFactory;
  * for the MQTT protocol.
  * <p>
  * Following asset connection operations are supported:
- * <p>
  * <ul>
  * <li>setting values (via MQTT publish)
  * <li>subscribing to values (via MQTT subscribe)
  * </ul>
  * <p>
  * Following asset connection operations are not supported:
- * <p>
  * <ul>
  * <li>reading values
  * <li>executing operations
@@ -127,7 +125,7 @@ public class MqttAssetConnection
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws IllegalArgumentException if coreConfig is null
      * @throws IllegalArgumentException if config is null
@@ -171,7 +169,7 @@ public class MqttAssetConnection
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws UnsupportedOperationException as this operation is not supported
      */
@@ -182,7 +180,7 @@ public class MqttAssetConnection
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws IllegalArgumentException if reference is null
      * @throws IllegalArgumentException if providerConfig is null
@@ -200,7 +198,7 @@ public class MqttAssetConnection
 
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws IllegalArgumentException if reference is null
      * @throws IllegalArgumentException if providerConfig is null

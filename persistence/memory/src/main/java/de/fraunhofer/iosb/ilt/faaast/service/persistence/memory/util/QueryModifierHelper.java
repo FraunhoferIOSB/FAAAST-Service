@@ -44,7 +44,7 @@ public class QueryModifierHelper {
      *
      * @param referableList which should be adapted by the query modifier
      * @param modifier which should be applied
-     * @param <T>
+     * @param <T> type of referable
      */
     public static <T extends Referable> void applyQueryModifier(List<T> referableList, QueryModifier modifier) {
         if (referableList == null) {

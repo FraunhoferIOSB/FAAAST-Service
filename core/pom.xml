@@ -4,12 +4,11 @@
     <parent>
         <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
         <artifactId>service</artifactId>
-        <version>${revision}</version>
+        <version>0.1.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
     <artifactId>core</artifactId>
-    <version>${revision}</version>
     <name>core</name>
     <description>Core of the FA³ST Service containing component interfaces and service main classes.</description>
     <properties>
@@ -19,12 +18,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>model</artifactId>
-            <version>${revision}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>model</artifactId>
-            <version>${revision}</version>
+            <version>${project.version}</version>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>

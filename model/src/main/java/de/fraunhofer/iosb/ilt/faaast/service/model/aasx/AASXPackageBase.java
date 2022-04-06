@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.aasx;
 
 /**
- * @TODO: Not implemented yet
+ * Base class representing AAS packages.
  */
 public class AASXPackageBase implements AASXPackage {
 

@@ -4,53 +4,53 @@
     <parent>
         <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
         <artifactId>service</artifactId>
-        <version>${revision}</version>
+        <version>0.1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
     <artifactId>endpoint-opcua</artifactId>
-    <version>${revision}</version>
     <name>endpoint-opcua</name>
     <description>OPCUA prosys endpoint implementation of the FA³ST Service.</description>
     <properties>
         <build-helper-maven-plugin-version>3.3.0</build-helper-maven-plugin-version>
-        <codegen.output.code>${project.build.directory}/codegenoutput/code</codegen.output.code>
-        <codegen.output.resources>${project.build.directory}/codegenoutput/resources</codegen.output.resources>
-        <codegen.plugin.version>4.7.0-9</codegen.plugin.version>
+        <dir.generated-code>${project.build.directory}/target/generated-sources</dir.generated-code>
+        <dir.generated-resources>${project.build.directory}/target/generated-resources</dir.generated-resources>
+        <plugin.prosys-codegen.version>4.7.0-9</plugin.prosys-codegen.version>
         <proguard-core-version>8.0.7</proguard-core-version>
         <proguard-maven-plugin-version>2.5.3</proguard-maven-plugin-version>
         <proguard-version>7.2.1</proguard-version>
+        <prosys-sdk.version>4.7.2-13</prosys-sdk.version>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>core</artifactId>
-            <version>${revision}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>messagebus-internal</artifactId>
-            <version>${revision}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>model</artifactId>
-            <version>${revision}</version>
+            <version>${project.version}</version>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>persistence-memory</artifactId>
-            <version>${revision}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.prosysopc.ua</groupId>
             <artifactId>prosys-opc-ua-sdk-client-server</artifactId>
-            <version>4.7.2-13</version>
+            <version>${prosys-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
@@ -74,7 +74,7 @@
             <plugin>
                 <groupId>com.prosysopc.ua.codegen</groupId>
                 <artifactId>prosys-opc-ua-java-sdk-codegen-maven-plugin</artifactId>
-                <version>${codegen.plugin.version}</version>
+                <version>${plugin.prosys-codegen.version}</version>
                 <executions>
                     <execution>
                         <id>run-codegen</id>
@@ -93,8 +93,8 @@
                                         <uri>http://opcfoundation.org/UA/I4AAS/V3/</uri>
                                     </uris>
                                     <outputs>
-                                        <code>${codegen.output.code}</code>
-                                        <resources>${codegen.output.resources}</resources>
+                                        <code>${dir.generated-code}</code>
+                                        <resources>${dir.generated-resources}</resources>
                                     </outputs>
                                 </generate>
                             </generates>
@@ -115,11 +115,11 @@
                 <version>${build-helper-maven-plugin-version}</version>
                 <configuration>
                     <sources>
-                        <source>${codegen.output.code}</source>
+                        <source>${dir.generated-code}</source>
                     </sources>
                     <resources>
                         <resource>
-                            <directory>${codegen.output.resources}</directory>
+                            <directory>${dir.generated-resources}</directory>
                         </resource>
                     </resources>
                 </configuration>
