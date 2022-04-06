@@ -36,7 +36,7 @@ jobs:
     - name: Install Prosys SDK
       run : |
         cd ~
-        sudo apt install p7zip-full
+        sudo apt install p7zip-full findutils
         curl --show-error --silent --user "${{ secrets.OWNCLOUD_PROSYS_SHARE_ID }}:${{ secrets.OWNCLOUD_PROSYS_PASSWORD }}" ${{ secrets.OWNCLOUD_PROSYS_URL }} --output prosys.zip
         7z x prosys.zip | FIND /V "ing  " | FIND /V "Igor Pavlov"
         cd ProsysHelper
