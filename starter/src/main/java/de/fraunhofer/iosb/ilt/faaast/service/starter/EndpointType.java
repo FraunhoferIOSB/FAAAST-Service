@@ -20,17 +20,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 
 
 public enum EndpointType {
-    HTTP(HttpEndpointConfig.class),
-    OPCUA(HttpEndpointConfig.class);
+    HTTP(HttpEndpointConfig.class.getName()),
+    OPCUA("de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig");
 
-    private final Class<? extends EndpointConfig<? extends Endpoint>> implementation;
+    private final String implementationClass;
 
-    private EndpointType(Class<? extends EndpointConfig<? extends Endpoint>> implementation) {
-        this.implementation = implementation;
+    private EndpointType(String implementationClass) {
+        this.implementationClass = implementationClass;
     }
 
 
-    public Class<? extends EndpointConfig<? extends Endpoint>> getImplementation() {
-        return implementation;
+    public Class<? extends EndpointConfig<? extends Endpoint>> getImplementation() throws ClassNotFoundException {
+        return (Class<? extends EndpointConfig<? extends Endpoint>>)Class.forName(implementationClass);
     }
 }

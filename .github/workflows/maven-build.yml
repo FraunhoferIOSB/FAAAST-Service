@@ -60,6 +60,33 @@ jobs:
       run: |
         mvn -B jib:dockerBuild -pl starter -Dcontainer.image.tag=${GITHUB_REF_NAME//\//-}
 
+    - name: Extract Project version
+        id: project
+        run: echo ::set-output name=version::$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
+
+    - name: Set up GnuPG
+      if:  ${{ endsWith(steps.project.outputs.version, '-SNAPSHOT') }}
+      env:
+        GPG_EXECUTABLE: gpg
+        GPG_SECRET_KEYS: ${{ secrets.GPG_SECRET_KEYS }}
+        GPG_OWNERTRUST: ${{ secrets.GPG_OWNERTRUST }}
+      run: |
+        mkdir -m 700 ~/.gnupg/
+        echo 'use-agent' > ~/.gnupg/gpg.conf
+        echo 'pinentry-mode loopback' >> ~/.gnupg/gpg.conf
+        echo 'allow-loopback-pinentry' > ~/.gnupg/gpg-agent.conf
+        echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE  --yes --batch --import
+        echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE  --yes --batch --import-ownertrust
+
+    - name: Deploy endpoint-opcua SNAPSHOT
+      if:  ${{ endsWith(steps.project.outputs.version, '-SNAPSHOT') }}
+      env:
+        GPG_EXECUTABLE: gpg
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+      run: mvn -B deploy -P release --settings maven-ci-settings.xml -pl endpoint/opcua
+
     - name: Push Docker Image
       if: github.ref == 'refs/heads/main'
       env:
