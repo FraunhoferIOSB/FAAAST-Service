@@ -223,9 +223,6 @@
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
-            <modules>
-                <module>endpoint/opcua</module>
-            </modules>
         </profile>
     </profiles>
 </project>
