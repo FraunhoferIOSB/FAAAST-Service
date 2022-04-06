@@ -61,8 +61,8 @@ jobs:
         mvn -B jib:dockerBuild -pl starter -Dcontainer.image.tag=${GITHUB_REF_NAME//\//-}
 
     - name: Extract Project version
-        id: project
-        run: echo ::set-output name=version::$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
+      id: project
+      run: echo ::set-output name=version::$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
 
     - name: Set up GnuPG
       if:  ${{ endsWith(steps.project.outputs.version, '-SNAPSHOT') }}
