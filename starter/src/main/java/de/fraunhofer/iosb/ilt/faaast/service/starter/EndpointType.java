@@ -31,6 +31,6 @@ public enum EndpointType {
 
 
     public Class<? extends EndpointConfig<? extends Endpoint>> getImplementation() throws ClassNotFoundException {
-        return (Class<? extends EndpointConfig<? extends Endpoint>>)Class.forName(implementationClass);
+        return (Class<? extends EndpointConfig<? extends Endpoint>>) Class.forName(implementationClass);
     }
 }
