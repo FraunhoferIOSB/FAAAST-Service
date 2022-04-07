@@ -85,7 +85,7 @@ jobs:
         GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-      run: mvn -B deploy -P release --settings maven-ci-settings.xml -pl endpoint/opcua -DskipTests=true
+      run: mvn -B clean deploy -P release --settings maven-ci-settings.xml -pl endpoint/opcua -DskipTests=true
 
     - name: Push Docker Image
       if: github.ref == 'refs/heads/main'

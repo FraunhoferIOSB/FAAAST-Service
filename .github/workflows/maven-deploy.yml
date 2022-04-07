@@ -61,7 +61,7 @@ jobs:
         GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-      run: mvn -B deploy -P release --settings maven-ci-settings.xml
+      run: mvn -B clean deploy -P release --settings maven-ci-settings.xml
 
     - name: Build and Push Docker Images
       env:

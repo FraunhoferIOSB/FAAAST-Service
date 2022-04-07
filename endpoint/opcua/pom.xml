@@ -12,14 +12,8 @@
     <name>endpoint-opcua</name>
     <description>OPCUA prosys endpoint implementation of the FA³ST Service.</description>
     <properties>
-        <build-helper-maven-plugin-version>3.3.0</build-helper-maven-plugin-version>
         <dir.generated-code>${project.build.directory}/generated-sources</dir.generated-code>
         <dir.generated-resources>${project.build.directory}/generated-resources</dir.generated-resources>
-        <plugin.prosys-codegen.version>4.7.0-9</plugin.prosys-codegen.version>
-        <proguard-core-version>8.0.7</proguard-core-version>
-        <proguard-maven-plugin-version>2.5.3</proguard-maven-plugin-version>
-        <proguard-version>7.2.1</proguard-version>
-        <prosys-sdk.version>4.7.2-13</prosys-sdk.version>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>
@@ -50,7 +44,7 @@
         <dependency>
             <groupId>com.prosysopc.ua</groupId>
             <artifactId>prosys-opc-ua-sdk-client-server</artifactId>
-            <version>${prosys-sdk.version}</version>
+            <version>${prosys.sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
@@ -74,7 +68,7 @@
             <plugin>
                 <groupId>com.prosysopc.ua.codegen</groupId>
                 <artifactId>prosys-opc-ua-java-sdk-codegen-maven-plugin</artifactId>
-                <version>${plugin.prosys-codegen.version}</version>
+                <version>${maven.plugin.prosys.codegen.version}</version>
                 <executions>
                     <execution>
                         <id>run-codegen</id>
@@ -111,7 +105,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>${build-helper-maven-plugin-version}</version>
+                <version>${maven.plugin.buildhelper.version}</version>
                 <configuration>
                     <sources>
                         <source>${dir.generated-code}</source>
@@ -157,9 +151,9 @@
             <plugin>
                 <groupId>com.github.wvengen</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
-                <version>${proguard-maven-plugin-version}</version>
+                <version>${maven.plugin.proguard.version}</version>
                 <configuration>
-                    <proguardVersion>${proguard-version}</proguardVersion>
+                    <proguardVersion>${proguard.version}</proguardVersion>
                     <obfuscate>true</obfuscate>
                     <addMavenDescriptor>true</addMavenDescriptor>
                     <injar>${project.build.finalName}.jar</injar>
@@ -173,13 +167,13 @@
                     <dependency>
                         <groupId>com.guardsquare</groupId>
                         <artifactId>proguard-base</artifactId>
-                        <version>${proguard-version}</version>
+                        <version>${proguard.version}</version>
                         <scope>runtime</scope>
                     </dependency>
                     <dependency>
                         <groupId>com.guardsquare</groupId>
                         <artifactId>proguard-core</artifactId>
-                        <version>${proguard-core-version}</version>
+                        <version>${proguard.core.version}</version>
                         <scope>runtime</scope>
                     </dependency>
                 </dependencies>
