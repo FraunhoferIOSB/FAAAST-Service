@@ -13,8 +13,8 @@
     <description>OPCUA prosys endpoint implementation of the FA³ST Service.</description>
     <properties>
         <build-helper-maven-plugin-version>3.3.0</build-helper-maven-plugin-version>
-        <dir.generated-code>${project.build.directory}/target/generated-sources</dir.generated-code>
-        <dir.generated-resources>${project.build.directory}/target/generated-resources</dir.generated-resources>
+        <dir.generated-code>${project.build.directory}/generated-sources</dir.generated-code>
+        <dir.generated-resources>${project.build.directory}/generated-resources</dir.generated-resources>
         <plugin.prosys-codegen.version>4.7.0-9</plugin.prosys-codegen.version>
         <proguard-core-version>8.0.7</proguard-core-version>
         <proguard-maven-plugin-version>2.5.3</proguard-maven-plugin-version>
@@ -144,11 +144,6 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
-                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                            <finalName>${project.artifactId}-${project.version}</finalName>
-                            <createDependencyReducedPom>true</createDependencyReducedPom>
-                            <shadedArtifactAttached>false</shadedArtifactAttached>
-                            <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
                             <useDependencyReducedPomInJar>true</useDependencyReducedPomInJar>
                             <artifactSet>
                                 <includes>
@@ -208,8 +203,7 @@
                         <phase>package</phase>
                         <configuration>
                             <target name="deleting un-obfuscated jar before deploying">
-                                <delete file="${project.build.directory}/${project.build.finalName}_proguard_base.jar"></delete>
-                                <delete file="${project.build.directory}/classes/original-${project.build.finalName}.jar"></delete>
+                                <delete file="${project.build.directory}/original-${project.build.finalName}.jar"></delete>
                             </target>
                         </configuration>
                     </execution>
