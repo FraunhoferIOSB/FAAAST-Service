@@ -147,6 +147,7 @@
                             <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                             <finalName>${project.artifactId}-${project.version}</finalName>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
                             <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
                             <useDependencyReducedPomInJar>true</useDependencyReducedPomInJar>
                             <artifactSet>
@@ -208,6 +209,7 @@
                         <configuration>
                             <target name="deleting un-obfuscated jar before deploying">
                                 <delete file="${project.build.directory}/${project.build.finalName}_proguard_base.jar"></delete>
+                                <delete file="${project.build.directory}/classes/original-${project.build.finalName}.jar"></delete>
                             </target>
                         </configuration>
                     </execution>
