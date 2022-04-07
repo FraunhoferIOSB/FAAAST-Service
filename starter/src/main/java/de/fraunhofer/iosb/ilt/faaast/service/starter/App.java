@@ -138,9 +138,12 @@ public class App implements Runnable {
                 }
             }
         });
-        new CommandLine(new App())
+        int exitCode = new CommandLine(new App())
                 .setCaseInsensitiveEnumValuesAllowed(true)
                 .execute(args);
+        if (exitCode != CommandLine.ExitCode.OK) {
+            System.exit(exitCode);
+        }
         try {
             SHUTDOWN_REQUESTED.await();
         }

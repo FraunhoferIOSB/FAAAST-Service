@@ -12,10 +12,7 @@
     <name>test</name>
     <description>Integration tests for FA³ST Service.</description>
     <properties>
-        <aas.version.jsonld>1.0.2</aas.version.jsonld>
-        <commons-code.version>1.15</commons-code.version>
         <root.basedir>${project.parent.basedir}</root.basedir>
-        <system-lambda.version>1.2.1</system-lambda.version>
     </properties>
     <dependencies>
         <dependency>

@@ -49,7 +49,7 @@ public class AASEnvironmentHelper {
                 DataFormat.XML, new XmlDeserializer(),
                 DataFormat.UANODESET, new I4AASDeserializer(),
                 DataFormat.RDF, new io.adminshell.aas.v3.dataformat.rdf.Serializer(),
-                DataFormat.JSONLD, new io.adminshell.aas.v3.dataformat.jsonld.Serializer());
+                DataFormat.JSONLD, new io.adminshell.aas.v3.dataformat.rdf.Serializer());
     }
 
     private AASEnvironmentHelper() {

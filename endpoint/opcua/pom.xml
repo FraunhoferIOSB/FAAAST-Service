@@ -108,7 +108,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- build-helper plugin used to add the generated folders to classpath -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -135,18 +134,26 @@
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven.plugin.shade.version}</version>
                 <executions>
                     <execution>
-                        <id>assembly</id>
                         <goals>
-                            <goal>single</goal>
+                            <goal>shade</goal>
                         </goals>
                         <phase>package</phase>
                         <configuration>
-                            <descriptors>
-                                <descriptor>src/assembly/assembly.xml</descriptor>
-                            </descriptors>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                            <useDependencyReducedPomInJar>true</useDependencyReducedPomInJar>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.prosysopc.ua:prosys-opc-ua-sdk-client-server</include>
+                                </includes>
+                            </artifactSet>
                         </configuration>
                     </execution>
                 </executions>
@@ -158,8 +165,7 @@
                 <configuration>
                     <proguardVersion>${proguard-version}</proguardVersion>
                     <obfuscate>true</obfuscate>
-                    <injar>${project.build.finalName}-jar-with-dependencies.jar</injar>
-                    <outjar>${project.build.finalName}-obfuscated.jar</outjar>
+                    <injar>${project.build.finalName}.jar</injar>
                     <outputDirectory>${project.build.directory}</outputDirectory>
                     <proguardInclude>${basedir}/proguard.conf</proguardInclude>
                     <libs>
@@ -186,6 +192,24 @@
                             <goal>proguard</goal>
                         </goals>
                         <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <target name="deleting un-obfuscated jar before deploying">
+                                <delete file="${project.build.directory}/${project.build.finalName}_proguard_base.jar"></delete>
+                            </target>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
