@@ -161,6 +161,7 @@
                 <configuration>
                     <proguardVersion>${proguard-version}</proguardVersion>
                     <obfuscate>true</obfuscate>
+                    <addMavenDescriptor>true</addMavenDescriptor>
                     <injar>${project.build.finalName}.jar</injar>
                     <outputDirectory>${project.build.directory}</outputDirectory>
                     <proguardInclude>${basedir}/proguard.conf</proguardInclude>
