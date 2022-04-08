@@ -17,11 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.starter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 
 
 public enum EndpointType {
     HTTP(HttpEndpointConfig.class.getName()),
-    OPCUA("de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig");
+    OPCUA(OpcUaEndpointConfig.class.getName());
 
     private final String implementationClass;
 

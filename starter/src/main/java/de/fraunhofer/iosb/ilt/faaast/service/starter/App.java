@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.AASEnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
@@ -239,10 +241,11 @@ public class App implements Runnable {
             printConfig(config);
             serviceRef.get().start();
             LOGGER.info("FA³ST Service successfully started");
+            printEndpointInfo(config);
             LOGGER.info("Press CTRL + C to stop");
         }
         catch (Exception e) {
-            LOGGER.error("Unexpected exception encountered while execution FA³ST Service", e);
+            LOGGER.error("Unexpected exception encountered while executing FA³ST Service", e);
         }
     }
 
@@ -328,6 +331,20 @@ public class App implements Runnable {
             catch (JsonProcessingException e) {
                 LOGGER.debug("Printing config failed", e);
             }
+        }
+    }
+
+
+    private void printEndpointInfo(ServiceConfig config) {
+        if (LOGGER.isInfoEnabled()) {
+            config.getEndpoints().stream().forEach(x -> {
+                if (HttpEndpointConfig.class.isAssignableFrom(x.getClass())) {
+                    LOGGER.info("HTTP endpoint available on port {}", ((HttpEndpointConfig) x).getPort());
+                }
+                else if (OpcUaEndpointConfig.class.isAssignableFrom(x.getClass())) {
+                    LOGGER.info("OPC UA endpoint available on port {}", ((OpcUaEndpointConfig) x).getTcpPort());
+                }
+            });
         }
     }
 
