@@ -114,7 +114,7 @@ public class Server {
             uaServer = new UaServer();
 
             // currently without IPv6
-            uaServer.setEnableIPv6(true);
+            uaServer.setEnableIPv6(false);
 
             // Use PKI files to keep track of the trusted and rejected client
             // certificates...
