@@ -144,11 +144,6 @@ public class ServiceConfigHelper {
                 .filter(x -> configType.isAssignableFrom(x.getClass()))
                 .map(x -> (T) x)
                 .collect(Collectors.toList());
-        if (configsForType.size() > 1) {
-            throw new InvalidConfigurationException(String.format("configuration exception - found %d configurations of type %s but expected at most 1",
-                    configsForType.size(),
-                    configType));
-        }
         if (!configsForType.isEmpty()) {
             updater.accept(configsForType);
         }
