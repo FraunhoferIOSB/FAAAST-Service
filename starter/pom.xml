@@ -214,7 +214,7 @@
                 <dependency>
                     <groupId>com.prosysopc.ua</groupId>
                     <artifactId>prosys-opc-ua-sdk-client-server</artifactId>
-                    <version>${prosys-sdk.version}</version>
+                    <version>${prosys.sdk.version}</version>
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
