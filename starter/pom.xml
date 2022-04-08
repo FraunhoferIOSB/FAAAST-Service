@@ -207,4 +207,17 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>release</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.prosysopc.ua</groupId>
+                    <artifactId>prosys-opc-ua-sdk-client-server</artifactId>
+                    <version>${prosys-sdk.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
