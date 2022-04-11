@@ -25,7 +25,7 @@ import java.util.Objects;
  */
 public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
-    public static final int DEFAULT_PORT = 8081;
+    public static final int DEFAULT_PORT = 4840;
     private int tcpPort;
     private int secondsTillShutdown;
 

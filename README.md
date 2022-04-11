@@ -295,15 +295,13 @@ You can purchase a [Prosys OPC UA License](https://www.prosysopc.com/products/op
 
 For evaluation purposes, you also have the possibility to request an [evaluation license](https://www.prosysopc.com/products/opc-ua-java-sdk/evaluate).
 
-In the near future we will provide a pre-compiled version of the OPC UA Endpoint via Maven Central that allows you to use it without requiring a license.
-
 In order to use the OPC UA Endpoint, the configuration settings require to include an OPC UA Endpoint configuration, like the one below:
 ```json
 {
 	"endpoints": [
 		{
 			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint",
-			"tcpPort" : 18123,
+			"tcpPort" : 4840,
 			"secondsTillShutdown" : 5
 		}
 	]
@@ -311,7 +309,7 @@ In order to use the OPC UA Endpoint, the configuration settings require to inclu
 ```
 
 OPC UA Endpoint configuration supports the following configuration parameters
-- `tcpPort` is the desired Port for the OPC UA TCP Protocol (opc.tcp).
+- `tcpPort` is the desired Port for the OPC UA TCP Protocol (opc.tcp). Default is 4840.
 - `secondsTillShutdown` is the number of seconds the server waits for clients to disconnect when stopping the Endpoint. When the Endpoint is stopped, the server sends a predefined event to all connected clients, that the OPC UA Server is about to shutdown. Now, the OPC UA Server waits the given number of seconds before he stops, to give the clients the possibility to disconnect from the Server. When `secondsTillShutdown` is 0, the Endpoint doesn't wait and stops immediately.
 
 To connect to the OPC UA Endpoint, you need an OPC UA Client.
