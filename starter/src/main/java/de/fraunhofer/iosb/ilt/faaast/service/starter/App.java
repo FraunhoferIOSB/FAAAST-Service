@@ -121,46 +121,52 @@ public class App implements Runnable {
 
     @Spec
     private CommandSpec spec;
+    private static int exitCode = -1;
 
     public static void main(String[] args) {
         LOGGER.info("Starting FA³ST Service...");
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                SHUTDOWN_REQUESTED.countDown();
-                try {
-                    SHUTDOWN_FINISHED.await();
-                }
-                catch (InterruptedException ex) {
-                    LOGGER.error("Error while waiting for FA³ST Service to gracefully shutdown");
-                    Thread.currentThread().interrupt();
-                }
-                finally {
-                    LOGGER.info("Goodbye!");
+                if (exitCode == CommandLine.ExitCode.OK) {
+                    SHUTDOWN_REQUESTED.countDown();
+                    try {
+                        SHUTDOWN_FINISHED.await();
+                    }
+                    catch (InterruptedException ex) {
+                        LOGGER.error("Error while waiting for FA³ST Service to gracefully shutdown");
+                        Thread.currentThread().interrupt();
+                    }
+                    finally {
+                        LOGGER.info("Goodbye!");
+                    }
                 }
             }
         });
-        int exitCode = new CommandLine(new App())
+        exitCode = new CommandLine(new App())
                 .setCaseInsensitiveEnumValuesAllowed(true)
                 .execute(args);
-        if (exitCode != CommandLine.ExitCode.OK) {
+        if (exitCode == CommandLine.ExitCode.OK) {
+            try {
+                SHUTDOWN_REQUESTED.await();
+            }
+            catch (InterruptedException e) {
+                LOGGER.error("Interrupted!", e);
+                Thread.currentThread().interrupt();
+            }
+            finally {
+                LOGGER.info("Shutting down FA³ST Service...");
+                if (serviceRef.get() != null) {
+                    serviceRef.get().stop();
+                }
+                LOGGER.info("FA³ST Service successfully shut down");
+                SHUTDOWN_FINISHED.countDown();
+            }
+        }
+        else {
             System.exit(exitCode);
         }
-        try {
-            SHUTDOWN_REQUESTED.await();
-        }
-        catch (InterruptedException e) {
-            LOGGER.error("Interrupted!", e);
-            Thread.currentThread().interrupt();
-        }
-        finally {
-            LOGGER.info("Shutting down FA³ST Service...");
-            if (serviceRef.get() != null) {
-                serviceRef.get().stop();
-            }
-            LOGGER.info("FA³ST Service successfully shut down");
-            SHUTDOWN_FINISHED.countDown();
-        }
+
     }
 
 
