@@ -39,8 +39,6 @@ java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
 For further information on using the command line see [here](#usage-with-command-line).
 
 #### As Maven Dependency
-| FA³ST Service is currently not published to Maven Central as there is no official release |
-|-----------------------------|
 ```xml
 <dependency>
 	<groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
@@ -272,9 +270,6 @@ HTTP GET http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2R
 
 - Asset Administration Shell Serialization Interface (not yet supported)
 > /serialization (GET)
-
-- Asset Administration Shell Basic Discovery (not yet supported)
-> /lookup/shells
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
