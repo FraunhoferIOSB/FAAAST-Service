@@ -1166,9 +1166,9 @@ public class RequestHandlerManagerTest {
         AssetValueProvider prop1Provider = mock(AssetValueProvider.class);
         AssetValueProvider prop2Provider = mock(AssetValueProvider.class);
         AssetValueProvider rangeProvider = mock(AssetValueProvider.class);
-        when(assetConnectionManager.hasValueProvider(eq(prop1Ref))).thenReturn(true);
-        when(assetConnectionManager.hasValueProvider(eq(prop2Ref))).thenReturn(true);
-        when(assetConnectionManager.hasValueProvider(eq(rangeRef))).thenReturn(true);
+        when(assetConnectionManager.hasValueProvider(prop1Ref)).thenReturn(true);
+        when(assetConnectionManager.hasValueProvider(prop2Ref)).thenReturn(true);
+        when(assetConnectionManager.hasValueProvider(rangeRef)).thenReturn(true);
 
         when(assetConnectionManager.getValueProvider(prop1Ref)).thenReturn(prop1Provider);
         when(prop1Provider.getValue()).thenReturn(ElementValueMapper.toValue(prop1Expected));
