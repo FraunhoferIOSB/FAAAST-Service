@@ -9,6 +9,12 @@ The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools
 | FA³ST Service is still under development. Contributions in form of issues and pull requests are highly welcome. |
 |-----------------------------|
 
+<b>Implemented AAS versions</b>
+| Part | Version | Comment |
+|:--| -- | -- |
+| Part 1 - The exchange of information between partners in the value chain of Industrie 4.0 | Version 3.0RC01* | * We are using the AAS model java implementation from [admin-shell-io](https://github.com/admin-shell-io/java-model) which is based on Version 3.0RC01 but also covers already some aspects from RC02 |
+| Part 2 – Interoperability at Runtime – Exchanging Information via Application Programming Interfaces | Version 1.0RC02 |  |
+
 ## Getting Started
 
 This is an example of how to set up your project locally.
@@ -45,6 +51,24 @@ For further information on using the command line see [here](#usage-with-command
 	<artifactId>starter</artifactId>
 	<version>0.1.0</version>
 </dependency>
+```
+
+#### As Gradle Dependency
+```kotlin
+implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:0.1.0'
+```
+
+A maven plugin we are using in our build script leads to an error while resolving the dependency tree in gradle. Therefore you need to add following code snippet in your `build.gradle`. This code snippet removes the classifier of the transitive dependency `com.google.inject:guice`.
+```kotlin
+configurations.all {
+	resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+		if (details.requested.module.toString() == "com.google.inject:guice") {
+			details.artifactSelection{
+				it.selectArtifact(DependencyArtifact.DEFAULT_TYPE, null, null)
+			}
+		}
+	}
+}
 ```
 
 ### Example
@@ -326,7 +350,7 @@ Java-based Open Source SDK for Java.
 - [OperationProvider](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/core/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/AssetOperationProvider.java), supporting the execution of operations, i.e. forwards operation invocation requests to the asset and returning the result value,
 - [SubscriptionProvider](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/core/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/AssetSubscriptionProvider.java), supporting synchronizing the AAS with pub/sub-based assets, i.e. subscribes to the assets and updates the AAS with new values over time.
 
-An implemented does not have to implement all providers, in fact it is often not possible to implement all of them for a given network protocol as most protocols to not support pull-based and pub/sub mechanisms at the same time (e.g. HTTP, MQTT).
+An implemented does not have to implement all providers, in fact it is often not possible to implement all of them for a given network protocol as most protocols do not support pull-based and pub/sub mechanisms at the same time (e.g. HTTP, MQTT).
 
 Each provider is connected to exactly one element of the AAS. Each asset connection can have multiples of each provider type. Each FA³ST Service can have multiple asset connections.
 Accordingly, each asset connection configuration supports at least this minimum structure
@@ -366,7 +390,7 @@ A concrete example for OPC UA asset connection could look like this
 
 {
 	"@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection",
-	"host": "localhost:8080",
+	"host": "opc.tcp://localhost:4840",
 	"valueProviders":
 	{
 		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property1":
@@ -436,7 +460,7 @@ The OPC UA asset connection supports the following functionality:
 
 **Configuration Parameters**
 - on connection level
-- `host`: URL of the OPC UA server
+- `host`: URL of the OPC UA server. Please be sure that the URL starts with `opc.tcp://`.
 - on ValueProdiver level
 - `nodeId`: nodeId of the the OPC UA node to read/write
 - on OperationProdiver level
@@ -482,15 +506,15 @@ This part extends Part 1 and defines how information provided in the Asset Admin
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!--TO BE DISCUSSED -->
 ## Roadmap
 
-FA³ST Service is currently in development and not yet released.
-Next milestone is to publish a first beta release to Maven Central and DockerHub.
+Next milestone is to publish a first 1.0.0 release to Maven Central and DockerHub.
 Some of the features we are working on include
 - improve stability/robustness
 - improve usability
 - implement a file & database persistence in FA³ST Service
+- implement the AASX Server interface
+- implement the Asset Administration Shell Serialization interface
 
 
 ## Contributing
