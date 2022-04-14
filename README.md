@@ -460,7 +460,7 @@ The OPC UA asset connection supports the following functionality:
 
 **Configuration Parameters**
 - on connection level
-- `host`: URL of the OPC UA server. Please be sure that the URL starts with `opc.tcp://`.
+-   `host`: URL of the OPC UA server. Please be sure that the URL starts with `opc.tcp://`.
 - on ValueProdiver level
 - `nodeId`: nodeId of the the OPC UA node to read/write
 - on OperationProdiver level
@@ -514,7 +514,7 @@ Some of the features we are working on include
 - improve usability
 - implement a file & database persistence in FA³ST Service
 - implement the AASX Server interface
-- implement the Asset Administration Shell Serialization interface
+-    implement the Asset Administration Shell Serialization interface
 
 
 ## Contributing
