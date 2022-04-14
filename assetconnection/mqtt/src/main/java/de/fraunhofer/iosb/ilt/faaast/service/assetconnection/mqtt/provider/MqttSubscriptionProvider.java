@@ -49,24 +49,23 @@ public class MqttSubscriptionProvider implements AssetSubscriptionProvider {
 
     private void subscribe() throws AssetConnectionException {
         try {
-            client.subscribe(providerConfig.getTopic(), (topic, message) -> {
-                listeners.forEach(x -> {
-                    try {
-                        x.newDataReceived(ContentDeserializerFactory
-                                .create(providerConfig.getContentFormat())
-                                .read(new String(message.getPayload()),
-                                        providerConfig.getQuery(),
-                                        serviceContext.getTypeInfo(reference)));
-                    }
-                    catch (AssetConnectionException e) {
-                        LOGGER.error("error deserializing MQTT message (reference: {}, topic: {}, received message: {}",
-                                AasUtils.asString(reference),
-                                topic,
-                                new String(message.getPayload()),
-                                e);
-                    }
-                });
-            });
+            client.subscribe(providerConfig.getTopic(),
+                    (topic, message) -> listeners.forEach(x -> {
+                        try {
+                            x.newDataReceived(ContentDeserializerFactory
+                                    .create(providerConfig.getContentFormat())
+                                    .read(new String(message.getPayload()),
+                                            providerConfig.getQuery(),
+                                            serviceContext.getTypeInfo(reference)));
+                        }
+                        catch (AssetConnectionException e) {
+                            LOGGER.error("error deserializing MQTT message (reference: {}, topic: {}, received message: {}",
+                                    AasUtils.asString(reference),
+                                    topic,
+                                    new String(message.getPayload()),
+                                    e);
+                        }
+                    }));
         }
         catch (MqttException e) {
             throw new AssetConnectionException(
