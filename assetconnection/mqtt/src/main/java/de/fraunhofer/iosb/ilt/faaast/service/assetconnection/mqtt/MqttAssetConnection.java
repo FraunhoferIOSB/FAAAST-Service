@@ -161,11 +161,15 @@ public class MqttAssetConnection
 
 
                 @Override
-                public void deliveryComplete(IMqttDeliveryToken imdt) {}
+                public void deliveryComplete(IMqttDeliveryToken imdt) {
+                    // intentionally left empty
+                }
 
 
                 @Override
-                public void messageArrived(String string, MqttMessage mm) throws Exception {}
+                public void messageArrived(String string, MqttMessage mm) throws Exception {
+                    // intentionally left empty
+                }
             });
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);

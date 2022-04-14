@@ -78,6 +78,9 @@ public class MqttAssetConnectionTest {
     private static final long DEFAULT_TIMEOUT = 5000;
     private static final String DEFAULT_TOPIC = "some.mqtt.topic";
     private static final String LOCALHOST = "127.0.0.1";
+    private static final Predicate<ILoggingEvent> LOG_CONNECTION_LOST = x -> x.getLevel() == Level.WARN && x.getMessage().startsWith("MQTT asset connection lost");
+    private static final Predicate<ILoggingEvent> LOG_MSG_DESERIALIZATION_FAILED = x -> x.getLevel() == Level.ERROR
+            && x.getMessage().startsWith("error deserializing MQTT message");
     private static int mqttPort;
     private static Server mqttServer;
     private static String mqttServerUri;
@@ -110,14 +113,19 @@ public class MqttAssetConnectionTest {
     }
 
 
-    private static Server startMqttServer(int port) throws IOException {
-        Server result = new Server();
-        MemoryConfig mqttConfig = new MemoryConfig(new Properties());
-        mqttConfig.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(port));
-        mqttConfig.setProperty(BrokerConstants.HOST_PROPERTY_NAME, LOCALHOST);
-        mqttConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(true));
-        result.startServer(mqttConfig, null);
+    private static ListAppender<ILoggingEvent> getListLogger(Class<?> clazz) {
+        ListAppender<ILoggingEvent> result = new ListAppender<>();
+        result.start();
+        ((Logger) LoggerFactory.getLogger(clazz)).addAppender(result);
         return result;
+    }
+
+
+    private static boolean hasLogEvent(ListAppender<ILoggingEvent> listLogger, Predicate<ILoggingEvent> predicate) {
+        return listLogger != null
+                && predicate != null
+                && listLogger.list.stream()
+                        .anyMatch(predicate);
     }
 
 
@@ -133,6 +141,17 @@ public class MqttAssetConnectionTest {
                 .qos(MqttQoS.AT_MOST_ONCE)
                 .payload(Unpooled.copiedBuffer(content.getBytes(UTF_8))).build(),
                 "unit test " + UUID.randomUUID().toString().replace("-", ""));
+    }
+
+
+    private static Server startMqttServer(int port) throws IOException {
+        Server result = new Server();
+        MemoryConfig mqttConfig = new MemoryConfig(new Properties());
+        mqttConfig.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(port));
+        mqttConfig.setProperty(BrokerConstants.HOST_PROPERTY_NAME, LOCALHOST);
+        mqttConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(true));
+        result.startServer(mqttConfig, null);
+        return result;
     }
 
 
@@ -198,25 +217,6 @@ public class MqttAssetConnectionTest {
         Assert.assertEquals(expected, response.get());
     }
 
-
-    private static ListAppender<ILoggingEvent> getListLogger(Class<?> clazz) {
-        ListAppender<ILoggingEvent> result = new ListAppender<>();
-        result.start();
-        ((Logger) LoggerFactory.getLogger(clazz)).addAppender(result);
-        return result;
-    }
-
-
-    private static boolean hasLogEvent(ListAppender<ILoggingEvent> listLogger, Predicate<ILoggingEvent> predicate) {
-        return listLogger != null
-                && predicate != null
-                && listLogger.list.stream()
-                        .anyMatch(predicate);
-    }
-
-    private static final Predicate<ILoggingEvent> LOG_CONNECTION_LOST = x -> x.getLevel() == Level.WARN && x.getMessage().startsWith("MQTT asset connection lost");
-    private static final Predicate<ILoggingEvent> LOG_MSG_DESERIALIZATION_FAILED = x -> x.getLevel() == Level.ERROR
-            && x.getMessage().startsWith("error deserializing MQTT message");
 
     @Test
     public void testSubscriptionProviderConnectionLost()
@@ -315,12 +315,6 @@ public class MqttAssetConnectionTest {
     private MqttAssetConnection newConnection(TypeInfo expectedTypeInfo, MqttSubscriptionProviderConfig subscriptionProvider)
             throws ConfigurationInitializationException {
         return newConnection(DEFAULT_REFERENCE, expectedTypeInfo, null, null, subscriptionProvider);
-    }
-
-
-    private MqttAssetConnection newConnection(String url, TypeInfo expectedTypeInfo, MqttSubscriptionProviderConfig subscriptionProvider)
-            throws ConfigurationInitializationException {
-        return newConnection(url, DEFAULT_REFERENCE, expectedTypeInfo, null, null, subscriptionProvider);
     }
 
 
