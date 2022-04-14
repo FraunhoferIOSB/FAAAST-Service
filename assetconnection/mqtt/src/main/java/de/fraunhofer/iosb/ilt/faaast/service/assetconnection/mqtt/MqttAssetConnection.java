@@ -30,9 +30,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializati
 import io.adminshell.aas.v3.model.Reference;
 import java.util.HashMap;
 import java.util.Map;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,6 +150,23 @@ public class MqttAssetConnection
         this.serviceContext = serviceContext;
         try {
             client = new MqttClient(config.getServerUri(), config.getClientId(), new MemoryPersistence());
+            client.setCallback(new MqttCallback() {
+                @Override
+                public void connectionLost(Throwable throwable) {
+                    LOGGER.warn("MQTT asset connection lost (url: {}, reason: {})",
+                            config.getServerUri(),
+                            throwable.getMessage(),
+                            throwable);
+                }
+
+
+                @Override
+                public void deliveryComplete(IMqttDeliveryToken imdt) {}
+
+
+                @Override
+                public void messageArrived(String string, MqttMessage mm) throws Exception {}
+            });
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);
             client.connect(options);

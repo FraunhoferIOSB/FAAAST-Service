@@ -21,11 +21,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentDeserializerFactory;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +36,10 @@ public class MqttSubscriptionProvider implements AssetSubscriptionProvider {
     private final MqttSubscriptionProviderConfig providerConfig;
     private final Reference reference;
     private final ServiceContext serviceContext;
+    private List<NewDataListener> listeners;
 
     public MqttSubscriptionProvider(ServiceContext serviceContext, MqttClient client, Reference reference, MqttSubscriptionProviderConfig providerConfig) {
+        this.listeners = new CopyOnWriteArrayList<>();
         this.serviceContext = serviceContext;
         this.client = client;
         this.reference = reference;
@@ -46,33 +47,26 @@ public class MqttSubscriptionProvider implements AssetSubscriptionProvider {
     }
 
 
-    @Override
-    public void addNewDataListener(NewDataListener listener) throws AssetConnectionException {
-        client.setCallback(new MqttCallback() {
-            @Override
-            public void connectionLost(Throwable throwable) {
-                LOGGER.debug("MQTT asset connection lost (reference: {}, url: {})",
-                        AasUtils.asString(reference),
-                        client.getServerURI(),
-                        throwable);
-            }
-
-
-            @Override
-            public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
-                listener.newDataReceived(ContentDeserializerFactory
-                        .create(providerConfig.getContentFormat())
-                        .read(new String(mqttMessage.getPayload()),
-                                providerConfig.getQuery(),
-                                serviceContext.getTypeInfo(reference)));
-            }
-
-
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {}
-        });
+    private void subscribe() throws AssetConnectionException {
         try {
-            client.subscribe(providerConfig.getTopic());
+            client.subscribe(providerConfig.getTopic(), (topic, message) -> {
+                listeners.forEach(x -> {
+                    try {
+                        x.newDataReceived(ContentDeserializerFactory
+                                .create(providerConfig.getContentFormat())
+                                .read(new String(message.getPayload()),
+                                        providerConfig.getQuery(),
+                                        serviceContext.getTypeInfo(reference)));
+                    }
+                    catch (AssetConnectionException e) {
+                        LOGGER.error("error deserializing MQTT message (reference: {}, topic: {}, received message: {}",
+                                AasUtils.asString(reference),
+                                topic,
+                                new String(message.getPayload()),
+                                e);
+                    }
+                });
+            });
         }
         catch (MqttException e) {
             throw new AssetConnectionException(
@@ -81,11 +75,11 @@ public class MqttSubscriptionProvider implements AssetSubscriptionProvider {
                             providerConfig.getTopic()),
                     e);
         }
+
     }
 
 
-    @Override
-    public void removeNewDataListener(NewDataListener listener) throws AssetConnectionException {
+    private void unsubscribe() throws AssetConnectionException {
         try {
             client.unsubscribe(providerConfig.getTopic());
         }
@@ -95,6 +89,24 @@ public class MqttSubscriptionProvider implements AssetSubscriptionProvider {
                             AasUtils.asString(reference),
                             providerConfig.getTopic()),
                     e);
+        }
+    }
+
+
+    @Override
+    public void addNewDataListener(NewDataListener listener) throws AssetConnectionException {
+        if (listeners.isEmpty()) {
+            subscribe();
+        }
+        listeners.add(listener);
+    }
+
+
+    @Override
+    public void removeNewDataListener(NewDataListener listener) throws AssetConnectionException {
+        listeners.remove(listener);
+        if (listeners.isEmpty()) {
+            unsubscribe();
         }
     }
 }
