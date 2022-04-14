@@ -17,36 +17,25 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 
 /**
@@ -97,169 +86,12 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
 
 
     /**
-     * Publish a ElementCreateEventMessage to the message bus
-     *
-     * @param reference of the element
-     * @param referable the instance
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
-     */
-    public void publishElementCreateEventMessage(Reference reference, Referable referable) throws MessageBusException {
-        ElementCreateEventMessage eventMessage = new ElementCreateEventMessage();
-        eventMessage.setElement(reference);
-        eventMessage.setValue(referable);
-        messageBus.publish(eventMessage);
-    }
-
-
-    /**
-     * Publish a ElementReadEventMessage to the message bus
-     *
-     * @param reference of the element
-     * @param referable the instance
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
-     */
-    protected void publishElementReadEventMessage(Reference reference, Referable referable) throws MessageBusException {
-        ElementReadEventMessage eventMessage = new ElementReadEventMessage();
-        eventMessage.setElement(reference);
-        eventMessage.setValue(referable);
-        this.messageBus.publish(eventMessage);
-    }
-
-
-    /**
-     * Publish a ElementUpdateEventMessage to the message bus
-     *
-     * @param reference of the element
-     * @param referable the instance
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
-     */
-    protected void publishElementUpdateEventMessage(Reference reference, Referable referable) throws MessageBusException {
-        ElementUpdateEventMessage eventMessage = new ElementUpdateEventMessage();
-        eventMessage.setElement(reference);
-        eventMessage.setValue(referable);
-        this.messageBus.publish(eventMessage);
-    }
-
-
-    /**
-     * Publish a ElementDeleteEventMessage to the message bus
-     *
-     * @param reference of the element
-     * @param referable the instance
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
-     */
-    protected void publishElementDeleteEventMessage(Reference reference, Referable referable) throws MessageBusException {
-        ElementDeleteEventMessage eventMessage = new ElementDeleteEventMessage();
-        eventMessage.setElement(reference);
-        eventMessage.setValue(referable);
-        this.messageBus.publish(eventMessage);
-    }
-
-
-    /**
-     * Publish a ValueChangeEventMessage to the message bus
-     *
-     * @param reference of the element
-     * @param oldValue the value of the element before the change
-     * @param newValue the new value of the element
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
-     */
-    protected void publishValueChangeEventMessage(Reference reference, ElementValue oldValue, ElementValue newValue) throws MessageBusException {
-        ValueChangeEventMessage eventMessage = new ValueChangeEventMessage();
-        eventMessage.setElement(reference);
-        eventMessage.setOldValue(oldValue);
-        eventMessage.setNewValue(newValue);
-        this.messageBus.publish(eventMessage);
-    }
-
-
-    /**
-     * Publish a OperationInvokeEventMessage to the message bus
-     *
-     * @param reference of the operation
-     * @param input of the operation
-     * @param inoutput of the operation
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
-     */
-    protected void publishOperationInvokeEventMessage(Reference reference, List<ElementValue> input, List<ElementValue> inoutput) throws MessageBusException {
-        OperationInvokeEventMessage eventMessage = new OperationInvokeEventMessage();
-        eventMessage.setElement(reference);
-        eventMessage.setInput(input);
-        eventMessage.setInoutput(inoutput);
-        this.messageBus.publish(eventMessage);
-    }
-
-
-    /**
-     * Publish a OperationFinishEventMessage to the message bus
-     *
-     * @param reference of the operation
-     * @param output of the operation
-     * @param inoutput of the operation
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
-     */
-    protected void publishOperationFinishEventMessage(Reference reference, List<ElementValue> output, List<ElementValue> inoutput) throws MessageBusException {
-        OperationFinishEventMessage eventMessage = new OperationFinishEventMessage();
-        eventMessage.setElement(reference);
-        eventMessage.setOutput(output);
-        eventMessage.setInoutput(inoutput);
-        this.messageBus.publish(eventMessage);
-    }
-
-
-    /**
-     * Write the given Value to an existing AssetConnection of a Reference
-     * otherwise does nothing
-     *
-     * @param reference of the element to check for an AssetConnection
-     * @param value which will be written to the AssetConnection
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException
-     *             if reading from asset connection fails
-     */
-    protected void writeValueToAssetConnection(Reference reference, ElementValue value) throws AssetConnectionException {
-        if (this.assetConnectionManager.hasValueProvider(reference)
-                && DataElementValue.class.isAssignableFrom(value.getClass())) {
-            AssetValueProvider assetValueProvider = this.assetConnectionManager.getValueProvider(reference);
-            assetValueProvider.setValue((DataElementValue) value);
-        }
-    }
-
-
-    /**
-     * Read the Value from an existing AssetConnection of a Reference otherwise
-     * returns null
-     *
-     * @param reference of the element to check for an AssetConnection
-     * @return the DataElementValue from the AssetConnection. Returns null if no
-     *         AssetConnection exist for the reference
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException
-     *             if reading from asset connection fails
-     */
-    protected DataElementValue readDataElementValueFromAssetConnection(Reference reference) throws AssetConnectionException {
-        if (this.assetConnectionManager.hasValueProvider(reference)) {
-            AssetValueProvider assetValueProvider = this.assetConnectionManager.getValueProvider(reference);
-            return assetValueProvider.getValue();
-        }
-        return null;
-    }
-
-
-    /**
      * Check for each SubmodelElement if there is an AssetConnection.If yes read
-     * the value from it and compare it to the current value.If they differ
-     * from each other update the submodelelement with the value from the
+     * the value from it and compare it to the current value.If they differ from
+     * each other update the submodelelement with the value from the
      * AssetConnection.
      *
-     * @param parentReference of the SubmodelElement List
+     * @param parent of the SubmodelElement List
      * @param submodelElements List of SubmodelElements which should be
      *            considered and updated
      * @throws ResourceNotFoundException if reference does not point to valid
@@ -269,56 +101,31 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
      * @throws
      * de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException
      *             if mapping value read from asset connection fails
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
+     * @throws
+     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if
+     *             publishing fails
      */
-    protected void readValueFromAssetConnectionAndUpdatePersistence(Reference parentReference, List<SubmodelElement> submodelElements)
+    protected void syncWithAsset(Reference parent, Collection<SubmodelElement> submodelElements)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
-        if (parentReference == null || submodelElements == null) {
+        if (parent == null || submodelElements == null) {
             return;
         }
-        for (SubmodelElement x: submodelElements) {
-            Reference reference = AasUtils.toReference(parentReference, x);
-            if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())
-                    && ((SubmodelElementCollection) x).getValues() != null) {
-                readValueFromAssetConnectionAndUpdatePersistence(reference,
-                        new ArrayList<>(((SubmodelElementCollection) x).getValues()));
-                return;
+        for (SubmodelElement submodelElement: submodelElements) {
+            Reference reference = AasUtils.toReference(parent, submodelElement);
+            Optional<DataElementValue> newValue = assetConnectionManager.readValue(reference);
+            if (newValue.isPresent()) {
+                ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
+                if (!Objects.equals(oldValue, newValue)) {
+                    submodelElement = persistence.put(null, reference, ElementValueMapper.setValue(submodelElement, newValue.get()));
+                    messageBus.publish(ElementUpdateEventMessage.builder()
+                            .element(AasUtils.toReference(parent, submodelElement))
+                            .value(submodelElement)
+                            .build());
+                }
             }
-
-            if (this.assetConnectionManager.hasValueProvider(reference)) {
-                ElementValue currentValue = ElementValueMapper.toValue(x);
-                ElementValue assetValue = this.assetConnectionManager.getValueProvider(reference).getValue();
-                if (currentValue != null && assetValue != null && !currentValue.getClass().isAssignableFrom(assetValue.getClass())) {
-                    throw new IllegalArgumentException(String.format("error reading value from asset connection - type mismatch (expected: %s, actual: %s)",
-                            currentValue.getClass(),
-                            assetValue.getClass()));
-                }
-                if (!Objects.equals(assetValue, currentValue)) {
-                    x = ElementValueMapper.setValue(x, assetValue);
-                    x = persistence.put(null, reference, x);
-                    publishElementUpdateEventMessage(reference, x);
-                }
+            else if (SubmodelElementCollection.class.isAssignableFrom(submodelElement.getClass())) {
+                syncWithAsset(reference, ((SubmodelElementCollection) submodelElement).getValues());
             }
         }
     }
-
-
-    /**
-     * Converts a list of {@link io.adminshell.aas.v3.model.OperationVariable}
-     * to a list of
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
-     *
-     * @param variables list of operation variables
-     * @return the corresponding list of element values
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException
-     *             if mapping of element values fails
-     */
-    protected static List<ElementValue> toValues(List<OperationVariable> variables) throws ValueMappingException {
-        return variables.stream()
-                .map(LambdaExceptionHelper.rethrowFunction(
-                        x -> ElementValueMapper.<SubmodelElement, ElementValue> toValue(x.getValue())))
-                .collect(Collectors.toList());
-    }
-
 }

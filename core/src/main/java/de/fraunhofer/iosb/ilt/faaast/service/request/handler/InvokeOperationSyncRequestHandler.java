@@ -24,8 +24,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.OperationVariable;
@@ -63,16 +66,19 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
     public InvokeOperationSyncResponse process(InvokeOperationSyncRequest request) throws ValueMappingException, ResourceNotFoundException, MessageBusException {
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
         InvokeOperationSyncResponse response = new InvokeOperationSyncResponse();
-        publishOperationInvokeEventMessage(reference,
-                toValues(request.getInputArguments()),
-                toValues(request.getInoutputArguments()));
-
+        messageBus.publish(OperationInvokeEventMessage.builder()
+                .element(reference)
+                .input(ElementValueHelper.toValues(request.getInputArguments()))
+                .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
+                .build());
         OperationResult operationResult = executeOperationSync(reference, request);
         response.setPayload(operationResult);
         response.setStatusCode(StatusCode.SUCCESS);
-        publishOperationFinishEventMessage(reference,
-                toValues(response.getPayload().getOutputArguments()),
-                toValues(response.getPayload().getInoutputArguments()));
+        messageBus.publish(OperationFinishEventMessage.builder()
+                .element(reference)
+                .inoutput(ElementValueHelper.toValues(response.getPayload().getInoutputArguments()))
+                .output(ElementValueHelper.toValues(response.getPayload().getOutputArguments()))
+                .build());
         return response;
     }
 

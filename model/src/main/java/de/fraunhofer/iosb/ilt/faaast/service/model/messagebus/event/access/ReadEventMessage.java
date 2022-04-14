@@ -56,4 +56,12 @@ public abstract class ReadEventMessage<T> extends AccessEventMessage {
     public int hashCode() {
         return Objects.hash(super.hashCode(), value);
     }
+
+    public abstract static class AbstractBuilder<P, T extends ReadEventMessage<P>, B extends AbstractBuilder<P, T, B>> extends AccessEventMessage.AbstractBuilder<T, B> {
+
+        public B value(P value) {
+            getBuildingInstance().setValue(value);
+            return getSelf();
+        }
+    }
 }

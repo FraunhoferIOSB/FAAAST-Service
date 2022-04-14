@@ -21,9 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteConceptDescriptionByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.ConceptDescription;
 
 
@@ -48,7 +48,10 @@ public class DeleteConceptDescriptionByIdRequestHandler extends RequestHandler<D
         ConceptDescription conceptDescription = (ConceptDescription) persistence.get(request.getId(), new QueryModifier());
         persistence.remove(request.getId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        publishElementDeleteEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
+        messageBus.publish(ElementDeleteEventMessage.builder()
+                .element(conceptDescription)
+                .value(conceptDescription)
+                .build());
         return response;
     }
 

@@ -20,9 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetConceptDescriptionByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.ConceptDescription;
 
 
@@ -48,7 +48,10 @@ public class GetConceptDescriptionByIdRequestHandler extends RequestHandler<GetC
         response.setPayload(conceptDescription);
         response.setStatusCode(StatusCode.SUCCESS);
         if (conceptDescription != null) {
-            publishElementReadEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
+            messageBus.publish(ElementReadEventMessage.builder()
+                    .element(conceptDescription)
+                    .value(conceptDescription)
+                    .build());
         }
         return response;
     }

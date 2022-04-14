@@ -21,9 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteAssetAdministrationShellByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 
 
@@ -48,7 +48,10 @@ public class DeleteAssetAdministrationShellByIdRequestHandler extends RequestHan
         AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
         persistence.remove(request.getId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        publishElementDeleteEventMessage(AasUtils.toReference(shell), shell);
+        messageBus.publish(ElementDeleteEventMessage.builder()
+                .element(shell)
+                .value(shell)
+                .build());
         return response;
     }
 

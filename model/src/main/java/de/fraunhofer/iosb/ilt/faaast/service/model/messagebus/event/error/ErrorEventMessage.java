@@ -25,7 +25,7 @@ public class ErrorEventMessage extends EventMessage {
 
     private Exception exception;
 
-    private Class throwingSource;
+    private Class<?> throwingSource;
 
     private ErrorLevel errorLevel;
 
@@ -52,7 +52,7 @@ public class ErrorEventMessage extends EventMessage {
     }
 
 
-    public void setThrowingSource(Class throwingSource) {
+    public void setThrowingSource(Class<?> throwingSource) {
         this.throwingSource = throwingSource;
     }
 
@@ -88,5 +88,45 @@ public class ErrorEventMessage extends EventMessage {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), exception, throwingSource, errorLevel);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public abstract static class AbstractBuilder<T extends ErrorEventMessage, B extends AbstractBuilder<T, B>> extends EventMessage.AbstractBuilder<T, B> {
+
+        public B exception(Exception value) {
+            getBuildingInstance().setException(value);
+            return getSelf();
+        }
+
+
+        public B source(Class<?> value) {
+            getBuildingInstance().setThrowingSource(value);
+            return getSelf();
+        }
+
+
+        public B level(ErrorLevel value) {
+            getBuildingInstance().setErrorLevel(value);
+            return getSelf();
+        }
+
+    }
+
+    public static class Builder extends AbstractBuilder<ErrorEventMessage, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected ErrorEventMessage newBuildingInstance() {
+            return new ErrorEventMessage();
+        }
     }
 }

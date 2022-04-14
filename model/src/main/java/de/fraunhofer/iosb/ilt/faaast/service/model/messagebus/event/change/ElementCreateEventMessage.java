@@ -17,4 +17,25 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change;
 /**
  * Event message indicating that an element has been created
  */
-public class ElementCreateEventMessage extends ElementChangeEventMessage {}
+public class ElementCreateEventMessage extends ElementChangeEventMessage {
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public abstract static class AbstractBuilder<T extends ElementCreateEventMessage, B extends AbstractBuilder<T, B>> extends ElementChangeEventMessage.AbstractBuilder<T, B> {}
+
+    public static class Builder extends AbstractBuilder<ElementCreateEventMessage, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected ElementCreateEventMessage newBuildingInstance() {
+            return new ElementCreateEventMessage();
+        }
+    }
+}

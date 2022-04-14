@@ -22,4 +22,23 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
  */
 public class ValueReadEventMessage extends ReadEventMessage<ElementValue> {
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public abstract static class AbstractBuilder<T extends ValueReadEventMessage, B extends AbstractBuilder<T, B>> extends ReadEventMessage.AbstractBuilder<ElementValue, T, B> {}
+
+    public static class Builder extends AbstractBuilder<ValueReadEventMessage, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected ValueReadEventMessage newBuildingInstance() {
+            return new ValueReadEventMessage();
+        }
+    }
 }

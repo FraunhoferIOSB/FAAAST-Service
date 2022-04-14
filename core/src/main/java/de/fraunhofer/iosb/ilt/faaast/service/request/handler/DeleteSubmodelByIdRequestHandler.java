@@ -21,9 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Submodel;
 
 
@@ -49,7 +49,10 @@ public class DeleteSubmodelByIdRequestHandler extends RequestHandler<DeleteSubmo
         persistence.remove(request.getId());
         response.setStatusCode(StatusCode.SUCCESS);
         //TODO: Delete AssetConnections of underlying submodel elements?
-        publishElementDeleteEventMessage(AasUtils.toReference(submodel), submodel);
+        messageBus.publish(ElementDeleteEventMessage.builder()
+                .element(submodel)
+                .value(submodel)
+                .build());
         return response;
     }
 

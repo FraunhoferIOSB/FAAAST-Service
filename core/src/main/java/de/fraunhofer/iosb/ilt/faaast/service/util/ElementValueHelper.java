@@ -15,18 +15,25 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import com.google.common.reflect.TypeToken;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
 import io.adminshell.aas.v3.model.DataElement;
 import io.adminshell.aas.v3.model.Entity;
+import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.ReferenceElement;
 import io.adminshell.aas.v3.model.RelationshipElement;
 import io.adminshell.aas.v3.model.Submodel;
+import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -111,5 +118,36 @@ public class ElementValueHelper {
                 || RelationshipElement.class.isAssignableFrom(type)
                 || AnnotatedRelationshipElement.class.isAssignableFrom(type)
                 || Entity.class.isAssignableFrom(type);
+    }
+
+
+    /**
+     * Checks if given value is a valid {@link DataElementValue}
+     *
+     * @param value the value to check
+     * @return true if value is valid value of type {@link DataElementValue},
+     *         false otherwise
+     */
+    public static boolean isValidDataElementValue(Object value) {
+        return value == null || DataElementValue.class.isAssignableFrom(value.getClass());
+    }
+
+
+    /**
+     * Converts a list of {@link io.adminshell.aas.v3.model.OperationVariable}
+     * to a list of
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     *
+     * @param variables list of operation variables
+     * @return the corresponding list of element values
+     * @throws
+     * de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException
+     *             if mapping of element values fails
+     */
+    public static List<ElementValue> toValues(List<OperationVariable> variables) throws ValueMappingException {
+        return variables.stream()
+                .map(LambdaExceptionHelper.rethrowFunction(
+                        x -> ElementValueMapper.<SubmodelElement, ElementValue> toValue(x.getValue())))
+                .collect(Collectors.toList());
     }
 }

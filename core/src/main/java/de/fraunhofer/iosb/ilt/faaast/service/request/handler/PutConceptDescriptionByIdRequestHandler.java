@@ -21,9 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutConceptDescriptionByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.ConceptDescription;
 
 
@@ -49,7 +49,10 @@ public class PutConceptDescriptionByIdRequestHandler extends RequestHandler<PutC
         conceptDescription = (ConceptDescription) persistence.put(request.getConceptDescription());
         response.setPayload(conceptDescription);
         response.setStatusCode(StatusCode.SUCCESS);
-        publishElementUpdateEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
+        messageBus.publish(ElementUpdateEventMessage.builder()
+                .element(conceptDescription)
+                .value(conceptDescription)
+                .build());
         return response;
     }
 

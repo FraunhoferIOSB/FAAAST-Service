@@ -20,9 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetAdministrationShellByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 
 
@@ -47,7 +47,10 @@ public class GetAssetAdministrationShellByIdRequestHandler extends RequestHandle
         AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), request.getOutputModifier());
         response.setPayload(shell);
         response.setStatusCode(StatusCode.SUCCESS);
-        publishElementReadEventMessage(AasUtils.toReference(shell), shell);
+        messageBus.publish(ElementReadEventMessage.builder()
+                .element(shell)
+                .value(shell)
+                .build());
         return response;
     }
 

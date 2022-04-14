@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -55,9 +56,12 @@ public class PostSubmodelElementRequestHandler extends RequestHandler<PostSubmod
         response.setPayload(submodelElement);
         response.setStatusCode(StatusCode.SUCCESS_CREATED);
         if (ElementValueHelper.isSerializableAsValue(submodelElement.getClass())) {
-            writeValueToAssetConnection(childReference, ElementValueMapper.toValue(submodelElement));
+            assetConnectionManager.setValue(childReference, ElementValueMapper.toValue(submodelElement));
         }
-        publishElementCreateEventMessage(parentReference, submodelElement);
+        messageBus.publish(ElementCreateEventMessage.builder()
+                .element(parentReference)
+                .value(submodelElement)
+                .build());
         return response;
     }
 }

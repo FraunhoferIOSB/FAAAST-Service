@@ -55,4 +55,12 @@ public abstract class ElementChangeEventMessage extends ChangeEventMessage {
     public int hashCode() {
         return Objects.hash(super.hashCode(), value);
     }
+
+    public abstract static class AbstractBuilder<T extends ElementChangeEventMessage, B extends AbstractBuilder<T, B>> extends ChangeEventMessage.AbstractBuilder<T, B> {
+
+        public B value(Referable value) {
+            getBuildingInstance().setValue(value);
+            return getSelf();
+        }
+    }
 }

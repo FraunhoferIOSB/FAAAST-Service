@@ -26,8 +26,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationAsyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -35,7 +38,6 @@ import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.BiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,9 +67,11 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
         OperationHandle operationHandle = executeOperationAsync(reference, request);
         response.setPayload(operationHandle);
         response.setStatusCode(StatusCode.SUCCESS);
-        publishOperationInvokeEventMessage(reference,
-                toValues(request.getInputArguments()),
-                toValues(request.getInoutputArguments()));
+        messageBus.publish(OperationInvokeEventMessage.builder()
+                .element(reference)
+                .input(ElementValueHelper.toValues(request.getInputArguments()))
+                .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
+                .build());
         return response;
     }
 
@@ -95,9 +99,11 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
                 operationResult.setInoutputArguments(Arrays.asList(y));
 
                 persistence.putOperationContext(operationHandle.getHandleId(), operationHandle.getRequestId(), operationResult);
-                publishOperationFinishEventMessage(reference,
-                        toValues(Arrays.asList(x)),
-                        toValues(Arrays.asList(y)));
+                messageBus.publish(OperationFinishEventMessage.builder()
+                        .element(reference)
+                        .inoutput(ElementValueHelper.toValues(Arrays.asList(x)))
+                        .output(ElementValueHelper.toValues(Arrays.asList(y)))
+                        .build());
             });
             AssetOperationProvider assetOperationProvider = assetConnectionManager.getOperationProvider(reference);
             assetOperationProvider.invokeAsync(
@@ -111,9 +117,10 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
             operationResult.setInoutputArguments(request.getInoutputArguments());
             persistence.putOperationContext(operationHandle.getHandleId(), operationHandle.getRequestId(), operationResult);
             try {
-                publishOperationFinishEventMessage(reference,
-                        List.of(),
-                        toValues(operationResult.getInoutputArguments()));
+                messageBus.publish(OperationFinishEventMessage.builder()
+                        .element(reference)
+                        .inoutput(ElementValueHelper.toValues(operationResult.getInoutputArguments()))
+                        .build());
             }
             catch (ValueMappingException e2) {
                 LOGGER.warn("could not publish operation finished event message because mapping result to value objects failed", e2);

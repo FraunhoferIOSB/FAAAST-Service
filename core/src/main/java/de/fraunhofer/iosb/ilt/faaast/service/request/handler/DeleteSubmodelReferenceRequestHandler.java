@@ -21,9 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelReferenceResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 
 
@@ -49,7 +49,10 @@ public class DeleteSubmodelReferenceRequestHandler extends RequestHandler<Delete
         aas.getSubmodels().remove(request.getSubmodelRef());
         persistence.put(aas);
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
-        publishElementUpdateEventMessage(AasUtils.toReference(aas), aas);
+        messageBus.publish(ElementUpdateEventMessage.builder()
+                .element(aas)
+                .value(aas)
+                .build());
         return response;
     }
 

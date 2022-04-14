@@ -67,4 +67,38 @@ public class ValueChangeEventMessage extends ChangeEventMessage {
     public int hashCode() {
         return Objects.hash(super.hashCode(), oldValue, newValue);
     }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public abstract static class AbstractBuilder<T extends ValueChangeEventMessage, B extends AbstractBuilder<T, B>> extends ChangeEventMessage.AbstractBuilder<T, B> {
+
+        public B oldValue(ElementValue value) {
+            getBuildingInstance().setOldValue(value);
+            return getSelf();
+        }
+
+
+        public B newValue(ElementValue value) {
+            getBuildingInstance().setNewValue(value);
+            return getSelf();
+        }
+
+    }
+
+    public static class Builder extends AbstractBuilder<ValueChangeEventMessage, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected ValueChangeEventMessage newBuildingInstance() {
+            return new ValueChangeEventMessage();
+        }
+    }
 }

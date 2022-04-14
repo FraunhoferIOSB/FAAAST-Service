@@ -13,7 +13,17 @@
  * limitations under the License.
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access;
+
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
+
+
 /**
- * Abstract base class for all execute event messages that are sent via message bus
+ * Abstract base class for all execute event messages that are sent via message
+ * bus
  */
-public abstract class ExecuteEventMessage extends AccessEventMessage {}
+public abstract class ExecuteEventMessage extends AccessEventMessage {
+
+    public abstract static class AbstractBuilder<T extends ExecuteEventMessage, B extends AbstractBuilder<T, B>> extends EventMessage.AbstractBuilder<T, B> {
+
+    }
+}

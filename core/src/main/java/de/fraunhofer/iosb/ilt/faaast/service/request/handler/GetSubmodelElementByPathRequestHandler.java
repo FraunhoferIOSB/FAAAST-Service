@@ -22,7 +22,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelElementByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -31,6 +34,7 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Objects;
+import java.util.Optional;
 
 
 /**
@@ -54,18 +58,26 @@ public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSu
         GetSubmodelElementByPathResponse response = new GetSubmodelElementByPathResponse();
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
         SubmodelElement submodelElement = persistence.get(reference, request.getOutputModifier());
-        ElementValue valueFromAssetConnection = readDataElementValueFromAssetConnection(reference);
-        if (valueFromAssetConnection != null) {
+
+        Optional<DataElementValue> valueFromAssetConnection = assetConnectionManager.readValue(reference);
+        if (valueFromAssetConnection.isPresent()) {
             ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
             if (!Objects.equals(valueFromAssetConnection, oldValue)) {
-                submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection);
+                submodelElement = ElementValueMapper.setValue(submodelElement, valueFromAssetConnection.get());
                 persistence.put(null, reference, submodelElement);
-                publishValueChangeEventMessage(reference, oldValue, valueFromAssetConnection);
+                messageBus.publish(ValueChangeEventMessage.builder()
+                        .element(reference)
+                        .oldValue(oldValue)
+                        .newValue(valueFromAssetConnection.get())
+                        .build());
             }
         }
         response.setPayload(submodelElement);
         response.setStatusCode(StatusCode.SUCCESS);
-        publishElementReadEventMessage(reference, submodelElement);
+        messageBus.publish(ElementReadEventMessage.builder()
+                .element(reference)
+                .value(submodelElement)
+                .build());
         return response;
     }
 }
