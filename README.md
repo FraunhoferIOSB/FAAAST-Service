@@ -1,6 +1,6 @@
 
-# FA³ST Service [![Build Status](https://github.com/FraunhoferIOSB/FAAAST-Service/workflows/Maven%20Build/badge.svg)](https://github.com/FraunhoferIOSB/FAAAST-Service/actions) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/25f6aafbdb0a4b5e8ba23672ec9411e5)](https://www.codacy.com/gh/FraunhoferIOSB/FAAAST-Service/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FraunhoferIOSB/FAAAST-Service&amp;utm_campaign=Badge_Grade) [![Docker badge](https://img.shields.io/docker/pulls/fraunhoferiosb/faaast-service.svg)](https://hub.docker.com/r/fraunhoferiosb/faaast-service/)
-[![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-white.svg)](https://sonarcloud.io/summary/new_code?id=FraunhoferIOSB_FAAAST-Service)
+# FA³ST Service [![Build Status](https://github.com/FraunhoferIOSB/FAAAST-Service/workflows/Maven%20Build/badge.svg)](https://github.com/FraunhoferIOSB/FAAAST-Service/actions) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/25f6aafbdb0a4b5e8ba23672ec9411e5)](https://www.codacy.com/gh/FraunhoferIOSB/FAAAST-Service/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FraunhoferIOSB/FAAAST-Service&amp;utm_campaign=Badge_Grade) [![Docker badge](https://img.shields.io/docker/pulls/fraunhoferiosb/faaast-service.svg)](https://hub.docker.com/r/fraunhoferiosb/faaast-service/) <a href="https://sonarcloud.io/summary/new_code?id=FraunhoferIOSB_FAAAST-Service" ><img src="https://sonarcloud.io/images/project_badges/sonarcloud-white.svg" alt="SonarCloud badge" width="105"/></a>
+
 ![FA³ST Logo Light](./documentation/images/Fa3st-Service_positiv.png/#gh-light-mode-only "FA³ST Service Logo")
 ![FA³ST Logo Dark](./documentation/images/Fa3st-Service_negativ.png/#gh-dark-mode-only "FA³ST Service Logo")
 
@@ -8,6 +8,12 @@ The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools
 
 | FA³ST Service is still under development. Contributions in form of issues and pull requests are highly welcome. |
 |-----------------------------|
+
+<b>Implemented AAS versions</b>
+| Part | Version | Comment |
+|:--| -- | -- |
+| Part 1 - The exchange of information between partners in the value chain of Industrie 4.0 | Version 3.0RC01* | * We are using the AAS model java implementation from [admin-shell-io](https://github.com/admin-shell-io/java-model) which is based on Version 3.0RC01 but also covers already some aspects from RC02 |
+| Part 2 – Interoperability at Runtime – Exchanging Information via Application Programming Interfaces | Version 1.0RC02 |  |
 
 ## Getting Started
 
@@ -17,8 +23,8 @@ To compile the FA³ST service you need to have a JDK and Maven installed.
 
 ### Prerequisites
 
-- Java 11+
-- Maven
+-   Java 11+
+-   Maven
 
 ### Building from Source
 
@@ -47,6 +53,24 @@ For further information on using the command line see [here](#usage-with-command
 </dependency>
 ```
 
+#### As Gradle Dependency
+```kotlin
+implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:0.1.0'
+```
+
+A maven plugin we are using in our build script leads to an error while resolving the dependency tree in gradle. Therefore you need to add following code snippet in your `build.gradle`. This code snippet removes the classifier of the transitive dependency `com.google.inject:guice`.
+```kotlin
+configurations.all {
+	resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+		if (details.requested.module.toString() == "com.google.inject:guice") {
+			details.artifactSelection{
+				it.selectArtifact(DependencyArtifact.DEFAULT_TYPE, null, null)
+			}
+		}
+	}
+}
+```
+
 ### Example
 
 The following code starts a FA³ST Service with a HTTP endpoint on port 8080.
@@ -72,12 +96,12 @@ Afterwards, you can reach the running FA³ST Service via `http://localhost:8080/
 ## Features
 
 FA³ST Service provides the following functionalities:
-- supports several dataformats for the Asset Administration Shell Environment: `json, json-ld, xml, aml, rdf, opcua nodeset`
-- easy configuration via JSON file (see [details](#Configuration))
-- easily expandable with 3rd party implementations for `endpoint, messagebus, persistence, assetconnection`
-- uses existing open source implementation of AAS datamodel and de-/serializers [admin-shell-io java serializer](https://github.com/admin-shell-io/java-serializer) and [admin-shell-io java model](https://github.com/admin-shell-io/java-model)
-- synchronization between multiple endpoints
-- connecting to assets using arbitrary communication protocols
+-   supports several dataformats for the Asset Administration Shell Environment: `json, json-ld, xml, aml, rdf, opcua nodeset`
+-   easy configuration via JSON file (see [details](#Configuration))
+-   easily expandable with 3rd party implementations for `endpoint, messagebus, persistence, assetconnection`
+-   uses existing open source implementation of AAS datamodel and de-/serializers [admin-shell-io java serializer](https://github.com/admin-shell-io/java-serializer) and [admin-shell-io java model](https://github.com/admin-shell-io/java-model)
+-   synchronization between multiple endpoints
+-   connecting to assets using arbitrary communication protocols
 
 ## Architecture
 
@@ -85,11 +109,11 @@ FA³ST Service provides the following functionalities:
 
 Fa³ST Service uses an open architecture and defines interfaces for most functionality. This allows for easy extension by 3rd parties. However, FA³ST Service also includes one or more  useful default implementations for each interface:
 
-- [HTTP Endpoint](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/endpoint/http/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/http/HttpEndpoint.java)
-- [OPC UA Endpoint](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/endpoint/opcua/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/opcua/OpcUaEndpoint.java)
-- [Internal Message Bus](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/messagebus/internal/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/messagebus/internal/MessageBusInternal.java)
-- [MQTT Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/assetconnection/mqtt/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/mqtt/MqttAssetConnection.java)
-- [OPC UA Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/assetconnection/opcua/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/opcua/OpcUaAssetConnection.java)
+-   [HTTP Endpoint](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/endpoint/http/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/http/HttpEndpoint.java)
+-   [OPC UA Endpoint](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/endpoint/opcua/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/opcua/OpcUaEndpoint.java)
+-   [Internal Message Bus](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/messagebus/internal/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/messagebus/internal/MessageBusInternal.java)
+-   [MQTT Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/assetconnection/mqtt/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/mqtt/MqttAssetConnection.java)
+-   [OPC UA Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/assetconnection/opcua/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/opcua/OpcUaAssetConnection.java)
 
 
 ## Usage with Command Line
@@ -98,11 +122,11 @@ This section provides a short introduction of the most important command line ar
 
 If not already done, follow the step in [Building from Source](#building-from-source).
 
-1. Move to the output folder of the starter
+1.   Move to the output folder of the starter
 	```sh
 	cd starter/target
 	```
-2. Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
+2.   Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
 	```sh
 	java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
 	```
@@ -240,7 +264,7 @@ This section introduces the HTTP Endpoint implementation. For further details se
 The exposed REST API is based on the document [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), and the OpenAPI documentation [DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-REST-API/Final-Draft).
 
 HTTP Endpoint configuration supports the following configuration parameters
-- `port` (optional, default: 8080)
+-   `port` (optional, default: 8080)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -251,8 +275,8 @@ HTTP GET http://localhost:8080/submodels/{submodelIdentifier (base64URL-encoded)
 ```
 
 For a concrete scenario with
-- _submodelIdentifier_: https://acplt.org/Test_Submodel
-- _idShortPath_: ExampleRelationshipElement
+-   _submodelIdentifier_: https://acplt.org/Test_Submodel
+-   _idShortPath_: ExampleRelationshipElement
 
 and the query-parameters _level=deep_ and _content=normal_.
 
@@ -265,10 +289,10 @@ HTTP GET http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2R
 [DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-Repository/Final-Draft#/Asset%20Administration%20Shell%20Repository/GetSubmodel) (yet not fully specified))
 > /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/...
 
-- AASX File Server Interface (not yet supported)
+-   AASX File Server Interface (not yet supported)
 > /packages
 
-- Asset Administration Shell Serialization Interface (not yet supported)
+-   Asset Administration Shell Serialization Interface (not yet supported)
 > /serialization (GET)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -304,29 +328,29 @@ In order to use the OPC UA Endpoint, the configuration settings require to inclu
 ```
 
 OPC UA Endpoint configuration supports the following configuration parameters
-- `tcpPort` is the desired Port for the OPC UA TCP Protocol (opc.tcp). Default is 4840.
-- `secondsTillShutdown` is the number of seconds the server waits for clients to disconnect when stopping the Endpoint. When the Endpoint is stopped, the server sends a predefined event to all connected clients, that the OPC UA Server is about to shutdown. Now, the OPC UA Server waits the given number of seconds before he stops, to give the clients the possibility to disconnect from the Server. When `secondsTillShutdown` is 0, the Endpoint doesn't wait and stops immediately.
+-   `tcpPort` is the desired Port for the OPC UA TCP Protocol (opc.tcp). Default is 4840.
+-   `secondsTillShutdown` is the number of seconds the server waits for clients to disconnect when stopping the Endpoint. When the Endpoint is stopped, the server sends a predefined event to all connected clients, that the OPC UA Server is about to shutdown. Now, the OPC UA Server waits the given number of seconds before he stops, to give the clients the possibility to disconnect from the Server. When `secondsTillShutdown` is 0, the Endpoint doesn't wait and stops immediately.
 
 To connect to the OPC UA Endpoint, you need an OPC UA Client.
 Here are some examples of OPC UA Clients:
-* [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html)
+*   [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html)
 UaExpert is a free test client for OPC UA. A registration for the website is required.
-* [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/)
+*   [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/)
 Free Java-based OPC UA Client. A registration for the website is required.
-* [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples)
+*   [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples)
 C#-based sample code from the OPC Foundation.
-* [Eclipse Milo](https://github.com/eclipse/milo)
+*   [Eclipse Milo](https://github.com/eclipse/milo)
 Java-based Open Source SDK for Java.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ### AssetConnections
 `AssetConnection` implementations allows connecting/synchronizing elements of your AAS to/with assets via different protocol. This functionality is further divided into  3 so-called provider, namely
-- [ValueProvider](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/core/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/AssetValueProvider.java), supporting reading and writing values from/to the asset, i.e. each time a value is read or written via an endpoint the request is forwarded to the asset
-- [OperationProvider](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/core/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/AssetOperationProvider.java), supporting the execution of operations, i.e. forwards operation invocation requests to the asset and returning the result value,
-- [SubscriptionProvider](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/core/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/AssetSubscriptionProvider.java), supporting synchronizing the AAS with pub/sub-based assets, i.e. subscribes to the assets and updates the AAS with new values over time.
+-   [ValueProvider](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/core/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/AssetValueProvider.java), supporting reading and writing values from/to the asset, i.e. each time a value is read or written via an endpoint the request is forwarded to the asset
+-   [OperationProvider](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/core/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/AssetOperationProvider.java), supporting the execution of operations, i.e. forwards operation invocation requests to the asset and returning the result value,
+-   [SubscriptionProvider](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/core/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/AssetSubscriptionProvider.java), supporting synchronizing the AAS with pub/sub-based assets, i.e. subscribes to the assets and updates the AAS with new values over time.
 
-An implemented does not have to implement all providers, in fact it is often not possible to implement all of them for a given network protocol as most protocols to not support pull-based and pub/sub mechanisms at the same time (e.g. HTTP, MQTT).
+An implemented does not have to implement all providers, in fact it is often not possible to implement all of them for a given network protocol as most protocols do not support pull-based and pub/sub mechanisms at the same time (e.g. HTTP, MQTT).
 
 Each provider is connected to exactly one element of the AAS. Each asset connection can have multiples of each provider type. Each FA³ST Service can have multiple asset connections.
 Accordingly, each asset connection configuration supports at least this minimum structure
@@ -366,7 +390,7 @@ A concrete example for OPC UA asset connection could look like this
 
 {
 	"@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection",
-	"host": "localhost:8080",
+	"host": "opc.tcp://localhost:4840",
 	"valueProviders":
 	{
 		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property1":
@@ -400,22 +424,22 @@ A concrete example for OPC UA asset connection could look like this
 ### MQTT AssetConnection
 The MQTT asset connection supports the following functionality:
 
-- `ValueProvider`: write values only, read not supported
-- `OperationProvider`: not supported
-- `SubscriptionProvider`: subscribe to value changes
+-   `ValueProvider`: write values only, read not supported
+-   `OperationProvider`: not supported
+-   `SubscriptionProvider`: subscribe to value changes
 
 **Configuration Parameters**
-- on connection level
-- `serverUri`: URL of the MQTT server
-- `clientId`: id of the MQTT client (optional, default: random)
-- on ValueProdiver level
-- `topic`: MQTT topic to use
-- `contentFormat`: JSON|XML (default: JSON, currently, only JSON supported)
-- `query`: additional information how to format messages sent via MQTT - depends on `contentFormat`. For JSON this is a JSON Path expression.
-- on SubscriptionProdiver level
-- `topic`: MQTT topic to use
-- `contentFormat`: JSON|XML (default: JSON, currently, only JSON supported)
-- `query`: additional information how to extract actual value from received messages - depends on `contentFormat`. For JSON this is a JSON Path expression.
+-   on connection level
+-   `serverUri`: URL of the MQTT server
+-   `clientId`: id of the MQTT client (optional, default: random)
+-   on ValueProdiver level
+-   `topic`: MQTT topic to use
+-   `contentFormat`: JSON|XML (default: JSON, currently, only JSON supported)
+-   `query`: additional information how to format messages sent via MQTT - depends on `contentFormat`. For JSON this is a JSON Path expression.
+-   on SubscriptionProdiver level
+-   `topic`: MQTT topic to use
+-   `contentFormat`: JSON|XML (default: JSON, currently, only JSON supported)
+-   `query`: additional information how to extract actual value from received messages - depends on `contentFormat`. For JSON this is a JSON Path expression.
 
 Example configuration for one of the providers:
 
@@ -430,20 +454,20 @@ Example configuration for one of the providers:
 ### OPC UA AssetConnection
 The OPC UA asset connection supports the following functionality:
 
-- `ValueProvider`: fully supported (read/write)
-- `OperationProvider`: invoke operations synchroniously, async invocation not supported
-- `SubscriptionProvider`: fully supported
+-   `ValueProvider`: fully supported (read/write)
+-   `OperationProvider`: invoke operations synchroniously, async invocation not supported
+-   `SubscriptionProvider`: fully supported
 
 **Configuration Parameters**
-- on connection level
-- `host`: URL of the OPC UA server
-- on ValueProdiver level
-- `nodeId`: nodeId of the the OPC UA node to read/write
-- on OperationProdiver level
-- `nodeId`: nodeId of the the OPC UA node representing the OPC UA method to invoke
-- on SubscriptionProdiver level
-- `nodeId`: nodeId of the the OPC UA node to subscribe to
-- `interval`: subscription interval in ms
+-   on connection level
+-   `host`: URL of the OPC UA server. Please be sure that the URL starts with `opc.tcp://`.
+-   on ValueProdiver level
+-   `nodeId`: nodeId of the the OPC UA node to read/write
+-   on OperationProdiver level
+-   `nodeId`: nodeId of the the OPC UA node representing the OPC UA method to invoke
+-   on SubscriptionProdiver level
+-   `nodeId`: nodeId of the the OPC UA node to subscribe to
+-   `interval`: subscription interval in ms
 
 
 Example configuration for a subscription provider:
@@ -457,9 +481,9 @@ Example configuration for a subscription provider:
 
 ### In Memory Persistence
 Not yet implemented:
-- AASX Packages
-- Package Descriptors
-- SubmodelElementStructs
+-   AASX Packages
+-   Package Descriptors
+-   SubmodelElementStructs
 
 <hr>
 
@@ -471,26 +495,26 @@ To guarantee the interoperability of assets Industie 4.0 defines an information 
 At first glance the evolving specification of the AAS seems pretty complex and a challenging task for asset providers. To make things easier to FA³ST provides an implementation of several tools to allow easy and fast creation and management of AAS-compliant Digital Twins.
 
 ### Recommended Documents/Links
-* [Asset Administration Shell Specifications](https://www.plattform-i40.de/IP/Redaktion/EN/Standardartikel/specification-administrationshell.html) <br />
+*   [Asset Administration Shell Specifications](https://www.plattform-i40.de/IP/Redaktion/EN/Standardartikel/specification-administrationshell.html) <br />
 Quicklinks To Different Versions & Reading Guide
-* [Details of the Asset Administration Shell - Part 1](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html), Nov 2021 <br />
+*   [Details of the Asset Administration Shell - Part 1](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html), Nov 2021 <br />
 The publication states how companies can use the Asset Administration Shell to compile and structure information. In this way all information can be shared as a package (set of files) with partners at several levels of the value chain. It is not necessary to provide online access to this data from the very beginning.
-* [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), Nov 2021 <br />
+*   [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), Nov 2021 <br />
 This part extends Part 1 and defines how information provided in the Asset Administration Shell (AAS) (e.g. submodels or properties) can be accessed dynamically via Application Programming Interfaces (APIs).
-* [About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/) <br />
-* [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/)
+*   [About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/) <br />
+*   [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!--TO BE DISCUSSED -->
 ## Roadmap
 
-FA³ST Service is currently in development and not yet released.
-Next milestone is to publish a first beta release to Maven Central and DockerHub.
+Next milestone is to publish a first 1.0.0 release to Maven Central and DockerHub.
 Some of the features we are working on include
-- improve stability/robustness
-- improve usability
-- implement a file & database persistence in FA³ST Service
+-   improve stability/robustness
+-   improve usability
+-   implement a file & database persistence in FA³ST Service
+-   implement the AASX Server interface
+-   implement the Asset Administration Shell Serialization interface
 
 
 ## Contributing
@@ -500,11 +524,11 @@ Contributions are what make the open source community such an amazing place to l
 If you have a suggestion for improvements, please fork the repo and create a pull request. You can also simply open an issue.
 Don't forget to rate the project! Thanks again!
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1.   Fork the Project
+2.   Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.   Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.   Push to the Branch (`git push origin feature/AmazingFeature`)
+5.   Open a Pull Request
 
 ### Code Formatting
 The project uses *spotless:check* in the build cycle, which means the project only compiles if all code, *.pom and *.xml files are formatted according to the project's codestyle definitions (see details on [spotless](https://github.com/diffplug/spotless)).
