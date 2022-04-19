@@ -20,6 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.Reference;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,10 +70,11 @@ public class AssetConnectionManager {
      * @param connectionConfig the AssetConnectionConfig describing the
      *            AssetConnection to add
      * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException
-     *             if provided connectionConfig is invalid
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException if initializing asset
-     *             connection fails
+     * de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException if
+     *             provided connectionConfig is invalid
+     * @throws
+     * de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException
+     *             if initializing asset connection fails
      */
     public void add(AssetConnectionConfig<? extends AssetConnection, ? extends AssetValueProviderConfig, ? extends AssetOperationProviderConfig, ? extends AssetSubscriptionProviderConfig> connectionConfig)
             throws ConfigurationException, AssetConnectionException {
@@ -138,6 +142,50 @@ public class AssetConnectionManager {
     public AssetValueProvider getValueProvider(Reference reference) {
         return connections.stream().filter(x -> x.getValueProviders().containsKey(reference)).map(x -> (AssetValueProvider) x.getValueProviders().get(reference)).findFirst()
                 .orElse(null);
+    }
+
+
+    /**
+     * If a {@link ValueProvider} exists for given reference, the provided will
+     * be written; otherwise nothing happens
+     *
+     * @param reference reference to element to check for asset connection
+     * @param value the value to write
+     * @throws AssetConnectionException if writing value to asset connection
+     *             fails
+     */
+    public void setValue(Reference reference, ElementValue value) throws AssetConnectionException {
+        if (hasValueProvider(reference) && ElementValueHelper.isValidDataElementValue(value)) {
+            try {
+                getValueProvider(reference).setValue((DataElementValue) value);
+            }
+            catch (UnsupportedOperationException e) {
+                // ignored on purpose
+            }
+        }
+    }
+
+
+    /**
+     * Reads value from asset connection if available, otherwise empty optional
+     * is returned.
+     *
+     * @param reference reference to element to check for asset connection
+     * @return value read from the asset connection if available, empty optional
+     *         otherwise
+     * @throws AssetConnectionException if there is an asset connection but
+     *             reading fails
+     */
+    public Optional<DataElementValue> readValue(Reference reference) throws AssetConnectionException {
+        if (hasValueProvider(reference)) {
+            try {
+                return Optional.ofNullable(getValueProvider(reference).getValue());
+            }
+            catch (UnsupportedOperationException e) {
+                // ignored on purpose
+            }
+        }
+        return Optional.empty();
     }
 
 

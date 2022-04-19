@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -50,10 +51,12 @@ public class GetSubmodelByIdRequestHandler extends RequestHandler<GetSubmodelByI
         Submodel submodel = (Submodel) persistence.get(request.getId(), request.getOutputModifier());
         response.setPayload(submodel);
         response.setStatusCode(StatusCode.SUCCESS);
-
         Reference reference = AasUtils.toReference(submodel);
-        readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
-        publishElementReadEventMessage(reference, submodel);
+        syncWithAsset(reference, submodel.getSubmodelElements());
+        messageBus.publish(ElementReadEventMessage.builder()
+                .element(reference)
+                .value(submodel)
+                .build());
         return response;
     }
 }

@@ -74,4 +74,37 @@ public class OperationInvokeEventMessage extends ExecuteEventMessage {
     public int hashCode() {
         return Objects.hash(super.hashCode(), input, inoutput);
     }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public abstract static class AbstractBuilder<T extends OperationInvokeEventMessage, B extends AbstractBuilder<T, B>> extends ExecuteEventMessage.AbstractBuilder<T, B> {
+
+        public B input(List<ElementValue> value) {
+            getBuildingInstance().setInput(value);
+            return getSelf();
+        }
+
+
+        public B inoutput(List<ElementValue> value) {
+            getBuildingInstance().setInoutput(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<OperationInvokeEventMessage, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected OperationInvokeEventMessage newBuildingInstance() {
+            return new OperationInvokeEventMessage();
+        }
+    }
 }

@@ -20,10 +20,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByIdShortResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByIdShortRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import java.util.List;
 
@@ -51,7 +51,11 @@ public class GetAllAssetAdministrationShellsByIdShortRequestHandler
         response.setPayload(shells);
         response.setStatusCode(StatusCode.SUCCESS);
         if (shells != null) {
-            shells.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(x), x)));
+            shells.forEach(LambdaExceptionHelper.rethrowConsumer(
+                    x -> messageBus.publish(ElementReadEventMessage.builder()
+                            .element(x)
+                            .value(x)
+                            .build())));
         }
         return response;
     }

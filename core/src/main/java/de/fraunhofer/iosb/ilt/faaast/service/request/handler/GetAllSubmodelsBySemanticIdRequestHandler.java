@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsBySemanticIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsBySemanticIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -55,8 +56,11 @@ public class GetAllSubmodelsBySemanticIdRequestHandler extends RequestHandler<Ge
         if (submodels != null) {
             for (Submodel submodel: submodels) {
                 Reference reference = AasUtils.toReference(submodel);
-                readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
-                publishElementReadEventMessage(reference, submodel);
+                syncWithAsset(reference, submodel.getSubmodelElements());
+                messageBus.publish(ElementReadEventMessage.builder()
+                        .element(reference)
+                        .value(submodel)
+                        .build());
             }
         }
         return response;

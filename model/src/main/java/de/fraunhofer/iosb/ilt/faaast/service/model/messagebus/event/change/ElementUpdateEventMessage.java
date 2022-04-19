@@ -17,4 +17,25 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change;
 /**
  * Event message indicating that an element has been updated
  */
-public class ElementUpdateEventMessage extends ElementChangeEventMessage {}
+public class ElementUpdateEventMessage extends ElementChangeEventMessage {
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public abstract static class AbstractBuilder<T extends ElementUpdateEventMessage, B extends AbstractBuilder<T, B>> extends ElementChangeEventMessage.AbstractBuilder<T, B> {}
+
+    public static class Builder extends AbstractBuilder<ElementUpdateEventMessage, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected ElementUpdateEventMessage newBuildingInstance() {
+            return new ElementUpdateEventMessage();
+        }
+    }
+}

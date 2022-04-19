@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelElementsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -54,11 +55,15 @@ public class GetAllSubmodelElementsRequestHandler extends RequestHandler<GetAllS
         GetAllSubmodelElementsResponse response = new GetAllSubmodelElementsResponse();
         Reference reference = ReferenceHelper.toReference(request.getId(), Submodel.class);
         List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, null, request.getOutputModifier());
-        readValueFromAssetConnectionAndUpdatePersistence(reference, submodelElements);
+        syncWithAsset(reference, submodelElements);
         response.setPayload(submodelElements);
         response.setStatusCode(StatusCode.SUCCESS);
         if (submodelElements != null) {
-            submodelElements.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(reference, x), x)));
+            submodelElements.forEach(LambdaExceptionHelper.rethrowConsumer(
+                    x -> messageBus.publish(ElementReadEventMessage.builder()
+                            .element(AasUtils.toReference(reference, x))
+                            .value(x)
+                            .build())));
         }
         return response;
     }

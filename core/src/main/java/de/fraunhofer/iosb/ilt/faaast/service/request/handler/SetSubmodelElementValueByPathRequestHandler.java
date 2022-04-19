@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -59,10 +60,14 @@ public class SetSubmodelElementValueByPathRequestHandler extends RequestHandler<
         ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
         ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
         ElementValueMapper.setValue(submodelElement, newValue);
-        writeValueToAssetConnection(reference, newValue);
+        assetConnectionManager.setValue(reference, newValue);
         persistence.put(null, reference, submodelElement);
         response.setStatusCode(StatusCode.SUCCESS);
-        publishValueChangeEventMessage(reference, oldValue, newValue);
+        messageBus.publish(ValueChangeEventMessage.builder()
+                .element(reference)
+                .oldValue(oldValue)
+                .newValue(newValue)
+                .build());
         return response;
     }
 

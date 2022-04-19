@@ -19,14 +19,17 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -123,7 +126,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelByIdReques
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -183,14 +185,16 @@ public class RequestHandlerManagerTest {
     private static AssetConnectionManager assetConnectionManager;
     private static RequestHandlerManager manager;
     private static AssetValueProvider assetValueProvider;
+    private static ServiceContext serviceContext;
 
     @Before
-    public void createRequestHandlerManager() {
+    public void createRequestHandlerManager() throws ConfigurationException, AssetConnectionException {
         environment = AASFull.createEnvironment();
         coreConfig = CoreConfig.builder().build();
         messageBus = mock(MessageBus.class);
         persistence = mock(Persistence.class);
-        assetConnectionManager = mock(AssetConnectionManager.class);
+        serviceContext = mock(ServiceContext.class);
+        assetConnectionManager = spy(new AssetConnectionManager(coreConfig, List.of(), serviceContext));
         manager = new RequestHandlerManager(coreConfig, persistence, messageBus, assetConnectionManager);
         assetValueProvider = mock(AssetValueProvider.class);
         when(assetConnectionManager.getValueProvider(any())).thenReturn(assetValueProvider);
@@ -1109,31 +1113,6 @@ public class RequestHandlerManagerTest {
 
 
     @Test
-    public void testReadValueFromAssetConnection() throws AssetConnectionException {
-        RequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(persistence, messageBus, assetConnectionManager);
-        PropertyValue expected = new PropertyValue.Builder()
-                .value(new StringValue("test"))
-                .build();
-        when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
-        when(assetValueProvider.getValue()).thenReturn(expected);
-        DataElementValue actual = requestHandler.readDataElementValueFromAssetConnection(new DefaultReference());
-        Assert.assertEquals(expected, actual);
-    }
-
-
-    @Test
-    public void testWriteValueToAssetConnection() throws AssetConnectionException {
-        RequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(persistence, messageBus, assetConnectionManager);
-        PropertyValue expected = new PropertyValue.Builder()
-                .value(new StringValue("test"))
-                .build();
-        when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
-        requestHandler.writeValueToAssetConnection(new DefaultReference(), expected);
-        verify(assetValueProvider).setValue(expected);
-    }
-
-
-    @Test
     public void testReadValueFromAssetConnectionAndUpdatePersistence() throws AssetConnectionException, ResourceNotFoundException, ValueMappingException, MessageBusException {
         RequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(persistence, messageBus, assetConnectionManager);
         Reference parentRef = new DefaultReference.Builder()
@@ -1151,7 +1130,7 @@ public class RequestHandlerManagerTest {
         SubmodelElement range = new DefaultRange.Builder()
                 .idShort("range1")
                 .max("1.0")
-                .min("0")
+                .min("0.0")
                 .valueType("double")
                 .build();
         SubmodelElement prop2 = new DefaultProperty.Builder()
@@ -1164,46 +1143,49 @@ public class RequestHandlerManagerTest {
                 .value(prop2)
                 .build();
 
-        SubmodelElement prop1_new = new DefaultProperty.Builder()
+        SubmodelElement prop1Expected = new DefaultProperty.Builder()
                 .idShort("prop1")
                 .value("testNew")
                 .valueType("string")
                 .build();
-        SubmodelElement range_new = new DefaultRange.Builder()
+        SubmodelElement rangeExpected = new DefaultRange.Builder()
                 .idShort("range1")
                 .max("1.0")
-                .min("0")
+                .min("0.0")
                 .valueType("double")
                 .build();
-        SubmodelElement prop2_new = new DefaultProperty.Builder()
+        SubmodelElement prop2Expected = new DefaultProperty.Builder()
                 .idShort("prop2")
                 .value("testNew")
                 .valueType("string")
                 .build();
-
+        Reference prop1Ref = AasUtils.toReference(parentRef, prop1);
+        Reference prop2Ref = AasUtils.toReference(AasUtils.toReference(parentRef, collection), prop2);
+        Reference rangeRef = AasUtils.toReference(parentRef, range);
         List<SubmodelElement> submodelElements = List.of(prop1, range, collection);
+        AssetValueProvider prop1Provider = mock(AssetValueProvider.class);
+        AssetValueProvider prop2Provider = mock(AssetValueProvider.class);
+        AssetValueProvider rangeProvider = mock(AssetValueProvider.class);
+        when(assetConnectionManager.hasValueProvider(prop1Ref)).thenReturn(true);
+        when(assetConnectionManager.hasValueProvider(prop2Ref)).thenReturn(true);
+        when(assetConnectionManager.hasValueProvider(rangeRef)).thenReturn(true);
 
-        AssetValueProvider provider_prop1 = mock(AssetValueProvider.class);
-        AssetValueProvider provider_prop2 = mock(AssetValueProvider.class);
-        AssetValueProvider provider_range1 = mock(AssetValueProvider.class);
-        when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
+        when(assetConnectionManager.getValueProvider(prop1Ref)).thenReturn(prop1Provider);
+        when(prop1Provider.getValue()).thenReturn(ElementValueMapper.toValue(prop1Expected));
 
-        //mock value prop1
-        when(assetConnectionManager.getValueProvider(AasUtils.toReference(parentRef, prop1))).thenReturn(provider_prop1);
-        when(provider_prop1.getValue()).thenReturn(ElementValueMapper.toValue(prop1_new));
-        //mock value prop2
-        when(assetConnectionManager.getValueProvider(AasUtils.toReference(AasUtils.toReference(parentRef, collection), prop2))).thenReturn(provider_prop2);
-        when(provider_prop2.getValue()).thenReturn(ElementValueMapper.toValue(prop2_new));
-        //mock value range
-        when(assetConnectionManager.getValueProvider(AasUtils.toReference(parentRef, range))).thenReturn(provider_range1);
-        when(provider_range1.getValue()).thenReturn(ElementValueMapper.toValue(range_new));
+        when(assetConnectionManager.getValueProvider(prop2Ref)).thenReturn(prop2Provider);
+        when(prop2Provider.getValue()).thenReturn(ElementValueMapper.toValue(prop2Expected));
 
-        requestHandler.readValueFromAssetConnectionAndUpdatePersistence(parentRef, submodelElements);
-        verify(persistence).put(null, AasUtils.toReference(parentRef, prop1), prop1_new);
-        verify(persistence).put(null, AasUtils.toReference(AasUtils.toReference(parentRef, collection), prop2), prop2_new);
-        Assert.assertEquals(prop1_new, prop1);
-        Assert.assertEquals(prop2_new, prop2);
-        Assert.assertEquals(range_new, range);
+        when(assetConnectionManager.getValueProvider(rangeRef)).thenReturn(rangeProvider);
+        when(rangeProvider.getValue()).thenReturn(ElementValueMapper.toValue(rangeExpected));
+
+        requestHandler.syncWithAsset(parentRef, submodelElements);
+        verify(persistence).put(null, prop1Ref, prop1Expected);
+        verify(persistence).put(null, prop2Ref, prop2Expected);
+        verify(persistence).put(null, rangeRef, rangeExpected);
+        Assert.assertEquals(prop1Expected, prop1);
+        Assert.assertEquals(prop2Expected, prop2);
+        Assert.assertEquals(rangeExpected, range);
     }
 
 }

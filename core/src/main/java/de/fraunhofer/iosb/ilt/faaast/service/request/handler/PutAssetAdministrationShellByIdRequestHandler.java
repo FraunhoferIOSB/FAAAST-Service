@@ -21,9 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetAdministrationShellByIdResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 
 
@@ -49,7 +49,10 @@ public class PutAssetAdministrationShellByIdRequestHandler extends RequestHandle
         shell = (AssetAdministrationShell) persistence.put(request.getAas());
         response.setPayload(shell);
         response.setStatusCode(StatusCode.SUCCESS);
-        publishElementUpdateEventMessage(AasUtils.toReference(shell), shell);
+        messageBus.publish(ElementUpdateEventMessage.builder()
+                .element(shell)
+                .value(shell)
+                .build());
         return response;
     }
 

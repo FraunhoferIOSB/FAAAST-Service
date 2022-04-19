@@ -18,9 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostConceptDescriptionResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostConceptDescriptionRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.ConceptDescription;
 
 
@@ -45,7 +45,10 @@ public class PostConceptDescriptionRequestHandler extends RequestHandler<PostCon
         ConceptDescription conceptDescription = (ConceptDescription) persistence.put(request.getConceptDescription());
         response.setPayload(conceptDescription);
         response.setStatusCode(StatusCode.SUCCESS_CREATED);
-        publishElementCreateEventMessage(AasUtils.toReference(conceptDescription), conceptDescription);
+        messageBus.publish(ElementCreateEventMessage.builder()
+                .element(conceptDescription)
+                .value(conceptDescription)
+                .build());
         return response;
     }
 

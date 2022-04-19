@@ -22,4 +22,23 @@ import io.adminshell.aas.v3.model.Referable;
  */
 public class ElementReadEventMessage extends ReadEventMessage<Referable> {
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public abstract static class AbstractBuilder<T extends ElementReadEventMessage, B extends AbstractBuilder<T, B>> extends ReadEventMessage.AbstractBuilder<Referable, T, B> {}
+
+    public static class Builder extends AbstractBuilder<ElementReadEventMessage, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected ElementReadEventMessage newBuildingInstance() {
+            return new ElementReadEventMessage();
+        }
+    }
 }

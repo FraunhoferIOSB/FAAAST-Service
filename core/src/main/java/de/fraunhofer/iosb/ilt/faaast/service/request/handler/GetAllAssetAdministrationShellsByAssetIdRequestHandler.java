@@ -22,10 +22,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdmin
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByAssetIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.KeyElements;
@@ -81,7 +81,11 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
         List<AssetAdministrationShell> shells = new ArrayList<>(persistence.get(null, assetIdentifications, request.getOutputModifier()));
         response.setPayload(shells);
         response.setStatusCode(StatusCode.SUCCESS);
-        shells.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(x), x)));
+        shells.forEach(LambdaExceptionHelper.rethrowConsumer(
+                x -> messageBus.publish(ElementReadEventMessage.builder()
+                        .element(x)
+                        .value(x)
+                        .build())));
         return response;
     }
 

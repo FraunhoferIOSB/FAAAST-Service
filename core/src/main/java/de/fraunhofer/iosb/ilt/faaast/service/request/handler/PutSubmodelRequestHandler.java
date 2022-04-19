@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -54,8 +55,11 @@ public class PutSubmodelRequestHandler extends RequestHandler<PutSubmodelRequest
         response.setPayload(submodel);
         response.setStatusCode(StatusCode.SUCCESS);
         Reference reference = AasUtils.toReference(submodel);
-        readValueFromAssetConnectionAndUpdatePersistence(reference, submodel.getSubmodelElements());
-        publishElementUpdateEventMessage(reference, submodel);
+        syncWithAsset(reference, submodel.getSubmodelElements());
+        messageBus.publish(ElementUpdateEventMessage.builder()
+                .element(reference)
+                .value(submodel)
+                .build());
         return response;
     }
 }

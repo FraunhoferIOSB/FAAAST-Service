@@ -19,10 +19,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIsCaseOfResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIsCaseOfRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import java.util.List;
 
@@ -49,7 +49,11 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestHandler extends RequestHa
         response.setPayload(conceptDescriptions);
         response.setStatusCode(StatusCode.SUCCESS);
         if (conceptDescriptions != null) {
-            conceptDescriptions.forEach(LambdaExceptionHelper.rethrowConsumer(x -> publishElementReadEventMessage(AasUtils.toReference(x), x)));
+            conceptDescriptions.forEach(LambdaExceptionHelper.rethrowConsumer(
+                    x -> messageBus.publish(ElementReadEventMessage.builder()
+                            .element(x)
+                            .value(x)
+                            .build())));
         }
         return response;
     }

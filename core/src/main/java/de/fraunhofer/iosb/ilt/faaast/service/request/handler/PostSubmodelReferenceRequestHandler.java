@@ -21,9 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelReferenceResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 
 
@@ -52,7 +52,10 @@ public class PostSubmodelReferenceRequestHandler extends RequestHandler<PostSubm
         persistence.put(aas);
         response.setPayload(request.getSubmodelRef());
         response.setStatusCode(StatusCode.SUCCESS_CREATED);
-        publishElementUpdateEventMessage(AasUtils.toReference(aas), aas);
+        messageBus.publish(ElementUpdateEventMessage.builder()
+                .element(aas)
+                .value(aas)
+                .build());
         return response;
     }
 

@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelElementByPathResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -51,7 +52,10 @@ public class DeleteSubmodelElementByPathRequestHandler extends RequestHandler<De
         SubmodelElement submodelElement = persistence.get(reference, new QueryModifier());
         persistence.remove(reference);
         response.setStatusCode(StatusCode.SUCCESS);
-        publishElementDeleteEventMessage(reference, submodelElement);
+        messageBus.publish(ElementDeleteEventMessage.builder()
+                .element(reference)
+                .value(submodelElement)
+                .build());
         return response;
     }
 }

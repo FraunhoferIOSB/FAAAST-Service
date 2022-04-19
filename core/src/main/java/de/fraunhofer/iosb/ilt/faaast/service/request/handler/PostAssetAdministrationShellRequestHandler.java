@@ -18,9 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostAssetAdministrationShellResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostAssetAdministrationShellRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 
 
@@ -45,7 +45,10 @@ public class PostAssetAdministrationShellRequestHandler extends RequestHandler<P
         AssetAdministrationShell shell = (AssetAdministrationShell) persistence.put(request.getAas());
         response.setPayload(shell);
         response.setStatusCode(StatusCode.SUCCESS_CREATED);
-        publishElementCreateEventMessage(AasUtils.toReference(shell), shell);
+        messageBus.publish(ElementCreateEventMessage.builder()
+                .element(shell)
+                .value(shell)
+                .build());
         return response;
     }
 }

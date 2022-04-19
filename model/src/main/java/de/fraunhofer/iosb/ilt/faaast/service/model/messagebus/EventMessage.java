@@ -14,7 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus;
 
+import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
@@ -51,5 +54,19 @@ public abstract class EventMessage {
     @Override
     public int hashCode() {
         return Objects.hash(element);
+    }
+
+    public abstract static class AbstractBuilder<T extends EventMessage, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B element(Reference value) {
+            getBuildingInstance().setElement(value);
+            return getSelf();
+        }
+
+
+        public B element(Identifiable value) {
+            getBuildingInstance().setElement(AasUtils.toReference(value));
+            return getSelf();
+        }
     }
 }
