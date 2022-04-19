@@ -69,7 +69,8 @@
     <properties>
         <aas.dataformat.jsonld.version>1.0.2</aas.dataformat.jsonld.version>
         <aas.version>1.2.0</aas.version>
-        <classgraph.version>4.8.143</classgraph.version>
+        <awaitility.version>4.2.0</awaitility.version>
+        <classgraph.version>4.8.146</classgraph.version>
         <commons.code.version>1.15</commons.code.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
@@ -101,7 +102,7 @@
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.3.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
-        <milo.version>0.6.4</milo.version>
+        <milo.version>0.6.5</milo.version>
         <mockito.version>4.4.0</mockito.version>
         <moquette.version>0.14.3</moquette.version>
         <paho.version>1.2.5</paho.version>
