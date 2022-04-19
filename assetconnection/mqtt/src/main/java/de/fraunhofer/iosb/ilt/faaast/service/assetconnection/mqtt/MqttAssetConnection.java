@@ -40,6 +40,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * Implementation of
  * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection}
@@ -80,10 +81,12 @@ public class MqttAssetConnection
         this.subscriptionProviders = new HashMap<>();
     }
 
+
     @Override
     public MqttAssetConnectionConfig asConfig() {
         return config;
     }
+
 
     @Override
     public void close() {
@@ -91,32 +94,38 @@ public class MqttAssetConnection
             if (client.isConnected()) {
                 try {
                     client.disconnect();
-                } catch (MqttException e) {
+                }
+                catch (MqttException e) {
                     LOGGER.debug("MQTT connection could not be properly closed", e);
                 }
             }
             try {
                 client.close(true);
-            } catch (MqttException e) {
+            }
+            catch (MqttException e) {
                 LOGGER.debug("MQTT connection could not be properly closed", e);
             }
         }
     }
+
 
     @Override
     public Map<Reference, AssetOperationProvider> getOperationProviders() {
         return this.operationProviders;
     }
 
+
     @Override
     public Map<Reference, AssetSubscriptionProvider> getSubscriptionProviders() {
         return this.subscriptionProviders;
     }
 
+
     @Override
     public Map<Reference, AssetValueProvider> getValueProviders() {
         return this.valueProviders;
     }
+
 
     /**
      * {@inheritDoc}
@@ -150,10 +159,12 @@ public class MqttAssetConnection
                             throwable);
                 }
 
+
                 @Override
                 public void deliveryComplete(IMqttDeliveryToken imdt) {
                     // intentionally left empty
                 }
+
 
                 @Override
                 public void messageArrived(String string, MqttMessage mm) throws Exception {
@@ -164,20 +175,22 @@ public class MqttAssetConnection
             options.setCleanSession(true);
             client.connect(options);
 
-            for (var providerConfig : config.getValueProviders().entrySet()) {
+            for (var providerConfig: config.getValueProviders().entrySet()) {
                 registerValueProvider(providerConfig.getKey(), providerConfig.getValue());
             }
-            for (var providerConfig : config.getOperationProviders().entrySet()) {
+            for (var providerConfig: config.getOperationProviders().entrySet()) {
                 registerOperationProvider(providerConfig.getKey(), providerConfig.getValue());
             }
-            for (var providerConfig : config.getSubscriptionProviders().entrySet()) {
+            for (var providerConfig: config.getSubscriptionProviders().entrySet()) {
                 registerSubscriptionProvider(providerConfig.getKey(), providerConfig.getValue());
             }
 
-        } catch (MqttException | AssetConnectionException e) {
+        }
+        catch (MqttException | AssetConnectionException e) {
             throw new ConfigurationInitializationException("initializaing MQTT asset connection failed", e);
         }
     }
+
 
     /**
      * {@inheritDoc}
@@ -188,6 +201,7 @@ public class MqttAssetConnection
     public void registerOperationProvider(Reference reference, MqttOperationProviderConfig providerConfig) throws AssetConnectionException {
         throw new UnsupportedOperationException("executing operations via MQTT not supported.");
     }
+
 
     /**
      * {@inheritDoc}
@@ -206,6 +220,7 @@ public class MqttAssetConnection
         this.subscriptionProviders.put(reference, new MqttSubscriptionProvider(serviceContext, client, reference, providerConfig));
     }
 
+
     /**
      * {@inheritDoc}
      *
@@ -223,20 +238,24 @@ public class MqttAssetConnection
         this.valueProviders.put(reference, new MqttValueProvider(client, providerConfig));
     }
 
+
     @Override
     public boolean sameAs(AssetConnection other) {
         return false;
     }
+
 
     @Override
     public void unregisterOperationProvider(Reference reference) {
         this.operationProviders.remove(reference);
     }
 
+
     @Override
     public void unregisterSubscriptionProvider(Reference reference) {
         this.subscriptionProviders.remove(reference);
     }
+
 
     @Override
     public void unregisterValueProvider(Reference reference) {
