@@ -14,6 +14,7 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+s[0-9]*/
 
 ### Maven ###
 target/
