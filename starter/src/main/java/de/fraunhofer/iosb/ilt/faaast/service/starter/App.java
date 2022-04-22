@@ -119,6 +119,8 @@ public class App implements Runnable {
     @Option(names = "--no-modelValidation", negatable = true, description = "Validates the AAS Environment. True by default")
     public boolean validateModel = true;
 
+    protected boolean dryRun = false;
+
     @Spec
     private CommandSpec spec;
     private static int exitCode = -1;
@@ -235,7 +237,9 @@ public class App implements Runnable {
             LOGGER.error("Overriding config properties failed", e);
             return;
         }
-        runService(model, config);
+        if (!dryRun) {
+            runService(model, config);
+        }
     }
 
 

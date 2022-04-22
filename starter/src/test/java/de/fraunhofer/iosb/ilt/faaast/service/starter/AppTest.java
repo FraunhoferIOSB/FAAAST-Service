@@ -40,6 +40,7 @@ public class AppTest {
     @Before
     public void initCmd() throws IOException {
         application = new App();
+        application.dryRun = true;
         cmd = new CommandLine(application)
                 .setCaseInsensitiveEnumValuesAllowed(true);
         cmd.setOut(new PrintWriter(new StringWriter()));
@@ -191,7 +192,7 @@ public class AppTest {
     @Test
     public void testModelValidationCLIDefault() {
         cmd.execute();
-        Assert.assertEquals(false, application.validateModel);
+        Assert.assertEquals(true, application.validateModel);
     }
 
 
