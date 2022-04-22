@@ -94,7 +94,7 @@
         <maven.plugin.jar.version>3.2.2</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.4.0</maven.plugin.javadoc.version>
         <maven.plugin.jib.version>3.2.1</maven.plugin.jib.version>
-        <maven.plugin.nexus-staging.version>1.6.12</maven.plugin.nexus-staging.version>
+        <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
         <maven.plugin.owasp.version>7.0.4</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.6.3</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.5.3</maven.plugin.proguard.version>
