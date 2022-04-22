@@ -67,6 +67,7 @@ import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
@@ -76,6 +77,7 @@ import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -85,21 +87,41 @@ public class HttpEndpointIT {
     public static MessageBus messageBus;
 
     private static final String HOST = "http://localhost";
-    private static final int PORT = 8080;
-    private static final ApiPaths API_PATHS = new ApiPaths(HOST, PORT);
+    private static int PORT;
+    private static ApiPaths API_PATHS;
     private static AssetAdministrationShellEnvironment environment;
     private static Service service;
+
+    private static int findFreePort() throws IOException {
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
+            Assert.assertNotNull(serverSocket);
+            Assert.assertTrue(serverSocket.getLocalPort() > 0);
+            return serverSocket.getLocalPort();
+        }
+    }
+
+
+    @BeforeClass
+    public static void initClass() throws IOException {
+        PORT = findFreePort();
+        API_PATHS = new ApiPaths(HOST, PORT);
+    }
+
 
     @Before
     public void init() throws Exception {
         environment = AASFull.createEnvironment();
-        ServiceConfig serviceConfig = new ServiceConfig.Builder()
-                .core(new CoreConfig.Builder()
+        ServiceConfig serviceConfig = ServiceConfig.builder()
+                .core(CoreConfig.builder()
                         .requestHandlerThreadPoolSize(2)
                         .build())
-                .persistence(new PersistenceInMemoryConfig())
-                .endpoints(List.of(new HttpEndpointConfig()))
-                .messageBus(new MessageBusInternalConfig())
+                .persistence(PersistenceInMemoryConfig.builder()
+                        .build())
+                .endpoints(List.of(HttpEndpointConfig.builder()
+                        .port(PORT)
+                        .build()))
+                .messageBus(MessageBusInternalConfig.builder()
+                        .build())
                 .build();
         service = new Service(environment, serviceConfig);
         messageBus = service.getMessageBus();

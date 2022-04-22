@@ -60,6 +60,7 @@ import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultRelationshipElement;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -92,14 +93,23 @@ public class OpcUaEndpointTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointTest.class);
 
-    private static final int OPC_TCP_PORT = 18123;
     private static final long DEFAULT_TIMEOUT = 1000;
 
-    private static final String ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
+    private static int OPC_TCP_PORT;
+    private static String ENDPOINT_URL;
 
     private static OpcUaEndpoint endpoint;
     private static TestService service;
     private static int aasns;
+
+    private static int findFreePort() throws IOException {
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
+            Assert.assertNotNull(serverSocket);
+            Assert.assertTrue(serverSocket.getLocalPort() > 0);
+            return serverSocket.getLocalPort();
+        }
+    }
+
 
     /**
      * Initialize and start the test.
@@ -109,7 +119,8 @@ public class OpcUaEndpointTest {
      */
     @BeforeClass
     public static void startTest() throws ConfigurationException, Exception {
-
+        OPC_TCP_PORT = findFreePort();
+        ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
         CoreConfig coreConfig = new CoreConfig();
 
         OpcUaEndpointConfig config = new OpcUaEndpointConfig();
