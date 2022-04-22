@@ -113,7 +113,7 @@ public class OpcUaEndpointTest {
 
     /**
      * Initialize and start the test.
-     * 
+     *
      * @throws ConfigurationException If the operation fails
      * @throws Exception If the operation fails
      */
@@ -248,8 +248,9 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method for changing a property based on an event from the MessageBus. Sets an event
-     * on the MessageBus and checks the new value in the server.
+     * Test method for changing a property based on an event from the
+     * MessageBus. Sets an event on the MessageBus and checks the new value in
+     * the server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws ServiceException If the operation fails
@@ -328,7 +329,7 @@ public class OpcUaEndpointTest {
     /**
      * Test method for writing a property. Writes the property in the OPC UA
      * Server and checks the new value in the server.
-     * 
+     *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
      * @throws ServiceException If the operation fails
@@ -433,9 +434,9 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method for writing a range. Writes the property in the OPC UA
-     * Server and checks the new value in the server.
-     * 
+     * Test method for writing a range. Writes the property in the OPC UA Server
+     * and checks the new value in the server.
+     *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
      * @throws ServiceException If the operation fails
@@ -480,9 +481,9 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method for writing a range. Writes the property in the OPC UA
-     * Server and checks the new value in the server.
-     * 
+     * Test method for writing a range. Writes the property in the OPC UA Server
+     * and checks the new value in the server.
+     *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
      * @throws ServiceException If the operation fails
@@ -532,7 +533,7 @@ public class OpcUaEndpointTest {
     /**
      * Test method for writing a property. Writes the property in the OPC UA
      * Server and checks the new value in the server.
-     * 
+     *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
      * @throws ServiceException If the operation fails
@@ -588,7 +589,7 @@ public class OpcUaEndpointTest {
     /**
      * Test method for writing a property. Writes the property in the OPC UA
      * Server and checks the new value in the server.
-     * 
+     *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
      * @throws ServiceException If the operation fails
@@ -643,9 +644,9 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method for writing a property of an entity. Writes the property in the OPC UA
-     * Server and checks the new value in the server.
-     * 
+     * Test method for writing a property of an entity. Writes the property in
+     * the OPC UA Server and checks the new value in the server.
+     *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
      * @throws ServiceException If the operation fails
@@ -692,9 +693,9 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method for writing the type of an entity. Writes the property in the OPC UA
-     * Server and checks the new value in the server.
-     * 
+     * Test method for writing the type of an entity. Writes the property in the
+     * OPC UA Server and checks the new value in the server.
+     *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
      * @throws ServiceException If the operation fails
@@ -740,7 +741,7 @@ public class OpcUaEndpointTest {
 
     /**
      * Test method for adding a new property to an existing submodel.
-     * 
+     *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
      * @throws ServiceException If the operation fails
@@ -800,7 +801,7 @@ public class OpcUaEndpointTest {
 
     /**
      * Test method for adding a complete submodel to an AAS.
-     * 
+     *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
      * @throws ServiceException If the operation fails
