@@ -20,4 +20,28 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 /**
  * Configuration class for {@link PersistenceInMemory}.
  */
-public class PersistenceInMemoryConfig extends PersistenceConfig<PersistenceInMemory> {}
+public class PersistenceInMemoryConfig extends PersistenceConfig<PersistenceInMemory> {
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private abstract static class AbstractBuilder<T extends PersistenceInMemoryConfig, B extends AbstractBuilder<T, B>>
+            extends PersistenceConfig.AbstractBuilder<PersistenceInMemory, T, B> {
+
+    }
+
+    public static class Builder extends AbstractBuilder<PersistenceInMemoryConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected PersistenceInMemoryConfig newBuildingInstance() {
+            return new PersistenceInMemoryConfig();
+        }
+    }
+}

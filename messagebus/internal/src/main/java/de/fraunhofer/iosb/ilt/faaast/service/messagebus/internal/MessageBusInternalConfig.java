@@ -20,4 +20,28 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 /**
  * Configuration class for {@link MessageBusInternal}
  */
-public class MessageBusInternalConfig extends MessageBusConfig<MessageBusInternal> {}
+public class MessageBusInternalConfig extends MessageBusConfig<MessageBusInternal> {
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private abstract static class AbstractBuilder<T extends MessageBusInternalConfig, B extends AbstractBuilder<T, B>>
+            extends MessageBusConfig.AbstractBuilder<MessageBusInternal, T, B> {
+
+    }
+
+    public static class Builder extends AbstractBuilder<MessageBusInternalConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected MessageBusInternalConfig newBuildingInstance() {
+            return new MessageBusInternalConfig();
+        }
+    }
+}

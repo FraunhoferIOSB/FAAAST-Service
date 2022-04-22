@@ -91,4 +91,37 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     public void setSecondsTillShutdown(int value) {
         secondsTillShutdown = value;
     }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private abstract static class AbstractBuilder<T extends OpcUaEndpointConfig, B extends AbstractBuilder<T, B>> extends EndpointConfig.AbstractBuilder<OpcUaEndpoint, T, B> {
+
+        public B tcpPort(int value) {
+            getBuildingInstance().setTcpPort(value);
+            return getSelf();
+        }
+
+
+        public B secondsTillShutdown(int value) {
+            getBuildingInstance().setSecondsTillShutdown(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<OpcUaEndpointConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected OpcUaEndpointConfig newBuildingInstance() {
+            return new OpcUaEndpointConfig();
+        }
+    }
 }
