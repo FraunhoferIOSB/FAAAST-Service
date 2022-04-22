@@ -34,6 +34,8 @@ import picocli.CommandLine;
 
 public class AppTest {
 
+    private static final String MODEL = "src/test/resources/AASMinimal.json";
+    private static final String CONFIG = "src/test/resources/config-minimal.json";
     private App application;
     private CommandLine cmd;
 
@@ -102,8 +104,8 @@ public class AppTest {
 
     @Test
     public void testConfigFileCLI() {
-        cmd.execute("-c", "myConfig.json");
-        Assert.assertEquals(new File("myConfig.json"), application.configFile);
+        cmd.execute("-c", CONFIG);
+        Assert.assertEquals(new File(CONFIG), application.configFile);
     }
 
 
@@ -116,30 +118,30 @@ public class AppTest {
 
     @Test
     public void testConfigFileENV() throws Exception {
-        File actual = withEnv(App.ENV_CONFIG_FILE_PATH, "myConfig.json")
+        File actual = withEnv(App.ENV_CONFIG_FILE_PATH, CONFIG)
                 .execute(() -> {
                     new CommandLine(application).execute();
                     return application.configFile;
                 });
-        Assert.assertEquals(new File("myConfig.json"), actual);
+        Assert.assertEquals(new File(CONFIG), actual);
     }
 
 
     @Test
     public void testModelFileCLI() {
-        cmd.execute("-m", "myAAS.json");
-        Assert.assertEquals(new File("myAAS.json"), application.modelFile);
+        cmd.execute("-m", MODEL);
+        Assert.assertEquals(new File(MODEL), application.modelFile);
     }
 
 
     @Test
     public void testModelFileENV() throws Exception {
-        File actual = withEnv(App.ENV_MODEL_FILE_PATH, "myAAS.json")
+        File actual = withEnv(App.ENV_MODEL_FILE_PATH, MODEL)
                 .execute(() -> {
                     new CommandLine(application).execute();
                     return application.modelFile;
                 });
-        Assert.assertEquals(new File("myAAS.json"), actual);
+        Assert.assertEquals(new File(MODEL), actual);
     }
 
 
@@ -147,10 +149,10 @@ public class AppTest {
     public void testModelFilePrio() throws Exception {
         File actual = withEnv(App.ENV_MODEL_FILE_PATH, "env.json")
                 .execute(() -> {
-                    new CommandLine(application).execute("-m", "cli.json");
+                    new CommandLine(application).execute("-m", MODEL);
                     return application.modelFile;
                 });
-        Assert.assertEquals(new File("cli.json"), actual);
+        Assert.assertEquals(new File(MODEL), actual);
     }
 
 
@@ -191,7 +193,7 @@ public class AppTest {
 
     @Test
     public void testModelValidationCLIDefault() {
-        cmd.execute();
+        cmd.execute("-m", MODEL);
         Assert.assertEquals(true, application.validateModel);
     }
 
