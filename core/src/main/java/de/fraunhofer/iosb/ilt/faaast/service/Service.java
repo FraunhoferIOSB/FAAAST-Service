@@ -270,13 +270,13 @@ public class Service implements ServiceContext {
 
             assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         }
+        endpoints = new ArrayList<>();
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
             // TODO maybe be less restrictive and only print warning
             //throw new InvalidConfigurationException("at least endpoint must be defined in the configuration");
             LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
         }
         else {
-            endpoints = new ArrayList<>();
             for (EndpointConfig endpointConfig: config.getEndpoints()) {
                 Endpoint endpoint = (Endpoint) endpointConfig.newInstance(config.getCore(), this);
                 endpoints.add(endpoint);
