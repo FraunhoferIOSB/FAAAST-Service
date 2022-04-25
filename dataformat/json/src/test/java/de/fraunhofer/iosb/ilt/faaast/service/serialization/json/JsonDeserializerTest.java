@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.PropertyValues;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.ValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -107,7 +108,7 @@ public class JsonDeserializerTest {
         return input.entrySet().stream()
                 .map(x -> {
                     try {
-                        return TestUtils.extractValueJson(x.getValue(), x.getKey());
+                        return ValueHelper.extractValueJson(x.getValue(), x.getKey());
                     }
                     catch (IOException e) {
                         // TODO proper error handling
@@ -125,7 +126,7 @@ public class JsonDeserializerTest {
                     try {
                         return String.format("\"%s\": %s",
                                 x.getKey().getIdShort(),
-                                TestUtils.extractValueJson(x.getValue(), x.getKey()));
+                                ValueHelper.extractValueJson(x.getValue(), x.getKey()));
                     }
                     catch (IOException e) {
                         // TODO proper error handling
@@ -217,7 +218,7 @@ public class JsonDeserializerTest {
     private void compareValue(SubmodelElement element, File file) throws DeserializationException, IOException, ValueMappingException {
         ElementValue expected = ElementValueMapper.toValue(element);
         TypeInfo typeInfo = TypeExtractor.extractTypeInfo(element);
-        ElementValue actual = deserializer.readValue(TestUtils.extractValueJson(file, element), typeInfo);
+        ElementValue actual = deserializer.readValue(ValueHelper.extractValueJson(file, element), typeInfo);
         Assert.assertEquals(expected, actual);
     }
 
@@ -225,7 +226,7 @@ public class JsonDeserializerTest {
     private void compareValue(SubmodelElement element, File file, Class<? extends ElementValue> type, Datatype datatype)
             throws DeserializationException, IOException, ValueMappingException {
         ElementValue expected = ElementValueMapper.toValue(element);
-        ElementValue actual = deserializer.readValue(TestUtils.extractValueJson(file, element), type, datatype);
+        ElementValue actual = deserializer.readValue(ValueHelper.extractValueJson(file, element), type, datatype);
         deserializer.readValue(file, type, datatype);
         Assert.assertEquals(expected, actual);
     }

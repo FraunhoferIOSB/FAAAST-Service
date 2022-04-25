@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.test;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
@@ -38,6 +39,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.Path;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper;
@@ -91,6 +93,12 @@ public class HttpEndpointIT {
     private static ApiPaths API_PATHS;
     private static AssetAdministrationShellEnvironment environment;
     private static Service service;
+    private final ObjectMapper mapper;
+
+    public HttpEndpointIT() {
+        this.mapper = new ObjectMapper();
+    }
+
 
     private static int findFreePort() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(0)) {
@@ -802,6 +810,85 @@ public class HttpEndpointIT {
                                 null,
                                 expected,
                                 Submodel.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceGetSubmodelContentPath()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel submodel = environment.getSubmodels().get(2);
+        Path expected = Path.builder()
+                .id("TestSubmodel3")
+                .child("ExampleRelationshipElement")
+                .child("ExampleAnnotatedRelationshipElement")
+                .child("ExampleOperation")
+                .child("ExampleCapability")
+                .child("ExampleBasicEvent")
+                .child(Path.builder()
+                        .id("ExampleSubmodelCollectionOrdered")
+                        .child("ExampleProperty")
+                        .child("ExampleMultiLanguageProperty")
+                        .child("ExampleRange")
+                        .build())
+                .child(Path.builder()
+                        .id("ExampleSubmodelCollectionUnordered")
+                        .child("ExampleBlob")
+                        .child("ExampleFile")
+                        .child("ExampleReferenceElement")
+                        .build())
+                .build();
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                submodel,
+                LambdaExceptionHelper.wrap(
+                        x -> {
+                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Level.DEEP, Content.PATH));
+                            Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+                            JSONAssert.assertEquals(mapper.writeValueAsString(expected.getPaths()), response.body(), false);
+                        }));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceGetSubmodelLevelCoreContentPath()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        Submodel submodel = DeepCopyHelper.deepCopy(environment.getSubmodels().get(2), Submodel.class);
+        submodel.getSubmodelElements().forEach(x -> {
+            if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
+                ((SubmodelElementCollection) x).getValues().clear();
+            }
+        });
+        Path expected = Path.builder()
+                .id("TestSubmodel3")
+                .child("ExampleRelationshipElement")
+                .child("ExampleAnnotatedRelationshipElement")
+                .child("ExampleOperation")
+                .child("ExampleCapability")
+                .child("ExampleBasicEvent")
+                .child(Path.builder()
+                        .id("ExampleSubmodelCollectionOrdered")
+                        .child("ExampleProperty")
+                        .child("ExampleMultiLanguageProperty")
+                        .child("ExampleRange")
+                        .build())
+                .child(Path.builder()
+                        .id("ExampleSubmodelCollectionUnordered")
+                        .child("ExampleBlob")
+                        .child("ExampleFile")
+                        .child("ExampleReferenceElement")
+                        .build())
+                .build();
+        MessageBusHelper.assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                submodel,
+                LambdaExceptionHelper.wrap(
+                        x -> {
+                            HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(submodel).submodel(Level.CORE, Content.PATH));
+                            Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+                            JSONAssert.assertEquals(mapper.writeValueAsString(expected.asCorePath().getPaths()), response.body(), false);
+                        }));
     }
 
 

@@ -245,6 +245,11 @@ public class ApiPaths {
         }
 
 
+        public String submodel(Level level, Content content) {
+            return String.format("%s/submodel?level=%s&content=%s", root, level.name().toLowerCase(), content.name().toLowerCase());
+        }
+
+
         public String submodel(Content content) {
             return String.format("%s/submodel?content=%s", root, content.name().toLowerCase());
         }
