@@ -14,8 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.starter.App.APP_NAME;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -52,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -61,9 +65,10 @@ import picocli.CommandLine.Spec;
 /**
  * Class for configuring and starting a FA³ST Service
  */
-@Command(name = "FA³ST Service Starter", mixinStandardHelpOptions = true, version = "0.1", description = "Starts a FA³ST Service")
+@Command(name = APP_NAME, mixinStandardHelpOptions = true, description = "Starts a FA³ST Service", versionProvider = App.PropertiesVersionProvider.class, usageHelpAutoWidth = true)
 public class App implements Runnable {
 
+    protected static final String APP_NAME = "FA³ST Service Starter";
     private static final int INDENT_DEFAULT = 20;
     private static final int INDENT_STEP = 3;
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
@@ -126,7 +131,6 @@ public class App implements Runnable {
     private static int exitCode = -1;
 
     public static void main(String[] args) {
-        LOGGER.info("Starting FA³ST Service...");
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -145,9 +149,23 @@ public class App implements Runnable {
                 }
             }
         });
-        exitCode = new CommandLine(new App())
-                .setCaseInsensitiveEnumValuesAllowed(true)
-                .execute(args);
+        CommandLine commandLine = new CommandLine(new App())
+                .setCaseInsensitiveEnumValuesAllowed(true);
+        try {
+            CommandLine.ParseResult result = commandLine.parseArgs(args);
+            if (result.isUsageHelpRequested()) {
+                commandLine.usage(System.out);
+                return;
+            }
+            else if (result.isVersionHelpRequested()) {
+                commandLine.printVersionHelp(System.out);
+                return;
+            }
+        }
+        catch (CommandLine.ParameterException e) {
+            // intentionally left empty
+        }
+        exitCode = commandLine.execute(args);
         if (exitCode == CommandLine.ExitCode.OK) {
             try {
                 SHUTDOWN_REQUESTED.await();
@@ -168,7 +186,6 @@ public class App implements Runnable {
         else {
             System.exit(exitCode);
         }
-
     }
 
 
@@ -421,5 +438,25 @@ public class App implements Runnable {
                             .collect(Collectors.joining(System.lineSeparator())));
         }
         return result;
+    }
+
+    protected static class PropertiesVersionProvider implements IVersionProvider {
+
+        private static final String PATH_GIT_BUILD_VERSION = "git.build.version";
+        private static final String PATH_GIT_COMMIT_TIME = "git.commit.time";
+        private static final String PATH_GIT_COMMIT_ID_DESCRIBE = "git.commit.id.describe";
+        private static final TypeReference<Map<String, String>> TYPE_MAP_STRING_STRING = new TypeReference<Map<String, String>>() {
+            // Empty on purpose.
+        };
+
+        @Override
+        public String[] getVersion() throws Exception {
+            Map<String, String> gitInfo = new ObjectMapper().readValue(App.class.getClassLoader().getResourceAsStream("git.json"), TYPE_MAP_STRING_STRING);
+            return new String[] {
+                    String.format("%s v%s", APP_NAME, gitInfo.get(PATH_GIT_BUILD_VERSION)),
+                    String.format("Git Details: %s", gitInfo.get(PATH_GIT_COMMIT_ID_DESCRIBE)),
+                    String.format("Commit Time: %s", gitInfo.get(PATH_GIT_COMMIT_TIME)),
+            };
+        }
     }
 }
