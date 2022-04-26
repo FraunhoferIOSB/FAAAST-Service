@@ -94,6 +94,9 @@ public class PathJsonSerializer {
                 .visitor(new DefaultAssetAdministrationShellElementVisitor() {
                     @Override
                     public void visit(Referable referable) {
+                        if (referable == null) {
+                            return;
+                        }
                         if (hierarchy.isEmpty()) {
                             idShorts.add(referable.getIdShort());
                             return;
