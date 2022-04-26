@@ -79,7 +79,7 @@ public class PathJsonSerializer {
                     @Override
                     public void visit(Referable referable) {
                         if (isContainerElement(referable)) {
-                            hierarchy.push(referable);
+                            hierarchy.add(referable);
                         }
                     }
                 })
@@ -87,7 +87,7 @@ public class PathJsonSerializer {
                     @Override
                     public void visit(Referable referable) {
                         if (isContainerElement(referable)) {
-                            hierarchy.pop();
+                            hierarchy.pollLast();
                         }
                     }
                 })
