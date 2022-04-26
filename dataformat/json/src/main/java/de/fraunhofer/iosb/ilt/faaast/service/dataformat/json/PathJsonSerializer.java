@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
@@ -34,11 +33,11 @@ import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.SubjectAttributes;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
 import java.util.stream.Collectors;
-
 
 public class PathJsonSerializer {
 
@@ -46,29 +45,16 @@ public class PathJsonSerializer {
     private final SerializerWrapper wrapper;
 
     public PathJsonSerializer() {
-        this.wrapper = new SerializerWrapper(x -> modifyMapper(x));
+        this.wrapper = new SerializerWrapper(this::modifyMapper);
     }
-
 
     public JsonMapper getMapper() {
         return wrapper.getMapper();
     }
 
-
     public String write(Object obj) throws SerializationException {
-        return write(obj, Level.DEFAULT, Extend.DEFAULT);
+        return write(obj, Level.DEFAULT);
     }
-
-
-    public String write(Object obj, Level level) throws SerializationException {
-        return write(obj, level, Extend.DEFAULT);
-    }
-
-
-    public String write(Object obj, Extend extend) throws SerializationException {
-        return write(obj, Level.DEFAULT, extend);
-    }
-
 
     private boolean isContainerElement(Referable referable) {
         if (referable == null) {
@@ -79,10 +65,9 @@ public class PathJsonSerializer {
                 || SubmodelElementCollection.class.isAssignableFrom(referable.getClass());
     }
 
-
-    public String write(Object obj, Level level, Extend extend) throws SerializationException {
+    public String write(Object obj, Level level) throws SerializationException {
         final List<String> idShorts = new ArrayList<>();
-        final Stack<Referable> hierarchy = new Stack<>();
+        final Deque<Referable> hierarchy = new ArrayDeque<>();
         final int maxDepth = level == Level.CORE ? 2 : Integer.MAX_VALUE;
         new IdShortPathElementWalker.Builder()
                 .before(new DefaultAssetAdministrationShellElementVisitor() {
@@ -104,12 +89,11 @@ public class PathJsonSerializer {
                 .visitor(new DefaultAssetAdministrationShellElementVisitor() {
                     @Override
                     public void visit(Referable referable) {
-                        System.out.println(String.format("visit: %s, depth: %d, isContainer: %s", referable.getIdShort(), hierarchy.size(), isContainerElement(referable)));
                         if (hierarchy.isEmpty()) {
                             idShorts.add(referable.getIdShort());
                             return;
                         }
-                        String path = hierarchy.stream().map(x -> x.getIdShort()).collect(Collectors.joining(ID_SHORT_PATH_SEPARATOR));
+                        String path = hierarchy.stream().map(Referable::getIdShort).collect(Collectors.joining(ID_SHORT_PATH_SEPARATOR));
                         if (!isContainerElement(referable) && hierarchy.size() < maxDepth) {
                             idShorts.add(String.format("%s%s%s", path, ID_SHORT_PATH_SEPARATOR, referable.getIdShort()));
                             return;
@@ -123,12 +107,10 @@ public class PathJsonSerializer {
                 .walk(obj);
         try {
             return wrapper.getMapper().writeValueAsString(idShorts);
-        }
-        catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             throw new SerializationException("serialization failed", e);
         }
     }
-
 
     protected JsonMapper modifyMapper(JsonMapper mapper) {
         return mapper;
@@ -137,24 +119,29 @@ public class PathJsonSerializer {
     public static class IdShortPathElementWalker extends AssetAdministrationShellElementWalker {
 
         @Override
-        public void visit(PolicyInformationPoints element) {}
-
-
-        @Override
-        public void visit(AccessControl element) {}
-
+        public void visit(PolicyInformationPoints element) {
+            // intentionally left empty
+        }
 
         @Override
-        public void visit(SubjectAttributes element) {}
-
-
-        @Override
-        public void visit(ObjectAttributes element) {}
-
+        public void visit(AccessControl element) {
+            // intentionally left empty
+        }
 
         @Override
-        public void visit(Certificate element) {}
+        public void visit(SubjectAttributes element) {
+            // intentionally left empty
+        }
 
+        @Override
+        public void visit(ObjectAttributes element) {
+            // intentionally left empty
+        }
+
+        @Override
+        public void visit(Certificate element) {
+            // intentionally left empty
+        }
 
         @Override
         public void visit(AnnotatedRelationshipElement element) {
@@ -162,20 +149,17 @@ public class PathJsonSerializer {
             visitAfter(element);
         }
 
-
         @Override
         public void visit(AssetInformation element) {
             visitBefore(element);
             visitAfter(element);
         }
 
-
         @Override
         public void visit(Operation element) {
             visitBefore(element);
             visitAfter(element);
         }
-
 
         @Override
         public void visit(Entity element) {
@@ -189,7 +173,6 @@ public class PathJsonSerializer {
             protected Builder getSelf() {
                 return this;
             }
-
 
             @Override
             protected IdShortPathElementWalker newBuildingInstance() {

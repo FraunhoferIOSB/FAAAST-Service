@@ -162,7 +162,7 @@ public class PathJsonSerializerTest {
 
 
     private void test(Object obj, Path path, Level level) throws SerializationException, JsonProcessingException, JSONException {
-        String actual = serializer.write(obj, level, Extend.DEFAULT);
+        String actual = serializer.write(obj, level);
         String expected = new ObjectMapper().writeValueAsString(path.getPaths());
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }

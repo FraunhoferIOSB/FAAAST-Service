@@ -67,7 +67,7 @@ public class JsonSerializer implements Serializer {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());
         }
         if (modifier != null && modifier.getContent() == Content.PATH) {
-            return pathSerializer.write(obj, modifier.getLevel(), modifier.getExtend());
+            return pathSerializer.write(obj, modifier.getLevel());
         }
         if (obj != null && ElementValue.class.isAssignableFrom(obj.getClass())) {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());
