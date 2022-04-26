@@ -39,6 +39,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 public class PathJsonSerializer {
 
     public static final String ID_SHORT_PATH_SEPARATOR = ".";
@@ -48,13 +49,16 @@ public class PathJsonSerializer {
         this.wrapper = new SerializerWrapper(this::modifyMapper);
     }
 
+
     public JsonMapper getMapper() {
         return wrapper.getMapper();
     }
 
+
     public String write(Object obj) throws SerializationException {
         return write(obj, Level.DEFAULT);
     }
+
 
     private boolean isContainerElement(Referable referable) {
         if (referable == null) {
@@ -64,6 +68,7 @@ public class PathJsonSerializer {
                 || Submodel.class.isAssignableFrom(referable.getClass())
                 || SubmodelElementCollection.class.isAssignableFrom(referable.getClass());
     }
+
 
     public String write(Object obj, Level level) throws SerializationException {
         final List<String> idShorts = new ArrayList<>();
@@ -107,10 +112,12 @@ public class PathJsonSerializer {
                 .walk(obj);
         try {
             return wrapper.getMapper().writeValueAsString(idShorts);
-        } catch (JsonProcessingException e) {
+        }
+        catch (JsonProcessingException e) {
             throw new SerializationException("serialization failed", e);
         }
     }
+
 
     protected JsonMapper modifyMapper(JsonMapper mapper) {
         return mapper;
@@ -123,25 +130,30 @@ public class PathJsonSerializer {
             // intentionally left empty
         }
 
+
         @Override
         public void visit(AccessControl element) {
             // intentionally left empty
         }
+
 
         @Override
         public void visit(SubjectAttributes element) {
             // intentionally left empty
         }
 
+
         @Override
         public void visit(ObjectAttributes element) {
             // intentionally left empty
         }
 
+
         @Override
         public void visit(Certificate element) {
             // intentionally left empty
         }
+
 
         @Override
         public void visit(AnnotatedRelationshipElement element) {
@@ -149,17 +161,20 @@ public class PathJsonSerializer {
             visitAfter(element);
         }
 
+
         @Override
         public void visit(AssetInformation element) {
             visitBefore(element);
             visitAfter(element);
         }
 
+
         @Override
         public void visit(Operation element) {
             visitBefore(element);
             visitAfter(element);
         }
+
 
         @Override
         public void visit(Entity element) {
@@ -173,6 +188,7 @@ public class PathJsonSerializer {
             protected Builder getSelf() {
                 return this;
             }
+
 
             @Override
             protected IdShortPathElementWalker newBuildingInstance() {
