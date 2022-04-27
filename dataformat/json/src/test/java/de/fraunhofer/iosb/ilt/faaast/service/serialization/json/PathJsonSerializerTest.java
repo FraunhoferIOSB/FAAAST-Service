@@ -157,6 +157,12 @@ public class PathJsonSerializerTest {
                         .build())
                 .build();
         test(input, expected);
+        assertFoo();
+    }
+
+
+    private void assertFoo() {
+
     }
 
 
