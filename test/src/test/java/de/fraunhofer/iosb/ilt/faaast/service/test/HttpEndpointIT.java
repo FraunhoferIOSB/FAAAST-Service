@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.test;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
+import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.assertEvent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
@@ -42,7 +43,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMem
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.Path;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
@@ -250,7 +250,7 @@ public class HttpEndpointIT {
                 .idShort("newOne")
                 .description(new LangString("Täst"))
                 .build();
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementCreateEventMessage.class,
                 expected,
@@ -277,7 +277,7 @@ public class HttpEndpointIT {
                 API_PATHS.aasRepository().assetAdministrationShells(),
                 AssetAdministrationShell.class);
         Assert.assertTrue(before.contains(expected));
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementDeleteEventMessage.class,
                 expected,
@@ -304,7 +304,7 @@ public class HttpEndpointIT {
     public void testAASRepositoryGetAssetAdministrationShell()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
                 expected,
@@ -345,7 +345,7 @@ public class HttpEndpointIT {
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementUpdateEventMessage.class,
                 expected,
@@ -367,7 +367,7 @@ public class HttpEndpointIT {
         List<Reference> expected = aas.getSubmodels();
         Reference newReference = new DefaultReference.Builder().key(new DefaultKey.Builder().value("test").idType(KeyType.IRI).build()).build();
         expected.add(newReference);
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementUpdateEventMessage.class,
                 aas,
@@ -399,7 +399,7 @@ public class HttpEndpointIT {
                 API_PATHS.aasInterface(aas).submodels(),
                 Reference.class);
         Assert.assertTrue(before.contains(submodelToDelete));
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 EventMessage.class,
                 aas,
@@ -419,7 +419,7 @@ public class HttpEndpointIT {
     public void testAssetAdministrationShellInterfaceGetAssetAdministrationShell()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
                 expected,
@@ -478,7 +478,7 @@ public class HttpEndpointIT {
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().get(1);
         expected.setIdShort("changed");
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementUpdateEventMessage.class,
                 expected,
@@ -523,7 +523,7 @@ public class HttpEndpointIT {
                         .build())
                 .idShort("created")
                 .build();
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementCreateEventMessage.class,
                 expected,
@@ -550,7 +550,7 @@ public class HttpEndpointIT {
                 API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
                 ConceptDescription.class);
         Assert.assertTrue(before.contains(expected));
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementDeleteEventMessage.class,
                 expected,
@@ -578,7 +578,7 @@ public class HttpEndpointIT {
     public void testConceptDescriptionRepositoryGetConceptDescription()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         ConceptDescription expected = environment.getConceptDescriptions().get(0);
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
                 expected,
@@ -620,7 +620,7 @@ public class HttpEndpointIT {
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
         ConceptDescription expected = environment.getConceptDescriptions().get(0);
         expected.setIdShort("changed");
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementUpdateEventMessage.class,
                 expected,
@@ -646,7 +646,7 @@ public class HttpEndpointIT {
         SubmodelElement expected = new DefaultProperty.Builder()
                 .idShort("newProperty")
                 .build();
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementCreateEventMessage.class,
                 expected,
@@ -672,7 +672,7 @@ public class HttpEndpointIT {
         SubmodelElement expected = new DefaultProperty.Builder()
                 .idShort("newProperty")
                 .build();
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementCreateEventMessage.class,
                 expected,
@@ -700,7 +700,7 @@ public class HttpEndpointIT {
                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
         Assert.assertTrue(before.contains(expected));
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementDeleteEventMessage.class,
                 expected,
@@ -720,7 +720,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodel()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel expected = environment.getSubmodels().get(0);
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
                 expected,
@@ -740,7 +740,7 @@ public class HttpEndpointIT {
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel submodel = environment.getSubmodels().get(0);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
                 expected,
@@ -776,7 +776,7 @@ public class HttpEndpointIT {
         String expected = new JsonSerializer().write(submodel, new OutputModifier.Builder()
                 .content(Content.VALUE)
                 .build());
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
                 submodel,
@@ -798,7 +798,7 @@ public class HttpEndpointIT {
                 ((SubmodelElementCollection) x).getValues().clear();
             }
         });
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
                 expected,
@@ -837,7 +837,7 @@ public class HttpEndpointIT {
                         .child("ExampleReferenceElement")
                         .build())
                 .build();
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
                 submodel,
@@ -879,7 +879,7 @@ public class HttpEndpointIT {
                         .child("ExampleReferenceElement")
                         .build())
                 .build();
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
                 submodel,
@@ -896,7 +896,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelLevelDeep()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel expected = environment.getSubmodels().get(2);
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
                 expected,
@@ -916,7 +916,7 @@ public class HttpEndpointIT {
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
         Submodel expected = environment.getSubmodels().get(0);
         expected.setIdShort("changed");
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementUpdateEventMessage.class,
                 expected,
@@ -937,7 +937,7 @@ public class HttpEndpointIT {
         Submodel submodel = environment.getSubmodels().get(0);
         SubmodelElement expected = submodel.getSubmodelElements().get(0);
         expected.getDescriptions().add(new LangString("foo", "en"));
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementUpdateEventMessage.class,
                 expected,
@@ -965,7 +965,7 @@ public class HttpEndpointIT {
                         .identifier("newSubmodel")
                         .build())
                 .build();
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementCreateEventMessage.class,
                 expected,
@@ -992,7 +992,7 @@ public class HttpEndpointIT {
                 API_PATHS.submodelRepository().submodels(),
                 Submodel.class);
         Assert.assertTrue(before.contains(expected));
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementDeleteEventMessage.class,
                 expected,
@@ -1011,7 +1011,7 @@ public class HttpEndpointIT {
     public void testSubmodelRepositoryGetSubmodel()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel expected = environment.getSubmodels().get(1);
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
                 expected,
@@ -1080,7 +1080,7 @@ public class HttpEndpointIT {
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
         Submodel expected = environment.getSubmodels().get(1);
         expected.setIdShort("changed");
-        MessageBusHelper.assertEvent(
+        assertEvent(
                 messageBus,
                 ElementUpdateEventMessage.class,
                 expected,

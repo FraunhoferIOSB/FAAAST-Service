@@ -51,7 +51,7 @@ public class PathJsonSerializerTest {
         Path expected = Path.builder()
                 .id(ID_PROPERTY_1)
                 .build();
-        test(input, expected);
+        assertEquals(input, expected);
     }
 
 
@@ -87,7 +87,7 @@ public class PathJsonSerializerTest {
                                 .build())
                         .build())
                 .build();
-        test(input, expected);
+        assertEquals(input, expected);
     }
 
 
@@ -99,7 +99,7 @@ public class PathJsonSerializerTest {
         Path expected = Path.builder()
                 .id(ID_SUBMODEL_1)
                 .build();
-        test(input, expected);
+        assertEquals(input, expected);
     }
 
 
@@ -129,7 +129,7 @@ public class PathJsonSerializerTest {
                         .child(ID_PROPERTY_3)
                         .build())
                 .build();
-        test(input, expected);
+        assertEquals(input, expected);
     }
 
 
@@ -156,26 +156,20 @@ public class PathJsonSerializerTest {
                         .child("ExampleReferenceElement")
                         .build())
                 .build();
-        test(input, expected);
-        assertFoo();
+        assertEquals(input, expected);
     }
 
 
-    private void assertFoo() {
-
-    }
-
-
-    private void test(Object obj, Path path, Level level) throws SerializationException, JsonProcessingException, JSONException {
+    private void assertEquals(Object obj, Path path, Level level) throws SerializationException, JsonProcessingException, JSONException {
         String actual = serializer.write(obj, level);
         String expected = new ObjectMapper().writeValueAsString(path.getPaths());
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
 
-    private void test(Object obj, Path path) throws SerializationException, JsonProcessingException, JSONException {
-        test(obj, path.asCorePath(), Level.CORE);
-        test(obj, path, Level.DEEP);
+    private void assertEquals(Object obj, Path path) throws SerializationException, JsonProcessingException, JSONException {
+        assertEquals(obj, path.asCorePath(), Level.CORE);
+        assertEquals(obj, path, Level.DEEP);
     }
 
 }
