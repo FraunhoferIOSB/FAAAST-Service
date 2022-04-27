@@ -57,6 +57,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Serializer for content=value
+ */
 public class ValueOnlyJsonSerializer {
 
     public static boolean isJreType(Class<?> type) {

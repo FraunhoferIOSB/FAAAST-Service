@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
+package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -20,9 +20,9 @@ import java.io.File;
 import java.io.IOException;
 
 
-public class TestUtils {
+public class ValueHelper {
 
-    private TestUtils() {}
+    private ValueHelper() {}
 
 
     public static String extractValueJson(File file, SubmodelElement submodelElement) throws IOException {

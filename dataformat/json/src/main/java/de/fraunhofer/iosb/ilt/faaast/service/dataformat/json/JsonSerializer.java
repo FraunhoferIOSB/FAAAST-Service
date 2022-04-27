@@ -38,11 +38,13 @@ import java.util.List;
  */
 public class JsonSerializer implements Serializer {
 
+    private final PathJsonSerializer pathSerializer;
     private final ValueOnlyJsonSerializer valueOnlySerializer;
     private final SerializerWrapper wrapper;
 
     public JsonSerializer() {
         this.wrapper = new SerializerWrapper(this::modifyMapper);
+        this.pathSerializer = new PathJsonSerializer();
         this.valueOnlySerializer = new ValueOnlyJsonSerializer();
     }
 
@@ -63,6 +65,9 @@ public class JsonSerializer implements Serializer {
     public String write(Object obj, OutputModifier modifier) throws SerializationException {
         if (modifier != null && modifier.getContent() == Content.VALUE) {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());
+        }
+        if (modifier != null && modifier.getContent() == Content.PATH) {
+            return pathSerializer.write(obj, modifier.getLevel());
         }
         if (obj != null && ElementValue.class.isAssignableFrom(obj.getClass())) {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());

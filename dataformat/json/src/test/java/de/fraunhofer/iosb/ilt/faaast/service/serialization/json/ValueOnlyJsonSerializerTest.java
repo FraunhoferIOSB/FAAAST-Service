@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.fixture.PropertyValues;
+import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.ValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -106,7 +107,7 @@ public class ValueOnlyJsonSerializerTest {
         String expected = data.entrySet().stream()
                 .map(x -> {
                     try {
-                        return TestUtils.extractValueJson(x.getValue(), x.getKey());
+                        return ValueHelper.extractValueJson(x.getValue(), x.getKey());
                     }
                     catch (IOException e) {
                         Assert.fail("error extracting value from file");
@@ -215,7 +216,7 @@ public class ValueOnlyJsonSerializerTest {
 
     private void compareValue(File expectedFile, SubmodelElement submodelElement, Level level, Extend extend)
             throws JSONException, IOException, SerializationException, ValueMappingException {
-        compare(TestUtils.extractValueJson(expectedFile, submodelElement), ElementValueMapper.toValue(submodelElement), level, extend);
+        compare(ValueHelper.extractValueJson(expectedFile, submodelElement), ElementValueMapper.toValue(submodelElement), level, extend);
     }
 
 }

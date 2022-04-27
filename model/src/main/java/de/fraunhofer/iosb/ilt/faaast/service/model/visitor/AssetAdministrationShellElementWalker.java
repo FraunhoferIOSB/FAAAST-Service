@@ -91,7 +91,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Special kind of visitor that recursively walks the whole element structre and
+ * Special kind of visitor that recursively walks the whole element structure and
  * applies given visitors to each element.
  */
 public class AssetAdministrationShellElementWalker implements AssetAdministrationShellElementVisitor {
@@ -995,7 +995,7 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
     }
 
 
-    private void visitAfter(Object obj) {
+    protected void visitAfter(Object obj) {
         if (mode == WalkingMode.VISIT_AFTER_DESCENT) {
             walk(visitor, obj);
         }
@@ -1003,7 +1003,7 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
     }
 
 
-    private void visitBefore(Object obj) {
+    protected void visitBefore(Object obj) {
         walk(before, obj);
         if (mode == WalkingMode.VISIT_BEFORE_DESCENT) {
             walk(visitor, obj);
