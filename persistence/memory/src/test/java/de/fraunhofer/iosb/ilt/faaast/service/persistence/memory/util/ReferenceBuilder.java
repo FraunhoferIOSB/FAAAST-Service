@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util;
 
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyType;
@@ -23,9 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Util {
+public class ReferenceBuilder {
 
-    public static Reference createReference(String aasIdentifier, String submodelIdentifier, String submodelElementIdshort) {
+    private ReferenceBuilder() {}
+
+
+    public static Reference build(String aasIdentifier, String submodelIdentifier, String submodelElementIdshort) {
         List<Key> keyList = new ArrayList<>();
         keyList.add(new DefaultKey.Builder()
                 .idType(KeyType.IRI)
@@ -42,7 +45,6 @@ public class Util {
                 .type(null)
                 .value(submodelElementIdshort)
                 .build());
-
         Reference reference = new DefaultReference.Builder()
                 .keys(keyList)
                 .build();
@@ -50,8 +52,8 @@ public class Util {
     }
 
 
-    public static Reference createReference(String aasIdentifier, String submodelIdentifier, String submodelElementCollectionIdshort, String submodelElementIdshort) {
-        Reference reference = createReference(aasIdentifier, submodelIdentifier, submodelElementCollectionIdshort);
+    public static Reference build(String aasIdentifier, String submodelIdentifier, String submodelElementCollectionIdshort, String submodelElementIdshort) {
+        Reference reference = ReferenceBuilder.build(aasIdentifier, submodelIdentifier, submodelElementCollectionIdshort);
         reference.getKeys().add(new DefaultKey.Builder()
                 .idType(KeyType.ID_SHORT)
                 .type(null)
@@ -61,7 +63,7 @@ public class Util {
     }
 
 
-    public static Reference createReference(String aasIdentifier, String submodelIdentifier) {
+    public static Reference build(String aasIdentifier, String submodelIdentifier) {
         List<Key> keyList = new ArrayList<>();
         keyList.add(new DefaultKey.Builder()
                 .idType(KeyType.IRI)

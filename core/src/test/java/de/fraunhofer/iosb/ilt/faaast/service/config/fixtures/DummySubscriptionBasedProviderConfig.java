@@ -67,10 +67,7 @@ public class DummySubscriptionBasedProviderConfig implements AssetSubscriptionPr
         if (this.interval != other.interval) {
             return false;
         }
-        if (!Objects.equals(this.nodeId, other.nodeId)) {
-            return false;
-        }
-        return true;
+        return !Objects.equals(this.nodeId, other.nodeId);
     }
 
 }

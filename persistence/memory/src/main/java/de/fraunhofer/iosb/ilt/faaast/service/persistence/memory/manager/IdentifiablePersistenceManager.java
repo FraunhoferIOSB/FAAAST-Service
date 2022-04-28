@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager;
 
+import com.google.common.base.Objects;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
@@ -30,16 +31,18 @@ import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
-import java.util.ArrayList;
+import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Class to handle {@link io.adminshell.aas.v3.model.Identifiable}
- * Following identifiables are supported:
+ * Class to handle {@link io.adminshell.aas.v3.model.Identifiable} Following
+ * identifiables are supported:
  * <ul>
  * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
  * <li>{@link io.adminshell.aas.v3.model.Submodel}
@@ -50,8 +53,8 @@ import org.apache.commons.lang3.StringUtils;
 public class IdentifiablePersistenceManager extends PersistenceManager {
 
     /**
-     * Get an identifiable by its identifier
-     * Following identifiables are supported:
+     * Get an identifiable by its identifier Following identifiables are
+     * supported:
      * <ul>
      * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
      * <li>{@link io.adminshell.aas.v3.model.Submodel}
@@ -65,246 +68,185 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
      * @throws ResourceNotFoundException if resource is not found
      */
     public <T extends Identifiable> T getIdentifiableById(Identifier id) throws ResourceNotFoundException {
-        if (id == null || this.aasEnvironment == null) {
+        ensureInitialized();
+        if (id == null) {
             return null;
         }
-        Identifiable identifiable = EnvironmentHelper.findIdentifiableInListsById(id,
-                this.aasEnvironment.getAssetAdministrationShells(),
-                this.aasEnvironment.getSubmodels(),
-                this.aasEnvironment.getConceptDescriptions(),
-                this.aasEnvironment.getAssets());
-
-        if (identifiable == null) {
-            throw new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID, IdentifierHelper.asString(id)));
-        }
-
-        return (T) identifiable;
+        return (T) Stream.of(aasEnvironment.getAssetAdministrationShells(),
+                aasEnvironment.getSubmodels(),
+                aasEnvironment.getConceptDescriptions(),
+                aasEnvironment.getAssets())
+                .flatMap(x -> x.stream())
+                .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(id.getIdentifier()))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID, IdentifierHelper.asString(id))));
     }
 
 
     /**
-     * Get a list of asset administration shells by idShort or by a list of assetIds.
-     * The assetIds could contain two types
+     * Get a list of asset administration shells by idShort and by a list of
+     * assetIds. The assetIds could contain two types
      * <ul>
      * <li>{@link de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification}
      * <li>{@link de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification}
      * </ul>
-     * If both parameters are null all asset administration shells will be returned.
+     * If both parameters are null all asset administration shells will be
+     * returned.
      *
      * @param idShort of the searched asset administration shells
      * @param assetIds list of asset identifications
      * @return a list of asset administration shells matching the parameters
      */
     public List<AssetAdministrationShell> getAASs(String idShort, List<AssetIdentification> assetIds) {
-        if (this.aasEnvironment == null) {
-            return null;
-        }
-        if (StringUtils.isNoneBlank(idShort)) {
-            return EnvironmentHelper.getDeepCopiedShells(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
-        }
-
-        if (assetIds != null) {
-            List<AssetAdministrationShell> shells = new ArrayList<>();
-            for (AssetIdentification assetId: assetIds) {
-                if (GlobalAssetIdentification.class.isAssignableFrom(assetId.getClass())) {
-                    shells.addAll(EnvironmentHelper.getDeepCopiedShells(
-                            x -> x.getAssetInformation() != null
-                                    && x.getAssetInformation().getGlobalAssetId() != null
-                                    && x.getAssetInformation().getGlobalAssetId().getKeys().stream()
-                                            .anyMatch(y -> ((GlobalAssetIdentification) assetId).getReference().getKeys().stream()
-                                                    .anyMatch(z -> z.getValue().equalsIgnoreCase(y.getValue()))),
-                            this.aasEnvironment));
-                }
-
-                if (SpecificAssetIdentification.class.isAssignableFrom(assetId.getClass())) {
-                    shells.addAll(EnvironmentHelper.getDeepCopiedShells(
-                            x -> x.getAssetInformation() != null
-                                    && x.getAssetInformation().getSpecificAssetIds().stream()
-                                            .anyMatch(y -> y.getKey().equalsIgnoreCase(((SpecificAssetIdentification) assetId).getKey())
-                                                    && y.getValue().equalsIgnoreCase(((SpecificAssetIdentification) assetId).getValue())),
-                            this.aasEnvironment));
-                }
-            }
-            return shells;
-        }
-
-        return EnvironmentHelper.getDeepCopiedShells(x -> true, this.aasEnvironment);
+        ensureInitialized();
+        List<AssetAdministrationShell> result = aasEnvironment.getAssetAdministrationShells()
+                .stream()
+                .filter(aas -> StringUtils.isAllBlank(idShort) || aas.getIdShort().equalsIgnoreCase(idShort))
+                // globalAssetId
+                .filter(aas -> assetIds == null || assetIds.stream().noneMatch(x -> GlobalAssetIdentification.class.isAssignableFrom(x.getClass()))
+                        || (aas.getAssetInformation() != null
+                                && assetIds.stream()
+                                        .filter(x -> GlobalAssetIdentification.class.isAssignableFrom(x.getClass()))
+                                        .map(x -> ((GlobalAssetIdentification) x))
+                                        .anyMatch(x -> Objects.equal(aas.getAssetInformation().getGlobalAssetId(), x.getReference()))))
+                // specificAssetId
+                .filter(aas -> assetIds == null || assetIds.stream().noneMatch(x -> SpecificAssetIdentification.class.isAssignableFrom(x.getClass()))
+                        || (aas.getAssetInformation() != null
+                                && assetIds.stream()
+                                        .filter(x -> SpecificAssetIdentification.class.isAssignableFrom(x.getClass()))
+                                        .map(x -> new DefaultIdentifierKeyValuePair.Builder()
+                                                .key(((SpecificAssetIdentification) x).getKey())
+                                                .value(((SpecificAssetIdentification) x).getValue())
+                                                .build())
+                                        .anyMatch(x -> aas.getAssetInformation().getSpecificAssetIds().contains(x))))
+                .collect(Collectors.toList());
+        return DeepCopyHelper.deepCopy(result, AssetAdministrationShell.class);
     }
 
 
     /**
-     * Get a list of submodels by idshort or by semantic id.
-     * If both parameters are null all submodels will be returned.
+     * Get a list of submodels by idshort and by semantic id. If both parameters
+     * are null all submodels will be returned.
      *
      * @param idShort of the searched submodels
      * @param semanticId of the searched submodels
      * @return a list of submodels matching the criteria
      */
     public List<Submodel> getSubmodels(String idShort, Reference semanticId) {
-        if (this.aasEnvironment == null) {
-            return null;
-        }
-
-        if (StringUtils.isNoneBlank(idShort)) {
-            return EnvironmentHelper.getDeepCopiedSubmodels(x -> x.getIdShort().equalsIgnoreCase(idShort), this.aasEnvironment);
-        }
-
-        if (semanticId != null) {
-            return EnvironmentHelper.getDeepCopiedSubmodels(x -> x.getSemanticId() != null
-                    && ReferenceHelper.isEqualsIgnoringKeyType(x.getSemanticId(), semanticId), this.aasEnvironment);
-        }
-
-        return EnvironmentHelper.getDeepCopiedSubmodels(x -> true, this.aasEnvironment);
+        ensureInitialized();
+        List<Submodel> result = aasEnvironment.getSubmodels()
+                .stream()
+                .filter(x -> StringUtils.isAllBlank(idShort) || x.getIdShort().equalsIgnoreCase(idShort))
+                .filter(x -> semanticId == null || (x.getSemanticId() != null
+                        && ReferenceHelper.isEqualsIgnoringKeyType(x.getSemanticId(), semanticId)))
+                .collect(Collectors.toList());
+        return DeepCopyHelper.deepCopy(result, Submodel.class);
     }
 
 
     /**
-     * Get a list of concept descriptions by idshort, isCaseOf and dataSpecification.
-     * Adds all matching concept descriptions for each parameter to the result list.
+     * Get a list of concept descriptions by idshort, isCaseOf and
+     * dataSpecification. Adds all matching concept descriptions for each
+     * parameter to the result list.
      *
      * @param idShort of the searched concept descriptions
      * @param isCaseOf of the searched concept descriptions
      * @param dataSpecification of the searched concept descriptions
-     * @return a list of all concept descriptions which matches at least one of the criteria
+     * @return a list of all concept descriptions which matches at least one of
+     *         the criteria
      */
     public List<ConceptDescription> getConceptDescriptions(String idShort, Reference isCaseOf, Reference dataSpecification) {
-        if (this.aasEnvironment == null) {
-            return null;
-        }
-
-        List<ConceptDescription> conceptDescriptions = null;
-
-        if (StringUtils.isNoneBlank(idShort)) {
-            conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream()
-                    .filter(x -> x.getIdShort().equalsIgnoreCase(idShort))
-                    .collect(Collectors.toList());
-        }
-
-        if (isCaseOf != null) {
-            Predicate<ConceptDescription> filter = x -> x.getIsCaseOfs().stream().anyMatch(y -> ReferenceHelper.isEqualsIgnoringKeyType(y, isCaseOf));
-            if (conceptDescriptions == null) {
-                conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream()
-                        .filter(filter)
-                        .collect(Collectors.toList());
-            }
-            else {
-                conceptDescriptions = conceptDescriptions.stream()
-                        .filter(filter)
-                        .collect(Collectors.toList());
-            }
-        }
-
-        if (dataSpecification != null) {
-            Predicate<ConceptDescription> filter = x -> x.getEmbeddedDataSpecifications() != null
-                    && x.getEmbeddedDataSpecifications().stream()
-                            .anyMatch(y -> y.getDataSpecification() != null && ReferenceHelper.isEqualsIgnoringKeyType(y.getDataSpecification(), dataSpecification));
-            if (conceptDescriptions == null) {
-                conceptDescriptions = this.aasEnvironment.getConceptDescriptions().stream()
-                        .filter(filter)
-                        .collect(Collectors.toList());
-            }
-            else {
-                conceptDescriptions = conceptDescriptions.stream().filter(filter).collect(Collectors.toList());
-            }
-        }
-
-        if (StringUtils.isBlank(idShort) && isCaseOf == null && dataSpecification == null) {
-            conceptDescriptions = this.aasEnvironment.getConceptDescriptions();
-        }
-
-        Class conceptDescriptionClass = conceptDescriptions != null && !conceptDescriptions.isEmpty() ? conceptDescriptions.get(0).getClass() : ConceptDescription.class;
-        return DeepCopyHelper.deepCopy(conceptDescriptions, conceptDescriptionClass);
+        ensureInitialized();
+        List<ConceptDescription> result = aasEnvironment.getConceptDescriptions().stream()
+                .filter(x -> StringUtils.isAllBlank(idShort) || x.getIdShort().equalsIgnoreCase(idShort))
+                .filter(x -> isCaseOf == null || x.getIsCaseOfs().stream().anyMatch(y -> ReferenceHelper.isEqualsIgnoringKeyType(y, isCaseOf)))
+                .filter(x -> dataSpecification == null
+                        || (x.getEmbeddedDataSpecifications() != null
+                                && x.getEmbeddedDataSpecifications().stream()
+                                        .anyMatch(y -> y.getDataSpecification() != null
+                                                && ReferenceHelper.isEqualsIgnoringKeyType(y.getDataSpecification(), dataSpecification))))
+                .collect(Collectors.toList());
+        return DeepCopyHelper.deepCopy(result, ConceptDescription.class);
     }
 
 
     /**
-     * Remove an identifiable by its identifier.
-     * Following identifiables are supported:
+     * Remove an identifiable by its identifier. Following identifiables are
+     * supported:
      * <ul>
      * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
      * <li>{@link io.adminshell.aas.v3.model.Submodel}
      * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
      * <li>{@link io.adminshell.aas.v3.model.Asset}
      * </ul>
-     * 
+     *
      * @param id of the indetifiable which should be removed
-     * @throws ResourceNotFoundException if there is no identifiable with such an identifer
+     * @throws ResourceNotFoundException if there is no identifiable with such
+     *             an identifer
      */
     public void remove(Identifier id) throws ResourceNotFoundException {
-        if (id == null || this.aasEnvironment == null) {
+        ensureInitialized();
+        if (id == null) {
             return;
         }
-
-        Predicate<Identifiable> removeFilter = x -> !x.getIdentification().getIdentifier().equalsIgnoreCase(id.getIdentifier());
-
-        Identifiable identifiable = getIdentifiableById(id);
-        if (identifiable == null) {
-            throw new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID, IdentifierHelper.asString(id)));
+        Predicate<Identifiable> predicate = x -> x.getIdentification().getIdentifier().equalsIgnoreCase(id.getIdentifier());
+        if (aasEnvironment.getAssetAdministrationShells().removeIf(predicate)
+                || aasEnvironment.getConceptDescriptions().removeIf(predicate)
+                || aasEnvironment.getAssets().removeIf(predicate)) {
+            return;
         }
-
-        //TODO: use reflection?
-        if (AssetAdministrationShell.class.isAssignableFrom(identifiable.getClass())) {
-            List<AssetAdministrationShell> newAASList;
-            newAASList = this.aasEnvironment.getAssetAdministrationShells().stream().filter(removeFilter).collect(Collectors.toList());
-            this.aasEnvironment.setAssetAdministrationShells(newAASList);
+        Optional<Submodel> submodelToDelete = aasEnvironment.getSubmodels().stream().filter(predicate).findAny();
+        if (submodelToDelete.isPresent()) {
+            aasEnvironment.getSubmodels().remove(submodelToDelete.get());
+            Reference submodelRef = AasUtils.toReference(submodelToDelete.get());
+            aasEnvironment.getAssetAdministrationShells().forEach(x -> x.getSubmodels().remove(submodelRef));
+            return;
         }
-        else if (Submodel.class.isAssignableFrom(identifiable.getClass())) {
-            List<Submodel> newSubmodelList;
-            newSubmodelList = this.aasEnvironment.getSubmodels().stream().filter(removeFilter).collect(Collectors.toList());
-            this.aasEnvironment.setSubmodels(newSubmodelList);
-            Reference referenceOfIdentifiable = AasUtils.toReference(identifiable);
-            this.aasEnvironment.getAssetAdministrationShells().forEach(x -> x.getSubmodels().remove(referenceOfIdentifiable));
-        }
-        else if (ConceptDescription.class.isAssignableFrom(identifiable.getClass())) {
-            List<ConceptDescription> newConceptDescriptionList;
-            newConceptDescriptionList = this.aasEnvironment.getConceptDescriptions().stream().filter(removeFilter).collect(Collectors.toList());
-            this.aasEnvironment.setConceptDescriptions(newConceptDescriptionList);
-        }
-        else if (Asset.class.isAssignableFrom(identifiable.getClass())) {
-            List<Asset> newAssetList;
-            newAssetList = this.aasEnvironment.getAssets().stream().filter(removeFilter).collect(Collectors.toList());
-            this.aasEnvironment.setAssets(newAssetList);
-        }
+        throw new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID, IdentifierHelper.asString(id)));
     }
 
 
     /**
-     * Create or Update an identifiable
-     * Following identifiables are supported:
+     * Create or Update an identifiable. Following identifiables are supported:
      * <ul>
      * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
      * <li>{@link io.adminshell.aas.v3.model.Submodel}
      * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
      * <li>{@link io.adminshell.aas.v3.model.Asset}
      * </ul>
-     * 
+     *
      * @param identifiable which should be added or updated
      * @return the added or updated identifiable
      */
     public Identifiable put(Identifiable identifiable) {
-        if (identifiable == null || this.aasEnvironment == null) {
-            return null;
+        ensureInitialized();
+        if (identifiable == null) {
+            throw new IllegalArgumentException("identifiable must be non-null");
         }
+        List<? extends Identifiable> list;
 
         if (Submodel.class.isAssignableFrom(identifiable.getClass())) {
-            this.aasEnvironment.setSubmodels(EnvironmentHelper.updateIdentifiableList(this.aasEnvironment.getSubmodels(), identifiable));
-            return identifiable;
+            list = aasEnvironment.getSubmodels();
         }
         else if (AssetAdministrationShell.class.isAssignableFrom(identifiable.getClass())) {
-            this.aasEnvironment.setAssetAdministrationShells(
-                    EnvironmentHelper.updateIdentifiableList(this.aasEnvironment.getAssetAdministrationShells(), identifiable));
-            return identifiable;
+            list = aasEnvironment.getAssetAdministrationShells();
         }
         else if (ConceptDescription.class.isAssignableFrom(identifiable.getClass())) {
-            this.aasEnvironment
-                    .setConceptDescriptions(EnvironmentHelper.updateIdentifiableList(this.aasEnvironment.getConceptDescriptions(), identifiable));
-            return identifiable;
+            list = aasEnvironment.getConceptDescriptions();
         }
         else if (Asset.class.isAssignableFrom(identifiable.getClass())) {
-            this.aasEnvironment.setAssets(EnvironmentHelper.updateIdentifiableList(this.aasEnvironment.getAssets(), identifiable));
-            return identifiable;
+            list = aasEnvironment.getAssets();
         }
-        return null;
+        else {
+            throw new IllegalArgumentException(String.format("illegal type for identifiable: %s. Must be one of: %s, %s, %s, %s",
+                    identifiable.getClass(),
+                    Submodel.class,
+                    AssetAdministrationShell.class,
+                    ConceptDescription.class,
+                    Asset.class));
+        }
+        EnvironmentHelper.updateIdentifiableList(list, identifiable);
+        return identifiable;
     }
 
 }

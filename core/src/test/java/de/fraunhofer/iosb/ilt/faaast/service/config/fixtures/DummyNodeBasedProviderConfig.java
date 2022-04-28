@@ -53,10 +53,7 @@ public class DummyNodeBasedProviderConfig implements AssetValueProviderConfig, A
             return false;
         }
         final DummyNodeBasedProviderConfig other = (DummyNodeBasedProviderConfig) obj;
-        if (!Objects.equals(this.nodeId, other.nodeId)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.nodeId, other.nodeId);
     }
 
 }
