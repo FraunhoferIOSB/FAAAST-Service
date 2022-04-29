@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
@@ -30,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager.Identifi
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager.PackagePersistenceManager;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager.ReferablePersistenceManager;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.QueryModifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
