@@ -126,6 +126,7 @@ If not already done, follow the step in [Building from Source](#building-from-so
 	```sh
 	cd starter/target
 	```
+
 2.  Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
 	```sh
 	java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
@@ -333,13 +334,16 @@ OPC UA Endpoint configuration supports the following configuration parameters
 
 To connect to the OPC UA Endpoint, you need an OPC UA Client.
 Here are some examples of OPC UA Clients:
-*   [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html)
+-   [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html)
 UaExpert is a free test client for OPC UA. A registration for the website is required.
-*   [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/)
+
+-   [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/)
 Free Java-based OPC UA Client. A registration for the website is required.
-*   [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples)
+
+-   [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples)
 C#-based sample code from the OPC Foundation.
-*   [Eclipse Milo](https://github.com/eclipse/milo)
+
+-   [Eclipse Milo](https://github.com/eclipse/milo)
 Java-based Open Source SDK for Java.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -495,14 +499,18 @@ To guarantee the interoperability of assets Industie 4.0 defines an information 
 At first glance the evolving specification of the AAS seems pretty complex and a challenging task for asset providers. To make things easier to FA³ST provides an implementation of several tools to allow easy and fast creation and management of AAS-compliant Digital Twins.
 
 ### Recommended Documents/Links
-*   [Asset Administration Shell Specifications](https://www.plattform-i40.de/IP/Redaktion/EN/Standardartikel/specification-administrationshell.html) <br />
+-   [Asset Administration Shell Specifications](https://www.plattform-i40.de/IP/Redaktion/EN/Standardartikel/specification-administrationshell.html) <br />
 Quicklinks To Different Versions & Reading Guide
-*   [Details of the Asset Administration Shell - Part 1](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html), Nov 2021 <br />
+
+-   [Details of the Asset Administration Shell - Part 1](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html), Nov 2021 <br />
 The publication states how companies can use the Asset Administration Shell to compile and structure information. In this way all information can be shared as a package (set of files) with partners at several levels of the value chain. It is not necessary to provide online access to this data from the very beginning.
-*   [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), Nov 2021 <br />
+
+-   [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), Nov 2021 <br />
 This part extends Part 1 and defines how information provided in the Asset Administration Shell (AAS) (e.g. submodels or properties) can be accessed dynamically via Application Programming Interfaces (APIs).
-*   [About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/) <br />
-*   [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/)
+
+-   [About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/) <br />
+
+-   [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

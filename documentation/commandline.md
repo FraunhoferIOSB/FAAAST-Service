@@ -6,10 +6,12 @@ To start a FA³ST Service from the command line:
     cd /starter
     mvn clean package
     ```
+
 2.  Move to the generated `.jar` file
     ```sh
     cd starter/target
     ```
+
 3.  Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
 	```sh
 	java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
