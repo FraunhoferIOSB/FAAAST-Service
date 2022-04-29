@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager;
 
 import com.google.common.base.Objects;
-import de.fraunhofer.iosb.ilt.faaast.service.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;

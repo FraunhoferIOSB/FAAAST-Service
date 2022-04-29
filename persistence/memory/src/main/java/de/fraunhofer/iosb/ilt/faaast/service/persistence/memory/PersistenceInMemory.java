@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
-import de.fraunhofer.iosb.ilt.faaast.service.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;

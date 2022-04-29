@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager;
 
-import de.fraunhofer.iosb.ilt.faaast.service.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
