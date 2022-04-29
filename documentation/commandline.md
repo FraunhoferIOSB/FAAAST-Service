@@ -1,16 +1,16 @@
 ## Usage with Command Line
 
 To start a FA³ST Service from the command line:
-1. Move to the starter project and build the project
-	```sh
-	cd /starter
-	mvn clean package
-	```
-2. Move to the generated `.jar` file
-	```sh
-	cd starter/target
-	```
-3. Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
+1.  Move to the starter project and build the project
+    ```sh
+    cd /starter
+    mvn clean package
+    ```
+2.  Move to the generated `.jar` file
+    ```sh
+    cd starter/target
+    ```
+3.  Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
 	```sh
 	java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
 	```
@@ -55,9 +55,9 @@ Following command line parameters could be used:
 <p>
 
 In general there are 3 ways to configure your FA³ST Service:
-1. Default values
-2. Commandline parameters
-3. Environment Variables
+1.  Default values
+2.  Commandline parameters
+3.  Environment Variables
 
 The 3 kinds can be combined, e.g. by using the default configuration and customizing with commandline parameters and environment variables. If they conflict, environment variables are preferred over all and commandline parameters are preferred over the default values.
 
@@ -84,13 +84,12 @@ Default Configuration:
 <hr>
 <p>
 
-
 The FA³ST Service Starter consider following environment variables:
-- `faaast.config` to use a own configuration file
-- `faaast.model` to use a Asset Administration Environment file
+-   `faaast.config` to use a own configuration file
+-   `faaast.model` to use a Asset Administration Environment file
 
 Environment variables could also be used to adjust some config components in the configuration. Therefore, we are using JSONPath notation without starting '$.' (see [here](https://goessner.net/articles/JsonPath/)) with the prefix `faaast.config.extension.`:
-- `faaast.config.extension.[dot.separated.path]`
+-   `faaast.config.extension.[dot.separated.path]`
 
 If you want to change for example the requestHandlerThreadPoolSize in the core configuration, just set the environment variable `faaast.config.extension.core.requestHandlerThreadPoolSize=42`. To access configuration components in a list use the index. For example to change the port of the HTTP endpoint in the default configuration you can set the environment variable `faaast.config.extension.endpoints[0].port=8081`.
 

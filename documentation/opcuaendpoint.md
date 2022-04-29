@@ -37,55 +37,55 @@ When "secondsTillShutdown" is 0, the Endpoint doesn't wait and stops immediately
 
 To connect to the OPC UA Endpoint, you need an OPC UA Client.
 Here are some examples of OPC UA Clients:
-* [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html)
+-   [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html)
 UaExpert is a free test client for OPC UA. A registration for the website is required.
-* [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/)
+-   [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/)
 Free Java-based OPC UA Client. A registration for the website is required.
-* [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples)
+-   [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples)
 C#-based sample code from the OPC Foundation.
-* [Eclipse Milo](https://github.com/eclipse/milo)
+-   [Eclipse Milo](https://github.com/eclipse/milo)
 Java-based Open Source SDK for Java.
 
 Here you can see a sample Screenshot with UaExpert.
 ![Screenshot with UaExpert](./images/OpcUaEndpoint.png/ "Screenshot with UaExpert")
 
 ## Supported Functions
-* Operations (OPC UA method calls). Exception: Inoutput-Variables are not supported in OPC UA.
-* Write Values
-	* Property
-	* Value
-	* Range
-	* Min
-		* Max
-	* Blob
-	* Value
-	* MultiLanguageProperty
-	* Value
-	* ReferenceElement
-	* Value
-	* RelationshipElement
-	* First
-		* Second
-	* Entity
-	* GlobalAssetID
-		* Type
+-   Operations (OPC UA method calls). Exception: Inoutput-Variables are not supported in OPC UA.
+-   Write Values
+    -   Property
+    -   Value
+    -   Range
+    -   Min
+        -   Max
+    -   Blob
+    -   Value
+    -   MultiLanguageProperty
+    -   Value
+    -   ReferenceElement
+    -   Value
+    -   RelationshipElement
+    -   First
+        -   Second
+    -   Entity
+    -   GlobalAssetID
+        -   Type
 
 ## Not (yet) Supported Functions
-* Events (not yet supported)
-* Write Values (not yet supported)
-	* DataSpecifications
-	* Qualifier
-	* Category
-	* ModelingKind
-* AASValueTypeDataType (not yet supported)
-	* ByteString
-	* Byte
-	* UInt16
-	* UInt32
-	* UInt64
-	* DateTime
-	* LocalizedText
-	* UtcTime
+-   Events (not yet supported)
+-   Write Values (not yet supported)
+    -   DataSpecifications
+    -   Qualifier
+    -   Category
+    -   ModelingKind
+-   AASValueTypeDataType (not yet supported)
+    -   ByteString
+    -   Byte
+    -   UInt16
+    -   UInt32
+    -   UInt64
+    -   DateTime
+    -   LocalizedText
+    -   UtcTime
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 <hr>
