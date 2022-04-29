@@ -122,11 +122,11 @@ This section provides a short introduction of the most important command line ar
 
 If not already done, follow the step in [Building from Source](#building-from-source).
 
-1.   Move to the output folder of the starter
+1.  Move to the output folder of the starter
 	```sh
 	cd starter/target
 	```
-2.   Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
+2.  Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
 	```sh
 	java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
 	```
@@ -285,7 +285,7 @@ HTTP GET http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2R
 ```
 
 ### The following interface URLs are currently not (yet) supported:
-- Submodel Repository Interface (Alternative Interface URLs "Swagger Doc Feb. 2022",
+-   Submodel Repository Interface (Alternative Interface URLs "Swagger Doc Feb. 2022",
 [DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-Repository/Final-Draft#/Asset%20Administration%20Shell%20Repository/GetSubmodel) (yet not fully specified))
 > /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/...
 
@@ -524,11 +524,11 @@ Contributions are what make the open source community such an amazing place to l
 If you have a suggestion for improvements, please fork the repo and create a pull request. You can also simply open an issue.
 Don't forget to rate the project! Thanks again!
 
-1.   Fork the Project
-2.   Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.   Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.   Push to the Branch (`git push origin feature/AmazingFeature`)
-5.   Open a Pull Request
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
 
 ### Code Formatting
 The project uses *spotless:check* in the build cycle, which means the project only compiles if all code, *.pom and *.xml files are formatted according to the project's codestyle definitions (see details on [spotless](https://github.com/diffplug/spotless)).
