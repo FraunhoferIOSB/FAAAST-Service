@@ -56,36 +56,23 @@ Here you can see a sample Screenshot with UaExpert.
 -   Operations (OPC UA method calls). Exception: Inoutput-Variables are not supported in OPC UA.
 
 -   Write Values
-  -   Property
-
-  -   Value
-
-  -   Range
-
-  -   Min
-    -   Max
-
-  -   Blob
-
-  -   Value
-
-  -   MultiLanguageProperty
-
-  -   Value
-
-  -   ReferenceElement
-
-  -   Value
-
-  -   RelationshipElement
-
-  -   First
-    -   Second
-
-  -   Entity
-
-  -   GlobalAssetID
-    -   Type
+   -   Property
+   -   Value
+   -   Range
+   -   Min
+     -   Max
+   -   Blob
+   -   Value
+   -   MultiLanguageProperty
+   -   Value
+   -   ReferenceElement
+   -   Value
+   -   RelationshipElement
+   -   First
+     -   Second
+   -   Entity
+   -   GlobalAssetID
+     -   Type
 
 ## Not (yet) Supported Functions
 -   Events (not yet supported)

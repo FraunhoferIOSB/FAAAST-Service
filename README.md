@@ -1,4 +1,3 @@
-
 # FA³ST Service [![Build Status](https://github.com/FraunhoferIOSB/FAAAST-Service/workflows/Maven%20Build/badge.svg)](https://github.com/FraunhoferIOSB/FAAAST-Service/actions) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/25f6aafbdb0a4b5e8ba23672ec9411e5)](https://www.codacy.com/gh/FraunhoferIOSB/FAAAST-Service/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FraunhoferIOSB/FAAAST-Service&amp;utm_campaign=Badge_Grade) [![Docker badge](https://img.shields.io/docker/pulls/fraunhoferiosb/faaast-service.svg)](https://hub.docker.com/r/fraunhoferiosb/faaast-service/) <a href="https://sonarcloud.io/summary/new_code?id=FraunhoferIOSB_FAAAST-Service" ><img src="https://sonarcloud.io/images/project_badges/sonarcloud-white.svg" alt="SonarCloud badge" width="105"/></a>
 
 ![FA³ST Logo Light](./documentation/images/Fa3st-Service_positiv.png/#gh-light-mode-only "FA³ST Service Logo")
@@ -115,7 +114,6 @@ Fa³ST Service uses an open architecture and defines interfaces for most functio
 -   [MQTT Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/assetconnection/mqtt/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/mqtt/MqttAssetConnection.java)
 -   [OPC UA Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/assetconnection/opcua/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/opcua/OpcUaAssetConnection.java)
 
-
 ## Usage with Command Line
 
 This section provides a short introduction of the most important command line arguments. For more details see the [full documentation](./documentation/commandline.md).
@@ -164,9 +162,7 @@ Following command line parameters could be used:
 -V, --version              	Print version information and exit.
 ```
 
-
 ## Usage with Docker
-
 
 ### Docker-Compose
 Clone this repository, navigate to `/misc/docker/` and run this command inside it.
@@ -258,7 +254,6 @@ ServiceConfig serviceConfig = new ServiceConfig.Builder()
 	.build());
 ```
 
-
 ### HTTP Endpoint
 This section introduces the HTTP Endpoint implementation. For further details see the [full documentation](./documentation/httpendpoint.md).
 
@@ -297,7 +292,6 @@ HTTP GET http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2R
 > /serialization (GET)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
 
 ### OPC UA Endpoint
 This section introduces the OPC UA Endpoint implementation. For further details see the [full documentation](./documentation/opcuaendpoint.md).
@@ -424,7 +418,6 @@ A concrete example for OPC UA asset connection could look like this
 }
 ```
 
-
 ### MQTT AssetConnection
 The MQTT asset connection supports the following functionality:
 
@@ -472,7 +465,6 @@ The OPC UA asset connection supports the following functionality:
 -   on SubscriptionProdiver level
 -   `nodeId`: nodeId of the the OPC UA node to subscribe to
 -   `interval`: subscription interval in ms
-
 
 Example configuration for a subscription provider:
 
@@ -523,7 +515,6 @@ Some of the features we are working on include
 -   implement a file & database persistence in FA³ST Service
 -   implement the AASX Server interface
 -   implement the Asset Administration Shell Serialization interface
-
 
 ## Contributing
 
