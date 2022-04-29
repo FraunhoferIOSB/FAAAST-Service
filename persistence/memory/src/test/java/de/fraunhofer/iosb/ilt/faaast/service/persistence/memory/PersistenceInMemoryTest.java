@@ -27,11 +27,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
-import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.ReferenceBuilder;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -42,7 +41,6 @@ import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -248,9 +246,9 @@ public class PersistenceInMemoryTest {
 
 
     @Test
-    public void getSubmodelsNullTest() {
+    public void getSubmodelsEmptyTest() {
         String aasId = "Test_AssetAdministrationShell_Mandatory";
-        List<AssetAdministrationShell> expected = null;
+        List<AssetAdministrationShell> expected = List.of();
         List<AssetAdministrationShell> actual = persistence.get(aasId, new DefaultReference(), QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }
@@ -259,7 +257,7 @@ public class PersistenceInMemoryTest {
     @Test
     public void getSubmodelsAllTest() {
         List<Submodel> expected = environment.getSubmodels();
-        clearBlobs(expected);
+        ExtendHelper.withoutBlobValue(expected);
         List<Submodel> actual = persistence.get(null, (Reference) null, QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }
@@ -288,26 +286,9 @@ public class PersistenceInMemoryTest {
         List<Submodel> expected = environment.getSubmodels().stream()
                 .filter(x -> x.getSemanticId() != null && x.getSemanticId().equals(semanticId))
                 .collect(Collectors.toList());
-        clearBlobs(expected);
+        ExtendHelper.withoutBlobValue(expected);
         List<Submodel> actual = persistence.get("", semanticId, QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
-    }
-
-
-    private void clearBlobs(List<? extends Referable> referables) {
-        referables.forEach(x -> clearBlobs(x));
-    }
-
-
-    private void clearBlobs(Referable referable) {
-        AssetAdministrationShellElementWalker.builder()
-                .visitor(new DefaultAssetAdministrationShellElementVisitor() {
-                    public void visit(Blob blob) {
-                        blob.setValue(null);
-                    }
-                })
-                .build()
-                .walk(referable);
     }
 
 

@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
@@ -49,9 +50,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
      */
     public SubmodelElement getSubmodelElement(Reference reference, QueryModifier modifier) throws ResourceNotFoundException {
         ensureInitialized();
-        if (modifier == null) {
-            throw new IllegalArgumentException("modifier must be non-null");
-        }
+        Ensure.requireNonNull(modifier, "modifier must be non-null");
         if (reference == null || reference.getKeys() == null) {
             return null;
         }
@@ -126,18 +125,12 @@ public class ReferablePersistenceManager extends PersistenceManager {
      */
     public SubmodelElement putSubmodelElement(Reference parent, Reference reference, SubmodelElement submodelElement) throws ResourceNotFoundException {
         ensureInitialized();
-        if (ReferenceHelper.isNullOrEmpty(parent) && ReferenceHelper.isNullOrEmpty(reference)) {
-            throw new IllegalArgumentException("either parent or referenceToSubmodelElement must be non-empty");
-        }
-        if (submodelElement == null) {
-            throw new IllegalArgumentException("submodelElement must be non-null");
-        }
+        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
+        Ensure.require(!ReferenceHelper.isNullOrEmpty(parent) || !ReferenceHelper.isNullOrEmpty(reference), "either parent or referenceToSubmodelElement must be non-empty");
         Reference parentRef = ReferenceHelper.isNullOrEmpty(parent)
                 ? ReferenceHelper.getParent(reference)
                 : parent;
-        if (parentRef == null) {
-            throw new IllegalArgumentException("could not determine parent reference");
-        }
+        Ensure.requireNonNull(parentRef, "could not determine parent reference");
         Referable referable = AasUtils.resolve(parentRef, aasEnvironment);
         if (referable == null) {
             throw new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_REF, AasUtils.asString(parentRef)));
@@ -170,9 +163,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
      *             if resource is not found
      */
     public void remove(Reference reference) throws ResourceNotFoundException {
-        if (ReferenceHelper.isNullOrEmpty(reference)) {
-            throw new IllegalArgumentException("reference must be non-empty");
-        }
+        Ensure.require(!ReferenceHelper.isNullOrEmpty(reference), "reference must be non-empty");
         final Referable referable = AasUtils.resolve(reference, aasEnvironment);
         if (referable == null) {
             throw new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_REF, AasUtils.asString(reference)));

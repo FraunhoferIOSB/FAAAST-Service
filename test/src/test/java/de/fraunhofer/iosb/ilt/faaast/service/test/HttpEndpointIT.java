@@ -45,6 +45,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
@@ -817,6 +818,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelContentPath()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel submodel = environment.getSubmodels().get(2);
+        ExtendHelper.withoutBlobValue(submodel);
         Path expected = Path.builder()
                 .id("TestSubmodel3")
                 .child("ExampleRelationshipElement")
@@ -896,6 +898,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelLevelDeep()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel expected = environment.getSubmodels().get(2);
+        ExtendHelper.withoutBlobValue(expected);
         assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
@@ -1037,6 +1040,7 @@ public class HttpEndpointIT {
     @Test
     public void testSubmodelRepositoryGetSubmodels() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         Object expected = environment.getSubmodels();
+        ExtendHelper.withoutBlobValue(expected);
         executeAndAssertMultipleEntities(
                 HttpMethod.GET,
                 API_PATHS.submodelRepository().submodels(),

@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentificati
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -220,11 +221,8 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
      */
     public Identifiable put(Identifiable identifiable) {
         ensureInitialized();
-        if (identifiable == null) {
-            throw new IllegalArgumentException("identifiable must be non-null");
-        }
+        Ensure.requireNonNull(identifiable, "identifiable must be non-null");
         List<? extends Identifiable> list;
-
         if (Submodel.class.isAssignableFrom(identifiable.getClass())) {
             list = aasEnvironment.getSubmodels();
         }

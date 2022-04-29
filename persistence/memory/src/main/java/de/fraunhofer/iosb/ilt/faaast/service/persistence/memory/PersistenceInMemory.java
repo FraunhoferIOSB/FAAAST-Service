@@ -92,9 +92,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             return null;
         }
         Ensure.requireNonNull(modifier, "modifier must be non-null");
-        Identifiable identifiable = identifiablePersistenceManager.getIdentifiableById(id);
-        QueryModifierHelper.applyQueryModifier(identifiable, modifier);
-        return (T) identifiable;
+        return (T) QueryModifierHelper.applyQueryModifier(
+                (Identifiable) identifiablePersistenceManager.getIdentifiableById(id),
+                modifier);
     }
 
 
@@ -111,9 +111,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         }
         Ensure.requireNonNull(modifier, "modifier must be non-null");
         ReferenceHelper.completeReferenceWithProperKeyElements(reference, aasEnvironment);
-        SubmodelElement submodelElement = referablePersistenceManager.getSubmodelElement(reference, modifier);
-        QueryModifierHelper.applyQueryModifier(submodelElement, modifier);
-        return submodelElement;
+        return QueryModifierHelper.applyQueryModifier(
+                referablePersistenceManager.getSubmodelElement(reference, modifier),
+                modifier);
     }
 
 
@@ -121,12 +121,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     public List<AssetAdministrationShell> get(String idShort, List<AssetIdentification> assetIds, QueryModifier modifier) {
         ensureInitialized();
         Ensure.requireNonNull(modifier, "modifier must be non-null");
-        List<AssetAdministrationShell> shells = identifiablePersistenceManager.getAASs(idShort, assetIds);
-        if (shells == null) {
-            return null;
-        }
-        QueryModifierHelper.applyQueryModifier(shells, modifier);
-        return shells;
+        return QueryModifierHelper.applyQueryModifier(
+                identifiablePersistenceManager.getAASs(idShort, assetIds),
+                modifier);
     }
 
 
@@ -134,18 +131,9 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     public List<Submodel> get(String idShort, Reference semanticId, QueryModifier modifier) {
         ensureInitialized();
         Ensure.requireNonNull(modifier, "modifier must be non-null");
-
-        //TODO: allow this combination? Throw meaningful exception if not.
-        if (StringUtils.isNoneBlank(idShort) && semanticId != null) {
-            return null;
-        }
-
-        List<Submodel> submodels = identifiablePersistenceManager.getSubmodels(idShort, semanticId);
-        if (submodels == null) {
-            return null;
-        }
-        QueryModifierHelper.applyQueryModifier(submodels, modifier);
-        return submodels;
+        return QueryModifierHelper.applyQueryModifier(
+                identifiablePersistenceManager.getSubmodels(idShort, semanticId),
+                modifier);
     }
 
 
@@ -153,22 +141,21 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     public List<ConceptDescription> get(String idShort, Reference isCaseOf, Reference dataSpecification, QueryModifier modifier) {
         ensureInitialized();
         Ensure.requireNonNull(modifier, "modifier must be non-null");
-
-        List<ConceptDescription> conceptDescriptions = identifiablePersistenceManager.getConceptDescriptions(idShort, isCaseOf, dataSpecification);
-        QueryModifierHelper.applyQueryModifier(conceptDescriptions, modifier);
-        return conceptDescriptions;
+        return QueryModifierHelper.applyQueryModifier(
+                identifiablePersistenceManager.getConceptDescriptions(idShort, isCaseOf, dataSpecification),
+                modifier);
     }
 
 
     @Override
     public AASXPackage get(String packageId) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
 
     @Override
     public List<PackageDescription> get(Identifier aasId) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
 
@@ -198,18 +185,12 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
     @Override
     public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException {
-        if (reference == null) {
-            return null;
-        }
         ensureInitialized();
         Ensure.requireNonNull(modifier, "modifier must be non-null");
         ReferenceHelper.completeReferenceWithProperKeyElements(reference, aasEnvironment);
-        List<SubmodelElement> submodelElements = referablePersistenceManager.getSubmodelElements(reference, semanticId);
-        if (submodelElements == null) {
-            return null;
-        }
-        QueryModifierHelper.applyQueryModifier(submodelElements, modifier);
-        return submodelElements;
+        return QueryModifierHelper.applyQueryModifier(
+                referablePersistenceManager.getSubmodelElements(reference, semanticId),
+                modifier);
     }
 
 
@@ -222,10 +203,8 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     @Override
     public SubmodelElement put(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException {
         ensureInitialized();
-        // TODO
-        if ((parent == null && referenceToSubmodelElement == null) || submodelElement == null) {
-            return null;
-        }
+        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
+        Ensure.require(parent != null || referenceToSubmodelElement != null, "either parent or referenceToSubmodelElement must be non-null");
         if (parent != null) {
             ReferenceHelper.completeReferenceWithProperKeyElements(parent, aasEnvironment);
         }
@@ -238,9 +217,6 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
     @Override
     public Identifiable put(Identifiable identifiable) {
-        if (identifiable == null) {
-            return null;
-        }
         return identifiablePersistenceManager.put(identifiable);
     }
 
@@ -265,7 +241,6 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
                     .requestId(requestId)
                     .build();
         }
-
         if (StringUtils.isBlank(handleId)) {
             OperationHandle operationHandle = new OperationHandle.Builder()
                     .requestId(requestId)
@@ -278,27 +253,24 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         else {
             operationResultMap.put(handleId, operationResult);
         }
-
         return null;
     }
 
 
     @Override
     public void remove(Identifier id) throws ResourceNotFoundException {
-        if (id == null) {
-            return;
+        if (id != null) {
+            identifiablePersistenceManager.remove(id);
         }
-        identifiablePersistenceManager.remove(id);
     }
 
 
     @Override
     public void remove(Reference reference) throws ResourceNotFoundException {
-        if (reference == null) {
-            return;
+        if (reference != null) {
+            ReferenceHelper.completeReferenceWithProperKeyElements(reference, aasEnvironment);
+            referablePersistenceManager.remove(reference);
         }
-        ReferenceHelper.completeReferenceWithProperKeyElements(reference, aasEnvironment);
-        referablePersistenceManager.remove(reference);
     }
 
 

@@ -48,19 +48,20 @@ public class QueryModifierHelper {
      * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level} of
      * a query modifier If the extend of the query modifier is
      * "WithoutBlobValue" all submodel elements of type
-     * {@link io.adminshell.aas.v3.model.Blob} are removed. If the level of the
+     * {@link io.adminshell.aas.v3.model.Blob} are removed.If the level of the
      * query modifier is "Core" all underlying submodel element collection
      * values are removed.
      *
      * @param list which should be adapted by the query modifier
      * @param modifier which should be applied
      * @param <T> type of referable
+     * @return the modified list
      */
-    public static <T extends Referable> void applyQueryModifier(List<T> list, QueryModifier modifier) {
-        if (list == null) {
-            return;
+    public static <T extends Referable> List<T> applyQueryModifier(List<T> list, QueryModifier modifier) {
+        if (list != null) {
+            list.forEach(x -> applyQueryModifier(x, modifier));
         }
-        list.forEach(x -> applyQueryModifier(x, modifier));
+        return list;
     }
 
 
@@ -73,18 +74,21 @@ public class QueryModifierHelper {
      * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level} of
      * a query modifier If the extend of the query modifier is
      * "WithoutBlobValue" all submodel elements of type
-     * {@link io.adminshell.aas.v3.model.Blob} are removed. If the level of the
+     * {@link io.adminshell.aas.v3.model.Blob} are removed.If the level of the
      * query modifier is "Core" all underlying submodel element collection
      * values are removed.
      *
+     * @param <T> type of the referable
      * @param referable which should be adapted by the query modifier
      * @param modifier which should be applied
+     * @return the modified referable
      */
-    public static void applyQueryModifier(Referable referable, QueryModifier modifier) {
+    public static <T extends Referable> T applyQueryModifier(T referable, QueryModifier modifier) {
         Ensure.requireNonNull(referable, "referable must be non-null");
         Ensure.requireNonNull(modifier, "modifier must be non-null");
         applyQueryModifierExtend(referable, modifier);
         applyQueryModifierLevel(referable, modifier);
+        return referable;
     }
 
 
