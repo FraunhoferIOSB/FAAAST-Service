@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -21,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationSh
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementSubtypeResolvingVisitor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Submodel;
