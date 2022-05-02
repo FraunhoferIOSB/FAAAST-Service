@@ -76,6 +76,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * Test class for the general OPC UA Endpoint test with the full example
  *
@@ -125,6 +126,7 @@ public class OpcUaEndpointFullTest {
         service.start();
     }
 
+
     /**
      * Stop the test.
      */
@@ -139,6 +141,7 @@ public class OpcUaEndpointFullTest {
             service.stop();
         }
     }
+
 
     /**
      * Test method for testing the OPC UA Endpoint
@@ -167,7 +170,7 @@ public class OpcUaEndpointFullTest {
         Assert.assertNotNull("Browse ObjectsFolder Refs Null", refs);
         Assert.assertFalse("Browse ObjectsFolder Refs empty", refs.isEmpty());
         NodeId envNode = null;
-        for (ReferenceDescription ref : refs) {
+        for (ReferenceDescription ref: refs) {
             if (ref.getBrowseName().getName().equals(TestConstants.AAS_ENVIRONMENT_NAME)) {
                 envNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                 break;
@@ -182,16 +185,15 @@ public class OpcUaEndpointFullTest {
         Assert.assertTrue("Browse Environment Refs empty", !refs.isEmpty());
 
         NodeId submodel1Node = null;
-        for (ReferenceDescription ref : refs) {
+        for (ReferenceDescription ref: refs) {
             NodeId rid = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
             switch (ref.getBrowseName().getName()) {
                 case TestConstants.FULL_SUBMODEL_1_NAME: {
                     submodel1Node = rid;
                     break;
                 }
-                default: {
+                default:
                     //intentionally left empty
-                }
             }
         }
 
@@ -202,6 +204,7 @@ public class OpcUaEndpointFullTest {
         System.out.println("disconnect client");
         client.disconnect();
     }
+
 
     /**
      * Test method for writing a RelationshipElement. Writes the property in the
@@ -261,6 +264,7 @@ public class OpcUaEndpointFullTest {
         client.disconnect();
     }
 
+
     /**
      * Test method for writing a Value of a SubmodelElementCollection. Writes
      * the property in the OPC UA Server and checks the new value in the server.
@@ -314,6 +318,7 @@ public class OpcUaEndpointFullTest {
         client.disconnect();
     }
 
+
     /**
      * Test method for writing a Value of a SubmodelElementCollection. Writes
      * the property in the OPC UA Server and checks the new value in the server.
@@ -361,6 +366,7 @@ public class OpcUaEndpointFullTest {
         System.out.println("disconnect client");
         client.disconnect();
     }
+
 
     /**
      * Test method for writing a Value of a SubmodelElementCollection. Writes
@@ -415,6 +421,7 @@ public class OpcUaEndpointFullTest {
         client.disconnect();
     }
 
+
     /**
      * Test method for writing a GlobalAssetId of an Entity. Writes the property
      * in the OPC UA Server and checks the new value in the server.
@@ -468,6 +475,7 @@ public class OpcUaEndpointFullTest {
         System.out.println("disconnect client");
         client.disconnect();
     }
+
 
     /**
      * Test method for successfully calling an operation.
@@ -533,6 +541,7 @@ public class OpcUaEndpointFullTest {
         client.disconnect();
     }
 
+
     /**
      * Test method for calling an operation with not enough arguments.
      *
@@ -595,6 +604,7 @@ public class OpcUaEndpointFullTest {
         System.out.println("disconnect client");
         client.disconnect();
     }
+
 
     /**
      * Test method for adding a new property to an existing
@@ -660,6 +670,7 @@ public class OpcUaEndpointFullTest {
         client.disconnect();
     }
 
+
     /**
      * Test method for deleting a complete submodel.
      *
@@ -716,6 +727,7 @@ public class OpcUaEndpointFullTest {
         System.out.println("disconnect client");
         client.disconnect();
     }
+
 
     /**
      * Test method for deleting a Capability.
@@ -775,6 +787,7 @@ public class OpcUaEndpointFullTest {
         client.disconnect();
     }
 
+
     /**
      * Test method for an OrderedSubmodelElementCollection.
      *
@@ -820,6 +833,7 @@ public class OpcUaEndpointFullTest {
         client.disconnect();
     }
 
+
     /**
      * Test method for an UnorderedSubmodelElementCollection.
      *
@@ -864,6 +878,7 @@ public class OpcUaEndpointFullTest {
         System.out.println("disconnect client");
         client.disconnect();
     }
+
 
     /**
      * Tests the submodel 1 (Identification).
