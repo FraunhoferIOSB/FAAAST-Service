@@ -63,6 +63,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfig> {
 
+    private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";;
     private AssetAdministrationShellEnvironment aasEnvironment;
     private PersistenceInMemoryConfig config;
     private final IdentifiablePersistenceManager identifiablePersistenceManager;
@@ -91,7 +92,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (id == null) {
             return null;
         }
-        Ensure.requireNonNull(modifier, "modifier must be non-null");
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         return (T) QueryModifierHelper.applyQueryModifier(
                 (Identifiable) identifiablePersistenceManager.getIdentifiableById(id),
                 modifier);
@@ -109,7 +110,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         if (ReferenceHelper.isNullOrEmpty(reference)) {
             return null;
         }
-        Ensure.requireNonNull(modifier, "modifier must be non-null");
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         ReferenceHelper.completeReferenceWithProperKeyElements(reference, aasEnvironment);
         return QueryModifierHelper.applyQueryModifier(
                 referablePersistenceManager.getSubmodelElement(reference, modifier),
@@ -120,7 +121,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     @Override
     public List<AssetAdministrationShell> get(String idShort, List<AssetIdentification> assetIds, QueryModifier modifier) {
         ensureInitialized();
-        Ensure.requireNonNull(modifier, "modifier must be non-null");
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         return QueryModifierHelper.applyQueryModifier(
                 identifiablePersistenceManager.getAASs(idShort, assetIds),
                 modifier);
@@ -130,7 +131,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     @Override
     public List<Submodel> get(String idShort, Reference semanticId, QueryModifier modifier) {
         ensureInitialized();
-        Ensure.requireNonNull(modifier, "modifier must be non-null");
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         return QueryModifierHelper.applyQueryModifier(
                 identifiablePersistenceManager.getSubmodels(idShort, semanticId),
                 modifier);
@@ -140,7 +141,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     @Override
     public List<ConceptDescription> get(String idShort, Reference isCaseOf, Reference dataSpecification, QueryModifier modifier) {
         ensureInitialized();
-        Ensure.requireNonNull(modifier, "modifier must be non-null");
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         return QueryModifierHelper.applyQueryModifier(
                 identifiablePersistenceManager.getConceptDescriptions(idShort, isCaseOf, dataSpecification),
                 modifier);
@@ -186,7 +187,7 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     @Override
     public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException {
         ensureInitialized();
-        Ensure.requireNonNull(modifier, "modifier must be non-null");
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         ReferenceHelper.completeReferenceWithProperKeyElements(reference, aasEnvironment);
         return QueryModifierHelper.applyQueryModifier(
                 referablePersistenceManager.getSubmodelElements(reference, semanticId),

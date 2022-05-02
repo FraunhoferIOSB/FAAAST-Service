@@ -121,8 +121,8 @@ This section provides a short introduction of the most important command line ar
 If not already done, follow the step in [Building from Source](#building-from-source).
 
 1.  Move to the output folder of the starter
-	```sh
-	cd starter/target
+   ```sh
+   cd starter/target
 	```
 
 2.  Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
@@ -280,16 +280,16 @@ and the query-parameters _level=deep_ and _content=normal_.
 HTTP GET http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/submodel/submodel-elements/ExampleRelationshipElement?level=deep&content=normal
 ```
 
-### The following interface URLs are currently not (yet) supported:
+### The following interface URLs are currently not (yet) supported
 -   Submodel Repository Interface (Alternative Interface URLs "Swagger Doc Feb. 2022",
 [DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-Repository/Final-Draft#/Asset%20Administration%20Shell%20Repository/GetSubmodel) (yet not fully specified))
-> /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/...
+>/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/...
 
 -   AASX File Server Interface (not yet supported)
-> /packages
+>/packages
 
 -   Asset Administration Shell Serialization Interface (not yet supported)
-> /serialization (GET)
+>/serialization (GET)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -530,16 +530,16 @@ Don't forget to rate the project! Thanks again!
 5.  Open a Pull Request
 
 ### Code Formatting
-The project uses *spotless:check* in the build cycle, which means the project only compiles if all code, *.pom and *.xml files are formatted according to the project's codestyle definitions (see details on [spotless](https://github.com/diffplug/spotless)).
+The project uses _spotless:check_ in the build cycle, which means the project only compiles if all code, *.pom and *.xml files are formatted according to the project's codestyle definitions (see details on [spotless](https://github.com/diffplug/spotless)).
 You can automatically format your code by running
 
-> mvn spotless:apply
+>mvn spotless:apply
 
-Additionally, you can import the eclipse formatting rules defined in */codestyle* into our IDE.
+Additionally, you can import the eclipse formatting rules defined in _/codestyle_ into our IDE.
 
 ### Third Party License
 If you use additional dependencies please be sure that the licenses of these dependencies are compliant with our [License](#license). If you are not sure which license your dependencies have, you can run
-> mvn license:aggregate-third-party-report
+>mvn license:aggregate-third-party-report
 
 and check the generated report in the directory `documentation/third_party_licenses_report.html`.
 

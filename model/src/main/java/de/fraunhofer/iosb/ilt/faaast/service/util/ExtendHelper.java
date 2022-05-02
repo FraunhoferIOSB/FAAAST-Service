@@ -51,6 +51,7 @@ public class ExtendHelper {
     public static void withoutBlobValue(Object obj) {
         ObjectHelper.forEach(obj, x -> AssetAdministrationShellElementWalker.builder()
                 .visitor(new DefaultAssetAdministrationShellElementVisitor() {
+                    @Override
                     public void visit(Blob blob) {
                         blob.setValue(null);
                     }

@@ -13,9 +13,9 @@ To start a FA³ST Service from the command line:
     ```
 
 3.  Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
-	```sh
-	java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
-	```
+  ```sh
+  java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
+  ```
 
 Currently we supporting following formats of the Asset Administration Shell Environment model:
 >json, json-ld, aml, xml, opcua nodeset, rdf
@@ -53,7 +53,7 @@ Following command line parameters could be used:
 <hr>
 <p>
 
-#### Change the Configuration
+### Change the Configuration
 <p>
 
 In general there are 3 ways to configure your FA³ST Service:
@@ -106,7 +106,7 @@ core.requestHandlerThreadPoolSize=42 endpoints[0].port=8081
 <hr>
 <p>
 
-#### Special Parameters
+### Special Parameters
 
 The parameter `--endpoint` accepts a list of endpoints which should be started with the service. Currently supported is `http` and `opcua`. So a execution of
 ```sh
