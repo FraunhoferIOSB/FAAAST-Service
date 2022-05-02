@@ -45,20 +45,24 @@ Returns a specific submodel element from the Submodel at a specified path
 -   Asset Administration Shell Repository Interface
     -   /shells (GET, POST)
     -   /shells/{aasIdentifier} (GET, PUT, DELETE)
+
 -   Asset Administration Shell Interface
     -   /shells/{aasIdentifier}/aas (GET, PUT)
     -   /shells/{aasIdentifier}/aas/asset-information (GET, PUT)
     -   /shells/{aasIdentifier}/aas/submodels (GET,POST)
     -   /shells/{aasIdentifier}/aas/submodels{submodeIdentifier} (DELETE)
+
 -   Submodel Repository Interface
     -   /submodels (GET, POST)
     -   /submodels/{submodelIdentifier} (GET, PUT, DELETE)
+
 -   Submodel Interface
     -   /submodels/{submodelIdentifier}/submodel (GET, PUT)
     -   /submodels/{submodelIdentifier}/submodel/submodel-elements (POST)
     -   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath} (GET, POST, PUT, DELETE)
     -   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke (POST)
     -   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/{handle-Id} (GET)
+
 -   Concept Description Repository Interface
     -   concept-descriptions (GET, POST)
     -   concept-descriptions/{cdIdentifier} (GET, PUT, DELETE)
@@ -84,13 +88,18 @@ FA³ST Service currently supports only content=value and content=normal
     -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
     -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
     -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/{handleId}
+
 -   Asset Administration Shell Registry Interface (not in Scope of FA³ST-Service)
+
 -   Submodel Registry Interface (not in Scope of FA³ST-Service)
+
 -   AASX File Server Interface (not yet supported)
     -   /packages
     -   /packages/{packageId}
+
 -   Asset Administration Shell Serialization Interface (not yet supported)
     -   /serialization (GET)
+
 -   Asset Administration Shell Basic Discovery (not yet supported)
     -   /lookup/shells
     -   /lookup/shells/{aasIdentifier}
