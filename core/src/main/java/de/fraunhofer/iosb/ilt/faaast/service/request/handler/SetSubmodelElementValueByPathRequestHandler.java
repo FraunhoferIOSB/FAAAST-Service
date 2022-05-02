@@ -61,7 +61,12 @@ public class SetSubmodelElementValueByPathRequestHandler extends RequestHandler<
         ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
         ElementValueMapper.setValue(submodelElement, newValue);
         assetConnectionManager.setValue(reference, newValue);
-        persistence.put(null, reference, submodelElement);
+        try {
+            persistence.put(null, reference, submodelElement);
+        }
+        catch (IllegalArgumentException e) {
+            // empty on purpose
+        }
         response.setStatusCode(StatusCode.SUCCESS);
         messageBus.publish(ValueChangeEventMessage.builder()
                 .element(reference)
