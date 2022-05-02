@@ -96,6 +96,7 @@ public class QueryModifierHelper {
         if (modifier.getExtend() == Extend.WITHOUT_BLOB_VALUE) {
             AssetAdministrationShellElementWalker.builder()
                     .visitor(new DefaultAssetAdministrationShellElementVisitor() {
+                        @Override
                         public void visit(Blob blob) {
                             blob.setValue(null);
                         }
@@ -122,7 +123,7 @@ public class QueryModifierHelper {
                             submodelElementCollection.getValues().clear();
                         }
                     };
-                    list.forEach(x -> visitor.visit(x));
+                    list.forEach(visitor::visit);
                 }
 
 

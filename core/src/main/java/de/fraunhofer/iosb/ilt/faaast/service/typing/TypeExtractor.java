@@ -74,7 +74,7 @@ public class TypeExtractor {
     }
 
 
-    private static ContainerTypeInfo extractTypeInfoForSubmodel(Submodel submodel) {
+    private static ContainerTypeInfo<?> extractTypeInfoForSubmodel(Submodel submodel) {
         ContainerTypeInfo.Builder<Object> builder = ContainerTypeInfo.<Object> builder();
         builder.type(Submodel.class);
         submodel.getSubmodelElements().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
@@ -82,7 +82,7 @@ public class TypeExtractor {
     }
 
 
-    private static ContainerTypeInfo extractTypeInfoForCollection(Collection collection) {
+    private static ContainerTypeInfo<?> extractTypeInfoForCollection(Collection<?> collection) {
         ContainerTypeInfo.Builder<Integer> builder = ContainerTypeInfo.<Integer> builder();
         builder.type(Collection.class);
         builder.contentType(TypeToken.of(collection.getClass()).resolveType(COLLECTION_GENERIC_TOKEN).getRawType());
@@ -96,7 +96,7 @@ public class TypeExtractor {
     }
 
 
-    private static ContainerTypeInfo extractTypeInfoForMap(Map map) {
+    private static ContainerTypeInfo<?> extractTypeInfoForMap(Map<?, ?> map) {
         ContainerTypeInfo.Builder<String> builder = ContainerTypeInfo.<String> builder();
         builder.type(Map.class);
         builder.contentType(TypeToken.of(map.getClass()).resolveType(MAP_GENERIC_TOKEN).getRawType());
@@ -105,7 +105,7 @@ public class TypeExtractor {
     }
 
 
-    private static ContainerTypeInfo extractTypeInfoForArray(Object[] array) {
+    private static ContainerTypeInfo<?> extractTypeInfoForArray(Object[] array) {
         ContainerTypeInfo.Builder<Integer> builder = ContainerTypeInfo.<Integer> builder();
         builder.type(Array.class);
         builder.contentType(array.getClass().getComponentType());

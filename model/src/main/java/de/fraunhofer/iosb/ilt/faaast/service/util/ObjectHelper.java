@@ -57,11 +57,11 @@ public class ObjectHelper {
             return;
         }
         if (Collection.class.isAssignableFrom(obj.getClass())) {
-            ((Collection) obj).forEach(x -> consumer.accept(x));
+            ((Collection) obj).forEach(consumer::accept);
             return;
         }
         if (Map.class.isAssignableFrom(obj.getClass())) {
-            ((Map) obj).values().forEach(x -> consumer.accept(x));
+            ((Map) obj).values().forEach(consumer::accept);
             return;
         }
         if (obj.getClass().isArray()) {

@@ -63,7 +63,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfig> {
 
-    private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";;
+    private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
     private AssetAdministrationShellEnvironment aasEnvironment;
     private PersistenceInMemoryConfig config;
     private final IdentifiablePersistenceManager identifiablePersistenceManager;

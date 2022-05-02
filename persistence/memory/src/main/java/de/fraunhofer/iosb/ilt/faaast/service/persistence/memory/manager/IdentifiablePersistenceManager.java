@@ -33,6 +33,7 @@ import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -77,7 +78,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
                 aasEnvironment.getSubmodels(),
                 aasEnvironment.getConceptDescriptions(),
                 aasEnvironment.getAssets())
-                .flatMap(x -> x.stream())
+                .flatMap(Collection::stream)
                 .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(id.getIdentifier()))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ERROR_MSG_RESOURCE_NOT_FOUND_BY_ID, IdentifierHelper.asString(id))));
@@ -108,7 +109,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
                         || (aas.getAssetInformation() != null
                                 && assetIds.stream()
                                         .filter(x -> GlobalAssetIdentification.class.isAssignableFrom(x.getClass()))
-                                        .map(x -> ((GlobalAssetIdentification) x))
+                                        .map(GlobalAssetIdentification.class::cast)
                                         .anyMatch(x -> Objects.equal(aas.getAssetInformation().getGlobalAssetId(), x.getReference()))))
                 // specificAssetId
                 .filter(aas -> assetIds == null || assetIds.stream().noneMatch(x -> SpecificAssetIdentification.class.isAssignableFrom(x.getClass()))
