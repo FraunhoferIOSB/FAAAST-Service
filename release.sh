@@ -4,7 +4,7 @@
 VERSION=$1
 NEXTVERSION=$2
 if [[ -z "$3" ]]; then
-  NEXTBRANCH=`cat pom.xml | sed -n 's/^\s\+<tag>\([^<]\+\)<\/tag>/\1/p'`
+  NEXTBRANCH=$(sed -n 's/^\s\+<tag>\([^<]\+\)<\/tag>/\1/p' pom.xml)
 else
   NEXTBRANCH=$3
 fi
@@ -17,9 +17,9 @@ echo "Press enter to go"
 read -s
 
 echo "Replacing version numbers"
-mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${VERSION}
-sed -i 's/<tag>HEAD<\/tag>/<tag>v'${VERSION}'<\/tag>/g' pom.xml
-sed -r -z 's/(<artifactId>starter<\/artifactId>[\r\n]+\s*<version>)[^<]+(<\/version>)/\1'${VERSION}'\2/g' -i README.md
+mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion="${VERSION}"
+sed -i 's/<tag>HEAD<\/tag>/<tag>v'"${VERSION}"'<\/tag>/g' pom.xml
+sed -r -z 's/(<artifactId>starter<\/artifactId>[\r\n]+\s*<version>)[^<]+(<\/version>)/\1'"${VERSION}"'\2/g' -i README.md
 mvn -B spotless:apply
 
 echo "Git add ."
@@ -28,12 +28,12 @@ git add .
 echo "Next: git commit & Tag [enter]"
 read -s
 git commit -m "Release v${VERSION}"
-git tag -m "Release v${VERSION}" -a v${VERSION}
+git tag -m "Release v"${VERSION}"" -a v"${VERSION}"
 
 echo "Next: replacing version nubmers [enter]"
 read -s
-mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${NEXTVERSION}-SNAPSHOT
-sed -i 's/<tag>v'${VERSION}'<\/tag>/<tag>'${NEXTBRANCH}'<\/tag>/g' pom.xml
+mvn versions:set -DgenerateBackupPoms=false -DnewVersion="${NEXTVERSION}"-SNAPSHOT
+sed -i 's/<tag>v'"${VERSION}"'<\/tag>/<tag>'"${NEXTBRANCH}"'<\/tag>/g' pom.xml
 
 echo "Git add ."
 git add .
