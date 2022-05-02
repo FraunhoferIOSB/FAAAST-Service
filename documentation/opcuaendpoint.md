@@ -57,20 +57,33 @@ Here you can see a sample Screenshot with UaExpert.
 
 -   Write Values
     -   Property
+
     -   Value
+
     -   Range
+
     -   Min
         -   Max
+
     -   Blob
+
     -   Value
+
     -   MultiLanguageProperty
+
     -   Value
+
     -   ReferenceElement
+
     -   Value
+
     -   RelationshipElement
+
     -   First
         -   Second
+
     -   Entity
+
     -   GlobalAssetID
         -   Type
 

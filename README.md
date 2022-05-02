@@ -136,7 +136,7 @@ Currently we supporting following formats of the Asset Administration Shell Envi
 
 Following command line parameters could be used:
 ```
-[<String=String>...]   		Additional properties to override values of configuration using
+\[<String=String>...\]   		Additional properties to override values of configuration using
 				JSONPath notation without starting '$.' (see https://goessner.net/articles/JsonPath/)
 
 -c, --config=<configFile>  	The config file path. Default Value = config.json
@@ -144,7 +144,7 @@ Following command line parameters could be used:
 --emptyModel 			Starts the FA³ST service with an empty Asset Administration Shell Environment.
 				False by default
 
---endpoint=<endpoints>[,<endpoints>...]
+--endpoint=<endpoints>\[,<endpoints>...\]
 				Additional endpoints that should be started.
 
 -h, --help                 	Show this help message and exit.
@@ -157,7 +157,7 @@ Following command line parameters could be used:
 				values for required configuration sections. True
 				by default
 
---[no-]modelValidation 		Validates the AAS Environment. True by default
+--\[no-\]modelValidation 		Validates the AAS Environment. True by default
 
 -V, --version              	Print version information and exit.
 ```
