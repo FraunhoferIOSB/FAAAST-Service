@@ -57,6 +57,8 @@ public enum Datatype {
     ;
 
     public static final Datatype DEFAULT = Datatype.STRING;
+    private final Class<? extends TypedValue> implementation;
+    private final String name;
 
     /**
      * Finds datatype from string. Matching is case-sensitive. If no match is
@@ -72,8 +74,6 @@ public enum Datatype {
                 .orElse(DEFAULT);
     }
 
-    private final Class<? extends TypedValue> implementation;
-    private final String name;
 
     private Datatype(String name, Class<? extends TypedValue> implementation) {
         this.name = name;

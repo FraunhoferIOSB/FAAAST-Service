@@ -21,10 +21,6 @@ import java.util.Objects;
 
 public class RangeValue<T> extends DataElementValue {
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     private TypedValue<T> max;
     private TypedValue<T> min;
 
@@ -74,6 +70,11 @@ public class RangeValue<T> extends DataElementValue {
     @Override
     public int hashCode() {
         return Objects.hash(min, max);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public abstract static class AbstractBuilder<T extends RangeValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

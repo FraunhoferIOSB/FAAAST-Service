@@ -62,7 +62,7 @@ public class ConfigTest {
 
 
     @Test
-    public void testSerialization() throws JsonProcessingException, IOException, JSONException {
+    public void assertSerialization() throws JsonProcessingException, IOException, JSONException {
         String expected = Files.readString(CONFIG_FILE.toPath());
         String actual = mapper.writeValueAsString(config);
         System.out.println(actual);
@@ -71,7 +71,7 @@ public class ConfigTest {
 
 
     @Test
-    public void testDeserialization() throws JsonProcessingException, IOException {
+    public void assertDeserialization() throws JsonProcessingException, IOException {
         ServiceConfig actual = mapper.readValue(CONFIG_FILE, ServiceConfig.class);
         Assert.assertEquals(config, actual);
     }

@@ -164,7 +164,7 @@ public class AppTest {
 
 
     @Test
-    public void testUseEmptyModelCLI_Default() {
+    public void testUseEmptyModelCLIDefault() {
         cmd.execute();
         Assert.assertEquals(false, application.useEmptyModel);
     }

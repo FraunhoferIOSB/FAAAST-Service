@@ -92,11 +92,6 @@ import org.slf4j.LoggerFactory;
 public class AssetAdministrationShellElementWalker implements DefaultAssetAdministrationShellElementSubtypeResolvingVisitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssetAdministrationShellElementWalker.class);
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
     protected AssetAdministrationShellElementVisitor after;
     protected AssetAdministrationShellElementVisitor before;
     protected WalkingMode mode;
@@ -883,6 +878,10 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
         VISIT_BEFORE_DESCENT;
 
         public static final WalkingMode DEFAULT = VISIT_BEFORE_DESCENT;
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public abstract static class AbstractBuilder<T extends AssetAdministrationShellElementWalker, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

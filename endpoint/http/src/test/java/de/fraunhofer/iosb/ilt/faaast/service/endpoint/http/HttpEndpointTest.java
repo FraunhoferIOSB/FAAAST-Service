@@ -317,7 +317,7 @@ public class HttpEndpointTest {
 
     @Test
     @Ignore("value only serialization not defined for AssetAdministrationShells")
-    public void testGetAllAssetAdministrationShells_ValueOnly() throws Exception {
+    public void testGetAllAssetAdministrationShellsValueOnly() throws Exception {
         List<AssetAdministrationShell> expectedPayload = List.of(AASFull.AAS_1);
         when(serviceContext.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
@@ -333,7 +333,7 @@ public class HttpEndpointTest {
 
 
     @Test
-    public void testGetAllSubmodelElements_ValueOnly() throws Exception {
+    public void testGetAllSubmodelElementsValueOnly() throws Exception {
         List<SubmodelElement> submodelElements = List.of(
                 new DefaultProperty.Builder()
                         .idShort("property1")
