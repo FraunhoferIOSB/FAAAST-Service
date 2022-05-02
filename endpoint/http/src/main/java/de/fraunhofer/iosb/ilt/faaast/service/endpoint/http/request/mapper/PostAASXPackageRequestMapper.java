@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequ
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostAASXPackageRequest;
 
 
 /**
@@ -37,7 +36,7 @@ public class PostAASXPackageRequestMapper extends RequestMapper {
 
     @Override
     public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
-        PostAASXPackageRequest request = new PostAASXPackageRequest();
+        // PostAASXPackageRequest request = new PostAASXPackageRequest();
         throw new InvalidRequestException("PostAASXPackage currently not supported");
         // TODO: Needs specialy handling in HTTP server because it is 'multipart/form-data'
         // commented out for now

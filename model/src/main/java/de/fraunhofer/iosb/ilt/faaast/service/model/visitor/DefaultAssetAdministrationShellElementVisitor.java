@@ -118,13 +118,13 @@ public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdmi
 
     @Override
     public default void visit(HasDataSpecification hasDataSpecification) {
-
+        // intentionally left empty
     }
 
 
     @Override
     public default void visit(HasExtensions hasExtensions) {
-
+        // intentionally left empty
     }
 
 

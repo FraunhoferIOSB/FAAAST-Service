@@ -152,7 +152,7 @@ Following command line parameters could be used:
 -m, --model=<modelFile>    	Asset Administration Shell Environment FilePath.
 				Default Value = aasenvironment.*
 
---[no-]autoCompleteConfig
+--\[no-\]autoCompleteConfig
 				Autocompletes the configuration with default
 				values for required configuration sections. True
 				by default

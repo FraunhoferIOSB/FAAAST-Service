@@ -24,6 +24,8 @@ import java.util.Objects;
 
 public class PropertyValue extends DataElementValue {
 
+    private TypedValue value;
+
     public static PropertyValue of(String datatype, String value) throws ValueFormatException {
         return new PropertyValue(TypedValueFactory.create(datatype, value));
     }
@@ -33,7 +35,6 @@ public class PropertyValue extends DataElementValue {
         return new PropertyValue(TypedValueFactory.create(datatype, value));
     }
 
-    private TypedValue value;
 
     public PropertyValue() {}
 

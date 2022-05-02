@@ -35,7 +35,7 @@ import com.prosysopc.ua.stack.core.RelativePathElement;
 import com.prosysopc.ua.stack.core.ServerState;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestDefines;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
@@ -175,7 +175,7 @@ public class OpcUaEndpointTest {
         Assert.assertFalse("Browse ObjectsFolder Refs empty", refs.isEmpty());
         NodeId envNode = null;
         for (ReferenceDescription ref: refs) {
-            if (ref.getBrowseName().getName().equals(TestDefines.AAS_ENVIRONMENT_NAME)) {
+            if (ref.getBrowseName().getName().equals(TestConstants.AAS_ENVIRONMENT_NAME)) {
                 envNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                 break;
             }
@@ -194,19 +194,19 @@ public class OpcUaEndpointTest {
         NodeId submodelOperDataNode = null;
         for (ReferenceDescription ref: refs) {
             switch (ref.getBrowseName().getName()) {
-                case TestDefines.SIMPLE_AAS_NAME:
+                case TestConstants.SIMPLE_AAS_NAME:
                     aasNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                     break;
-                case TestDefines.SIMPLE_ASSET_NAME:
+                case TestConstants.SIMPLE_ASSET_NAME:
                     assetNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                     break;
-                case TestDefines.SUBMODEL_DOC_NODE_NAME:
+                case TestConstants.SUBMODEL_DOC_NODE_NAME:
                     submodelDocNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                     break;
-                case TestDefines.SUBMODEL_OPER_DATA_NODE_NAME:
+                case TestConstants.SUBMODEL_OPER_DATA_NODE_NAME:
                     submodelOperDataNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                     break;
-                case TestDefines.SUBMODEL_TECH_DATA_NODE_NAME:
+                case TestConstants.SUBMODEL_TECH_DATA_NODE_NAME:
                     submodelTechDataNode = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
                     break;
                 default:
@@ -221,9 +221,9 @@ public class OpcUaEndpointTest {
         Assert.assertNotNull("Submodel OperationalData Node not found", submodelOperDataNode);
 
         // check Browse and Display Names
-        TestUtils.checkBrowseName(client, aasNode, TestDefines.SIMPLE_AAS_NAME);
-        TestUtils.checkDisplayName(client, aasNode, "AAS:" + TestDefines.SIMPLE_AAS_NAME);
-        TestUtils.checkDisplayName(client, submodelDocNode, "Submodel:" + TestDefines.SUBMODEL_DOC_NODE_NAME);
+        TestUtils.checkBrowseName(client, aasNode, TestConstants.SIMPLE_AAS_NAME);
+        TestUtils.checkDisplayName(client, aasNode, "AAS:" + TestConstants.SIMPLE_AAS_NAME);
+        TestUtils.checkDisplayName(client, submodelDocNode, "Submodel:" + TestConstants.SUBMODEL_DOC_NODE_NAME);
 
         aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
 
@@ -269,10 +269,10 @@ public class OpcUaEndpointTest {
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_OPER_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.ROTATION_SPEED_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.ROTATION_SPEED_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -299,8 +299,8 @@ public class OpcUaEndpointTest {
 
         Integer newValue = 9999;
         List<Key> keys = new ArrayList<>();
-        keys.add(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(TestDefines.SUBMODEL_OPER_DATA_NAME).build());
-        keys.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.PROPERTY).value(TestDefines.ROTATION_SPEED_NAME).build());
+        keys.add(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(TestConstants.SUBMODEL_OPER_DATA_NAME).build());
+        keys.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.PROPERTY).value(TestConstants.ROTATION_SPEED_NAME).build());
         Reference propRef = new DefaultReference.Builder().keys(keys).build();
         ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
         valueChangeMessage.setElement(propRef);
@@ -349,10 +349,10 @@ public class OpcUaEndpointTest {
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_OPER_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.TEST_PROPERTY_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_PROPERTY_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -394,10 +394,10 @@ public class OpcUaEndpointTest {
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_TECH_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.MAX_ROTATION_SPEED_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_TECH_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.MAX_ROTATION_SPEED_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -410,8 +410,8 @@ public class OpcUaEndpointTest {
         Assert.assertTrue("testPropertyChangeFromMessageBus ValueType empty", targets.length > 0);
 
         List<Key> keys = new ArrayList<>();
-        keys.add(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(TestDefines.SUBMODEL_TECH_DATA_NAME).build());
-        keys.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.PROPERTY).value(TestDefines.MAX_ROTATION_SPEED_NAME).build());
+        keys.add(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(TestConstants.SUBMODEL_TECH_DATA_NAME).build());
+        keys.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.PROPERTY).value(TestConstants.MAX_ROTATION_SPEED_NAME).build());
         Reference propRef = new DefaultReference.Builder().keys(keys).build();
 
         ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
@@ -456,10 +456,10 @@ public class OpcUaEndpointTest {
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_OPER_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.TEST_RANGE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.RANGE_MAX_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_RANGE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.RANGE_MAX_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -503,10 +503,10 @@ public class OpcUaEndpointTest {
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_OPER_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.TEST_BLOB_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_BLOB_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -553,10 +553,10 @@ public class OpcUaEndpointTest {
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_OPER_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.TEST_MULTI_LAN_PROP_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_MULTI_LAN_PROP_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -609,11 +609,11 @@ public class OpcUaEndpointTest {
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_OPER_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.TEST_REF_ELEM_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.KEYS_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_REF_ELEM_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -628,12 +628,12 @@ public class OpcUaEndpointTest {
         NodeId writeNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         List<AASKeyDataType> oldValue = new ArrayList<>();
-        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, TestDefines.SUBMODEL_TECH_DATA_NAME, AASKeyTypeDataType.IRI));
-        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.Property, TestDefines.MAX_ROTATION_SPEED_NAME, AASKeyTypeDataType.IdShort));
+        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, TestConstants.SUBMODEL_TECH_DATA_NAME, AASKeyTypeDataType.IRI));
+        oldValue.add(new AASKeyDataType(AASKeyElementsDataType.Property, TestConstants.MAX_ROTATION_SPEED_NAME, AASKeyTypeDataType.IdShort));
 
         // The DataElementValueMapper changes the order of the elements
         List<AASKeyDataType> newValue = new ArrayList<>();
-        newValue.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, TestDefines.SUBMODEL_TECH_DATA_NAME, AASKeyTypeDataType.IRI));
+        newValue.add(new AASKeyDataType(AASKeyElementsDataType.Submodel, TestConstants.SUBMODEL_TECH_DATA_NAME, AASKeyTypeDataType.IRI));
         newValue.add(new AASKeyDataType(AASKeyElementsDataType.Property, "Another property", AASKeyTypeDataType.IdShort));
 
         TestUtils.writeNewValueArray(client, writeNode, oldValue.toArray(AASKeyDataType[]::new), newValue.toArray(AASKeyDataType[]::new));
@@ -666,12 +666,12 @@ public class OpcUaEndpointTest {
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_OPER_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.TEST_ENTITY_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_ENTITY_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, AASEntityType.STATEMENT)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.TEST_ENTITY_PROPERTY_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_ENTITY_PROPERTY_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -715,9 +715,9 @@ public class OpcUaEndpointTest {
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_OPER_DATA_NODE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.TEST_ENTITY_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_OPER_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.TEST_ENTITY_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, AASEntityType.ENTITY_TYPE)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
@@ -762,10 +762,10 @@ public class OpcUaEndpointTest {
         // make sure the element doesn't exist yet
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_TECH_DATA_NODE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_TECH_DATA_NODE_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, propName)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -822,11 +822,11 @@ public class OpcUaEndpointTest {
         // make sure the element doesn't exist yet
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, submodelName)));
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.FULL_REL_ELEMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_REL_ELEMENT_NAME)));
         browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, AASRelationshipElementType.SECOND)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.KEYS_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.KEYS_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -928,8 +928,8 @@ public class OpcUaEndpointTest {
      */
     private void testAas(UaClient client, NodeId aasNode, NodeId submodelDocNode, NodeId submodelOperDataNode, NodeId submodelTechDataNode)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        TestUtils.checkDisplayName(client, aasNode, "AAS:" + TestDefines.SIMPLE_AAS_NAME);
-        TestUtils.checkType(client, aasNode, new NodeId(aasns, TestDefines.AAS_AAS_TYPE_ID));
+        TestUtils.checkDisplayName(client, aasNode, "AAS:" + TestConstants.SIMPLE_AAS_NAME);
+        TestUtils.checkType(client, aasNode, new NodeId(aasns, TestConstants.AAS_AAS_TYPE_ID));
         TestUtils.checkIdentificationNode(client, aasNode, aasns, AASIdentifierTypeDataType.IRI, "http://customer.com/aas/9175_7013_7091_9168");
         TestUtils.checkAdministrationNode(client, aasNode, aasns, "1", "2");
         TestUtils.checkCategoryNode(client, aasNode, aasns, "");
@@ -950,8 +950,8 @@ public class OpcUaEndpointTest {
      * @throws ServiceResultException If the operation fails
      */
     private void testAsset(UaClient client, NodeId assetNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        TestUtils.checkDisplayName(client, assetNode, "Asset:" + TestDefines.SIMPLE_ASSET_NAME);
-        TestUtils.checkType(client, assetNode, new NodeId(aasns, TestDefines.AAS_ASSET_TYPE_ID));
+        TestUtils.checkDisplayName(client, assetNode, "Asset:" + TestConstants.SIMPLE_ASSET_NAME);
+        TestUtils.checkType(client, assetNode, new NodeId(aasns, TestConstants.AAS_ASSET_TYPE_ID));
         TestUtils.checkIdentificationNode(client, assetNode, aasns, AASIdentifierTypeDataType.IRI, "http://customer.com/assets/KHBVZJSQKIY");
         TestUtils.checkAdministrationNode(client, assetNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, assetNode, aasns, "");
@@ -972,8 +972,8 @@ public class OpcUaEndpointTest {
      */
     private void testSubmodelDoc(UaClient client, NodeId submodelNode)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException, InterruptedException {
-        TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestDefines.SUBMODEL_DOC_NODE_NAME);
-        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestDefines.AAS_SUBMODEL_TYPE_ID));
+        TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_DOC_NODE_NAME);
+        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
 
         String submodelName = "SubmodelOperationalData";
 
@@ -985,7 +985,7 @@ public class OpcUaEndpointTest {
         for (ReferenceDescription ref: refs) {
             NodeId nid = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
             switch (ref.getBrowseName().getName()) {
-                case TestDefines.OPERATING_MANUAL_NAME:
+                case TestConstants.OPERATING_MANUAL_NAME:
                     operatingManualNode = nid;
                     break;
                 default:
@@ -995,7 +995,7 @@ public class OpcUaEndpointTest {
 
         Assert.assertNotNull(submodelName + " OperatingManual Node not found", operatingManualNode);
 
-        TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestDefines.SUBMODEL_DOC_NAME);
+        TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestConstants.SUBMODEL_DOC_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, "11", "159");
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModelingKindDataType.Instance);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
@@ -1016,16 +1016,16 @@ public class OpcUaEndpointTest {
      * @throws ServiceResultException If the operation fails
      */
     private void testSubmodelOperationalData(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestDefines.SUBMODEL_OPER_DATA_NODE_NAME);
-        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestDefines.AAS_SUBMODEL_TYPE_ID));
+        TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_OPER_DATA_NODE_NAME);
+        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
 
-        TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestDefines.SUBMODEL_OPER_DATA_NAME);
+        TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestConstants.SUBMODEL_OPER_DATA_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModelingKindDataType.Instance);
         TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
-        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestDefines.ROTATION_SPEED_NAME, AASModelingKindDataType.Instance, "Variable", AASValueTypeDataType.Int32,
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.ROTATION_SPEED_NAME, AASModelingKindDataType.Instance, "Variable", AASValueTypeDataType.Int32,
                 4370, new ArrayList<>());
     }
 
@@ -1041,18 +1041,18 @@ public class OpcUaEndpointTest {
      * @throws ServiceResultException If the operation fails
      */
     private void testSubmodelTechnicalData(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestDefines.SUBMODEL_TECH_DATA_NODE_NAME);
-        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestDefines.AAS_SUBMODEL_TYPE_ID));
+        TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_TECH_DATA_NODE_NAME);
+        TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
 
-        TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestDefines.SUBMODEL_TECH_DATA_NAME);
+        TestUtils.checkIdentificationNode(client, submodelNode, aasns, AASIdentifierTypeDataType.IRI, TestConstants.SUBMODEL_TECH_DATA_NAME);
         TestUtils.checkAdministrationNode(client, submodelNode, aasns, null, null);
         TestUtils.checkCategoryNode(client, submodelNode, aasns, "");
         TestUtils.checkModelingKindNode(client, submodelNode, aasns, AASModelingKindDataType.Instance);
         TestUtils.checkDataSpecificationNode(client, submodelNode, aasns);
         TestUtils.checkQualifierNode(client, submodelNode, aasns, new ArrayList<>());
-        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestDefines.MAX_ROTATION_SPEED_NAME, AASModelingKindDataType.Instance, "Parameter",
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.MAX_ROTATION_SPEED_NAME, AASModelingKindDataType.Instance, "Parameter",
                 AASValueTypeDataType.Int32, 5000, new ArrayList<>());
-        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestDefines.DECIMAL_PROPERTY, AASModelingKindDataType.Instance, "Parameter",
+        TestUtils.checkAasPropertyObject(client, submodelNode, aasns, TestConstants.DECIMAL_PROPERTY, AASModelingKindDataType.Instance, "Parameter",
                 AASValueTypeDataType.Int64, Long.valueOf(123456), new ArrayList<>());
     }
 
@@ -1069,13 +1069,13 @@ public class OpcUaEndpointTest {
      * @throws InterruptedException If a wait was interrupted
      */
     private void testOperatingManual(UaClient client, NodeId node) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException, InterruptedException {
-        TestUtils.checkDisplayName(client, node, TestDefines.OPERATING_MANUAL_NAME);
-        TestUtils.checkType(client, node, new NodeId(aasns, TestDefines.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
+        TestUtils.checkDisplayName(client, node, TestConstants.OPERATING_MANUAL_NAME);
+        TestUtils.checkType(client, node, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
         TestUtils.checkCategoryNode(client, node, aasns, "");
         TestUtils.checkModelingKindNode(client, node, aasns, AASModelingKindDataType.Instance);
         TestUtils.checkDataSpecificationNode(client, node, aasns);
         TestUtils.checkQualifierNode(client, node, aasns, new ArrayList<>());
-        TestUtils.checkVariableBool(client, node, aasns, TestDefines.ALLOW_DUPLICATES_NAME, false);
+        TestUtils.checkVariableBool(client, node, aasns, TestConstants.ALLOW_DUPLICATES_NAME, false);
         // Skip LangString / LocalizedText test: not yet implemented in the service
         //TestUtils.checkAasPropertyString(client, node, aasns, "Title", AASModelingKindDataType.Instance, "", AASValueTypeDataType.LocalizedText, "OperatingManual",
         //        new ArrayList<>());
@@ -1102,7 +1102,7 @@ public class OpcUaEndpointTest {
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.SUBMODEL_REF_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.SUBMODEL_REF_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
@@ -1115,10 +1115,10 @@ public class OpcUaEndpointTest {
         Assert.assertTrue("testSubmodelRefs Target empty", targets.length > 0);
         NodeId refNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         Assert.assertNotNull("testSubmodelRefs RefNode Null", refNode);
-        TestUtils.checkType(client, refNode, new NodeId(aasns, TestDefines.AAS_REFERENCE_LIST_ID));
+        TestUtils.checkType(client, refNode, new NodeId(aasns, TestConstants.AAS_REFERENCE_LIST_ID));
 
-        TestUtils.checkSubmodelRef(client, refNode, aasns, TestDefines.SUBMODEL_DOC_NAME, submodelDocNode);
-        TestUtils.checkSubmodelRef(client, refNode, aasns, TestDefines.SUBMODEL_OPER_DATA_NAME, submodelOperDataNode);
-        TestUtils.checkSubmodelRef(client, refNode, aasns, TestDefines.SUBMODEL_TECH_DATA_NAME, submodelTechDataNode);
+        TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_DOC_NAME, submodelDocNode);
+        TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_OPER_DATA_NAME, submodelOperDataNode);
+        TestUtils.checkSubmodelRef(client, refNode, aasns, TestConstants.SUBMODEL_TECH_DATA_NAME, submodelTechDataNode);
     }
 }

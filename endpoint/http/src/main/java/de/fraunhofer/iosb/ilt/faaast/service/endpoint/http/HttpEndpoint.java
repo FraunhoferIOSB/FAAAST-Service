@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
 
 
     @Override
-    public void start() throws Exception {
+    public void start() throws EndpointException {
         if (server != null && server.isStarted()) {
             return;
         }
@@ -69,7 +70,12 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         handler = new RequestHandler(serviceContext);
         server.setHandler(handler);
         server.setErrorHandler(new HttpErrorHandler());
-        server.start();
+        try {
+            server.start();
+        }
+        catch (Exception e) {
+            throw new EndpointException("error starting HTTP endpoint", e);
+        }
     }
 
 

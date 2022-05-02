@@ -125,10 +125,7 @@ public class DummyAssetConnection
         if (!Objects.equals(this.host, other.host)) {
             return false;
         }
-        if (!Objects.equals(this.coreConfig, other.coreConfig)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.coreConfig, other.coreConfig);
     }
 
 

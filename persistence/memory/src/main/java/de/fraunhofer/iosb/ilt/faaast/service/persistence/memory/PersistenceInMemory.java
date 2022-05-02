@@ -236,25 +236,23 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
     @Override
     public OperationHandle putOperationContext(String handleId, String requestId, OperationResult operationResult) {
-        if (operationResult == null) {
-            operationResult = new OperationResult.Builder()
-                    .executionState(ExecutionState.INITIATED)
-                    .requestId(requestId)
-                    .build();
-        }
+        OperationResult operationResultLocal = operationResult != null
+                ? operationResult
+                : new OperationResult.Builder()
+                        .executionState(ExecutionState.INITIATED)
+                        .requestId(requestId)
+                        .build();
+        String handleIdLocal = handleId;
         if (StringUtils.isBlank(handleId)) {
+            handleIdLocal = UUID.randomUUID().toString();
             OperationHandle operationHandle = new OperationHandle.Builder()
                     .requestId(requestId)
-                    .handleId(UUID.randomUUID().toString())
+                    .handleId(handleIdLocal)
                     .build();
             operationHandleMap.put(operationHandle.getHandleId(), operationHandle);
-            operationResultMap.putIfAbsent(operationHandle.getHandleId(), operationResult);
-            return operationHandle;
         }
-        else {
-            operationResultMap.put(handleId, operationResult);
-        }
-        return null;
+        operationResultMap.put(handleIdLocal, operationResultLocal);
+        return operationHandleMap.get(handleIdLocal);
     }
 
 
