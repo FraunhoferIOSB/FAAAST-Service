@@ -29,16 +29,25 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager.Identifi
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager.PackagePersistenceManager;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager.ReferablePersistenceManager;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.QueryModifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import io.adminshell.aas.v3.dataformat.DeserializationException;
+import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Identifier;
+import io.adminshell.aas.v3.model.Operation;
+import io.adminshell.aas.v3.model.OperationVariable;
+import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,8 +91,31 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
+    public void init(CoreConfig coreConfig, PersistenceInMemoryConfig config, ServiceContext context) {
+        if (config.getEnvironment() == null && StringUtils.isBlank(config.getModelPath())) {
+            throw new IllegalArgumentException("Neither AAS Environment nor the model path was set");
+        }
+        try {
+            aasEnvironment = config.getEnvironment() != null ? config.getEnvironment() : AASEnvironmentHelper.fromFile(new File(config.getModelPath()));
+        }
+        catch (DeserializationException e) {
+            throw new IllegalArgumentException("Error deserializing AAS Environment", e);
+        }
+        identifiablePersistenceManager.setAasEnvironment(aasEnvironment);
+        referablePersistenceManager.setAasEnvironment(aasEnvironment);
+        packagePersistenceManager.setAasEnvironment(aasEnvironment);
+    }
+
+
+    @Override
     public PersistenceInMemoryConfig asConfig() {
         return config;
+    }
+
+
+    @Override
+    public AssetAdministrationShellEnvironment getEnvironment() {
+        return this.aasEnvironment;
     }
 
 
@@ -161,21 +193,6 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public AssetAdministrationShellEnvironment getEnvironment() {
-        return aasEnvironment;
-    }
-
-
-    @Override
-    public void setEnvironment(AssetAdministrationShellEnvironment environment) {
-        aasEnvironment = environment;
-        identifiablePersistenceManager.setAasEnvironment(environment);
-        referablePersistenceManager.setAasEnvironment(environment);
-        packagePersistenceManager.setAasEnvironment(environment);
-    }
-
-
-    @Override
     public OperationResult getOperationResult(String handleId) {
         if (StringUtils.isNoneBlank(handleId)) {
             return operationResultMap.getOrDefault(handleId, null);
@@ -192,12 +209,6 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
         return QueryModifierHelper.applyQueryModifier(
                 referablePersistenceManager.getSubmodelElements(reference, semanticId),
                 modifier);
-    }
-
-
-    @Override
-    public void init(CoreConfig coreConfig, PersistenceInMemoryConfig config, ServiceContext context) {
-        this.config = config;
     }
 
 
@@ -276,5 +287,29 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
     @Override
     public void remove(String packageId) {
         throw new UnsupportedOperationException();
+    }
+
+
+    @Override
+    public TypeInfo getTypeInfo(Reference reference) {
+        return TypeExtractor.extractTypeInfo(AasUtils.resolve(reference, getEnvironment()));
+    }
+
+
+    @Override
+    public OperationVariable[] getOperationOutputVariables(Reference reference) {
+        if (reference == null) {
+            throw new IllegalArgumentException("reference must be non-null");
+        }
+        Referable referable = AasUtils.resolve(reference, getEnvironment());
+        if (referable == null) {
+            throw new IllegalArgumentException(String.format("reference could not be resolved (reference: %s)", AasUtils.asString(reference)));
+        }
+        if (Operation.class.isAssignableFrom(referable.getClass())) {
+            throw new IllegalArgumentException(String.format("reference points to invalid type (reference: %s, expected type: Operation, actual type: %s)",
+                    AasUtils.asString(reference),
+                    referable.getClass()));
+        }
+        return ((Operation) referable).getOutputVariables().toArray(new OperationVariable[0]);
     }
 }
