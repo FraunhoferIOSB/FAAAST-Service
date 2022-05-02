@@ -28,7 +28,7 @@ git add .
 echo "Next: git commit & Tag [enter]"
 read -s
 git commit -m "Release v${VERSION}"
-git tag -m "Release v"${VERSION}"" -a v"${VERSION}"
+git tag -m "Release v${VERSION}" -a v"${VERSION}"
 
 echo "Next: replacing version nubmers [enter]"
 read -s
