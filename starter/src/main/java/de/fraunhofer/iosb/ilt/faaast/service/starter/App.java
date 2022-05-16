@@ -329,8 +329,8 @@ public class App implements Runnable {
             return AASEnvironmentHelper.fromFile(modelFile);
         }
         if (System.getenv(ENV_MODEL_FILE_PATH) != null && !System.getenv(ENV_MODEL_FILE_PATH).isBlank()) {
-            LOGGER.info("Model: {} (ENV: {})", modelFile.getAbsoluteFile(), System.getenv(ENV_MODEL_FILE_PATH));
             modelFile = new File(System.getenv(ENV_MODEL_FILE_PATH));
+            LOGGER.info("Model: {} (ENV)", modelFile.getAbsoluteFile());
             return AASEnvironmentHelper.fromFile(new File(System.getenv(ENV_MODEL_FILE_PATH)));
         }
         Optional<File> defaultModel = findDefaultModel();
