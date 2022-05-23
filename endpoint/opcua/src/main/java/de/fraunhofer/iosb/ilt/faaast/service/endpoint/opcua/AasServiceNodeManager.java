@@ -46,6 +46,7 @@ import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import com.prosysopc.ua.types.opcua.server.FolderTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceMethodManagerListener;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -55,19 +56,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -105,7 +95,6 @@ import io.adminshell.aas.v3.model.RelationshipElement;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -143,7 +132,6 @@ import opc.i4aas.AASReferenceList;
 import opc.i4aas.AASReferenceType;
 import opc.i4aas.AASRelationshipElementType;
 import opc.i4aas.AASSubmodelElementCollectionType;
-import opc.i4aas.AASSubmodelElementList;
 import opc.i4aas.AASSubmodelElementType;
 import opc.i4aas.AASSubmodelType;
 import opc.i4aas.AASValueTypeDataType;
@@ -299,6 +287,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     protected void init() throws StatusException, UaNodeFactoryException {
         try {
             super.init();
+
+            AasSubmodelElementHelper.NODE_MANAGER = this;
 
             createAddressSpace();
         }
@@ -1036,7 +1026,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 // Value
                 if (aasFile.getValue() != null) {
                     if (fileNode.getValueNode() == null) {
-                        addFileValueNode(fileNode);
+                        AasSubmodelElementHelper.addFileValueNode(fileNode);
                     }
 
                     fileNode.setValue(aasFile.getValue());
@@ -1080,31 +1070,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Exception ex) {
             LOG.error("addAasFile Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds a File Value Property to the given Node.
-     *
-     * @param fileNode The desired File Node.
-     */
-    private void addFileValueNode(UaNode fileNode) {
-        try {
-            NodeId myPropertyId = new NodeId(getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.VALUE);
-            PlainProperty<String> myProperty = new PlainProperty<>(this, myPropertyId,
-                    UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.VALUE).toQualifiedName(getNamespaceTable()),
-                    LocalizedText.english(AASFileType.VALUE));
-            myProperty.setDataTypeId(Identifiers.String);
-            if (VALUES_READ_ONLY) {
-                myProperty.setAccessLevel(AccessLevelType.CurrentRead);
-            }
-            myProperty.setDescription(new LocalizedText("", ""));
-            fileNode.addProperty(myProperty);
-        }
-        catch (Exception ex) {
-            LOG.error("addFileFileNode Exception", ex);
             throw ex;
         }
     }
@@ -1959,6 +1924,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             // here Value and ValueType are set
             setPropertyValueAndType(aasProperty, submodel, prop, propRef);
 
+            if (submodel != null) {
+                submodelElementOpcUAMap.put(propRef, prop);
+            }
+
             if (VALUES_READ_ONLY) {
                 // ValueType read-only
                 prop.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
@@ -2003,10 +1972,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             submodelElementAasMap.put(myPropertyId, new SubmodelElementData(aasProperty, submodel, SubmodelElementData.Type.PROPERTY_VALUE, propRef));
             LOG.debug("setPropertyValueAndType: NodeId {}; Property: {}", myPropertyId, aasProperty);
-
-            if (submodel != null) {
-                submodelElementOpcUAMap.put(propRef, prop);
-            }
 
             AASValueTypeDataType valueDataType;
 
@@ -2206,126 +2171,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Sets the value of a property.
-     *
-     * @param property The desired Property
-     * @param value The new value.
-     * @throws StatusException If the operation fails.
-     */
-    @SuppressWarnings("java:S125")
-    private void setPropertyValue(AASPropertyType property, PropertyValue value) throws StatusException {
-        if (property == null) {
-            throw new IllegalArgumentException("property is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
-
-        LOG.debug("setPropertyValue: {} to {}", property.getBrowseName().getName(), value.getValue());
-
-        try {
-            // special treatment for some not directly supported types
-            TypedValue<?> tv = value.getValue();
-            Object obj = tv.getValue();
-            if ((tv instanceof DecimalValue) || (tv instanceof IntegerValue)) {
-                obj = Long.parseLong(obj.toString());
-            }
-            property.setValue(obj);
-
-            //            switch (property.getValueType()) {
-            //                case ByteString:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Boolean:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case DateTime:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Int32:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case UInt32:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Int64:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case UInt64:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Int16:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case UInt16:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Byte:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case SByte:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Double:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Float:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case LocalizedText:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case String:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case UtcTime:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                default:
-            //                    logger.warn("setPropertyValue: Property " + property.getBrowseName().getName() + ": Unknown type: " + property.getValueType());
-            //                    break;
-            //            }
-        }
-        catch (Exception ex) {
-            LOG.error("setPropertyValue Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
      * Adds an AAS Blob to the given UA node.
      *
      * @param node The desired UA node
@@ -2354,7 +2199,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 // Value
                 if (aasBlob.getValue() != null) {
                     if (blobNode.getValueNode() == null) {
-                        addBlobValueNode(blobNode);
+                        AasSubmodelElementHelper.addBlobValueNode(blobNode);
                     }
 
                     submodelElementAasMap.put(blobNode.getValueNode().getNodeId(), new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE, blobRef));
@@ -2377,28 +2222,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Exception ex) {
             LOG.error("addAasBlob Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds a Value Property to the given Blob Node.
-     *
-     * @param node The desired Blob Node
-     */
-    private void addBlobValueNode(UaNode node) {
-        try {
-            NodeId myPropertyId = new NodeId(getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASBlobType.VALUE);
-            PlainProperty<ByteString> myProperty = new PlainProperty<>(this, myPropertyId,
-                    UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), AASBlobType.VALUE).toQualifiedName(getNamespaceTable()),
-                    LocalizedText.english(AASBlobType.VALUE));
-            myProperty.setDataTypeId(Identifiers.ByteString);
-            myProperty.setDescription(new LocalizedText("", ""));
-            node.addProperty(myProperty);
-        }
-        catch (Exception ex) {
-            LOG.error("addBlobValueNode Exception", ex);
             throw ex;
         }
     }
@@ -2925,7 +2748,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 List<LangString> values = aasMultiLang.getValues();
                 if (values != null) {
                     if (multiLangNode.getValueNode() == null) {
-                        addMultiLanguageValueNode(multiLangNode, values.size());
+                        AasSubmodelElementHelper.addMultiLanguageValueNode(multiLangNode, values.size());
                     }
 
                     multiLangNode.getValueNode().setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
@@ -2953,34 +2776,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Exception ex) {
             LOG.error("addAasMultiLanguageProperty Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds the Value Node for the MultiLanguageProperty.
-     *
-     * @param node The desired MultiLanguageProperty Node
-     * @param arraySize The desired Array Size.
-     */
-    private void addMultiLanguageValueNode(UaNode node, int arraySize) {
-        try {
-            NodeId propId = new NodeId(getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASMultiLanguagePropertyType.VALUE);
-            PlainProperty<LocalizedText[]> myLTProperty = new PlainProperty<>(this, propId,
-                    UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), AASMultiLanguagePropertyType.VALUE)
-                            .toQualifiedName(getNamespaceTable()),
-                    LocalizedText.english(AASMultiLanguagePropertyType.VALUE));
-            myLTProperty.setDataTypeId(Identifiers.LocalizedText);
-            myLTProperty.setValueRank(ValueRanks.OneDimension);
-            myLTProperty.setArrayDimensions(new UnsignedInteger[] {
-                    UnsignedInteger.valueOf(arraySize)
-            });
-            node.addProperty(myLTProperty);
-            myLTProperty.setDescription(new LocalizedText("", ""));
-        }
-        catch (Exception ex) {
-            LOG.error("addMultiLanguageValueNode Exception", ex);
             throw ex;
         }
     }
@@ -3832,350 +3627,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         LOG.debug("updateSubmodelElementValue");
         if (submodelElementOpcUAMap.containsKey(reference)) {
             AASSubmodelElementType subElem = submodelElementOpcUAMap.get(reference);
-            setSubmodelElementValue(subElem, newValue);
+            AasSubmodelElementHelper.setSubmodelElementValue(subElem, newValue);
         }
         else {
             LOG.warn("SubmodelElement {} not found in submodelElementOpcUAMap", AasUtils.asString(reference));
-        }
-    }
-
-
-    /**
-     * Sets the value of the given SubmodelElement.
-     *
-     * @param subElem The desired SubmodelElement.
-     * @param value The new value
-     * @throws StatusException If the operation fails
-     */
-    private void setSubmodelElementValue(AASSubmodelElementType subElem, ElementValue value) throws StatusException {
-        try {
-            LOG.debug("setSubmodelElementValue: {}", subElem.getBrowseName().getName());
-
-            // changed the order because of an error in the derivation hierarchy of ElementValue
-            // perhaps the order will be changed back to normal as soon as the error is fixed
-            if ((value instanceof RelationshipElementValue) && (subElem instanceof AASRelationshipElementType)) {
-                setRelationshipValue((AASRelationshipElementType) subElem, (RelationshipElementValue) value);
-            }
-            else if ((value instanceof EntityValue) && (subElem instanceof AASEntityType)) {
-                setEntityValue((AASEntityType) subElem, (EntityValue) value);
-            }
-            else if (value instanceof DataElementValue) {
-                setDataElementValue(subElem, (DataElementValue) value);
-            }
-            else {
-                LOG.warn("SubmodelElement {} type not supported", subElem.getBrowseName().getName());
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("setSubmodelElementValue Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Sets the values for the given RelationshipElement.
-     *
-     * @param aasElement The desired RelationshipElement.
-     * @param value The new value.
-     * @throws StatusException If the operation fails
-     */
-    private void setRelationshipValue(AASRelationshipElementType aasElement, RelationshipElementValue value) throws StatusException {
-        if (aasElement == null) {
-            throw new IllegalArgumentException("aasElement is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
-
-        try {
-            Reference ref = new DefaultReference.Builder().keys(value.getFirst()).build();
-            setAasReferenceData(ref, aasElement.getFirstNode(), false);
-            ref = new DefaultReference.Builder().keys(value.getSecond()).build();
-            setAasReferenceData(ref, aasElement.getSecondNode(), false);
-
-            if ((aasElement instanceof AASAnnotatedRelationshipElementType) && (value instanceof AnnotatedRelationshipElementValue)) {
-                AASAnnotatedRelationshipElementType annotatedElement = (AASAnnotatedRelationshipElementType) aasElement;
-                AnnotatedRelationshipElementValue annotatedValue = (AnnotatedRelationshipElementValue) value;
-                UaNode[] annotationNodes = annotatedElement.getAnnotationNode().getComponents();
-                Map<String, DataElementValue> valueMap = annotatedValue.getAnnotations();
-                if (annotationNodes.length != valueMap.size()) {
-                    LOG.warn("Size of Value ({}) doesn't match the number of AnnotationNodes ({})", valueMap.size(), annotationNodes.length);
-                    throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
-                }
-
-                // The Key of the Map is the IDShort of the DataElement (in our case the BrowseName)
-                for (UaNode annotationNode: annotationNodes) {
-                    if (valueMap.containsKey(annotationNode.getBrowseName().getName())) {
-                        setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()));
-                    }
-                }
-            }
-            else {
-                LOG.info("setRelationshipValue: No AnnotatedRelationshipElement {}", aasElement.getBrowseName().getName());
-            }
-
-        }
-        catch (Exception ex) {
-            LOG.error("setAnnotatedRelationshipValue Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Sets the values for the given DataElement.
-     *
-     * @param node The desired DataElement.
-     * @param value The new value.
-     * @throws StatusException If the operation fails
-     */
-    private void setDataElementValue(UaNode node, DataElementValue value) throws StatusException {
-        if (node == null) {
-            throw new IllegalArgumentException(NODE_NULL);
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
-
-        try {
-            if ((node instanceof AASPropertyType) && (value instanceof PropertyValue)) {
-                setPropertyValue((AASPropertyType) node, (PropertyValue) value);
-            }
-            else if ((node instanceof AASFileType) && (value instanceof FileValue)) {
-                setFileValue((AASFileType) node, (FileValue) value);
-            }
-            else if ((node instanceof AASBlobType) && (value instanceof BlobValue)) {
-                setBlobValue((AASBlobType) node, (BlobValue) value);
-            }
-            else if ((node instanceof AASReferenceElementType) && (value instanceof ReferenceElementValue)) {
-                setReferenceElementValue((AASReferenceElementType) node, (ReferenceElementValue) value);
-            }
-            else if ((node instanceof AASRangeType) && (value instanceof RangeValue)) {
-                setRangeValue((AASRangeType) node, (RangeValue<?>) value);
-            }
-            else if ((node instanceof AASMultiLanguagePropertyType) && (value instanceof MultiLanguagePropertyValue)) {
-                setMultiLanguagePropertyValue((AASMultiLanguagePropertyType) node, (MultiLanguagePropertyValue) value);
-            }
-            else {
-                LOG.warn("setDataElementValue: unknown or invalid DataElement or value: {}; Class: {}; Value Class: {}", node.getBrowseName().getName(), node.getClass(),
-                        value.getClass());
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("setDataElementValue Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Sets the values for the given File.
-     *
-     * @param file The desired file.
-     * @param value The new value
-     * @throws StatusException If the operation fails
-     */
-    private void setFileValue(AASFileType file, FileValue value) throws StatusException {
-        if (file == null) {
-            throw new IllegalArgumentException("file is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
-
-        try {
-            file.setMimeType(value.getMimeType());
-            if (value.getValue() != null) {
-                if (file.getValueNode() == null) {
-                    addFileValueNode(file);
-                }
-
-                file.setValue(value.getValue());
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("setFileValue Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Sets the values for the given Blob.
-     *
-     * @param blob The desired blob.
-     * @param value The new value
-     * @throws StatusException If the operation fails
-     */
-    private void setBlobValue(AASBlobType blob, BlobValue value) throws StatusException {
-        if (blob == null) {
-            throw new IllegalArgumentException("blob is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
-
-        try {
-            // MimeType
-            blob.setMimeType(value.getMimeType());
-
-            // Value
-            if (value.getValue() != null) {
-                if (blob.getValueNode() == null) {
-                    addBlobValueNode(blob);
-                }
-
-                blob.setValue(ByteString.valueOf(value.getValue()));
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("setBlobValue Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Sets the value for the given ReferenceElement.
-     *
-     * @param refElement The desired ReferenceElement.
-     * @param value The new value.
-     * @throws StatusException If the operation fails
-     */
-    private void setReferenceElementValue(AASReferenceElementType refElement, ReferenceElementValue value) throws StatusException {
-        if (refElement == null) {
-            throw new IllegalArgumentException("refElement is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
-
-        try {
-            DefaultReference ref = new DefaultReference.Builder().keys(value.getKeys()).build();
-            setAasReferenceData(ref, refElement.getValueNode());
-        }
-        catch (Exception ex) {
-            LOG.error("setReferenceElementValue Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Sets the value for the given Range.
-     *
-     * @param range The desired Range.
-     * @param value The new value
-     * @throws StatusException If the operation fails
-     */
-    private void setRangeValue(AASRangeType range, RangeValue<?> value) throws StatusException {
-        if (range == null) {
-            throw new IllegalArgumentException("range is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
-
-        try {
-            // special treatment for some not directly supported types
-            TypedValue<?> tvmin = value.getMin();
-            Object objmin = tvmin.getValue();
-            if ((tvmin instanceof DecimalValue) || (tvmin instanceof IntegerValue)) {
-                objmin = Long.parseLong(objmin.toString());
-            }
-
-            TypedValue<?> tvmax = value.getMax();
-            Object objmax = tvmax.getValue();
-            if ((tvmax instanceof DecimalValue) || (tvmax instanceof IntegerValue)) {
-                objmax = Long.parseLong(objmax.toString());
-            }
-
-            range.setMin(objmin);
-            range.setMax(objmax);
-        }
-        catch (Exception ex) {
-            LOG.error("setRangeValue Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Sets the values for the given MultiLanguageProperty.
-     *
-     * @param multiLangProp The desired MultiLanguageProperty.
-     * @param value The new value
-     * @throws StatusException If the operation fails
-     */
-    private void setMultiLanguagePropertyValue(AASMultiLanguagePropertyType multiLangProp, MultiLanguagePropertyValue value) throws StatusException {
-        if (multiLangProp == null) {
-            throw new IllegalArgumentException("multiLangProp is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
-
-        try {
-            List<LangString> values = new ArrayList<>(value.getLangStringSet());
-            if (multiLangProp.getValueNode() == null) {
-                addMultiLanguageValueNode(multiLangProp, values.size());
-            }
-
-            multiLangProp.getValueNode().setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
-        }
-        catch (Exception ex) {
-            LOG.error("setMultiLanguagePropertyValue Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Sets the values for the given Entity.
-     *
-     * @param entity The desired Entity.
-     * @param value The new value.
-     * @throws StatusException If the operation fails
-     */
-    private void setEntityValue(AASEntityType entity, EntityValue value) throws StatusException {
-        if (entity == null) {
-            throw new IllegalArgumentException("entity is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
-
-        try {
-            // EntityType
-            entity.setEntityType(ValueConverter.getAasEntityType(value.getEntityType()));
-
-            // GlobalAssetId
-            if ((value.getGlobalAssetId() != null) && (!value.getGlobalAssetId().isEmpty())) {
-                DefaultReference ref = new DefaultReference.Builder().keys(value.getGlobalAssetId()).build();
-                setAasReferenceData(ref, entity.getGlobalAssetIdNode());
-            }
-
-            // Statements
-            Map<String, ElementValue> valueMap = value.getStatements();
-            AASSubmodelElementList statementNode = entity.getStatementNode();
-            if (statementNode != null) {
-                UaNode[] statementNodes = statementNode.getComponents();
-                if (statementNodes.length != valueMap.size()) {
-                    LOG.warn("Size of Value ({}) doesn't match the number of StatementNodes ({})", valueMap.size(), statementNodes.length);
-                    throw new IllegalArgumentException("Size of Value doesn't match the number of StatementNodes");
-                }
-
-                for (UaNode statementNode1: statementNodes) {
-                    if ((statementNode1 instanceof AASSubmodelElementType) && value.getStatements().containsKey(statementNode1.getBrowseName().getName())) {
-                        setSubmodelElementValue((AASSubmodelElementType) statementNode1, value.getStatements().get(statementNode1.getBrowseName().getName()));
-                    }
-                }
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("setEntityValue Exception", ex);
-            throw ex;
         }
     }
 
