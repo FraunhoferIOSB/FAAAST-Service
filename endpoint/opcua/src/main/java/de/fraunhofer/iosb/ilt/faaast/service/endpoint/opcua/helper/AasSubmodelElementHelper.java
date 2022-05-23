@@ -23,7 +23,6 @@ import com.prosysopc.ua.server.nodes.PlainProperty;
 import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
-import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
@@ -71,12 +70,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Tino Bischoff
  */
+@SuppressWarnings({
+        "java:S3252",
+        "java:S2139"
+})
 public class AasSubmodelElementHelper {
-    /**
-     * The corresponding NodeManager.
-     */
-    public static NodeManagerUaNode NODE_MANAGER;
-
     /**
      * The logger for this class
      */
@@ -97,6 +95,29 @@ public class AasSubmodelElementHelper {
      * Text if node is null
      */
     private static final String NODE_NULL = "node is null";
+
+    /**
+     * The corresponding NodeManager.
+     */
+    private static NodeManagerUaNode nodeManager;
+
+    /**
+     * Sonar wants a private constructor.
+     */
+    private AasSubmodelElementHelper() {
+
+    }
+
+
+    /**
+     * Sets the NodeManager.
+     * 
+     * @param value The corresponding NodeManager.
+     */
+    public static void setNodeManager(NodeManagerUaNode value) {
+        nodeManager = value;
+    }
+
 
     /**
      * Sets the values for the given RelationshipElement.
@@ -188,9 +209,9 @@ public class AasSubmodelElementHelper {
      */
     public static void addBlobValueNode(UaNode node) {
         try {
-            NodeId myPropertyId = new NodeId(NODE_MANAGER.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASBlobType.VALUE);
-            PlainProperty<ByteString> myProperty = new PlainProperty<>(NODE_MANAGER, myPropertyId,
-                    UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), AASBlobType.VALUE).toQualifiedName(NODE_MANAGER.getNamespaceTable()),
+            NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASBlobType.VALUE);
+            PlainProperty<ByteString> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
+                    UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), AASBlobType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
                     LocalizedText.english(AASBlobType.VALUE));
             myProperty.setDataTypeId(Identifiers.ByteString);
             myProperty.setDescription(new LocalizedText("", ""));
@@ -210,9 +231,9 @@ public class AasSubmodelElementHelper {
      */
     public static void addFileValueNode(UaNode fileNode) {
         try {
-            NodeId myPropertyId = new NodeId(NODE_MANAGER.getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.VALUE);
-            PlainProperty<String> myProperty = new PlainProperty<>(NODE_MANAGER, myPropertyId,
-                    UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.VALUE).toQualifiedName(NODE_MANAGER.getNamespaceTable()),
+            NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.VALUE);
+            PlainProperty<String> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
+                    UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
                     LocalizedText.english(AASFileType.VALUE));
             myProperty.setDataTypeId(Identifiers.String);
             if (VALUES_READ_ONLY) {
@@ -236,10 +257,10 @@ public class AasSubmodelElementHelper {
      */
     public static void addMultiLanguageValueNode(UaNode node, int arraySize) {
         try {
-            NodeId propId = new NodeId(NODE_MANAGER.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASMultiLanguagePropertyType.VALUE);
-            PlainProperty<LocalizedText[]> myLTProperty = new PlainProperty<>(NODE_MANAGER, propId,
+            NodeId propId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASMultiLanguagePropertyType.VALUE);
+            PlainProperty<LocalizedText[]> myLTProperty = new PlainProperty<>(nodeManager, propId,
                     UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), AASMultiLanguagePropertyType.VALUE)
-                            .toQualifiedName(NODE_MANAGER.getNamespaceTable()),
+                            .toQualifiedName(nodeManager.getNamespaceTable()),
                     LocalizedText.english(AASMultiLanguagePropertyType.VALUE));
             myLTProperty.setDataTypeId(Identifiers.LocalizedText);
             myLTProperty.setValueRank(ValueRanks.OneDimension);
@@ -256,7 +277,19 @@ public class AasSubmodelElementHelper {
     }
 
 
-    public static void setPropertyValueAndType(Property aasProperty, AASPropertyType prop, NodeId myPropertyId, QualifiedName browseName, LocalizedText displayName)
+    /**
+     * Set value and type for the desired Property.
+     * 
+     * @param aasProperty The desired Property
+     * @param prop The desired AAS Property.
+     * @param valueData The desired property data.
+     * @param myPropertyId
+     * @param browseName
+     * @param displayName
+     * @throws StatusException
+     */
+    @SuppressWarnings("java:S125")
+    public static void setPropertyValueAndType(Property aasProperty, AASPropertyType prop, ValueData valueData)
             throws StatusException {
         try {
             AASValueTypeDataType valueDataType;
@@ -283,7 +316,7 @@ public class AasSubmodelElementHelper {
                 //                    break;
                 //
                 case Boolean:
-                    PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(NODE_MANAGER, myPropertyId, browseName, displayName);
+                    PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
                     myBoolProperty.setDataTypeId(Identifiers.Boolean);
                     if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
                         myBoolProperty.setValue(typedValue.getValue().getValue());
@@ -302,7 +335,7 @@ public class AasSubmodelElementHelper {
                 //                    break;
                 //
                 case Int32:
-                    PlainProperty<Integer> myIntProperty = new PlainProperty<>(NODE_MANAGER, myPropertyId, browseName, displayName);
+                    PlainProperty<Integer> myIntProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
                     myIntProperty.setDataTypeId(Identifiers.Int32);
                     if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
                         myIntProperty.setValue(typedValue.getValue().getValue());
@@ -321,7 +354,7 @@ public class AasSubmodelElementHelper {
                 //                    break;
                 //
                 case Int64:
-                    PlainProperty<Long> myLongProperty = new PlainProperty<>(NODE_MANAGER, myPropertyId, browseName, displayName);
+                    PlainProperty<Long> myLongProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
                     myLongProperty.setDataTypeId(Identifiers.Int64);
                     if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
                         Object obj = typedValue.getValue().getValue();
@@ -344,7 +377,7 @@ public class AasSubmodelElementHelper {
                 //                    break;
                 //
                 case Int16:
-                    PlainProperty<Short> myInt16Property = new PlainProperty<>(NODE_MANAGER, myPropertyId, browseName, displayName);
+                    PlainProperty<Short> myInt16Property = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
                     myInt16Property.setDataTypeId(Identifiers.Int16);
                     if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
                         myInt16Property.setValue(typedValue.getValue().getValue());
@@ -373,7 +406,7 @@ public class AasSubmodelElementHelper {
                 //                    break;
                 //
                 case SByte:
-                    PlainProperty<Byte> mySByteProperty = new PlainProperty<>(NODE_MANAGER, myPropertyId, browseName, displayName);
+                    PlainProperty<Byte> mySByteProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
                     mySByteProperty.setDataTypeId(Identifiers.SByte);
                     if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
                         mySByteProperty.setValue(typedValue.getValue().getValue());
@@ -382,7 +415,7 @@ public class AasSubmodelElementHelper {
                     break;
 
                 case Double:
-                    PlainProperty<Double> myDoubleProperty = new PlainProperty<>(NODE_MANAGER, myPropertyId, browseName, displayName);
+                    PlainProperty<Double> myDoubleProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
                     myDoubleProperty.setDataTypeId(Identifiers.Double);
                     if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
                         myDoubleProperty.setValue(typedValue.getValue().getValue());
@@ -391,7 +424,7 @@ public class AasSubmodelElementHelper {
                     break;
 
                 case Float:
-                    PlainProperty<Float> myFloatProperty = new PlainProperty<>(NODE_MANAGER, myPropertyId, browseName, displayName);
+                    PlainProperty<Float> myFloatProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
                     myFloatProperty.setDataTypeId(Identifiers.Float);
                     if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
                         myFloatProperty.setValue(typedValue.getValue().getValue());
@@ -411,7 +444,7 @@ public class AasSubmodelElementHelper {
                 //                    break;
                 //
                 case String:
-                    PlainProperty<String> myStringProperty = new PlainProperty<>(NODE_MANAGER, myPropertyId, browseName, displayName);
+                    PlainProperty<String> myStringProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
                     myStringProperty.setDataTypeId(Identifiers.String);
                     if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
                         myStringProperty.setValue(typedValue.getValue().getValue());
@@ -440,7 +473,7 @@ public class AasSubmodelElementHelper {
                 //
                 default:
                     LOG.warn("setValueAndType: Property {}: Unknown type: {}; use string as default", prop.getBrowseName().getName(), aasProperty.getValueType());
-                    PlainProperty<String> myDefaultProperty = new PlainProperty<>(NODE_MANAGER, myPropertyId, browseName, displayName);
+                    PlainProperty<String> myDefaultProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
                     myDefaultProperty.setDataTypeId(Identifiers.String);
                     myDefaultProperty.setValue(aasProperty.getValue());
                     prop.addProperty(myDefaultProperty);
@@ -456,8 +489,9 @@ public class AasSubmodelElementHelper {
     }
 
 
-    public static void setRangeValueAndType(String valueType, String minValue, String maxValue, AASRangeType range, NodeId myPropertyIdMin, QualifiedName browseNameMin,
-                                            LocalizedText displayNameMin, NodeId myPropertyIdMax, QualifiedName browseNameMax, LocalizedText displayNameMax)
+    @SuppressWarnings("java:S125")
+    public static void setRangeValueAndType(String valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
+                                            ValueData maxData)
             throws StatusException {
         try {
             TypedValue<?> minTypedValue = TypedValueFactory.create(valueType, minValue);
@@ -475,7 +509,7 @@ public class AasSubmodelElementHelper {
             switch (valueDataType) {
                 //                case ByteString:
                 //                    if (minValue != null) {
-                //                        PlainProperty<ByteString> myBSProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                //                        PlainProperty<ByteString> myBSProperty = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                 //                        myBSProperty.setDataTypeId(Identifiers.ByteString);
                 //                        // TO DO integrate Range value
                 //                        //myBSProperty.setValue(((Base64Binary)minVal).getValue());
@@ -484,7 +518,7 @@ public class AasSubmodelElementHelper {
                 //                    }
                 //
                 //                    if (maxValue != null) {
-                //                        PlainProperty<ByteString> myBSProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                //                        PlainProperty<ByteString> myBSProperty = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                 //                        myBSProperty.setDataTypeId(Identifiers.ByteString);
                 //                        // TO DO integrate Range value
                 //                        //myBSProperty.setValue(((Base64Binary)maxVal).getValue());
@@ -495,7 +529,7 @@ public class AasSubmodelElementHelper {
                 //
                 case Boolean:
                     if (minValue != null) {
-                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMin, browseNameMin, displayNameMin);
+                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                         myBoolProperty.setDataTypeId(Identifiers.Boolean);
                         if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
                             myBoolProperty.setValue(minTypedValue.getValue());
@@ -505,7 +539,7 @@ public class AasSubmodelElementHelper {
                     }
 
                     if (maxValue != null) {
-                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMax, browseNameMax, displayNameMax);
+                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                         myBoolProperty.setDataTypeId(Identifiers.Boolean);
                         if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
                             myBoolProperty.setValue(maxTypedValue.getValue());
@@ -517,7 +551,7 @@ public class AasSubmodelElementHelper {
 
                 //                case DateTime:
                 //                    if (minValue != null) {
-                //                        PlainProperty<DateTime> myDateProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                //                        PlainProperty<DateTime> myDateProperty = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                 //                        myDateProperty.setDataTypeId(Identifiers.DateTime);
                 //                        // TO DO integrate Range value
                 //                        //myDateProperty.setValue(new DateTime(((DateValue)minVal).getValue().toGregorianCalendar()));
@@ -526,7 +560,7 @@ public class AasSubmodelElementHelper {
                 //                    }
                 //
                 //                    if (maxValue != null) {
-                //                        PlainProperty<DateTime> myDateProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                //                        PlainProperty<DateTime> myDateProperty = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                 //                        myDateProperty.setDataTypeId(Identifiers.DateTime);
                 //                        // TO DO integrate Range value
                 //                        //myDateProperty.setValue(new DateTime(((DateValue)maxVal).getValue().toGregorianCalendar()));
@@ -536,7 +570,7 @@ public class AasSubmodelElementHelper {
                 //                    break;
                 case Int32:
                     if (minValue != null) {
-                        PlainProperty<Integer> myIntProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMin, browseNameMin, displayNameMin);
+                        PlainProperty<Integer> myIntProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                         myIntProperty.setDataTypeId(Identifiers.Int32);
                         if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
                             myIntProperty.setValue(minTypedValue.getValue());
@@ -546,7 +580,7 @@ public class AasSubmodelElementHelper {
                     }
 
                     if (maxValue != null) {
-                        PlainProperty<Integer> myIntProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMax, browseNameMax, displayNameMax);
+                        PlainProperty<Integer> myIntProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                         myIntProperty.setDataTypeId(Identifiers.Int32);
                         if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
                             myIntProperty.setValue(maxTypedValue.getValue());
@@ -558,7 +592,7 @@ public class AasSubmodelElementHelper {
 
                 //                case UInt32:
                 //                    if (minValue != null) {
-                //                        PlainProperty<UnsignedInteger> myUIntProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                //                        PlainProperty<UnsignedInteger> myUIntProperty = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                 //                        myUIntProperty.setDataTypeId(Identifiers.UInt32);
                 //                        // TO DO integrate Range value
                 //                        //myIntProperty.setValue(((IntValue)minVal).getValue());
@@ -567,7 +601,7 @@ public class AasSubmodelElementHelper {
                 //                    }
                 //
                 //                    if (maxValue != null) {
-                //                        PlainProperty<UnsignedInteger> myUIntProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                //                        PlainProperty<UnsignedInteger> myUIntProperty = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                 //                        myUIntProperty.setDataTypeId(Identifiers.UInt32);
                 //                        // TO DO integrate Range value
                 //                        //myIntProperty.setValue(((IntValue)maxVal).getValue());
@@ -578,7 +612,7 @@ public class AasSubmodelElementHelper {
 
                 case Int64:
                     if (minValue != null) {
-                        PlainProperty<Long> myLongProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMin, browseNameMin, displayNameMin);
+                        PlainProperty<Long> myLongProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                         myLongProperty.setDataTypeId(Identifiers.Int64);
                         if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
                             Object obj = minTypedValue.getValue();
@@ -592,7 +626,7 @@ public class AasSubmodelElementHelper {
                     }
 
                     if (maxValue != null) {
-                        PlainProperty<Long> myLongProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMax, browseNameMax, displayNameMax);
+                        PlainProperty<Long> myLongProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                         myLongProperty.setDataTypeId(Identifiers.Int64);
                         if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
                             Object obj = maxTypedValue.getValue();
@@ -608,7 +642,7 @@ public class AasSubmodelElementHelper {
 
                 //                case UInt64:
                 //                    if (minValue != null) {
-                //                        PlainProperty<UnsignedLong> myULongProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                //                        PlainProperty<UnsignedLong> myULongProperty = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                 //                        myULongProperty.setDataTypeId(Identifiers.UInt64);
                 //                        // TO DO integrate Range value
                 //                        //myLongProperty.setValue(((LongValue)minVal).getValue());
@@ -617,7 +651,7 @@ public class AasSubmodelElementHelper {
                 //                    }
                 //
                 //                    if (maxValue != null) {
-                //                        PlainProperty<UnsignedLong> myULongProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                //                        PlainProperty<UnsignedLong> myULongProperty = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                 //                        myULongProperty.setDataTypeId(Identifiers.UInt64);
                 //                        // TO DO integrate Range value
                 //                        //myLongProperty.setValue(((LongValue)maxVal).getValue());
@@ -628,7 +662,7 @@ public class AasSubmodelElementHelper {
 
                 case Int16:
                     if (minValue != null) {
-                        PlainProperty<Short> myInt16Property = new PlainProperty<>(NODE_MANAGER, myPropertyIdMin, browseNameMin, displayNameMin);
+                        PlainProperty<Short> myInt16Property = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                         myInt16Property.setDataTypeId(Identifiers.Int16);
                         if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
                             myInt16Property.setValue(minTypedValue.getValue());
@@ -638,7 +672,7 @@ public class AasSubmodelElementHelper {
                     }
 
                     if (maxValue != null) {
-                        PlainProperty<Short> myInt16Property = new PlainProperty<>(NODE_MANAGER, myPropertyIdMax, browseNameMax, displayNameMax);
+                        PlainProperty<Short> myInt16Property = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                         myInt16Property.setDataTypeId(Identifiers.Int16);
                         if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
                             myInt16Property.setValue(maxTypedValue.getValue());
@@ -650,7 +684,7 @@ public class AasSubmodelElementHelper {
 
                 //                case UInt16:
                 //                    if (minValue != null) {
-                //                        PlainProperty<UnsignedShort> myUInt16Property = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                //                        PlainProperty<UnsignedShort> myUInt16Property = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                 //                        myUInt16Property.setDataTypeId(Identifiers.UInt16);
                 //                        // TO DO integrate Range value
                 //                        //myInt16Property.setValue(((ShortValue)minVal).getValue());
@@ -659,7 +693,7 @@ public class AasSubmodelElementHelper {
                 //                    }
                 //
                 //                    if (maxValue != null) {
-                //                        PlainProperty<UnsignedShort> myUInt16Property = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                //                        PlainProperty<UnsignedShort> myUInt16Property = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                 //                        myUInt16Property.setDataTypeId(Identifiers.UInt16);
                 //                        // TO DO integrate Range value
                 //                        //myInt16Property.setValue(((ShortValue)maxVal).getValue());
@@ -670,7 +704,7 @@ public class AasSubmodelElementHelper {
 
                 case SByte:
                     if (minValue != null) {
-                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMin, browseNameMin, displayNameMin);
+                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                         mySByteProperty.setDataTypeId(Identifiers.SByte);
                         if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
                             mySByteProperty.setValue(minTypedValue.getValue());
@@ -680,7 +714,7 @@ public class AasSubmodelElementHelper {
                     }
 
                     if (maxValue != null) {
-                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMax, browseNameMax, displayNameMax);
+                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                         mySByteProperty.setDataTypeId(Identifiers.SByte);
                         if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
                             mySByteProperty.setValue(maxTypedValue.getValue());
@@ -692,7 +726,7 @@ public class AasSubmodelElementHelper {
 
                 //                case Byte:
                 //                    if (minValue != null) {
-                //                        PlainProperty<UnsignedByte> myByteProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                //                        PlainProperty<UnsignedByte> myByteProperty = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                 //                        myByteProperty.setDataTypeId(Identifiers.Byte);
                 //                        // TO DO integrate Range value
                 //                        //myByteProperty.setValue(((ByteValue)minVal).getValue());
@@ -701,7 +735,7 @@ public class AasSubmodelElementHelper {
                 //                    }
                 //
                 //                    if (maxValue != null) {
-                //                        PlainProperty<UnsignedByte> myByteProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                //                        PlainProperty<UnsignedByte> myByteProperty = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                 //                        myByteProperty.setDataTypeId(Identifiers.Byte);
                 //                        // TO DO integrate Range value
                 //                        //myByteProperty.setValue(((ByteValue)maxVal).getValue());
@@ -712,7 +746,7 @@ public class AasSubmodelElementHelper {
                 //
                 case Double:
                     if (minValue != null) {
-                        PlainProperty<Double> myDoubleProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMin, browseNameMin, displayNameMin);
+                        PlainProperty<Double> myDoubleProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                         myDoubleProperty.setDataTypeId(Identifiers.Double);
                         if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
                             myDoubleProperty.setValue(minTypedValue.getValue());
@@ -722,7 +756,7 @@ public class AasSubmodelElementHelper {
                     }
 
                     if (maxValue != null) {
-                        PlainProperty<Double> myDoubleProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMax, browseNameMax, displayNameMax);
+                        PlainProperty<Double> myDoubleProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                         myDoubleProperty.setDataTypeId(Identifiers.Double);
                         if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
                             myDoubleProperty.setValue(maxTypedValue.getValue());
@@ -734,7 +768,7 @@ public class AasSubmodelElementHelper {
 
                 case Float:
                     if (minValue != null) {
-                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMin, browseNameMin, displayNameMin);
+                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                         myFloatProperty.setDataTypeId(Identifiers.Float);
                         if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
                             myFloatProperty.setValue(minTypedValue.getValue());
@@ -744,7 +778,7 @@ public class AasSubmodelElementHelper {
                     }
 
                     if (maxValue != null) {
-                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMax, browseNameMax, displayNameMax);
+                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                         myFloatProperty.setDataTypeId(Identifiers.Float);
                         if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
                             myFloatProperty.setValue(maxTypedValue.getValue());
@@ -756,7 +790,7 @@ public class AasSubmodelElementHelper {
 
                 //                case LocalizedText:
                 //                    if (minValue != null) {
-                //                        PlainProperty<LocalizedText> myLTProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                //                        PlainProperty<LocalizedText> myLTProperty = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                 //                        myLTProperty.setDataTypeId(Identifiers.String);
                 //                        // TO DO integrate Range value
                 //                        //myLTProperty.setValue(((QNameValue)minVal).getValue().toString());
@@ -765,7 +799,7 @@ public class AasSubmodelElementHelper {
                 //                    }
                 //
                 //                    if (maxValue != null) {
-                //                        PlainProperty<LocalizedText> myLTProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                //                        PlainProperty<LocalizedText> myLTProperty = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                 //                        myLTProperty.setDataTypeId(Identifiers.LocalizedText);
                 //                        // TO DO integrate Range value
                 //                        //myQNameProperty.setValue(((QNameValue)maxVal).getValue().toString());
@@ -776,7 +810,7 @@ public class AasSubmodelElementHelper {
                 //
                 case String:
                     if (minValue != null) {
-                        PlainProperty<String> myStringProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMin, browseNameMin, displayNameMin);
+                        PlainProperty<String> myStringProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                         myStringProperty.setDataTypeId(Identifiers.String);
                         if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
                             myStringProperty.setValue(minTypedValue.getValue());
@@ -786,7 +820,7 @@ public class AasSubmodelElementHelper {
                     }
 
                     if (maxValue != null) {
-                        PlainProperty<String> myStringProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMax, browseNameMax, displayNameMax);
+                        PlainProperty<String> myStringProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                         myStringProperty.setDataTypeId(Identifiers.String);
                         if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
                             myStringProperty.setValue(maxTypedValue.getValue());
@@ -798,7 +832,7 @@ public class AasSubmodelElementHelper {
 
                 //                case UtcTime:
                 //                    if (minValue != null) {
-                //                        PlainProperty<DateTime> myTimeProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                //                        PlainProperty<DateTime> myTimeProperty = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                 //                        myTimeProperty.setDataTypeId(Identifiers.DateTime);
                 //                        // TO DO integrate Range value
                 //                        //myTimeProperty.setValue(new DateTime(((TimeValue)minVal).getValue().toGregorianCalendar()));
@@ -807,7 +841,7 @@ public class AasSubmodelElementHelper {
                 //                    }
                 //
                 //                    if (maxValue != null) {
-                //                        PlainProperty<DateTime> myTimeProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                //                        PlainProperty<DateTime> myTimeProperty = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                 //                        myTimeProperty.setDataTypeId(Identifiers.DateTime);
                 //                        // TO DO integrate Range value
                 //                        //myTimeProperty.setValue(new DateTime(((TimeValue)maxVal).getValue().toGregorianCalendar()));
@@ -818,7 +852,7 @@ public class AasSubmodelElementHelper {
                 default:
                     LOG.warn("setRangeValueAndType: Range {}: Unknown type: {}; use string as default", range.getBrowseName().getName(), valueType);
                     if (minValue != null) {
-                        PlainProperty<String> myStringProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMin, browseNameMin, displayNameMin);
+                        PlainProperty<String> myStringProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
                         myStringProperty.setDataTypeId(Identifiers.String);
                         myStringProperty.setValue(minValue);
                         myStringProperty.setDescription(new LocalizedText("", ""));
@@ -826,7 +860,7 @@ public class AasSubmodelElementHelper {
                     }
 
                     if (maxValue != null) {
-                        PlainProperty<String> myStringProperty = new PlainProperty<>(NODE_MANAGER, myPropertyIdMax, browseNameMax, displayNameMax);
+                        PlainProperty<String> myStringProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
                         myStringProperty.setDataTypeId(Identifiers.String);
                         myStringProperty.setValue(maxValue);
                         myStringProperty.setDescription(new LocalizedText("", ""));
@@ -837,6 +871,59 @@ public class AasSubmodelElementHelper {
         }
         catch (Exception ex) {
             LOG.error("setPropertyValueAndType Exception", ex);
+        }
+    }
+
+
+    /**
+     * Sets the data in the given Reference node.
+     *
+     * @param ref The desired UA reference object
+     * @param refNode The AAS Reference object with the source data
+     * @throws StatusException If the operation fails
+     */
+    public static void setAasReferenceData(Reference ref, AASReferenceType refNode) throws StatusException {
+        setAasReferenceData(ref, refNode, VALUES_READ_ONLY);
+    }
+
+
+    /**
+     * Sets the data in the given Reference node.
+     *
+     * @param ref The desired UA reference object
+     * @param refNode The AAS Reference object with the source data
+     * @param readOnly True if the value should be read-only
+     * @throws StatusException If the operation fails
+     */
+    public static void setAasReferenceData(Reference ref, AASReferenceType refNode, boolean readOnly) throws StatusException {
+        if (refNode == null) {
+            throw new IllegalArgumentException("refNode is null");
+        }
+        else if (ref == null) {
+            throw new IllegalArgumentException("ref is null");
+        }
+
+        try {
+            List<AASKeyDataType> keyList = new ArrayList<>();
+            ref.getKeys().stream().map(k -> {
+                AASKeyDataType keyValue = new AASKeyDataType();
+                keyValue.setIdType(ValueConverter.getAasKeyType(k.getIdType()));
+                keyValue.setType(ValueConverter.getAasKeyElementsDataType(k.getType()));
+                keyValue.setValue(k.getValue());
+                return keyValue;
+            }).forEachOrdered(keyList::add);
+
+            refNode.getKeysNode().setArrayDimensions(new UnsignedInteger[] {
+                    UnsignedInteger.valueOf(keyList.size())
+            });
+            if (readOnly) {
+                refNode.getKeysNode().setAccessLevel(AccessLevelType.CurrentRead);
+            }
+            refNode.setKeys(keyList.toArray(AASKeyDataType[]::new));
+        }
+        catch (Exception ex) {
+            LOG.error("setAasReferenceData Exception", ex);
+            throw ex;
         }
     }
 
@@ -1051,59 +1138,6 @@ public class AasSubmodelElementHelper {
         }
         catch (Exception ex) {
             LOG.error("setEntityValue Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Sets the data in the given Reference node.
-     *
-     * @param ref The desired UA reference object
-     * @param refNode The AAS Reference object with the source data
-     * @throws StatusException If the operation fails
-     */
-    private static void setAasReferenceData(Reference ref, AASReferenceType refNode) throws StatusException {
-        setAasReferenceData(ref, refNode, VALUES_READ_ONLY);
-    }
-
-
-    /**
-     * Sets the data in the given Reference node.
-     *
-     * @param ref The desired UA reference object
-     * @param refNode The AAS Reference object with the source data
-     * @param readOnly True if the value should be read-only
-     * @throws StatusException If the operation fails
-     */
-    private static void setAasReferenceData(Reference ref, AASReferenceType refNode, boolean readOnly) throws StatusException {
-        if (refNode == null) {
-            throw new IllegalArgumentException("refNode is null");
-        }
-        else if (ref == null) {
-            throw new IllegalArgumentException("ref is null");
-        }
-
-        try {
-            List<AASKeyDataType> keyList = new ArrayList<>();
-            ref.getKeys().stream().map(k -> {
-                AASKeyDataType keyValue = new AASKeyDataType();
-                keyValue.setIdType(ValueConverter.getAasKeyType(k.getIdType()));
-                keyValue.setType(ValueConverter.getAasKeyElementsDataType(k.getType()));
-                keyValue.setValue(k.getValue());
-                return keyValue;
-            }).forEachOrdered(keyList::add);
-
-            refNode.getKeysNode().setArrayDimensions(new UnsignedInteger[] {
-                    UnsignedInteger.valueOf(keyList.size())
-            });
-            if (readOnly) {
-                refNode.getKeysNode().setAccessLevel(AccessLevelType.CurrentRead);
-            }
-            refNode.setKeys(keyList.toArray(AASKeyDataType[]::new));
-        }
-        catch (Exception ex) {
-            LOG.error("setAasReferenceData Exception", ex);
             throw ex;
         }
     }

@@ -34,7 +34,6 @@ import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
-import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Argument;
@@ -47,6 +46,7 @@ import com.prosysopc.ua.types.opcua.server.FolderTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceMethodManagerListener;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -116,7 +116,6 @@ import opc.i4aas.AASIdentifierKeyValuePairList;
 import opc.i4aas.AASIdentifierKeyValuePairType;
 import opc.i4aas.AASIrdiConceptDescriptionType;
 import opc.i4aas.AASIriConceptDescriptionType;
-import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASMultiLanguagePropertyType;
 import opc.i4aas.AASOperationType;
 import opc.i4aas.AASOrderedSubmodelElementCollectionType;
@@ -284,7 +283,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             super.init();
 
-            AasSubmodelElementHelper.NODE_MANAGER = this;
+            AasSubmodelElementHelper.setNodeManager(this);
 
             createAddressSpace();
         }
@@ -751,66 +750,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 NodeId nid = createNodeId(node, browseName);
                 AASReferenceType nodeRef = createInstance(AASReferenceTypeNode.class, nid, browseName, LocalizedText.english(name));
 
-                setAasReferenceData(ref, nodeRef);
+                AasSubmodelElementHelper.setAasReferenceData(ref, nodeRef);
                 node.addComponent(nodeRef);
                 node.addReference(nodeRef, Identifiers.HasDictionaryEntry, false);
             }
         }
         catch (Exception ex) {
             LOG.error("addConceptDescriptionReference Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Sets the data in the given Reference node.
-     *
-     * @param ref The desired UA reference object
-     * @param refNode The AAS Reference object with the source data
-     * @throws StatusException If the operation fails
-     */
-    private void setAasReferenceData(Reference ref, AASReferenceType refNode) throws StatusException {
-        setAasReferenceData(ref, refNode, VALUES_READ_ONLY);
-    }
-
-
-    /**
-     * Sets the data in the given Reference node.
-     *
-     * @param ref The desired UA reference object
-     * @param refNode The AAS Reference object with the source data
-     * @param readOnly True if the value should be read-only
-     * @throws StatusException If the operation fails
-     */
-    private void setAasReferenceData(Reference ref, AASReferenceType refNode, boolean readOnly) throws StatusException {
-        if (refNode == null) {
-            throw new IllegalArgumentException("refNode is null");
-        }
-        else if (ref == null) {
-            throw new IllegalArgumentException("ref is null");
-        }
-
-        try {
-            List<AASKeyDataType> keyList = new ArrayList<>();
-            ref.getKeys().stream().map(k -> {
-                AASKeyDataType keyValue = new AASKeyDataType();
-                keyValue.setIdType(ValueConverter.getAasKeyType(k.getIdType()));
-                keyValue.setType(ValueConverter.getAasKeyElementsDataType(k.getType()));
-                keyValue.setValue(k.getValue());
-                return keyValue;
-            }).forEachOrdered(keyList::add);
-
-            refNode.getKeysNode().setArrayDimensions(new UnsignedInteger[] {
-                    UnsignedInteger.valueOf(keyList.size())
-            });
-            if (readOnly) {
-                refNode.getKeysNode().setAccessLevel(AccessLevelType.CurrentRead);
-            }
-            refNode.setKeys(keyList.toArray(AASKeyDataType[]::new));
-        }
-        catch (Exception ex) {
-            LOG.error("setAasReferenceData Exception", ex);
             throw ex;
         }
     }
@@ -972,7 +918,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
                 LOG.debug("addAasReference: add Node {} to Node {}", nid, node.getNodeId());
 
-                setAasReferenceData(ref, nodeRef, readOnly);
+                AasSubmodelElementHelper.setAasReferenceData(ref, nodeRef, readOnly);
 
                 node.addComponent(nodeRef);
 
@@ -1584,7 +1530,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     addAasReferenceAasNS(identifierPairNode, externalSubjectId, AASIdentifierKeyValuePairType.EXTERNAL_SUBJECT_ID);
                 }
                 else {
-                    setAasReferenceData(externalSubjectId, extSubjectNode);
+                    AasSubmodelElementHelper.setAasReferenceData(externalSubjectId, extSubjectNode);
                 }
             }
 
@@ -1959,7 +1905,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param prop The UA Property object
      * @param propRef The AAS reference to the property
      */
-    @SuppressWarnings("java:S125")
     private void addOpcUaProperty(Property aasProperty, Submodel submodel, AASPropertyType prop, Reference propRef) {
         try {
             NodeId myPropertyId = new NodeId(getNamespaceIndex(), prop.getNodeId().getValue().toString() + "." + AASPropertyType.VALUE);
@@ -1969,7 +1914,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             submodelElementAasMap.put(myPropertyId, new SubmodelElementData(aasProperty, submodel, SubmodelElementData.Type.PROPERTY_VALUE, propRef));
             LOG.debug("setPropertyValueAndType: NodeId {}; Property: {}", myPropertyId, aasProperty);
 
-            AasSubmodelElementHelper.setPropertyValueAndType(aasProperty, prop, myPropertyId, browseName, displayName);
+            AasSubmodelElementHelper.setPropertyValueAndType(aasProperty, prop, new ValueData(myPropertyId, browseName, displayName));
         }
         catch (Exception ex) {
             LOG.error("addOpcUaProperty Exception", ex);
@@ -2056,7 +2001,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 addSubmodelElementBaseData(refElemNode, aasRefElem);
 
                 if (aasRefElem.getValue() != null) {
-                    setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
+                    AasSubmodelElementHelper.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
                 }
 
                 Reference refElemRef = AasUtils.toReference(parentRef, aasRefElem);
@@ -2105,7 +2050,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 addSubmodelElementBaseData(rangeNode, aasRange);
 
                 Reference rangeRef = AasUtils.toReference(parentRef, aasRange);
-                AddOpcUaRange(aasRange, rangeNode, submodel, rangeRef);
+                addOpcUaRange(aasRange, rangeNode, submodel, rangeRef);
 
                 if (ordered) {
                     node.addReference(rangeNode, Identifiers.HasOrderedComponent, false);
@@ -2133,7 +2078,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param rangeRef The AAS reference to the Range
      */
     @SuppressWarnings("java:S125")
-    private void AddOpcUaRange(Range aasRange, AASRangeType range, Submodel submodel, Reference rangeRef) {
+    private void addOpcUaRange(Range aasRange, AASRangeType range, Submodel submodel, Reference rangeRef) {
         try {
             String minValue = aasRange.getMin();
             String maxValue = aasRange.getMax();
@@ -2150,8 +2095,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             submodelElementOpcUAMap.put(rangeRef, range);
 
-            AasSubmodelElementHelper.setRangeValueAndType(valueType, minValue, maxValue, range, myPropertyIdMin, browseNameMin, displayNameMin, myPropertyIdMax, browseNameMax,
-                    displayNameMax);
+            AasSubmodelElementHelper.setRangeValueAndType(valueType, minValue, maxValue, range, new ValueData(myPropertyIdMin, browseNameMin, displayNameMin),
+                    new ValueData(myPropertyIdMax, browseNameMax, displayNameMax));
         }
         catch (Exception ex) {
             LOG.error("setRangeValueAndType Exception", ex);
@@ -2294,7 +2239,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         addAasReferenceAasNS(entityNode, aasEntity.getGlobalAssetId(), AASEntityType.GLOBAL_ASSET_ID, false);
                     }
                     else {
-                        setAasReferenceData(aasEntity.getGlobalAssetId(), entityNode.getGlobalAssetIdNode(), false);
+                        AasSubmodelElementHelper.setAasReferenceData(aasEntity.getGlobalAssetId(), entityNode.getGlobalAssetIdNode(), false);
                     }
 
                     submodelElementAasMap.put(entityNode.getGlobalAssetIdNode().getKeysNode().getNodeId(),
@@ -2533,8 +2478,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 if (relElemNode != null) {
                     addSubmodelElementBaseData(relElemNode, aasRelElem);
 
-                    setAasReferenceData(aasRelElem.getFirst(), relElemNode.getFirstNode(), false);
-                    setAasReferenceData(aasRelElem.getSecond(), relElemNode.getSecondNode(), false);
+                    AasSubmodelElementHelper.setAasReferenceData(aasRelElem.getFirst(), relElemNode.getFirstNode(), false);
+                    AasSubmodelElementHelper.setAasReferenceData(aasRelElem.getSecond(), relElemNode.getSecondNode(), false);
 
                     submodelElementAasMap.put(relElemNode.getFirstNode().getKeysNode().getNodeId(),
                             new SubmodelElementData(aasRelElem, submodel, SubmodelElementData.Type.RELATIONSHIP_ELEMENT_FIRST, relElemRef));
