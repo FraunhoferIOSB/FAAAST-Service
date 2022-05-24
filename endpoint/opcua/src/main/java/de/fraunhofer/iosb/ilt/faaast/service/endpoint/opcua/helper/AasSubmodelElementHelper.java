@@ -283,10 +283,7 @@ public class AasSubmodelElementHelper {
      * @param aasProperty The desired Property
      * @param prop The desired AAS Property.
      * @param valueData The desired property data.
-     * @param myPropertyId
-     * @param browseName
-     * @param displayName
-     * @throws StatusException
+     * @throws StatusException If an error occurs
      */
     @SuppressWarnings("java:S125")
     public static void setPropertyValueAndType(Property aasProperty, AASPropertyType prop, ValueData valueData)
