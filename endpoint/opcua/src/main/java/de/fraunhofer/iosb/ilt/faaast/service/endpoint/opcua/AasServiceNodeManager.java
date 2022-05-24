@@ -996,6 +996,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     }
                 }
 
+                if (VALUES_READ_ONLY) {
+                    fileNode.getMimeTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                }
+
                 if (ordered) {
                     node.addReference(fileNode, Identifiers.HasOrderedComponent, false);
                 }
@@ -1960,6 +1964,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     submodelElementOpcUAMap.put(blobRef, blobNode);
 
                     blobNode.setValue(ByteString.valueOf(aasBlob.getValue()));
+                }
+
+                if (VALUES_READ_ONLY) {
+                    blobNode.getMimeTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
                 }
 
                 if (ordered) {
