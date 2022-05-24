@@ -2052,6 +2052,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 Reference rangeRef = AasUtils.toReference(parentRef, aasRange);
                 addOpcUaRange(aasRange, rangeNode, submodel, rangeRef);
 
+                if (VALUES_READ_ONLY) {
+                    // ValueType read-only
+                    rangeNode.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+                }
+
                 if (ordered) {
                     node.addReference(rangeNode, Identifiers.HasOrderedComponent, false);
                 }
