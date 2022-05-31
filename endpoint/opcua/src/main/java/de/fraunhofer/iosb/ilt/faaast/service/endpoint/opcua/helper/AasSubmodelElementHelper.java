@@ -355,7 +355,7 @@ public class AasSubmodelElementHelper {
                     myLongProperty.setDataTypeId(Identifiers.Int64);
                     if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
                         Object obj = typedValue.getValue().getValue();
-                        if (!(obj instanceof Long)) {
+                        if ((obj != null) && (!(obj instanceof Long))) {
                             obj = Long.parseLong(obj.toString());
                         }
                         myLongProperty.setValue(obj);
@@ -613,7 +613,7 @@ public class AasSubmodelElementHelper {
                         myLongProperty.setDataTypeId(Identifiers.Int64);
                         if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
                             Object obj = minTypedValue.getValue();
-                            if (!(obj instanceof Long)) {
+                            if ((obj != null) && (!(obj instanceof Long))) {
                                 obj = Long.parseLong(obj.toString());
                             }
                             myLongProperty.setValue(obj);
@@ -627,7 +627,7 @@ public class AasSubmodelElementHelper {
                         myLongProperty.setDataTypeId(Identifiers.Int64);
                         if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
                             Object obj = maxTypedValue.getValue();
-                            if (!(obj instanceof Long)) {
+                            if ((obj != null) && (!(obj instanceof Long))) {
                                 obj = Long.parseLong(obj.toString());
                             }
                             myLongProperty.setValue(obj);
