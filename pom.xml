@@ -77,7 +77,7 @@
         <guava.version>31.1-jre</guava.version>
         <jackson.databind.version>2.13.3</jackson.databind.version>
         <jackson.version>2.13.3</jackson.version>
-        <jakarta.servlet.version>5.0.0</jakarta.servlet.version>
+        <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <javax.servlet.version>2.5</javax.servlet.version>
         <jetty.version>11.0.9</jetty.version>
         <jsonassert.version>1.5.0</jsonassert.version>
