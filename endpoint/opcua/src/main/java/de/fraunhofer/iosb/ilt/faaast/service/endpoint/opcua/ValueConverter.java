@@ -23,6 +23,8 @@ import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import io.adminshell.aas.v3.model.AssetKind;
 import io.adminshell.aas.v3.model.Blob;
@@ -277,7 +279,7 @@ public class ValueConverter {
 
     /**
      * Converts the given datatype to the corresponding AASValueTypeDataType.
-     * 
+     *
      * @param type The desired datatype
      * @return The corresponding AASValueTypeDataType
      */
@@ -481,7 +483,7 @@ public class ValueConverter {
 
     /**
      * Gets AAS LangString Set from a LocalizedText array.
-     * 
+     *
      * @param value The desired Lang String Set
      * @return The corresponding LocalizedText array
      */
@@ -507,7 +509,8 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given KeyElements value to the corresponding AASKeyElementsDataType
+     * Converts the given KeyElements value to the corresponding
+     * AASKeyElementsDataType
      *
      * @param keyElement The desired KeyElements value.
      * @return The converted AASKeyElementsDataType.
@@ -632,8 +635,9 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given AASKeyElementsDataType to the corresponding KeyElements
-     * 
+     * Converts the given AASKeyElementsDataType to the corresponding
+     * KeyElements
+     *
      * @param value The desired AASKeyElementsDataType
      * @return The corresponding KeyElements type
      */
@@ -822,7 +826,7 @@ public class ValueConverter {
 
     /**
      * Creates a reference from the given List of Keys.
-     * 
+     *
      * @param value The desired list of Keys.
      * @return The created reference.
      */
@@ -851,7 +855,7 @@ public class ValueConverter {
 
     /**
      * Sets the desired value in the given SubmodelElement.
-     * 
+     *
      * @param data The desired SubmodelElementData.
      * @param dv The desired Value.
      */
@@ -862,7 +866,7 @@ public class ValueConverter {
 
     /**
      * Sets the desired value in the given SubmodelElement.
-     * 
+     *
      * @param submodelElement The desired SubmodelElement.
      * @param type The desired type.
      * @param variant The desired Value.
@@ -975,7 +979,7 @@ public class ValueConverter {
 
     /**
      * Sets the input arguments for an operation into the given inputVariables.
-     * 
+     *
      * @param inputVariables The desired inputVariables.
      * @param inputArguments The desired inputArguments
      * @throws StatusException If the operation fails
@@ -1005,8 +1009,9 @@ public class ValueConverter {
 
 
     /**
-     * Sets the output arguments for an operation from the given output variables.
-     * 
+     * Sets the output arguments for an operation from the given output
+     * variables.
+     *
      * @param outputVariables The desired output variables
      * @param outputArguments The desired output arguments
      * @throws StatusException If the operation fails
@@ -1034,7 +1039,7 @@ public class ValueConverter {
 
     /**
      * Gets the corresponding variant value from a given SubmodelElement
-     * 
+     *
      * @param submodelElement The desired SubmodelElement
      * @param type The desired type
      * @return The corresponding value
@@ -1046,8 +1051,7 @@ public class ValueConverter {
         try {
             switch (type) {
                 case PROPERTY_VALUE: {
-                    Property aasProp = (Property) submodelElement;
-                    retval = new Variant(aasProp.getValue());
+                    retval = new Variant(ElementValueMapper.<Property, PropertyValue> toValue(submodelElement).getValue().getValue());
                     break;
                 }
 

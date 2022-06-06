@@ -452,7 +452,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                 }
                 OperationVariable[] result = new OperationVariable[outputVariables.length];
                 for (int i = 0; i < methodOutputArguments.length; i++) {
-                    String argumentName = methodArguments[i].getName();
+                    String argumentName = methodOutputArguments[i].getName();
                     for (int j = 0; j < outputVariables.length; j++) {
                         if (Objects.equals(argumentName, outputVariables[j].getValue().getIdShort())) {
                             SubmodelElement element = outputVariables[j].getValue();
