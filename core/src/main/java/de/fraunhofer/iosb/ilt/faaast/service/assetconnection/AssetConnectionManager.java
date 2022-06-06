@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -205,7 +203,8 @@ public class AssetConnectionManager {
         Reference temp = reference;
         try {
             ReferenceHelper.completeReferenceWithProperKeyElements(temp, this.serviceContext.getAASEnvironment());
-        } catch (ResourceNotFoundException ex) {
+        }
+        catch (ResourceNotFoundException ex) {
             // ignore
         }
         return connections.stream().anyMatch(x -> x.getOperationProviders().containsKey(temp));
