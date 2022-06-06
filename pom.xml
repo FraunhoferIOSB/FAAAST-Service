@@ -104,7 +104,7 @@
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
         <milo.version>0.6.6</milo.version>
         <mockito.version>4.6.0</mockito.version>
-        <moquette.version>0.14.3</moquette.version>
+        <moquette.version>0.15.1</moquette.version>
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.6.3</picocli.version>
         <proguard.core.version>9.0.0</proguard.core.version>
