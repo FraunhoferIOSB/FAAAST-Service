@@ -46,6 +46,8 @@ import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import opc.i4aas.AASAssetKindDataType;
 import opc.i4aas.AASEntityTypeDataType;
 import opc.i4aas.AASIdentifierTypeDataType;
@@ -1012,7 +1014,8 @@ public class ValueConverter {
      * @throws StatusException If the operation fails
      */
     public static void setOutputArguments(List<OperationVariable> outputVariables, Variant[] outputArguments) throws StatusException {
-        if (outputArguments.length != outputVariables.size()) {
+        List<Variant> outputValues = Stream.of(outputArguments).filter(x -> x != null).collect(Collectors.toList());
+        if (outputValues.size() != outputVariables.size()) {
             throw new StatusException(StatusCodes.Bad_InvalidArgument);
         }
         else {
