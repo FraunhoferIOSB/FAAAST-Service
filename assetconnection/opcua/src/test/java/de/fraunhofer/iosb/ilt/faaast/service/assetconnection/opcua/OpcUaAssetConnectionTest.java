@@ -271,24 +271,28 @@ public class OpcUaAssetConnectionTest {
                 Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0")),
                 null,
                 null,
-                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "2.0")));
+                Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")));
         testInvokeOperation(nodeIdSqrt,
                 false,
                 Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0")),
                 null,
                 null,
-                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "2.0")));
+                Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")));
         testInvokeOperation(nodeIdSqrt,
                 true,
                 null,
-                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0")),
-                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "2.0")),
-                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "2.0")));
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0"),
+                        "x_sqrt", PropertyValue.of(Datatype.DOUBLE, "4.0")),
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0"),
+                        "x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")),
+                Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")));
         testInvokeOperation(nodeIdSqrt,
                 false,
                 null,
-                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0")),
-                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "2.0")),
-                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "2.0")));
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0"),
+                        "x_sqrt", PropertyValue.of(Datatype.DOUBLE, "4.0")),
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0"),
+                        "x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")),
+                Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")));
     }
 }
