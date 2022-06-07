@@ -107,7 +107,7 @@
         <moquette.version>0.15.1</moquette.version>
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.6.3</picocli.version>
-        <proguard.core.version>9.0.0</proguard.core.version>
+        <proguard.core.version>9.0.1</proguard.core.version>
         <proguard.version>7.2.1</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>4.7.2-13</prosys.sdk.version>
