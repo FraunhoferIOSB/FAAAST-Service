@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tino Bischoff
  */
-@SuppressWarnings("java:S2139")
 public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint.class);
@@ -75,7 +74,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      *
      * @return The MessageBus
      */
-    @SuppressWarnings("java:S1452")
     public MessageBus<?> getMessageBus() {
         return messageBus;
     }

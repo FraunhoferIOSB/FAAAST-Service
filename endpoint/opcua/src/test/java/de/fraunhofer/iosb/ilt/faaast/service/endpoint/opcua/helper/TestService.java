@@ -44,7 +44,6 @@ public class TestService extends Service {
      *            is used
      * @throws ConfigurationException If the operation fails
      */
-    @SuppressWarnings("rawtypes")
     public TestService(Endpoint endpoint, AssetConnection assetConnection, boolean full) throws ConfigurationException, AssetConnectionException {
         super(
                 CoreConfig.builder().build(),

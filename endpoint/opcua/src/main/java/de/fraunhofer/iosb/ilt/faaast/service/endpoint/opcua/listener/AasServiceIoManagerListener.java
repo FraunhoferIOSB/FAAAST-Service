@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tino Bischoff
  */
-@SuppressWarnings("java:S2139")
 public class AasServiceIoManagerListener implements IoManagerListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AasServiceIoManagerListener.class);

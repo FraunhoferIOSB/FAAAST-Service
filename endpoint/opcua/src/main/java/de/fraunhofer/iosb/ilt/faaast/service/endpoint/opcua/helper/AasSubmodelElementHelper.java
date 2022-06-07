@@ -70,10 +70,6 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Tino Bischoff
  */
-@SuppressWarnings({
-        "java:S3252",
-        "java:S2139"
-})
 public class AasSubmodelElementHelper {
     /**
      * The logger for this class
@@ -285,7 +281,6 @@ public class AasSubmodelElementHelper {
      * @param valueData The desired property data.
      * @throws StatusException If an error occurs
      */
-    @SuppressWarnings("java:S125")
     public static void setPropertyValueAndType(Property aasProperty, AASPropertyType prop, ValueData valueData)
             throws StatusException {
         try {
@@ -486,7 +481,6 @@ public class AasSubmodelElementHelper {
     }
 
 
-    @SuppressWarnings("java:S125")
     public static void setRangeValueAndType(String valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
                                             ValueData maxData)
             throws StatusException {
@@ -978,7 +972,6 @@ public class AasSubmodelElementHelper {
      * @param value The new value.
      * @throws StatusException If the operation fails.
      */
-    @SuppressWarnings("java:S125")
     private static void setPropertyValue(AASPropertyType property, PropertyValue value) throws StatusException {
         if (property == null) {
             throw new IllegalArgumentException("property is null");

@@ -63,10 +63,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tino Bischoff
  */
-@SuppressWarnings({
-        "java:S3252",
-        "java:S2139"
-})
 public class ValueConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueConverter.class);
@@ -1039,7 +1035,6 @@ public class ValueConverter {
      * @param type The desired type
      * @return The corresponding value
      */
-    @SuppressWarnings("java:S1301")
     public static Variant getSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type) {
         Variant retval;
 

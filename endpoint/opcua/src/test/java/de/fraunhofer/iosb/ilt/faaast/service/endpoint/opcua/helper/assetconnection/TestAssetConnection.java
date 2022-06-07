@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Tino Bischoff
  */
-@SuppressWarnings("rawtypes")
 public class TestAssetConnection implements AssetConnection<TestAssetConnectionConfig, TestValueProviderConfig, TestOperationProviderConfig, TestSubscriptionProviderConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestAssetConnection.class);

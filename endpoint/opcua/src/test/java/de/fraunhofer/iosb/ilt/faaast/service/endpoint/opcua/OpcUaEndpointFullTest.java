@@ -612,7 +612,6 @@ public class OpcUaEndpointFullTest {
      * @throws Exception If the operation fails
      */
     @Test
-    @SuppressWarnings("java:S2925")
     public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
@@ -676,7 +675,6 @@ public class OpcUaEndpointFullTest {
      * @throws Exception If the operation fails
      */
     @Test
-    @SuppressWarnings("java:S2925")
     public void testDeleteSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
@@ -734,7 +732,6 @@ public class OpcUaEndpointFullTest {
      * @throws Exception If the operation fails
      */
     @Test
-    @SuppressWarnings("java:S2925")
     public void testDeleteCapability() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);

@@ -56,10 +56,6 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Tino Bischoff
  */
-@SuppressWarnings({
-        "java:S125",
-        "java:S2139"
-})
 public class Server {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
@@ -74,9 +70,7 @@ public class Server {
 
     private UaServer uaServer;
     private boolean running;
-    @SuppressWarnings("java:S1450")
     private UserValidator userValidator;
-    @SuppressWarnings("java:S1450")
     private AasServiceNodeManager aasNodeManager;
 
     protected final DefaultCertificateValidatorListener validationListener = new AasCertificateValidationListener();

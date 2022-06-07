@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tino Bischoff
  */
-@SuppressWarnings("java:S2139")
 public class AasServiceMethodManagerListener implements CallableListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AasServiceMethodManagerListener.class);

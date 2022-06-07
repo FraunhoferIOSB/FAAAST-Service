@@ -141,10 +141,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tino Bischoff
  */
-@SuppressWarnings({
-        "java:S3252",
-        "java:S2139"
-})
 public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
@@ -2090,7 +2086,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param submodel The corresponding submodel
      * @param rangeRef The AAS reference to the Range
      */
-    @SuppressWarnings("java:S125")
     private void addOpcUaRange(Range aasRange, AASRangeType range, Submodel submodel, Reference rangeRef) {
         try {
             String minValue = aasRange.getMin();
@@ -2809,7 +2804,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
      */
-    @SuppressWarnings("java:S2629")
     private void elementCreated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
         if (element == null) {
             throw new IllegalArgumentException(ELEMENT_NULL);
@@ -2902,7 +2896,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param element Reference to the deleted element.
      * @throws StatusException If the operation fails
      */
-    @SuppressWarnings("java:S2629")
     private void elementDeleted(Reference element) throws StatusException {
         if (element == null) {
             throw new IllegalArgumentException(ELEMENT_NULL);
@@ -2945,7 +2938,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
      */
-    @SuppressWarnings("java:S2629")
     private void elementUpdated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
         if (element == null) {
             throw new IllegalArgumentException(ELEMENT_NULL);
@@ -3008,7 +3000,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param oldValue The old value of the SubmodelElement
      * @throws StatusException If the operation fails
      */
-    @SuppressWarnings("java:S2629")
     public void updateSubmodelElementValue(Reference reference, ElementValue newValue, ElementValue oldValue) throws StatusException {
         if (reference == null) {
             throw new IllegalArgumentException("reference is null");
@@ -3116,7 +3107,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param reference The reference to the desired SubmodelElement
      * @param referable The corresponding referable
      */
-    @SuppressWarnings("java:S2629")
     private void doRemoveFromMaps(AASSubmodelElementType element, Reference reference, Referable referable) {
         try {
             LOG.debug("doRemoveFromMaps: remove SubmodelElement {}", AasUtils.asString(reference));
@@ -3232,7 +3222,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param parent The reference to the parent element.
      * @param de The desired SubmodelElement
      */
-    @SuppressWarnings("java:S2629")
     private void doRemoveFromMaps(Reference parent, SubmodelElement de) {
         try {
             Reference ref = AasUtils.toReference(parent, de);
@@ -3264,7 +3253,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param reference The reference to the desired submodel.
      * @param submodel The desired submodel
      */
-    @SuppressWarnings("java:S2629")
     private void doRemoveFromMaps(Reference reference, Submodel submodel) {
         try {
             LOG.debug("doRemoveFromMaps: remove submodel {}", AasUtils.asString(reference));
