@@ -88,7 +88,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <maven.plugin.buildhelper.version>3.3.0</maven.plugin.buildhelper.version>
         <maven.plugin.compiler.version>3.10.1</maven.plugin.compiler.version>
-        <maven.plugin.failsafe.version>3.0.0-M6</maven.plugin.failsafe.version>
+        <maven.plugin.failsafe.version>3.0.0-M7</maven.plugin.failsafe.version>
         <maven.plugin.gpg.version>3.0.1</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.8</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.2.2</maven.plugin.jar.version>
