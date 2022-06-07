@@ -105,9 +105,10 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     @Override
     public void start() throws Exception {
         if (server != null && server.isRunning()) {
-            throw new IllegalStateException("OPC UA Endpoint cannot be started because it is already running");
+            LOGGER.info("OPC UA Endpoint already started");
+            return;
         }
-        else if (currentConfig == null) {
+        if (currentConfig == null) {
             throw new IllegalStateException("OPC UA Endpoint cannot be started because no configuration is available");
         }
 
