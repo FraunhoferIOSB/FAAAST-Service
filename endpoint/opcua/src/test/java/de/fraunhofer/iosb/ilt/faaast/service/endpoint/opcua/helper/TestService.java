@@ -29,7 +29,7 @@ import java.util.List;
 
 
 /**
- * A AAS Test service.
+ * An AAS Test service.
  *
  * @author Tino Bischoff
  */
@@ -43,6 +43,7 @@ public class TestService extends Service {
      * @param full True if the full example is requested, otherwise the simple
      *            is used
      * @throws ConfigurationException If the operation fails
+     * @throws AssetConnectionException Error in the Asset Connection
      */
     public TestService(Endpoint endpoint, AssetConnection assetConnection, boolean full) throws ConfigurationException, AssetConnectionException {
         super(
