@@ -78,12 +78,6 @@ public class OpcUaEndpoint2Test {
     private static OpcUaEndpoint endpoint;
     private static TestService service;
 
-    /**
-     * Initialize and start the test.
-     * 
-     * @throws ConfigurationException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @BeforeClass
     public static void startTest() throws ConfigurationException, Exception {
         LOGGER.trace("startTest");
@@ -101,9 +95,6 @@ public class OpcUaEndpoint2Test {
     }
 
 
-    /**
-     * Stop the test.
-     */
     @AfterClass
     public static void stopTest() {
         LOGGER.trace("stopTest");
@@ -117,14 +108,6 @@ public class OpcUaEndpoint2Test {
     }
 
 
-    /**
-     * Test method for deleting a complete submodel (Technical Data).
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testDeleteSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -174,14 +157,6 @@ public class OpcUaEndpoint2Test {
     }
 
 
-    /**
-     * Test method for updating a complete submodel (Operational Data).
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testUpdateSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -313,14 +288,6 @@ public class OpcUaEndpoint2Test {
     }
 
 
-    /**
-     * Test method for updating a SubmodelElement.
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testUpdateSubmodelElement() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);

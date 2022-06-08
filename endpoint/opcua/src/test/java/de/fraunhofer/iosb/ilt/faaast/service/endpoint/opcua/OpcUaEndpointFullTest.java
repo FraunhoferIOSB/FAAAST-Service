@@ -95,11 +95,6 @@ public class OpcUaEndpointFullTest {
     private static TestService service;
     private static int aasns;
 
-    /**
-     * Initialize and start the test.
-     * 
-     * @throws Exception If the operation fails
-     */
     @BeforeClass
     public static void startTest() throws Exception {
 
@@ -127,9 +122,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Stop the test.
-     */
     @AfterClass
     public static void stopTest() {
         LOGGER.trace("stopTest");
@@ -143,12 +135,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for testing the OPC UA Endpoint
-     *
-     * @throws InterruptedException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testOpcUaEndpointFull() throws InterruptedException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -203,17 +189,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for writing a RelationshipElement. Writes the property in the OPC UA
-     * Server and checks the new value in the server.
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteRelationshipElementValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -262,17 +237,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for writing a Value of a SubmodelElementCollection. Writes
-     * the property in the OPC UA Server and checks the new value in the server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteSubmodelElementCollectionValue()
             throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
@@ -316,17 +280,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for writing a Value of a SubmodelElementCollection. Writes the property in the OPC UA
-     * Server and checks the new value in the server.
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteSubmodelElementCollectionValue2()
             throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
@@ -365,17 +318,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for writing a Value of a SubmodelElementCollection. Writes the property in the OPC UA
-     * Server and checks the new value in the server.
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteSubmodelElementCollectionValue3()
             throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
@@ -419,17 +361,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for writing a GlobalAssetId of an Entity. Writes the property in the OPC UA
-     * Server and checks the new value in the server.
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteEntityGlobalAssetId()
             throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
@@ -474,15 +405,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for successfully calling an operation.
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws MethodCallStatusException If the operation fails
-     */
     @Test
     public void testCallOperationSuccess() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -539,15 +461,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for calling an operation with not enough arguments.
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws MethodCallStatusException If the operation fails
-     */
     @Test
     public void testCallOperationArgsMissing() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -603,14 +516,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for adding a new property to an existing SubmodelElementCollection.
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -666,14 +571,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for deleting a complete submodel.
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testDeleteSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -723,14 +620,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for deleting a Capability.
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testDeleteCapability() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -781,15 +670,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for an OrderedSubmodelElementCollection.
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     */
     @Test
     public void testOrderedSubmodelElementCollection() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -827,15 +707,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for an UnorderedSubmodelElementCollection.
-     * 
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     */
     @Test
     public void testUnorderedSubmodelElementCollection() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -873,15 +744,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Tests the submodel 1 (Identification).
-     *
-     * @param client The OPC UA Client.
-     * @param submodelNode The desired Submodel
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     private void testSubmodel1(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestDefines.FULL_SUBMODEL_1_NAME);
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestDefines.AAS_SUBMODEL_TYPE_ID));

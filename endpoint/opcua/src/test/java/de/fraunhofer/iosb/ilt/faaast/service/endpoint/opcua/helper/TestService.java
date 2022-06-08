@@ -35,16 +35,6 @@ import java.util.List;
  */
 public class TestService extends Service {
 
-    /**
-     * Creates a new instance of TestService
-     *
-     * @param endpoint
-     * @param assetConnection The desired AssetConnection
-     * @param full True if the full example is requested, otherwise the simple
-     *            is used
-     * @throws ConfigurationException If the operation fails
-     * @throws AssetConnectionException Error in the Asset Connection
-     */
     public TestService(Endpoint endpoint, AssetConnection assetConnection, boolean full) throws ConfigurationException, AssetConnectionException {
         super(
                 CoreConfig.builder().build(),
