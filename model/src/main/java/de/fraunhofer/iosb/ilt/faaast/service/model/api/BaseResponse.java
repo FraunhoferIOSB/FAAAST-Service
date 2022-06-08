@@ -56,9 +56,7 @@ public abstract class BaseResponse implements Response {
     @Override
     public void setStatusCode(StatusCode statusCode) {
         this.statusCode = statusCode;
-        if (statusCode.isSuccess(statusCode)) {
-            this.result.setSuccess(true);
-        }
+        this.result.setSuccess(statusCode.isSuccess());
     }
 
 
