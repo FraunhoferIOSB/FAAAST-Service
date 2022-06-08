@@ -23,6 +23,7 @@ import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
@@ -1015,8 +1016,10 @@ public class ValueConverter {
      * @param outputVariables The desired output variables
      * @param outputArguments The desired output arguments
      * @throws StatusException If the operation fails
+     * @throws ValueMappingException Error when mapping to ElementValue fails
      */
-    public static void setOutputArguments(List<OperationVariable> outputVariables, Variant[] outputArguments) throws StatusException {
+    public static void setOutputArguments(List<OperationVariable> outputVariables, Variant[] outputArguments) throws StatusException, ValueMappingException {
+
         if (outputArguments.length != outputVariables.size()) {
             throw new StatusException(StatusCodes.Bad_InvalidArgument);
         }
@@ -1043,9 +1046,10 @@ public class ValueConverter {
      * @param submodelElement The desired SubmodelElement
      * @param type The desired type
      * @return The corresponding value
+     * @throws ValueMappingException Error when mapping to ElementValue fails
      */
     @SuppressWarnings("java:S1301")
-    public static Variant getSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type) {
+    public static Variant getSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type) throws ValueMappingException {
         Variant retval;
 
         try {
