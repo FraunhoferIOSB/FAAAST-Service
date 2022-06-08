@@ -3140,7 +3140,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             method.setInputArguments(inputs);
 
-            Argument[] outputs = new Argument[1];
+            Argument[] outputs = new Argument[aasOperation.getOutputVariables().size()];
             for (int i = 0; i < aasOperation.getOutputVariables().size(); i++) {
                 OperationVariable v = aasOperation.getOutputVariables().get(i);
                 outputs[i] = new Argument();
