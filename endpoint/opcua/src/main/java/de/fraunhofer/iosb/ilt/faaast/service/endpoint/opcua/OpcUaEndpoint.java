@@ -210,7 +210,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
             Response response = service.execute(request);
             LOGGER.info("writeValue: Submodel {}; Element {}; Status: {}", submodel.getIdentification().getIdentifier(), element.getIdShort(), response.getStatusCode());
-            if (isSuccess(response.getStatusCode())) {
+            if (response.getStatusCode().isSuccess()) {
                 retval = true;
             }
         }
@@ -250,7 +250,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
             // execute method
             InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
-            if (isSuccess(response.getStatusCode())) {
+            if (response.getStatusCode().isSuccess()) {
                 LOGGER.info("callOperation: Operation {} executed successfully", operation.getIdShort());
             }
             else if (response.getStatusCode() == StatusCode.CLIENT_METHOD_NOT_ALLOWED) {
@@ -270,21 +270,5 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         }
 
         return outputArguments;
-    }
-
-
-    /**
-     * Returns a value indicating whether the given StatusCode is a success
-     * 
-     * @param code The desired StatusCode
-     * @return True if the StatusCode is a success, false otherweise
-     */
-    private static boolean isSuccess(StatusCode code) {
-        boolean retval = false;
-        if ((code == StatusCode.SUCCESS) || (code == StatusCode.SUCCESS_CREATED) || (code == StatusCode.SUCCESS_NO_CONTENT)) {
-            retval = true;
-        }
-
-        return retval;
     }
 }
