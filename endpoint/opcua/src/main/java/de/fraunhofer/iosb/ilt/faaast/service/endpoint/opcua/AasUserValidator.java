@@ -47,17 +47,6 @@ public class AasUserValidator implements UserValidator {
     }
 
 
-    /**
-     * Validate the user specified by token.
-     *
-     * @param session The session which the user is logging in.
-     * @param userIdentity the user identity.
-     * @return true, if the user is allowed access.
-     * @throws StatusException if there is a problem with the validation. For
-     *             example, if the session is active, and you do not want to enable user
-     *             identity change, throw the exception with
-     *             StatusCodes.Bad_IdentityChangeNotSupported.
-     */
     @Override
     public boolean onValidate(Session session, ServerUserIdentity userIdentity) throws StatusException {
         // Return true, if the user is allowed access to the server
@@ -83,15 +72,6 @@ public class AasUserValidator implements UserValidator {
     }
 
 
-    /**
-     * Notification of a validation error. This may occur due to password
-     * validation failure or because the user was not accepted.
-     *
-     * @param sn The session which the user was logging in.
-     * @param userToken The user token that was used.
-     * @param exception The validation exception: StatusException if the user is
-     *            not accepted. SecureIdentityException if the token was not valid.
-     */
     @Override
     public void onValidationError(Session sn, UserIdentityToken userToken, Exception exception) {
         LOGGER.error("onValidationError: User validation failed: userToken={} error={}", userToken, exception);

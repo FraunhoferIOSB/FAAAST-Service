@@ -268,12 +268,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     }
 
 
-    /**
-     * Initializes the Node Manager.
-     *
-     * @throws StatusException If the operation fails
-     * @throws UaNodeFactoryException Error creating nodes
-     */
     @Override
     protected void init() throws StatusException, UaNodeFactoryException {
         try {
@@ -295,9 +289,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     }
 
 
-    /**
-     * Closes the NodeManager
-     */
     @Override
     protected void close() {
         try {

@@ -79,14 +79,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     }
 
 
-    /**
-     * Initializes the OPC UA Endpoint with the given Configurations.
-     * This is the first call.
-     *
-     * @param core The desired Core Configuration
-     * @param config The desired OPC UA Configuration
-     * @param context The desired ServiceContext
-     */
     @Override
     public void init(CoreConfig core, OpcUaEndpointConfig config, ServiceContext context) {
         currentConfig = config;
@@ -98,10 +90,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     }
 
 
-    /**
-     * Starts the Endpoint.
-     * This is the third call.
-     */
     @Override
     public void start() throws Exception {
         if (server != null && server.isRunning()) {
@@ -129,9 +117,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     }
 
 
-    /**
-     * Stops the Endpoint.
-     */
     @Override
     public void stop() {
         if (currentConfig == null) {
@@ -151,11 +136,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     }
 
 
-    /**
-     * Retrieves the Endpoint Configuration.
-     *
-     * @return The current Configuration.
-     */
     @Override
     public OpcUaEndpointConfig asConfig() {
         return currentConfig;
