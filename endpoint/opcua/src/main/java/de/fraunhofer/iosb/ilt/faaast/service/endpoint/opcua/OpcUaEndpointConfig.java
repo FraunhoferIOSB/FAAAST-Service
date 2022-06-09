@@ -20,8 +20,6 @@ import java.util.Objects;
 
 /**
  * Class with Configuration information for the OPC UA Endpoint.
- *
- * @author Tino Bischoff
  */
 public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 

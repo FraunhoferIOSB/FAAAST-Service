@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class for reacting to certificate validation handling results.
- *
- * @author Tino Bischoff
  */
 public class AasCertificateValidationListener implements DefaultCertificateValidatorListener {
 

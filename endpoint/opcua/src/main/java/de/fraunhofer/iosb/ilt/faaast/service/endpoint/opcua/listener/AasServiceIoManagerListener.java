@@ -40,8 +40,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class that listens to I/O-Events
- *
- * @author Tino Bischoff
  */
 public class AasServiceIoManagerListener implements IoManagerListener {
 

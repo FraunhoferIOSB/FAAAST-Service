@@ -30,8 +30,6 @@ import java.util.List;
 
 /**
  * An AAS Test service.
- *
- * @author Tino Bischoff
  */
 public class TestService extends Service {
 

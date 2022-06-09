@@ -17,9 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnect
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
 
 
-/**
- * @author Tino Bischoff
- */
 public class TestSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
 
 }

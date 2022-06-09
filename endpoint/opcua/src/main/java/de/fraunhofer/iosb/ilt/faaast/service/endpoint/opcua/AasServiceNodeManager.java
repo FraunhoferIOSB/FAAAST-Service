@@ -138,8 +138,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A Node Manager for the AAS information model
- *
- * @author Tino Bischoff
  */
 public class AasServiceNodeManager extends NodeManagerUaNode {
 

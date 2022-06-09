@@ -86,8 +86,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Test class for the general OPC UA Endpoint test with the simple example
- *
- * @author Tino Bischoff
  */
 public class OpcUaEndpointTest {
 

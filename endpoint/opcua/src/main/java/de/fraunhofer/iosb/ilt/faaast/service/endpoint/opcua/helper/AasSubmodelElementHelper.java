@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * @author Tino Bischoff
+ * Class with helper methods for SubmodelElements used by the NodeManager
  */
 public class AasSubmodelElementHelper {
     /**

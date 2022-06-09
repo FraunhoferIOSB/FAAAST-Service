@@ -60,8 +60,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class to convert values between the AASService types and the OPC UA Types
- *
- * @author Tino Bischoff
  */
 public class ValueConverter {
 

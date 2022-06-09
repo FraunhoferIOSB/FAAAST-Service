@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * @author Tino Bischoff
+ * Test class for additional tests of the OPC UA Endpoint with the simple example
  */
 public class OpcUaEndpoint2Test {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint2Test.class);

@@ -63,8 +63,6 @@ import org.junit.Assert;
 
 /**
  * Test utilities
- *
- * @author Tino Bischoff
  */
 public class TestUtils {
 

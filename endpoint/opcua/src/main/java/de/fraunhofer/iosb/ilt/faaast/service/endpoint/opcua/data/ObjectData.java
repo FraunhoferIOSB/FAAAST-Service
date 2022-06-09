@@ -20,7 +20,7 @@ import io.adminshell.aas.v3.model.Submodel;
 
 
 /**
- * @author Tino Bischoff
+ * Class with information for AAS objects
  */
 public class ObjectData {
 

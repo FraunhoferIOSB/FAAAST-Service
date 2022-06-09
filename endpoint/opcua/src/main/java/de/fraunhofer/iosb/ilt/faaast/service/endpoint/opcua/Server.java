@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * @author Tino Bischoff
+ * Class for the OPC UA server
  */
 public class Server {
 

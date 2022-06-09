@@ -37,8 +37,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class for listening method calls from a UaCallable node.
- *
- * @author Tino Bischoff
  */
 public class AasServiceMethodManagerListener implements CallableListener {
 

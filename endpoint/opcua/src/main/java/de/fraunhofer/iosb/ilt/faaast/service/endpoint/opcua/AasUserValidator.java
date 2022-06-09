@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class used for custom user validation in UaServer.
- *
- * @author Tino Bischoff
  */
 public class AasUserValidator implements UserValidator {
 

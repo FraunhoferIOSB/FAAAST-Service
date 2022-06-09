@@ -45,8 +45,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class for the OPC UA endpoint
- *
- * @author Tino Bischoff
  */
 public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 

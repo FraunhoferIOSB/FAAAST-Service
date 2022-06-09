@@ -20,7 +20,7 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 
 
 /**
- * @author Tino Bischoff
+ * Class with data for Submodel elements
  */
 public class SubmodelElementData {
 
