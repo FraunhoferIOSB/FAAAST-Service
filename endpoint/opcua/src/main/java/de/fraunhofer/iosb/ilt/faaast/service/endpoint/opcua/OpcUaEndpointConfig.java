@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -26,9 +27,12 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     public static final int DEFAULT_PORT = 4840;
     private int tcpPort;
     private int secondsTillShutdown;
+    private Map<String, String> userMap;
+    private boolean allowAnonymous;
 
     public OpcUaEndpointConfig() {
         this.tcpPort = DEFAULT_PORT;
+        this.allowAnonymous = true;
     }
 
 
@@ -41,13 +45,13 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         if (!super.equals(o))
             return false;
         OpcUaEndpointConfig that = (OpcUaEndpointConfig) o;
-        return tcpPort == that.tcpPort && secondsTillShutdown == that.secondsTillShutdown;
+        return tcpPort == that.tcpPort && secondsTillShutdown == that.secondsTillShutdown && userMap == that.userMap && allowAnonymous == that.allowAnonymous;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), tcpPort, secondsTillShutdown);
+        return Objects.hash(super.hashCode(), tcpPort, secondsTillShutdown, userMap, allowAnonymous);
     }
 
 
@@ -91,6 +95,46 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     }
 
 
+    /**
+     * Gets the user names (Key) and passwords (Value)
+     * 
+     * @return The desired user names (Key) and passwords (Value)
+     */
+    public Map<String, String> getUserMap() {
+        return userMap;
+    }
+
+
+    /**
+     * Sets the user names (Key) and passwords (Value)
+     * 
+     * @param value The desired user names (Key) and passwords (Value)
+     */
+    public void setUserMap(Map<String, String> value) {
+        userMap = value;
+    }
+
+
+    /**
+     * Gets a value indicating whether anonymous access to the server is allowed
+     * 
+     * @return True if anonymous access is allowed, false otherwise
+     */
+    public boolean getAllowAnonymous() {
+        return allowAnonymous;
+    }
+
+
+    /**
+     * Sets a value indicating whether anonymous access to the server is allowed
+     * 
+     * @param value True if anonymous access is allowed, false otherwise
+     */
+    public void setAllowAnonymous(boolean value) {
+        allowAnonymous = value;
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
@@ -105,6 +149,18 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
         public B secondsTillShutdown(int value) {
             getBuildingInstance().setSecondsTillShutdown(value);
+            return getSelf();
+        }
+
+
+        public B userMap(Map<String, String> value) {
+            getBuildingInstance().setUserMap(value);
+            return getSelf();
+        }
+
+
+        public B allowAnonymous(boolean value) {
+            getBuildingInstance().setAllowAnonymous(value);
             return getSelf();
         }
     }

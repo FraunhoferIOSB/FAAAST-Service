@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import com.prosysopc.ua.SecureIdentityException;
 import com.prosysopc.ua.ServiceException;
+import com.prosysopc.ua.SessionActivationException;
+import com.prosysopc.ua.UserIdentity;
 import com.prosysopc.ua.client.UaClient;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
@@ -50,7 +52,9 @@ import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyElementsDataType;
 import opc.i4aas.AASKeyTypeDataType;
@@ -72,7 +76,8 @@ public class OpcUaEndpoint2Test {
 
     private static final int OPC_TCP_PORT = 18123;
     private static final long DEFAULT_TIMEOUT = 1000;
-
+    private static final String USERNAME = "testuser";
+    private static final String PASSWORD = "testpassword";
     private static final String ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
 
     private static OpcUaEndpoint endpoint;
@@ -87,6 +92,10 @@ public class OpcUaEndpoint2Test {
         OpcUaEndpointConfig config = new OpcUaEndpointConfig();
         config.setTcpPort(OPC_TCP_PORT);
         config.setSecondsTillShutdown(0);
+        config.setAllowAnonymous(false);
+        Map<String, String> users = new HashMap<>();
+        users.put(USERNAME, PASSWORD);
+        config.setUserMap(users);
 
         endpoint = new OpcUaEndpoint();
         service = new TestService(endpoint, null, false);
@@ -112,6 +121,7 @@ public class OpcUaEndpoint2Test {
     public void testDeleteSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
+        client.setUserIdentity(new UserIdentity(USERNAME, PASSWORD));
         TestUtils.initialize(client);
         client.connect();
         System.out.println("testDeleteSubmodel: client connected");
@@ -161,6 +171,7 @@ public class OpcUaEndpoint2Test {
     public void testUpdateSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
+        client.setUserIdentity(new UserIdentity(USERNAME, PASSWORD));
         TestUtils.initialize(client);
         client.connect();
         System.out.println("testUpdateSubmodel: client connected");
@@ -292,6 +303,7 @@ public class OpcUaEndpoint2Test {
     public void testUpdateSubmodelElement() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
+        client.setUserIdentity(new UserIdentity(USERNAME, PASSWORD));
         TestUtils.initialize(client);
         client.connect();
         System.out.println("testUpdateSubmodelElement: client connected");
@@ -375,5 +387,15 @@ public class OpcUaEndpoint2Test {
 
         System.out.println("disconnect client");
         client.disconnect();
+    }
+
+
+    @Test(expected = SessionActivationException.class)
+    public void testPreventAnonymousAccess() throws SessionActivationException, SecureIdentityException, IOException, ServiceException {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        // The call to connect is expected to throw an exception as anonymous access is not allowed
+        client.connect();
     }
 }

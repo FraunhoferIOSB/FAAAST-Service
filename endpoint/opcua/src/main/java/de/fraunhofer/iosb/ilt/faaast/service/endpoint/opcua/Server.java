@@ -126,7 +126,7 @@ public class Server {
 
             final DefaultCertificateValidator userCertificateValidator = new DefaultCertificateValidator(userCertificateStore, userIssuerCertificateStore);
 
-            userValidator = new AasUserValidator(userCertificateValidator);
+            userValidator = new AasUserValidator(userCertificateValidator, endpoint.asConfig().getUserMap(), endpoint.asConfig().getAllowAnonymous());
             // ...and react to validation results with a custom handler
             userCertificateValidator.setValidationListener(userCertificateValidationListener);
 

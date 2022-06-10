@@ -22,6 +22,8 @@ import com.prosysopc.ua.stack.builtintypes.StatusCode;
 import com.prosysopc.ua.stack.core.UserIdentityToken;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.CertificateValidator;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,14 +36,25 @@ public class AasUserValidator implements UserValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(AasUserValidator.class);
 
     private final CertificateValidator validator;
+    private final Map<String, String> userMap;
+    private final boolean allowAnonymous;
 
     /**
      * Creates a new instance of AasUserValidator
      *
      * @param validator used to validate certificates
+     * @param userMap The desired user names (Key) and passwords (Value)
+     * @param allowAnonymous True if anonymous access is allowed, false otherwise
      */
-    public AasUserValidator(CertificateValidator validator) {
+    public AasUserValidator(CertificateValidator validator, Map<String, String> userMap, boolean allowAnonymous) {
         this.validator = validator;
+        this.userMap = userMap;
+        this.allowAnonymous = allowAnonymous;
+
+        // make sure that we don't have null a pointer for the userMap
+        if (userMap == null) {
+            userMap = new HashMap<>();
+        }
     }
 
 
@@ -52,12 +65,7 @@ public class AasUserValidator implements UserValidator {
         // depending on the selected authentication mode (by the client).
         LOGGER.info("onValidate: userIdentity={}", userIdentity);
         if (userIdentity.getType().equals(UserTokenType.UserName)) {
-            if (userIdentity.getName().equals("aas") && userIdentity.getPassword().equals("opcua")) {
-                return true;
-            }
-            else {
-                return userIdentity.getName().equals("aas2") && userIdentity.getPassword().equals("opcua2"); // Perhaps Bad_UserAccessDenied should be thrown here as well?
-            }
+            return userMap.containsKey(userIdentity.getName()) && userMap.get(userIdentity.getName()).equals(userIdentity.getPassword());
         }
 
         if (userIdentity.getType().equals(UserTokenType.Certificate)) {
@@ -66,7 +74,8 @@ public class AasUserValidator implements UserValidator {
             return code.isGood(); // SessionManager will throw Bad_IdentityTokenRejected when this method returns false
         }
 
-        return true;
+        // check anonymous access
+        return allowAnonymous;
     }
 
 
