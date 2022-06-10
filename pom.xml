@@ -42,6 +42,7 @@
         <module>persistence/memory</module>
         <module>assetconnection/mqtt</module>
         <module>assetconnection/opcua</module>
+        <module>assetconnection/http</module>
         <module>dataformat/json</module>
         <module>starter</module>
         <module>test</module>
