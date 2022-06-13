@@ -27,11 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpV
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import io.adminshell.aas.v3.model.Reference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,7 +57,7 @@ import java.util.Map;
 public class HttpAssetConnection
         implements AssetConnection<HttpAssetConnectionConfig, HttpValueProviderConfig, HttpOperationProviderConfig, HttpSubscriptionProviderConfig> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpAssetConnection.class);
+    //private static final Logger LOGGER = LoggerFactory.getLogger(HttpAssetConnection.class);
 
     private HttpAssetConnectionConfig config;
     private final Map<Reference, AssetOperationProvider> operationProviders;
@@ -75,6 +70,7 @@ public class HttpAssetConnection
         this.operationProviders = new HashMap<>();
         this.subscriptionProviders = new HashMap<>();
     }
+
 
     /**
      * Consutrctor to conveniently create and init asset connection from code.
@@ -90,6 +86,7 @@ public class HttpAssetConnection
         init(coreConfig, config, serviceContext);
     }
 
+
     @Override
     public HttpAssetConnectionConfig asConfig() {
         return config;
@@ -97,8 +94,7 @@ public class HttpAssetConnection
 
 
     @Override
-    public void close() {
-    }
+    public void close() {}
 
 
     @Override

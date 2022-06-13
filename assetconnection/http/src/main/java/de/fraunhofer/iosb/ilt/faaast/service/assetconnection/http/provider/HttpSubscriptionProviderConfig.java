@@ -14,9 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 
 
 /**

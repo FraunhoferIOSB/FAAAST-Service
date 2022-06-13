@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
@@ -58,6 +57,7 @@ public class HttpValueProvider implements AssetValueProvider {
         this.reference = reference;
     }
 
+
     @Override
     public DataElementValue getValue() throws AssetConnectionException {
         try {
@@ -65,7 +65,7 @@ public class HttpValueProvider implements AssetValueProvider {
             connection.setRequestMethod("GET");
             int statusCode = connection.getResponseCode();
             String body = readInputStream(connection.getInputStream());
-            if(statusCode != connection.HTTP_OK) {
+            if (statusCode != connection.HTTP_OK) {
                 throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)));
             }
             connection.disconnect();
@@ -74,11 +74,13 @@ public class HttpValueProvider implements AssetValueProvider {
                     .read(body,
                             providerConfig.getQuery(),
                             serviceContext.getTypeInfo(reference));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
             throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)), e);
         }
     }
+
 
     private String readInputStream(InputStream inputStream) throws IOException {
         StringBuffer buffer = new StringBuffer();
@@ -90,7 +92,6 @@ public class HttpValueProvider implements AssetValueProvider {
         }
         return buffer.toString();
     }
-
 
 
     @Override
@@ -109,13 +110,14 @@ public class HttpValueProvider implements AssetValueProvider {
                     .write(value, providerConfig.getQuery())
                     .getBytes());
             int statusCode = connection.getResponseCode();
-            if(statusCode != connection.HTTP_OK) {
+            if (statusCode != connection.HTTP_OK) {
                 throw new AssetConnectionException(String.format("error writing value with asset conenction (reference: %s)", AasUtils.asString(reference)));
             }
         }
         catch (ProtocolException e) {
             throw new AssetConnectionException("writing value via HTTP asset connection failed", e);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }

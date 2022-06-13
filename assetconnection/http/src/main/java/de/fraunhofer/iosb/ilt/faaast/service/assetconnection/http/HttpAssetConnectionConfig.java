@@ -18,9 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpValueProviderConfig;
-
 import java.util.Objects;
-import java.util.UUID;
 
 
 /**
@@ -30,11 +28,6 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
 
     private String serverUri;
 
-    public HttpAssetConnectionConfig() {
-
-    }
-
-
     public String getServerUri() {
         return serverUri;
     }
@@ -43,6 +36,7 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
     public void setServerUri(String serverUri) {
         this.serverUri = serverUri;
     }
+
 
     @Override
     public int hashCode() {

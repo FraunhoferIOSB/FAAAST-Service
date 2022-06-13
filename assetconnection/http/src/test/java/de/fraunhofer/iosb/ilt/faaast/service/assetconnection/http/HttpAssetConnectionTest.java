@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http;
+
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -41,8 +42,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
 public class HttpAssetConnectionTest {
-    private static final Reference DEFAULT_REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
+    //private static final Reference DEFAULT_REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
     private static final String LOCALHOST = "127.0.0.1";
     private static int httpPort;
     private static HttpServer httpServer;
@@ -54,6 +56,7 @@ public class HttpAssetConnectionTest {
         httpServer.stop(0);
     }
 
+
     @BeforeClass
     public static void init() throws IOException {
         try {
@@ -64,22 +67,22 @@ public class HttpAssetConnectionTest {
         }
         httpServer = HttpServer.create(new InetSocketAddress(LOCALHOST, httpPort), 0);
         httpServerUri = "http://" + LOCALHOST + ":" + httpPort;
-        httpServer.createContext("/test", new testHttpHandler());
+        httpServer.createContext("/test", new TestHttpHandler());
         httpServer.start();
     }
 
     /**
      * simple HTTP test handler, that returns a single Integer value
      */
-    private static class testHttpHandler implements HttpHandler {
+    private static class TestHttpHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
             OutputStream outputStream = httpExchange.getResponseBody();
-            if(httpExchange.getRequestMethod().equals("PUT")) {
+            if (httpExchange.getRequestMethod().equals("PUT")) {
                 String ascii = Character.toString(httpExchange.getRequestBody().read());
                 value = Integer.valueOf(ascii);
             }
-            String response = "{\"value\":"+value+"}";
+            String response = "{\"value\":" + value + "}";
             httpExchange.sendResponseHeaders(200, response.length());
             outputStream.write(response.getBytes());
             outputStream.flush();
@@ -95,6 +98,7 @@ public class HttpAssetConnectionTest {
         }
     }
 
+
     @Test
     public void testValueProviderProperty()
             throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
@@ -106,8 +110,8 @@ public class HttpAssetConnectionTest {
                 .type(expected.getClass())
                 .datatype(expected.getValue().getDataType())
                 .build())
-                .when(serviceContext)
-                .getTypeInfo(reference);
+                        .when(serviceContext)
+                        .getTypeInfo(reference);
         HttpAssetConnection connection = new HttpAssetConnection(
                 CoreConfig.builder()
                         .build(),
@@ -132,6 +136,5 @@ public class HttpAssetConnectionTest {
         Assert.assertEquals(change, changed);
         connection.close();
     }
-
 
 }
