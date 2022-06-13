@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import io.adminshell.aas.v3.model.Property;
@@ -42,8 +43,11 @@ public class PropertyValueMapper implements DataValueMapper<Property, PropertyVa
     @Override
     public Property setValue(Property submodelElement, PropertyValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
-        submodelElement.setValueType(value.getValue().getDataType().getName());
-        submodelElement.setValue(value.getValue().asString());
+        TypedValue propertyValue = value.getValue();
+        if (propertyValue != null) {
+            submodelElement.setValueType(propertyValue.getDataType() != null ? propertyValue.getDataType().getName() : null);
+            submodelElement.setValue(propertyValue.asString());
+        }
         return submodelElement;
     }
 

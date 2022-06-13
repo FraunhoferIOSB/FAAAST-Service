@@ -21,6 +21,7 @@ import io.adminshell.aas.v3.model.Entity;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -31,27 +32,39 @@ public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {
         if (submodelElement == null) {
             return null;
         }
-        return EntityValue.builder()
-                .entityType(submodelElement.getEntityType())
-                .statements(submodelElement.getStatements().stream()
-                        .collect(Collectors.toMap(
-                                x -> x.getIdShort(),
-                                LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x)))))
-                .globalAssetId(submodelElement.getGlobalAssetId() != null ? submodelElement.getGlobalAssetId().getKeys() : List.of())
-                .build();
+        EntityValue value = EntityValue.builder().build();
+        value.setEntityType(submodelElement.getEntityType());
+        if (submodelElement.getStatements() != null && submodelElement.getStatements().stream().noneMatch(Objects::isNull)) {
+            value.setStatements(submodelElement.getStatements().stream()
+                    .collect(Collectors.toMap(
+                            x -> x != null ? x.getIdShort() : null,
+                            LambdaExceptionHelper.rethrowFunction(x -> x != null ? ElementValueMapper.toValue(x) : null))));
+        }
+        value.setGlobalAssetId(submodelElement.getGlobalAssetId() != null ? submodelElement.getGlobalAssetId().getKeys() : List.of());
+        return value;
     }
 
 
     @Override
     public Entity setValue(Entity submodelElement, EntityValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
-        for (SubmodelElement statement: submodelElement.getStatements()) {
-            if (value.getStatements().containsKey(statement.getIdShort())) {
-                ElementValueMapper.setValue(statement, value.getStatements().get(statement.getIdShort()));
+        if (value != null) {
+            for (SubmodelElement statement: submodelElement.getStatements()) {
+                if (statement != null && value.getStatements() != null) {
+                    if (value.getStatements().containsKey(statement.getIdShort())) {
+                        ElementValueMapper.setValue(statement, value.getStatements().get(statement.getIdShort()));
+                    }
+                }
+            }
+
+            submodelElement.setEntityType(value.getEntityType());
+            if (value.getGlobalAssetId() != null && value.getGlobalAssetId().stream().noneMatch(Objects::isNull)) {
+                submodelElement.setGlobalAssetId(new DefaultReference.Builder().keys(value.getGlobalAssetId()).build());
+            }
+            else {
+                submodelElement.setGlobalAssetId(null);
             }
         }
-        submodelElement.setEntityType(value.getEntityType());
-        submodelElement.setGlobalAssetId(value.getGlobalAssetId() != null ? new DefaultReference.Builder().keys(value.getGlobalAssetId()).build() : null);
         return submodelElement;
     }
 }

@@ -171,6 +171,9 @@ public class ElementValueMapper {
         if (submodelElement == null) {
             throw new IllegalArgumentException("submodelElement must be non-null");
         }
+        if (elementValue == null) {
+            throw new IllegalArgumentException("elementValue must be non-null");
+        }
         if (!mappers.containsKey(ReflectionHelper.getAasInterface(submodelElement.getClass()))) {
             throw new IllegalArgumentException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
         }

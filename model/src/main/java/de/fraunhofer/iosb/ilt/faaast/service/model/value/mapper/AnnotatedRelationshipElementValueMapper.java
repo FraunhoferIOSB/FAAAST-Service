@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -31,11 +32,14 @@ public class AnnotatedRelationshipElementValueMapper implements DataValueMapper<
             return null;
         }
         AnnotatedRelationshipElementValue value = new AnnotatedRelationshipElementValue();
-        value.setAnnotations(submodelElement.getAnnotations().stream().collect(Collectors.toMap(
-                x -> x.getIdShort(),
-                LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x)))));
-        value.setFirst(submodelElement.getFirst().getKeys());
-        value.setSecond(submodelElement.getSecond().getKeys());
+        if (submodelElement.getAnnotations() != null && submodelElement.getAnnotations().stream().noneMatch(Objects::isNull)) {
+            value.setAnnotations(submodelElement.getAnnotations().stream().collect(Collectors.toMap(
+                    x -> x != null ? x.getIdShort() : null,
+                    LambdaExceptionHelper.rethrowFunction(x -> x != null ? ElementValueMapper.toValue(x) : null))));
+        }
+
+        value.setFirst(submodelElement.getFirst() != null ? submodelElement.getFirst().getKeys() : null);
+        value.setSecond(submodelElement.getSecond() != null ? submodelElement.getSecond().getKeys() : null);
         return value;
     }
 
@@ -43,13 +47,19 @@ public class AnnotatedRelationshipElementValueMapper implements DataValueMapper<
     @Override
     public AnnotatedRelationshipElement setValue(AnnotatedRelationshipElement submodelElement, AnnotatedRelationshipElementValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
-        submodelElement.setFirst(new DefaultReference.Builder().keys(value.getFirst()).build());
-        submodelElement.setSecond(new DefaultReference.Builder().keys(value.getSecond()).build());
-        for (SubmodelElement element: submodelElement.getAnnotations()) {
-            if (value.getAnnotations().containsKey(element.getIdShort())) {
-                ElementValueMapper.setValue(element, value.getAnnotations().get(element.getIdShort()));
+
+        submodelElement.setFirst(value.getFirst() != null ? new DefaultReference.Builder().keys(value.getFirst()).build() : null);
+        submodelElement.setSecond(value.getSecond() != null ? new DefaultReference.Builder().keys(value.getSecond()).build() : null);
+        if (submodelElement.getAnnotations() != null) {
+            for (SubmodelElement element: submodelElement.getAnnotations()) {
+                if (element != null) {
+                    if (value.getAnnotations().containsKey(element.getIdShort())) {
+                        ElementValueMapper.setValue(element, value.getAnnotations().get(element.getIdShort()));
+                    }
+                }
             }
         }
+
         return submodelElement;
     }
 }

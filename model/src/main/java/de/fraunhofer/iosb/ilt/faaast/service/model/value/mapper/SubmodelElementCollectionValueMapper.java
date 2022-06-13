@@ -19,30 +19,40 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollecti
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
-public class ElementCollectionValueMapper implements DataValueMapper<SubmodelElementCollection, SubmodelElementCollectionValue> {
+public class SubmodelElementCollectionValueMapper implements DataValueMapper<SubmodelElementCollection, SubmodelElementCollectionValue> {
 
     @Override
     public SubmodelElementCollectionValue toValue(SubmodelElementCollection submodelElement) throws ValueMappingException {
         if (submodelElement == null) {
             return null;
         }
-        return SubmodelElementCollectionValue.builder()
-                .values(submodelElement.getValues().stream().collect(Collectors.toMap(
-                        x -> x.getIdShort(),
-                        LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x)))))
-                .build();
+        SubmodelElementCollectionValue value = SubmodelElementCollectionValue.builder().build();
+        if (submodelElement.getValues() != null && submodelElement.getValues().stream().noneMatch(Objects::isNull)) {
+            value.setValues(submodelElement.getValues().stream().collect(Collectors.toMap(
+                    x -> x.getIdShort(),
+                    LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x)))));
+        }
+        else {
+            value.setValues(null);
+        }
+        return value;
     }
 
 
     @Override
     public SubmodelElementCollection setValue(SubmodelElementCollection submodelElement, SubmodelElementCollectionValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
-        for (SubmodelElement element: submodelElement.getValues()) {
-            if (value.getValues().containsKey(element.getIdShort())) {
-                ElementValueMapper.setValue(element, value.getValues().get(element.getIdShort()));
+        if (submodelElement.getValues() != null) {
+            for (SubmodelElement element: submodelElement.getValues()) {
+                if (element != null && value.getValues() != null) {
+                    if (value.getValues().containsKey(element.getIdShort())) {
+                        ElementValueMapper.setValue(element, value.getValues().get(element.getIdShort()));
+                    }
+                }
             }
         }
         return submodelElement;
