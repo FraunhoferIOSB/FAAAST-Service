@@ -50,10 +50,11 @@ public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {
         DataValueMapper.super.setValue(submodelElement, value);
         if (value != null) {
             for (SubmodelElement statement: submodelElement.getStatements()) {
-                if (statement != null && value.getStatements() != null) {
-                    if (value.getStatements().containsKey(statement.getIdShort())) {
-                        ElementValueMapper.setValue(statement, value.getStatements().get(statement.getIdShort()));
-                    }
+                if (statement != null
+                        && value.getStatements() != null
+                        && value.getStatements().containsKey(statement.getIdShort())) {
+                    ElementValueMapper.setValue(statement, value.getStatements().get(statement.getIdShort()));
+
                 }
             }
 

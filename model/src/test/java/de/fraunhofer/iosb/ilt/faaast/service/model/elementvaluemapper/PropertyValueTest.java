@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.elementValueMapper;
+package de.fraunhofer.iosb.ilt.faaast.service.model.elementvaluemapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;

@@ -12,29 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.elementValueMapper;
+package de.fraunhofer.iosb.ilt.faaast.service.model.elementvaluemapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultBlob;
+import io.adminshell.aas.v3.model.impl.DefaultFile;
 import org.junit.Assert;
 import org.junit.Test;
 
 
-public class BlobValueTest {
+public class FileValueTest {
 
     @Test
     public void testSetValueMapping() {
-        SubmodelElement actual = new DefaultBlob.Builder()
+        SubmodelElement actual = new DefaultFile.Builder()
                 .build();
-        BlobValue value = BlobValue.builder()
+        FileValue value = FileValue.builder()
                 .mimeType("application/json")
-                .value("foo")
+                .value("{}")
                 .build();
-        SubmodelElement expected = new DefaultBlob.Builder()
+        SubmodelElement expected = new DefaultFile.Builder()
                 .mimeType(value.getMimeType())
                 .value(value.getValue())
                 .build();
@@ -45,17 +45,15 @@ public class BlobValueTest {
 
     @Test
     public void testSetValueMappingWithNull() {
-        SubmodelElement actual = new DefaultBlob.Builder()
+        SubmodelElement actual = new DefaultFile.Builder()
+                .build();
+        FileValue value = FileValue.builder()
                 .mimeType(null)
                 .value(null)
                 .build();
-        BlobValue value = BlobValue.builder()
+        SubmodelElement expected = new DefaultFile.Builder()
                 .mimeType(null)
-                .value("foo")
-                .build();
-        SubmodelElement expected = new DefaultBlob.Builder()
-                .mimeType(null)
-                .value(value.getValue())
+                .value(null)
                 .build();
         ElementValueMapper.setValue(actual, value);
         Assert.assertEquals(expected, actual);
@@ -64,11 +62,11 @@ public class BlobValueTest {
 
     @Test
     public void testToValueMapping() throws ValueMappingException {
-        BlobValue expected = BlobValue.builder()
+        FileValue expected = FileValue.builder()
                 .mimeType("application/json")
-                .value("foo")
+                .value("{}")
                 .build();
-        SubmodelElement input = new DefaultBlob.Builder()
+        SubmodelElement input = new DefaultFile.Builder()
                 .mimeType(expected.getMimeType())
                 .value(expected.getValue())
                 .build();
@@ -79,13 +77,11 @@ public class BlobValueTest {
 
     @Test
     public void testToValueMappingWithNull() throws ValueMappingException {
-        BlobValue expected = BlobValue.builder()
-                .mimeType(null)
-                .value((String) null)
-                .build();
-        SubmodelElement input = new DefaultBlob.Builder()
+        FileValue expected = FileValue.builder()
                 .mimeType(null)
                 .value(null)
+                .build();
+        SubmodelElement input = new DefaultFile.Builder()
                 .build();
         ElementValue actual = ElementValueMapper.toValue(input);
         Assert.assertEquals(expected, actual);

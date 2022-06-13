@@ -52,10 +52,8 @@ public class AnnotatedRelationshipElementValueMapper implements DataValueMapper<
         submodelElement.setSecond(value.getSecond() != null ? new DefaultReference.Builder().keys(value.getSecond()).build() : null);
         if (submodelElement.getAnnotations() != null) {
             for (SubmodelElement element: submodelElement.getAnnotations()) {
-                if (element != null) {
-                    if (value.getAnnotations().containsKey(element.getIdShort())) {
-                        ElementValueMapper.setValue(element, value.getAnnotations().get(element.getIdShort()));
-                    }
+                if (element != null && value.getAnnotations().containsKey(element.getIdShort())) {
+                    ElementValueMapper.setValue(element, value.getAnnotations().get(element.getIdShort()));
                 }
             }
         }

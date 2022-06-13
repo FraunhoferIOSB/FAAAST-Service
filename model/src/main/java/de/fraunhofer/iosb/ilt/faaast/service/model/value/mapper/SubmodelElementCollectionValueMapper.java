@@ -48,10 +48,8 @@ public class SubmodelElementCollectionValueMapper implements DataValueMapper<Sub
         DataValueMapper.super.setValue(submodelElement, value);
         if (submodelElement.getValues() != null) {
             for (SubmodelElement element: submodelElement.getValues()) {
-                if (element != null && value.getValues() != null) {
-                    if (value.getValues().containsKey(element.getIdShort())) {
-                        ElementValueMapper.setValue(element, value.getValues().get(element.getIdShort()));
-                    }
+                if (element != null && value.getValues() != null && value.getValues().containsKey(element.getIdShort())) {
+                    ElementValueMapper.setValue(element, value.getValues().get(element.getIdShort()));
                 }
             }
         }
