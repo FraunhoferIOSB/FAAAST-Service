@@ -43,14 +43,14 @@ public class RangeValueMapper implements DataValueMapper<Range, RangeValue> {
     @Override
     public Range setValue(Range submodelElement, RangeValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
-        if (value.getMin() != null) {
+        if (value.getMin() != null && value.getMin().getValue() != null) {
             submodelElement.setValueType(value.getMin().getDataType().getName());
             submodelElement.setMin(value.getMin().asString());
         }
         else {
             submodelElement.setMin(null);
         }
-        if (value.getMax() != null) {
+        if (value.getMax() != null && value.getMax().getValue() != null) {
             submodelElement.setValueType(value.getMax().getDataType().getName());
             submodelElement.setMax(value.getMax().asString());
         }

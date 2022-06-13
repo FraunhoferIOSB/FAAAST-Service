@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Central class for bringing together submodel elements and their corresponding
  * value representation, e.g. supports converting submodel elements to their
- * valeu representation and updating the value of a submodel element by
+ * value representation and updating the value of a submodel element by
  * providing a value representation.
  */
 public class ElementValueMapper {
