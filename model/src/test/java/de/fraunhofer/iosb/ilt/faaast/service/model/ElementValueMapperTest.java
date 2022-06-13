@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service;
+package de.fraunhofer.iosb.ilt.faaast.service.model;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
@@ -336,6 +336,26 @@ public class ElementValueMapperTest {
                 .max(value.getMax().asString())
                 .build();
         ElementValueMapper.setValue(actual, value);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testRangeSetValueMappingWithNull() throws ValueMappingException {
+        SubmodelElement actual = new DefaultRange.Builder()
+                .valueType("int")
+                .max(null)
+                .min("2")
+                .build();
+
+        RangeValue rangeValue = ElementValueMapper.toValue(actual);
+
+        SubmodelElement expected = new DefaultRange.Builder()
+                .valueType("int")
+                .min("2")
+                .max(null)
+                .build();
+        ElementValueMapper.setValue(actual, rangeValue);
         Assert.assertEquals(expected, actual);
     }
 
