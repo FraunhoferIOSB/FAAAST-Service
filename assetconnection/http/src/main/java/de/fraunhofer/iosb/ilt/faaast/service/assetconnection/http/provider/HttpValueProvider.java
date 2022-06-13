@@ -25,7 +25,6 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.URL;
 
 
@@ -76,7 +75,6 @@ public class HttpValueProvider implements AssetValueProvider {
                             serviceContext.getTypeInfo(reference));
         }
         catch (IOException e) {
-            e.printStackTrace();
             throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)), e);
         }
     }
@@ -114,11 +112,8 @@ public class HttpValueProvider implements AssetValueProvider {
                 throw new AssetConnectionException(String.format("error writing value with asset conenction (reference: %s)", AasUtils.asString(reference)));
             }
         }
-        catch (ProtocolException e) {
-            throw new AssetConnectionException("writing value via HTTP asset connection failed", e);
-        }
         catch (IOException e) {
-            e.printStackTrace();
+            throw new AssetConnectionException("writing value via HTTP asset connection failed", e);
         }
     }
 }
