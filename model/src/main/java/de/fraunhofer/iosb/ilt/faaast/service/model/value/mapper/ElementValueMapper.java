@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.MostSpecificClassComparator;
 import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -91,9 +92,7 @@ public class ElementValueMapper {
      */
     public static <I extends SubmodelElement, O extends ElementValue> O toValue(SubmodelElement submodelElement) throws ValueMappingException {
         init();
-        if (submodelElement == null) {
-            throw new IllegalArgumentException("submodelElement must be non-null");
-        }
+        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         Class<?> aasInterface = ReflectionHelper.getAasInterface(submodelElement.getClass());
         if (!mappers.containsKey(aasInterface)) {
             throw new ValueMappingException("no mapper defined for AAS type " + aasInterface.getSimpleName());
@@ -113,9 +112,7 @@ public class ElementValueMapper {
      */
     public static Class<? extends ElementValue> getValueClass(Class<? extends SubmodelElement> elementType) {
         init();
-        if (elementType == null) {
-            throw new IllegalArgumentException("elementType must be non-null");
-        }
+        Ensure.requireNonNull(elementType, "elementType must be non-null");
         if (!mappers.containsKey(ReflectionHelper.getAasInterface(elementType))) {
             throw new IllegalArgumentException("no mapper defined for elementType type " + elementType.getSimpleName());
         }
@@ -136,9 +133,7 @@ public class ElementValueMapper {
      */
     public static Class<? extends SubmodelElement> getElementClass(Class<? extends ElementValue> valueType) {
         init();
-        if (valueType == null) {
-            throw new IllegalArgumentException("valueType must be non-null");
-        }
+        Ensure.requireNonNull(valueType, "valueType must be non-null");
         Class<?> aasValueType = ReflectionHelper.getAasInterface(valueType);
         Optional<?> result = mappers.values().stream()
                 .map(x -> TypeToken.of(x.getClass()))
@@ -168,9 +163,7 @@ public class ElementValueMapper {
      */
     public static <I extends SubmodelElement, O extends ElementValue> I setValue(SubmodelElement submodelElement, ElementValue elementValue) {
         init();
-        if (submodelElement == null) {
-            throw new IllegalArgumentException("submodelElement must be non-null");
-        }
+        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
         if (!mappers.containsKey(ReflectionHelper.getAasInterface(submodelElement.getClass()))) {
             throw new IllegalArgumentException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
         }

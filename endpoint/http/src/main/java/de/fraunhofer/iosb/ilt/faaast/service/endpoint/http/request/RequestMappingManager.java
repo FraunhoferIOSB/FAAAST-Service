@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequ
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.RequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.Constructor;
@@ -96,9 +97,7 @@ public class RequestMappingManager {
      *             mapping fails
      */
     public Request map(HttpRequest httpRequest) throws InvalidRequestException {
-        if (httpRequest == null) {
-            throw new IllegalArgumentException("httpRequest must be non-null");
-        }
+        Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         Optional<RequestMapper> mapper = mappers.stream()
                 .filter(request -> request.matches(httpRequest))
                 .findAny();

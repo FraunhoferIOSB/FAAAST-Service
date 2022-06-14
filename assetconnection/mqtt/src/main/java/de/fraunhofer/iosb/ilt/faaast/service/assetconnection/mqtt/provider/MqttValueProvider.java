@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentSerializerFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -38,12 +39,8 @@ public class MqttValueProvider implements AssetValueProvider {
      * @throws IllegalArgumentException if providerConfig is null
      */
     public MqttValueProvider(MqttClient client, MqttValueProviderConfig providerConfig) {
-        if (client == null) {
-            throw new IllegalArgumentException("client must be non-null");
-        }
-        if (providerConfig == null) {
-            throw new IllegalArgumentException("providerConfig must be non-null");
-        }
+        Ensure.requireNonNull(client, "client must be non-null");
+        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
         this.client = client;
         this.providerConfig = providerConfig;
     }

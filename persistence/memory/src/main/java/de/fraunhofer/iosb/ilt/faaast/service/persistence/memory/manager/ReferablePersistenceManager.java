@@ -188,9 +188,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
             return;
         }
         Referable parent = AasUtils.resolve(parentRef, aasEnvironment);
-        if (parent == null) {
-            throw new IllegalArgumentException(String.format("unable to resolve parent reference: %s", AasUtils.asString(parentRef)));
-        }
+        Ensure.requireNonNull(parent, String.format("unable to resolve parent reference: %s", AasUtils.asString(parentRef)));
         AssetAdministrationShellElementWalker.builder()
                 .visitor(new DefaultAssetAdministrationShellElementVisitor() {
                     @Override

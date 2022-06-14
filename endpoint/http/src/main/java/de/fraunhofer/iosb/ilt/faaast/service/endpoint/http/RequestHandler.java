@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -50,18 +51,14 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
  */
 public class RequestHandler extends AbstractHandler {
 
-    private ServiceContext serviceContext;
-    private HttpEndpointConfig config;
-    private RequestMappingManager mappingManager;
-    private HttpJsonSerializer serializer;
+    private final ServiceContext serviceContext;
+    private final HttpEndpointConfig config;
+    private final RequestMappingManager mappingManager;
+    private final HttpJsonSerializer serializer;
 
     public RequestHandler(ServiceContext serviceContext, HttpEndpointConfig config) {
-        if (serviceContext == null) {
-            throw new IllegalArgumentException("serviceContext must be non-null");
-        }
-        if (config == null) {
-            throw new IllegalArgumentException("config must be non-null");
-        }
+        Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
+        Ensure.requireNonNull(config, "config must be non-null");
         this.config = config;
         this.serviceContext = serviceContext;
         this.mappingManager = new RequestMappingManager(serviceContext);
