@@ -67,7 +67,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
             return;
         }
         server = new Server(config.getPort());
-        handler = new RequestHandler(serviceContext);
+        handler = new RequestHandler(serviceContext, config);
         server.setHandler(handler);
         server.setErrorHandler(new HttpErrorHandler());
         try {

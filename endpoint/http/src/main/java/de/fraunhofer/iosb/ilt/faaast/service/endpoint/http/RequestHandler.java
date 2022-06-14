@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 
 /**
@@ -50,13 +51,18 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 public class RequestHandler extends AbstractHandler {
 
     private ServiceContext serviceContext;
+    private HttpEndpointConfig config;
     private RequestMappingManager mappingManager;
     private HttpJsonSerializer serializer;
 
-    public RequestHandler(ServiceContext serviceContext) {
+    public RequestHandler(ServiceContext serviceContext, HttpEndpointConfig config) {
         if (serviceContext == null) {
             throw new IllegalArgumentException("serviceContext must be non-null");
         }
+        if (config == null) {
+            throw new IllegalArgumentException("config must be non-null");
+        }
+        this.config = config;
         this.serviceContext = serviceContext;
         this.mappingManager = new RequestMappingManager(serviceContext);
         this.serializer = new HttpJsonSerializer();
@@ -65,6 +71,7 @@ public class RequestHandler extends AbstractHandler {
 
     @Override
     public void handle(String string, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        setCORS(response);
         BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8)) {
             @Override
             public void close() throws IOException {
@@ -97,6 +104,16 @@ public class RequestHandler extends AbstractHandler {
             sendException(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
         }
         baseRequest.setHandled(true);
+    }
+
+
+    private void setCORS(HttpServletResponse response) {
+        if (config.isCorsEnabled()) {
+            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
+            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, "true");
+            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER, "GET, PUT, POST");
+            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_HEADERS_HEADER, "Content-Type");
+        }
     }
 
 

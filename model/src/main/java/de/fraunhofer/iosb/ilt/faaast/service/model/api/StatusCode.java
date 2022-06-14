@@ -18,17 +18,24 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api;
  * Model class for defined status codes for {@link Request}.
  */
 public enum StatusCode {
-    SUCCESS,
-    SUCCESS_CREATED,
-    SUCCESS_NO_CONTENT,
-    CLIENT_FORBIDDEN,
-    CLIENT_ERROR_BAD_REQUEST,
-    CLIENT_METHOD_NOT_ALLOWED,
-    CLIENT_ERROR_RESOURCE_NOT_FOUND,
-    SERVER_INTERNAL_ERROR,
-    SERVER_ERROR_BAD_GATEWAY;
+    SUCCESS(true),
+    SUCCESS_CREATED(true),
+    SUCCESS_NO_CONTENT(true),
+    CLIENT_FORBIDDEN(false),
+    CLIENT_ERROR_BAD_REQUEST(false),
+    CLIENT_METHOD_NOT_ALLOWED(false),
+    CLIENT_ERROR_RESOURCE_NOT_FOUND(false),
+    SERVER_INTERNAL_ERROR(false),
+    SERVER_ERROR_BAD_GATEWAY(false);
 
-    boolean isSuccess(StatusCode statuscode) {
-        return (statuscode == SUCCESS || statuscode == SUCCESS_CREATED || statuscode == SUCCESS_NO_CONTENT);
+    private boolean success;
+
+    private StatusCode(boolean success) {
+        this.success = success;
+    }
+
+
+    public boolean isSuccess() {
+        return success;
     }
 }
