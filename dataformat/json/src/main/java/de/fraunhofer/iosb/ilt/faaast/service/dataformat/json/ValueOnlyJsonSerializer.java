@@ -62,6 +62,8 @@ import java.util.List;
  */
 public class ValueOnlyJsonSerializer {
 
+    private final SerializerWrapper wrapper;
+
     public static boolean isJreType(Class<?> type) {
         if (type.getClassLoader() == null || type.getClassLoader().getParent() == null) {
             return true;
@@ -70,7 +72,6 @@ public class ValueOnlyJsonSerializer {
         return pkg.startsWith("java.") || pkg.startsWith("com.sun") || pkg.startsWith("sun.");
     }
 
-    private final SerializerWrapper wrapper;
 
     public ValueOnlyJsonSerializer() {
         this.wrapper = new SerializerWrapper(x -> modifyMapper(x));

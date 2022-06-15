@@ -25,27 +25,9 @@ import java.util.Objects;
  */
 public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
 
-    public String getNodeId() {
-        return nodeId;
-    }
-
-
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
+    private long interval;
 
     private String nodeId;
-
-    public long getInterval() {
-        return interval;
-    }
-
-
-    public void setInterval(long interval) {
-        this.interval = interval;
-    }
-
-    private long interval;
 
     @Override
     public boolean equals(Object o) {
@@ -61,6 +43,26 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
     }
 
 
+    public long getInterval() {
+        return interval;
+    }
+
+
+    public void setInterval(long interval) {
+        this.interval = interval;
+    }
+
+
+    public String getNodeId() {
+        return nodeId;
+    }
+
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(nodeId, interval);
@@ -69,6 +71,20 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public static class Builder extends AbstractBuilder<OpcUaSubscriptionProviderConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected OpcUaSubscriptionProviderConfig newBuildingInstance() {
+            return new OpcUaSubscriptionProviderConfig();
+        }
     }
 
     private abstract static class AbstractBuilder<T extends OpcUaSubscriptionProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
@@ -84,19 +100,5 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
             return getSelf();
         }
 
-    }
-
-    public static class Builder extends AbstractBuilder<OpcUaSubscriptionProviderConfig, Builder> {
-
-        @Override
-        protected Builder getSelf() {
-            return this;
-        }
-
-
-        @Override
-        protected OpcUaSubscriptionProviderConfig newBuildingInstance() {
-            return new OpcUaSubscriptionProviderConfig();
-        }
     }
 }

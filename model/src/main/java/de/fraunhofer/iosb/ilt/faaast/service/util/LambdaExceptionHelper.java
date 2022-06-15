@@ -65,7 +65,6 @@ public class LambdaExceptionHelper {
      * @return a wrapping consumer
      * @throws E if execution of underlying consumer throws given exception
      */
-    @java.lang.SuppressWarnings("java:S1130")
     public static <T, E extends Exception> Consumer<T> rethrowConsumer(ConsumerWithExceptions<T, E> consumer) throws E {
         return t -> {
             try {
@@ -89,7 +88,6 @@ public class LambdaExceptionHelper {
      * @return a wrapping biconsumer
      * @throws E if execution of underlying biconsumer throws given exception
      */
-    @java.lang.SuppressWarnings("java:S1130")
     public static <T, U, E extends Exception> BiConsumer<T, U> rethrowBiConsumer(BiConsumerWithExceptions<T, U, E> biConsumer) throws E {
         return (t, u) -> {
             try {
@@ -113,7 +111,6 @@ public class LambdaExceptionHelper {
      * @return a wrapping function
      * @throws E if execution of underlying function throws given exception
      */
-    @java.lang.SuppressWarnings("java:S1130")
     public static <T, R, E extends Exception> Function<T, R> rethrowFunction(FunctionWithExceptions<T, R, E> function) throws E {
         return t -> {
             try {
@@ -137,7 +134,6 @@ public class LambdaExceptionHelper {
      * @return a wrapping supplier
      * @throws E if execution of underlying supplierthrows given exception
      */
-    @java.lang.SuppressWarnings("java:S1130")
     public static <T, E extends Exception> Supplier<T> rethrowSupplier(SupplierWithExceptions<T, E> supplier) throws E {
         return () -> {
             try {

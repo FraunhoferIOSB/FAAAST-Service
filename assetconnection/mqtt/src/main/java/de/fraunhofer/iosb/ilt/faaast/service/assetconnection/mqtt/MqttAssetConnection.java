@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttV
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.HashMap;
 import java.util.Map;
@@ -136,16 +137,9 @@ public class MqttAssetConnection
      */
     @Override
     public void init(CoreConfig coreConfig, MqttAssetConnectionConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
-        if (coreConfig == null) {
-            throw new IllegalArgumentException("coreConfig must be non-null");
-        }
-        if (config == null) {
-            throw new IllegalArgumentException("config must be non-null");
-        }
-        if (serviceContext == null) {
-            throw new IllegalArgumentException("serviceContext must be non-null");
-        }
-
+        Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
+        Ensure.requireNonNull(config, "config must be non-null");
+        Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         this.config = config;
         this.serviceContext = serviceContext;
         try {
@@ -211,12 +205,8 @@ public class MqttAssetConnection
      */
     @Override
     public void registerSubscriptionProvider(Reference reference, MqttSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
-        if (reference == null) {
-            throw new IllegalArgumentException("reference must be non-null");
-        }
-        if (providerConfig == null) {
-            throw new IllegalArgumentException("providerConfig must be non-null");
-        }
+        Ensure.requireNonNull(reference, "reference must be non-null");
+        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
         this.subscriptionProviders.put(reference, new MqttSubscriptionProvider(serviceContext, client, reference, providerConfig));
     }
 
@@ -229,12 +219,8 @@ public class MqttAssetConnection
      */
     @Override
     public void registerValueProvider(Reference reference, MqttValueProviderConfig providerConfig) throws AssetConnectionException {
-        if (reference == null) {
-            throw new IllegalArgumentException("reference must be non-null");
-        }
-        if (providerConfig == null) {
-            throw new IllegalArgumentException("providerConfig must be non-null");
-        }
+        Ensure.requireNonNull(reference, "reference must be non-null");
+        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
         this.valueProviders.put(reference, new MqttValueProvider(client, providerConfig));
     }
 

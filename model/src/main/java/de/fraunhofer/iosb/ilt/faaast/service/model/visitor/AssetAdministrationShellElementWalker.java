@@ -31,7 +31,6 @@ import io.adminshell.aas.v3.model.Capability;
 import io.adminshell.aas.v3.model.Certificate;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.Constraint;
-import io.adminshell.aas.v3.model.DataElement;
 import io.adminshell.aas.v3.model.DataSpecificationContent;
 import io.adminshell.aas.v3.model.DataSpecificationIEC61360;
 import io.adminshell.aas.v3.model.DataSpecificationPhysicalUnit;
@@ -43,11 +42,8 @@ import io.adminshell.aas.v3.model.EventMessage;
 import io.adminshell.aas.v3.model.Extension;
 import io.adminshell.aas.v3.model.File;
 import io.adminshell.aas.v3.model.Formula;
-import io.adminshell.aas.v3.model.HasDataSpecification;
 import io.adminshell.aas.v3.model.HasExtensions;
 import io.adminshell.aas.v3.model.HasKind;
-import io.adminshell.aas.v3.model.HasSemantics;
-import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.Key;
@@ -63,7 +59,6 @@ import io.adminshell.aas.v3.model.PolicyDecisionPoint;
 import io.adminshell.aas.v3.model.PolicyEnforcementPoints;
 import io.adminshell.aas.v3.model.PolicyInformationPoints;
 import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Qualifiable;
 import io.adminshell.aas.v3.model.Qualifier;
 import io.adminshell.aas.v3.model.Range;
 import io.adminshell.aas.v3.model.Referable;
@@ -94,14 +89,9 @@ import org.slf4j.LoggerFactory;
  * Special kind of visitor that recursively walks the whole element structure and
  * applies given visitors to each element.
  */
-public class AssetAdministrationShellElementWalker implements AssetAdministrationShellElementVisitor {
+public class AssetAdministrationShellElementWalker implements DefaultAssetAdministrationShellElementSubtypeResolvingVisitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssetAdministrationShellElementWalker.class);
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
     protected AssetAdministrationShellElementVisitor after;
     protected AssetAdministrationShellElementVisitor before;
     protected WalkingMode mode;
@@ -123,33 +113,6 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
         }
         else if (Formula.class.isAssignableFrom(type)) {
             visit((Formula) constraint);
-        }
-    }
-
-
-    @Override
-    public void visit(DataElement dataElement) {
-        if (dataElement == null) {
-            return;
-        }
-        Class<?> type = dataElement.getClass();
-        if (Property.class.isAssignableFrom(type)) {
-            visit((Property) dataElement);
-        }
-        else if (MultiLanguageProperty.class.isAssignableFrom(type)) {
-            visit((MultiLanguageProperty) dataElement);
-        }
-        else if (Range.class.isAssignableFrom(type)) {
-            visit((Range) dataElement);
-        }
-        else if (ReferenceElement.class.isAssignableFrom(type)) {
-            visit((ReferenceElement) dataElement);
-        }
-        else if (File.class.isAssignableFrom(type)) {
-            visit((File) dataElement);
-        }
-        else if (Blob.class.isAssignableFrom(type)) {
-            visit((Blob) dataElement);
         }
     }
 
@@ -179,30 +142,6 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
 
 
     @Override
-    public void visit(HasDataSpecification hasDataSpecification) {
-        if (hasDataSpecification == null) {
-            return;
-        }
-        Class<?> type = hasDataSpecification.getClass();
-        if (AssetAdministrationShell.class.isAssignableFrom(type)) {
-            visit((AssetAdministrationShell) hasDataSpecification);
-        }
-        else if (Submodel.class.isAssignableFrom(type)) {
-            visit((Submodel) hasDataSpecification);
-        }
-        else if (View.class.isAssignableFrom(type)) {
-            visit((View) hasDataSpecification);
-        }
-        else if (Asset.class.isAssignableFrom(type)) {
-            visit((Asset) hasDataSpecification);
-        }
-        else if (SubmodelElement.class.isAssignableFrom(type)) {
-            visit((SubmodelElement) hasDataSpecification);
-        }
-    }
-
-
-    @Override
     public void visit(HasExtensions hasExtensions) {
         if (hasExtensions == null) {
             return;
@@ -225,123 +164,6 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
         }
         else if (SubmodelElement.class.isAssignableFrom(type)) {
             visit((SubmodelElement) hasKind);
-        }
-    }
-
-
-    @Override
-    public void visit(HasSemantics hasSemantics) {
-        if (hasSemantics == null) {
-            return;
-        }
-        Class<?> type = hasSemantics.getClass();
-        if (Extension.class.isAssignableFrom(type)) {
-            visit((Extension) hasSemantics);
-        }
-        else if (IdentifierKeyValuePair.class.isAssignableFrom(type)) {
-            visit((IdentifierKeyValuePair) hasSemantics);
-        }
-        else if (Submodel.class.isAssignableFrom(type)) {
-            visit((Submodel) hasSemantics);
-        }
-        else if (SubmodelElement.class.isAssignableFrom(type)) {
-            visit((SubmodelElement) hasSemantics);
-        }
-        else if (View.class.isAssignableFrom(type)) {
-            visit((View) hasSemantics);
-        }
-        else if (Qualifier.class.isAssignableFrom(type)) {
-            visit((Qualifier) hasSemantics);
-        }
-    }
-
-
-    @Override
-    public void visit(Identifiable identifiable) {
-        if (identifiable == null) {
-            return;
-        }
-        Class<?> type = identifiable.getClass();
-        if (AssetAdministrationShell.class.isAssignableFrom(type)) {
-            visit((AssetAdministrationShell) identifiable);
-        }
-        else if (Asset.class.isAssignableFrom(type)) {
-            visit((Asset) identifiable);
-        }
-        else if (Submodel.class.isAssignableFrom(type)) {
-            visit((Submodel) identifiable);
-        }
-        else if (ConceptDescription.class.isAssignableFrom(type)) {
-            visit((ConceptDescription) identifiable);
-        }
-    }
-
-
-    @Override
-    public void visit(SubmodelElement submodelElement) {
-        if (submodelElement == null) {
-            return;
-        }
-        Class<?> type = submodelElement.getClass();
-        if (RelationshipElement.class.isAssignableFrom(type)) {
-            visit((RelationshipElement) submodelElement);
-        }
-        else if (DataElement.class.isAssignableFrom(type)) {
-            visit((DataElement) submodelElement);
-        }
-        else if (Capability.class.isAssignableFrom(type)) {
-            visit((Capability) submodelElement);
-        }
-        else if (SubmodelElementCollection.class.isAssignableFrom(type)) {
-            visit((SubmodelElementCollection) submodelElement);
-        }
-        else if (Operation.class.isAssignableFrom(type)) {
-            visit((Operation) submodelElement);
-        }
-        else if (Event.class.isAssignableFrom(type)) {
-            visit((Event) submodelElement);
-        }
-        else if (Entity.class.isAssignableFrom(type)) {
-            visit((Entity) submodelElement);
-        }
-    }
-
-
-    @Override
-    public void visit(Qualifiable qualifiable) {
-        if (qualifiable == null) {
-            return;
-        }
-        Class<?> type = qualifiable.getClass();
-        if (Submodel.class.isAssignableFrom(type)) {
-            visit((Submodel) qualifiable);
-        }
-        else if (SubmodelElement.class.isAssignableFrom(type)) {
-            visit((SubmodelElement) qualifiable);
-        }
-        else if (AccessPermissionRule.class.isAssignableFrom(type)) {
-            visit((AccessPermissionRule) qualifiable);
-        }
-    }
-
-
-    @Override
-    public void visit(Referable referable) {
-        if (referable == null) {
-            return;
-        }
-        Class<?> type = referable.getClass();
-        if (Identifiable.class.isAssignableFrom(type)) {
-            visit((Identifiable) referable);
-        }
-        else if (SubmodelElement.class.isAssignableFrom(type)) {
-            visit((SubmodelElement) referable);
-        }
-        else if (View.class.isAssignableFrom(type)) {
-            visit((View) referable);
-        }
-        else if (AccessPermissionRule.class.isAssignableFrom(type)) {
-            visit((AccessPermissionRule) referable);
         }
     }
 
@@ -1056,6 +878,10 @@ public class AssetAdministrationShellElementWalker implements AssetAdministratio
         VISIT_BEFORE_DESCENT;
 
         public static final WalkingMode DEFAULT = VISIT_BEFORE_DESCENT;
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public abstract static class AbstractBuilder<T extends AssetAdministrationShellElementWalker, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

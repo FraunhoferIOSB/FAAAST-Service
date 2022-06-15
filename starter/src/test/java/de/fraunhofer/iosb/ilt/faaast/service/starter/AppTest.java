@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.starter;
 import com.github.stefanbirkner.systemlambda.SystemLambda;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ParameterConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -61,9 +62,10 @@ public class AppTest {
 
 
     private SystemLambda.WithEnvironmentVariables withEnv(String... variables) {
-        if (variables == null) {
-            throw new IllegalArgumentException("variables must contain at least one element");
-        }
+        Ensure.requireNonNull(variables, "variables must be non-null");
+        Ensure.require(variables.length >= 2, "variables must contain at least one element");
+        Ensure.require(variables.length % 2 == 0, "variables must contain an even number of elements");
+
         SystemLambda.WithEnvironmentVariables result = null;
         for (int i = 0; i < variables.length; i += 2) {
             String key = variables[i];
@@ -164,7 +166,7 @@ public class AppTest {
 
 
     @Test
-    public void testUseEmptyModelCLI_Default() {
+    public void testUseEmptyModelCLIDefault() {
         cmd.execute();
         Assert.assertEquals(false, application.useEmptyModel);
     }

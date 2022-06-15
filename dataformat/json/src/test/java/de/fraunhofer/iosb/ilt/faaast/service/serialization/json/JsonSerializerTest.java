@@ -53,7 +53,7 @@ public class JsonSerializerTest {
                 .idShort("testShell")
                 .assetInformation(new DefaultAssetInformation.Builder().assetKind(AssetKind.INSTANCE).build())
                 .build();
-        compareToAdminShellIoSerialization(shell);
+        assertAdminShellIoSerialization(shell);
     }
 
 
@@ -67,7 +67,7 @@ public class JsonSerializerTest {
                         .idShort("testShell2")
                         .assetInformation(new DefaultAssetInformation.Builder().assetKind(AssetKind.INSTANCE).build())
                         .build());
-        compareToAdminShellIoSerialization(shells);
+        assertAdminShellIoSerialization(shells);
     }
 
 
@@ -77,7 +77,7 @@ public class JsonSerializerTest {
                 .idShort("testShell")
                 .value("Test")
                 .build();
-        compareToAdminShellIoSerialization(property);
+        assertAdminShellIoSerialization(property);
     }
 
 
@@ -92,12 +92,12 @@ public class JsonSerializerTest {
                         .value("Test")
                         .build());
 
-        compareToAdminShellIoSerialization(submodelElements);
+        assertAdminShellIoSerialization(submodelElements);
     }
 
 
     @Test
-    public void testSubmodelElementList_ValueOnly() throws SerializationException, JSONException {
+    public void testSubmodelElementListValueOnly() throws SerializationException, JSONException {
         Map<SubmodelElement, File> data = Map.of(
                 PropertyValues.PROPERTY_STRING, PropertyValues.PROPERTY_STRING_FILE,
                 PropertyValues.RANGE_INT, PropertyValues.RANGE_INT_FILE);
@@ -115,7 +115,7 @@ public class JsonSerializerTest {
         String actual = serializer.write(data.keySet(), new OutputModifier.Builder()
                 .content(Content.VALUE)
                 .build());
-        compare(expected, actual);
+        assertEquals(expected, actual);
     }
 
 
@@ -135,25 +135,25 @@ public class JsonSerializerTest {
     public void testFullExampleSerialization() throws Exception {
         String expected = new io.adminshell.aas.v3.dataformat.json.JsonSerializer().write(AASFull.createEnvironment());
         String actual = serializer.write(AASFull.createEnvironment(), new OutputModifier.Builder().build());
-        compare(expected, actual);
+        assertEquals(expected, actual);
     }
 
 
-    private void compareToAdminShellIoSerialization(Referable referable) throws Exception {
+    private void assertAdminShellIoSerialization(Referable referable) throws Exception {
         String expected = new io.adminshell.aas.v3.dataformat.json.JsonSerializer().write(referable);
         String actual = serializer.write(referable, new OutputModifier.Builder().build());
-        compare(expected, actual);
+        assertEquals(expected, actual);
     }
 
 
-    private void compareToAdminShellIoSerialization(List<Referable> referables) throws Exception {
+    private void assertAdminShellIoSerialization(List<Referable> referables) throws Exception {
         String expected = new io.adminshell.aas.v3.dataformat.json.JsonSerializer().write(referables);
         String actual = serializer.write(referables, new OutputModifier.Builder().build());
-        compare(expected, actual);
+        assertEquals(expected, actual);
     }
 
 
-    private void compare(String expected, String actual) throws JSONException {
+    private void assertEquals(String expected, String actual) throws JSONException {
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 

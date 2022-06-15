@@ -155,7 +155,7 @@ public class MqttAssetConnectionTest {
     }
 
 
-    public String invokeValueProvider(ContentFormat contentFormat, DataElementValue newValue, String query)
+    private String invokeValueProvider(ContentFormat contentFormat, DataElementValue newValue, String query)
             throws AssetConnectionException, InterruptedException, MqttException, ConfigurationInitializationException {
         MqttAssetConnection assetConnection = newConnection(MqttValueProviderConfig.builder()
                 .contentFormat(contentFormat)
@@ -166,7 +166,9 @@ public class MqttAssetConnectionTest {
         CountDownLatch condition = new CountDownLatch(1);
         client.setCallback(new MqttCallback() {
             @Override
-            public void connectionLost(Throwable throwable) {}
+            public void connectionLost(Throwable throwable) {
+                // intentionally left empty
+            }
 
 
             @Override
@@ -177,7 +179,9 @@ public class MqttAssetConnectionTest {
 
 
             @Override
-            public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {}
+            public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+                // intentionally left empty
+            }
         });
         client.subscribe(DEFAULT_TOPIC);
         assetConnection.getValueProviders().get(DEFAULT_REFERENCE).setValue(newValue);
@@ -186,13 +190,13 @@ public class MqttAssetConnectionTest {
     }
 
 
-    public void testSubscriptionProvider(ContentFormat contentFormat, String message, PropertyValue expected)
+    private void assertSubscriptionProvider(ContentFormat contentFormat, String message, PropertyValue expected)
             throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
-        testSubscriptionProvider(contentFormat, message, null, expected);
+        assertSubscriptionProvider(contentFormat, message, null, expected);
     }
 
 
-    public void testSubscriptionProvider(ContentFormat contentFormat, String message, String query, PropertyValue expected)
+    private void assertSubscriptionProvider(ContentFormat contentFormat, String message, String query, PropertyValue expected)
             throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
         MqttAssetConnection assetConnection = newConnection(
                 ElementValueTypeInfo.builder()
@@ -238,8 +242,8 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testSubscriptionProviderJsonProperty() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
-        testSubscriptionProvider(ContentFormat.JSON, "7", PropertyValue.of(Datatype.INT, "7"));
-        testSubscriptionProvider(ContentFormat.JSON, "\"hello world\"", PropertyValue.of(Datatype.STRING, "hello world"));
+        assertSubscriptionProvider(ContentFormat.JSON, "7", PropertyValue.of(Datatype.INT, "7"));
+        assertSubscriptionProvider(ContentFormat.JSON, "\"hello world\"", PropertyValue.of(Datatype.STRING, "hello world"));
     }
 
 
@@ -278,9 +282,10 @@ public class MqttAssetConnectionTest {
 
 
     @Test
-    public void testSubscriptionProviderJsonPropertyWithQuery() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
-        testSubscriptionProvider(ContentFormat.JSON, "{\"foo\": 123, \"bar\": 7}", "$.bar", PropertyValue.of(Datatype.INT, "7"));
-        testSubscriptionProvider(ContentFormat.JSON, "{\"foo\": \"hello\", \"bar\": \"world\"}", "$.bar", PropertyValue.of(Datatype.STRING, "world"));
+    public void testSubscriptionProviderJsonPropertyWithQuery()
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
+        assertSubscriptionProvider(ContentFormat.JSON, "{\"foo\": 123, \"bar\": 7}", "$.bar", PropertyValue.of(Datatype.INT, "7"));
+        assertSubscriptionProvider(ContentFormat.JSON, "{\"foo\": \"hello\", \"bar\": \"world\"}", "$.bar", PropertyValue.of(Datatype.STRING, "world"));
     }
 
 
@@ -304,11 +309,6 @@ public class MqttAssetConnectionTest {
 
     private MqttAssetConnection newConnection(MqttValueProviderConfig valueProvider) throws ConfigurationInitializationException {
         return newConnection(DEFAULT_REFERENCE, null, valueProvider, null, null);
-    }
-
-
-    private MqttAssetConnection newConnection(String url, MqttValueProviderConfig valueProvider) throws ConfigurationInitializationException {
-        return newConnection(url, DEFAULT_REFERENCE, null, valueProvider, null, null);
     }
 
 

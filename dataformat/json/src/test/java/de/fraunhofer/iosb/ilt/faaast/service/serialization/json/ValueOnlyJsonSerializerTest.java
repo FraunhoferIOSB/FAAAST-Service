@@ -44,45 +44,45 @@ public class ValueOnlyJsonSerializerTest {
 
     @Test
     public void testAnnotatedRelationshipElement() throws SerializationException, JSONException, IOException, ValueMappingException {
-        compare(PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT_FILE, PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT);
-        compareValue(PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT_FILE, PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT);
+        assertEquals(PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT_FILE, PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT);
+        assertValue(PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT_FILE, PropertyValues.ANNOTATED_RELATIONSHIP_ELEMENT);
     }
 
 
     @Test
     public void testBlob() throws SerializationException, JSONException, IOException, ValueMappingException {
-        compare(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extend.WITH_BLOB_VALUE);
-        compare(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extend.WITHOUT_BLOB_VALUE);
-        compareValue(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extend.WITH_BLOB_VALUE);
-        compareValue(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extend.WITHOUT_BLOB_VALUE);
+        assertEquals(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extend.WITH_BLOB_VALUE);
+        assertEquals(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extend.WITHOUT_BLOB_VALUE);
+        assertValue(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extend.WITH_BLOB_VALUE);
+        assertValue(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extend.WITHOUT_BLOB_VALUE);
     }
 
 
     @Test
     public void testElementCollection() throws SerializationException, JSONException, IOException, ValueMappingException {
-        compare(PropertyValues.ELEMENT_COLLECTION_FILE, PropertyValues.ELEMENT_COLLECTION);
-        compareValue(PropertyValues.ELEMENT_COLLECTION_FILE, PropertyValues.ELEMENT_COLLECTION);
+        assertEquals(PropertyValues.ELEMENT_COLLECTION_FILE, PropertyValues.ELEMENT_COLLECTION);
+        assertValue(PropertyValues.ELEMENT_COLLECTION_FILE, PropertyValues.ELEMENT_COLLECTION);
     }
 
 
     @Test
     public void testEntity() throws SerializationException, JSONException, IOException, ValueMappingException {
-        compare(PropertyValues.ENTITY_FILE, PropertyValues.ENTITY);
-        compareValue(PropertyValues.ENTITY_FILE, PropertyValues.ENTITY);
+        assertEquals(PropertyValues.ENTITY_FILE, PropertyValues.ENTITY);
+        assertValue(PropertyValues.ENTITY_FILE, PropertyValues.ENTITY);
     }
 
 
     @Test
     public void testFile() throws SerializationException, JSONException, IOException, ValueMappingException {
-        compare(PropertyValues.FILE_FILE, PropertyValues.FILE);
-        compareValue(PropertyValues.FILE_FILE, PropertyValues.FILE);
+        assertEquals(PropertyValues.FILE_FILE, PropertyValues.FILE);
+        assertValue(PropertyValues.FILE_FILE, PropertyValues.FILE);
     }
 
 
     @Test
     public void testMultiLanguageProperty() throws SerializationException, JSONException, IOException, ValueMappingException {
-        compare(PropertyValues.MULTI_LANGUAGE_PROPERTY_FILE, PropertyValues.MULTI_LANGUAGE_PROPERTY);
-        compareValue(PropertyValues.MULTI_LANGUAGE_PROPERTY_FILE, PropertyValues.MULTI_LANGUAGE_PROPERTY);
+        assertEquals(PropertyValues.MULTI_LANGUAGE_PROPERTY_FILE, PropertyValues.MULTI_LANGUAGE_PROPERTY);
+        assertValue(PropertyValues.MULTI_LANGUAGE_PROPERTY_FILE, PropertyValues.MULTI_LANGUAGE_PROPERTY);
     }
 
 
@@ -94,8 +94,8 @@ public class ValueOnlyJsonSerializerTest {
 
     @Test
     public void testProperty() throws SerializationException, JSONException, IOException, ValueMappingException {
-        compare(PropertyValues.PROPERTY_STRING_FILE, PropertyValues.PROPERTY_STRING);
-        compareValue(PropertyValues.PROPERTY_STRING_FILE, PropertyValues.PROPERTY_STRING);
+        assertEquals(PropertyValues.PROPERTY_STRING_FILE, PropertyValues.PROPERTY_STRING);
+        assertValue(PropertyValues.PROPERTY_STRING_FILE, PropertyValues.PROPERTY_STRING);
     }
 
 
@@ -151,72 +151,72 @@ public class ValueOnlyJsonSerializerTest {
 
     @Test
     public void testRange() throws SerializationException, JSONException, IOException, ValueMappingException {
-        compare(PropertyValues.RANGE_DOUBLE_FILE, PropertyValues.RANGE_DOUBLE);
-        compareValue(PropertyValues.RANGE_DOUBLE_FILE, PropertyValues.RANGE_DOUBLE);
+        assertEquals(PropertyValues.RANGE_DOUBLE_FILE, PropertyValues.RANGE_DOUBLE);
+        assertValue(PropertyValues.RANGE_DOUBLE_FILE, PropertyValues.RANGE_DOUBLE);
     }
 
 
     @Test
     public void testReferenceElement() throws SerializationException, JSONException, IOException, ValueMappingException {
-        compare(PropertyValues.REFERENCE_ELEMENT_GLOBAL_FILE, PropertyValues.REFERENCE_ELEMENT_GLOBAL);
-        compare(PropertyValues.REFERENCE_ELEMENT_MODEL_FILE, PropertyValues.REFERENCE_ELEMENT_MODEL);
-        compareValue(PropertyValues.REFERENCE_ELEMENT_GLOBAL_FILE, PropertyValues.REFERENCE_ELEMENT_GLOBAL);
-        compareValue(PropertyValues.REFERENCE_ELEMENT_MODEL_FILE, PropertyValues.REFERENCE_ELEMENT_MODEL);
+        assertEquals(PropertyValues.REFERENCE_ELEMENT_GLOBAL_FILE, PropertyValues.REFERENCE_ELEMENT_GLOBAL);
+        assertEquals(PropertyValues.REFERENCE_ELEMENT_MODEL_FILE, PropertyValues.REFERENCE_ELEMENT_MODEL);
+        assertValue(PropertyValues.REFERENCE_ELEMENT_GLOBAL_FILE, PropertyValues.REFERENCE_ELEMENT_GLOBAL);
+        assertValue(PropertyValues.REFERENCE_ELEMENT_MODEL_FILE, PropertyValues.REFERENCE_ELEMENT_MODEL);
     }
 
 
     @Test
     public void testRelationshipElement() throws SerializationException, JSONException, IOException, ValueMappingException {
-        compare(PropertyValues.RELATIONSHIP_ELEMENT_FILE, PropertyValues.RELATIONSHIP_ELEMENT);
-        compareValue(PropertyValues.RELATIONSHIP_ELEMENT_FILE, PropertyValues.RELATIONSHIP_ELEMENT);
+        assertEquals(PropertyValues.RELATIONSHIP_ELEMENT_FILE, PropertyValues.RELATIONSHIP_ELEMENT);
+        assertValue(PropertyValues.RELATIONSHIP_ELEMENT_FILE, PropertyValues.RELATIONSHIP_ELEMENT);
     }
 
 
     @Test
     public void testSubmodel() throws SerializationException, JSONException, IOException {
-        compare(PropertyValues.SUBMODEL_FILE, PropertyValues.SUBMODEL);
+        assertEquals(PropertyValues.SUBMODEL_FILE, PropertyValues.SUBMODEL);
     }
 
 
-    private void compare(File expectedFile, Object value) throws JSONException, IOException, SerializationException {
-        compare(expectedFile, value, Level.DEFAULT, Extend.DEFAULT);
+    private void assertEquals(File expectedFile, Object value) throws JSONException, IOException, SerializationException {
+        assertEquals(expectedFile, value, Level.DEFAULT, Extend.DEFAULT);
     }
 
 
-    private void compare(String expected, Object value) throws JSONException, IOException, SerializationException {
-        compare(expected, value, Level.DEFAULT, Extend.DEFAULT);
+    private void assertEquals(String expected, Object value) throws JSONException, IOException, SerializationException {
+        assertEquals(expected, value, Level.DEFAULT, Extend.DEFAULT);
     }
 
 
-    private void compare(File expectedFile, Object value, Level level, Extend extend) throws JSONException, IOException, SerializationException {
-        compare(Files.readString(expectedFile.toPath()), value, level, extend);
+    private void assertEquals(File expectedFile, Object value, Level level, Extend extend) throws JSONException, IOException, SerializationException {
+        assertEquals(Files.readString(expectedFile.toPath()), value, level, extend);
     }
 
 
-    private void compare(File expectedFile, Object value, Extend extend) throws JSONException, IOException, SerializationException {
-        compare(Files.readString(expectedFile.toPath()), value, Level.DEFAULT, extend);
+    private void assertEquals(File expectedFile, Object value, Extend extend) throws JSONException, IOException, SerializationException {
+        assertEquals(Files.readString(expectedFile.toPath()), value, Level.DEFAULT, extend);
     }
 
 
-    private void compare(String expected, Object value, Level level, Extend extend) throws JSONException, IOException, SerializationException {
+    private void assertEquals(String expected, Object value, Level level, Extend extend) throws JSONException, IOException, SerializationException {
         String actual = serializer.write(value, level, extend);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
 
-    private void compareValue(File expectedFile, SubmodelElement submodelElement) throws JSONException, IOException, SerializationException, ValueMappingException {
-        compareValue(expectedFile, submodelElement, Level.DEFAULT, Extend.DEFAULT);
+    private void assertValue(File expectedFile, SubmodelElement submodelElement) throws JSONException, IOException, SerializationException, ValueMappingException {
+        assertValue(expectedFile, submodelElement, Level.DEFAULT, Extend.DEFAULT);
     }
 
 
-    private void compareValue(File expectedFile, SubmodelElement submodelElement, Extend extend) throws JSONException, IOException, SerializationException, ValueMappingException {
-        compareValue(expectedFile, submodelElement, Level.DEFAULT, extend);
+    private void assertValue(File expectedFile, SubmodelElement submodelElement, Extend extend) throws JSONException, IOException, SerializationException, ValueMappingException {
+        assertValue(expectedFile, submodelElement, Level.DEFAULT, extend);
     }
 
 
-    private void compareValue(File expectedFile, SubmodelElement submodelElement, Level level, Extend extend)
+    private void assertValue(File expectedFile, SubmodelElement submodelElement, Level level, Extend extend)
             throws JSONException, IOException, SerializationException, ValueMappingException {
-        compare(ValueHelper.extractValueJson(expectedFile, submodelElement), ElementValueMapper.toValue(submodelElement), level, extend);
+        assertEquals(ValueHelper.extractValueJson(expectedFile, submodelElement), ElementValueMapper.toValue(submodelElement), level, extend);
     }
 
 }

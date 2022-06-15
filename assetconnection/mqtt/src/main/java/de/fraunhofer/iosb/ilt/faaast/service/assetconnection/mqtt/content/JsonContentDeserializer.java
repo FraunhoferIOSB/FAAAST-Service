@@ -59,17 +59,16 @@ public class JsonContentDeserializer implements ContentDeserializer {
 
     private String extractValueString(String query, TypeInfo<?> typeInfo, String value) throws AssetConnectionException {
         try {
-            value = JsonPath.read(value, query).toString();
-
+            String result = JsonPath.read(value, query).toString();
             if (typeInfo != null
                     && ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())
                     && ((ElementValueTypeInfo) typeInfo).getDatatype() == Datatype.STRING) {
-                value = "\"" + value + "\"";
+                result = String.format("\"%s\"", result);
             }
+            return result;
         }
         catch (RuntimeException e) {
             throw new AssetConnectionException(String.format("invalid JSON path expression '%s'", query), e);
         }
-        return value;
     }
 }

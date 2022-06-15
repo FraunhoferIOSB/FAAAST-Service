@@ -30,11 +30,9 @@ import java.io.IOException;
  */
 public class ConfigTypeResolver extends TypeIdResolverBase {
 
-    private JavaType superType;
-
     @Override
     public void init(JavaType baseType) {
-        superType = baseType;
+        // intentionally left empty
     }
 
 

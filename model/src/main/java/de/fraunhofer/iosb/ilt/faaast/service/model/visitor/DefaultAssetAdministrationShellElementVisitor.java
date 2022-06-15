@@ -87,253 +87,379 @@ import io.adminshell.aas.v3.model.View;
 public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdministrationShellElementVisitor {
 
     @Override
-    public default void visit(Certificate certificate) {}
+    public default void visit(Certificate certificate) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Constraint constraint) {}
+    public default void visit(Constraint constraint) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(DataElement dataElement) {}
+    public default void visit(DataElement dataElement) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(DataSpecificationContent dataSpecificationContent) {}
+    public default void visit(DataSpecificationContent dataSpecificationContent) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Event event) {}
+    public default void visit(Event event) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(HasDataSpecification hasDataSpecification) {}
+    public default void visit(HasDataSpecification hasDataSpecification) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(HasExtensions hasExtensions) {}
+    public default void visit(HasExtensions hasExtensions) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(HasKind hasKind) {}
+    public default void visit(HasKind hasKind) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(HasSemantics hasSemantics) {}
+    public default void visit(HasSemantics hasSemantics) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Identifiable identifiable) {}
+    public default void visit(Identifiable identifiable) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(SubmodelElement submodelElement) {}
+    public default void visit(SubmodelElement submodelElement) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Qualifiable qualifiable) {}
+    public default void visit(Qualifiable qualifiable) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Referable referable) {}
+    public default void visit(Referable referable) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(AssetAdministrationShellEnvironment assetAdministrationShellEnvironment) {}
+    public default void visit(AssetAdministrationShellEnvironment assetAdministrationShellEnvironment) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(AccessControl accessControl) {}
+    public default void visit(AccessControl accessControl) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(AccessControlPolicyPoints accessControlPolicyPoints) {}
+    public default void visit(AccessControlPolicyPoints accessControlPolicyPoints) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(AccessPermissionRule accessPermissionRule) {}
+    public default void visit(AccessPermissionRule accessPermissionRule) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(AdministrativeInformation administrativeInformation) {}
+    public default void visit(AdministrativeInformation administrativeInformation) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(AnnotatedRelationshipElement annotatedRelationshipElement) {}
+    public default void visit(AnnotatedRelationshipElement annotatedRelationshipElement) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Asset asset) {}
+    public default void visit(Asset asset) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(AssetAdministrationShell assetAdministrationShell) {}
+    public default void visit(AssetAdministrationShell assetAdministrationShell) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(AssetInformation assetInformation) {}
+    public default void visit(AssetInformation assetInformation) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(BasicEvent basicEvent) {}
+    public default void visit(BasicEvent basicEvent) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Blob blob) {}
+    public default void visit(Blob blob) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(BlobCertificate blobCertificate) {}
+    public default void visit(BlobCertificate blobCertificate) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Capability capability) {}
+    public default void visit(Capability capability) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(ConceptDescription conceptDescription) {}
+    public default void visit(ConceptDescription conceptDescription) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(DataSpecificationIEC61360 dataSpecificationIEC61360) {}
+    public default void visit(DataSpecificationIEC61360 dataSpecificationIEC61360) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(DataSpecificationPhysicalUnit dataSpecificationPhysicalUnit) {}
+    public default void visit(DataSpecificationPhysicalUnit dataSpecificationPhysicalUnit) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(EmbeddedDataSpecification embeddedDataSpecification) {}
+    public default void visit(EmbeddedDataSpecification embeddedDataSpecification) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Entity entity) {}
+    public default void visit(Entity entity) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(EventElement eventElement) {}
+    public default void visit(EventElement eventElement) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(EventMessage eventMessage) {}
+    public default void visit(EventMessage eventMessage) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Extension extension) {}
+    public default void visit(Extension extension) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(File file) {}
+    public default void visit(File file) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Formula formula) {}
+    public default void visit(Formula formula) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Identifier identifier) {}
+    public default void visit(Identifier identifier) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(IdentifierKeyValuePair identifierKeyValuePair) {}
+    public default void visit(IdentifierKeyValuePair identifierKeyValuePair) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Key key) {}
+    public default void visit(Key key) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(LangString langString) {}
+    public default void visit(LangString langString) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(MultiLanguageProperty multiLanguageProperty) {}
+    public default void visit(MultiLanguageProperty multiLanguageProperty) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(ObjectAttributes objectAttributes) {}
+    public default void visit(ObjectAttributes objectAttributes) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Operation operation) {}
+    public default void visit(Operation operation) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(OperationVariable operationVariable) {}
+    public default void visit(OperationVariable operationVariable) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Permission permission) {}
+    public default void visit(Permission permission) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(PermissionsPerObject permissionsPerObject) {}
+    public default void visit(PermissionsPerObject permissionsPerObject) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(PolicyAdministrationPoint policyAdministrationPoint) {}
+    public default void visit(PolicyAdministrationPoint policyAdministrationPoint) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(PolicyDecisionPoint policyDecisionPoint) {}
+    public default void visit(PolicyDecisionPoint policyDecisionPoint) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(PolicyEnforcementPoints policyEnforcementPoints) {}
+    public default void visit(PolicyEnforcementPoints policyEnforcementPoints) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(PolicyInformationPoints policyInformationPoints) {}
+    public default void visit(PolicyInformationPoints policyInformationPoints) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Property property) {}
+    public default void visit(Property property) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Qualifier qualifier) {}
+    public default void visit(Qualifier qualifier) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Range range) {}
+    public default void visit(Range range) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Reference reference) {}
+    public default void visit(Reference reference) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(ReferenceElement referenceElement) {}
+    public default void visit(ReferenceElement referenceElement) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(RelationshipElement relationshipElement) {}
+    public default void visit(RelationshipElement relationshipElement) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Security security) {}
+    public default void visit(Security security) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(SubjectAttributes subjectAttributes) {}
+    public default void visit(SubjectAttributes subjectAttributes) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(Submodel submodel) {}
+    public default void visit(Submodel submodel) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(SubmodelElementCollection submodelElementCollection) {}
+    public default void visit(SubmodelElementCollection submodelElementCollection) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(ValueList valueList) {}
+    public default void visit(ValueList valueList) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(ValueReferencePair valueReferencePair) {}
+    public default void visit(ValueReferencePair valueReferencePair) {
+        // intentionally left empty
+    }
 
 
     @Override
-    public default void visit(View view) {}
+    public default void visit(View view) {
+        // intentionally left empty
+    }
 }

@@ -579,7 +579,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testInvokeOperationAsync_Normal() throws SerializationException, InvalidRequestException {
+    public void testInvokeOperationAsyncContentNormal() throws SerializationException, InvalidRequestException {
         Request expected = InvokeOperationAsyncRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(OPERATION_REF))
@@ -601,7 +601,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testInvokeOperationAsync_Value() throws SerializationException, InvalidRequestException {
+    public void testInvokeOperationAsyncContentValue() throws SerializationException, InvalidRequestException {
         Request expected = InvokeOperationAsyncRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(OPERATION_REF))
@@ -623,7 +623,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testInvokeOperationSync_Normal() throws SerializationException, InvalidRequestException {
+    public void testInvokeOperationSyncContentNormal() throws SerializationException, InvalidRequestException {
         Request expected = InvokeOperationSyncRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(OPERATION_REF))
@@ -644,7 +644,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testInvokeOperationSync_Value() throws SerializationException, InvalidRequestException {
+    public void testInvokeOperationSyncContentValue() throws SerializationException, InvalidRequestException {
         Request expected = InvokeOperationSyncRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(OPERATION_REF))
@@ -928,7 +928,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testSetSubmodelElementValueByPath_ContentNormal() throws SerializationException, InvalidRequestException, Exception {
+    public void testSetSubmodelElementValueByPathContentNormal() throws SerializationException, InvalidRequestException, Exception {
         SetSubmodelElementValueByPathRequest expected = SetSubmodelElementValueByPathRequest.<String> builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
@@ -949,7 +949,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testSetSubmodelElementValueByPath_ContentValueOnly() throws SerializationException, InvalidRequestException, Exception {
+    public void testSetSubmodelElementValueByPathContentValue() throws SerializationException, InvalidRequestException, Exception {
         SetSubmodelElementValueByPathRequest expected = SetSubmodelElementValueByPathRequest.<String> builder()
                 .id(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))

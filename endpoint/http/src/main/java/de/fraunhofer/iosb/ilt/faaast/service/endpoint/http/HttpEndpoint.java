@@ -17,6 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
@@ -49,19 +51,15 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
      */
     @Override
     public void init(CoreConfig coreConfig, HttpEndpointConfig config, ServiceContext serviceContext) {
-        if (config == null) {
-            throw new IllegalArgumentException("config must be non-null");
-        }
-        if (serviceContext == null) {
-            throw new IllegalArgumentException("service context must be non-null");
-        }
+        Ensure.requireNonNull(config, "config must be non-null");
+        Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         this.config = config;
         this.serviceContext = serviceContext;
     }
 
 
     @Override
-    public void start() throws Exception {
+    public void start() throws EndpointException {
         if (server != null && server.isStarted()) {
             return;
         }
@@ -69,7 +67,12 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         handler = new RequestHandler(serviceContext, config);
         server.setHandler(handler);
         server.setErrorHandler(new HttpErrorHandler());
-        server.start();
+        try {
+            server.start();
+        }
+        catch (Exception e) {
+            throw new EndpointException("error starting HTTP endpoint", e);
+        }
     }
 
 
