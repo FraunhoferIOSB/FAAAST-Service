@@ -23,7 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.InternalErrorResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
@@ -203,13 +205,14 @@ public class Service implements ServiceContext {
 
 
     /**
-     * Starts the service. This includes starting the message bus and endpoints.
+     * Starts the service.This includes starting the message bus and endpoints.
      *
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if starting message bus fails
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException if starting endpoints fails
      * @throws IllegalArgumentException if AAS environment is null/has not been
      *             properly initialized
-     * @throws Exception when starting failed
      */
-    public void start() throws Exception {
+    public void start() throws MessageBusException, EndpointException {
         LOGGER.info("Get command for starting FA³ST Service");
         if (this.aasEnvironment == null) {
             LOGGER.error("AssetAdministrationEnvironment must be non-null");
