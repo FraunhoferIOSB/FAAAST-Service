@@ -23,8 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetAdministratio
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -32,7 +30,6 @@ import org.slf4j.LoggerFactory;
  */
 public class PutAssetAdministrationShellByIdRequestMapper extends RequestMapper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PutAssetAdministrationShellByIdRequestMapper.class);
     private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
     private static final String PATTERN = "(?!.*/aas)^shells/(.*)$";
 

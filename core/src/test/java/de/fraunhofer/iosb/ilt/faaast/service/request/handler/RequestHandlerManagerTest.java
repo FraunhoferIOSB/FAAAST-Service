@@ -888,7 +888,7 @@ public class RequestHandlerManagerTest {
         @Override
         public void invokeAsync(OperationVariable[] input, OperationVariable[] inoutput, BiConsumer<OperationVariable[], OperationVariable[]> callback)
                 throws AssetConnectionException {
-
+            // intentionally left empty
         }
     }
 

@@ -140,8 +140,6 @@ public class AASSimple {
     private static final String SUBMODEL_OPERATIONAL_DATA_ENTITY_NAME = "ExampleEntity";
     private static final String SUBMODEL_OPERATIONAL_DATA_ENTITY_PROPERTY_NAME = "ExampleProperty";
 
-    public AASSimple() {}
-
     public static final AssetAdministrationShell AAS = createAAS();
     public static final Asset ASSET = createAsset();
     public static final Submodel SUBMODEL_TECHNICAL_DATA = createSubmodelTechnicalData();
@@ -153,6 +151,9 @@ public class AASSimple {
     public static final ConceptDescription CONCEPT_DESCRIPTION_ROTATIONSPEED = createConceptDescriptionRotationSpeed();
     public static final ConceptDescription CONCEPT_DESCRIPTION_DOCUMENT = createConceptDescriptionDocument();
     public static final AssetAdministrationShellEnvironment ENVIRONMENT = createEnvironment();
+
+    private AASSimple() {}
+
 
     public static AssetAdministrationShell createAAS() {
         return new DefaultAssetAdministrationShell.Builder()

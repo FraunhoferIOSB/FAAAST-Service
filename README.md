@@ -1,4 +1,3 @@
-
 # FA³ST Service [![Build Status](https://github.com/FraunhoferIOSB/FAAAST-Service/workflows/Maven%20Build/badge.svg)](https://github.com/FraunhoferIOSB/FAAAST-Service/actions) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/25f6aafbdb0a4b5e8ba23672ec9411e5)](https://www.codacy.com/gh/FraunhoferIOSB/FAAAST-Service/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FraunhoferIOSB/FAAAST-Service&amp;utm_campaign=Badge_Grade) [![Docker badge](https://img.shields.io/docker/pulls/fraunhoferiosb/faaast-service.svg)](https://hub.docker.com/r/fraunhoferiosb/faaast-service/) <a href="https://sonarcloud.io/summary/new_code?id=FraunhoferIOSB_FAAAST-Service" ><img src="https://sonarcloud.io/images/project_badges/sonarcloud-white.svg" alt="SonarCloud badge" width="105"/></a>
 
 ![FA³ST Logo Light](./documentation/images/Fa3st-Service_positiv.png/#gh-light-mode-only "FA³ST Service Logo")
@@ -115,21 +114,21 @@ Fa³ST Service uses an open architecture and defines interfaces for most functio
 -   [MQTT Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/assetconnection/mqtt/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/mqtt/MqttAssetConnection.java)
 -   [OPC UA Asset Connection](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/assetconnection/opcua/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/assetconnection/opcua/OpcUaAssetConnection.java)
 
-
 ## Usage with Command Line
 
 This section provides a short introduction of the most important command line arguments. For more details see the [full documentation](./documentation/commandline.md).
 
 If not already done, follow the step in [Building from Source](#building-from-source).
 
-1.   Move to the output folder of the starter
-	```sh
-	cd starter/target
-	```
-2.   Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
-	```sh
-	java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
-	```
+1.  Move to the output folder of the starter
+```sh
+cd starter/target
+```
+
+2.  Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
+```sh
+java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
+```
 
 Currently we supporting following formats of the Asset Administration Shell Environment model:
 >json, json-ld, aml, xml, opcua nodeset, rdf
@@ -137,7 +136,7 @@ Currently we supporting following formats of the Asset Administration Shell Envi
 
 Following command line parameters could be used:
 ```
-[<String=String>...]   		Additional properties to override values of configuration using
+\[<String=String>...\]   		Additional properties to override values of configuration using
 				JSONPath notation without starting '$.' (see https://goessner.net/articles/JsonPath/)
 
 -c, --config=<configFile>  	The config file path. Default Value = config.json
@@ -145,7 +144,7 @@ Following command line parameters could be used:
 --emptyModel 			Starts the FA³ST service with an empty Asset Administration Shell Environment.
 				False by default
 
---endpoint=<endpoints>[,<endpoints>...]
+--endpoint=<endpoints>\[,<endpoints>...\]
 				Additional endpoints that should be started.
 
 -h, --help                 	Show this help message and exit.
@@ -153,19 +152,17 @@ Following command line parameters could be used:
 -m, --model=<modelFile>    	Asset Administration Shell Environment FilePath.
 				Default Value = aasenvironment.*
 
---[no-]autoCompleteConfig
+--\[no-\]autoCompleteConfig
 				Autocompletes the configuration with default
 				values for required configuration sections. True
 				by default
 
---[no-]modelValidation 		Validates the AAS Environment. True by default
+--\[no-\]modelValidation 		Validates the AAS Environment. True by default
 
 -V, --version              	Print version information and exit.
 ```
 
-
 ## Usage with Docker
-
 
 ### Docker-Compose
 Clone this repository, navigate to `/misc/docker/` and run this command inside it.
@@ -257,7 +254,6 @@ ServiceConfig serviceConfig = new ServiceConfig.Builder()
 	.build());
 ```
 
-
 ### HTTP Endpoint
 This section introduces the HTTP Endpoint implementation. For further details see the [full documentation](./documentation/httpendpoint.md).
 
@@ -284,19 +280,18 @@ and the query-parameters _level=deep_ and _content=normal_.
 HTTP GET http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/submodel/submodel-elements/ExampleRelationshipElement?level=deep&content=normal
 ```
 
-### The following interface URLs are currently not (yet) supported:
-- Submodel Repository Interface (Alternative Interface URLs "Swagger Doc Feb. 2022",
+### The following interface URLs are currently not (yet) supported
+-   Submodel Repository Interface (Alternative Interface URLs "Swagger Doc Feb. 2022",
 [DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-Repository/Final-Draft#/Asset%20Administration%20Shell%20Repository/GetSubmodel) (yet not fully specified))
-> /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/...
+>/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/...
 
 -   AASX File Server Interface (not yet supported)
-> /packages
+>/packages
 
 -   Asset Administration Shell Serialization Interface (not yet supported)
-> /serialization (GET)
+>/serialization (GET)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
 
 ### OPC UA Endpoint
 This section introduces the OPC UA Endpoint implementation. For further details see the [full documentation](./documentation/opcuaendpoint.md).
@@ -333,13 +328,16 @@ OPC UA Endpoint configuration supports the following configuration parameters
 
 To connect to the OPC UA Endpoint, you need an OPC UA Client.
 Here are some examples of OPC UA Clients:
-*   [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html)
+-   [Unified Automation UaExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html)
 UaExpert is a free test client for OPC UA. A registration for the website is required.
-*   [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/)
+
+-   [Prosys OPC UA Browser](https://www.prosysopc.com/products/opc-ua-browser/)
 Free Java-based OPC UA Client. A registration for the website is required.
-*   [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples)
+
+-   [Official Samples from the OPC Foundation](https://github.com/OPCFoundation/UA-.NETStandard-Samples)
 C#-based sample code from the OPC Foundation.
-*   [Eclipse Milo](https://github.com/eclipse/milo)
+
+-   [Eclipse Milo](https://github.com/eclipse/milo)
 Java-based Open Source SDK for Java.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -420,7 +418,6 @@ A concrete example for OPC UA asset connection could look like this
 }
 ```
 
-
 ### MQTT AssetConnection
 The MQTT asset connection supports the following functionality:
 
@@ -469,7 +466,6 @@ The OPC UA asset connection supports the following functionality:
 -   `nodeId`: nodeId of the the OPC UA node to subscribe to
 -   `interval`: subscription interval in ms
 
-
 Example configuration for a subscription provider:
 
 ```json
@@ -495,14 +491,18 @@ To guarantee the interoperability of assets Industie 4.0 defines an information 
 At first glance the evolving specification of the AAS seems pretty complex and a challenging task for asset providers. To make things easier to FA³ST provides an implementation of several tools to allow easy and fast creation and management of AAS-compliant Digital Twins.
 
 ### Recommended Documents/Links
-*   [Asset Administration Shell Specifications](https://www.plattform-i40.de/IP/Redaktion/EN/Standardartikel/specification-administrationshell.html) <br />
+-   [Asset Administration Shell Specifications](https://www.plattform-i40.de/IP/Redaktion/EN/Standardartikel/specification-administrationshell.html) <br />
 Quicklinks To Different Versions & Reading Guide
-*   [Details of the Asset Administration Shell - Part 1](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html), Nov 2021 <br />
+
+-   [Details of the Asset Administration Shell - Part 1](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html), Nov 2021 <br />
 The publication states how companies can use the Asset Administration Shell to compile and structure information. In this way all information can be shared as a package (set of files) with partners at several levels of the value chain. It is not necessary to provide online access to this data from the very beginning.
-*   [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), Nov 2021 <br />
+
+-   [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), Nov 2021 <br />
 This part extends Part 1 and defines how information provided in the Asset Administration Shell (AAS) (e.g. submodels or properties) can be accessed dynamically via Application Programming Interfaces (APIs).
-*   [About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/) <br />
-*   [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/)
+
+-   [About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/) <br />
+
+-   [OPC UA Companion Specification OPC UA for Asset Administration Shell (AAS)](https://opcfoundation.org/developer-tools/specifications-opc-ua-information-models/opc-ua-for-i4-asset-administration-shell/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -516,7 +516,6 @@ Some of the features we are working on include
 -   implement the AASX Server interface
 -   implement the Asset Administration Shell Serialization interface
 
-
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions are **greatly appreciated**.
@@ -524,23 +523,23 @@ Contributions are what make the open source community such an amazing place to l
 If you have a suggestion for improvements, please fork the repo and create a pull request. You can also simply open an issue.
 Don't forget to rate the project! Thanks again!
 
-1.   Fork the Project
-2.   Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.   Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.   Push to the Branch (`git push origin feature/AmazingFeature`)
-5.   Open a Pull Request
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
 
 ### Code Formatting
-The project uses *spotless:check* in the build cycle, which means the project only compiles if all code, *.pom and *.xml files are formatted according to the project's codestyle definitions (see details on [spotless](https://github.com/diffplug/spotless)).
+The project uses _spotless:check_ in the build cycle, which means the project only compiles if all code, *.pom and *.xml files are formatted according to the project's codestyle definitions (see details on [spotless](https://github.com/diffplug/spotless)).
 You can automatically format your code by running
 
-> mvn spotless:apply
+>mvn spotless:apply
 
-Additionally, you can import the eclipse formatting rules defined in */codestyle* into our IDE.
+Additionally, you can import the eclipse formatting rules defined in _/codestyle_ into our IDE.
 
 ### Third Party License
 If you use additional dependencies please be sure that the licenses of these dependencies are compliant with our [License](#license). If you are not sure which license your dependencies have, you can run
-> mvn license:aggregate-third-party-report
+>mvn license:aggregate-third-party-report
 
 and check the generated report in the directory `documentation/third_party_licenses_report.html`.
 

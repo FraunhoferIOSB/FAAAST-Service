@@ -56,6 +56,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollecti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import io.adminshell.aas.v3.dataformat.json.modeltype.ModelTypeProcessor;
 import java.io.IOException;
@@ -111,12 +112,9 @@ public class JsonDeserializer implements Deserializer {
      */
     @Override
     public <T extends ElementValue> T readValue(String json, TypeInfo typeInfo) throws DeserializationException {
-        final String MISSING_ROOT_TYPE = "missing root type information";
-        if (typeInfo == null) {
-            throw new IllegalArgumentException(ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL);
-        }
+        Ensure.requireNonNull(typeInfo, ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL);
         if (typeInfo.getType() == null) {
-            throw new DeserializationException(MISSING_ROOT_TYPE);
+            throw new DeserializationException("missing root type information");
         }
         try {
             return (T) wrapper.getMapper().reader()
@@ -151,9 +149,7 @@ public class JsonDeserializer implements Deserializer {
      */
     @Override
     public ElementValue[] readValueArray(String json, TypeInfo typeInfo) throws DeserializationException {
-        if (typeInfo == null) {
-            throw new IllegalArgumentException(ERROR_MSG_CONTENT_TYPE_MUST_BE_NON_NULL);
-        }
+        Ensure.requireNonNull(typeInfo, ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL);
         if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new DeserializationException(ERROR_MSG_TYPEINFO_MUST_BE_CONATINERTYPEINFO);
         }
@@ -189,9 +185,7 @@ public class JsonDeserializer implements Deserializer {
      */
     @Override
     public <T extends ElementValue> List<T> readValueList(String json, TypeInfo typeInfo) throws DeserializationException {
-        if (typeInfo == null) {
-            throw new IllegalArgumentException(ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL);
-        }
+        Ensure.requireNonNull(typeInfo, ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL);
         if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new DeserializationException(ERROR_MSG_TYPEINFO_MUST_BE_CONATINERTYPEINFO);
         }
@@ -227,9 +221,7 @@ public class JsonDeserializer implements Deserializer {
      */
     @Override
     public <K, V extends ElementValue> Map<K, V> readValueMap(String json, TypeInfo typeInfo) throws DeserializationException {
-        if (typeInfo == null) {
-            throw new IllegalArgumentException(ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL);
-        }
+        Ensure.requireNonNull(typeInfo, ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL);
         if (!ContainerTypeInfo.class.isAssignableFrom(typeInfo.getClass())) {
             throw new DeserializationException(ERROR_MSG_TYPEINFO_MUST_BE_CONATINERTYPEINFO);
         }

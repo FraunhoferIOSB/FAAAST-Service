@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 
 
 /**
@@ -28,9 +29,9 @@ public interface Endpoint<T extends EndpointConfig> extends Configurable<T> {
     /**
      * Starts the endpoint.
      *
-     * @throws Exception if starting the endpoint fails
+     * @throws EndpointException if starting the endpoint fails
      */
-    public void start() throws Exception;
+    public void start() throws EndpointException;
 
 
     /**

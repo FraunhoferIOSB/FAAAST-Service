@@ -19,11 +19,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
  */
 public class JsonFieldNames {
 
-    private JsonFieldNames() {}
+    public static final String ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATION = "annotation";
 
     public static final String ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_FIRST = "first";
     public static final String ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_SECOND = "second";
-    public static final String ANNOTATED_RELATIONSHIP_ELEMENT_VALUE_ANNOTATION = "annotation";
 
     public static final String BLOB_VALUE_MIME_TYPE = "mimeType";
     public static final String BLOB_VALUE_VALUE = "value";
@@ -35,8 +34,8 @@ public class JsonFieldNames {
     public static final String FILE_VALUE_MIME_TYPE = "mimeType";
     public static final String FILE_VALUE_VALUE = "value";
 
-    public static final String RANGE_VALUE_MIN = "min";
     public static final String RANGE_VALUE_MAX = "max";
+    public static final String RANGE_VALUE_MIN = "min";
 
     public static final String REFERENCE_ELEMENT_VALUE_ID_TYPE = "idType";
     public static final String REFERENCE_ELEMENT_VALUE_TYPE = "type";
@@ -44,4 +43,6 @@ public class JsonFieldNames {
 
     public static final String RELATIONSHIP_ELEMENT_FIRST = "first";
     public static final String RELATIONSHIP_ELEMENT_SECOND = "second";
+
+    private JsonFieldNames() {}
 }

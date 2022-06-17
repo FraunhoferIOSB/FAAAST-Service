@@ -24,7 +24,7 @@ import org.junit.Test;
 
 public class IdentifierTest {
 
-    private void testIRI(String value) {
+    private void assertIRI(String value) {
         IdentifierType actual = IdentifierHelper.guessIdentifierType(value);
         Assert.assertEquals(IdentifierType.IRI, actual);
     }
@@ -32,31 +32,31 @@ public class IdentifierTest {
 
     @Test
     public void testHttpIRI() {
-        testIRI("http://test.de");
+        assertIRI("http://test.de");
     }
 
 
     @Test
     public void testHttpsIRI() {
-        testIRI("https://test.de");
+        assertIRI("https://test.de");
     }
 
 
     @Test
     public void testHttpsUserIRI() {
-        testIRI("https://username:test@test.de");
+        assertIRI("https://username:test@test.de");
     }
 
 
     @Test
     public void testHttpComplexIRI() {
-        testIRI("http://example.com/demo/aas/1/1/1234859590");
+        assertIRI("http://example.com/demo/aas/1/1/1234859590");
     }
 
 
     @Test
     public void testFtpIRI() {
-        testIRI("ftp://test.de");
+        assertIRI("ftp://test.de");
     }
 
 

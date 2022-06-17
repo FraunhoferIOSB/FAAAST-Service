@@ -62,6 +62,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return the Identifiable with the given Identifier
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if no resource addressed by id can
      *             be found
+     * @throws IllegalArgumentException if modifier is null
      */
     public <T extends Identifiable> T get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException;
 
@@ -74,6 +75,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return the Submodel Element with the given Reference
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if reference does not point to
      *             valid resource
+     * @throws IllegalArgumentException if modifier is null
      */
     public SubmodelElement get(Reference reference, QueryModifier modifier) throws ResourceNotFoundException;
 
@@ -94,6 +96,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *            This parameter is optional and may be null<br>
      * @param modifier QueryModifier to define Level and Extent of the query<br>
      * @return List of AssetAdministrationShells
+     * @throws IllegalArgumentException if modifier is null
      */
     public List<AssetAdministrationShell> get(String idShort, List<AssetIdentification> assetIds, QueryModifier modifier);
 
@@ -106,6 +109,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @param semanticId of the Submodels which should be considered. This parameter is optional and may be null<br>
      * @param modifier QueryModifier to define Level and Extent of the query<br>
      * @return List of Submodels
+     * @throws IllegalArgumentException if modifier is null
      */
     public List<Submodel> get(String idShort, Reference semanticId, QueryModifier modifier);
 
@@ -119,6 +123,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return List of Submodel Elements
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if reference does not point to
      *             valid resource
+     * @throws IllegalArgumentException if modifier is null
      */
     public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException;
 
@@ -133,6 +138,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *            null<br>
      * @param modifier QueryModifier to define Level and Extent of the query<br>
      * @return List of Concept Descriptions
+     * @throws IllegalArgumentException if modifier is null
      */
     public List<ConceptDescription> get(String idShort, Reference isCaseOf, Reference dataSpecification, QueryModifier modifier);
 

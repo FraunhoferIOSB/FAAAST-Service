@@ -23,10 +23,6 @@ import java.util.Objects;
 
 public class RelationshipElementValue extends ElementValue {
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     private List<Key> first;
     private List<Key> second;
 
@@ -78,6 +74,11 @@ public class RelationshipElementValue extends ElementValue {
     @Override
     public int hashCode() {
         return Objects.hash(first, second);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public abstract static class AbstractBuilder<T extends RelationshipElementValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

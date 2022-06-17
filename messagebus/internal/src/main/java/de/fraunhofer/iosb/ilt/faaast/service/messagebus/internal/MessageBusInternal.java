@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -124,9 +125,7 @@ public class MessageBusInternal implements MessageBus<MessageBusInternalConfig> 
 
     @Override
     public SubscriptionId subscribe(SubscriptionInfo subscriptionInfo) {
-        if (subscriptionInfo == null) {
-            throw new IllegalArgumentException("subscription must be non-null");
-        }
+        Ensure.requireNonNull(subscriptionInfo, "subscriptionInfo must be non-null");
         SubscriptionId subscriptionId = new SubscriptionId();
         subscriptions.put(subscriptionId, subscriptionInfo);
         return subscriptionId;

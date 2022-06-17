@@ -45,10 +45,7 @@ public class DummySubscriptionBasedProviderConfig implements AssetSubscriptionPr
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 71 * hash + Objects.hashCode(this.nodeId);
-        hash = 71 * hash + (int) (this.interval ^ (this.interval >>> 32));
-        return hash;
+        return Objects.hash(nodeId, interval);
     }
 
 
@@ -64,13 +61,8 @@ public class DummySubscriptionBasedProviderConfig implements AssetSubscriptionPr
             return false;
         }
         final DummySubscriptionBasedProviderConfig other = (DummySubscriptionBasedProviderConfig) obj;
-        if (this.interval != other.interval) {
-            return false;
-        }
-        if (!Objects.equals(this.nodeId, other.nodeId)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(interval, other.interval)
+                && Objects.equals(this.nodeId, other.nodeId);
     }
 
 }

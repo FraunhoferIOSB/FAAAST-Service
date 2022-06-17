@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.SubmodelElement;
 
 
@@ -49,12 +50,8 @@ public interface DataValueMapper<I extends SubmodelElement, O extends ElementVal
      * @throws IllegalArgumentException if value is null
      */
     public default I setValue(I submodelElement, O value) {
-        if (submodelElement == null) {
-            throw new IllegalArgumentException("submodelElement must be non-null");
-        }
-        if (value == null) {
-            throw new IllegalArgumentException("value must be non-null");
-        }
+        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
+        Ensure.requireNonNull(value, "value must be non-null");
         return submodelElement;
     }
 
