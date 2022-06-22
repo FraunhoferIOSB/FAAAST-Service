@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Central class for bringing together submodel elements and their corresponding
  * value representation, e.g. supports converting submodel elements to their
- * valeu representation and updating the value of a submodel element by
+ * value representation and updating the value of a submodel element by
  * providing a value representation.
  */
 public class ElementValueMapper {
@@ -164,6 +164,7 @@ public class ElementValueMapper {
     public static <I extends SubmodelElement, O extends ElementValue> I setValue(SubmodelElement submodelElement, ElementValue elementValue) {
         init();
         Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
+        Ensure.requireNonNull(elementValue, "elementValue must be non-null");
         if (!mappers.containsKey(ReflectionHelper.getAasInterface(submodelElement.getClass()))) {
             throw new IllegalArgumentException("no mapper defined for submodelElement type " + submodelElement.getClass().getSimpleName());
         }
