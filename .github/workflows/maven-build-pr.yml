@@ -34,25 +34,18 @@ jobs:
         distribution: 'adopt'
         java-version: 11
 
-    - name: Install Prosys SDK
-      run : |
-        cd ~
-        sudo apt install p7zip-full
-        curl --show-error --silent --user "${{ secrets.OWNCLOUD_PROSYS_SHARE_ID }}:${{ secrets.OWNCLOUD_PROSYS_PASSWORD }}" ${{ secrets.OWNCLOUD_PROSYS_URL }} --output prosys.zip
-        7z x prosys.zip > /dev/null
-        cd ProsysHelper
-        cd maven-integration/maven-install-helper
-        mvn -B install
-        cd ../../codegen/maven-integration/maven-install-helper
-        mvn -B install
-
     - name: Build with Maven
+      env:
+        ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+        ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: |
-        mvn -B install -P ci-build -Dmaven.javadoc.skip=true
+        mvn -B install --settings maven-ci-settings.xml -P ci-build -Dmaven.javadoc.skip=true
 
     - name: Test with Sonar
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+        ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: |
-        mvn -B verify -P coverage sonar:sonar -Dsonar.projectKey=FraunhoferIOSB_FAAAST-Service -Dmaven.javadoc.skip=true
+        mvn -B verify --settings maven-ci-settings.xml -P coverage sonar:sonar -Dsonar.projectKey=FraunhoferIOSB_FAAAST-Service -Dmaven.javadoc.skip=true
