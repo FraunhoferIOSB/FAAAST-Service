@@ -43,6 +43,7 @@ import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.EnumSet;
 import java.util.GregorianCalendar;
@@ -63,6 +64,7 @@ public class Server {
     private static final String APPLICATION_URI = "urn:hostname:Fraunhofer:OPCUA:AasServer";
     private static final int CERT_KEY_SIZE = 2048;
     private static final String PRIV_KEY_PASS = "opcua";
+    private static final String DISCOVERY_SERVER_URL = "opc.tcp://localhost:4840";
 
     private final int tcpPort;
     private final AssetAdministrationShellEnvironment aasEnvironment;
@@ -191,14 +193,15 @@ public class Server {
 
             uaServer.setUserValidator(userValidator);
 
-            // currently skip discovery
-            //        // Register to the local discovery server (if present)
-            //        try {
-            //            server.setDiscoveryServerUrl(DISCOVERY_SERVER_URL);
-            //        }
-            //        catch (URISyntaxException e) {
-            //            logger.error("DiscoveryURL is not valid", e);
-            //        }
+            if (endpoint.asConfig().getRegisterWithDiscoveryServer()) {
+                try {
+                    // Register to the local discovery server (if present)
+                    uaServer.setDiscoveryServerUrl(DISCOVERY_SERVER_URL);
+                }
+                catch (URISyntaxException e) {
+                    LOGGER.error("DiscoveryURL is not valid", e);
+                }
+            }
             uaServer.init();
 
             initBuildInfo();

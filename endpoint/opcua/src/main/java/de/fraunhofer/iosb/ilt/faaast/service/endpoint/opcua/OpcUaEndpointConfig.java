@@ -29,6 +29,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     private int secondsTillShutdown;
     private Map<String, String> userMap;
     private boolean allowAnonymous;
+    private boolean registerWithDiscoveryServer;
 
     public OpcUaEndpointConfig() {
         this.tcpPort = DEFAULT_PORT;
@@ -132,6 +133,26 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
      */
     public void setAllowAnonymous(boolean value) {
         allowAnonymous = value;
+    }
+
+
+    /**
+     * Gets a value indicating whether the server should register with the discovery server
+     * 
+     * @return True if the server should register with the discovery server, false otherwise
+     */
+    public boolean getRegisterWithDiscoveryServer() {
+        return registerWithDiscoveryServer;
+    }
+
+
+    /**
+     * Sets a value indicating whether the server should register with the discovery server
+     * 
+     * @param value True if the server should register with the discovery server, false otherwise
+     */
+    public void setRegisterWithDiscoveryServer(boolean value) {
+        registerWithDiscoveryServer = value;
     }
 
 
