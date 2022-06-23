@@ -43,24 +43,14 @@ jobs:
         distribution: 'adopt'
         java-version: 11
 
-    - name: Install Prosys SDK
-      run : |
-        cd ~
-        sudo apt install p7zip-full
-        curl --show-error --silent --user "${{ secrets.OWNCLOUD_PROSYS_SHARE_ID }}:${{ secrets.OWNCLOUD_PROSYS_PASSWORD }}" ${{ secrets.OWNCLOUD_PROSYS_URL }} --output prosys.zip
-        7z x prosys.zip > /dev/null
-        cd ProsysHelper
-        cd maven-integration/maven-install-helper
-        mvn -B install
-        cd ../../codegen/maven-integration/maven-install-helper
-        mvn -B install
-
     - name: Build and Deploy with Maven
       env:
         GPG_EXECUTABLE: gpg
         GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+        ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: mvn -B clean deploy -P release --settings maven-ci-settings.xml
 
     - name: Build and Push Docker Images
