@@ -1253,8 +1253,12 @@ public class AasSubmodelElementHelper {
                 objmax = Long.parseLong(objmax.toString());
             }
 
-            range.setMin(objmin);
-            range.setMax(objmax);
+            if (range.getMinNode() != null) {
+                range.setMin(objmin);
+            }
+            if (range.getMaxNode() != null) {
+                range.setMax(objmax);
+            }
         }
         catch (Exception ex) {
             LOG.error("setRangeValue Exception", ex);
