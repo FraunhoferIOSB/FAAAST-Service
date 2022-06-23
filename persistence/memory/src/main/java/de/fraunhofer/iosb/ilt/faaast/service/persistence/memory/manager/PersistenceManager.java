@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 
 
@@ -29,6 +30,17 @@ public abstract class PersistenceManager {
 
     public void setAasEnvironment(AssetAdministrationShellEnvironment aasEnvironment) {
         this.aasEnvironment = aasEnvironment;
+    }
+
+
+    /**
+     * Helper method to ensure persistence manager is property initialized.
+     *
+     * @throws IllegalStateException if not properly initialized (aasEnvironment
+     *             == null)
+     */
+    protected void ensureInitialized() {
+        Ensure.requireNonNull(aasEnvironment, "aasEnvironment not properly initialized (must be non-null)");
     }
 
 }

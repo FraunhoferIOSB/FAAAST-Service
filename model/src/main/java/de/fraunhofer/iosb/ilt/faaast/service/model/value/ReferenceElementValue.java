@@ -27,10 +27,6 @@ import java.util.Objects;
 
 public class ReferenceElementValue extends DataElementValue {
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     private List<Key> keys;
 
     public ReferenceElementValue() {
@@ -74,6 +70,11 @@ public class ReferenceElementValue extends DataElementValue {
     @Override
     public int hashCode() {
         return Objects.hash(keys);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public abstract static class AbstractBuilder<T extends ReferenceElementValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

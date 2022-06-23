@@ -80,14 +80,17 @@ public class HttpEndpointTest {
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
             port = serverSocket.getLocalPort();
         }
+
         deserializer = new HttpJsonDeserializer();
-        HttpEndpointConfig endpointConfig = new HttpEndpointConfig();
-        endpointConfig.setPort(port);
         serviceContext = mock(ServiceContext.class);
         endpoint = new HttpEndpoint();
-        endpoint.init(CoreConfig.builder()
-                .build(),
-                endpointConfig,
+        endpoint.init(
+                CoreConfig.builder()
+                        .build(),
+                HttpEndpointConfig.builder()
+                        .port(port)
+                        .cors(true)
+                        .build(),
                 serviceContext);
         endpoint.start();
         client = new HttpClient();
@@ -158,6 +161,13 @@ public class HttpEndpointTest {
 
     @Test
     public void testInvalidUrl() throws Exception {
+        ContentResponse response = execute(HttpMethod.GET, "/foo/bar");
+        Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+    }
+
+
+    @Test
+    public void testCORSEnabled() throws Exception {
         ContentResponse response = execute(HttpMethod.GET, "/foo/bar");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
     }
@@ -317,7 +327,7 @@ public class HttpEndpointTest {
 
     @Test
     @Ignore("value only serialization not defined for AssetAdministrationShells")
-    public void testGetAllAssetAdministrationShells_ValueOnly() throws Exception {
+    public void testGetAllAssetAdministrationShellsValueOnly() throws Exception {
         List<AssetAdministrationShell> expectedPayload = List.of(AASFull.AAS_1);
         when(serviceContext.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
@@ -333,7 +343,7 @@ public class HttpEndpointTest {
 
 
     @Test
-    public void testGetAllSubmodelElements_ValueOnly() throws Exception {
+    public void testGetAllSubmodelElementsValueOnly() throws Exception {
         List<SubmodelElement> submodelElements = List.of(
                 new DefaultProperty.Builder()
                         .idShort("property1")

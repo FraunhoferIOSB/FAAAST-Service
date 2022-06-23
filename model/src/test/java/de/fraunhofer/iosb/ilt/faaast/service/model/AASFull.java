@@ -56,7 +56,6 @@ import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultValueList;
 import io.adminshell.aas.v3.model.impl.DefaultValueReferencePair;
 import io.adminshell.aas.v3.model.impl.DefaultView;
-import java.util.Arrays;
 import java.util.Base64;
 
 
@@ -1851,24 +1850,21 @@ public class AASFull {
 
     public static AssetAdministrationShellEnvironment createEnvironment() {
         return new DefaultAssetAdministrationShellEnvironment.Builder()
-                .assetAdministrationShells(Arrays.asList(
-                        createAAS1(),
-                        createAAS2(),
-                        createAAS3(),
-                        createAAS4()))
-                .submodels(Arrays.asList(
-                        createSubmodel1(),
-                        createSubmodel2(),
-                        createSubmodel3(),
-                        createSubmodel4(),
-                        createSubmodel5(),
-                        createSubmodel6(),
-                        createSubmodel7()))
-                .conceptDescriptions(Arrays.asList(
-                        createConceptDescription1(),
-                        createConceptDescription2(),
-                        createConceptDescription3(),
-                        createConceptDescription4()))
+                .assetAdministrationShells(createAAS1())
+                .assetAdministrationShells(createAAS2())
+                .assetAdministrationShells(createAAS3())
+                .assetAdministrationShells(createAAS4())
+                .submodels(createSubmodel1())
+                .submodels(createSubmodel2())
+                .submodels(createSubmodel3())
+                .submodels(createSubmodel4())
+                .submodels(createSubmodel5())
+                .submodels(createSubmodel6())
+                .submodels(createSubmodel7())
+                .conceptDescriptions(createConceptDescription1())
+                .conceptDescriptions(createConceptDescription2())
+                .conceptDescriptions(createConceptDescription3())
+                .conceptDescriptions(createConceptDescription4())
                 .build();
     }
 

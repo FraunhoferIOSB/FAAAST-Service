@@ -54,7 +54,7 @@ public class DeepCopyHelper {
             return new JsonDeserializer().read(new JsonSerializer().write(env));
         }
         catch (SerializationException | DeserializationException e) {
-            throw new RuntimeException("deep copy of AAS environment failed", e);
+            throw new IllegalArgumentException("deep copy of AAS environment failed", e);
         }
     }
 

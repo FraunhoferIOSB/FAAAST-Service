@@ -23,7 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.InternalErrorResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
@@ -33,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Operation;
@@ -86,18 +89,10 @@ public class Service implements ServiceContext {
             MessageBus messageBus,
             List<Endpoint> endpoints,
             List<AssetConnection> assetConnections) throws ConfigurationException, AssetConnectionException {
-        if (coreConfig == null) {
-            throw new IllegalArgumentException("coreConfig must be non-null");
-        }
-        if (aasEnvironment == null) {
-            throw new IllegalArgumentException("aasEnvironment must be non-null");
-        }
-        if (persistence == null) {
-            throw new IllegalArgumentException("persistence must be non-null");
-        }
-        if (messageBus == null) {
-            throw new IllegalArgumentException("messageBus must be non-null");
-        }
+        Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
+        Ensure.requireNonNull(aasEnvironment, "aasEnvironment must be non-null");
+        Ensure.requireNonNull(persistence, "persistence must be non-null");
+        Ensure.requireNonNull(messageBus, "messageBus must be non-null");
         if (endpoints == null) {
             this.endpoints = new ArrayList<>();
             LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
@@ -128,9 +123,7 @@ public class Service implements ServiceContext {
      */
     public Service(AssetAdministrationShellEnvironment aasEnvironment, ServiceConfig config)
             throws ConfigurationException, AssetConnectionException {
-        if (config == null) {
-            throw new IllegalArgumentException("config must be non-null");
-        }
+        Ensure.requireNonNull(config, "config must be non-null");
         this.config = config;
         setAASEnvironment(aasEnvironment);
         init();
@@ -150,13 +143,9 @@ public class Service implements ServiceContext {
 
     @Override
     public OperationVariable[] getOperationOutputVariables(Reference reference) {
-        if (reference == null) {
-            throw new IllegalArgumentException("reference must be non-null");
-        }
+        Ensure.requireNonNull(reference, "reference must be non-null");
         Referable referable = AasUtils.resolve(reference, aasEnvironment);
-        if (referable == null) {
-            throw new IllegalArgumentException(String.format("reference could not be resolved (reference: %s)", AasUtils.asString(reference)));
-        }
+        Ensure.requireNonNull(referable, String.format("reference could not be resolved (reference: %s)", AasUtils.asString(reference)));
         if (Operation.class.isAssignableFrom(referable.getClass())) {
             throw new IllegalArgumentException(String.format("reference points to invalid type (reference: %s, expected type: Operation, actual type: %s)",
                     AasUtils.asString(reference),
@@ -188,12 +177,8 @@ public class Service implements ServiceContext {
      * @throws IllegalArgumentException if callback is null
      */
     public void executeAsync(Request request, Consumer<Response> callback) {
-        if (request == null) {
-            throw new IllegalArgumentException("request must be non-null");
-        }
-        if (callback == null) {
-            throw new IllegalArgumentException("callback must be non-null");
-        }
+        Ensure.requireNonNull(request, "request must be non-null");
+        Ensure.requireNonNull(callback, "callback must be non-null");
         this.requestHandler.executeAsync(request, callback);
     }
 
@@ -220,13 +205,14 @@ public class Service implements ServiceContext {
 
 
     /**
-     * Starts the service. This includes starting the message bus and endpoints.
+     * Starts the service.This includes starting the message bus and endpoints.
      *
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if starting message bus fails
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException if starting endpoints fails
      * @throws IllegalArgumentException if AAS environment is null/has not been
      *             properly initialized
-     * @throws Exception when starting failed
      */
-    public void start() throws Exception {
+    public void start() throws MessageBusException, EndpointException {
         LOGGER.info("Get command for starting FA³ST Service");
         if (this.aasEnvironment == null) {
             LOGGER.error("AssetAdministrationEnvironment must be non-null");

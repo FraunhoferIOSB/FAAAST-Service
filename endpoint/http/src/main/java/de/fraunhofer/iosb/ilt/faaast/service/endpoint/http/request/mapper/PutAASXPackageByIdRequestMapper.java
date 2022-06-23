@@ -37,14 +37,6 @@ public class PutAASXPackageByIdRequestMapper extends RequestMapper {
     @Override
     public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
         throw new InvalidRequestException("PutAASXPackageById currently not supported");
-        // TODO: Needs specialy handling in HTTP server because it is 'multipart/form-data'
-        // commented out for now
-        //        PutAASXPackageByIdRequest request = new PutAASXPackageByIdRequest();
-        //        request.setPackageId(EncodingUtils.base64Decode(httpRequest.getPathElements().get(1)));
-        //        request.setAasIds(IdGenerator.parseAssetIds(httpRequest.getBody()));
-        //        request.setFilename(IdGenerator.parseFilename(httpRequest.getBody()));
-        //        request.setFile(IdGenerator.parseFile(httpRequest.getBody()));
-        //        return request;
     }
 
 

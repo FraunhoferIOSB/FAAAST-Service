@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.starter.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.DeserializationException;
 import io.adminshell.aas.v3.dataformat.Deserializer;
 import io.adminshell.aas.v3.dataformat.aasx.AASXDeserializer;
@@ -69,12 +70,8 @@ public class AASEnvironmentHelper {
      * @throws FileNotFoundException if file is not found
      */
     public static AssetAdministrationShellEnvironment fromFile(File file, DataFormat dataFormat) throws DeserializationException, FileNotFoundException {
-        if (file == null) {
-            throw new IllegalArgumentException("file must be non-null");
-        }
-        if (dataFormat == null) {
-            throw new IllegalArgumentException("dataFormat must be non-null");
-        }
+        Ensure.requireNonNull(file, "file must be non-null");
+        Ensure.requireNonNull(dataFormat, "dataFormat must be non-null");
         String fileExtension = FilenameUtils.getExtension(file.getName());
         if (!dataFormat.getFileExtensions().contains(fileExtension)) {
             LOGGER.warn("attempting to read AAS environment file with unsupported file extension (data format: {}, supported file extensions: {}, actual file extension: {}",
@@ -109,9 +106,7 @@ public class AASEnvironmentHelper {
      *             * @throws DeserializationException if deserialization fails
      */
     public static AssetAdministrationShellEnvironment fromFile(File file) throws DeserializationException {
-        if (file == null) {
-            throw new IllegalArgumentException("file must be non-null");
-        }
+        Ensure.requireNonNull(file, "file must be non-null");
         String fileExtension = FilenameUtils.getExtension(file.getName());
         List<DataFormat> potentialDataFormats = DataFormat.forFileExtension(fileExtension);
         if (potentialDataFormats.isEmpty()) {

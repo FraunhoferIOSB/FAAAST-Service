@@ -24,10 +24,7 @@ import java.util.Objects;
 
 public class PropertyValue extends DataElementValue {
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
+    private TypedValue value;
 
     public static PropertyValue of(String datatype, String value) throws ValueFormatException {
         return new PropertyValue(TypedValueFactory.create(datatype, value));
@@ -38,7 +35,6 @@ public class PropertyValue extends DataElementValue {
         return new PropertyValue(TypedValueFactory.create(datatype, value));
     }
 
-    private TypedValue value;
 
     public PropertyValue() {}
 
@@ -74,6 +70,11 @@ public class PropertyValue extends DataElementValue {
     @Override
     public int hashCode() {
         return Objects.hash(value);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public abstract static class AbstractBuilder<T extends PropertyValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

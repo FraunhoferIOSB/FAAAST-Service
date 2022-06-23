@@ -25,6 +25,7 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
     public static final int DEFAULT_PORT = 8080;
     private int port;
+    private boolean corsEnabled;
 
     public HttpEndpointConfig() {
         this.port = DEFAULT_PORT;
@@ -73,6 +74,12 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
             getBuildingInstance().setPort(value);
             return getSelf();
         }
+
+
+        public B cors(boolean value) {
+            getBuildingInstance().setCorsEnabled(value);
+            return getSelf();
+        }
     }
 
     public static class Builder extends AbstractBuilder<HttpEndpointConfig, Builder> {
@@ -87,5 +94,14 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         protected HttpEndpointConfig newBuildingInstance() {
             return new HttpEndpointConfig();
         }
+    }
+
+    public boolean isCorsEnabled() {
+        return corsEnabled;
+    }
+
+
+    public void setCorsEnabled(boolean corsEnabled) {
+        this.corsEnabled = corsEnabled;
     }
 }

@@ -27,8 +27,8 @@ public class RelationshipElementValueMapper implements DataValueMapper<Relations
             return null;
         }
         RelationshipElementValue relationshipElementValue = new RelationshipElementValue();
-        relationshipElementValue.setFirst(submodelElement.getFirst().getKeys());
-        relationshipElementValue.setSecond(submodelElement.getSecond().getKeys());
+        relationshipElementValue.setFirst(submodelElement.getFirst() != null ? submodelElement.getFirst().getKeys() : null);
+        relationshipElementValue.setSecond(submodelElement.getSecond() != null ? submodelElement.getSecond().getKeys() : null);
         return relationshipElementValue;
     }
 
@@ -36,8 +36,8 @@ public class RelationshipElementValueMapper implements DataValueMapper<Relations
     @Override
     public RelationshipElement setValue(RelationshipElement submodelElement, RelationshipElementValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
-        submodelElement.setFirst(new DefaultReference.Builder().keys(value.getFirst()).build());
-        submodelElement.setSecond(new DefaultReference.Builder().keys(value.getSecond()).build());
+        submodelElement.setFirst(value.getFirst() != null ? new DefaultReference.Builder().keys(value.getFirst()).build() : null);
+        submodelElement.setSecond(value.getSecond() != null ? new DefaultReference.Builder().keys(value.getSecond()).build() : null);
         return submodelElement;
     }
 }

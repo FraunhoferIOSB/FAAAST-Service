@@ -19,6 +19,7 @@ import com.prosysopc.ua.stack.core.StatusCodes;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -90,7 +91,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
 
     @Override
-    public void start() throws Exception {
+    public void start() throws EndpointException {
         if (server != null && server.isRunning()) {
             LOGGER.info("OPC UA Endpoint already started");
             return;
@@ -111,7 +112,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         }
         catch (Exception e) {
             LOGGER.error("Error starting OPC UA Server", e);
-            throw new RuntimeException("OPC UA server could not be started", e);
+            throw new EndpointException("OPC UA server could not be started", e);
         }
     }
 
@@ -130,7 +131,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         }
         catch (Exception e) {
             LOGGER.error("Error stopping OPC UA Server", e);
-            throw new RuntimeException("OPC UA server could not be stopped", e);
         }
     }
 

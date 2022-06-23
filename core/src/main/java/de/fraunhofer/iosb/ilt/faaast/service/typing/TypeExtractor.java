@@ -46,74 +46,95 @@ public class TypeExtractor {
         }
     }
 
+    private static ElementValueTypeInfo extractTypeInfoForSubmodelElement(SubmodelElement submodelElement) {
+        Class<?> type = submodelElement.getClass();
+        ElementValueTypeInfo.Builder builder = ElementValueTypeInfo.builder();
+        builder.type(ElementValueMapper.getValueClass(submodelElement.getClass()));
+        if (AnnotatedRelationshipElement.class.isAssignableFrom(type)) {
+            AnnotatedRelationshipElement annotatedRelationshipElement = (AnnotatedRelationshipElement) submodelElement;
+            annotatedRelationshipElement.getAnnotations().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
+        }
+        else if (SubmodelElementCollection.class.isAssignableFrom(type)) {
+            SubmodelElementCollection submodelElementCollection = (SubmodelElementCollection) submodelElement;
+            submodelElementCollection.getValues().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
+        }
+        else if (Entity.class.isAssignableFrom(type)) {
+            Entity entity = (Entity) submodelElement;
+            entity.getStatements().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
+        }
+        else if (Property.class.isAssignableFrom(type)) {
+            Property property = (Property) submodelElement;
+            builder.datatype(Datatype.fromName(property.getValueType()));
+        }
+        else if (Range.class.isAssignableFrom(type)) {
+            Range range = (Range) submodelElement;
+            builder.datatype(Datatype.fromName(range.getValueType()));
+        }
+        return builder.build();
+    }
+
+
+    private static ContainerTypeInfo<?> extractTypeInfoForSubmodel(Submodel submodel) {
+        ContainerTypeInfo.Builder<Object> builder = ContainerTypeInfo.<Object> builder();
+        builder.type(Submodel.class);
+        submodel.getSubmodelElements().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
+        return builder.build();
+    }
+
+
+    private static ContainerTypeInfo<?> extractTypeInfoForCollection(Collection<?> collection) {
+        ContainerTypeInfo.Builder<Integer> builder = ContainerTypeInfo.<Integer> builder();
+        builder.type(Collection.class);
+        builder.contentType(TypeToken.of(collection.getClass()).resolveType(COLLECTION_GENERIC_TOKEN).getRawType());
+        Iterator iterator = collection.iterator();
+        int i = 0;
+        while (iterator.hasNext()) {
+            builder.element(i, extractTypeInfo(iterator.next()));
+            i++;
+        }
+        return builder.build();
+    }
+
+
+    private static ContainerTypeInfo<?> extractTypeInfoForMap(Map<?, ?> map) {
+        ContainerTypeInfo.Builder<String> builder = ContainerTypeInfo.<String> builder();
+        builder.type(Map.class);
+        builder.contentType(TypeToken.of(map.getClass()).resolveType(MAP_GENERIC_TOKEN).getRawType());
+        map.forEach((key, value) -> builder.element(key.toString(), extractTypeInfo(value)));
+        return builder.build();
+    }
+
+
+    private static ContainerTypeInfo<?> extractTypeInfoForArray(Object[] array) {
+        ContainerTypeInfo.Builder<Integer> builder = ContainerTypeInfo.<Integer> builder();
+        builder.type(Array.class);
+        builder.contentType(array.getClass().getComponentType());
+        for (int i = 0; i < array.length; i++) {
+            builder.element(i, extractTypeInfo(array[i]));
+        }
+        return builder.build();
+    }
+
+
     public static TypeInfo extractTypeInfo(Object obj) {
         if (obj == null) {
             return null;
         }
         Class<?> type = obj.getClass();
         if (SubmodelElement.class.isAssignableFrom(type)) {
-            ElementValueTypeInfo.Builder builder = ElementValueTypeInfo.builder();
-            SubmodelElement submodelElement = (SubmodelElement) obj;
-            builder.type(ElementValueMapper.getValueClass(submodelElement.getClass()));
-            if (AnnotatedRelationshipElement.class.isAssignableFrom(type)) {
-                AnnotatedRelationshipElement annotatedRelationshipElement = (AnnotatedRelationshipElement) obj;
-                annotatedRelationshipElement.getAnnotations().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
-            }
-            else if (SubmodelElementCollection.class.isAssignableFrom(type)) {
-                SubmodelElementCollection submodelElementCollection = (SubmodelElementCollection) obj;
-                submodelElementCollection.getValues().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
-            }
-            else if (Entity.class.isAssignableFrom(type)) {
-                Entity entity = (Entity) obj;
-                entity.getStatements().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
-            }
-            else if (Property.class.isAssignableFrom(obj.getClass())) {
-                Property property = (Property) obj;
-                builder.datatype(Datatype.fromName(property.getValueType()));
-            }
-            else if (Range.class.isAssignableFrom(obj.getClass())) {
-                Range range = (Range) obj;
-                builder.datatype(Datatype.fromName(range.getValueType()));
-            }
-            return builder.build();
+            return extractTypeInfoForSubmodelElement((SubmodelElement) obj);
         }
         if (Submodel.class.isAssignableFrom(type)) {
-            Submodel submodel = (Submodel) obj;
-            ContainerTypeInfo.Builder<Object> builder = ContainerTypeInfo.<Object> builder();
-            builder.type(Submodel.class);
-            submodel.getSubmodelElements().forEach(x -> builder.element(x.getIdShort(), extractTypeInfo(x)));
-            return builder.build();
+            return extractTypeInfoForSubmodel((Submodel) obj);
         }
         if (Collection.class.isAssignableFrom(type)) {
-            Collection collection = (Collection) obj;
-            ContainerTypeInfo.Builder<Integer> builder = ContainerTypeInfo.<Integer> builder();
-            builder.type(Collection.class);
-            builder.contentType(TypeToken.of(type).resolveType(COLLECTION_GENERIC_TOKEN).getRawType());
-            Iterator iterator = collection.iterator();
-            int i = 0;
-            while (iterator.hasNext()) {
-                builder.element(i, extractTypeInfo(iterator.next()));
-                i++;
-            }
-            return builder.build();
+            return extractTypeInfoForCollection((Collection) obj);
         }
         if (Map.class.isAssignableFrom(type)) {
-            Map map = (Map) obj;
-            ContainerTypeInfo.Builder<String> builder = ContainerTypeInfo.<String> builder();
-            builder.type(Map.class);
-            builder.contentType(TypeToken.of(type).resolveType(MAP_GENERIC_TOKEN).getRawType());
-            map.forEach((key, value) -> builder.element(key.toString(), extractTypeInfo(value)));
-            return builder.build();
+            return extractTypeInfoForMap((Map) obj);
         }
         if (type.isArray()) {
-            Object[] array = (Object[]) obj;
-            ContainerTypeInfo.Builder<Integer> builder = ContainerTypeInfo.<Integer> builder();
-            builder.type(Array.class);
-            builder.contentType(type.getComponentType());
-            for (int i = 0; i < array.length; i++) {
-                builder.element(i, extractTypeInfo(array[i]));
-            }
-            return builder.build();
+            return extractTypeInfoForArray((Object[]) obj);
         }
         return ContainerTypeInfo.<Object> builder().build();
     }

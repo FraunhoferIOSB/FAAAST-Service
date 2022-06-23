@@ -30,7 +30,7 @@ public class MultiLanguagePropertyValueMapper implements DataValueMapper<MultiLa
         MultiLanguagePropertyValue multiLanguagePropertyValue = new MultiLanguagePropertyValue();
 
         //TODO: Check Why is in AAS Model value a List and in MultilanguagePropertyValue a Set?
-        multiLanguagePropertyValue.setLangStringSet(new HashSet<>(submodelElement.getValues()));
+        multiLanguagePropertyValue.setLangStringSet(submodelElement.getValues() != null ? new HashSet<>(submodelElement.getValues()) : new HashSet<>());
         return multiLanguagePropertyValue;
     }
 
@@ -38,7 +38,7 @@ public class MultiLanguagePropertyValueMapper implements DataValueMapper<MultiLa
     @Override
     public MultiLanguageProperty setValue(MultiLanguageProperty submodelElement, MultiLanguagePropertyValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
-        submodelElement.setValues(new ArrayList<>(value.getLangStringSet()));
+        submodelElement.setValues(value.getLangStringSet() != null ? new ArrayList<>(value.getLangStringSet()) : new ArrayList<>());
         return submodelElement;
     }
 }

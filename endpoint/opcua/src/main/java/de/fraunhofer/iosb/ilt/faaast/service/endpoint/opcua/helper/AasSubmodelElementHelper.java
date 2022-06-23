@@ -43,6 +43,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Reference;
@@ -888,12 +889,8 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     public static void setAasReferenceData(Reference ref, AASReferenceType refNode, boolean readOnly) throws StatusException {
-        if (refNode == null) {
-            throw new IllegalArgumentException("refNode is null");
-        }
-        else if (ref == null) {
-            throw new IllegalArgumentException("ref is null");
-        }
+        Ensure.requireNonNull(refNode, "refNode must be non-null");
+        Ensure.requireNonNull(ref, "ref must be non-null");
 
         try {
             List<AASKeyDataType> keyList = new ArrayList<>();

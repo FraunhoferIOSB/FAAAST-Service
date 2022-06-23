@@ -26,10 +26,6 @@ import java.util.Objects;
 
 public class EntityValue extends ElementValue {
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     private EntityType entityType;
     private List<Key> globalAssetId;
     private Map<String, ElementValue> statements;
@@ -93,6 +89,11 @@ public class EntityValue extends ElementValue {
     @Override
     public int hashCode() {
         return Objects.hash(statements, entityType, globalAssetId);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public abstract static class AbstractBuilder<T extends EntityValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

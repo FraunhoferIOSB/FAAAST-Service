@@ -34,8 +34,7 @@ import java.util.List;
 public class TestService extends Service {
 
     public TestService(Endpoint endpoint, AssetConnection assetConnection, boolean full) throws ConfigurationException, AssetConnectionException {
-        super(
-                CoreConfig.builder().build(),
+        super(CoreConfig.builder().build(),
                 full ? AASFull.ENVIRONMENT : AASSimple.ENVIRONMENT,
                 new PersistenceInMemory(),
                 new MessageBusInternal(),
