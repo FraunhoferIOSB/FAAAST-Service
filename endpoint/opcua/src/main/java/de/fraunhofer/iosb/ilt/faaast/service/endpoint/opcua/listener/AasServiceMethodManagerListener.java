@@ -64,9 +64,8 @@ public class AasServiceMethodManagerListener implements CallableListener {
 
         boolean retval = false;
 
-        // Handle method calls
         // Note that the outputs array is already allocated
-        LOGGER.info("onCall: method {}: called. InputArguments: {}", methodId, inputArguments);
+        LOGGER.trace("onCall: method {}: called. InputArguments: {}", methodId, inputArguments);
 
         try {
             if (endpoint == null) {

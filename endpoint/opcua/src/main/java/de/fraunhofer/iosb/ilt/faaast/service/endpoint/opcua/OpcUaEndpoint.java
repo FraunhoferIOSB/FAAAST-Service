@@ -171,7 +171,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
                 MultiLanguageProperty mlp = (MultiLanguageProperty) element;
                 if ((mlp.getValues() != null) && (mlp.getValues().size() > 1)) {
                     for (int i = 0; i < mlp.getValues().size(); i++) {
-                        LOGGER.info("writeValue: MLP {}: {}", i, mlp.getValues().get(i).getValue());
+                        LOGGER.trace("writeValue: MLP {}: {}", i, mlp.getValues().get(i).getValue());
                     }
                 }
             }
@@ -182,13 +182,13 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
                 MultiLanguagePropertyValue mlpv = (MultiLanguagePropertyValue) request.getRawValue();
                 if ((mlpv.getLangStringSet() != null) && (mlpv.getLangStringSet().size() > 1)) {
                     for (int i = 0; i < mlpv.getLangStringSet().size(); i++) {
-                        LOGGER.info("writeValue: MLPV {}: {}", i, mlpv.getLangStringSet().toArray()[i]);
+                        LOGGER.trace("writeValue: MLPV {}: {}", i, mlpv.getLangStringSet().toArray()[i]);
                     }
                 }
             }
 
             Response response = service.execute(request);
-            LOGGER.info("writeValue: Submodel {}; Element {}; Status: {}", submodel.getIdentification().getIdentifier(), element.getIdShort(), response.getStatusCode());
+            LOGGER.debug("writeValue: Submodel {}; Element {}; Status: {}", submodel.getIdentification().getIdentifier(), element.getIdShort(), response.getStatusCode());
             if (response.getStatusCode().isSuccess()) {
                 retval = true;
             }
@@ -230,7 +230,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             // execute method
             InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
             if (response.getStatusCode().isSuccess()) {
-                LOGGER.info("callOperation: Operation {} executed successfully", operation.getIdShort());
+                LOGGER.debug("callOperation: Operation {} executed successfully", operation.getIdShort());
             }
             else if (response.getStatusCode() == StatusCode.CLIENT_METHOD_NOT_ALLOWED) {
                 LOGGER.warn("callOperation: Operation {} error executing operation: {}", operation.getIdShort(), response.getStatusCode());

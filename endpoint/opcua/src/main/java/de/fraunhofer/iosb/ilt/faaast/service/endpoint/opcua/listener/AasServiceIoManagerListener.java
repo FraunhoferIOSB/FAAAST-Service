@@ -110,7 +110,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
 
     @Override
     public boolean onWriteValue(ServiceContext sc, NodeId nodeId, UaValueNode uvn, NumericRange indexRange, DataValue dv) throws StatusException {
-        LOGGER.info(
+        LOGGER.trace(
                 "onWriteValue: nodeId={}{}{} value={}", nodeId, uvn != null ? " node=" + uvn.getBrowseName() : "", indexRange != null ? " indexRange=" + indexRange : "", dv);
 
         try {
@@ -143,7 +143,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                     LOGGER.debug("onWriteValue: NodeId {} written successfully", nodeId);
                 }
                 else {
-                    LOGGER.info("onWriteValue: NodeId {} write failed", nodeId);
+                    LOGGER.warn("onWriteValue: NodeId {} write failed", nodeId);
                     throw new StatusException(StatusCodes.Bad_InternalError);
                 }
             }

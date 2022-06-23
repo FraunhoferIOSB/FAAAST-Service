@@ -326,7 +326,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void createAddressSpace() throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, MessageBusException {
         try {
-            LOG.info("createAddressSpace");
+            LOG.trace("createAddressSpace");
 
             aasMethodManagerListener = new AasServiceMethodManagerListener(endpoint, this);
 
@@ -1288,7 +1288,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void addQualifierNode(UaNode node) {
         try {
             String name = AASSubmodelElementType.QUALIFIER;
-            LOG.info("addQualifierNode {}; to Node: {}", name, node);
+            LOG.debug("addQualifierNode {}; to Node: {}", name, node);
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASQualifierList.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
             NodeId nid = createNodeId(node, browseName);
             AASQualifierList listNode = createInstance(AASQualifierList.class, nid, browseName, LocalizedText.english(name));
@@ -1349,7 +1349,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            LOG.info("addQualifier {}; to Node: {}", name, node);
+            LOG.debug("addQualifier {}; to Node: {}", name, node);
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASQualifierType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
             NodeId nid = createNodeId(node, browseName);
             AASQualifierType qualifierNode = createInstance(AASQualifierType.class, nid, browseName, LocalizedText.english(name));
@@ -1413,7 +1413,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            LOG.info("addSpecificAssetIds {}; to Node: {}", name, assetInfoNode);
+            LOG.debug("addSpecificAssetIds {}; to Node: {}", name, assetInfoNode);
             AASIdentifierKeyValuePairList listNode = assetInfoNode.getSpecificAssetIdNode();
             boolean created = false;
 
@@ -1472,7 +1472,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            LOG.info("addIdentifierKeyValuePair {}; to Node: {}", name, node);
+            LOG.debug("addIdentifierKeyValuePair {}; to Node: {}", name, node);
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASIdentifierKeyValuePairType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
             NodeId nid = createNodeId(node, browseName);
             AASIdentifierKeyValuePairType identifierPairNode = createInstance(AASIdentifierKeyValuePairType.class, nid, browseName, LocalizedText.english(name));
@@ -1558,7 +1558,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            LOG.info("addAasReferenceList {}; to Node: {}", name, node);
+            LOG.debug("addAasReferenceList {}; to Node: {}", name, node);
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
             NodeId nid = getDefaultNodeId();
             AASReferenceList referenceListNode = createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
@@ -1585,11 +1585,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             final UaObject objectsFolder = getServer().getNodeManagerRoot().getObjectsFolder();
             if (aasEnvironment != null) {
                 String name = "AASEnvironment";
-                LOG.info("addAasEnvironmentNode {}; to ObjectsFolder", name);
+                LOG.debug("addAasEnvironmentNode {}; to ObjectsFolder", name);
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
                 NodeId nid = createNodeId(objectsFolder, browseName);
                 FolderType ft = createInstance(AASEnvironmentType.class, nid, browseName, LocalizedText.english(name));
-                LOG.info("addAasEnvironmentNode: Created class: {}", ft.getClass().getName());
+                LOG.debug("addAasEnvironmentNode: Created class: {}", ft.getClass().getName());
                 aasEnvironmentNode = (AASEnvironmentType) ft;
 
                 objectsFolder.addComponent(aasEnvironmentNode);
@@ -1620,7 +1620,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             String name = asset.getIdShort();
             String displayName = "Asset:" + name;
-            LOG.info("addAsset {}; to Node: {}", name, node);
+            LOG.debug("addAsset {}; to Node: {}", name, node);
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
             NodeId nid = createNodeId(node, browseName);
             AASAssetType assetNode = createInstance(AASAssetType.class, nid, browseName, LocalizedText.english(displayName));
@@ -1869,7 +1869,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
             }
 
-            LOG.info("addAasProperty: add Property {}", nid);
+            LOG.debug("addAasProperty: add Property {}", nid);
 
             if (ordered) {
                 node.addReference(prop, Identifiers.HasOrderedComponent, false);
@@ -2654,13 +2654,13 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             String name = "Submodel";
             AASReferenceList referenceListNode = node.getSubmodelNode();
-            LOG.info("addSubmodelReferences: add {} Submodels to Node: {}", submodelRefs.size(), node);
+            LOG.debug("addSubmodelReferences: add {} Submodels to Node: {}", submodelRefs.size(), node);
             boolean added = false;
             if (referenceListNode == null) {
                 QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
                 NodeId nid = createNodeId(node, browseName);
                 referenceListNode = createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
-                LOG.info("addSubmodelReferences: add Node {} to Node {}", referenceListNode.getNodeId(), node.getNodeId());
+                LOG.debug("addSubmodelReferences: add Node {} to Node {}", referenceListNode.getNodeId(), node.getNodeId());
                 added = true;
             }
 
@@ -2856,11 +2856,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
                 else if (value instanceof SubmodelElement) {
                     if (parent.getNode() instanceof AASSubmodelType) {
-                        LOG.info("elementCreated: call addSubmodelElements");
+                        LOG.trace("elementCreated: call addSubmodelElements");
                         addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), (Submodel) parent.getReferable(), element);
                     }
                     else if (parent.getNode() instanceof AASSubmodelElementType) {
-                        LOG.info("elementCreated: call addSubmodelElements");
+                        LOG.trace("elementCreated: call addSubmodelElements");
                         addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), parent.getSubmodel(), element);
                     }
                     else {
@@ -2965,7 +2965,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void unsubscribeMessageBus() throws MessageBusException {
         try {
             if (messageBus != null) {
-                LOG.info("unsubscribe from the MessageBus");
+                LOG.debug("unsubscribe from the MessageBus");
                 for (int i = 0; i < subscriptions.size(); i++) {
                     messageBus.unsubscribe(subscriptions.get(i));
                 }

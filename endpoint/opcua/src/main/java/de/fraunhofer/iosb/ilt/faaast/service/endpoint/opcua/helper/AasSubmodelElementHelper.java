@@ -155,7 +155,7 @@ public class AasSubmodelElementHelper {
                 }
             }
             else {
-                LOG.info("setRelationshipValue: No AnnotatedRelationshipElement {}", aasElement.getBrowseName().getName());
+                LOG.debug("setRelationshipValue: No AnnotatedRelationshipElement {}", aasElement.getBrowseName().getName());
             }
 
         }
