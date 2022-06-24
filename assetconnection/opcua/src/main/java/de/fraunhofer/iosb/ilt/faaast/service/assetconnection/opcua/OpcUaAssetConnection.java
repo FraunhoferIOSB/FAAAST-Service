@@ -406,7 +406,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                     inoutputParameter = new HashMap<>();
                 }
                 List<String> missingArguments = Stream.of(methodArguments)
-                        .map(x -> x.getName())
+                        .map(Argument::getName)
                         .filter(x -> !inputParameter.containsKey(x) && !inoutputParameter.containsKey(x))
                         .collect(Collectors.toList());
                 if (!missingArguments.isEmpty()) {
