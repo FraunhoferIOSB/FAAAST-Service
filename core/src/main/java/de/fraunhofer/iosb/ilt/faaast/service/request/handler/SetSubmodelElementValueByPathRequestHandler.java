@@ -50,7 +50,7 @@ public class SetSubmodelElementValueByPathRequestHandler extends RequestHandler<
     @Override
     public SetSubmodelElementValueByPathResponse process(SetSubmodelElementValueByPathRequest request) throws ResourceNotFoundException, Exception {
         if (request == null || request.getValueParser() == null) {
-            throw new java.lang.IllegalArgumentException("value parser of request must be non-null");
+            throw new IllegalArgumentException("value parser of request must be non-null");
         }
         SetSubmodelElementValueByPathResponse response = new SetSubmodelElementValueByPathResponse();
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
@@ -61,7 +61,12 @@ public class SetSubmodelElementValueByPathRequestHandler extends RequestHandler<
         ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
         ElementValueMapper.setValue(submodelElement, newValue);
         assetConnectionManager.setValue(reference, newValue);
-        persistence.put(null, reference, submodelElement);
+        try {
+            persistence.put(null, reference, submodelElement);
+        }
+        catch (IllegalArgumentException e) {
+            // empty on purpose
+        }
         response.setStatusCode(StatusCode.SUCCESS);
         messageBus.publish(ValueChangeEventMessage.builder()
                 .element(reference)

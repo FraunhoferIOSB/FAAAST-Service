@@ -161,7 +161,7 @@ public class TestUtils {
             throws ServiceException, StatusException, ServiceResultException, AddressSpaceException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.IDENTIFICATION_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.IDENTIFICATION_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
@@ -193,7 +193,7 @@ public class TestUtils {
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.MODELING_KIND_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.MODELING_KIND_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
@@ -225,7 +225,7 @@ public class TestUtils {
             throws ServiceException, StatusException, AddressSpaceException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.CATEGORY_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.CATEGORY_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
@@ -263,7 +263,7 @@ public class TestUtils {
     public static void checkDataSpecificationNode(UaClient client, NodeId node, int aasns) throws ServiceException, ServiceResultException, AddressSpaceException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.DATA_SPECIFICATION_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.DATA_SPECIFICATION_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
@@ -278,7 +278,7 @@ public class TestUtils {
         NodeId dataSpecNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         Assert.assertFalse("checkDataSpecificationNode Node not found", NodeId.isNull(dataSpecNode));
 
-        checkType(client, dataSpecNode, new NodeId(aasns, TestDefines.AAS_REFERENCE_LIST_ID));
+        checkType(client, dataSpecNode, new NodeId(aasns, TestConstants.AAS_REFERENCE_LIST_ID));
     }
 
 
@@ -295,7 +295,7 @@ public class TestUtils {
     public static void checkBillOfMaterialNode(UaClient client, NodeId node, int aasns) throws ServiceException, AddressSpaceException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.BILL_OF_MATERIAL_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.BILL_OF_MATERIAL_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
@@ -310,7 +310,7 @@ public class TestUtils {
         NodeId billNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         Assert.assertFalse("checkBillOfMaterialNode Node not found", NodeId.isNull(billNode));
 
-        checkType(client, billNode, new NodeId(aasns, TestDefines.AAS_REFERENCE_LIST_ID));
+        checkType(client, billNode, new NodeId(aasns, TestConstants.AAS_REFERENCE_LIST_ID));
     }
 
 
@@ -330,7 +330,7 @@ public class TestUtils {
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.QUALIFIER_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.QUALIFIER_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
@@ -345,13 +345,13 @@ public class TestUtils {
         NodeId qualNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         Assert.assertFalse("checkQualifierNode Node not found", NodeId.isNull(qualNode));
 
-        checkType(client, qualNode, new NodeId(aasns, TestDefines.AAS_QUALIFIER_LIST_ID));
+        checkType(client, qualNode, new NodeId(aasns, TestConstants.AAS_QUALIFIER_LIST_ID));
 
         List<AASQualifierType> nodeList = new ArrayList<>();
         List<ReferenceDescription> refs = client.getAddressSpace().browse(qualNode);
         for (ReferenceDescription ref: refs) {
             NodeId nid = client.getAddressSpace().getNamespaceTable().toNodeId(ref.getNodeId());
-            checkType(client, nid, new NodeId(aasns, TestDefines.AAS_QUALIFIER_TYPE_ID));
+            checkType(client, nid, new NodeId(aasns, TestConstants.AAS_QUALIFIER_TYPE_ID));
             UaNode qnode = client.getAddressSpace().getNode(nid);
             if (qnode instanceof AASQualifierType) {
                 nodeList.add((AASQualifierType) qnode);
@@ -381,7 +381,7 @@ public class TestUtils {
             throws ServiceException, StatusException, ServiceResultException, AddressSpaceException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.ADMINISTRATION_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.ADMINISTRATION_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
@@ -393,7 +393,7 @@ public class TestUtils {
         Assert.assertTrue("checkAdministrationNode Browse Administration targets empty", targets.length > 0);
         NodeId administrationNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
-        checkType(client, administrationNode, new NodeId(aasns, TestDefines.AAS_ADMIN_INFO_TYPE_ID));
+        checkType(client, administrationNode, new NodeId(aasns, TestConstants.AAS_ADMIN_INFO_TYPE_ID));
 
         Assert.assertNotNull(administrationNode);
         Assert.assertNotEquals(NodeId.NULL, administrationNode);
@@ -403,14 +403,14 @@ public class TestUtils {
         int size = 0;
         if (version != null) {
             browsePath.clear();
-            browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.VERSION_NAME)));
+            browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.VERSION_NAME)));
             relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
             size++;
         }
 
         if (revision != null) {
             browsePath.clear();
-            browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.REVISION_NAME)));
+            browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.REVISION_NAME)));
             relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
             size++;
         }
@@ -462,7 +462,7 @@ public class TestUtils {
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestDefines.ASSET_INFORMATION_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.ASSET_INFORMATION_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
@@ -477,20 +477,20 @@ public class TestUtils {
         Assert.assertNotNull(assetInfoNode);
         Assert.assertNotEquals(NodeId.NULL, assetInfoNode);
 
-        checkType(client, assetInfoNode, new NodeId(aasns, TestDefines.AAS_ASSET_INFO_TYPE_ID));
+        checkType(client, assetInfoNode, new NodeId(aasns, TestConstants.AAS_ASSET_INFO_TYPE_ID));
         checkAssetKindNode(client, assetInfoNode, aasns, AASAssetKindDataType.Instance);
         checkBillOfMaterialNode(client, assetInfoNode, aasns);
-        checkAasPropertyFile(client, assetInfoNode, aasns, TestDefines.DEFAULT_THUMB_NAME, AASModelingKindDataType.Instance, "", "image/png",
+        checkAasPropertyFile(client, assetInfoNode, aasns, TestConstants.DEFAULT_THUMB_NAME, AASModelingKindDataType.Instance, "", "image/png",
                 "https://github.com/admin-shell/io/blob/master/verwaltungsschale-detail-part1.png", 0);
 
         List<AASKeyDataType> keyList = new ArrayList<>();
         keyList.add(new AASKeyDataType(AASKeyElementsDataType.Asset, "http://customer.com/assets/KHBVZJSQKIY", AASKeyTypeDataType.IRI));
-        checkAasReferenceNode(client, assetInfoNode, aasns, TestDefines.GLOBAL_ASSET_ID_NAME, keyList);
+        checkAasReferenceNode(client, assetInfoNode, aasns, TestConstants.GLOBAL_ASSET_ID_NAME, keyList);
 
         Map<String, String> map = new HashMap<>();
         map.put("DeviceID", "QjYgPggjwkiHk4RrQiYSLg==");
         map.put("EquipmentID", "538fd1b3-f99f-4a52-9c75-72e9fa921270");
-        checkIdentifierKeyValuePairListNode(client, assetInfoNode, aasns, TestDefines.SPECIFIC_ASSET_ID_NAME, map);
+        checkIdentifierKeyValuePairListNode(client, assetInfoNode, aasns, TestConstants.SPECIFIC_ASSET_ID_NAME, map);
     }
 
 
@@ -568,10 +568,10 @@ public class TestUtils {
 
         relPath.clear();
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_TYPE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_TYPE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
@@ -645,10 +645,10 @@ public class TestUtils {
 
         relPath.clear();
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_TYPE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_TYPE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
@@ -716,14 +716,14 @@ public class TestUtils {
 
         relPath.clear();
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_MIME_TYPE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_MIME_TYPE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasAddIn, false, true, new QualifiedName(aasns, TestDefines.PROPERTY_FILE_NAME)));
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(0, TestDefines.PROPERTY_SIZE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasAddIn, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_FILE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(0, TestConstants.PROPERTY_SIZE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
@@ -826,7 +826,7 @@ public class TestUtils {
         Assert.assertTrue("checkSubmodelRef Target empty", targets.length > 0);
         NodeId refNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
         Assert.assertNotNull("checkSubmodelRef RefNode Null", refNode);
-        checkType(client, refNode, new NodeId(aasns, TestDefines.AAS_REFERENCE_TYPE_ID));
+        checkType(client, refNode, new NodeId(aasns, TestConstants.AAS_REFERENCE_TYPE_ID));
 
         // check AAS Reference
         List<AASKeyDataType> refKeys = new ArrayList<>();
@@ -947,7 +947,7 @@ public class TestUtils {
      */
     private static void checkIdentification(UaClient client, NodeId identificationNode, int aasns, AASIdentifierTypeDataType idType, String id)
             throws ServiceException, StatusException, AddressSpaceException, ServiceResultException {
-        checkType(client, identificationNode, new NodeId(aasns, TestDefines.AAS_IDENTIFIER_TYPE_ID));
+        checkType(client, identificationNode, new NodeId(aasns, TestConstants.AAS_IDENTIFIER_TYPE_ID));
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -991,7 +991,7 @@ public class TestUtils {
      */
     private static void checkModelingKind(UaClient client, NodeId kindNode, AASModelingKindDataType modelingKind)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        checkDisplayName(client, kindNode, TestDefines.MODELING_KIND_NAME);
+        checkDisplayName(client, kindNode, TestConstants.MODELING_KIND_NAME);
         checkType(client, kindNode, Identifiers.PropertyType);
 
         DataValue value = client.readValue(kindNode);
@@ -1016,7 +1016,7 @@ public class TestUtils {
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.ASSET_KIND_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.ASSET_KIND_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
@@ -1045,7 +1045,7 @@ public class TestUtils {
      */
     private static void checkAssetKind(UaClient client, NodeId kindNode, AASAssetKindDataType assetKind)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
-        checkDisplayName(client, kindNode, TestDefines.ASSET_KIND_NAME);
+        checkDisplayName(client, kindNode, TestConstants.ASSET_KIND_NAME);
         checkType(client, kindNode, Identifiers.PropertyType);
 
         DataValue value = client.readValue(kindNode);
@@ -1102,7 +1102,7 @@ public class TestUtils {
      */
     private static void checkAasReference(UaClient client, NodeId node, int aasns, List<AASKeyDataType> refKeys)
             throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
-        checkType(client, node, new NodeId(aasns, TestDefines.AAS_REFERENCE_TYPE_ID));
+        checkType(client, node, new NodeId(aasns, TestConstants.AAS_REFERENCE_TYPE_ID));
 
         List<RelativePathElement> browsePath = new ArrayList<>();
         browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, "Keys")));
@@ -1114,7 +1114,7 @@ public class TestUtils {
         UaVariable variable = (UaVariable) client.getAddressSpace().getNode(targetsProp[0].getTargetId());
         UaType dataType = variable.getDataType();
         Assert.assertNotNull("DataType null", dataType);
-        Assert.assertEquals("DataType not equal", new NodeId(aasns, TestDefines.AAS_KEY_DATA_TYPE_ID), dataType.getNodeId());
+        Assert.assertEquals("DataType not equal", new NodeId(aasns, TestConstants.AAS_KEY_DATA_TYPE_ID), dataType.getNodeId());
 
         DataValue value = client.readValue(targetsProp[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -1162,7 +1162,7 @@ public class TestUtils {
         Assert.assertNotNull("checkIdentifierKeyValuePairListNode Ref Node Null", listNode);
         Assert.assertNotEquals("checkIdentifierKeyValuePairListNode Ref Node Null", NodeId.NULL, listNode);
 
-        checkType(client, listNode, new NodeId(aasns, TestDefines.AAS_ID_KEY_VALUE_PAIR_LIST_ID));
+        checkType(client, listNode, new NodeId(aasns, TestConstants.AAS_ID_KEY_VALUE_PAIR_LIST_ID));
 
         List<NodeId> nodeList = new ArrayList<>();
         List<ReferenceDescription> refs = client.getAddressSpace().browse(listNode);
@@ -1191,14 +1191,14 @@ public class TestUtils {
      */
     private static void checkIdentifierKeyValuePairNode(UaClient client, NodeId node, int aasns, Map<String, String> map)
             throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
-        checkType(client, node, new NodeId(aasns, TestDefines.AAS_ID_KEY_VALUE_PAIR_ID));
+        checkType(client, node, new NodeId(aasns, TestConstants.AAS_ID_KEY_VALUE_PAIR_ID));
 
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.ID_KEY_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.ID_KEY_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
         browsePath.clear();
-        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestDefines.ID_VALUE_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.ID_VALUE_NAME)));
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));

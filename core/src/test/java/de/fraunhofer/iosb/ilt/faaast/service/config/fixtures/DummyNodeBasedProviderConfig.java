@@ -35,9 +35,7 @@ public class DummyNodeBasedProviderConfig implements AssetValueProviderConfig, A
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 97 * hash + Objects.hashCode(this.nodeId);
-        return hash;
+        return Objects.hash(nodeId);
     }
 
 
@@ -53,10 +51,7 @@ public class DummyNodeBasedProviderConfig implements AssetValueProviderConfig, A
             return false;
         }
         final DummyNodeBasedProviderConfig other = (DummyNodeBasedProviderConfig) obj;
-        if (!Objects.equals(this.nodeId, other.nodeId)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.nodeId, other.nodeId);
     }
 
 }

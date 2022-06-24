@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager.Identifi
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager.PackagePersistenceManager;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager.ReferablePersistenceManager;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.QueryModifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -62,196 +63,115 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfig> {
 
+    private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
     private AssetAdministrationShellEnvironment aasEnvironment;
-    private final Map<String, OperationResult> operationResultMap = new ConcurrentHashMap<>();
-    private final Map<String, OperationHandle> operationHandleMap = new ConcurrentHashMap<>();
-    private final IdentifiablePersistenceManager identifiablePersistenceManager = new IdentifiablePersistenceManager();
-    private final ReferablePersistenceManager referablePersistenceManager = new ReferablePersistenceManager();
-    private final PackagePersistenceManager packagePersistenceManager = new PackagePersistenceManager();
+    private PersistenceInMemoryConfig config;
+    private final IdentifiablePersistenceManager identifiablePersistenceManager;
+    private final Map<String, OperationHandle> operationHandleMap;
+    private final Map<String, OperationResult> operationResultMap;
+    private final PackagePersistenceManager packagePersistenceManager;
+    private final ReferablePersistenceManager referablePersistenceManager;
 
-    @Override
-    public void init(CoreConfig coreConfig, PersistenceInMemoryConfig config, ServiceContext context) {
-        // intentionally empty
+    public PersistenceInMemory() {
+        operationResultMap = new ConcurrentHashMap<>();
+        operationHandleMap = new ConcurrentHashMap<>();
+        identifiablePersistenceManager = new IdentifiablePersistenceManager();
+        referablePersistenceManager = new ReferablePersistenceManager();
+        packagePersistenceManager = new PackagePersistenceManager();
     }
 
 
     @Override
     public PersistenceInMemoryConfig asConfig() {
-        return null;
-    }
-
-
-    @Override
-    public void setEnvironment(AssetAdministrationShellEnvironment environment) {
-        this.aasEnvironment = environment;
-        this.identifiablePersistenceManager.setAasEnvironment(environment);
-        this.referablePersistenceManager.setAasEnvironment(environment);
-        this.packagePersistenceManager.setAasEnvironment(environment);
-    }
-
-
-    @Override
-    public AssetAdministrationShellEnvironment getEnvironment() {
-        return this.aasEnvironment;
+        return config;
     }
 
 
     @Override
     public <T extends Identifiable> T get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException {
-        if (id == null || modifier == null) {
+        if (id == null) {
             return null;
         }
-        Identifiable identifiable = identifiablePersistenceManager.getIdentifiableById(id);
-        QueryModifierHelper.applyQueryModifier(identifiable, modifier);
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
+        return (T) QueryModifierHelper.applyQueryModifier(
+                (Identifiable) identifiablePersistenceManager.getIdentifiableById(id),
+                modifier);
+    }
 
-        return (T) identifiable;
+
+    private void ensureInitialized() {
+        Ensure.requireNonNull(aasEnvironment, "aasEnvironment not properly initialized (must be non-null)");
     }
 
 
     @Override
     public SubmodelElement get(Reference reference, QueryModifier modifier) throws ResourceNotFoundException {
-        if (reference == null || reference.getKeys() == null || modifier == null || this.aasEnvironment == null) {
+        ensureInitialized();
+        if (ReferenceHelper.isNullOrEmpty(reference)) {
             return null;
         }
-        ReferenceHelper.completeReferenceWithProperKeyElements(reference, this.aasEnvironment);
-        SubmodelElement submodelElement = referablePersistenceManager.getSubmodelElement(reference, modifier);
-        QueryModifierHelper.applyQueryModifier(submodelElement, modifier);
-        return submodelElement;
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
+        ReferenceHelper.completeReferenceWithProperKeyElements(reference, aasEnvironment);
+        return QueryModifierHelper.applyQueryModifier(
+                referablePersistenceManager.getSubmodelElement(reference, modifier),
+                modifier);
     }
 
 
     @Override
     public List<AssetAdministrationShell> get(String idShort, List<AssetIdentification> assetIds, QueryModifier modifier) {
-        if (modifier == null || (StringUtils.isNoneBlank(idShort) && assetIds != null)) {
-            return null;
-        }
-        List<AssetAdministrationShell> shells = identifiablePersistenceManager.getAASs(idShort, assetIds);
-        if (shells == null) {
-            return null;
-        }
-        QueryModifierHelper.applyQueryModifier(shells, modifier);
-        return shells;
+        ensureInitialized();
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
+        return QueryModifierHelper.applyQueryModifier(
+                identifiablePersistenceManager.getAASs(idShort, assetIds),
+                modifier);
     }
 
 
     @Override
     public List<Submodel> get(String idShort, Reference semanticId, QueryModifier modifier) {
-        if (modifier == null) {
-            return null;
-        }
-
-        //TODO: allow this combination? Throw meaningful exception if not.
-        if (StringUtils.isNoneBlank(idShort) && semanticId != null) {
-            return null;
-        }
-
-        List<Submodel> submodels = identifiablePersistenceManager.getSubmodels(idShort, semanticId);
-        if (submodels == null) {
-            return null;
-        }
-        QueryModifierHelper.applyQueryModifier(submodels, modifier);
-        return submodels;
-    }
-
-
-    @Override
-    public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException {
-        if (reference == null || modifier == null) {
-            return null;
-        }
-        ReferenceHelper.completeReferenceWithProperKeyElements(reference, this.aasEnvironment);
-
-        List<SubmodelElement> submodelElements = referablePersistenceManager.getSubmodelElements(reference, semanticId);
-        if (submodelElements == null) {
-            return null;
-        }
-        QueryModifierHelper.applyQueryModifier(submodelElements, modifier);
-        return submodelElements;
+        ensureInitialized();
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
+        return QueryModifierHelper.applyQueryModifier(
+                identifiablePersistenceManager.getSubmodels(idShort, semanticId),
+                modifier);
     }
 
 
     @Override
     public List<ConceptDescription> get(String idShort, Reference isCaseOf, Reference dataSpecification, QueryModifier modifier) {
-        if (modifier == null) {
-            return null;
-        }
-
-        List<ConceptDescription> conceptDescriptions = identifiablePersistenceManager.getConceptDescriptions(idShort, isCaseOf, dataSpecification);
-        QueryModifierHelper.applyQueryModifier(conceptDescriptions, modifier);
-        return conceptDescriptions;
-    }
-
-
-    @Override
-    public SubmodelElement put(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException {
-        if ((parent == null && referenceToSubmodelElement == null) || submodelElement == null) {
-            return null;
-        }
-        if (parent != null) {
-            ReferenceHelper.completeReferenceWithProperKeyElements(parent, this.aasEnvironment);
-        }
-        if (referenceToSubmodelElement != null) {
-            ReferenceHelper.completeReferenceWithProperKeyElements(referenceToSubmodelElement, this.aasEnvironment);
-        }
-        return referablePersistenceManager.putSubmodelElement(parent, referenceToSubmodelElement, submodelElement);
-    }
-
-
-    @Override
-    public void remove(Identifier id) throws ResourceNotFoundException {
-        if (id == null) {
-            return;
-        }
-        identifiablePersistenceManager.remove(id);
-    }
-
-
-    @Override
-    public void remove(Reference reference) throws ResourceNotFoundException {
-        if (reference == null) {
-            return;
-        }
-        ReferenceHelper.completeReferenceWithProperKeyElements(reference, this.aasEnvironment);
-        referablePersistenceManager.remove(reference);
-    }
-
-
-    @Override
-    public Identifiable put(Identifiable identifiable) {
-        if (identifiable == null) {
-            return null;
-        }
-        return identifiablePersistenceManager.put(identifiable);
+        ensureInitialized();
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
+        return QueryModifierHelper.applyQueryModifier(
+                identifiablePersistenceManager.getConceptDescriptions(idShort, isCaseOf, dataSpecification),
+                modifier);
     }
 
 
     @Override
     public AASXPackage get(String packageId) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
 
     @Override
     public List<PackageDescription> get(Identifier aasId) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
 
     @Override
-    public String put(Set<Identifier> aasIds, AASXPackage file, String fileName) {
-        throw new UnsupportedOperationException();
+    public AssetAdministrationShellEnvironment getEnvironment() {
+        return aasEnvironment;
     }
 
 
     @Override
-    public void remove(String packageId) {
-        throw new UnsupportedOperationException();
-    }
-
-
-    @Override
-    public AASXPackage put(String packageId, Set aasIds, AASXPackage file, String fileName) {
-        throw new UnsupportedOperationException();
+    public void setEnvironment(AssetAdministrationShellEnvironment environment) {
+        aasEnvironment = environment;
+        identifiablePersistenceManager.setAasEnvironment(environment);
+        referablePersistenceManager.setAasEnvironment(environment);
+        packagePersistenceManager.setAasEnvironment(environment);
     }
 
 
@@ -265,27 +185,96 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
 
 
     @Override
-    public OperationHandle putOperationContext(String handleId, String requestId, OperationResult operationResult) {
-        if (operationResult == null) {
-            operationResult = new OperationResult.Builder()
-                    .executionState(ExecutionState.INITIATED)
-                    .requestId(requestId)
-                    .build();
-        }
+    public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException {
+        ensureInitialized();
+        Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
+        ReferenceHelper.completeReferenceWithProperKeyElements(reference, aasEnvironment);
+        return QueryModifierHelper.applyQueryModifier(
+                referablePersistenceManager.getSubmodelElements(reference, semanticId),
+                modifier);
+    }
 
+
+    @Override
+    public void init(CoreConfig coreConfig, PersistenceInMemoryConfig config, ServiceContext context) {
+        this.config = config;
+    }
+
+
+    @Override
+    public SubmodelElement put(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException {
+        ensureInitialized();
+        Ensure.requireNonNull(submodelElement, "submodelElement must be non-null");
+        Ensure.require(parent != null || referenceToSubmodelElement != null, "either parent or referenceToSubmodelElement must be non-null");
+        if (parent != null) {
+            ReferenceHelper.completeReferenceWithProperKeyElements(parent, aasEnvironment);
+        }
+        if (referenceToSubmodelElement != null) {
+            ReferenceHelper.completeReferenceWithProperKeyElements(referenceToSubmodelElement, aasEnvironment);
+        }
+        return referablePersistenceManager.putSubmodelElement(parent, referenceToSubmodelElement, submodelElement);
+    }
+
+
+    @Override
+    public Identifiable put(Identifiable identifiable) {
+        return identifiablePersistenceManager.put(identifiable);
+    }
+
+
+    @Override
+    public String put(Set<Identifier> aasIds, AASXPackage file, String fileName) {
+        throw new UnsupportedOperationException();
+    }
+
+
+    @Override
+    public AASXPackage put(String packageId, Set aasIds, AASXPackage file, String fileName) {
+        throw new UnsupportedOperationException();
+    }
+
+
+    @Override
+    public OperationHandle putOperationContext(String handleId, String requestId, OperationResult operationResult) {
+        OperationResult operationResultLocal = operationResult != null
+                ? operationResult
+                : new OperationResult.Builder()
+                        .executionState(ExecutionState.INITIATED)
+                        .requestId(requestId)
+                        .build();
+        String handleIdLocal = handleId;
         if (StringUtils.isBlank(handleId)) {
+            handleIdLocal = UUID.randomUUID().toString();
             OperationHandle operationHandle = new OperationHandle.Builder()
                     .requestId(requestId)
-                    .handleId(UUID.randomUUID().toString())
+                    .handleId(handleIdLocal)
                     .build();
             operationHandleMap.put(operationHandle.getHandleId(), operationHandle);
-            operationResultMap.putIfAbsent(operationHandle.getHandleId(), operationResult);
-            return operationHandle;
         }
-        else {
-            operationResultMap.put(handleId, operationResult);
-        }
+        operationResultMap.put(handleIdLocal, operationResultLocal);
+        return operationHandleMap.get(handleIdLocal);
+    }
 
-        return null;
+
+    @Override
+    public void remove(Identifier id) throws ResourceNotFoundException {
+        if (id != null) {
+            identifiablePersistenceManager.remove(id);
+        }
+    }
+
+
+    @Override
+    public void remove(Reference reference) throws ResourceNotFoundException {
+        if (reference != null) {
+            ReferenceHelper.completeReferenceWithProperKeyElements(reference, aasEnvironment);
+            referablePersistenceManager.remove(reference);
+        }
+    }
+
+
+    @Override
+    public void remove(String packageId) {
+        throw new UnsupportedOperationException();
     }
 }

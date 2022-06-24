@@ -41,13 +41,6 @@ import java.util.stream.Collectors;
  */
 public interface Deserializer {
 
-    private static String readStream(InputStream src, Charset charset) {
-        return new BufferedReader(
-                new InputStreamReader(src, charset))
-                        .lines()
-                        .collect(Collectors.joining(System.lineSeparator()));
-    }
-
     /**
      * Default charset that will be used when no charset is specified
      */
@@ -246,84 +239,6 @@ public interface Deserializer {
         catch (ValueMappingException e) {
             throw new DeserializationException("deserialization failed because of invalid value mapping", e);
         }
-    }
-
-
-    /**
-     * Deserializes a JSON containg a list of
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
-     *
-     * @param <T> expected value type
-     * @param json JSON input string to deserialize
-     * @param typeInfo detailed type information for deserialization
-     * @return a list of element values
-     * @throws DeserializationException if deserialization fails
-     */
-    public <T extends ElementValue> List<T> readValueList(String json, TypeInfo typeInfo) throws DeserializationException;
-
-
-    public default <T extends ElementValue> List<T> readValueList(String json, SubmodelElement submodelElement) throws DeserializationException {
-        return readValueList(json, TypeExtractor.extractTypeInfo(submodelElement));
-    }
-
-
-    /**
-     * Deserializes a JSON containg an array of
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
-     *
-     * @param <T> expected value type
-     * @param json JSON input string to deserialize
-     * @param typeInfo detailed type information for deserialization
-     * @return an array of element values
-     * @throws DeserializationException if deserialization fails
-     */
-    public <T extends ElementValue> T[] readValueArray(String json, TypeInfo typeInfo) throws DeserializationException;
-
-
-    /**
-     * Deserializes a JSON containg a list of
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
-     *
-     * @param <T> expected value type
-     * @param json JSON input string to deserialize
-     * @param submodelElement submodel element class to extract type information
-     *            from
-     * @return a list of element values
-     * @throws DeserializationException if deserialization fails
-     */
-    public default <T extends ElementValue> T[] readValueArray(String json, SubmodelElement submodelElement) throws DeserializationException {
-        return readValueArray(json, TypeExtractor.extractTypeInfo(submodelElement));
-    }
-
-
-    /**
-     * Deserializes a JSON containg a map of
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
-     *
-     * @param <K> expected key type of returned map
-     * @param <V> expected value type of returned map
-     * @param json JSON input string to deserialize
-     * @param typeInfo detailed type information for deserialization
-     * @return a map of element values
-     * @throws DeserializationException if deserialization fails
-     */
-    public <K, V extends ElementValue> Map<K, V> readValueMap(String json, TypeInfo typeInfo) throws DeserializationException;
-
-
-    /**
-     * Deserializes a JSON containg a map of
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
-     *
-     * @param <K> expected key type of returned map
-     * @param <V> expected value type of returned map
-     * @param json JSON input string to deserialize
-     * @param submodelElement submodel element class to extract type information
-     *            from
-     * @return a map of element values
-     * @throws DeserializationException if deserialization fails
-     */
-    public default <K, V extends ElementValue> Map<K, V> readValueMap(String json, SubmodelElement submodelElement) throws DeserializationException {
-        return readValueMap(json, TypeExtractor.extractTypeInfo(submodelElement));
     }
 
 
@@ -610,6 +525,84 @@ public interface Deserializer {
 
 
     /**
+     * Deserializes a JSON containg an array of
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     *
+     * @param <T> expected value type
+     * @param json JSON input string to deserialize
+     * @param typeInfo detailed type information for deserialization
+     * @return an array of element values
+     * @throws DeserializationException if deserialization fails
+     */
+    public <T extends ElementValue> T[] readValueArray(String json, TypeInfo typeInfo) throws DeserializationException;
+
+
+    /**
+     * Deserializes a JSON containg a list of
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     *
+     * @param <T> expected value type
+     * @param json JSON input string to deserialize
+     * @param submodelElement submodel element class to extract type information
+     *            from
+     * @return a list of element values
+     * @throws DeserializationException if deserialization fails
+     */
+    public default <T extends ElementValue> T[] readValueArray(String json, SubmodelElement submodelElement) throws DeserializationException {
+        return readValueArray(json, TypeExtractor.extractTypeInfo(submodelElement));
+    }
+
+
+    /**
+     * Deserializes a JSON containg a list of
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     *
+     * @param <T> expected value type
+     * @param json JSON input string to deserialize
+     * @param typeInfo detailed type information for deserialization
+     * @return a list of element values
+     * @throws DeserializationException if deserialization fails
+     */
+    public <T extends ElementValue> List<T> readValueList(String json, TypeInfo typeInfo) throws DeserializationException;
+
+
+    public default <T extends ElementValue> List<T> readValueList(String json, SubmodelElement submodelElement) throws DeserializationException {
+        return readValueList(json, TypeExtractor.extractTypeInfo(submodelElement));
+    }
+
+
+    /**
+     * Deserializes a JSON containg a map of
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     *
+     * @param <K> expected key type of returned map
+     * @param <V> expected value type of returned map
+     * @param json JSON input string to deserialize
+     * @param typeInfo detailed type information for deserialization
+     * @return a map of element values
+     * @throws DeserializationException if deserialization fails
+     */
+    public <K, V extends ElementValue> Map<K, V> readValueMap(String json, TypeInfo typeInfo) throws DeserializationException;
+
+
+    /**
+     * Deserializes a JSON containg a map of
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     *
+     * @param <K> expected key type of returned map
+     * @param <V> expected value type of returned map
+     * @param json JSON input string to deserialize
+     * @param submodelElement submodel element class to extract type information
+     *            from
+     * @return a map of element values
+     * @throws DeserializationException if deserialization fails
+     */
+    public default <K, V extends ElementValue> Map<K, V> readValueMap(String json, SubmodelElement submodelElement) throws DeserializationException {
+        return readValueMap(json, TypeExtractor.extractTypeInfo(submodelElement));
+    }
+
+
+    /**
      * Register custom implementation of AAS model classes to be used for
      * deserialization
      *
@@ -620,4 +613,11 @@ public interface Deserializer {
      */
     public <T> void useImplementation(Class<T> interfaceType, Class<? extends T> implementationType);
 
+
+    private static String readStream(InputStream src, Charset charset) {
+        return new BufferedReader(
+                new InputStreamReader(src, charset))
+                        .lines()
+                        .collect(Collectors.joining(System.lineSeparator()));
+    }
 }

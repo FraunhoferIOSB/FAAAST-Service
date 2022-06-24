@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper;
 /**
  * @author Tino Bischoff
  */
-public class TestDefines {
+public class TestConstants {
 
     public static final String AAS_ENVIRONMENT_NAME = "AASEnvironment";
     public static final String SIMPLE_AAS_NAME = "ExampleMotor";

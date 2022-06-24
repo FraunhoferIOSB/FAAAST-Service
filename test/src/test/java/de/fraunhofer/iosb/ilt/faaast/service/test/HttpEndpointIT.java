@@ -45,6 +45,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
@@ -157,7 +158,7 @@ public class HttpEndpointIT {
                 .key(FaaastConstants.KEY_GLOBAL_ASSET_ID)
                 .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
                 .build());
-        executeAndAssertMultipleEntities(
+        assertExecuteMultiple(
                 HttpMethod.POST,
                 API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
                 StatusCode.SUCCESS_CREATED,
@@ -172,11 +173,11 @@ public class HttpEndpointIT {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         aas.getAssetInformation().getSpecificAssetIds().clear();
         aas.getAssetInformation().setGlobalAssetId(null);
-        executeAndAssert(
+        assertExecute(
                 HttpMethod.DELETE,
                 API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
                 StatusCode.SUCCESS_NO_CONTENT);
-        executeAndAssertMultipleEntities(
+        assertExecuteMultiple(
                 HttpMethod.GET,
                 API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
                 StatusCode.SUCCESS,
@@ -192,7 +193,7 @@ public class HttpEndpointIT {
         Object expected = environment.getAssetAdministrationShells().stream()
                 .map(x -> x.getIdentification())
                 .collect(Collectors.toList());
-        executeAndAssertMultipleEntities(
+        assertExecuteMultiple(
                 HttpMethod.GET,
                 API_PATHS.aasBasicDiscovery().assetAdministrationShells(),
                 StatusCode.SUCCESS,
@@ -211,7 +212,7 @@ public class HttpEndpointIT {
                         .anyMatch(y -> y.getValue().equalsIgnoreCase(assetIdValue)))
                 .map(x -> x.getIdentification())
                 .collect(Collectors.toList());
-        executeAndAssertMultipleEntities(HttpMethod.GET,
+        assertExecuteMultiple(HttpMethod.GET,
                 API_PATHS.aasBasicDiscovery().assetAdministrationShells(Map.of(FaaastConstants.KEY_GLOBAL_ASSET_ID, assetIdValue)),
                 StatusCode.SUCCESS,
                 null,
@@ -229,7 +230,7 @@ public class HttpEndpointIT {
                 .key(FaaastConstants.KEY_GLOBAL_ASSET_ID)
                 .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
                 .build());
-        executeAndAssertMultipleEntities(
+        assertExecuteMultiple(
                 HttpMethod.GET,
                 API_PATHS.aasBasicDiscovery().assetAdministrationShell(aas),
                 StatusCode.SUCCESS,
@@ -255,7 +256,7 @@ public class HttpEndpointIT {
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.POST,
                                 API_PATHS.aasRepository().assetAdministrationShells(),
                                 StatusCode.SUCCESS_CREATED,
@@ -282,7 +283,7 @@ public class HttpEndpointIT {
                 ElementDeleteEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssert(HttpMethod.DELETE,
+                        x -> assertExecute(HttpMethod.DELETE,
                                 API_PATHS.aasRepository().assetAdministrationShell(expected),
                                 StatusCode.SUCCESS_NO_CONTENT)));
         List<AssetAdministrationShell> after = HttpHelper.getWithMultipleResult(
@@ -293,7 +294,7 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testAASRepositoryDeleteAssetAdministrationShell_NotExists()
+    public void testAASRepositoryDeleteAssetAdministrationShellNotExists()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         HttpResponse<String> response = HttpHelper.delete(API_PATHS.aasRepository().assetAdministrationShell("non-existant"));
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
@@ -309,7 +310,7 @@ public class HttpEndpointIT {
                 ElementReadEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.GET,
                                 API_PATHS.aasRepository().assetAdministrationShell(expected),
                                 StatusCode.SUCCESS,
@@ -320,7 +321,7 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testAASRepositoryGetAssetAdministrationShell_NotExists()
+    public void testAASRepositoryGetAssetAdministrationShellNotExists()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         HttpResponse<String> response = HttpHelper.get(API_PATHS.aasRepository().assetAdministrationShell("non-existant"));
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
@@ -330,7 +331,7 @@ public class HttpEndpointIT {
     @Test
     public void testAASRepositoryGetAssetAdministrationShells() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         Object expected = environment.getAssetAdministrationShells();
-        executeAndAssertMultipleEntities(
+        assertExecuteMultiple(
                 HttpMethod.GET,
                 API_PATHS.aasRepository().assetAdministrationShells(),
                 StatusCode.SUCCESS,
@@ -350,7 +351,7 @@ public class HttpEndpointIT {
                 ElementUpdateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 API_PATHS.aasRepository().assetAdministrationShell(expected),
                                 StatusCode.SUCCESS,
@@ -372,14 +373,14 @@ public class HttpEndpointIT {
                 ElementUpdateEventMessage.class,
                 aas,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.POST,
                                 API_PATHS.aasInterface(aas).submodels(),
                                 StatusCode.SUCCESS_CREATED,
                                 newReference,
                                 newReference,
                                 Reference.class)));
-        executeAndAssertMultipleEntities(
+        assertExecuteMultiple(
                 HttpMethod.GET,
                 API_PATHS.aasInterface(aas).submodels(),
                 StatusCode.SUCCESS,
@@ -404,7 +405,7 @@ public class HttpEndpointIT {
                 EventMessage.class,
                 aas,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssert(
+                        x -> assertExecute(
                                 HttpMethod.DELETE,
                                 API_PATHS.aasInterface(aas).submodel(submodelToDelete),
                                 StatusCode.SUCCESS_NO_CONTENT)));
@@ -424,7 +425,7 @@ public class HttpEndpointIT {
                 ElementReadEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.GET,
                                 API_PATHS.aasInterface(expected).assetAdministrationShell(),
                                 StatusCode.SUCCESS,
@@ -435,7 +436,7 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testAssetAdministrationShellInterfaceGetAssetAdministrationShell_NotExists()
+    public void testAssetAdministrationShellInterfaceGetAssetAdministrationShellNotExists()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface("non-existant").assetAdministrationShell());
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
@@ -448,7 +449,7 @@ public class HttpEndpointIT {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         AssetInformation expected = aas.getAssetInformation();
         // TODO does this trigger any message bus event?
-        executeAndAssertSingleEntity(
+        assertExecuteSingle(
                 HttpMethod.GET,
                 API_PATHS.aasInterface(aas).assetInformation(),
                 StatusCode.SUCCESS,
@@ -463,7 +464,7 @@ public class HttpEndpointIT {
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Object expected = aas.getSubmodels();
-        executeAndAssertMultipleEntities(
+        assertExecuteMultiple(
                 HttpMethod.GET,
                 API_PATHS.aasInterface(aas).submodels(),
                 StatusCode.SUCCESS,
@@ -483,7 +484,7 @@ public class HttpEndpointIT {
                 ElementUpdateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 API_PATHS.aasRepository().assetAdministrationShell(expected),
                                 StatusCode.SUCCESS,
@@ -503,7 +504,7 @@ public class HttpEndpointIT {
                 .value("bar")
                 .build());
         // TODO does this trigger any message bus event?
-        executeAndAssertSingleEntity(
+        assertExecuteSingle(
                 HttpMethod.PUT,
                 API_PATHS.aasInterface(aas).assetInformation(),
                 StatusCode.SUCCESS_NO_CONTENT,
@@ -528,7 +529,7 @@ public class HttpEndpointIT {
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.POST,
                                 API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
                                 StatusCode.SUCCESS_CREATED,
@@ -555,7 +556,7 @@ public class HttpEndpointIT {
                 ElementDeleteEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssert(
+                        x -> assertExecute(
                                 HttpMethod.DELETE,
                                 API_PATHS.conceptDescriptionRepository().conceptDescription(expected),
                                 StatusCode.SUCCESS_NO_CONTENT)));
@@ -567,7 +568,7 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testConceptDescriptionRepositoryDeleteConceptDescription_NotExists()
+    public void testConceptDescriptionRepositoryDeleteConceptDescriptionNotExists()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         HttpResponse<String> response = HttpHelper.delete(API_PATHS.conceptDescriptionRepository().conceptDescription("non-existant"));
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
@@ -583,7 +584,7 @@ public class HttpEndpointIT {
                 ElementReadEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.GET,
                                 API_PATHS.conceptDescriptionRepository().conceptDescription(expected),
                                 StatusCode.SUCCESS,
@@ -594,7 +595,7 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testConceptDescriptionRepositoryGetConceptDescription_NotExists()
+    public void testConceptDescriptionRepositoryGetConceptDescriptionNotExists()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         HttpResponse<String> response = HttpHelper.get(API_PATHS.conceptDescriptionRepository().conceptDescription("non-existant"));
         Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND), response.statusCode());
@@ -605,7 +606,7 @@ public class HttpEndpointIT {
     public void testConceptDescriptionRepositoryGetConceptDescriptions()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         Object expected = environment.getConceptDescriptions();
-        executeAndAssertMultipleEntities(
+        assertExecuteMultiple(
                 HttpMethod.GET,
                 API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
                 StatusCode.SUCCESS,
@@ -625,7 +626,7 @@ public class HttpEndpointIT {
                 ElementUpdateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 API_PATHS.conceptDescriptionRepository().conceptDescription(expected),
                                 StatusCode.SUCCESS,
@@ -651,7 +652,7 @@ public class HttpEndpointIT {
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.POST,
                                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
                                 StatusCode.SUCCESS_CREATED,
@@ -677,7 +678,7 @@ public class HttpEndpointIT {
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.POST,
                                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
                                 StatusCode.SUCCESS_CREATED,
@@ -705,7 +706,7 @@ public class HttpEndpointIT {
                 ElementDeleteEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssert(
+                        x -> assertExecute(
                                 HttpMethod.DELETE,
                                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
                                 StatusCode.SUCCESS)));
@@ -725,7 +726,7 @@ public class HttpEndpointIT {
                 ElementReadEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.GET,
                                 API_PATHS.submodelRepository().submodelInterface(expected).submodel(),
                                 StatusCode.SUCCESS,
@@ -745,7 +746,7 @@ public class HttpEndpointIT {
                 ElementReadEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.GET,
                                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
                                 StatusCode.SUCCESS,
@@ -759,7 +760,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelElements() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         Submodel submodel = environment.getSubmodels().get(0);
         List<SubmodelElement> expected = submodel.getSubmodelElements();
-        executeAndAssertMultipleEntities(
+        assertExecuteMultiple(
                 HttpMethod.GET,
                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
                 StatusCode.SUCCESS,
@@ -770,7 +771,7 @@ public class HttpEndpointIT {
 
 
     @Test
-    public void testSubmodelInterfaceGetSubmodel_ContentValue()
+    public void testSubmodelInterfaceGetSubmodelContentValue()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel submodel = environment.getSubmodels().get(3);
         String expected = new JsonSerializer().write(submodel, new OutputModifier.Builder()
@@ -803,7 +804,7 @@ public class HttpEndpointIT {
                 ElementReadEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.GET,
                                 API_PATHS.submodelRepository().submodelInterface(expected).submodel(Level.CORE),
                                 StatusCode.SUCCESS,
@@ -817,6 +818,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelContentPath()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel submodel = environment.getSubmodels().get(2);
+        ExtendHelper.withoutBlobValue(submodel);
         Path expected = Path.builder()
                 .id("TestSubmodel3")
                 .child("ExampleRelationshipElement")
@@ -896,12 +898,13 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelLevelDeep()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel expected = environment.getSubmodels().get(2);
+        ExtendHelper.withoutBlobValue(expected);
         assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.GET,
                                 API_PATHS.submodelRepository().submodelInterface(expected).submodel(Level.DEEP),
                                 StatusCode.SUCCESS,
@@ -921,7 +924,7 @@ public class HttpEndpointIT {
                 ElementUpdateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 API_PATHS.submodelRepository().submodelInterface(expected).submodel(),
                                 StatusCode.SUCCESS,
@@ -942,7 +945,7 @@ public class HttpEndpointIT {
                 ElementUpdateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
                                 StatusCode.SUCCESS,
@@ -970,7 +973,7 @@ public class HttpEndpointIT {
                 ElementCreateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.POST,
                                 API_PATHS.submodelRepository().submodels(),
                                 StatusCode.SUCCESS_CREATED,
@@ -997,7 +1000,7 @@ public class HttpEndpointIT {
                 ElementDeleteEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssert(HttpMethod.DELETE,
+                        x -> assertExecute(HttpMethod.DELETE,
                                 API_PATHS.submodelRepository().submodel(expected),
                                 StatusCode.SUCCESS)));
         List<Submodel> after = HttpHelper.getWithMultipleResult(
@@ -1016,7 +1019,7 @@ public class HttpEndpointIT {
                 ElementReadEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.GET,
                                 API_PATHS.submodelRepository().submodel(expected),
                                 StatusCode.SUCCESS,
@@ -1037,7 +1040,8 @@ public class HttpEndpointIT {
     @Test
     public void testSubmodelRepositoryGetSubmodels() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         Object expected = environment.getSubmodels();
-        executeAndAssertMultipleEntities(
+        ExtendHelper.withoutBlobValue(expected);
+        assertExecuteMultiple(
                 HttpMethod.GET,
                 API_PATHS.submodelRepository().submodels(),
                 StatusCode.SUCCESS,
@@ -1050,7 +1054,7 @@ public class HttpEndpointIT {
     @Test
     public void testSubmodelRepositoryGetSubmodelsByIdShort() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         Submodel expected = environment.getSubmodels().get(1);
-        executeAndAssertMultipleEntities(
+        assertExecuteMultiple(
                 HttpMethod.GET,
                 String.format("%s?idShort=%s", API_PATHS.submodelRepository().submodels(), expected.getIdShort()),
                 StatusCode.SUCCESS,
@@ -1063,7 +1067,7 @@ public class HttpEndpointIT {
     @Test
     public void testSubmodelRepositoryGetSubmodelsBySemanticId() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         Submodel expected = environment.getSubmodels().get(1);
-        executeAndAssertMultipleEntities(
+        assertExecuteMultiple(
                 HttpMethod.GET,
                 String.format("%s?semanticId=%s",
                         API_PATHS.submodelRepository().submodels(),
@@ -1085,7 +1089,7 @@ public class HttpEndpointIT {
                 ElementUpdateEventMessage.class,
                 expected,
                 LambdaExceptionHelper.wrap(
-                        x -> executeAndAssertSingleEntity(
+                        x -> assertExecuteSingle(
                                 HttpMethod.PUT,
                                 API_PATHS.submodelRepository().submodel(expected),
                                 StatusCode.SUCCESS,
@@ -1095,13 +1099,13 @@ public class HttpEndpointIT {
     }
 
 
-    private void executeAndAssert(HttpMethod method, String url, StatusCode statusCode)
+    private void assertExecute(HttpMethod method, String url, StatusCode statusCode)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
-        executeAndAssertSingleEntity(method, url, statusCode, null, null, null);
+        assertExecuteSingle(method, url, statusCode, null, null, null);
     }
 
 
-    private void executeAndAssertMultipleEntities(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
+    private void assertExecuteMultiple(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
         HttpResponse response = HttpHelper.execute(method, url, input);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());
@@ -1112,7 +1116,7 @@ public class HttpEndpointIT {
     }
 
 
-    private void executeAndAssertSingleEntity(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
+    private void assertExecuteSingle(HttpMethod method, String url, StatusCode statusCode, Object input, Object expected, Class<?> type)
             throws IOException, InterruptedException, URISyntaxException, SerializationException, DeserializationException {
         HttpResponse response = HttpHelper.execute(method, url, input);
         Assert.assertEquals(toHttpStatusCode(statusCode), response.statusCode());

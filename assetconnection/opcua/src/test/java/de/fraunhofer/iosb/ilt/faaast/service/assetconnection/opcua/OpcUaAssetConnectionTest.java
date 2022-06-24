@@ -84,11 +84,11 @@ public class OpcUaAssetConnectionTest {
     @Test
     public void testSubscriptionProvider()
             throws AssetConnectionException, InterruptedException, ValueFormatException, ExecutionException, UaException, ConfigurationInitializationException {
-        testSubscribe("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "0.1"));
+        assertSubscribe("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "0.1"));
     }
 
 
-    private void testSubscribe(String nodeId, PropertyValue expected)
+    private void assertSubscribe(String nodeId, PropertyValue expected)
             throws AssetConnectionException, InterruptedException, ExecutionException, UaException, ConfigurationInitializationException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         long interval = 1000;
@@ -140,7 +140,7 @@ public class OpcUaAssetConnectionTest {
     }
 
 
-    private void testWriteReadValue(String nodeId, PropertyValue expected) throws AssetConnectionException, InterruptedException, ConfigurationInitializationException {
+    private void assertWriteReadValue(String nodeId, PropertyValue expected) throws AssetConnectionException, InterruptedException, ConfigurationInitializationException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
@@ -169,19 +169,19 @@ public class OpcUaAssetConnectionTest {
 
     @Test
     public void testValueProvider() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
-        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "3.3"));
-        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/String", PropertyValue.of(Datatype.STRING, "hello world!"));
-        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Integer", PropertyValue.of(Datatype.INTEGER, "42"));
-        testWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Boolean", PropertyValue.of(Datatype.BOOLEAN, "true"));
+        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "3.3"));
+        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/String", PropertyValue.of(Datatype.STRING, "hello world!"));
+        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Integer", PropertyValue.of(Datatype.INTEGER, "42"));
+        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Boolean", PropertyValue.of(Datatype.BOOLEAN, "true"));
     }
 
 
-    private void testInvokeOperation(String nodeId,
-                                     boolean sync,
-                                     Map<String, PropertyValue> input,
-                                     Map<String, PropertyValue> inoutput,
-                                     Map<String, PropertyValue> expectedInoutput,
-                                     Map<String, PropertyValue> expectedOutput)
+    private void assertInvokeOperation(String nodeId,
+                                       boolean sync,
+                                       Map<String, PropertyValue> input,
+                                       Map<String, PropertyValue> inoutput,
+                                       Map<String, PropertyValue> expectedInoutput,
+                                       Map<String, PropertyValue> expectedOutput)
             throws AssetConnectionException, InterruptedException, ConfigurationInitializationException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
@@ -266,19 +266,19 @@ public class OpcUaAssetConnectionTest {
     @Test
     public void testOperationProvider() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
         String nodeIdSqrt = "ns=2;s=HelloWorld/sqrt(x)";
-        testInvokeOperation(nodeIdSqrt,
+        assertInvokeOperation(nodeIdSqrt,
                 true,
                 Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0")),
                 null,
                 null,
                 Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")));
-        testInvokeOperation(nodeIdSqrt,
+        assertInvokeOperation(nodeIdSqrt,
                 false,
                 Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0")),
                 null,
                 null,
                 Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")));
-        testInvokeOperation(nodeIdSqrt,
+        assertInvokeOperation(nodeIdSqrt,
                 true,
                 null,
                 Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0"),
@@ -286,7 +286,7 @@ public class OpcUaAssetConnectionTest {
                 Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0"),
                         "x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")),
                 Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")));
-        testInvokeOperation(nodeIdSqrt,
+        assertInvokeOperation(nodeIdSqrt,
                 false,
                 null,
                 Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0"),

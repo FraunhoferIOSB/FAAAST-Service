@@ -49,12 +49,13 @@ public class ReferenceHelper {
 
 
     /**
-     * Compares a reference and a list of keys to equality.
-     * Ignores the key types of the keys of both parameters.
+     * Compares a reference and a list of keys to equality. Ignores the key
+     * types of the keys of both parameters.
      *
      * @param reference parameter 1
      * @param keys parameter 2
-     * @return true if the reference contains the same keys as in the specified list and vice versa. Otherwise, false.
+     * @return true if the reference contains the same keys as in the specified
+     *         list and vice versa. Otherwise, false.
      */
     public static boolean isEqualsIgnoringKeyType(Reference reference, List<Key> keys) {
         if (reference == null || reference.getKeys() == null || keys == null) {
@@ -75,8 +76,8 @@ public class ReferenceHelper {
 
 
     /**
-     * Compares two references to equality.
-     * Ignores the key types of the keys of both parameters.
+     * Compares two references to equality. Ignores the key types of the keys of
+     * both parameters.
      *
      * @param reference parameter 1
      * @param reference1 parameter 2
@@ -96,14 +97,16 @@ public class ReferenceHelper {
 
 
     /**
-     * Browse the keys of a reference and try to find the referenced element in the
-     * asset administration shell environment to set the right {@link io.adminshell.aas.v3.model.KeyElements}
-     * of the key.
-     * All key types must be null or SUBMODEL_ELEMENT.
+     * Browse the keys of a reference and try to find the referenced element in
+     * the asset administration shell environment to set the right
+     * {@link io.adminshell.aas.v3.model.KeyElements} of the key. All key types
+     * must be null or SUBMODEL_ELEMENT.
      *
      * @param reference with keys which should be completed
-     * @param env the asset administration shell environment which contains the referenced elements
-     * @throws ResourceNotFoundException if an element referenced by a key could not be found
+     * @param env the asset administration shell environment which contains the
+     *            referenced elements
+     * @throws ResourceNotFoundException if an element referenced by a key could
+     *             not be found
      */
     public static void completeReferenceWithProperKeyElements(Reference reference, AssetAdministrationShellEnvironment env) throws ResourceNotFoundException {
         if (reference == null) {
@@ -181,8 +184,8 @@ public class ReferenceHelper {
 
 
     /**
-     * Converts a submodel element reference to a list of keys.
-     * Each key in the list have the general key element "SUBMODEL_ELEMENT"
+     * Converts a submodel element reference to a list of keys. Each key in the
+     * list have the general key element "SUBMODEL_ELEMENT"
      *
      * @param submodelElementRef reference of the submodel element
      * @return the list of keys
@@ -268,8 +271,7 @@ public class ReferenceHelper {
 
 
     /**
-     * Get the corresponding {@link KeyElements}
-     * to the given class
+     * Get the corresponding {@link KeyElements} to the given class
      *
      * @param clazz to convert to a KeyElement
      * @return the corresponding KeyElement of the class
@@ -277,5 +279,38 @@ public class ReferenceHelper {
     public static KeyElements referableToKeyType(Class<?> clazz) {
         Class<?> aasInterface = ReflectionHelper.getAasInterface(clazz);
         return aasInterface != null ? KeyElements.valueOf(AasUtils.deserializeEnumName(aasInterface.getSimpleName())) : null;
+    }
+
+
+    /**
+     * Checks if a given reference is null or empty
+     *
+     * @param reference the reference to check
+     * @return true if reference is null or empty, otherwise false
+     */
+    public static boolean isNullOrEmpty(Reference reference) {
+        return reference == null || reference.getKeys() == null || reference.getKeys().isEmpty();
+    }
+
+
+    /**
+     * Gets the reference to the parent element of the element addressed by
+     * given reference.
+     *
+     * @param reference the reference to the element to find the parent for
+     * @return The reference to the parent element of the element addressed by
+     *         given reference. If no parent exists null is returned.
+     * @throws IllegalArgumentException if reference is null
+     */
+    public static Reference getParent(Reference reference) {
+        if (reference == null) {
+            throw new IllegalArgumentException("reference must be non-null");
+        }
+        if (reference.getKeys() == null || reference.getKeys().size() < 2) {
+            return null;
+        }
+        Reference result = AasUtils.clone(reference);
+        result.getKeys().remove(result.getKeys().size() - 1);
+        return result;
     }
 }

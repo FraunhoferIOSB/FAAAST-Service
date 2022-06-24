@@ -20,10 +20,6 @@ import java.util.Objects;
 
 public class FileValue extends DataElementValue {
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     private String mimeType;
     private String value;
 
@@ -72,6 +68,11 @@ public class FileValue extends DataElementValue {
     @Override
     public int hashCode() {
         return Objects.hash(mimeType, value);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public abstract static class AbstractBuilder<T extends FileValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
