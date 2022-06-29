@@ -120,7 +120,6 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <spotless.version>2.22.8</spotless.version>
-        <system.lambda.version>1.2.1</system.lambda.version>
     </properties>
     <dependencies>
         <dependency>
