@@ -120,6 +120,7 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <spotless.version>2.22.8</spotless.version>
+        <system.stubs.jupiter.version>2.0.1</system.stubs.jupiter.version>
     </properties>
     <dependencies>
         <dependency>

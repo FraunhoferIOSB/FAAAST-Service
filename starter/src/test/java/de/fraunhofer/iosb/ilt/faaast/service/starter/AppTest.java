@@ -61,7 +61,7 @@ public class AppTest {
     }
 
 
-    private EnvironmentVariables  withEnv(String... variables) {
+    private EnvironmentVariables withEnv(String... variables) {
         Ensure.requireNonNull(variables, "variables must be non-null");
         Ensure.require(variables.length >= 2, "variables must contain at least one element");
         Ensure.require(variables.length % 2 == 0, "variables must contain an even number of elements");
