@@ -35,7 +35,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
@@ -83,7 +82,6 @@ public class Service implements ServiceContext {
             List<Endpoint> endpoints,
             List<AssetConnection> assetConnections) throws ConfigurationException, AssetConnectionException {
         Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
-        Ensure.requireNonNull(aasEnvironment, "aasEnvironment must be non-null");
         Ensure.requireNonNull(persistence, "persistence must be non-null");
         Ensure.requireNonNull(messageBus, "messageBus must be non-null");
         if (endpoints == null) {
