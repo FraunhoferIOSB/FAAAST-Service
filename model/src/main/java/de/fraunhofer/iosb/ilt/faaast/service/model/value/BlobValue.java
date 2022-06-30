@@ -78,7 +78,7 @@ public class BlobValue extends DataElementValue {
 
 
         public B value(String value) {
-            getBuildingInstance().setValue(value.getBytes());
+            getBuildingInstance().setValue(value != null ? value.getBytes() : null);
             return getSelf();
         }
 

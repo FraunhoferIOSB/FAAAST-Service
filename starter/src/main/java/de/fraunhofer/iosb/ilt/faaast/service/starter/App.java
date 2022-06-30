@@ -335,7 +335,7 @@ public class App implements Runnable {
             return;
         }
         if (System.getenv(ENV_MODEL_FILE_PATH) != null && !System.getenv(ENV_MODEL_FILE_PATH).isBlank()) {
-            LOGGER.info("Model: {} (ENV: {})", modelFile.getAbsoluteFile(), System.getenv(ENV_MODEL_FILE_PATH));
+            LOGGER.info("Model: {} (ENV)", System.getenv(ENV_MODEL_FILE_PATH));
             if (StringUtils.isNoneBlank(config.getPersistence().getModelPath())) {
                 LOGGER.info("Overriding model path {} set in Config File with {}",
                         config.getPersistence().getModelPath(),

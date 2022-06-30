@@ -35,9 +35,9 @@ public class ReferenceElementValueMapper implements DataValueMapper<ReferenceEle
     @Override
     public ReferenceElement setValue(ReferenceElement submodelElement, ReferenceElementValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
-        submodelElement.setValue(new DefaultReference.Builder()
+        submodelElement.setValue(value.getKeys() != null ? new DefaultReference.Builder()
                 .keys(value.getKeys())
-                .build());
+                .build() : null);
         return submodelElement;
     }
 }
