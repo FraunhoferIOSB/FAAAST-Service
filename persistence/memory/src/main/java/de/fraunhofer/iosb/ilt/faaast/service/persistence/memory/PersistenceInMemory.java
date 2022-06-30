@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.QueryModifi
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.DeserializationException;
@@ -96,7 +97,12 @@ public class PersistenceInMemory implements Persistence<PersistenceInMemoryConfi
             throw new IllegalArgumentException("Neither AAS Environment nor the model path was set");
         }
         try {
-            aasEnvironment = config.getEnvironment() != null ? config.getEnvironment() : AASEnvironmentHelper.fromFile(new File(config.getModelPath()));
+            if (config.getEnvironment() != null) {
+                aasEnvironment = config.isDecoupleEnvironment() ? DeepCopyHelper.deepCopy(config.getEnvironment()) : config.getEnvironment();
+            }
+            else {
+                aasEnvironment = AASEnvironmentHelper.fromFile(new File(config.getModelPath()));
+            }
         }
         catch (DeserializationException e) {
             throw new IllegalArgumentException("Error deserializing AAS Environment", e);

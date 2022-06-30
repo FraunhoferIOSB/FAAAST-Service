@@ -475,6 +475,11 @@ Example configuration for a subscription provider:
 }
 ```
 
+### Persistence
+Persistence configuration supports the following configuration parameters:
+-   `modelPath` (optional, can be overriden by CLI parameter or environment variable): Path to the AAS Environment model file
+-   `decoupleEnvironment` (optional, default: `true`): Only applicable if the AAS Environment is given as Java Object. If set to true, the persistence make a deep copy of the AAS Environment and decouples the internal AAS Environment from the given AAS Environment. If set to false, the same object instance is used in the FA³ST Service, which may have unexpected side effects.
+
 ### In Memory Persistence
 Not yet implemented:
 -   AASX Packages

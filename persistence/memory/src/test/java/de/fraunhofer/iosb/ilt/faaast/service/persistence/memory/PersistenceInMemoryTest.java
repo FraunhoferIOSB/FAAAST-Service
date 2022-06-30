@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
@@ -62,6 +63,7 @@ import org.mockito.Mockito;
 
 public class PersistenceInMemoryTest {
 
+    private static final String MODEL_PATH = "src/test/resources/AASFull.json";
     private AssetAdministrationShellEnvironment environment;
     private Persistence persistence;
     private ServiceContext serviceContext;
@@ -76,6 +78,54 @@ public class PersistenceInMemoryTest {
                         .environment(environment)
                         .build(),
                 serviceContext);
+    }
+
+
+    @Test
+    public void configurationOfEnvironmentWithModelPathTest() throws ConfigurationInitializationException, ResourceNotFoundException {
+        persistence.init(CoreConfig.builder().build(),
+                PersistenceInMemoryConfig.builder()
+                        .modelPath(MODEL_PATH)
+                        .build(),
+                serviceContext);
+        getIdentifiableAASTest();
+    }
+
+
+    @Test
+    public void configurationOfEnvironmentWithModelPathAndEnvironmentTest() throws ConfigurationInitializationException, ResourceNotFoundException {
+        persistence.init(CoreConfig.builder().build(),
+                PersistenceInMemoryConfig.builder()
+                        .modelPath(MODEL_PATH)
+                        .environment(environment)
+                        .build(),
+                serviceContext);
+        getIdentifiableAASTest();
+    }
+
+
+    @Test
+    public void configurationOfEnvironmentWithEnvironmentNoDecoupleTest() throws ConfigurationInitializationException, ResourceNotFoundException {
+        persistence.init(CoreConfig.builder().build(),
+                PersistenceInMemoryConfig.builder()
+                        .environment(environment)
+                        .decoupleEnvironment(false)
+                        .build(),
+                serviceContext);
+
+        String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
+        Identifier id = new DefaultIdentifier.Builder()
+                .identifier(submodelId)
+                .idType(IdentifierType.IRI)
+                .build();
+        Submodel expected = environment.getSubmodels().stream()
+                .filter(x -> x.getIdentification().equals(id))
+                .findFirst().get();
+        Submodel actual = (Submodel) persistence.get(id, QueryModifier.DEFAULT);
+        Assert.assertEquals(expected, actual);
+
+        environment.getSubmodels().removeIf(x -> x.getIdentification().equals(id));
+        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.get(id, QueryModifier.DEFAULT));
     }
 
 

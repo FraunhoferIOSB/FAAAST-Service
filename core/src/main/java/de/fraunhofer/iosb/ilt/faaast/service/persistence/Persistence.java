@@ -22,11 +22,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Identifier;
+import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -44,14 +46,6 @@ import java.util.Set;
  * @param <C> type of the corresponding configuration class
  */
 public interface Persistence<C extends PersistenceConfig> extends Configurable<C> {
-
-    /**
-     * Set the AssetAdministrationShellEnvironment
-     * 
-     * @param environment environment to set
-     */
-    public void setEnvironment(AssetAdministrationShellEnvironment environment);
-
 
     /**
      * Get an Identifiable by an Identifier
@@ -261,5 +255,31 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @return the belonging OperationHandleInstance or create a new one
      */
     public OperationHandle putOperationContext(String handleId, String requestId, OperationResult operationResult);
+
+
+    /**
+     * Provides type information about an element identified by reference.
+     *
+     * @param reference reference identifying the element
+     * @return type information of the referenced element, empty
+     *         {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo} if
+     *         no matching type is found, null if reference is null
+     * @throws IllegalArgumentException if reference can not be resolved on AAS
+     *             environment of the service
+     */
+    public TypeInfo getTypeInfo(Reference reference);
+
+
+    /**
+     * Returns the output variables of an operation identified by a reference
+     *
+     * @param reference the reference identifying the operation
+     * @return output variables of the operation identified by the reference
+     * @throws IllegalArgumentException if reference is null
+     * @throws IllegalArgumentException if reference cannot be resolved
+     * @throws IllegalArgumentException if reference does not point to an
+     *             operation
+     */
+    public OperationVariable[] getOperationOutputVariables(Reference reference);
 
 }

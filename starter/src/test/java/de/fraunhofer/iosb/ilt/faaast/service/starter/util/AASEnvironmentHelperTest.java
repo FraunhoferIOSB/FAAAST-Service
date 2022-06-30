@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
 import io.adminshell.aas.v3.dataformat.DeserializationException;
 import io.adminshell.aas.v3.dataformat.Deserializer;
 import io.adminshell.aas.v3.dataformat.aml.AmlDeserializer;
