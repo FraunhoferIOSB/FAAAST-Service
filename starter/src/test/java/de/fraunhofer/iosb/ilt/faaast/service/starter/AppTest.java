@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
-import com.github.stefanbirkner.systemlambda.SystemLambda;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ParameterConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -31,6 +30,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import picocli.CommandLine;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 
 
 public class AppTest {
@@ -50,7 +50,7 @@ public class AppTest {
     }
 
 
-    private SystemLambda.WithEnvironmentVariables withEnv(Map<String, String> variables) {
+    private EnvironmentVariables withEnv(Map<String, String> variables) {
         return withEnv(variables.entrySet().stream()
                 .map(x -> new String[] {
                         x.getKey(),
@@ -61,12 +61,12 @@ public class AppTest {
     }
 
 
-    private SystemLambda.WithEnvironmentVariables withEnv(String... variables) {
+    private EnvironmentVariables withEnv(String... variables) {
         Ensure.requireNonNull(variables, "variables must be non-null");
         Ensure.require(variables.length >= 2, "variables must contain at least one element");
         Ensure.require(variables.length % 2 == 0, "variables must contain an even number of elements");
 
-        SystemLambda.WithEnvironmentVariables result = null;
+        EnvironmentVariables result = null;
         for (int i = 0; i < variables.length; i += 2) {
             String key = variables[i];
             if (!Objects.equals(App.ENV_CONFIG_FILE_PATH, key) && !Objects.equals(App.ENV_MODEL_FILE_PATH, key)) {
@@ -76,7 +76,7 @@ public class AppTest {
             }
             String value = variables[i + 1];
             result = result == null
-                    ? SystemLambda.withEnvironmentVariable(key, value)
+                    ? new EnvironmentVariables(key, value)
                     : result.and(key, value);
         }
         return result;
