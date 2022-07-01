@@ -88,7 +88,16 @@ public class PersistenceInMemoryTest {
                         .modelPath(MODEL_PATH)
                         .build(),
                 serviceContext);
-        getIdentifiableAASTest();
+
+        Identifier id = new DefaultIdentifier.Builder()
+                .identifier("https://acplt.org/Test_AssetAdministrationShell_Mandatory")
+                .idType(IdentifierType.IRI)
+                .build();
+        AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
+                .filter(x -> x.getIdentification().equals(id))
+                .findFirst().get();
+        AssetAdministrationShell actual = (AssetAdministrationShell) persistence.get(id, QueryModifier.DEFAULT);
+        Assert.assertEquals(expected, actual);
     }
 
 
@@ -100,7 +109,16 @@ public class PersistenceInMemoryTest {
                         .environment(environment)
                         .build(),
                 serviceContext);
-        getIdentifiableAASTest();
+
+        Identifier id = new DefaultIdentifier.Builder()
+                .identifier("https://acplt.org/Test_AssetAdministrationShell_Mandatory")
+                .idType(IdentifierType.IRI)
+                .build();
+        AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
+                .filter(x -> x.getIdentification().equals(id))
+                .findFirst().get();
+        AssetAdministrationShell actual = (AssetAdministrationShell) persistence.get(id, QueryModifier.DEFAULT);
+        Assert.assertEquals(expected, actual);
     }
 
 
