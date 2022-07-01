@@ -36,12 +36,10 @@ import com.prosysopc.ua.stack.core.RelativePathElement;
 import com.prosysopc.ua.stack.core.ServerState;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestAssetConnection;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
@@ -59,6 +57,7 @@ import io.adminshell.aas.v3.model.impl.DefaultQualifier;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASIdentifierTypeDataType;
@@ -91,7 +90,6 @@ public class OpcUaEndpointFullTest {
 
     private static final String ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
 
-    private static OpcUaEndpoint endpoint;
     private static TestService service;
     private static int aasns;
 
@@ -103,13 +101,11 @@ public class OpcUaEndpointFullTest {
     @BeforeClass
     public static void startTest() throws Exception {
 
-        CoreConfig coreConfig = new CoreConfig();
-
         OpcUaEndpointConfig config = new OpcUaEndpointConfig();
         config.setTcpPort(OPC_TCP_PORT);
         config.setSecondsTillShutdown(0);
 
-        AssetConnection assetConnection = new TestAssetConnection();
+        TestAssetConnectionConfig assetConnectionConfig = new TestAssetConnectionConfig();
 
         // register Test Operation
         List<Key> keys = new ArrayList<>();
@@ -118,11 +114,13 @@ public class OpcUaEndpointFullTest {
         Reference ref = new DefaultReference.Builder().keys(keys).build();
         List<OperationVariable> outputArgs = new ArrayList<>();
         outputArgs.add(new DefaultOperationVariable.Builder().value(new DefaultProperty.Builder().idShort("Test Output 1").valueType("string").value("XYZ1").build()).build());
-        assetConnection.registerOperationProvider(ref, new TestOperationProviderConfig(outputArgs));
+        assetConnectionConfig.setOperationProviders(new HashMap<Reference, TestOperationProviderConfig>() {
+            {
+                put(ref, new TestOperationProviderConfig(outputArgs));
+            }
+        });
 
-        endpoint = new OpcUaEndpoint();
-        service = new TestService(endpoint, assetConnection, true);
-        endpoint.init(coreConfig, config, service);
+        service = new TestService(config, assetConnectionConfig, true);
         service.start();
     }
 
@@ -133,9 +131,6 @@ public class OpcUaEndpointFullTest {
     @AfterClass
     public static void stopTest() {
         LOGGER.trace("stopTest");
-        if (endpoint != null) {
-            endpoint.stop();
-        }
 
         if (service != null) {
             service.stop();
