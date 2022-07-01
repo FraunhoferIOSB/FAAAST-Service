@@ -143,5 +143,14 @@ public class TestAssetConnection implements AssetConnection<TestAssetConnectionC
     @Override
     public void init(CoreConfig coreConfig, TestAssetConnectionConfig config, ServiceContext context) {
         LOGGER.info("init called");
+        for (var provider: config.getValueProviders().entrySet()) {
+            registerValueProvider(provider.getKey(), provider.getValue());
+        }
+        for (var provider: config.getOperationProviders().entrySet()) {
+            registerOperationProvider(provider.getKey(), provider.getValue());
+        }
+        for (var provider: config.getSubscriptionProviders().entrySet()) {
+            registerSubscriptionProvider(provider.getKey(), provider.getValue());
+        }
     }
 }
