@@ -267,7 +267,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      * @throws IllegalArgumentException if reference can not be resolved on AAS
      *             environment of the service
      */
-    public TypeInfo getTypeInfo(Reference reference);
+    public TypeInfo<?> getTypeInfo(Reference reference);
 
 
     /**

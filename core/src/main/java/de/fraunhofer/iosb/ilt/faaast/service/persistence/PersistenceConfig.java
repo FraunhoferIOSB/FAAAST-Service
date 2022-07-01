@@ -27,7 +27,7 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
  */
 public class PersistenceConfig<T extends Persistence> extends Config<T> {
 
-    public static boolean DEFAULT_DECOUPLE_ENVIRONMENT = true;
+    private static final boolean DEFAULT_DECOUPLE_ENVIRONMENT = true;
     private String modelPath;
     private AssetAdministrationShellEnvironment environment;
     private boolean decoupleEnvironment;
