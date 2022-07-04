@@ -129,8 +129,8 @@
         </dependency>
         <dependency>
             <groupId>uk.org.webcompere</groupId>
-            <artifactId>system-stubs-jupiter</artifactId>
-            <version>${system.stubs.jupiter.version}</version>
+            <artifactId>system-stubs-junit4</artifactId>
+            <version>${system.stubs.junit4.version}</version>
         </dependency>
     </dependencies>
     <repositories>
