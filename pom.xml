@@ -102,7 +102,7 @@
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.3.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
-        <milo.version>0.6.6</milo.version>
+        <milo.version>0.6.7</milo.version>
         <mockito.version>4.6.1</mockito.version>
         <moquette.version>0.15.1</moquette.version>
         <paho.version>1.2.5</paho.version>
@@ -119,7 +119,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <spotless.version>2.22.8</spotless.version>
+        <spotless.version>2.23.0</spotless.version>
         <system.lambda.version>1.2.1</system.lambda.version>
     </properties>
     <dependencies>
