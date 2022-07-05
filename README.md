@@ -36,6 +36,8 @@ mvn clean install
 
 #### From JAR
 
+[Download latest version as precompiled JAR](https://search.maven.org/remote_content?g=de.fraunhofer.iosb.ilt.faaast.service&a=starter&v=LATEST)
+
 To start the Service from command line use the following commands.
 ```sh
 cd /starter/target
