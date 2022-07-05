@@ -80,7 +80,7 @@
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <javax.servlet.version>2.5</javax.servlet.version>
         <jetty.version>11.0.11</jetty.version>
-        <jsonassert.version>1.5.0</jsonassert.version>
+        <jsonassert.version>1.5.1</jsonassert.version>
         <jsonpath.version>2.7.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.2.11</logback.version>
