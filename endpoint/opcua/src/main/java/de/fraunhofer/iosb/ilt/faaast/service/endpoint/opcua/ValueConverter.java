@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
+import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.Variant;
@@ -328,6 +329,10 @@ public class ValueConverter {
 
             case SHORT:
                 retval = AASValueTypeDataType.Int16;
+                break;
+
+            case DATE_TIME:
+                retval = AASValueTypeDataType.DateTime;
                 break;
 
             default:
@@ -877,28 +882,19 @@ public class ValueConverter {
             switch (type) {
                 case PROPERTY_VALUE: {
                     Property aasProp = (Property) submodelElement;
-                    String newValue = null;
-                    if (variant.getValue() != null) {
-                        newValue = variant.getValue().toString();
-                    }
+                    String newValue = convertVariantValueToString(variant);
                     aasProp.setValue(newValue);
                     break;
                 }
                 case RANGE_MIN: {
                     Range aasRange = (Range) submodelElement;
-                    String newValue = null;
-                    if (variant.getValue() != null) {
-                        newValue = variant.getValue().toString();
-                    }
+                    String newValue = convertVariantValueToString(variant);
                     aasRange.setMin(newValue);
                     break;
                 }
                 case RANGE_MAX: {
                     Range aasRange = (Range) submodelElement;
-                    String newValue = null;
-                    if (variant.getValue() != null) {
-                        newValue = variant.getValue().toString();
-                    }
+                    String newValue = convertVariantValueToString(variant);
                     aasRange.setMax(newValue);
                     break;
                 }
@@ -1067,6 +1063,23 @@ public class ValueConverter {
         catch (Exception ex) {
             LOGGER.error("getSubmodelElementValue Exception", ex);
             throw ex;
+        }
+
+        return retval;
+    }
+
+
+    private static String convertVariantValueToString(Variant variant) {
+        String retval = "";
+        if (variant.getValue() != null) {
+            // special treatment for DateTime
+            if (variant.getValue() instanceof DateTime) {
+                //DateTime.
+                retval = ((DateTime) variant.getValue()).getUtcCalendar().toZonedDateTime().toString();
+            }
+            else {
+                retval = variant.getValue().toString();
+            }
         }
 
         return retval;
