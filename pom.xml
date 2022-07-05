@@ -70,7 +70,7 @@
         <aas.dataformat.jsonld.version>1.0.2</aas.dataformat.jsonld.version>
         <aas.version>1.2.0</aas.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <classgraph.version>4.8.147</classgraph.version>
+        <classgraph.version>4.8.148</classgraph.version>
         <commons.code.version>1.15</commons.code.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
