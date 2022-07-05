@@ -370,7 +370,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
             @Override
             public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
                 String baseErrorMessage = "error invoking operation on asset connection";
-                Map<String, ElementValue> inputParameter = new HashMap<>();
+                final Map<String, ElementValue> inputParameter;
                 if (input != null) {
                     try {
                         inputParameter = Stream.of(input).collect(Collectors.toMap(
@@ -384,8 +384,11 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                                 e);
                     }
                 }
+                else {
+                    inputParameter = new HashMap<>();
+                }
 
-                Map<String, ElementValue> inoutputParameter = new HashMap<>();
+                final Map<String, ElementValue> inoutputParameter;
                 if (inoutput != null) {
                     try {
                         inoutputParameter = Stream.of(inoutput).collect(Collectors.toMap(
@@ -399,12 +402,18 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                                 e);
                     }
                 }
-                if (methodArguments.length != (inputParameter.size() + inoutputParameter.size())) {
-                    throw new AssetConnectionException(String.format("%s - argument count mismatch (expected: %d, provided input arguments: %d, provided inoutput arguments: %d)",
-                            baseErrorMessage,
-                            methodArguments.length,
-                            inputParameter.size(),
-                            inoutputParameter.size()));
+                else {
+                    inoutputParameter = new HashMap<>();
+                }
+                List<String> missingArguments = Stream.of(methodArguments)
+                        .map(Argument::getName)
+                        .filter(x -> !inputParameter.containsKey(x) && !inoutputParameter.containsKey(x))
+                        .collect(Collectors.toList());
+                if (!missingArguments.isEmpty()) {
+                    throw new AssetConnectionException(
+                            String.format("%s - missing required input argument(s): %s",
+                                    baseErrorMessage,
+                                    String.join(", ", missingArguments)));
                 }
                 Variant[] actualParameters = new Variant[methodArguments.length];
                 for (int i = 0; i < methodArguments.length; i++) {
@@ -452,7 +461,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                 }
                 OperationVariable[] result = new OperationVariable[outputVariables.length];
                 for (int i = 0; i < methodOutputArguments.length; i++) {
-                    String argumentName = methodArguments[i].getName();
+                    String argumentName = methodOutputArguments[i].getName();
                     for (int j = 0; j < outputVariables.length; j++) {
                         if (Objects.equals(argumentName, outputVariables[j].getValue().getIdShort())) {
                             SubmodelElement element = outputVariables[j].getValue();

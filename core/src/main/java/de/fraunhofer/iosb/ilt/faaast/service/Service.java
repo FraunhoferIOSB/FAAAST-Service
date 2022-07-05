@@ -146,7 +146,7 @@ public class Service implements ServiceContext {
         Ensure.requireNonNull(reference, "reference must be non-null");
         Referable referable = AasUtils.resolve(reference, aasEnvironment);
         Ensure.requireNonNull(referable, String.format("reference could not be resolved (reference: %s)", AasUtils.asString(reference)));
-        if (Operation.class.isAssignableFrom(referable.getClass())) {
+        if (!Operation.class.isAssignableFrom(referable.getClass())) {
             throw new IllegalArgumentException(String.format("reference points to invalid type (reference: %s, expected type: Operation, actual type: %s)",
                     AasUtils.asString(reference),
                     referable.getClass()));
