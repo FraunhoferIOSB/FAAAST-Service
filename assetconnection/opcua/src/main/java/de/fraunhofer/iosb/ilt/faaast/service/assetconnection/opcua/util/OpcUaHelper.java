@@ -14,18 +14,25 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util;
 
+import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.uint;
+
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import java.net.URI;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
+import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
+import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UShort;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
+import org.eclipse.milo.opcua.stack.core.util.EndpointUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,5 +95,33 @@ public class OpcUaHelper {
                 client.getAddressSpace().getVariableNode(OpcUaHelper.parseNodeId(client, nodeId))
                         .getNodeId())
                 .get();
+    }
+
+
+    public static OpcUaClient createClient(URI opcUrl, IdentityProvider identityProvider, String applicationName) throws Exception {
+        return OpcUaClient.create(
+                opcUrl.toString(),
+                endpoints -> Optional.of(
+                        EndpointUtil.updateUrl(
+                                endpoints.stream()
+                                        .findFirst()
+                                        .get(),
+                                opcUrl.getHost())),
+                configBuilder -> configBuilder
+                        .setApplicationName(LocalizedText.english(applicationName))
+                        .setApplicationUri("urn:de:fraunhofer:iosb:ilt:faaast" + UUID.randomUUID())
+                        .setIdentityProvider(identityProvider)
+                        .setRequestTimeout(uint(60000))
+                        .build());
+    }
+
+
+    public static OpcUaClient createClient(String opcUrl, IdentityProvider identityProvider) throws Exception {
+        return createClient(URI.create(opcUrl), identityProvider);
+    }
+
+
+    public static OpcUaClient createClient(URI opcUrl, IdentityProvider identityProvider) throws Exception {
+        return createClient(opcUrl, identityProvider, UUID.randomUUID().toString());
     }
 }

@@ -31,9 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedDataItem;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
@@ -58,8 +56,6 @@ public class SubscriptionMultiplexer {
     private final ManagedSubscription opcUaSubscription;
     private ManagedDataItem dataItem;
     private Datatype datatype;
-    private DataValue originalValue = null;
-    private boolean firstCall = true;
 
     public SubscriptionMultiplexer(ServiceContext serviceContext,
             Reference reference,
@@ -108,15 +104,6 @@ public class SubscriptionMultiplexer {
                     AasUtils.asString(reference)));
         }
         try {
-            originalValue = OpcUaHelper.readValue(client, providerConfig.getNodeId());
-        }
-        catch (UaException | InterruptedException | ExecutionException e) {
-            Thread.currentThread().interrupt();
-            LOGGER.warn("Reading initial value of subscribed node failed (nodeId: {})",
-                    providerConfig.getNodeId(),
-                    e);
-        }
-        try {
             dataItem = opcUaSubscription.createDataItem(
                     OpcUaHelper.parseNodeId(client, providerConfig.getNodeId()),
                     LambdaExceptionHelper.rethrowConsumer(
@@ -133,17 +120,15 @@ public class SubscriptionMultiplexer {
 
     private void notify(DataValue value) {
         try {
-            if (!firstCall || (originalValue != null && !Objects.equals(value.getValue(), originalValue.getValue()))) {
-                DataElementValue newAasValue = new PropertyValue(valueConverter.convert(value.getValue(), datatype));
-                for (var listener: listeners) {
-                    try {
-                        listener.newDataReceived(newAasValue);
-                    }
-                    catch (Exception e) {
-                        LOGGER.warn("Unexpected exception while invoking newDataReceived handler", e);
-                    }
+            DataElementValue newValue = new PropertyValue(valueConverter.convert(value.getValue(), datatype));
+            listeners.forEach(x -> {
+                try {
+                    x.newDataReceived(newValue);
                 }
-            }
+                catch (Exception e) {
+                    LOGGER.warn("Unexpected exception while invoking newDataReceived handler", e);
+                }
+            });
         }
         catch (ValueConversionException e) {
             LOGGER.warn("received illegal value via OPC UA subscription - type conversion faild (value: {}, target type: {}, nodeId: {})",
@@ -151,9 +136,6 @@ public class SubscriptionMultiplexer {
                     datatype,
                     providerConfig.getNodeId(),
                     e);
-        }
-        finally {
-            firstCall = false;
         }
     }
 
@@ -180,9 +162,9 @@ public class SubscriptionMultiplexer {
 
 
     /**
-     * Removes a listener. If the last listener is removed, the OPC UA subscription is closed and the multiplexer becomes
-     * inactive
-     * 
+     * Removes a listener. If the last listener is removed, the OPC UA
+     * subscription is closed and the multiplexer becomes inactive
+     *
      * @param listener The listener to remove
      * @throws AssetConnectionException if closing the OPC UA subscription fails
      */
@@ -197,7 +179,7 @@ public class SubscriptionMultiplexer {
 
     /**
      * Closes the multiplexer, i.e. ends the underlying OPC UA subscription
-     * 
+     *
      * @throws AssetConnectionException if closing the OPC UA subscription fails
      */
     public void close() throws AssetConnectionException {
