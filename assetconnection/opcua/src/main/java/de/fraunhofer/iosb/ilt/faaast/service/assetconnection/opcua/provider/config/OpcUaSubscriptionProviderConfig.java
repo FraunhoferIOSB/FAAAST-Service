@@ -12,18 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 /**
- * * Config file for OPC UA-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
+ * Config file for OPC UA-based
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider}.
  */
-public class OpcUaValueProviderConfig implements AssetValueProviderConfig {
+public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
+
+    private long interval;
 
     private String nodeId;
 
@@ -35,8 +37,19 @@ public class OpcUaValueProviderConfig implements AssetValueProviderConfig {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        OpcUaValueProviderConfig that = (OpcUaValueProviderConfig) o;
-        return Objects.equals(nodeId, that.nodeId);
+        OpcUaSubscriptionProviderConfig that = (OpcUaSubscriptionProviderConfig) o;
+        return Objects.equals(nodeId, that.nodeId)
+                && Objects.equals(interval, that.interval);
+    }
+
+
+    public long getInterval() {
+        return interval;
+    }
+
+
+    public void setInterval(long interval) {
+        this.interval = interval;
     }
 
 
@@ -52,7 +65,7 @@ public class OpcUaValueProviderConfig implements AssetValueProviderConfig {
 
     @Override
     public int hashCode() {
-        return Objects.hash(nodeId);
+        return Objects.hash(nodeId, interval);
     }
 
 
@@ -60,7 +73,7 @@ public class OpcUaValueProviderConfig implements AssetValueProviderConfig {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<OpcUaValueProviderConfig, Builder> {
+    public static class Builder extends AbstractBuilder<OpcUaSubscriptionProviderConfig, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -69,15 +82,21 @@ public class OpcUaValueProviderConfig implements AssetValueProviderConfig {
 
 
         @Override
-        protected OpcUaValueProviderConfig newBuildingInstance() {
-            return new OpcUaValueProviderConfig();
+        protected OpcUaSubscriptionProviderConfig newBuildingInstance() {
+            return new OpcUaSubscriptionProviderConfig();
         }
     }
 
-    private abstract static class AbstractBuilder<T extends OpcUaValueProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    private abstract static class AbstractBuilder<T extends OpcUaSubscriptionProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B nodeId(String value) {
             getBuildingInstance().setNodeId(value);
+            return getSelf();
+        }
+
+
+        public B interval(long value) {
+            getBuildingInstance().setInterval(value);
             return getSelf();
         }
 

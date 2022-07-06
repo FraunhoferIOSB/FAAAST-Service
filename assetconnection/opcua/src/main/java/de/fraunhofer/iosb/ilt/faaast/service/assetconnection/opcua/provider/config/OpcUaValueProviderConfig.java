@@ -12,18 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 /**
  * * Config file for OPC UA-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
  */
-public class OpcUaOperationProviderConfig implements AssetOperationProviderConfig {
+public class OpcUaValueProviderConfig implements AssetValueProviderConfig {
 
     private String nodeId;
 
@@ -35,7 +35,7 @@ public class OpcUaOperationProviderConfig implements AssetOperationProviderConfi
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        OpcUaOperationProviderConfig that = (OpcUaOperationProviderConfig) o;
+        OpcUaValueProviderConfig that = (OpcUaValueProviderConfig) o;
         return Objects.equals(nodeId, that.nodeId);
     }
 
@@ -60,7 +60,7 @@ public class OpcUaOperationProviderConfig implements AssetOperationProviderConfi
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<OpcUaOperationProviderConfig, Builder> {
+    public static class Builder extends AbstractBuilder<OpcUaValueProviderConfig, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -69,12 +69,12 @@ public class OpcUaOperationProviderConfig implements AssetOperationProviderConfi
 
 
         @Override
-        protected OpcUaOperationProviderConfig newBuildingInstance() {
-            return new OpcUaOperationProviderConfig();
+        protected OpcUaValueProviderConfig newBuildingInstance() {
+            return new OpcUaValueProviderConfig();
         }
     }
 
-    private abstract static class AbstractBuilder<T extends OpcUaOperationProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    private abstract static class AbstractBuilder<T extends OpcUaValueProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B nodeId(String value) {
             getBuildingInstance().setNodeId(value);

@@ -12,20 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 /**
- * Config file for OPC UA-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider}.
+ * * Config file for OPC UA-based
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
  */
-public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
-
-    private long interval;
+public class OpcUaOperationProviderConfig implements AssetOperationProviderConfig {
 
     private String nodeId;
 
@@ -37,19 +35,8 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        OpcUaSubscriptionProviderConfig that = (OpcUaSubscriptionProviderConfig) o;
-        return Objects.equals(nodeId, that.nodeId)
-                && Objects.equals(interval, that.interval);
-    }
-
-
-    public long getInterval() {
-        return interval;
-    }
-
-
-    public void setInterval(long interval) {
-        this.interval = interval;
+        OpcUaOperationProviderConfig that = (OpcUaOperationProviderConfig) o;
+        return Objects.equals(nodeId, that.nodeId);
     }
 
 
@@ -65,7 +52,7 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
 
     @Override
     public int hashCode() {
-        return Objects.hash(nodeId, interval);
+        return Objects.hash(nodeId);
     }
 
 
@@ -73,7 +60,7 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<OpcUaSubscriptionProviderConfig, Builder> {
+    public static class Builder extends AbstractBuilder<OpcUaOperationProviderConfig, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -82,21 +69,15 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
 
 
         @Override
-        protected OpcUaSubscriptionProviderConfig newBuildingInstance() {
-            return new OpcUaSubscriptionProviderConfig();
+        protected OpcUaOperationProviderConfig newBuildingInstance() {
+            return new OpcUaOperationProviderConfig();
         }
     }
 
-    private abstract static class AbstractBuilder<T extends OpcUaSubscriptionProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    private abstract static class AbstractBuilder<T extends OpcUaOperationProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B nodeId(String value) {
             getBuildingInstance().setNodeId(value);
-            return getSelf();
-        }
-
-
-        public B interval(long value) {
-            getBuildingInstance().setInterval(value);
             return getSelf();
         }
 
