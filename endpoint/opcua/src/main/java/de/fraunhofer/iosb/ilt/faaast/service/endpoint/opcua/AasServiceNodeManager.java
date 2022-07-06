@@ -2044,15 +2044,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
                     myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
                     if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-                        LOG.debug("setPropertyValueAndType (DateTime): Original value: {}", typedValue.getValue().asString());
                         if (typedValue.getValue() instanceof DateTimeValue) {
                             DateTimeValue dtval = (DateTimeValue) typedValue.getValue();
-                            DateTime dt = new DateTime(GregorianCalendar.from(dtval.getValue()));
-                            //DateTime.setStrFormat("%TFT%TT");
-                            //String fmt = DateTime.getStrFormat();
-                            //LOG.debug("setPropertyValueAndType (DateTime): format: {}", fmt);
-                            //DateTime.setStrFormat(fmt);
-                            LOG.debug("setPropertyValueAndType (DateTime): DateTime value {}", dt.toString());
+                            DateTime dt = ValueConverter.createDateTime(dtval.getValue());
                             myDateTimeProperty.setValue(dt);
                         }
                         else {
@@ -2596,10 +2590,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
                         myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
                         if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                            LOG.debug("setRangeValueAndType (DateTime Min): Original value: {}", minTypedValue.asString());
                             if (minTypedValue instanceof DateTimeValue) {
                                 DateTimeValue dtval = (DateTimeValue) minTypedValue;
-                                DateTime dt = new DateTime(GregorianCalendar.from(dtval.getValue()));
+                                DateTime dt = ValueConverter.createDateTime(dtval.getValue());
                                 myDateTimeProperty.setValue(dt);
                             }
                             else {
@@ -2614,10 +2607,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                         PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
                         myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
                         if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                            LOG.debug("setRangeValueAndType (DateTime Max): Original value: {}", maxTypedValue.asString());
                             if (maxTypedValue instanceof DateTimeValue) {
                                 DateTimeValue dtval = (DateTimeValue) maxTypedValue;
-                                DateTime dt = new DateTime(GregorianCalendar.from(dtval.getValue()));
+                                DateTime dt = ValueConverter.createDateTime(dtval.getValue());
                                 myDateTimeProperty.setValue(dt);
                             }
                             else {
@@ -4120,8 +4112,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 objmin = Long.parseLong(objmin.toString());
             }
             else if (tvmin instanceof DateTimeValue) {
-                ZonedDateTime zdt = (ZonedDateTime) objmin;
-                objmin = new DateTime(GregorianCalendar.from(zdt));
+                objmin = ValueConverter.createDateTime((ZonedDateTime) objmin);
             }
 
             TypedValue<?> tvmax = value.getMax();
@@ -4130,8 +4121,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 objmax = Long.parseLong(objmax.toString());
             }
             else if (tvmax instanceof DateTimeValue) {
-                ZonedDateTime zdt = (ZonedDateTime) objmax;
-                objmax = new DateTime(GregorianCalendar.from(zdt));
+                objmax = ValueConverter.createDateTime((ZonedDateTime) objmax);
             }
 
             range.setMin(objmin);

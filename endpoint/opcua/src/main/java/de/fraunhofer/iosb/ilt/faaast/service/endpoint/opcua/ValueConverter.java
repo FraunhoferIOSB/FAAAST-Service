@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import io.adminshell.aas.v3.model.AssetKind;
 import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.Entity;
@@ -48,7 +49,11 @@ import io.adminshell.aas.v3.model.RelationshipElement;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.List;
 import opc.i4aas.AASAssetKindDataType;
 import opc.i4aas.AASEntityTypeDataType;
@@ -1051,7 +1056,7 @@ public class ValueConverter {
         try {
             switch (type) {
                 case PROPERTY_VALUE: {
-                    retval = new Variant(ElementValueMapper.<Property, PropertyValue> toValue(submodelElement).getValue().getValue());
+                    retval = createVariant(ElementValueMapper.<Property, PropertyValue> toValue(submodelElement).getValue().getValue());
                     break;
                 }
 
@@ -1069,6 +1074,16 @@ public class ValueConverter {
     }
 
 
+    public static DateTime createDateTime(ZonedDateTime value) {
+        return new DateTime(GregorianCalendar.from(value));
+    }
+
+
+    public static DateTime createDateTime(LocalDateTime value) {
+        return new DateTime(GregorianCalendar.from(value.atZone(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE))));
+    }
+
+
     private static String convertVariantValueToString(Variant variant) {
         String retval = "";
         if (variant.getValue() != null) {
@@ -1080,6 +1095,28 @@ public class ValueConverter {
             else {
                 retval = variant.getValue().toString();
             }
+        }
+
+        return retval;
+    }
+
+
+    private static Variant createVariant(Object value) {
+        Variant retval = null;
+
+        if (value == null) {
+            retval = Variant.NULL;
+        }
+        else if (value instanceof ZonedDateTime) {
+            // special treatment for DateTime
+            retval = new Variant(createDateTime((ZonedDateTime) value));
+        }
+        else if (value instanceof LocalDateTime) {
+            // special treatment for DateTime
+            retval = new Variant(createDateTime((LocalDateTime) value));
+        }
+        else {
+            retval = new Variant(value);
         }
 
         return retval;

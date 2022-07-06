@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 public class DateTimeValue extends TypedValue<ZonedDateTime> {
 
+    public static String DEFAULT_TIMEZONE = "UTC";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DateTimeValue.class);
 
     public DateTimeValue() {
@@ -53,8 +55,8 @@ public class DateTimeValue extends TypedValue<ZonedDateTime> {
         }
         catch (DateTimeParseException ex) {
             // If the string can't be parsed, we try to interpret it as UTC (if the time zone is missing)
-            LOGGER.trace("fromString: parse with time zone failed, try to parse with UTC as time zone");
-            this.setValue(LocalDateTime.parse(value).atZone(ZoneId.of("UTC")));
+            LOGGER.trace("fromString: parse with time zone failed, try to parse with the default time zone");
+            this.setValue(LocalDateTime.parse(value).atZone(ZoneId.of(DEFAULT_TIMEZONE)));
         }
     }
 
