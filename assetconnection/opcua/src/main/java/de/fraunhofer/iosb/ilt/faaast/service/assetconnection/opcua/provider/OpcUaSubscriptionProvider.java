@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
-import org.eclipse.milo.opcua.sdk.core.nodes.VariableNode;
 
 
 /**
@@ -44,7 +43,6 @@ public class OpcUaSubscriptionProvider implements AssetSubscriptionProvider {
     private final OpcUaSubscriptionProviderConfig providerConfig;
     private final ManagedSubscription opcUaSubscription;
     private final Map<String, SubscriptionMultiplexer> subscriptions;
-    private VariableNode node;
 
     /**
      * Creates new instance.
@@ -55,9 +53,6 @@ public class OpcUaSubscriptionProvider implements AssetSubscriptionProvider {
      * @param providerConfig configuration
      * @param opcUaSubscription existing OPC UA subscription object to use
      * @param valueConverter value converter to use
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException
-     *             if initialization fails
      * @throws IllegalArgumentException if serviceContext is null
      * @throws IllegalArgumentException if client is null
      * @throws IllegalArgumentException if reference is null
@@ -69,7 +64,7 @@ public class OpcUaSubscriptionProvider implements AssetSubscriptionProvider {
             OpcUaSubscriptionProviderConfig providerConfig,
             OpcUaClient client,
             ManagedSubscription opcUaSubscription,
-            ValueConverter valueConverter) throws AssetConnectionException {
+            ValueConverter valueConverter) {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         Ensure.requireNonNull(client, "client must be non-null");
         Ensure.requireNonNull(reference, "reference must be non-null");
@@ -107,7 +102,7 @@ public class OpcUaSubscriptionProvider implements AssetSubscriptionProvider {
      * @throws AssetConnectionException if unsubscribing via OPC UA fails
      */
     public void close() throws AssetConnectionException {
-        subscriptions.values().forEach(LambdaExceptionHelper.rethrowConsumer(x -> x.close()));
+        subscriptions.values().forEach(LambdaExceptionHelper.rethrowConsumer(SubscriptionMultiplexer::close));
     }
 
 

@@ -35,7 +35,6 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -107,82 +106,91 @@ public class OpcUaOperationProvider implements AssetOperationProvider {
     }
 
 
-    private void init() throws AssetConnectionException {
-        String baseErrorMessage = "error registering operation provider";
-        nodeId = OpcUaHelper.parseNodeId(client, providerConfig.getNodeId());
-        final UaNode node;
+    private UaMethodNode getMethodNode(NodeId nodeId) throws AssetConnectionException {
         try {
-            node = client.getAddressSpace().getNode(nodeId);
+            UaNode node = client.getAddressSpace().getNode(nodeId);
+            if (!UaMethodNode.class.isAssignableFrom(node.getClass())) {
+                throw new AssetConnectionException(String.format("Provided node must be a method (nodeId: %s",
+                        providerConfig.getNodeId()));
+            }
+            return (UaMethodNode) node;
         }
         catch (UaException e) {
-            throw new AssetConnectionException(String.format("%s - could not resolve nodeId (nodeId: %s)",
-                    baseErrorMessage,
+            throw new AssetConnectionException(String.format("Could not resolve nodeId (nodeId: %s)",
                     providerConfig.getNodeId()),
                     e);
         }
-        if (!UaMethodNode.class.isAssignableFrom(node.getClass())) {
-            throw new AssetConnectionException(String.format("%s - provided node must be a method (nodeId: %s",
-                    baseErrorMessage,
-                    providerConfig.getNodeId()));
-        }
-        final UaMethodNode methodNode = (UaMethodNode) node;
+    }
+
+
+    private UaNode getParentNode(NodeId nodeId) throws AssetConnectionException {
         try {
-            parentNodeId = client.getAddressSpace()
+            return client.getAddressSpace()
                     .getNode(nodeId)
                     .browseNodes(AddressSpace.BrowseOptions.builder()
                             .setBrowseDirection(BrowseDirection.Inverse)
                             .build())
-                    .get(0)
-                    .getNodeId();
+                    .get(0);
         }
         catch (UaException e) {
-            throw new AssetConnectionException(String.format("%s - could not resolve parent node (nodeId: %s)",
-                    baseErrorMessage,
+            throw new AssetConnectionException(String.format("Could not resolve parent node (nodeId: %s)",
                     providerConfig.getNodeId()),
                     e);
         }
+    }
+
+
+    private Argument[] getInputArguments(UaMethodNode node) throws AssetConnectionException {
         try {
-            methodArguments = methodNode.readInputArgumentsAsync().get() != null
-                    ? methodNode.readInputArgumentsAsync().get()
+            return node.readInputArgumentsAsync().get() != null
+                    ? node.readInputArgumentsAsync().get()
                     : new Argument[0];
         }
         catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("%s - could not read input arguments (nodeId: %s)",
-                    baseErrorMessage,
+            throw new AssetConnectionException(String.format("Could not read input arguments (nodeId: %s)",
                     providerConfig.getNodeId()),
                     e);
         }
+    }
+
+
+    private Argument[] getOutputArguments(UaMethodNode node) throws AssetConnectionException {
         try {
-            methodOutputArguments = methodNode.readOutputArgumentsAsync().get() != null
-                    ? methodNode.readOutputArgumentsAsync().get()
+            return node.readOutputArgumentsAsync().get() != null
+                    ? node.readOutputArgumentsAsync().get()
                     : new Argument[0];
         }
         catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("%s - could not read ouput arguments (nodeId: %s)",
-                    baseErrorMessage,
+            throw new AssetConnectionException(String.format("Could not read output arguments (nodeId: %s)",
                     providerConfig.getNodeId()),
                     e);
         }
+    }
+
+
+    private void init() throws AssetConnectionException {
+        nodeId = OpcUaHelper.parseNodeId(client, providerConfig.getNodeId());
+        final UaMethodNode methodNode = getMethodNode(nodeId);
+        parentNodeId = getParentNode(nodeId).getNodeId();
+        methodArguments = getInputArguments(methodNode);
+        methodOutputArguments = getOutputArguments(methodNode);
         outputVariables = serviceContext.getOperationOutputVariables(reference) != null
                 ? serviceContext.getOperationOutputVariables(reference)
                 : new OperationVariable[0];
         for (var outputVariable: outputVariables) {
             if (outputVariable == null) {
-                throw new AssetConnectionException(String.format("%s - output variable must be non-null (nodeId: %s)",
-                        baseErrorMessage,
+                throw new AssetConnectionException(String.format("Output variable must be non-null (nodeId: %s)",
                         providerConfig.getNodeId()));
             }
             SubmodelElement submodelElement = outputVariable.getValue();
             if (submodelElement == null) {
-                throw new AssetConnectionException(String.format("%s - output variable must contain non-null submodel element (nodeId: %s)",
-                        baseErrorMessage,
+                throw new AssetConnectionException(String.format("Output variable must contain non-null submodel element (nodeId: %s)",
                         providerConfig.getNodeId()));
             }
             if (!Property.class.isAssignableFrom(submodelElement.getClass())) {
-                throw new AssetConnectionException(String.format("%s - unsupported element type (nodeId: %s, element type: %s)",
-                        baseErrorMessage,
+                throw new AssetConnectionException(String.format("Unsupported element type (nodeId: %s, element type: %s)",
                         submodelElement.getClass(),
                         providerConfig.getNodeId()));
             }
@@ -190,82 +198,118 @@ public class OpcUaOperationProvider implements AssetOperationProvider {
     }
 
 
-    @Override
-    public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-        String baseErrorMessage = "error invoking operation on asset connection";
-        final Map<String, ElementValue> inputParameter;
-        if (input != null) {
-            try {
-                inputParameter = Stream.of(input).collect(Collectors.toMap(
-                        x -> x.getValue().getIdShort(),
-                        LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x.getValue()))));
-            }
-            catch (ValueMappingException e) {
-                throw new AssetConnectionException(
-                        String.format("%s - could not exract value of input parameters", baseErrorMessage),
-                        e);
-            }
+    private Map<String, ElementValue> parseParameters(OperationVariable[] parameters) throws AssetConnectionException {
+        if (parameters == null) {
+            return new HashMap<>();
         }
-        else {
-            inputParameter = new HashMap<>();
+        try {
+            return Stream.of(parameters).collect(Collectors.toMap(
+                    x -> x.getValue().getIdShort(),
+                    LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x.getValue()))));
         }
-
-        final Map<String, ElementValue> inoutputParameter;
-        if (inoutput != null) {
-            try {
-                inoutputParameter = Stream.of(inoutput).collect(Collectors.toMap(
-                        x -> x.getValue().getIdShort(),
-                        LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x.getValue()))));
-            }
-            catch (ValueMappingException e) {
-                throw new AssetConnectionException(
-                        String.format("%s - could not exract value of inoutput parameters", baseErrorMessage),
-                        e);
-            }
-        }
-        else {
-            inoutputParameter = new HashMap<>();
-        }
-        List<String> missingArguments = Stream.of(methodArguments)
-                .map(Argument::getName)
-                .filter(x -> !inputParameter.containsKey(x) && !inoutputParameter.containsKey(x))
-                .collect(Collectors.toList());
-        if (!missingArguments.isEmpty()) {
+        catch (ValueMappingException e) {
             throw new AssetConnectionException(
-                    String.format("%s - missing required input argument(s): %s",
-                            baseErrorMessage,
-                            String.join(", ", missingArguments)));
+                    String.format("Could not extract value of parameters"),
+                    e);
         }
-        Variant[] actualParameters = new Variant[methodArguments.length];
+    }
+
+
+    private Variant[] convertParameters(Map<String, ElementValue> inputParameters, Map<String, ElementValue> inoutputParameters) throws AssetConnectionException {
+        Variant[] result = new Variant[methodArguments.length];
         for (int i = 0; i < methodArguments.length; i++) {
             String argumentName = methodArguments[i].getName();
             ElementValue parameterValue;
-            if (inputParameter.containsKey(argumentName)) {
-                parameterValue = inputParameter.get(argumentName);
+            if (inputParameters.containsKey(argumentName)) {
+                parameterValue = inputParameters.get(argumentName);
             }
-            else if (inoutputParameter.containsKey(argumentName)) {
-                parameterValue = inoutputParameter.get(argumentName);
+            else if (inoutputParameters.containsKey(argumentName)) {
+                parameterValue = inoutputParameters.get(argumentName);
             }
             else {
-                throw new AssetConnectionException(String.format("%s - missing argument (argument name: %s)",
-                        baseErrorMessage,
+                throw new AssetConnectionException(String.format("Missing argument (argument name: %s)",
                         argumentName));
             }
             if (parameterValue == null) {
-                throw new AssetConnectionException(String.format("%s - parameter value must be non-null (argument name: %s)",
-                        baseErrorMessage,
+                throw new AssetConnectionException(String.format("Parameter value must be non-null (argument name: %s)",
                         argumentName));
             }
             if (!PropertyValue.class.isAssignableFrom(parameterValue.getClass())) {
-                throw new AssetConnectionException(String.format("%s - currently only parameters of the Property are supported (argument name: %s, provided type: %s)",
-                        baseErrorMessage,
+                throw new AssetConnectionException(String.format("Currently only parameters of the Property are supported (argument name: %s, provided type: %s)",
                         argumentName,
                         parameterValue.getClass()));
             }
-            actualParameters[i] = valueConverter.convert(
+            result[i] = valueConverter.convert(
                     ((PropertyValue) parameterValue).getValue(),
                     methodArguments[i].getDataType());
         }
+        return result;
+    }
+
+
+    private OperationVariable convertOutput(Variant value, OperationVariable typeInfo) throws AssetConnectionException {
+        SubmodelElement element = typeInfo.getValue();
+        Datatype targetType;
+        try {
+            targetType = ((PropertyValue) ElementValueMapper.toValue(element)).getValue().getDataType();
+        }
+        catch (ValueMappingException e) {
+            throw new AssetConnectionException(
+                    String.format("Could not exract value of results variable with idShort '%s'",
+                            element.getIdShort()),
+                    e);
+        }
+        TypedValue<?> newValue = valueConverter.convert(value, targetType);
+        Property newProperty = DeepCopyHelper.deepCopy(element, Property.class);
+        ElementValueMapper.setValue(newProperty,
+                PropertyValue.builder()
+                        .value(newValue)
+                        .build());
+        return new DefaultOperationVariable.Builder()
+                .value(newProperty)
+                .build();
+    }
+
+
+    private boolean hasOutputArgument(String name) {
+        return Stream.of(methodOutputArguments).anyMatch(x -> Objects.equals(x.getName(), name));
+    }
+
+
+    private Variant getOutputArgument(CallMethodResult methodResult, String name) {
+        for (int i = 0; i < methodOutputArguments.length; i++) {
+            if (Objects.equals(methodOutputArguments[i].getName(), name)) {
+                return methodResult.getOutputArguments()[i];
+            }
+        }
+        return null;
+    }
+
+
+    private OperationVariable[] convertResult(CallMethodResult methodResult, Map<String, ElementValue> inoutputParameters, OperationVariable[] inoutputs)
+            throws AssetConnectionException {
+        inoutputParameters.entrySet().stream()
+                .filter(x -> hasOutputArgument(x.getKey()))
+                .forEach(LambdaExceptionHelper.rethrowConsumer(x -> ElementValueMapper.setValue(
+                        Stream.of(inoutputs).filter(y -> Objects.equals(x.getKey(), y.getValue().getIdShort())).findAny().get().getValue(),
+                        new PropertyValue(valueConverter.convert(
+                                getOutputArgument(methodResult, x.getKey()),
+                                ((PropertyValue) x.getValue()).getValue().getDataType())))));
+        return Stream.of(outputVariables)
+                .map(LambdaExceptionHelper.rethrowFunction(x -> {
+                    return hasOutputArgument(x.getValue().getIdShort())
+                            ? convertOutput(getOutputArgument(methodResult, x.getValue().getIdShort()), x)
+                            : null;
+                }))
+                .toArray(OperationVariable[]::new);
+    }
+
+
+    @Override
+    public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
+        final Map<String, ElementValue> inputParameter = parseParameters(input);
+        final Map<String, ElementValue> inoutputParameter = parseParameters(inoutput);
+        Variant[] actualParameters = convertParameters(inputParameter, inoutputParameter);
         CallMethodResult methodResult;
         try {
             methodResult = client.call(new CallMethodRequest(
@@ -275,53 +319,10 @@ public class OpcUaOperationProvider implements AssetOperationProvider {
         }
         catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("%s - executing OPC UA method failed (nodeId: %s)",
-                    baseErrorMessage,
+            throw new AssetConnectionException(String.format("Executing OPC UA method failed (nodeId: %s)",
                     providerConfig.getNodeId()),
                     e);
         }
-        OperationVariable[] result = new OperationVariable[outputVariables.length];
-        for (int i = 0; i < methodOutputArguments.length; i++) {
-            String argumentName = methodOutputArguments[i].getName();
-            for (int j = 0; j < outputVariables.length; j++) {
-                if (Objects.equals(argumentName, outputVariables[j].getValue().getIdShort())) {
-                    SubmodelElement element = outputVariables[j].getValue();
-                    Datatype targetType;
-                    try {
-                        targetType = ((PropertyValue) ElementValueMapper.toValue(element)).getValue().getDataType();
-                    }
-                    catch (ValueMappingException e) {
-                        throw new AssetConnectionException(
-                                String.format("%s - could not exract value of results variable with idShort '%s'",
-                                        baseErrorMessage,
-                                        element.getIdShort()),
-                                e);
-                    }
-                    TypedValue<?> newValue = valueConverter.convert(methodResult.getOutputArguments()[i], targetType);
-                    Property newProperty = DeepCopyHelper.deepCopy(element, Property.class);
-                    ElementValueMapper.setValue(newProperty,
-                            PropertyValue.builder()
-                                    .value(newValue)
-                                    .build());
-                    result[j] = new DefaultOperationVariable.Builder()
-                            .value(newProperty)
-                            .build();
-                }
-            }
-            // update inoutput variable values
-            if (inoutputParameter.containsKey(argumentName) && inoutput != null) {
-                // find in original array and set there
-                for (int j = 0; j < inoutput.length; j++) {
-                    if (Objects.equals(argumentName, inoutput[j].getValue().getIdShort())) {
-                        ElementValueMapper.setValue(
-                                inoutput[j].getValue(),
-                                new PropertyValue(valueConverter.convert(
-                                        methodResult.getOutputArguments()[i],
-                                        ((PropertyValue) inoutputParameter.get(argumentName)).getValue().getDataType())));
-                    }
-                }
-            }
-        }
-        return result;
+        return convertResult(methodResult, inoutputParameter, inoutput);
     }
 }

@@ -98,7 +98,7 @@ public class OpcUaHelper {
     }
 
 
-    public static OpcUaClient createClient(URI opcUrl, IdentityProvider identityProvider, String applicationName) throws Exception {
+    public static OpcUaClient createClient(URI opcUrl, IdentityProvider identityProvider, String applicationName) throws UaException {
         return OpcUaClient.create(
                 opcUrl.toString(),
                 endpoints -> Optional.of(
@@ -116,12 +116,12 @@ public class OpcUaHelper {
     }
 
 
-    public static OpcUaClient createClient(String opcUrl, IdentityProvider identityProvider) throws Exception {
+    public static OpcUaClient createClient(String opcUrl, IdentityProvider identityProvider) throws UaException {
         return createClient(URI.create(opcUrl), identityProvider);
     }
 
 
-    public static OpcUaClient createClient(URI opcUrl, IdentityProvider identityProvider) throws Exception {
+    public static OpcUaClient createClient(URI opcUrl, IdentityProvider identityProvider) throws UaException {
         return createClient(opcUrl, identityProvider, UUID.randomUUID().toString());
     }
 }
