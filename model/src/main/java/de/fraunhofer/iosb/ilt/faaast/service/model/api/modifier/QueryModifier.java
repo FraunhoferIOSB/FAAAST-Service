@@ -25,11 +25,11 @@ public class QueryModifier {
 
     public static final QueryModifier DEFAULT = new QueryModifier();
     protected Level level;
-    protected Extend extend;
+    protected Extent extent;
 
     public QueryModifier() {
         this.level = Level.DEEP;
-        this.extend = Extend.WITHOUT_BLOB_VALUE;
+        this.extent = Extent.WITHOUT_BLOB_VALUE;
     }
 
 
@@ -38,8 +38,8 @@ public class QueryModifier {
     }
 
 
-    public Extend getExtend() {
-        return extend;
+    public Extent getExtent() {
+        return extent;
     }
 
 
@@ -53,13 +53,13 @@ public class QueryModifier {
         }
         QueryModifier that = (QueryModifier) o;
         return Objects.equals(level, that.level)
-                && Objects.equals(extend, that.extend);
+                && Objects.equals(extent, that.extent);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(level, extend);
+        return Objects.hash(level, extent);
     }
 
     public static abstract class AbstractBuilder<T extends QueryModifier, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
@@ -70,8 +70,8 @@ public class QueryModifier {
         }
 
 
-        public B extend(Extend value) {
-            getBuildingInstance().extend = value;
+        public B extend(Extent value) {
+            getBuildingInstance().extent = value;
             return getSelf();
         }
     }
