@@ -19,9 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByAssetIdRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 
@@ -29,7 +29,7 @@ import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 /**
  * class to map HTTP-GET-Request path: shells
  */
-public class GetAllAssetAdministrationShellsByAssetIdRequestMapper extends RequestMapperWithOutputModifier {
+public class GetAllAssetAdministrationShellsByAssetIdRequestMapper extends RequestMapperWithOutputModifier<GetAllAssetAdministrationShellsByAssetIdRequest> {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^shells$";
@@ -41,7 +41,7 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestMapper extends Reque
 
 
     @Override
-    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException {
+    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException {
         try {
             return GetAllAssetAdministrationShellsByAssetIdRequest.builder()
                     .assetIds(deserializer.readList(EncodingHelper.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM)),

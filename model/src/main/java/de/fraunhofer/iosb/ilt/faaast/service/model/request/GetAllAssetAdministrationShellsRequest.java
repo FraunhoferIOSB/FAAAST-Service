@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * Chapter 6.2.2
  */
-public class GetAllAssetAdministrationShellsRequest extends RequestWithModifier<GetAllAssetAdministrationShellsResponse> {
+public class GetAllAssetAdministrationShellsRequest extends AbstractGetAssetAdministrationShellRequest<GetAllAssetAdministrationShellsResponse> {
 
     @Override
     public boolean equals(Object o) {

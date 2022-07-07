@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * Chapter 6.2.5
  */
-public class GetAllAssetAdministrationShellsByIdShortRequest extends RequestWithModifier<GetAllAssetAdministrationShellsByIdShortResponse> {
+public class GetAllAssetAdministrationShellsByIdShortRequest extends AbstractGetAssetAdministrationShellRequest<GetAllAssetAdministrationShellsByIdShortResponse> {
 
     private String idShort;
 

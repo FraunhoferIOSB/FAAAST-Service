@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -105,7 +105,7 @@ public class PersistenceInMemoryTest {
                 submodelId,
                 submodelElementCollectionIdShort,
                 submodelElementIdShort);
-        QueryModifier queryModifier = new QueryModifier.Builder().extend(Extend.WITH_BLOB_VALUE).build();
+        QueryModifier queryModifier = new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build();
         SubmodelElement expected = ((SubmodelElementCollection) environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(submodelId))
                 .findFirst().get()
@@ -494,7 +494,7 @@ public class PersistenceInMemoryTest {
         expected.setCategory(category);
         Reference reference = ReferenceBuilderHelper.build(aasId, submodelId, submodelElementCollectionIdShort, submodelElement.getIdShort());
         persistence.put(null, reference, expected);
-        SubmodelElement actual = persistence.get(reference, new QueryModifier.Builder().extend(Extend.WITH_BLOB_VALUE).build());
+        SubmodelElement actual = persistence.get(reference, new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build());
         Assert.assertEquals(expected, actual);
     }
 
@@ -595,7 +595,7 @@ public class PersistenceInMemoryTest {
         String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
         String submodelElementIdShort = "ExampleBlob";
         Reference reference = ReferenceBuilderHelper.build(aasId, submodelId, submodelElementCollectionIdShort, submodelElementIdShort);
-        QueryModifier queryModifier = new QueryModifier.Builder().extend(Extend.WITH_BLOB_VALUE).build();
+        QueryModifier queryModifier = new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build();
         Identifier submodelIdentifier = new DefaultIdentifier.Builder()
                 .idType(IdentifierType.IRI)
                 .identifier(submodelId)
@@ -612,7 +612,7 @@ public class PersistenceInMemoryTest {
         SubmodelElement actual = persistence.get(reference, queryModifier);
         Assert.assertEquals(expected, actual);
 
-        queryModifier = new QueryModifier.Builder().extend(Extend.WITHOUT_BLOB_VALUE).build();
+        queryModifier = new QueryModifier.Builder().extend(Extent.WITHOUT_BLOB_VALUE).build();
         expected = DeepCopyHelper.deepCopy(expected, SubmodelElement.class);
         ((Blob) expected).setValue(null);
         actual = persistence.get(reference, queryModifier);

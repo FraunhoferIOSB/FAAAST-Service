@@ -14,20 +14,23 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
+import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
+import java.lang.reflect.InvocationTargetException;
 
 
 /**
  * Base class for mapping HTTP requests including output modifier information.
  */
-public abstract class RequestMapperWithOutputModifier extends RequestMapper {
+public abstract class RequestMapperWithOutputModifier<T extends RequestWithModifier<?>> extends RequestMapper {
 
     private static final String PARAMETER_LEVEL = "level";
     private static final String PARAMETER_CONTENT = "content";
@@ -47,21 +50,38 @@ public abstract class RequestMapperWithOutputModifier extends RequestMapper {
      * @return the protocol-agnostic request
      * @throws InvalidRequestException if conversion fails
      */
-    public abstract Request parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException;
+    public abstract RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException;
 
 
     @Override
     public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
-        OutputModifier.Builder outputModifier = new OutputModifier.Builder();
-        if (httpRequest.hasQueryParameter(PARAMETER_LEVEL)) {
-            outputModifier.level(Level.fromString(httpRequest.getQueryParameter(PARAMETER_LEVEL)));
+        Class<RequestWithModifier<?>> rawType = (Class<RequestWithModifier<?>>) TypeToken.of(getClass()).resolveType(RequestMapperWithOutputModifier.class.getTypeParameters()[0])
+                .getRawType();
+        try {
+            RequestWithModifier<?> request = rawType.getConstructor(null).newInstance(null);
+            OutputModifier.Builder outputModifier = new OutputModifier.Builder();
+            if (httpRequest.hasQueryParameter(PARAMETER_CONTENT)) {
+                Content content = Content.fromString(httpRequest.getQueryParameter(PARAMETER_CONTENT));
+                request.checkContenModifierValid(content);
+                outputModifier.content(content);
+            }
+            if (httpRequest.hasQueryParameter(PARAMETER_LEVEL)) {
+                Level level = Level.fromString(httpRequest.getQueryParameter(PARAMETER_LEVEL));
+                request.checkLevelModifierValid(level);
+                outputModifier.level(level);
+            }
+            if (httpRequest.hasQueryParameter(PARAMETER_EXTEND)) {
+                Extent extent = Extent.fromString(httpRequest.getQueryParameter(PARAMETER_EXTEND));
+                request.checkExtentModifierValid(extent);
+                outputModifier.extend(extent);
+            }
+            return parse(httpRequest, outputModifier.build());
         }
-        if (httpRequest.hasQueryParameter(PARAMETER_CONTENT)) {
-            outputModifier.content(Content.fromString(httpRequest.getQueryParameter(PARAMETER_CONTENT)));
+        catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            throw new InvalidRequestException("error resolving request class while trying to determine output modifier constraints", e);
         }
-        if (httpRequest.hasQueryParameter(PARAMETER_EXTEND)) {
-            outputModifier.extend(Extend.fromString(httpRequest.getQueryParameter(PARAMETER_EXTEND)));
+        catch (IllegalArgumentException e) {
+            throw new InvalidRequestException("invalid output modifier", e);
         }
-        return parse(httpRequest, outputModifier.build());
     }
 }

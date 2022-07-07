@@ -18,18 +18,18 @@ import java.util.stream.Stream;
 
 
 /**
- * Enum of different extend options
+ * Enum of different extent options
  */
-public enum Extend {
+public enum Extent {
     WITHOUT_BLOB_VALUE,
     WITH_BLOB_VALUE;
 
-    public static final Extend DEFAULT = Extend.WITHOUT_BLOB_VALUE;
+    public static final Extent DEFAULT = Extent.WITHOUT_BLOB_VALUE;
 
-    public static Extend fromString(String value) {
-        return Stream.of(Extend.values())
+    public static Extent fromString(String value) {
+        return Stream.of(Extent.values())
                 .filter(x -> x.name().equalsIgnoreCase(value))
                 .findAny()
-                .orElse(Extend.DEFAULT);
+                .orElse(Extent.DEFAULT);
     }
 }

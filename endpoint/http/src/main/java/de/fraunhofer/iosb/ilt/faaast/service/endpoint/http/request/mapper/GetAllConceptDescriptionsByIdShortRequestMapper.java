@@ -17,15 +17,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIdShortRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 
 
 /**
  * class to map HTTP-GET-Request path: concept-descriptions
  */
-public class GetAllConceptDescriptionsByIdShortRequestMapper extends RequestMapperWithOutputModifier {
+public class GetAllConceptDescriptionsByIdShortRequestMapper extends RequestMapperWithOutputModifier<GetAllConceptDescriptionsByIdShortRequest> {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^concept-descriptions$";
@@ -37,7 +37,7 @@ public class GetAllConceptDescriptionsByIdShortRequestMapper extends RequestMapp
 
 
     @Override
-    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
         return GetAllConceptDescriptionsByIdShortRequest.builder()
                 .idShort(httpRequest.getQueryParameters().get(QUERYPARAM1))
                 .outputModifier(outputModifier)
