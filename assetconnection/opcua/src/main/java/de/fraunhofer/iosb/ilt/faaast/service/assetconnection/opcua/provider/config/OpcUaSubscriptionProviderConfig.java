@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
@@ -23,11 +22,9 @@ import java.util.Objects;
  * Config file for OPC UA-based
  * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider}.
  */
-public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
+public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderConfig implements AssetSubscriptionProviderConfig {
 
     private long interval;
-
-    private String nodeId;
 
     @Override
     public boolean equals(Object o) {
@@ -38,7 +35,7 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
             return false;
         }
         OpcUaSubscriptionProviderConfig that = (OpcUaSubscriptionProviderConfig) o;
-        return Objects.equals(nodeId, that.nodeId)
+        return super.equals(o)
                 && Objects.equals(interval, that.interval);
     }
 
@@ -53,19 +50,9 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
     }
 
 
-    public String getNodeId() {
-        return nodeId;
-    }
-
-
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
-
-
     @Override
     public int hashCode() {
-        return Objects.hash(nodeId, interval);
+        return Objects.hash(super.hashCode(), interval);
     }
 
 
@@ -87,13 +74,8 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
         }
     }
 
-    private abstract static class AbstractBuilder<T extends OpcUaSubscriptionProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B nodeId(String value) {
-            getBuildingInstance().setNodeId(value);
-            return getSelf();
-        }
-
+    private abstract static class AbstractBuilder<T extends OpcUaSubscriptionProviderConfig, B extends AbstractBuilder<T, B>>
+            extends AbstractOpcUaProviderConfig.AbstractBuilder<T, B> {
 
         public B interval(long value) {
             getBuildingInstance().setInterval(value);

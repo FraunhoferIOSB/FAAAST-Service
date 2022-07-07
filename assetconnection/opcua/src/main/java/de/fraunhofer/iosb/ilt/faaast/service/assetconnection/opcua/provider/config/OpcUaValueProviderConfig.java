@@ -15,46 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
-import java.util.Objects;
 
 
 /**
  * * Config file for OPC UA-based
  * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
  */
-public class OpcUaValueProviderConfig implements AssetValueProviderConfig {
-
-    private String nodeId;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        OpcUaValueProviderConfig that = (OpcUaValueProviderConfig) o;
-        return Objects.equals(nodeId, that.nodeId);
-    }
-
-
-    public String getNodeId() {
-        return nodeId;
-    }
-
-
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(nodeId);
-    }
-
+public class OpcUaValueProviderConfig extends AbstractOpcUaProviderConfig implements AssetValueProviderConfig {
 
     public static Builder builder() {
         return new Builder();
@@ -74,12 +41,7 @@ public class OpcUaValueProviderConfig implements AssetValueProviderConfig {
         }
     }
 
-    private abstract static class AbstractBuilder<T extends OpcUaValueProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B nodeId(String value) {
-            getBuildingInstance().setNodeId(value);
-            return getSelf();
-        }
+    private abstract static class AbstractBuilder<T extends OpcUaValueProviderConfig, B extends AbstractBuilder<T, B>> extends AbstractOpcUaProviderConfig.AbstractBuilder<T, B> {
 
     }
 }
