@@ -21,7 +21,6 @@ import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.
 
 import java.lang.reflect.Array;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 import org.eclipse.milo.opcua.sdk.core.AccessLevel;
 import org.eclipse.milo.opcua.sdk.core.Reference;
@@ -297,8 +296,6 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
 
     private volatile Thread eventThread;
     private volatile boolean keepPostingEvents = true;
-
-    private final Random random = new Random();
 
     private final SubscriptionModel subscriptionModel;
 

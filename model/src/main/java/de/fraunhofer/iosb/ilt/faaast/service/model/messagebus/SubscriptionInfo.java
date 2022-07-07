@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.messagebus;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.Arrays;
@@ -133,9 +134,7 @@ public class SubscriptionInfo {
 
 
     public void setHandler(Consumer<EventMessage> handler) {
-        if (handler == null) {
-            throw new IllegalArgumentException("handler must be non-null");
-        }
+        Ensure.requireNonNull(handler, "handler must be non-null");
         this.handler = handler;
     }
 

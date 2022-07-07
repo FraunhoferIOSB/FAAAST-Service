@@ -46,8 +46,7 @@ public class TestService extends Service {
      */
     @SuppressWarnings("rawtypes")
     public TestService(Endpoint endpoint, AssetConnection assetConnection, boolean full) throws ConfigurationException, AssetConnectionException {
-        super(
-                CoreConfig.builder().build(),
+        super(CoreConfig.builder().build(),
                 full ? AASFull.ENVIRONMENT : AASSimple.ENVIRONMENT,
                 new PersistenceInMemory(),
                 new MessageBusInternal(),

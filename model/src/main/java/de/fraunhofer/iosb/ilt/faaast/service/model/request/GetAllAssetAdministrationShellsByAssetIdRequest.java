@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Chapter 6.2.4
  */
-public class GetAllAssetAdministrationShellsByAssetIdRequest extends RequestWithModifier<GetAllAssetAdministrationShellsByAssetIdResponse> {
+public class GetAllAssetAdministrationShellsByAssetIdRequest extends AbstractGetAssetAdministrationShellRequest<GetAllAssetAdministrationShellsByAssetIdResponse> {
 
     private List<IdentifierKeyValuePair> assetIds;
 

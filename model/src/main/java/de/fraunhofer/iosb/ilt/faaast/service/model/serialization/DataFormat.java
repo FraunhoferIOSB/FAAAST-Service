@@ -35,6 +35,9 @@ public enum DataFormat {
     AASX(MediaType.ZIP, "aasx"),
     UANODESET(MediaType.XML_UTF_8, "xml");
 
+    private final MediaType contentType;
+    private final List<String> fileExtensions;
+
     /**
      * Find potential data formats for given file extension. Returned list is
      * sorted by number of supported file extensions, i.e. data types which only
@@ -51,8 +54,6 @@ public enum DataFormat {
                 .collect(Collectors.toList());
     }
 
-    private final MediaType contentType;
-    private final List<String> fileExtensions;
 
     private DataFormat(MediaType contentType, String... fileExtensions) {
         this.contentType = contentType;

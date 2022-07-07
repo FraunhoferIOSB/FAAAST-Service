@@ -64,13 +64,13 @@ public class JsonSerializer implements Serializer {
     @Override
     public String write(Object obj, OutputModifier modifier) throws SerializationException {
         if (modifier != null && modifier.getContent() == Content.VALUE) {
-            return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());
+            return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtent());
         }
         if (modifier != null && modifier.getContent() == Content.PATH) {
             return pathSerializer.write(obj, modifier.getLevel());
         }
         if (obj != null && ElementValue.class.isAssignableFrom(obj.getClass())) {
-            return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtend());
+            return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtent());
         }
         try {
             JsonMapper mapper = wrapper.getMapper();

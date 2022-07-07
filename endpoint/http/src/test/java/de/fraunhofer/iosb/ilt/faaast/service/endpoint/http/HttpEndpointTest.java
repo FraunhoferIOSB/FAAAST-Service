@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
@@ -59,6 +60,11 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.Customization;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.skyscreamer.jsonassert.comparator.CustomComparator;
+import org.skyscreamer.jsonassert.comparator.JSONComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +73,7 @@ public class HttpEndpointTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpEndpointTest.class);
     private static final String HOST = "localhost";
+    private static final JSONComparator RESULT_COMPARATOR = new CustomComparator(JSONCompareMode.LENIENT, new Customization("**.timestamp", (o1, o2) -> true));
     private static int port;
     private static HttpClient client;
     private static HttpEndpoint endpoint;
@@ -80,14 +87,17 @@ public class HttpEndpointTest {
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
             port = serverSocket.getLocalPort();
         }
+
         deserializer = new HttpJsonDeserializer();
-        HttpEndpointConfig endpointConfig = new HttpEndpointConfig();
-        endpointConfig.setPort(port);
         serviceContext = mock(ServiceContext.class);
         endpoint = new HttpEndpoint();
-        endpoint.init(CoreConfig.builder()
-                .build(),
-                endpointConfig,
+        endpoint.init(
+                CoreConfig.builder()
+                        .build(),
+                HttpEndpointConfig.builder()
+                        .port(port)
+                        .cors(true)
+                        .build(),
                 serviceContext);
         endpoint.start();
         client = new HttpClient();
@@ -130,7 +140,7 @@ public class HttpEndpointTest {
         return execute(method, path, Map.of(
                 "content", outputModifier.getContent().name().toLowerCase(),
                 "level", outputModifier.getLevel().name().toLowerCase(),
-                "extend", outputModifier.getExtend().name().toLowerCase()),
+                "extend", outputModifier.getExtent().name().toLowerCase()),
                 null, null);
     }
 
@@ -164,6 +174,13 @@ public class HttpEndpointTest {
 
 
     @Test
+    public void testCORSEnabled() throws Exception {
+        ContentResponse response = execute(HttpMethod.GET, "/foo/bar");
+        Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+    }
+
+
+    @Test
     public void testParamContentNormal() throws Exception {
         Identifier id = new DefaultIdentifier();
         when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
@@ -175,6 +192,7 @@ public class HttpEndpointTest {
 
 
     @Test
+    @Ignore("content=trimmed currently under discussion")
     public void testParamContentTrimmed() throws Exception {
         Identifier id = new DefaultIdentifier();
         when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
@@ -203,7 +221,10 @@ public class HttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=bogus&level=bogus");
-        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+        String actual = response.getContentAsString();
+        String expected = new HttpJsonSerializer().write(Result.error("invalid output modifier"));
+        JSONAssert.assertEquals(expected, actual, RESULT_COMPARATOR);
     }
 
 
@@ -317,7 +338,7 @@ public class HttpEndpointTest {
 
     @Test
     @Ignore("value only serialization not defined for AssetAdministrationShells")
-    public void testGetAllAssetAdministrationShells_ValueOnly() throws Exception {
+    public void testGetAllAssetAdministrationShellsValueOnly() throws Exception {
         List<AssetAdministrationShell> expectedPayload = List.of(AASFull.AAS_1);
         when(serviceContext.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
@@ -333,7 +354,7 @@ public class HttpEndpointTest {
 
 
     @Test
-    public void testGetAllSubmodelElements_ValueOnly() throws Exception {
+    public void testGetAllSubmodelElementsValueOnly() throws Exception {
         List<SubmodelElement> submodelElements = List.of(
                 new DefaultProperty.Builder()
                         .idShort("property1")

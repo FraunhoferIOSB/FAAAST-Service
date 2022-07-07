@@ -119,16 +119,9 @@ public class DummyAssetConnection
             return false;
         }
         final DummyAssetConnection other = (DummyAssetConnection) obj;
-        if (this.port != other.port) {
-            return false;
-        }
-        if (!Objects.equals(this.host, other.host)) {
-            return false;
-        }
-        if (!Objects.equals(this.coreConfig, other.coreConfig)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(port, other.port)
+                && Objects.equals(this.host, other.host)
+                && Objects.equals(this.coreConfig, other.coreConfig);
     }
 
 

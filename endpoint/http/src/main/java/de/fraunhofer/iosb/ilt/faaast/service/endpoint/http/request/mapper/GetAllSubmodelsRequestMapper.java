@@ -17,15 +17,16 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 
 
 /**
  * class to map HTTP-GET-Request path: submodels
  */
-public class GetAllSubmodelsRequestMapper extends RequestMapperWithOutputModifier {
+public class GetAllSubmodelsRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelsRequest, GetAllSubmodelsResponse> {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^submodels$";
@@ -38,7 +39,7 @@ public class GetAllSubmodelsRequestMapper extends RequestMapperWithOutputModifie
 
 
     @Override
-    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
         return GetAllSubmodelsRequest.builder()
                 .outputModifier(outputModifier)
                 .build();

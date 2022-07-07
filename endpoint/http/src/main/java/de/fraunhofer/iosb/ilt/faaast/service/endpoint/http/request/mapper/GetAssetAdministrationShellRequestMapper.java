@@ -17,9 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAssetAdministrationShellRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 
@@ -27,7 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 /**
  * class to map HTTP-GET-Request path: shells/{aasIdentifier}/aas
  */
-public class GetAssetAdministrationShellRequestMapper extends RequestMapperWithOutputModifier {
+public class GetAssetAdministrationShellRequestMapper extends RequestMapperWithOutputModifier<GetAssetAdministrationShellRequest, GetAssetAdministrationShellResponse> {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^shells/(.*)/aas$";
@@ -38,7 +39,7 @@ public class GetAssetAdministrationShellRequestMapper extends RequestMapperWithO
 
 
     @Override
-    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
         return GetAssetAdministrationShellRequest.builder()
                 .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
                 .outputModifier(outputModifier)

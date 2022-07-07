@@ -14,16 +14,21 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementVisitor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
+import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementSubtypeResolvingVisitor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import java.util.Collection;
 import java.util.List;
-import java.util.function.Predicate;
 
 
 /**
@@ -35,79 +40,98 @@ public class QueryModifierHelper {
 
 
     /**
-     * Apply the {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier} to a list of referables
-     * Consider the {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend} and
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level} of a query modifier
-     * If the extend of the query modifier is "WithoutBlobValue" all submodel elements of type
-     * {@link io.adminshell.aas.v3.model.Blob} are removed.
-     * If the level of the query modifier is "Core" all underlying submodel element collection values are removed.
+     * Apply the
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier}
+     * to a list of referables Consider the
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent}
+     * and
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level} of
+     * a query modifier If the extend of the query modifier is
+     * "WithoutBlobValue" all submodel elements of type
+     * {@link io.adminshell.aas.v3.model.Blob} are removed.If the level of the
+     * query modifier is "Core" all underlying submodel element collection
+     * values are removed.
      *
-     * @param referableList which should be adapted by the query modifier
+     * @param list which should be adapted by the query modifier
      * @param modifier which should be applied
      * @param <T> type of referable
+     * @return the modified list
      */
-    public static <T extends Referable> void applyQueryModifier(List<T> referableList, QueryModifier modifier) {
-        if (referableList == null) {
-            return;
+    public static <T extends Referable> List<T> applyQueryModifier(List<T> list, QueryModifier modifier) {
+        if (list != null) {
+            list.forEach(x -> applyQueryModifier(x, modifier));
         }
-        for (Referable referable: referableList) {
-            applyQueryModifier(referable, modifier);
-        }
+        return list;
     }
 
 
     /**
-     * Apply the {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier} to a referable
-     * Consider the {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend} and
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level} of a query modifier
-     * If the extend of the query modifier is "WithoutBlobValue" all submodel elements of type
-     * {@link io.adminshell.aas.v3.model.Blob} are removed.
-     * If the level of the query modifier is "Core" all underlying submodel element collection values are removed.
+     * Apply the
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier}
+     * to a referable Consider the
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent}
+     * and
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level} of
+     * a query modifier If the extend of the query modifier is
+     * "WithoutBlobValue" all submodel elements of type
+     * {@link io.adminshell.aas.v3.model.Blob} are removed.If the level of the
+     * query modifier is "Core" all underlying submodel element collection
+     * values are removed.
      *
+     * @param <T> type of the referable
      * @param referable which should be adapted by the query modifier
      * @param modifier which should be applied
+     * @return the modified referable
      */
-    public static void applyQueryModifier(Referable referable, QueryModifier modifier) {
-        if (referable == null || modifier == null) {
-            return;
-        }
+    public static <T extends Referable> T applyQueryModifier(T referable, QueryModifier modifier) {
+        Ensure.requireNonNull(referable, "referable must be non-null");
+        Ensure.requireNonNull(modifier, "modifier must be non-null");
         applyQueryModifierExtend(referable, modifier);
         applyQueryModifierLevel(referable, modifier);
+        return referable;
     }
 
 
     private static void applyQueryModifierExtend(Referable referable, QueryModifier modifier) {
-        Predicate<SubmodelElement> removeFilter = x -> Blob.class.isAssignableFrom(x.getClass());
-        if (modifier.getExtend() == Extend.WITHOUT_BLOB_VALUE) {
-            if (Submodel.class.isAssignableFrom(referable.getClass())) {
-                ((Submodel) referable).getSubmodelElements().removeIf(removeFilter);
-            }
-            else if (SubmodelElementCollection.class.isAssignableFrom(referable.getClass())) {
-                ((SubmodelElementCollection) referable).getValues().removeIf(removeFilter);
-            }
+        if (modifier.getExtent() == Extent.WITHOUT_BLOB_VALUE) {
+            AssetAdministrationShellElementWalker.builder()
+                    .visitor(new DefaultAssetAdministrationShellElementVisitor() {
+                        @Override
+                        public void visit(Blob blob) {
+                            blob.setValue(null);
+                        }
+                    })
+                    .build()
+                    .walk(referable);
         }
     }
 
 
     private static void applyQueryModifierLevel(Referable referable, QueryModifier modifier) {
-        if (modifier.getLevel() == Level.DEEP) {
-            //nothing to do here
-        }
-        else if (modifier.getLevel() == Level.CORE) {
-            if (Submodel.class.isAssignableFrom(referable.getClass())) {
-                ((Submodel) referable).getSubmodelElements().forEach(x -> {
-                    if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
-                        ((SubmodelElementCollection) x).getValues().clear();
-                    }
-                });
-            }
-            else if (SubmodelElementCollection.class.isAssignableFrom(referable.getClass())) {
-                ((SubmodelElementCollection) referable).getValues().forEach(x -> {
-                    if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
-                        ((SubmodelElementCollection) x).getValues().clear();
-                    }
-                });
-            }
+        if (modifier.getLevel() == Level.CORE) {
+            new DefaultAssetAdministrationShellElementSubtypeResolvingVisitor() {
+                @Override
+                public void visit(Submodel submodel) {
+                    clearSubcollections(submodel.getSubmodelElements());
+                }
+
+
+                private void clearSubcollections(Collection<SubmodelElement> list) {
+                    AssetAdministrationShellElementVisitor visitor = new DefaultAssetAdministrationShellElementSubtypeResolvingVisitor() {
+                        @Override
+                        public void visit(SubmodelElementCollection submodelElementCollection) {
+                            submodelElementCollection.getValues().clear();
+                        }
+                    };
+                    list.forEach(visitor::visit);
+                }
+
+
+                @Override
+                public void visit(SubmodelElementCollection submodelElementCollection) {
+                    clearSubcollections(submodelElementCollection.getValues());
+                }
+            }.visit(referable);
         }
     }
 }

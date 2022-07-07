@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import java.io.IOException;
 
@@ -34,9 +35,7 @@ public class EnumDeserializer<T extends Enum> extends JsonDeserializer<T> {
     protected final Class<T> type;
 
     public EnumDeserializer(Class<T> type) {
-        if (type == null) {
-            throw new IllegalArgumentException("type must be non-null");
-        }
+        Ensure.requireNonNull(type, "type must be non-null");
         this.type = type;
     }
 

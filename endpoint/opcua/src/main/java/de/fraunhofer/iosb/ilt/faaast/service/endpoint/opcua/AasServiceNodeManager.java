@@ -70,6 +70,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AdministrativeInformation;
 import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
@@ -798,13 +799,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws StatusException If the operation fails
      */
     private void setAasReferenceData(Reference ref, AASReferenceType refNode, boolean readOnly) throws StatusException {
-        if (refNode == null) {
-            throw new IllegalArgumentException("refNode is null");
-        }
-        else if (ref == null) {
-            throw new IllegalArgumentException("ref is null");
-        }
-
+        Ensure.requireNonNull(refNode, "refNode must be non-null");
+        Ensure.require(refNode != null && ref != null, "refNode must be non-null");
         try {
             List<AASKeyDataType> keyList = new ArrayList<>();
             ref.getKeys().stream().map(k -> {
@@ -3140,7 +3136,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             method.setInputArguments(inputs);
 
-            Argument[] outputs = new Argument[1];
+            Argument[] outputs = new Argument[aasOperation.getOutputVariables().size()];
             for (int i = 0; i < aasOperation.getOutputVariables().size(); i++) {
                 OperationVariable v = aasOperation.getOutputVariables().get(i);
                 outputs[i] = new Argument();

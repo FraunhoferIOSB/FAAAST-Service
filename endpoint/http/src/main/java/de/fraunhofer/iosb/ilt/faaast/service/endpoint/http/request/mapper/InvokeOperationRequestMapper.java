@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequ
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
@@ -32,7 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
  * class to map HTTP-POST-Request path:
  * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
  */
-public class InvokeOperationRequestMapper extends RequestMapperWithOutputModifier {
+public class InvokeOperationRequestMapper extends RequestMapper {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
     private static final String PATTERN = "^submodels/(.*?)/submodel/submodel-elements/(.*)/invoke$";
@@ -44,14 +43,13 @@ public class InvokeOperationRequestMapper extends RequestMapperWithOutputModifie
 
 
     @Override
-    public Request parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException {
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
         boolean async = Boolean.parseBoolean(httpRequest.getQueryParameter(QUERY_PARAM_ASYNC));
         InvokeOperationRequest request = async
                 ? parseBody(httpRequest, InvokeOperationAsyncRequest.class)
                 : parseBody(httpRequest, InvokeOperationSyncRequest.class);
         request.setId(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))));
         request.setPath(ElementPathHelper.toKeys(EncodingHelper.urlDecode(httpRequest.getPathElements().get(4))));
-        request.setContent(outputModifier.getContent());
         return request;
     }
 

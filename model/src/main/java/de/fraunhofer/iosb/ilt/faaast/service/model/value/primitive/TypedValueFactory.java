@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.TypeInstantiationException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
@@ -50,9 +51,7 @@ public class TypedValueFactory {
      * @throws RuntimeException if instantiating new class fails
      */
     public static TypedValue<?> create(Datatype datatype, String value) throws ValueFormatException {
-        if (datatype == null) {
-            throw new IllegalArgumentException("datatype most be non-null");
-        }
+        Ensure.requireNonNull(datatype, "datatype must be non-null");
         try {
             Constructor<? extends TypedValue> constructor = datatype.getImplementation().getConstructor();
             constructor.setAccessible(true);

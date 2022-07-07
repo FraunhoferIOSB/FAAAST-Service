@@ -12,10 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
@@ -23,27 +22,7 @@ import java.util.Objects;
  * Config file for OPC UA-based
  * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider}.
  */
-public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
-
-    public String getNodeId() {
-        return nodeId;
-    }
-
-
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
-
-    private String nodeId;
-
-    public long getInterval() {
-        return interval;
-    }
-
-
-    public void setInterval(long interval) {
-        this.interval = interval;
-    }
+public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderConfig implements AssetSubscriptionProviderConfig {
 
     private long interval;
 
@@ -56,34 +35,29 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
             return false;
         }
         OpcUaSubscriptionProviderConfig that = (OpcUaSubscriptionProviderConfig) o;
-        return Objects.equals(nodeId, that.nodeId)
+        return super.equals(o)
                 && Objects.equals(interval, that.interval);
+    }
+
+
+    public long getInterval() {
+        return interval;
+    }
+
+
+    public void setInterval(long interval) {
+        this.interval = interval;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(nodeId, interval);
+        return Objects.hash(super.hashCode(), interval);
     }
 
 
     public static Builder builder() {
         return new Builder();
-    }
-
-    private abstract static class AbstractBuilder<T extends OpcUaSubscriptionProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B nodeId(String value) {
-            getBuildingInstance().setNodeId(value);
-            return getSelf();
-        }
-
-
-        public B interval(long value) {
-            getBuildingInstance().setInterval(value);
-            return getSelf();
-        }
-
     }
 
     public static class Builder extends AbstractBuilder<OpcUaSubscriptionProviderConfig, Builder> {
@@ -98,5 +72,15 @@ public class OpcUaSubscriptionProviderConfig implements AssetSubscriptionProvide
         protected OpcUaSubscriptionProviderConfig newBuildingInstance() {
             return new OpcUaSubscriptionProviderConfig();
         }
+    }
+
+    private abstract static class AbstractBuilder<T extends OpcUaSubscriptionProviderConfig, B extends AbstractBuilder<T, B>>
+            extends AbstractOpcUaProviderConfig.AbstractBuilder<T, B> {
+
+        public B interval(long value) {
+            getBuildingInstance().setInterval(value);
+            return getSelf();
+        }
+
     }
 }

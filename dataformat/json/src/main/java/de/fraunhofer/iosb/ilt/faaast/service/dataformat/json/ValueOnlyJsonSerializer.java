@@ -38,7 +38,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.Referenc
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.RelationshipElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.SubmodelElementValueSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.SubmodelValueSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
@@ -62,6 +62,8 @@ import java.util.List;
  */
 public class ValueOnlyJsonSerializer {
 
+    private final SerializerWrapper wrapper;
+
     public static boolean isJreType(Class<?> type) {
         if (type.getClassLoader() == null || type.getClassLoader().getParent() == null) {
             return true;
@@ -70,7 +72,6 @@ public class ValueOnlyJsonSerializer {
         return pkg.startsWith("java.") || pkg.startsWith("com.sun") || pkg.startsWith("sun.");
     }
 
-    private final SerializerWrapper wrapper;
 
     public ValueOnlyJsonSerializer() {
         this.wrapper = new SerializerWrapper(x -> modifyMapper(x));
@@ -83,21 +84,21 @@ public class ValueOnlyJsonSerializer {
 
 
     public String write(Object obj) throws SerializationException {
-        return write(obj, Level.DEFAULT, Extend.DEFAULT);
+        return write(obj, Level.DEFAULT, Extent.DEFAULT);
     }
 
 
     public String write(Object obj, Level level) throws SerializationException {
-        return write(obj, level, Extend.DEFAULT);
+        return write(obj, level, Extent.DEFAULT);
     }
 
 
-    public String write(Object obj, Extend extend) throws SerializationException {
+    public String write(Object obj, Extent extend) throws SerializationException {
         return write(obj, Level.DEFAULT, extend);
     }
 
 
-    public String write(Object obj, Level level, Extend extend) throws SerializationException {
+    public String write(Object obj, Level level, Extent extend) throws SerializationException {
         if (!ElementValueHelper.isValueOnlySupported(obj)) {
             throw new SerializationException(
                     "Provided element is not supported by value-only serialization. Supported types are: all subtypes of DataElement, SubmodelElementCollection, ReferenceElement, RelationshipElement, AnnotatedRelationshipElement, and Entity as well as all subtypes of ElementValue");

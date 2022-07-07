@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * Chapter 6.3.3
  */
-public class GetSubmodelByIdRequest extends RequestWithModifier<GetSubmodelByIdResponse> {
+public class GetSubmodelByIdRequest extends AbstractGetSubmodelRequest<GetSubmodelByIdResponse> {
 
     private Identifier id;
 
