@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
@@ -244,7 +243,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             request.setId(submodel.getIdentification());
             request.setPath(path);
             request.setInputArguments(inputVariables);
-            request.setContent(Content.NORMAL);
 
             requestCounter++;
             request.setRequestId(Integer.toString(requestCounter));
