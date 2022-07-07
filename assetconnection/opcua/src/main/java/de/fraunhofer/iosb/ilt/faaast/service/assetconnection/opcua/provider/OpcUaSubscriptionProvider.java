@@ -34,49 +34,20 @@ import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
  * Implemenation of SubscriptionProvider for OPC UA asset connections. Supports
  * subscribing to OPC UA.
  */
-public class OpcUaSubscriptionProvider implements AssetSubscriptionProvider {
+public class OpcUaSubscriptionProvider extends AbstractOpcUaProvider<OpcUaSubscriptionProviderConfig> implements AssetSubscriptionProvider {
 
-    private final ServiceContext serviceContext;
-    private final OpcUaClient client;
-    private final Reference reference;
-    private final ValueConverter valueConverter;
-    private final OpcUaSubscriptionProviderConfig providerConfig;
     private final ManagedSubscription opcUaSubscription;
     private final Map<String, SubscriptionMultiplexer> subscriptions;
 
-    /**
-     * Creates new instance.
-     *
-     * @param serviceContext the service context
-     * @param client OPC UA client to use
-     * @param reference reference to the AAS element
-     * @param providerConfig configuration
-     * @param opcUaSubscription existing OPC UA subscription object to use
-     * @param valueConverter value converter to use
-     * @throws IllegalArgumentException if serviceContext is null
-     * @throws IllegalArgumentException if client is null
-     * @throws IllegalArgumentException if reference is null
-     * @throws IllegalArgumentException if providerConfig is null
-     * @throws IllegalArgumentException if valueProvider is null
-     */
     public OpcUaSubscriptionProvider(ServiceContext serviceContext,
             Reference reference,
             OpcUaSubscriptionProviderConfig providerConfig,
             OpcUaClient client,
             ManagedSubscription opcUaSubscription,
             ValueConverter valueConverter) {
-        Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
-        Ensure.requireNonNull(client, "client must be non-null");
-        Ensure.requireNonNull(reference, "reference must be non-null");
+        super(serviceContext, client, reference, providerConfig, valueConverter);
         Ensure.requireNonNull(opcUaSubscription, "opcUaSubscription must be non-null");
-        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
-        Ensure.requireNonNull(valueConverter, "valueConverter must be non-null");
-        this.serviceContext = serviceContext;
-        this.reference = reference;
-        this.client = client;
         this.opcUaSubscription = opcUaSubscription;
-        this.providerConfig = providerConfig;
-        this.valueConverter = valueConverter;
         this.subscriptions = new HashMap<>();
     }
 

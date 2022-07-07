@@ -27,7 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Property;
@@ -57,51 +56,20 @@ import org.eclipse.milo.opcua.stack.core.types.structured.CallMethodResult;
  * Implemenation of OperationProvider for OPC UA asset connections. Supports
  * executing AAS operations via OPC UA.
  */
-public class OpcUaOperationProvider implements AssetOperationProvider {
+public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperationProviderConfig> implements AssetOperationProvider {
 
-    private final ServiceContext serviceContext;
-    private final OpcUaClient client;
-    private final Reference reference;
-    private final OpcUaOperationProviderConfig providerConfig;
-    private final ValueConverter valueConverter;
     private NodeId nodeId;
     private NodeId parentNodeId;
     private Argument[] methodArguments;
     private Argument[] methodOutputArguments;
     private OperationVariable[] outputVariables;
 
-    /**
-     * Creates new instance.
-     *
-     * @param serviceContext the service context
-     * @param client OPC UA client to use
-     * @param reference reference to the AAS element
-     * @param providerConfig configuration
-     * @param valueConverter value converter to use
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException
-     *             if initialization fails
-     * @throws IllegalArgumentException if serviceContext is null
-     * @throws IllegalArgumentException if client is null
-     * @throws IllegalArgumentException if reference is null
-     * @throws IllegalArgumentException if providerConfig is null
-     * @throws IllegalArgumentException if valueProvider is null
-     */
     public OpcUaOperationProvider(ServiceContext serviceContext,
             OpcUaClient client,
             Reference reference,
             OpcUaOperationProviderConfig providerConfig,
             ValueConverter valueConverter) throws AssetConnectionException {
-        Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
-        Ensure.requireNonNull(client, "client must be non-null");
-        Ensure.requireNonNull(reference, "reference must be non-null");
-        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
-        Ensure.requireNonNull(valueConverter, "valueConverter must be non-null");
-        this.serviceContext = serviceContext;
-        this.reference = reference;
-        this.client = client;
-        this.providerConfig = providerConfig;
-        this.valueConverter = valueConverter;
+        super(serviceContext, client, reference, providerConfig, valueConverter);
         init();
     }
 
@@ -208,9 +176,7 @@ public class OpcUaOperationProvider implements AssetOperationProvider {
                     LambdaExceptionHelper.rethrowFunction(x -> ElementValueMapper.toValue(x.getValue()))));
         }
         catch (ValueMappingException e) {
-            throw new AssetConnectionException(
-                    String.format("Could not extract value of parameters"),
-                    e);
+            throw new AssetConnectionException("Could not extract value of parameters", e);
         }
     }
 
@@ -296,11 +262,10 @@ public class OpcUaOperationProvider implements AssetOperationProvider {
                                 getOutputArgument(methodResult, x.getKey()),
                                 ((PropertyValue) x.getValue()).getValue().getDataType())))));
         return Stream.of(outputVariables)
-                .map(LambdaExceptionHelper.rethrowFunction(x -> {
-                    return hasOutputArgument(x.getValue().getIdShort())
-                            ? convertOutput(getOutputArgument(methodResult, x.getValue().getIdShort()), x)
-                            : null;
-                }))
+                .map(LambdaExceptionHelper.rethrowFunction(
+                        x -> hasOutputArgument(x.getValue().getIdShort())
+                                ? convertOutput(getOutputArgument(methodResult, x.getValue().getIdShort()), x)
+                                : null))
                 .toArray(OperationVariable[]::new);
     }
 

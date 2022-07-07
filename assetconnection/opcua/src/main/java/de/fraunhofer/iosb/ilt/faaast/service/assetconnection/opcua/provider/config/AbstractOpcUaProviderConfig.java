@@ -19,9 +19,10 @@ import java.util.Objects;
 
 
 /**
- * @author jab
+ * Superclass for all OPC UA provider config classes
  */
 public abstract class AbstractOpcUaProviderConfig {
+
     protected String nodeId;
 
     @Override

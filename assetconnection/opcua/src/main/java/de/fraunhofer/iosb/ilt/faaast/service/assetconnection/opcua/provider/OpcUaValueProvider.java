@@ -25,7 +25,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.concurrent.ExecutionException;
@@ -41,48 +40,17 @@ import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
  * Implemenation of ValueProvider for OPC UA asset connections. Supports reading
  * and writing values from/to OPC UA.
  */
-public class OpcUaValueProvider implements AssetValueProvider {
+public class OpcUaValueProvider extends AbstractOpcUaProvider<OpcUaValueProviderConfig> implements AssetValueProvider {
 
-    private final ServiceContext serviceContext;
-    private final OpcUaClient client;
-    private final Reference reference;
-    private final OpcUaValueProviderConfig providerConfig;
-    private final ValueConverter valueConverter;
     private VariableNode node;
     private Datatype datatype;
 
-    /**
-     * Creates new instance.
-     *
-     * @param serviceContext the service context
-     * @param client OPC UA client to use
-     * @param reference reference to the AAS element
-     * @param providerConfig configuration
-     * @param valueConverter value converter to use
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException
-     *             if initialization fails
-     * @throws IllegalArgumentException if serviceContext is null
-     * @throws IllegalArgumentException if client is null
-     * @throws IllegalArgumentException if reference is null
-     * @throws IllegalArgumentException if providerConfig is null
-     * @throws IllegalArgumentException if valueProvider is null
-     */
     public OpcUaValueProvider(ServiceContext serviceContext,
             OpcUaClient client,
             Reference reference,
             OpcUaValueProviderConfig providerConfig,
             ValueConverter valueConverter) throws AssetConnectionException {
-        Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
-        Ensure.requireNonNull(client, "client must be non-null");
-        Ensure.requireNonNull(reference, "reference must be non-null");
-        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
-        Ensure.requireNonNull(valueConverter, "valueConverter must be non-null");
-        this.serviceContext = serviceContext;
-        this.reference = reference;
-        this.client = client;
-        this.providerConfig = providerConfig;
-        this.valueConverter = valueConverter;
+        super(serviceContext, client, reference, providerConfig, valueConverter);
         init();
     }
 
