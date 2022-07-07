@@ -26,6 +26,7 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
 
@@ -94,6 +95,30 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProvider<OpcUaSubscr
                         e);
             }
         }
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), opcUaSubscription, subscriptions);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final OpcUaSubscriptionProvider that = (OpcUaSubscriptionProvider) obj;
+        return super.equals(that)
+                && Objects.equals(opcUaSubscription, that.opcUaSubscription)
+                && Objects.equals(subscriptions, that.subscriptions);
     }
 
 }

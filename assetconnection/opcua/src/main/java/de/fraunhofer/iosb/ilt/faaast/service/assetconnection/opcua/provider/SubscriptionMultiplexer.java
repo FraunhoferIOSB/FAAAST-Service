@@ -31,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedDataItem;
@@ -193,5 +194,35 @@ public class SubscriptionMultiplexer {
                             providerConfig.getNodeId()),
                     e);
         }
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(serviceContext, client, reference, providerConfig, valueConverter, listeners, opcUaSubscription, dataItem, datatype);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SubscriptionMultiplexer that = (SubscriptionMultiplexer) obj;
+        return Objects.equals(serviceContext, that.serviceContext)
+                && Objects.equals(client, that.client)
+                && Objects.equals(reference, that.reference)
+                && Objects.equals(providerConfig, that.providerConfig)
+                && Objects.equals(valueConverter, that.valueConverter)
+                && Objects.equals(listeners, that.listeners)
+                && Objects.equals(opcUaSubscription, that.opcUaSubscription)
+                && Objects.equals(dataItem, that.dataItem)
+                && Objects.equals(datatype, that.datatype);
     }
 }

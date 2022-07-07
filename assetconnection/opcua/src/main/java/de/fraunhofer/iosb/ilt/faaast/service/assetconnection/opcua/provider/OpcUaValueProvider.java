@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.core.nodes.VariableNode;
@@ -132,5 +133,29 @@ public class OpcUaValueProvider extends AbstractOpcUaProvider<OpcUaValueProvider
             Thread.currentThread().interrupt();
             throw new AssetConnectionException("error writing asset connection value", e);
         }
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), node, datatype);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final OpcUaValueProvider that = (OpcUaValueProvider) obj;
+        return super.equals(that)
+                && Objects.equals(node, that.node)
+                && Objects.equals(datatype, that.datatype);
     }
 }

@@ -290,4 +290,31 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         }
         return convertResult(methodResult, inoutputParameter, inoutput);
     }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), nodeId, parentNodeId, methodArguments, methodOutputArguments, outputVariables);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final OpcUaOperationProvider that = (OpcUaOperationProvider) obj;
+        return super.equals(that)
+                && Objects.equals(nodeId, that.nodeId)
+                && Objects.equals(parentNodeId, that.parentNodeId)
+                && Objects.equals(methodArguments, that.methodArguments)
+                && Objects.equals(methodOutputArguments, that.methodOutputArguments)
+                && Objects.equals(outputVariables, that.outputVariables);
+    }
 }

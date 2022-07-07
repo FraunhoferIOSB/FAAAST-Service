@@ -73,7 +73,6 @@ public abstract class AbstractOpcUaProvider<T extends AssetProviderConfig> {
         }
         final AbstractOpcUaProvider<?> that = (AbstractOpcUaProvider<?>) obj;
         return Objects.equals(serviceContext, that.serviceContext)
-                && Objects.equals(serviceContext, that.serviceContext)
                 && Objects.equals(client, that.client)
                 && Objects.equals(reference, that.reference)
                 && Objects.equals(providerConfig, that.providerConfig)
