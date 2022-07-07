@@ -259,7 +259,7 @@ ServiceConfig serviceConfig = new ServiceConfig.Builder()
 ### HTTP Endpoint
 This section introduces the HTTP Endpoint implementation. For further details see the [full documentation](./documentation/httpendpoint.md).
 
-The exposed REST API is based on the document [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), and the OpenAPI documentation [DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-REST-API/Final-Draft).
+The exposed REST API is based on the document [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), and the OpenAPI documentation [DotAAS Part 2 | HTTP/REST | Entire Interface Collection](https://app.swaggerhub.com/apis/Plattform_i40/Entire-Interface-Collection/V1.0RC01).
 
 HTTP Endpoint configuration supports the following configuration parameters
 -   `port` (optional, default: 8080)
@@ -284,7 +284,7 @@ HTTP GET http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2R
 
 ### The following interface URLs are currently not (yet) supported
 -   Submodel Repository Interface (Alternative Interface URLs "Swagger Doc Feb. 2022",
-[DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-Repository/Final-Draft#/Asset%20Administration%20Shell%20Repository/GetSubmodel) (yet not fully specified))
+[DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-Environment/V1.0RC01#/Asset%20Administration%20Shell%20Environment/GetSubmodel) (yet not fully specified))
 >/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/...
 
 -   AASX File Server Interface (not yet supported)
