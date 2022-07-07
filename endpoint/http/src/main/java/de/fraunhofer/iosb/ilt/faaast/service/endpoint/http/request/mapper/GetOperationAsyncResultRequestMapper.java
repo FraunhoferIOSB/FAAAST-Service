@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetOperationAsyncResultResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetOperationAsyncResultRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
@@ -28,7 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
  * class to map HTTP-GET-Request path:
  * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/(.*)
  */
-public class GetOperationAsyncResultRequestMapper extends RequestMapperWithOutputModifier<GetOperationAsyncResultRequest> {
+public class GetOperationAsyncResultRequestMapper extends RequestMapperWithOutputModifier<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^submodels/(.*?)/submodel/submodel-elements/(.*)/operation-results/(.*)$";

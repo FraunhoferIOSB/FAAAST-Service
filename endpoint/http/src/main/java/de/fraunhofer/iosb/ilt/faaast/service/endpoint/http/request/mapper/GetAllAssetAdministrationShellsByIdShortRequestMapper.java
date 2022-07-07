@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByIdShortResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByIdShortRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 
@@ -25,7 +26,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 /**
  * class to map HTTP-Request path: shells
  */
-public class GetAllAssetAdministrationShellsByIdShortRequestMapper extends RequestMapperWithOutputModifier<GetAllAssetAdministrationShellsByIdShortRequest> {
+public class GetAllAssetAdministrationShellsByIdShortRequestMapper
+        extends RequestMapperWithOutputModifier<GetAllAssetAdministrationShellsByIdShortRequest, GetAllAssetAdministrationShellsByIdShortResponse> {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^shells$";

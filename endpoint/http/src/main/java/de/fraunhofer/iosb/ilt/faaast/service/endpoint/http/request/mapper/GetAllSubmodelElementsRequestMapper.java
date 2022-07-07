@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelElementsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -28,7 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
  * class to map HTTP-GET-Request path:
  * submodels/{submodelIdentifier}/submodel/submodel-elements
  */
-public class GetAllSubmodelElementsRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelElementsRequest> {
+public class GetAllSubmodelElementsRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^submodels/(.*?)/submodel/submodel-elements$";

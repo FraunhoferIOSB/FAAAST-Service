@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIsCaseOfResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIsCaseOfRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -27,7 +28,8 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 /**
  * class to map HTTP-GET-Request path: concept-descriptions
  */
-public class GetAllConceptDescriptionsByIsCaseOfRequestMapper extends RequestMapperWithOutputModifier<GetAllConceptDescriptionsByIsCaseOfRequest> {
+public class GetAllConceptDescriptionsByIsCaseOfRequestMapper
+        extends RequestMapperWithOutputModifier<GetAllConceptDescriptionsByIsCaseOfRequest, GetAllConceptDescriptionsByIsCaseOfResponse> {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^concept-descriptions$";

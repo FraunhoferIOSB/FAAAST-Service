@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
@@ -29,8 +30,11 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * Base class for mapping HTTP requests including output modifier information.
+ * 
+ * @param <T> type of request
+ * @param <R> type of response to the request
  */
-public abstract class RequestMapperWithOutputModifier<T extends RequestWithModifier<?>> extends RequestMapper {
+public abstract class RequestMapperWithOutputModifier<T extends RequestWithModifier<R>, R extends Response> extends RequestMapper {
 
     private static final String PARAMETER_LEVEL = "level";
     private static final String PARAMETER_CONTENT = "content";
@@ -50,15 +54,15 @@ public abstract class RequestMapperWithOutputModifier<T extends RequestWithModif
      * @return the protocol-agnostic request
      * @throws InvalidRequestException if conversion fails
      */
-    public abstract RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException;
+    public abstract RequestWithModifier<R> parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException;
 
 
     @Override
     public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
-        Class<RequestWithModifier<?>> rawType = (Class<RequestWithModifier<?>>) TypeToken.of(getClass()).resolveType(RequestMapperWithOutputModifier.class.getTypeParameters()[0])
+        Class<RequestWithModifier<R>> rawType = (Class<RequestWithModifier<R>>) TypeToken.of(getClass()).resolveType(RequestMapperWithOutputModifier.class.getTypeParameters()[0])
                 .getRawType();
         try {
-            RequestWithModifier<?> request = rawType.getConstructor(null).newInstance(null);
+            RequestWithModifier<R> request = rawType.getConstructor(null).newInstance(null);
             OutputModifier.Builder outputModifier = new OutputModifier.Builder();
             if (httpRequest.hasQueryParameter(PARAMETER_CONTENT)) {
                 Content content = Content.fromString(httpRequest.getQueryParameter(PARAMETER_CONTENT));

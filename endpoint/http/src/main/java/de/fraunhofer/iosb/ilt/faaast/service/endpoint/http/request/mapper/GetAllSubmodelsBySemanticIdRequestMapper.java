@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequ
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsBySemanticIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsBySemanticIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -29,7 +30,7 @@ import io.adminshell.aas.v3.model.Reference;
 /**
  * class to map HTTP-GET-Request path: submodels
  */
-public class GetAllSubmodelsBySemanticIdRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelsBySemanticIdRequest> {
+public class GetAllSubmodelsBySemanticIdRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelsBySemanticIdRequest, GetAllSubmodelsBySemanticIdResponse> {
 
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String PATTERN = "^submodels$";
