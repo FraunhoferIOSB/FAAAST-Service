@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import java.util.Map;
 
+
 @Dataformat(key = "JSON")
 public class JsonFormat implements Format {
 
@@ -29,16 +30,19 @@ public class JsonFormat implements Format {
         this.serializer = new JsonSerializer();
     }
 
+
     @Override
     public Map<String, DataElementValue> read(String value, Map<String, String> queries) throws AssetConnectionException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+
     @Override
     public String write(DataElementValue value) throws AssetConnectionException {
         try {
             return serializer.write(value);
-        } catch (SerializationException e) {
+        }
+        catch (SerializationException e) {
             throw new AssetConnectionException("serializing value to JSON failed", e);
         }
     }

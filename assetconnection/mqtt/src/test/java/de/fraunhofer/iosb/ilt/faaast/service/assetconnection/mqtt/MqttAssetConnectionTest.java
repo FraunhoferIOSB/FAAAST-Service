@@ -84,6 +84,7 @@ public class MqttAssetConnectionTest {
     private static int mqttPort;
     private static Server mqttServer;
     private static String mqttServerUri;
+    private static final String FORMAT_JSON = "JSON";
 
     @AfterClass
     public static void cleanup() throws IOException {
@@ -155,11 +156,11 @@ public class MqttAssetConnectionTest {
     }
 
 
-    private String invokeValueProvider(ContentFormat contentFormat, DataElementValue newValue, String query)
+    private String invokeValueProvider(String format, DataElementValue newValue, String template)
             throws AssetConnectionException, InterruptedException, MqttException, ConfigurationInitializationException {
         MqttAssetConnection assetConnection = newConnection(MqttValueProviderConfig.builder()
-                .contentFormat(contentFormat)
-                .query(query)
+                .format(format)
+                .template(template)
                 .build());
         MqttClient client = newMqttClient();
         final AtomicReference<String> response = new AtomicReference<>();
@@ -293,16 +294,17 @@ public class MqttAssetConnectionTest {
     public void testValueProviderProperty()
             throws AssetConnectionException, InterruptedException, ValueFormatException, MqttException, JSONException, ConfigurationInitializationException {
         String expected = "\"hello world\"";
-        String actual = invokeValueProvider(ContentFormat.JSON, PropertyValue.of(Datatype.STRING, "hello world"), null);
+        String actual = invokeValueProvider(FORMAT_JSON, PropertyValue.of(Datatype.STRING, "hello world"), null);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testValueProviderPropertyWithQuery()
+    @Test
+    public void testValueProviderPropertyWithTemplate()
             throws AssetConnectionException, InterruptedException, ValueFormatException, MqttException, JSONException, ConfigurationInitializationException {
         String expected = "{\"foo\": \"hello world\"}";
-        String actual = invokeValueProvider(ContentFormat.JSON, PropertyValue.of(Datatype.STRING, "hello world"), "$.foo");
+        String template = "{\"foo\": ${value}}";
+        String actual = invokeValueProvider(FORMAT_JSON, PropertyValue.of(Datatype.STRING, "hello world"), template);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 

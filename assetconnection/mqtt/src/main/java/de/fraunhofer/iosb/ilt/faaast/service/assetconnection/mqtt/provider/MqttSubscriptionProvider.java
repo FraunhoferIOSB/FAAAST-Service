@@ -36,7 +36,7 @@ public class MqttSubscriptionProvider implements AssetSubscriptionProvider {
     private final MqttSubscriptionProviderConfig providerConfig;
     private final Reference reference;
     private final ServiceContext serviceContext;
-    private List<NewDataListener> listeners;
+    private final List<NewDataListener> listeners;
 
     public MqttSubscriptionProvider(ServiceContext serviceContext, MqttClient client, Reference reference, MqttSubscriptionProviderConfig providerConfig) {
         this.listeners = new CopyOnWriteArrayList<>();

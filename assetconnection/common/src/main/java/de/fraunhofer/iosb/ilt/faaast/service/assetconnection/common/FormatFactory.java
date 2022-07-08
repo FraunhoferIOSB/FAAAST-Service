@@ -16,10 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
+import java.util.HashMap;
 import java.util.Map;
 import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class FormatFactory {
 
@@ -30,6 +32,7 @@ public class FormatFactory {
         if (formats != null) {
             return;
         }
+        formats = new HashMap<>();
         try (ScanResult scanResult = new ClassGraph()
                 .enableClassInfo()
                 .enableAnnotationInfo()
@@ -46,16 +49,18 @@ public class FormatFactory {
                     continue;
                 }
                 formats.put(key, classInfo.loadClass(Format.class));
-            }         
+            }
         }
     }
+
 
     public static Format create(String key) {
         init();
         if (formats.containsKey(key)) {
             try {
                 return formats.get(key).newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
+            }
+            catch (InstantiationException | IllegalAccessException e) {
                 throw new RuntimeException(String.format("error instantiating data format (key: %s, class: %s)", key, formats.get(key).getName()), e);
             }
         }
