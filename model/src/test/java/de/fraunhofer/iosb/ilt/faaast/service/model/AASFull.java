@@ -1382,6 +1382,13 @@ public class AASFull {
                                 .build())
                         .ordered(false)
                         .build())
+                .submodelElement(new DefaultProperty.Builder()
+                        .kind(ModelingKind.INSTANCE)
+                        .idShort("DateTimeProperty")
+                        .category("Parameter")
+                        .value("2022-07-08T10:22:04")
+                        .valueType("datetime")
+                        .build())
                 .build();
     }
 
