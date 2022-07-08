@@ -18,7 +18,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import java.io.IOException;
@@ -42,11 +42,11 @@ public class BlobValueSerializer extends ModifierAwareSerializer<BlobValue> {
 
 
     @Override
-    public void serialize(BlobValue value, JsonGenerator generator, SerializerProvider provider, Level level, Extend extend) throws IOException, JsonProcessingException {
+    public void serialize(BlobValue value, JsonGenerator generator, SerializerProvider provider, Level level, Extent extend) throws IOException, JsonProcessingException {
         if (value != null) {
             generator.writeStartObject();
             generator.writeStringField(JsonFieldNames.BLOB_VALUE_MIME_TYPE, value.getMimeType());
-            if (extend == Extend.WITH_BLOB_VALUE) {
+            if (extend == Extent.WITH_BLOB_VALUE) {
                 generator.writeStringField(JsonFieldNames.BLOB_VALUE_VALUE, new String(Base64.encodeBase64(value.getValue())));
             }
             generator.writeEndObject();

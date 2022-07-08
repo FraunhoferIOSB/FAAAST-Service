@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Chapter 4.3.4
  */
-public class GetSubmodelElementByPathRequest extends RequestWithModifier<GetSubmodelElementByPathResponse> {
+public class GetSubmodelElementByPathRequest extends AbstractGetSubmodelElementRequest<GetSubmodelElementByPathResponse> {
 
     private Identifier id;
     private List<Key> path;

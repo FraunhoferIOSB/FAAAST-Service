@@ -450,13 +450,13 @@ public class RequestMappingManagerTest {
         Request expected = GetAssetAdministrationShellRequest.builder()
                 .id(AAS.getIdentification())
                 .outputModifier(new OutputModifier.Builder()
-                        .content(Content.VALUE)
+                        .content(Content.NORMAL)
                         .build())
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getIdentification().getIdentifier()) + "/aas")
-                .query("content=value")
+                .query("content=normal")
                 .build());
         Assert.assertEquals(expected, actual);
     }

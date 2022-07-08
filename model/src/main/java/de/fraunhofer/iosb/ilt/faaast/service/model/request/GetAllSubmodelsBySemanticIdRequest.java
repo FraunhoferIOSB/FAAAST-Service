@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * Chapter 6.3.4
  */
-public class GetAllSubmodelsBySemanticIdRequest extends RequestWithModifier<GetAllSubmodelsBySemanticIdResponse> {
+public class GetAllSubmodelsBySemanticIdRequest extends AbstractGetSubmodelRequest<GetAllSubmodelsBySemanticIdResponse> {
 
     private Reference semanticId;
 

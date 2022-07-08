@@ -70,7 +70,7 @@
         <aas.dataformat.jsonld.version>1.0.2</aas.dataformat.jsonld.version>
         <aas.version>1.2.0</aas.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <classgraph.version>4.8.147</classgraph.version>
+        <classgraph.version>4.8.149</classgraph.version>
         <commons.code.version>1.15</commons.code.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
@@ -80,7 +80,7 @@
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <javax.servlet.version>2.5</javax.servlet.version>
         <jetty.version>11.0.11</jetty.version>
-        <jsonassert.version>1.5.0</jsonassert.version>
+        <jsonassert.version>1.5.1</jsonassert.version>
         <jsonpath.version>2.7.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.2.11</logback.version>
@@ -107,7 +107,7 @@
         <moquette.version>0.15.1</moquette.version>
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.6.3</picocli.version>
-        <proguard.core.version>9.0.1</proguard.core.version>
+        <proguard.core.version>9.0.2</proguard.core.version>
         <proguard.version>7.2.2</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>4.8.0-25</prosys.sdk.version>
@@ -120,7 +120,7 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <spotless.version>2.23.0</spotless.version>
-        <system.lambda.version>1.2.1</system.lambda.version>
+        <system.stubs.junit4.version>2.0.1</system.stubs.junit4.version>
     </properties>
     <dependencies>
         <dependency>

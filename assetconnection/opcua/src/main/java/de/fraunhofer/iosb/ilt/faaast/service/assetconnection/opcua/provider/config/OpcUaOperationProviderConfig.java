@@ -12,49 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
-import java.util.Objects;
 
 
 /**
  * * Config file for OPC UA-based
  * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
  */
-public class OpcUaOperationProviderConfig implements AssetOperationProviderConfig {
-
-    private String nodeId;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        OpcUaOperationProviderConfig that = (OpcUaOperationProviderConfig) o;
-        return Objects.equals(nodeId, that.nodeId);
-    }
-
-
-    public String getNodeId() {
-        return nodeId;
-    }
-
-
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(nodeId);
-    }
-
+public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig implements AssetOperationProviderConfig {
 
     public static Builder builder() {
         return new Builder();
@@ -74,12 +41,8 @@ public class OpcUaOperationProviderConfig implements AssetOperationProviderConfi
         }
     }
 
-    private abstract static class AbstractBuilder<T extends OpcUaOperationProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B nodeId(String value) {
-            getBuildingInstance().setNodeId(value);
-            return getSelf();
-        }
+    private abstract static class AbstractBuilder<T extends OpcUaOperationProviderConfig, B extends AbstractBuilder<T, B>>
+            extends AbstractOpcUaProviderConfig.AbstractBuilder<T, B> {
 
     }
 }

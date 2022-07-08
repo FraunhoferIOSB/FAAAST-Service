@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.OperationVariable;
@@ -27,11 +27,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public abstract class InvokeOperationRequest<T extends Response> extends BaseRequest<T> {
+public abstract class InvokeOperationRequest<T extends Response> extends AbstractInvokeOperationRequest<T> {
 
     private static final long DEFAULT_TIMEOUT = 1000;
     protected Identifier id;
-    protected Content content;
     protected List<Key> path;
     protected List<OperationVariable> inputArguments;
     protected List<OperationVariable> inoutputArguments;
@@ -42,7 +41,6 @@ public abstract class InvokeOperationRequest<T extends Response> extends BaseReq
         this.path = new ArrayList<>();
         this.inputArguments = new ArrayList<>();
         this.inoutputArguments = new ArrayList<>();
-        this.content = Content.NORMAL;
         this.timeout = DEFAULT_TIMEOUT;
         this.requestId = UUID.randomUUID().toString();
     }
@@ -108,7 +106,6 @@ public abstract class InvokeOperationRequest<T extends Response> extends BaseReq
         }
         InvokeOperationRequest that = (InvokeOperationRequest) o;
         return Objects.equals(id, that.id)
-                && Objects.equals(content, that.content)
                 && Objects.equals(path, that.path)
                 && Objects.equals(inputArguments, that.inputArguments)
                 && Objects.equals(inoutputArguments, that.inoutputArguments)
@@ -141,7 +138,13 @@ public abstract class InvokeOperationRequest<T extends Response> extends BaseReq
 
 
         public B content(Content value) {
-            getBuildingInstance().setContent(value);
+            OutputModifier.Builder builder = new OutputModifier.Builder();
+            if (getBuildingInstance().outputModifier != null) {
+                builder.level(getBuildingInstance().getOutputModifier().getLevel());
+                builder.extend(getBuildingInstance().getOutputModifier().getExtent());
+            }
+            builder.content(value);
+            getBuildingInstance().outputModifier = builder.build();
             return getSelf();
         }
 
@@ -186,14 +189,5 @@ public abstract class InvokeOperationRequest<T extends Response> extends BaseReq
             getBuildingInstance().setPath(value);
             return getSelf();
         }
-    }
-
-    public Content getContent() {
-        return content;
-    }
-
-
-    public void setContent(Content content) {
-        this.content = content;
     }
 }
