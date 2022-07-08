@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 public class DateTimeValue extends TypedValue<ZonedDateTime> {
 
-    public static String DEFAULT_TIMEZONE = "UTC";
+    public static final String DEFAULT_TIMEZONE = "UTC";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateTimeValue.class);
 
