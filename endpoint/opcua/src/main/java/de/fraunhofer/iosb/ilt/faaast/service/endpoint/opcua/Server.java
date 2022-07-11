@@ -72,8 +72,9 @@ public class Server {
 
     private UaServer uaServer;
     private boolean running;
-    private UserValidator userValidator;
-    private AasServiceNodeManager aasNodeManager;
+
+    protected UserValidator userValidator;
+    protected AasServiceNodeManager aasNodeManager;
 
     protected final DefaultCertificateValidatorListener validationListener = new AasCertificateValidationListener();
     protected final DefaultCertificateValidatorListener userCertificateValidationListener = new AasCertificateValidationListener();
