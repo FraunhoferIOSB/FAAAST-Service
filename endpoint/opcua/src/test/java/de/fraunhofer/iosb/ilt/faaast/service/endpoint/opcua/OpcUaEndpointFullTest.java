@@ -113,6 +113,13 @@ public class OpcUaEndpointFullTest {
         outputArgs.add(new DefaultOperationVariable.Builder().value(new DefaultProperty.Builder().idShort("Test Output 1").valueType("string").value("XYZ1").build()).build());
         assetConnection.registerOperationProvider(ref, new TestOperationProviderConfig(outputArgs));
 
+        // register another Operation 
+        keys = new ArrayList<>();
+        keys.add(new DefaultKey.Builder().type(KeyElements.SUBMODEL).idType(KeyType.IRI).value("https://acplt.org/Test_Submodel_Mandatory").build());
+        keys.add(new DefaultKey.Builder().type(KeyElements.OPERATION).idType(KeyType.ID_SHORT).value("ExampleOperation").build());
+        Reference ref2 = new DefaultReference.Builder().keys(keys).build();
+        assetConnection.registerOperationProvider(ref2, new TestOperationProviderConfig(null));
+
         endpoint = new OpcUaEndpoint();
         service = new TestService(endpoint, assetConnection, true);
         endpoint.init(coreConfig, config, service);
@@ -739,6 +746,59 @@ public class OpcUaEndpointFullTest {
         Assert.assertNotNull("testUnorderedSubmodelElementCollection Node Null", smNode);
 
         TestUtils.checkType(client, smNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
+
+        System.out.println("disconnect client");
+        client.disconnect();
+    }
+
+
+    @Test
+    public void testCallOperationNoArgs() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_OPERATION_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_OPERATION_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(serverns, TestConstants.FULL_OPERATION_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testCallOperationNoArgs Browse Result Null", bpres);
+        Assert.assertEquals("testCallOperationNoArgs Browse Result: size doesn't match", 2, bpres.length);
+        Assert.assertTrue("testCallOperationNoArgs Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testCallOperationNoArgs Object Targets Null", targets);
+        Assert.assertTrue("testCallOperationNoArgs Object Targets empty", targets.length > 0);
+
+        NodeId objectNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        Assert.assertNotNull("testCallOperationNoArgs objectNode Null", objectNode);
+
+        targets = bpres[1].getTargets();
+        Assert.assertNotNull("testCallOperationNoArgs Method Targets Null", targets);
+        Assert.assertTrue("testCallOperationNoArgs Method Targets empty", targets.length > 0);
+
+        NodeId methodNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        Assert.assertNotNull("testCallOperationNoArgs methodNode Null", methodNode);
+
+        Variant[] outputs = client.call(objectNode, methodNode);
+        Assert.assertNotNull("testCallOperationNoArgs output Arguments Null", outputs);
+        Assert.assertEquals("testCallOperationNoArgs output Arguments length not equal", 0, outputs.length);
 
         System.out.println("disconnect client");
         client.disconnect();
