@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.ValueOnlyJsonSerializer;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -51,10 +51,10 @@ public class ValueOnlyJsonSerializerTest {
 
     @Test
     public void testBlob() throws SerializationException, JSONException, IOException, ValueMappingException {
-        assertEquals(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extend.WITH_BLOB_VALUE);
-        assertEquals(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extend.WITHOUT_BLOB_VALUE);
-        assertValue(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extend.WITH_BLOB_VALUE);
-        assertValue(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extend.WITHOUT_BLOB_VALUE);
+        assertEquals(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extent.WITH_BLOB_VALUE);
+        assertEquals(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extent.WITHOUT_BLOB_VALUE);
+        assertValue(PropertyValues.BLOB_FILE_WITH_BLOB, PropertyValues.BLOB, Extent.WITH_BLOB_VALUE);
+        assertValue(PropertyValues.BLOB_FILE_WITHOUT_BLOB, PropertyValues.BLOB, Extent.WITHOUT_BLOB_VALUE);
     }
 
 
@@ -179,42 +179,42 @@ public class ValueOnlyJsonSerializerTest {
 
 
     private void assertEquals(File expectedFile, Object value) throws JSONException, IOException, SerializationException {
-        assertEquals(expectedFile, value, Level.DEFAULT, Extend.DEFAULT);
+        assertEquals(expectedFile, value, Level.DEFAULT, Extent.DEFAULT);
     }
 
 
     private void assertEquals(String expected, Object value) throws JSONException, IOException, SerializationException {
-        assertEquals(expected, value, Level.DEFAULT, Extend.DEFAULT);
+        assertEquals(expected, value, Level.DEFAULT, Extent.DEFAULT);
     }
 
 
-    private void assertEquals(File expectedFile, Object value, Level level, Extend extend) throws JSONException, IOException, SerializationException {
+    private void assertEquals(File expectedFile, Object value, Level level, Extent extend) throws JSONException, IOException, SerializationException {
         assertEquals(Files.readString(expectedFile.toPath()), value, level, extend);
     }
 
 
-    private void assertEquals(File expectedFile, Object value, Extend extend) throws JSONException, IOException, SerializationException {
+    private void assertEquals(File expectedFile, Object value, Extent extend) throws JSONException, IOException, SerializationException {
         assertEquals(Files.readString(expectedFile.toPath()), value, Level.DEFAULT, extend);
     }
 
 
-    private void assertEquals(String expected, Object value, Level level, Extend extend) throws JSONException, IOException, SerializationException {
+    private void assertEquals(String expected, Object value, Level level, Extent extend) throws JSONException, IOException, SerializationException {
         String actual = serializer.write(value, level, extend);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
 
     private void assertValue(File expectedFile, SubmodelElement submodelElement) throws JSONException, IOException, SerializationException, ValueMappingException {
-        assertValue(expectedFile, submodelElement, Level.DEFAULT, Extend.DEFAULT);
+        assertValue(expectedFile, submodelElement, Level.DEFAULT, Extent.DEFAULT);
     }
 
 
-    private void assertValue(File expectedFile, SubmodelElement submodelElement, Extend extend) throws JSONException, IOException, SerializationException, ValueMappingException {
+    private void assertValue(File expectedFile, SubmodelElement submodelElement, Extent extend) throws JSONException, IOException, SerializationException, ValueMappingException {
         assertValue(expectedFile, submodelElement, Level.DEFAULT, extend);
     }
 
 
-    private void assertValue(File expectedFile, SubmodelElement submodelElement, Level level, Extend extend)
+    private void assertValue(File expectedFile, SubmodelElement submodelElement, Level level, Extent extend)
             throws JSONException, IOException, SerializationException, ValueMappingException {
         assertEquals(ValueHelper.extractValueJson(expectedFile, submodelElement), ElementValueMapper.toValue(submodelElement), level, extend);
     }

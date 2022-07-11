@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * Chapter 6.3.5
  */
-public class GetAllSubmodelsByIdShortRequest extends RequestWithModifier<GetAllSubmodelsByIdShortResponse> {
+public class GetAllSubmodelsByIdShortRequest extends AbstractGetSubmodelRequest<GetAllSubmodelsByIdShortResponse> {
 
     private String idShort;
 

@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
@@ -56,7 +56,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
         }
         try {
             SubmodelElement result = DeepCopyHelper.deepCopy(AasUtils.resolve(reference, aasEnvironment, SubmodelElement.class), SubmodelElement.class);
-            if (result != null && modifier.getExtend() == Extend.WITHOUT_BLOB_VALUE && Blob.class.isAssignableFrom(result.getClass())) {
+            if (result != null && modifier.getExtent() == Extent.WITHOUT_BLOB_VALUE && Blob.class.isAssignableFrom(result.getClass())) {
                 ((Blob) result).setValue(null);
             }
             return result;

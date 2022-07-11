@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * Chapter 4.3.3
  */
-public class GetAllSubmodelElementsRequest extends RequestWithModifier<GetAllSubmodelElementsResponse> {
+public class GetAllSubmodelElementsRequest extends AbstractGetSubmodelElementRequest<GetAllSubmodelElementsResponse> {
 
     private Identifier id;
 

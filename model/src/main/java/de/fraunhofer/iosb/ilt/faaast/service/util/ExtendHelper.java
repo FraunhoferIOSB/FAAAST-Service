@@ -14,14 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
 import io.adminshell.aas.v3.model.Blob;
 
 
 /**
- * Helper class to apply {@link Extend} parameter to given AAS structures.
+ * Helper class to apply {@link Extent} parameter to given AAS structures.
  */
 public class ExtendHelper {
 
@@ -35,15 +35,15 @@ public class ExtendHelper {
      * @param obj the object to apply given extend
      * @param extend the extend to apply
      */
-    public static void applyExtend(Object obj, Extend extend) {
-        if (extend == Extend.WITHOUT_BLOB_VALUE) {
+    public static void applyExtend(Object obj, Extent extend) {
+        if (extend == Extent.WITHOUT_BLOB_VALUE) {
             withoutBlobValue(obj);
         }
     }
 
 
     /**
-     * Applies {@link Extend#WITHOUT_BLOB_VALUE} to object structure. This
+     * Applies {@link Extent#WITHOUT_BLOB_VALUE} to object structure. This
      * directly modifies the {@code obj}.
      *
      * @param obj the object to apply given extend
