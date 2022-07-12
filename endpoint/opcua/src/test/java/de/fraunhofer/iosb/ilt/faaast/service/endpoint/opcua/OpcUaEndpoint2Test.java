@@ -55,6 +55,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyElementsDataType;
 import opc.i4aas.AASKeyTypeDataType;
@@ -75,7 +77,7 @@ public class OpcUaEndpoint2Test {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint2Test.class);
 
     private static final int OPC_TCP_PORT = 18123;
-    private static final long DEFAULT_TIMEOUT = 1000;
+    private static final long DEFAULT_TIMEOUT = 100;
     private static final String USERNAME = "testuser";
     private static final String PASSWORD = "testpassword";
     private static final String ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
@@ -142,23 +144,24 @@ public class OpcUaEndpoint2Test {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testDeleteSubmodel Browse Result Null", bpres);
-        Assert.assertTrue("testDeleteSubmodel Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testDeleteSubmodel Browse Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testDeleteSubmodel Browse Result 1 Good", bpres[0].getStatusCode().isGood());
         Assert.assertTrue("testDeleteSubmodel Browse Result 2 Good", bpres[1].getStatusCode().isGood());
 
         // Send delete event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(AASSimple.SUBMODEL_TECHNICAL_DATA_ID).build())
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the element is not there anymore
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testDeleteSubmodel Browse Result Null", bpres);
-        Assert.assertTrue("testDeleteSubmodel Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testDeleteSubmodel Browse Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testDeleteSubmodel Browse Result 1 Bad", bpres[0].getStatusCode().isBad());
         Assert.assertTrue("testDeleteSubmodel Browse Result 2 Bad", bpres[1].getStatusCode().isBad());
 
@@ -196,7 +199,7 @@ public class OpcUaEndpoint2Test {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testUpdateSubmodel Browse Result Null", bpres);
-        Assert.assertTrue("testUpdateSubmodel Browse 1 Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testUpdateSubmodel Browse 1 Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testUpdateSubmodel Browse 1 Result 1 Good", bpres[0].getStatusCode().isGood());
         Assert.assertTrue("testUpdateSubmodel Browse 1 Result 2 Bad", bpres[1].getStatusCode().isBad());
 
@@ -206,6 +209,7 @@ public class OpcUaEndpoint2Test {
 
         // update submodel 
         // Send update event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementUpdateEventMessage msg = new ElementUpdateEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(AASSimple.SUBMODEL_OPERATIONAL_DATA_ID).build())
@@ -271,12 +275,12 @@ public class OpcUaEndpoint2Test {
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the old element is not there anymore, but the new element
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testUpdateSubmodel Browse Result old Null", bpres);
-        Assert.assertTrue("testUpdateSubmodel Browse 2 Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testUpdateSubmodel Browse 2 Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testUpdateSubmodel Browse 2 Result 1 Bad", bpres[0].getStatusCode().isBad());
         Assert.assertTrue("testUpdateSubmodel Browse 2 Result 2 Good", bpres[1].getStatusCode().isGood());
 
@@ -329,7 +333,7 @@ public class OpcUaEndpoint2Test {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testUpdateSubmodelElement Browse Result Null", bpres);
-        Assert.assertTrue("testUpdateSubmodelElement Browse 1 Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testUpdateSubmodelElement Browse 1 Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testUpdateSubmodelElement Browse 1 Result 1 Good", bpres[0].getStatusCode().isGood());
         Assert.assertTrue("testUpdateSubmodelElement Browse 1 Result 2 Good", bpres[1].getStatusCode().isGood());
 
@@ -346,6 +350,7 @@ public class OpcUaEndpoint2Test {
 
         // update SubmodelElement 
         // Send update event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementUpdateEventMessage msg = new ElementUpdateEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(TestConstants.SUBMODEL_DOC_NAME).build())
@@ -365,11 +370,12 @@ public class OpcUaEndpoint2Test {
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        // check MessageBus
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testUpdateSubmodelElement Browse 2 Result Null", bpres);
-        Assert.assertTrue("testUpdateSubmodelElement Browse 2 Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testUpdateSubmodelElement Browse 2 Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testUpdateSubmodelElement Browse 2 Result 1 Good", bpres[0].getStatusCode().isGood());
         Assert.assertTrue("testUpdateSubmodelElement Browse 2 Result 2 Bad", bpres[1].getStatusCode().isBad());
 

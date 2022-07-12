@@ -91,7 +91,7 @@ public class OpcUaEndpointTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointTest.class);
 
-    private static final long DEFAULT_TIMEOUT = 1000;
+    private static final long DEFAULT_TIMEOUT = 100;
 
     private static int OPC_TCP_PORT;
     private static String ENDPOINT_URL;
@@ -283,7 +283,6 @@ public class OpcUaEndpointTest {
         //propertyValue.setValue(new IntValue(newValue));
         valueChangeMessage.setNewValue(PropertyValue.of(Datatype.INT, newValue.toString()));
         service.getMessageBus().publish(valueChangeMessage);
-        Thread.sleep(100);
 
         // check MessageBus
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
@@ -367,6 +366,7 @@ public class OpcUaEndpointTest {
         keys.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.PROPERTY).value(TestConstants.MAX_ROTATION_SPEED_NAME).build());
         Reference propRef = new DefaultReference.Builder().keys(keys).build();
 
+        CountDownLatch condition = new CountDownLatch(1);
         ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
         valueChangeMessage.setElement(propRef);
         valueChangeMessage.setOldValue(PropertyValue.of(Datatype.INT, "5000"));
@@ -374,7 +374,7 @@ public class OpcUaEndpointTest {
         valueChangeMessage.setNewValue(PropertyValue.of(Datatype.INT, newValue.toString()));
         service.getMessageBus().publish(valueChangeMessage);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // read new value
         DataValue value = client.readValue(targets[0].getTargetId());
@@ -653,6 +653,7 @@ public class OpcUaEndpointTest {
         Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
 
         // Send event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementCreateEventMessage msg = new ElementCreateEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("http://i40.customer.com/type/1/1/7A7104BDAB57E184").build()).build());
@@ -665,7 +666,7 @@ public class OpcUaEndpointTest {
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the element is there now
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -706,6 +707,7 @@ public class OpcUaEndpointTest {
         Assert.assertTrue("testAddSubmodel Browse Result Bad", bpres[0].getStatusCode().isBad());
 
         // Send event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementCreateEventMessage msg = new ElementCreateEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.ASSET_ADMINISTRATION_SHELL).value("http://customer.com/aas/9175_7013_7091_9168").build())
@@ -771,7 +773,7 @@ public class OpcUaEndpointTest {
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the element is there now
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));

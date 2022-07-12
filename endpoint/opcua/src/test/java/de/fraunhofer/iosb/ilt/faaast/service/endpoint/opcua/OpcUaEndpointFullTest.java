@@ -60,6 +60,8 @@ import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASIdentifierTypeDataType;
 import opc.i4aas.AASKeyDataType;
@@ -552,6 +554,7 @@ public class OpcUaEndpointFullTest {
         Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
 
         // Send event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementCreateEventMessage msg = new ElementCreateEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("https://acplt.org/Test_Submodel3").build())
@@ -566,7 +569,7 @@ public class OpcUaEndpointFullTest {
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the element is there now
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -608,13 +611,14 @@ public class OpcUaEndpointFullTest {
         Assert.assertTrue("testDeleteSubmodel Browse Result 2 Good", bpres[1].getStatusCode().isGood());
 
         // Send event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("https://acplt.org/Test_Submodel2_Mandatory").build())
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the element is not there anymore
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -657,6 +661,7 @@ public class OpcUaEndpointFullTest {
         Assert.assertTrue("testDeleteCapability Browse Result 2 Good", bpres[1].getStatusCode().isGood());
 
         // Send event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("https://acplt.org/Test_Submodel_Template").build())
@@ -664,7 +669,7 @@ public class OpcUaEndpointFullTest {
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the element is not there anymore
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));

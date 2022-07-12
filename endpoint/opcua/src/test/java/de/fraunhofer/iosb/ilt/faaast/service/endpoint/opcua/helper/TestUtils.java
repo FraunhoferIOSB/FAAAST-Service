@@ -66,8 +66,6 @@ import org.junit.Assert;
  */
 public class TestUtils {
 
-    private static final long WRITE_TIMEOUT = 200;
-
     public static void initialize(UaClient client) throws SecureIdentityException, IOException, UnknownHostException {
         ApplicationDescription appDescription = new ApplicationDescription();
         appDescription.setApplicationName(new LocalizedText("AAS UnitTest Client", Locale.ENGLISH));
@@ -114,7 +112,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentificationNode Browse Result Null", bpres);
-        Assert.assertTrue("checkIdentificationNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkIdentificationNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkIdentificationNode Browse Target Node Null", targets);
@@ -133,7 +131,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkModelingKind Browse Result Null", bpres);
-        Assert.assertTrue("checkModelingKind Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkModelingKind Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkModelingKind Browse Target Node Null", targets);
@@ -152,7 +150,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("Category Result Null", bpres);
-        Assert.assertTrue("Category Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("Category Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("Browse Category Null", targets);
@@ -180,7 +178,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkDataSpecificationNode Browse Result Null", bpres);
-        Assert.assertTrue("checkDataSpecificationNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkDataSpecificationNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkDataSpecificationNode Node Targets Null", targets);
@@ -202,7 +200,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkBillOfMaterialNode Browse Result Null", bpres);
-        Assert.assertTrue("checkBillOfMaterialNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkBillOfMaterialNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkBillOfMaterialNode Node Targets Null", targets);
@@ -225,7 +223,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkQualifierNode Browse Result Null", bpres);
-        Assert.assertTrue("checkQualifierNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkQualifierNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkQualifierNode Node Targets Null", targets);
@@ -261,7 +259,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAdministrationNode Browse(1) Result Null", bpres);
-        Assert.assertTrue("checkAdministrationNode Browse(1) Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkAdministrationNode Browse(1) Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAdministrationNode Browse Administration Node Null", targets);
@@ -293,7 +291,7 @@ public class TestUtils {
         if (size > 0) {
             bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(administrationNode, relPath.toArray(RelativePath[]::new));
             Assert.assertNotNull("checkAdministrationNode Browse(2) Result Null", bpres);
-            Assert.assertTrue("checkAdministrationNode Browse(2) Result: size doesn't match", bpres.length == size);
+            Assert.assertEquals("checkAdministrationNode Browse(2) Result: size doesn't match", size, bpres.length);
 
             int index = 0;
             if (version != null) {
@@ -330,7 +328,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAssetInformationNode Browse(1) Result Null", bpres);
-        Assert.assertTrue("checkAssetInformationNode Browse(1) Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkAssetInformationNode Browse(1) Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAssetInformationNode Browse AssetInfo Node Null", targets);
@@ -365,7 +363,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkPropertyBool Browse Result Null", bpres);
-        Assert.assertTrue("checkPropertyBool Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkPropertyBool Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkPropertyBool Node Targets Null", targets);
@@ -387,7 +385,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyString Browse Property Result Null", bpres);
-        Assert.assertTrue("checkAasPropertyString Browse Property Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkAasPropertyString Browse Property Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAasPropertyString Property Null", targets);
@@ -410,7 +408,7 @@ public class TestUtils {
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyString Browse Value & Type Result Null", bpres);
-        Assert.assertTrue("checkAasPropertyString Browse Value & Type Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("checkAasPropertyString Browse Value & Type Result: size doesn't match", 2, bpres.length);
 
         targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAasPropertyString ValueType Null", targets);
@@ -447,7 +445,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyString Browse Property Result Null", bpres);
-        Assert.assertTrue("checkAasPropertyString Browse Property Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkAasPropertyString Browse Property Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAasPropertyString Property Null", targets);
@@ -470,7 +468,7 @@ public class TestUtils {
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyString Browse Value & Type Result Null", bpres);
-        Assert.assertTrue("checkAasPropertyString Browse Value & Type Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("checkAasPropertyString Browse Value & Type Result: size doesn't match", 2, bpres.length);
 
         targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAasPropertyString ValueType Null", targets);
@@ -500,7 +498,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyFile Browse Property Result Null", bpres);
-        Assert.assertTrue("checkAasPropertyFile Browse Property Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkAasPropertyFile Browse Property Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("checkAasPropertyFile Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -528,7 +526,7 @@ public class TestUtils {
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyFile Browse Value & Type Result Null", bpres);
-        Assert.assertTrue("checkAasPropertyFile Browse Value & Type Result: size doesn't match", bpres.length == 3);
+        Assert.assertEquals("checkAasPropertyFile Browse Value & Type Result: size doesn't match", 3, bpres.length);
 
         // MimeType
         targets = bpres[0].getTargets();
@@ -584,7 +582,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkSubmodelRef Browse Result Null", bpres);
-        Assert.assertTrue("checkSubmodelRef Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkSubmodelRef Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("checkSubmodelRef Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -619,9 +617,6 @@ public class TestUtils {
 
         client.writeValue(writeNode, newValue);
 
-        // wait until the write is finished completely
-        Thread.sleep(WRITE_TIMEOUT);
-
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -637,9 +632,6 @@ public class TestUtils {
 
         client.writeValue(writeNode, newValue);
 
-        // wait until the write is finished completely
-        Thread.sleep(WRITE_TIMEOUT);
-
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -654,9 +646,6 @@ public class TestUtils {
         Assert.assertArrayEquals("intial value not equal", oldValue, (AASKeyDataType[]) value.getValue().getValue());
 
         client.writeValue(writeNode, newValue);
-
-        // wait until the write is finished completely
-        Thread.sleep(WRITE_TIMEOUT);
 
         // read new value
         value = client.readValue(writeNode);
@@ -679,7 +668,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(identificationNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentification Browse Result Null", bpres);
-        Assert.assertTrue("checkIdentification Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("checkIdentification Browse Result: size doesn't match", 2, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkIdentification IdType Null", targets);
@@ -716,7 +705,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAssetKindNode Browse Result Null", bpres);
-        Assert.assertTrue("checkAssetKindNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkAssetKindNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAssetKindNode Browse Target Node Null", targets);
@@ -745,7 +734,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasReferenceNode Browse Result Null", bpres);
-        Assert.assertTrue("checkAasReferenceNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkAasReferenceNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAasReferenceNode Browse Target Node Null", targets);
@@ -795,7 +784,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentifierKeyValuePairListNode Browse Result Null", bpres);
-        Assert.assertTrue("checkIdentifierKeyValuePairListNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkIdentifierKeyValuePairListNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkIdentifierKeyValuePairListNode Browse Target Node Null", targets);
@@ -833,7 +822,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentifierKeyValuePairNode Browse Result Null", bpres);
-        Assert.assertTrue("checkIdentifierKeyValuePairNode Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("checkIdentifierKeyValuePairNode Browse Result: size doesn't match", 2, bpres.length);
 
         // Key
         BrowsePathTarget[] targets = bpres[0].getTargets();
