@@ -194,15 +194,7 @@ public class Server {
 
             uaServer.setUserValidator(userValidator);
 
-            if (endpoint.asConfig().getRegisterWithDiscoveryServer()) {
-                try {
-                    // Register to the local discovery server (if present)
-                    uaServer.setDiscoveryServerUrl(DISCOVERY_SERVER_URL);
-                }
-                catch (URISyntaxException e) {
-                    LOGGER.error("DiscoveryURL is not valid", e);
-                }
-            }
+            registerDiscovery();
             uaServer.init();
 
             initBuildInfo();
@@ -226,6 +218,19 @@ public class Server {
         catch (Exception ex) {
             LOGGER.error("startup Exception", ex);
             throw ex;
+        }
+    }
+
+
+    private void registerDiscovery() {
+        if (endpoint.asConfig().getRegisterWithDiscoveryServer()) {
+            try {
+                // Register to the local discovery server (if present)
+                uaServer.setDiscoveryServerUrl(DISCOVERY_SERVER_URL);
+            }
+            catch (URISyntaxException e) {
+                LOGGER.error("DiscoveryURL is not valid", e);
+            }
         }
     }
 
