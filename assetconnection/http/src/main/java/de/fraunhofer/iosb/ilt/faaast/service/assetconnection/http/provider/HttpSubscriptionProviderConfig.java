@@ -15,10 +15,124 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.content.ContentFormat;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Config file for HTTP-based
  * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider}.
  */
-public class HttpSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {}
+public class HttpSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
+    private ContentFormat contentFormat;
+    private String path;
+    private String query;
+    private String method;
+    private int interval;
+
+    public int getInterval() {
+        return interval;
+    }
+
+
+    public void setInterval(int interval) {
+        this.interval = interval;
+    }
+
+
+    public String getMethod() {
+        return method;
+    }
+
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+
+    public HttpSubscriptionProviderConfig() {
+        this.contentFormat = ContentFormat.DEFAULT;
+    }
+
+
+    public ContentFormat getContentFormat() {
+        return contentFormat;
+    }
+
+
+    public void setContentFormat(ContentFormat contentFormat) {
+        this.contentFormat = contentFormat;
+    }
+
+
+    public String getPath() {
+        return path;
+    }
+
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+
+    public String getQuery() {
+        return query;
+    }
+
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+
+    public static HttpSubscriptionProviderConfig.Builder builder() {
+        return new HttpSubscriptionProviderConfig.Builder();
+    }
+
+    public abstract static class AbstractBuilder<T extends HttpSubscriptionProviderConfig, B extends HttpSubscriptionProviderConfig.AbstractBuilder<T, B>>
+            extends ExtendableBuilder<T, B> {
+
+        public B query(String value) {
+            getBuildingInstance().setQuery(value);
+            return getSelf();
+        }
+
+
+        public B path(String value) {
+            getBuildingInstance().setPath(value);
+            return getSelf();
+        }
+
+
+        public B method(String value) {
+            getBuildingInstance().setMethod(value);
+            return getSelf();
+        }
+
+
+        public B interval(int value) {
+            getBuildingInstance().setInterval(value);
+            return getSelf();
+        }
+
+
+        public B contentFormat(ContentFormat value) {
+            getBuildingInstance().setContentFormat(value);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends HttpSubscriptionProviderConfig.AbstractBuilder<HttpSubscriptionProviderConfig, HttpSubscriptionProviderConfig.Builder> {
+
+        @Override
+        protected HttpSubscriptionProviderConfig.Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected HttpSubscriptionProviderConfig newBuildingInstance() {
+            return new HttpSubscriptionProviderConfig();
+        }
+    }
+}

@@ -44,7 +44,6 @@ import org.junit.Test;
 
 
 public class HttpAssetConnectionTest {
-    //private static final Reference DEFAULT_REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
     private static final String LOCALHOST = "127.0.0.1";
     private static int httpPort;
     private static HttpServer httpServer;
@@ -119,6 +118,7 @@ public class HttpAssetConnectionTest {
                         .valueProvider(reference,
                                 HttpValueProviderConfig.builder()
                                         .path("/test")
+                                        .method("GET")
                                         .contentFormat(ContentFormat.JSON)
                                         .build())
                         .serverUri(httpServerUri)
@@ -129,9 +129,38 @@ public class HttpAssetConnectionTest {
         DataElementValue actual = connection.getValueProviders().get(reference).getValue();
         Assert.assertEquals(expected, actual);
 
+        connection = new HttpAssetConnection(
+                CoreConfig.builder()
+                        .build(),
+                HttpAssetConnectionConfig.builder()
+                        .valueProvider(reference,
+                                HttpValueProviderConfig.builder()
+                                        .path("/test")
+                                        .method("PUT")
+                                        .contentFormat(ContentFormat.JSON)
+                                        .build())
+                        .serverUri(httpServerUri)
+                        .build(),
+                serviceContext);
+
         //change value
         PropertyValue change = PropertyValue.of(Datatype.INT, "8");
         connection.getValueProviders().get(reference).setValue(change);
+
+        connection = new HttpAssetConnection(
+                CoreConfig.builder()
+                        .build(),
+                HttpAssetConnectionConfig.builder()
+                        .valueProvider(reference,
+                                HttpValueProviderConfig.builder()
+                                        .path("/test")
+                                        .method("GET")
+                                        .contentFormat(ContentFormat.JSON)
+                                        .build())
+                        .serverUri(httpServerUri)
+                        .build(),
+                serviceContext);
+
         DataElementValue changed = connection.getValueProviders().get(reference).getValue();
         Assert.assertEquals(change, changed);
         connection.close();

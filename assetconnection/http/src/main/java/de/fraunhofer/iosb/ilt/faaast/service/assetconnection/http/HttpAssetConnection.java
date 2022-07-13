@@ -14,19 +14,19 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http;
 
+import static java.net.http.HttpClient.newHttpClient;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpOperationProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpSubscriptionProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpValueProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.*;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import io.adminshell.aas.v3.model.Reference;
+import java.net.http.HttpClient;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,11 +57,10 @@ import java.util.Map;
 public class HttpAssetConnection
         implements AssetConnection<HttpAssetConnectionConfig, HttpValueProviderConfig, HttpOperationProviderConfig, HttpSubscriptionProviderConfig> {
 
-    //private static final Logger LOGGER = LoggerFactory.getLogger(HttpAssetConnection.class);
-
     private HttpAssetConnectionConfig config;
     private final Map<Reference, AssetOperationProvider> operationProviders;
     private ServiceContext serviceContext;
+    private HttpClient client;
     private final Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
     private final Map<Reference, AssetValueProvider> valueProviders;
 
@@ -69,6 +68,7 @@ public class HttpAssetConnection
         this.valueProviders = new HashMap<>();
         this.operationProviders = new HashMap<>();
         this.subscriptionProviders = new HashMap<>();
+        client = newHttpClient();
     }
 
 
@@ -93,8 +93,13 @@ public class HttpAssetConnection
     }
 
 
+    /**
+     * HTTP client disconnects after request
+     */
     @Override
-    public void close() {}
+    public void close() {
+
+    }
 
 
     @Override
@@ -173,7 +178,13 @@ public class HttpAssetConnection
      */
     @Override
     public void registerSubscriptionProvider(Reference reference, HttpSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
-        throw new UnsupportedOperationException("subscriptions via HTTP not supported.");
+        if (reference == null) {
+            throw new IllegalArgumentException("reference must be non-null");
+        }
+        if (providerConfig == null) {
+            throw new IllegalArgumentException("providerConfig must be non-null");
+        }
+        this.subscriptionProviders.put(reference, new HttpSubscriptionProvider(this.client, serviceContext, reference, config.getServerUri(), providerConfig));
     }
 
 
@@ -191,7 +202,7 @@ public class HttpAssetConnection
         if (providerConfig == null) {
             throw new IllegalArgumentException("providerConfig must be non-null");
         }
-        this.valueProviders.put(reference, new HttpValueProvider(serviceContext, reference, config.getServerUri(), providerConfig));
+        this.valueProviders.put(reference, new HttpValueProvider(this.client, serviceContext, reference, config.getServerUri(), providerConfig));
     }
 
 

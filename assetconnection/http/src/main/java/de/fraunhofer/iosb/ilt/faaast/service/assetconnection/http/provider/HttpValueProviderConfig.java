@@ -28,6 +28,17 @@ public class HttpValueProviderConfig implements AssetValueProviderConfig {
     private ContentFormat contentFormat;
     private String path;
     private String query;
+    private String method;
+
+    public String getMethod() {
+        return method;
+    }
+
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
 
     public HttpValueProviderConfig() {
         this.contentFormat = ContentFormat.DEFAULT;
@@ -78,6 +89,12 @@ public class HttpValueProviderConfig implements AssetValueProviderConfig {
 
         public B path(String value) {
             getBuildingInstance().setPath(value);
+            return getSelf();
+        }
+
+
+        public B method(String value) {
+            getBuildingInstance().setMethod(value);
             return getSelf();
         }
 

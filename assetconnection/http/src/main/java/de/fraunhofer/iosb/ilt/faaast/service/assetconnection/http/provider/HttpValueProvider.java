@@ -24,8 +24,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 
 public class HttpValueProvider implements AssetValueProvider {
@@ -34,6 +37,7 @@ public class HttpValueProvider implements AssetValueProvider {
     private final Reference reference;
     private final ServiceContext serviceContext;
     private final String serverUri;
+    private final HttpClient client;
 
     /**
      * Creates new instance.
@@ -43,7 +47,7 @@ public class HttpValueProvider implements AssetValueProvider {
      * @throws IllegalArgumentException if client is null
      * @throws IllegalArgumentException if providerConfig is null
      */
-    public HttpValueProvider(ServiceContext serviceContext, Reference reference, String serverUri, HttpValueProviderConfig providerConfig) {
+    public HttpValueProvider(HttpClient client, ServiceContext serviceContext, Reference reference, String serverUri, HttpValueProviderConfig providerConfig) {
         if (serverUri == null) {
             throw new IllegalArgumentException("serverUri must be non-null");
         }
@@ -54,41 +58,46 @@ public class HttpValueProvider implements AssetValueProvider {
         this.providerConfig = providerConfig;
         this.serviceContext = serviceContext;
         this.reference = reference;
+        this.client = client;
     }
 
 
     @Override
     public DataElementValue getValue() throws AssetConnectionException {
         try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(serverUri + providerConfig.getPath()).openConnection();
-            connection.setRequestMethod("GET");
-            int statusCode = connection.getResponseCode();
-            String body = readInputStream(connection.getInputStream());
-            if (statusCode != connection.HTTP_OK) {
+            HttpRequest request = null;
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                    .uri(new URI(serverUri + providerConfig.getPath()))
+                    .header("Content-Type", "application/" + providerConfig.getContentFormat());
+
+            switch (providerConfig.getMethod()) {
+                case "GET":
+                    request = requestBuilder.GET().build();
+                    break;
+                case "POST":
+                    request = requestBuilder.POST(HttpRequest.BodyPublishers.noBody()).build();
+                    break;
+                case "PUT":
+                    request = requestBuilder.PUT(HttpRequest.BodyPublishers.noBody()).build();
+                    break;
+            }
+
+            if (request == null) {
                 throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)));
             }
-            connection.disconnect();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() < 200 || response.statusCode() > 226) {
+                throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)));
+            }
             return ContentDeserializerFactory
                     .create(providerConfig.getContentFormat())
-                    .read(body,
+                    .read(response.body(),
                             providerConfig.getQuery(),
                             serviceContext.getTypeInfo(reference));
         }
-        catch (IOException e) {
+        catch (IOException | URISyntaxException | InterruptedException e) {
             throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)), e);
         }
-    }
-
-
-    private String readInputStream(InputStream inputStream) throws IOException {
-        StringBuffer buffer = new StringBuffer();
-        String line;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line);
-            }
-        }
-        return buffer.toString();
     }
 
 
@@ -98,21 +107,35 @@ public class HttpValueProvider implements AssetValueProvider {
             if (!(value instanceof PropertyValue)) {
                 throw new AssetConnectionException(String.format("unsupported value (%s)", value.getClass().getSimpleName()));
             }
-            HttpURLConnection connection = (HttpURLConnection) new URL(serverUri + providerConfig.getPath()).openConnection();
-            connection.setRequestMethod("PUT");
-            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            connection.setDoOutput(true);
-            OutputStream os = connection.getOutputStream();
-            os.write(ContentSerializerFactory
+            HttpRequest request = null;
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                    .uri(new URI(serverUri + providerConfig.getPath()))
+                    .header("Content-Type", "application/" + providerConfig.getContentFormat());
+            String body = ContentSerializerFactory
                     .create(providerConfig.getContentFormat())
-                    .write(value, providerConfig.getQuery())
-                    .getBytes());
-            int statusCode = connection.getResponseCode();
-            if (statusCode != connection.HTTP_OK) {
-                throw new AssetConnectionException(String.format("error writing value with asset conenction (reference: %s)", AasUtils.asString(reference)));
+                    .write(value, providerConfig.getQuery());
+
+            switch (providerConfig.getMethod()) {
+                case "GET":
+                    request = requestBuilder.GET().build();
+                    break;
+                case "POST":
+                    request = requestBuilder.POST(HttpRequest.BodyPublishers.ofString(body)).build();
+                    break;
+                case "PUT":
+                    request = requestBuilder.PUT(HttpRequest.BodyPublishers.ofString(body)).build();
+                    break;
+            }
+
+            if (request == null) {
+                throw new AssetConnectionException(String.format("error reading value from asset connection (reference: %s)", AasUtils.asString(reference)));
+            }
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() < 200 || response.statusCode() > 226) {
+                throw new AssetConnectionException(String.format("error reading value from asset connection (reference: %s)", AasUtils.asString(reference)));
             }
         }
-        catch (IOException e) {
+        catch (IOException | URISyntaxException | InterruptedException e) {
             throw new AssetConnectionException("writing value via HTTP asset connection failed", e);
         }
     }
