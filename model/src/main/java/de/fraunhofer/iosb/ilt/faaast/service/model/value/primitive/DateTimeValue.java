@@ -56,7 +56,13 @@ public class DateTimeValue extends TypedValue<ZonedDateTime> {
         catch (DateTimeParseException ex) {
             // If the string can't be parsed, we try to interpret it as UTC (if the time zone is missing)
             LOGGER.trace("fromString: parse with time zone failed, try to parse with the default time zone");
-            this.setValue(LocalDateTime.parse(value).atZone(ZoneId.of(DEFAULT_TIMEZONE)));
+            try {
+                this.setValue(LocalDateTime.parse(value).atZone(ZoneId.of(DEFAULT_TIMEZONE)));
+            }
+            catch (DateTimeParseException dtpe) {
+                LOGGER.warn("fromString: no valid DateTime: {}", value);
+                throw new ValueFormatException("no valid DateTime", dtpe);
+            }
         }
     }
 
