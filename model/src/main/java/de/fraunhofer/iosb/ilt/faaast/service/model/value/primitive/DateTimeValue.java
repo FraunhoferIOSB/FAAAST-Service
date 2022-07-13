@@ -39,12 +39,6 @@ public class DateTimeValue extends TypedValue<ZonedDateTime> {
 
 
     @Override
-    public String asString() {
-        return value != null ? value.toString() : "";
-    }
-
-
-    @Override
     public void fromString(String value) throws ValueFormatException {
         if (value == null) {
             this.setValue(null);
