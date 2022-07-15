@@ -18,7 +18,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util;
  * Constants used by HTTP
  */
 public class HttpConstants {
-    private HttpConstants() {}
 
     public static final String CONTENT_TYPE = "Content-Type";
+
+    private HttpConstants() {}
 }
