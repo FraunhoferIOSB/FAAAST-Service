@@ -28,6 +28,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * Abstract base class for custom implementations of AssetSubscriptionProvider
  * supporting multiple data formats.
@@ -46,6 +47,7 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
         this.listeners = Collections.synchronizedList(new ArrayList<>());
     }
 
+
     @Override
     public void addNewDataListener(NewDataListener listener) throws AssetConnectionException {
         if (listeners.isEmpty()) {
@@ -53,6 +55,7 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
         }
         listeners.add(listener);
     }
+
 
     /**
      * Notifies all listeners about new event
@@ -66,17 +69,20 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
                 listeners.forEach(x -> {
                     try {
                         x.newDataReceived(newValue);
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         LOGGER.warn("error while calling newDataReceived handler", e);
                     }
                 });
             }
-        } catch (AssetConnectionException e) {
+        }
+        catch (AssetConnectionException e) {
             LOGGER.error("error deserializing message (received message: {})",
                     new String(value),
                     e);
         }
     }
+
 
     @Override
     public void removeNewDataListener(NewDataListener listener) throws AssetConnectionException {
@@ -86,6 +92,7 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
         }
     }
 
+
     /**
      * Gets type information about the underlying element
      *
@@ -93,12 +100,14 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
      */
     protected abstract TypeInfo getTypeInfo();
 
+
     /**
      * Subscribe via underlying protocol
      *
      * @throws AssetConnectionException if subscription fails
      */
     protected abstract void subscribe() throws AssetConnectionException;
+
 
     /**
      * Unsubscribe via underlying protocol
