@@ -20,11 +20,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttSubscriptionProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttValueProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -207,7 +207,7 @@ public class MqttAssetConnection
     public void registerSubscriptionProvider(Reference reference, MqttSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
         Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
-        this.subscriptionProviders.put(reference, new MqttSubscriptionProvider(serviceContext, client, reference, providerConfig));
+        this.subscriptionProviders.put(reference, new MqttSubscriptionProvider(serviceContext, reference, client, providerConfig));
     }
 
 
@@ -221,7 +221,7 @@ public class MqttAssetConnection
     public void registerValueProvider(Reference reference, MqttValueProviderConfig providerConfig) throws AssetConnectionException {
         Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
-        this.valueProviders.put(reference, new MqttValueProvider(client, providerConfig));
+        this.valueProviders.put(reference, new MqttValueProvider(serviceContext, reference, client, providerConfig));
     }
 
 

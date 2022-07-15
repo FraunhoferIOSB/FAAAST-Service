@@ -20,13 +20,19 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpOperationProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpValueProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
+import java.net.MalformedURLException;
+import java.net.http.HttpClient;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,8 +63,7 @@ import java.util.Map;
 public class HttpAssetConnection
         implements AssetConnection<HttpAssetConnectionConfig, HttpValueProviderConfig, HttpOperationProviderConfig, HttpSubscriptionProviderConfig> {
 
-    //private static final Logger LOGGER = LoggerFactory.getLogger(HttpAssetConnection.class);
-
+    private final HttpClient client;
     private HttpAssetConnectionConfig config;
     private final Map<Reference, AssetOperationProvider> operationProviders;
     private ServiceContext serviceContext;
@@ -66,21 +71,13 @@ public class HttpAssetConnection
     private final Map<Reference, AssetValueProvider> valueProviders;
 
     public HttpAssetConnection() {
-        this.valueProviders = new HashMap<>();
-        this.operationProviders = new HashMap<>();
-        this.subscriptionProviders = new HashMap<>();
+        client = HttpClient.newBuilder().build();
+        valueProviders = new HashMap<>();
+        operationProviders = new HashMap<>();
+        subscriptionProviders = new HashMap<>();
     }
 
 
-    /**
-     * Consutrctor to conveniently create and init asset connection from code.
-     *
-     * @param coreConfig core configuration
-     * @param config asset connection configuration
-     * @param serviceContext service context which this asset connection is
-     *            running in
-     * @throws ConfigurationInitializationException if initialization fails
-     */
     protected HttpAssetConnection(CoreConfig coreConfig, HttpAssetConnectionConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this();
         init(coreConfig, config, serviceContext);
@@ -124,16 +121,9 @@ public class HttpAssetConnection
      */
     @Override
     public void init(CoreConfig coreConfig, HttpAssetConnectionConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
-        if (coreConfig == null) {
-            throw new IllegalArgumentException("coreConfig must be non-null");
-        }
-        if (config == null) {
-            throw new IllegalArgumentException("config must be non-null");
-        }
-        if (serviceContext == null) {
-            throw new IllegalArgumentException("serviceContext must be non-null");
-        }
-
+        Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
+        Ensure.requireNonNull(config, "config must be non-null");
+        Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         this.config = config;
         this.serviceContext = serviceContext;
         try {
@@ -161,7 +151,9 @@ public class HttpAssetConnection
      */
     @Override
     public void registerOperationProvider(Reference reference, HttpOperationProviderConfig providerConfig) throws AssetConnectionException {
-        throw new UnsupportedOperationException("executing operations via HTTP not supported.");
+        Ensure.requireNonNull(reference, "reference must be non-null");
+        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
+        this.operationProviders.put(reference, new HttpOperationProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig));
     }
 
 
@@ -173,7 +165,9 @@ public class HttpAssetConnection
      */
     @Override
     public void registerSubscriptionProvider(Reference reference, HttpSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
-        throw new UnsupportedOperationException("subscriptions via HTTP not supported.");
+        Ensure.requireNonNull(reference, "reference must be non-null");
+        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
+        this.subscriptionProviders.put(reference, new HttpSubscriptionProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig));
     }
 
 
@@ -191,7 +185,12 @@ public class HttpAssetConnection
         if (providerConfig == null) {
             throw new IllegalArgumentException("providerConfig must be non-null");
         }
-        this.valueProviders.put(reference, new HttpValueProvider(serviceContext, reference, config.getServerUri(), providerConfig));
+        try {
+            this.valueProviders.put(reference, new HttpValueProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig));
+        }
+        catch (MalformedURLException ex) {
+            throw new AssetConnectionException(String.format("error registering HTTP value provider (reference: %s)", AasUtils.asString(reference)), ex);
+        }
     }
 
 

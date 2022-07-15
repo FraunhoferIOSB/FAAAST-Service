@@ -15,9 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpOperationProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpSubscriptionProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Objects;
 
 
@@ -26,21 +28,21 @@ import java.util.Objects;
  */
 public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetConnection, HttpValueProviderConfig, HttpOperationProviderConfig, HttpSubscriptionProviderConfig> {
 
-    private String serverUri;
+    private URL baseUrl;
 
-    public String getServerUri() {
-        return serverUri;
+    public URL getBaseUrl() {
+        return baseUrl;
     }
 
 
-    public void setServerUri(String serverUri) {
-        this.serverUri = serverUri;
+    public void setBaseUrl(URL baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(serverUri);
+        return Objects.hash(baseUrl);
     }
 
 
@@ -56,10 +58,10 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
             return false;
         }
         final HttpAssetConnectionConfig other = (HttpAssetConnectionConfig) obj;
-        if (!Objects.equals(this.serverUri, other.serverUri)) {
+        if (!Objects.equals(this.baseUrl, other.baseUrl)) {
             return false;
         }
-        return Objects.equals(this.serverUri, other.serverUri);
+        return Objects.equals(this.baseUrl, other.baseUrl);
     }
 
 
@@ -71,8 +73,14 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
             extends
             AssetConnectionConfig.AbstractBuilder<HttpAssetConnectionConfig, HttpValueProviderConfig, HttpOperationProviderConfig, HttpSubscriptionProviderConfig, HttpAssetConnection, B> {
 
-        public B serverUri(String value) {
-            getBuildingInstance().setServerUri(value);
+        public B baseUrl(URL value) {
+            getBuildingInstance().setBaseUrl(value);
+            return getSelf();
+        }
+
+
+        public B baseUrl(String value) throws MalformedURLException {
+            getBuildingInstance().setBaseUrl(new URL(value));
             return getSelf();
         }
 

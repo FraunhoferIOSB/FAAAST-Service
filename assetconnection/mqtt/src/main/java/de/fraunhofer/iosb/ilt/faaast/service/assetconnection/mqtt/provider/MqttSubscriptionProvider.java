@@ -16,96 +16,68 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentDeserializerFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatSubscriptionProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
-public class MqttSubscriptionProvider implements AssetSubscriptionProvider {
+/**
+ * SubscriptionProvider for MQTT protocol
+ */
+public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<MqttSubscriptionProviderConfig> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MqttSubscriptionProvider.class);
-    private final MqttClient client;
-    private final MqttSubscriptionProviderConfig providerConfig;
-    private final Reference reference;
     private final ServiceContext serviceContext;
-    private final List<NewDataListener> listeners;
+    private final Reference reference;
+    private final MqttClient client;
 
-    public MqttSubscriptionProvider(ServiceContext serviceContext, MqttClient client, Reference reference, MqttSubscriptionProviderConfig providerConfig) {
-        this.listeners = new CopyOnWriteArrayList<>();
+    public MqttSubscriptionProvider(ServiceContext serviceContext, Reference reference, MqttClient client, MqttSubscriptionProviderConfig config) {
+        super(config);
+        Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
+        Ensure.requireNonNull(reference, "reference must be non-null");
+        Ensure.requireNonNull(client, "client must be non-null");
         this.serviceContext = serviceContext;
-        this.client = client;
         this.reference = reference;
-        this.providerConfig = providerConfig;
+        this.client = client;
     }
 
 
-    private void subscribe() throws AssetConnectionException {
+    @Override
+    protected TypeInfo getTypeInfo() {
+        return serviceContext.getTypeInfo(reference);
+    }
+
+
+    @Override
+    protected void subscribe() throws AssetConnectionException {
         try {
-            client.subscribe(providerConfig.getTopic(),
-                    (topic, message) -> listeners.forEach(x -> {
-                        try {
-                            x.newDataReceived(ContentDeserializerFactory
-                                    .create(providerConfig.getContentFormat())
-                                    .read(new String(message.getPayload()),
-                                            providerConfig.getQuery(),
-                                            serviceContext.getTypeInfo(reference)));
-                        }
-                        catch (AssetConnectionException e) {
-                            LOGGER.error("error deserializing MQTT message (reference: {}, topic: {}, received message: {}",
-                                    AasUtils.asString(reference),
-                                    topic,
-                                    new String(message.getPayload()),
-                                    e);
-                        }
-                    }));
+            client.subscribe(config.getTopic(), (topic, message) -> fireNewDataReceived(message.getPayload()));
         }
         catch (MqttException e) {
             throw new AssetConnectionException(
                     String.format("error subscribing to MQTT asset connection (reference: %s, topic: %s)",
                             AasUtils.asString(reference),
-                            providerConfig.getTopic()),
+                            config.getTopic()),
                     e);
         }
-
     }
 
 
-    private void unsubscribe() throws AssetConnectionException {
+    @Override
+    protected void unsubscribe() throws AssetConnectionException {
         try {
-            client.unsubscribe(providerConfig.getTopic());
+            client.unsubscribe(config.getTopic());
         }
         catch (MqttException e) {
             throw new AssetConnectionException(
                     String.format("error unsubscribing from MQTT asset connection (reference: %s, topic: %s)",
                             AasUtils.asString(reference),
-                            providerConfig.getTopic()),
+                            config.getTopic()),
                     e);
-        }
-    }
-
-
-    @Override
-    public void addNewDataListener(NewDataListener listener) throws AssetConnectionException {
-        if (listeners.isEmpty()) {
-            subscribe();
-        }
-        listeners.add(listener);
-    }
-
-
-    @Override
-    public void removeNewDataListener(NewDataListener listener) throws AssetConnectionException {
-        listeners.remove(listener);
-        if (listeners.isEmpty()) {
-            unsubscribe();
         }
     }
 }
