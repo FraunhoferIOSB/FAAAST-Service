@@ -184,6 +184,8 @@ public class JsonDeserializerTest {
         assertValue(PropertyValues.PROPERTY_DOUBLE, PropertyValues.PROPERTY_DOUBLE_FILE, PropertyValue.class, Datatype.DOUBLE);
         assertValue(PropertyValues.PROPERTY_INT, PropertyValues.PROPERTY_INT_FILE);
         assertValue(PropertyValues.PROPERTY_INT, PropertyValues.PROPERTY_INT_FILE, PropertyValue.class, Datatype.INT);
+        assertValue(PropertyValues.PROPERTY_DATETIME, PropertyValues.PROPERTY_DATETIME_FILE);
+        assertValue(PropertyValues.PROPERTY_DATETIME, PropertyValues.PROPERTY_DATETIME_FILE, PropertyValue.class, Datatype.DATE_TIME);
     }
 
 

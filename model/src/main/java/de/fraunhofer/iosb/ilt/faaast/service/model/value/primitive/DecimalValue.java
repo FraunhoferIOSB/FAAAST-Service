@@ -30,12 +30,6 @@ public class DecimalValue extends TypedValue<BigDecimal> {
 
 
     @Override
-    public String asString() {
-        return value != null ? value.toString() : "";
-    }
-
-
-    @Override
     public void fromString(String value) throws ValueFormatException {
         if (value == null) {
             this.setValue(null);
