@@ -39,7 +39,9 @@ public abstract class TypedValue<T> {
      *
      * @return string representation of the actual value.
      */
-    public abstract String asString();
+    public String asString() {
+        return value != null ? value.toString() : "";
+    }
 
 
     @Override

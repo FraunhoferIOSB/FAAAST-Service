@@ -637,6 +637,7 @@ public class TestUtils {
         Assert.assertTrue("checkAasPropertyString Property empty", targets.length > 0);
         NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
+        checkType(client, propertyNode, new NodeId(aasns, TestConstants.AAS_PROPERTY_TYPE_ID));
         checkDisplayName(client, propertyNode, name);
         checkCategoryNode(client, propertyNode, aasns, category);
         checkModelingKindNode(client, propertyNode, aasns, kind);

@@ -30,7 +30,7 @@ public enum Datatype {
     // TODO implement all data types
     //    Date,
     //    Time,
-    //    DateTime,
+    DATE_TIME("datetime", DateTimeValue.class),
     //    DateTimeStamp,
     //    gYear,
     //    gMonth,
