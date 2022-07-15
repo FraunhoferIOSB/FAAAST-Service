@@ -35,6 +35,9 @@ public class FormatFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(FormatFactory.class);
     private static Map<String, Class<? extends Format>> formats;
 
+    private FormatFactory() {}
+
+
     private static void init() {
         if (formats != null) {
             return;

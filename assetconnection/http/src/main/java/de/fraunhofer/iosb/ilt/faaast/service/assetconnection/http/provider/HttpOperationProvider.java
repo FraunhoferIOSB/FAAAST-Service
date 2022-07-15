@@ -29,7 +29,7 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import org.apache.maven.shared.utils.StringUtils;
 
 
@@ -64,7 +64,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
 
 
     @Override
-    protected byte[] invoke(byte[] input, Function<String, String> variableReplacer) throws AssetConnectionException {
+    protected byte[] invoke(byte[] input, UnaryOperator<String> variableReplacer) throws AssetConnectionException {
         try {
             HttpResponse<byte[]> response = HttpHelper.execute(
                     client,
@@ -82,6 +82,7 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
             return response.body();
         }
         catch (IOException | URISyntaxException | InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", AasUtils.asString(reference)), e);
         }
     }

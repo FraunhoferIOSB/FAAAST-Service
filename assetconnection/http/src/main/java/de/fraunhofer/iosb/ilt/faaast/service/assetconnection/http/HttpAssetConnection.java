@@ -29,9 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.confi
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
-import java.net.MalformedURLException;
 import java.net.http.HttpClient;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,7 +89,9 @@ public class HttpAssetConnection
 
 
     @Override
-    public void close() {}
+    public void close() {
+        // no need to close a HTTP connection
+    }
 
 
     @Override
@@ -185,12 +185,7 @@ public class HttpAssetConnection
         if (providerConfig == null) {
             throw new IllegalArgumentException("providerConfig must be non-null");
         }
-        try {
-            this.valueProviders.put(reference, new HttpValueProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig));
-        }
-        catch (MalformedURLException ex) {
-            throw new AssetConnectionException(String.format("error registering HTTP value provider (reference: %s)", AasUtils.asString(reference)), ex);
-        }
+        this.valueProviders.put(reference, new HttpValueProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig));
     }
 
 

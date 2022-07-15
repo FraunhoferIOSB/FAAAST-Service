@@ -23,9 +23,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 public class ElementInfo {
 
     private final String query;
-    private final TypeInfo typeInfo;
+    private final TypeInfo<?> typeInfo;
 
-    public ElementInfo(String query, TypeInfo typeInfo) {
+    public ElementInfo(String query, TypeInfo<?> typeInfo) {
         this.query = query;
         this.typeInfo = typeInfo;
     }
@@ -36,12 +36,12 @@ public class ElementInfo {
     }
 
 
-    public TypeInfo getTypeInfo() {
+    public TypeInfo<?> getTypeInfo() {
         return typeInfo;
     }
 
 
-    public static ElementInfo of(String query, TypeInfo typeInfo) {
+    public static ElementInfo of(String query, TypeInfo<?> typeInfo) {
         return new ElementInfo(query, typeInfo);
     }
 }

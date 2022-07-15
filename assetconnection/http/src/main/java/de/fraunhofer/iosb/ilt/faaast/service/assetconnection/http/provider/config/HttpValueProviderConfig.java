@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatValueProviderConfig;
+import java.util.Objects;
 
 
 /**
@@ -43,6 +44,27 @@ public class HttpValueProviderConfig extends AbstractMultiFormatValueProviderCon
 
     public void setWriteMethod(String writeMethod) {
         this.writeMethod = writeMethod;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HttpValueProviderConfig that = (HttpValueProviderConfig) o;
+        return super.equals(that)
+                && Objects.equals(path, that.path)
+                && Objects.equals(writeMethod, that.writeMethod);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), path, writeMethod);
     }
 
 

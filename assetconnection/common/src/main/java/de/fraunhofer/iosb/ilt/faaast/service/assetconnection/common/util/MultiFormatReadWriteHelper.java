@@ -35,7 +35,7 @@ public class MultiFormatReadWriteHelper {
     private MultiFormatReadWriteHelper() {}
 
 
-    public static DataElementValue convertForRead(MultiFormatReadProviderConfig config, byte[] value, TypeInfo typeinfo) throws AssetConnectionException {
+    public static DataElementValue convertForRead(MultiFormatReadProviderConfig config, byte[] value, TypeInfo<?> typeinfo) throws AssetConnectionException {
         return FormatFactory
                 .create(config.getFormat())
                 .read(new String(value), config.getQuery(), typeinfo);

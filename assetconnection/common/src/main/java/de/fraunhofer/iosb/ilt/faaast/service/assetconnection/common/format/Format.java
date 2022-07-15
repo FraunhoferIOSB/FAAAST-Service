@@ -60,7 +60,7 @@ public interface Format {
      * @return the deserialized value
      * @throws AssetConnectionException if deserialization fails
      */
-    public default DataElementValue read(String value, String query, TypeInfo typeInfo) throws AssetConnectionException {
+    public default DataElementValue read(String value, String query, TypeInfo<?> typeInfo) throws AssetConnectionException {
         return read(value, ElementInfo.of(query, typeInfo));
     }
 

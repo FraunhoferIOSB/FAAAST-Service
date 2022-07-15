@@ -86,6 +86,7 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
             return response.body();
         }
         catch (IOException | InterruptedException | URISyntaxException e) {
+            Thread.currentThread().interrupt();
             throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)), e);
         }
     }

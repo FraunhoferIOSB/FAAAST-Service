@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatSubscriptionProviderConfig;
+import java.util.Objects;
 
 
 /**
@@ -65,6 +66,29 @@ public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscript
 
     public void setPayload(String payload) {
         this.payload = payload;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HttpSubscriptionProviderConfig that = (HttpSubscriptionProviderConfig) o;
+        return super.equals(that)
+                && Objects.equals(path, that.path)
+                && Objects.equals(method, that.method)
+                && Objects.equals(payload, that.payload)
+                && Objects.equals(interval, that.interval);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), path, method, payload, interval);
     }
 
 

@@ -24,7 +24,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpClient;
@@ -39,6 +38,7 @@ import org.apache.maven.shared.utils.StringUtils;
  */
 public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProviderConfig> {
 
+    private static final String BASE_ERROR_MESSAGE = "error reading value from asset conenction (reference: %s)";
     public static final String DEFAULT_READ_METHOD = "GET";
     public static final String DEFAULT_WRITE_METHOD = "PUT";
     private final ServiceContext serviceContext;
@@ -46,7 +46,7 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
     private final HttpClient client;
     private final URL baseUrl;
 
-    public HttpValueProvider(ServiceContext serviceContext, Reference reference, HttpClient client, URL baseUrl, HttpValueProviderConfig config) throws MalformedURLException {
+    public HttpValueProvider(ServiceContext serviceContext, Reference reference, HttpClient client, URL baseUrl, HttpValueProviderConfig config) {
         super(config);
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         Ensure.requireNonNull(reference, "reference must be non-null");
@@ -71,12 +71,13 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                     BodyPublishers.noBody(),
                     BodyHandlers.ofByteArray());
             if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)));
+                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)));
             }
             return response.body();
         }
         catch (IOException | InterruptedException | URISyntaxException e) {
-            throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)), e);
+            Thread.currentThread().interrupt();
+            throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)), e);
         }
     }
 
@@ -95,10 +96,11 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                     BodyPublishers.ofByteArray(value),
                     BodyHandlers.ofString());
             if (!HttpHelper.is2xxSuccessful(response)) {
-                throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)));
+                throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)));
             }
         }
         catch (IOException | URISyntaxException | InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new AssetConnectionException("writing value via HTTP asset connection failed", e);
         }
     }

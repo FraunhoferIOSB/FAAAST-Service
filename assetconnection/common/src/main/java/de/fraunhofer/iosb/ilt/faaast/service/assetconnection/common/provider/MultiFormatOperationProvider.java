@@ -33,8 +33,9 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,19 +61,19 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
         final Map<String, DataElementValue> inputParameter = parseParameters(input);
         final Map<String, DataElementValue> inoutputParameter = parseParameters(inoutput);
         Set<String> duplicateInputParameters = inputParameter.keySet().stream()
-                .filter(x -> inoutputParameter.containsKey(x))
+                .filter(inoutputParameter::containsKey)
                 .collect(Collectors.toSet());
         if (!duplicateInputParameters.isEmpty()) {
-            throw new AssetConnectionException(String.format("duplicate input/inoutput parameter(s) found - must be either input or inoutput parameter but not both(",
+            throw new AssetConnectionException(String.format("duplicate input/inoutput parameter(s) found - must be either input or inoutput parameter but not both(%s)",
                     String.join(",", duplicateInputParameters)));
         }
         Format format = FormatFactory.create(config.getFormat());
         // handle inoutput
         Map<String, Object> variableReplacements = Stream.concat(inputParameter.entrySet().stream(), inoutputParameter.entrySet().stream())
                 .collect(Collectors.toMap(
-                        x -> x.getKey(),
+                        Entry::getKey,
                         LambdaExceptionHelper.rethrowFunction(x -> format.write(x.getValue()))));
-        Function<String, String> variableReplacer = x -> TemplateHelper.replace(x, variableReplacements);
+        UnaryOperator<String> variableReplacer = x -> TemplateHelper.replace(x, variableReplacements);
         String request = variableReplacer.apply(config.getTemplate());
         String response = new String(invoke(request != null ? request.getBytes() : new byte[0], variableReplacer));
         Map<String, ElementInfo> mapping = Stream.concat(Stream.of(getOutputParameters()), Stream.of(inoutput))
@@ -139,5 +140,5 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
      * @return result of executing the operation
      * @throws AssetConnectionException if operation fails
      */
-    protected abstract byte[] invoke(byte[] input, Function<String, String> variableReplacer) throws AssetConnectionException;
+    protected abstract byte[] invoke(byte[] input, UnaryOperator<String> variableReplacer) throws AssetConnectionException;
 }

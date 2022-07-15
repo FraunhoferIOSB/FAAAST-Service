@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.codehaus.plexus.util.StringUtils;
 
@@ -66,7 +67,7 @@ public class JsonFormat implements Format {
             return elements.keySet().stream().collect(Collectors.toMap(x -> x, x -> null));
         }
         return elements.entrySet().stream().collect(Collectors.toMap(
-                x -> x.getKey(),
+                Entry::getKey,
                 LambdaExceptionHelper.rethrowFunction(x -> {
                     String query = x.getValue().getQuery();
                     String actualValue = value;
@@ -85,7 +86,7 @@ public class JsonFormat implements Format {
                         }
                     }
                     try {
-                        TypeInfo typeInfo = x.getValue().getTypeInfo();
+                        TypeInfo<?> typeInfo = x.getValue().getTypeInfo();
                         // if datatype is string, we need to wrap it with additional quotes
                         if (typeInfo != null
                                 && ElementValueTypeInfo.class.isAssignableFrom(typeInfo.getClass())

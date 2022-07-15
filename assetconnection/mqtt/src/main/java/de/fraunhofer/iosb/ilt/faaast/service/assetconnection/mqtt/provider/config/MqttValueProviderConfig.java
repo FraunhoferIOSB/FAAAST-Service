@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatValueProviderConfig;
+import java.util.Objects;
 
 
 /**
@@ -32,6 +33,26 @@ public class MqttValueProviderConfig extends AbstractMultiFormatValueProviderCon
 
     public void setTopic(String topic) {
         this.topic = topic;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        MqttValueProviderConfig that = (MqttValueProviderConfig) o;
+        return super.equals(that)
+                && Objects.equals(topic, that.topic);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), topic);
     }
 
 

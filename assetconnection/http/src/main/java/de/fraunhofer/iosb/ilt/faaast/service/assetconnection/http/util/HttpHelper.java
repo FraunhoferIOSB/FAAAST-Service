@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.format.FormatFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpClient;
@@ -54,7 +53,7 @@ public class HttpHelper {
                                               String method,
                                               BodyPublisher bodyPublisher,
                                               BodyHandler<T> bodyHandler)
-            throws MalformedURLException, URISyntaxException, IOException, InterruptedException {
+            throws URISyntaxException, IOException, InterruptedException {
         Ensure.requireNonNull(client, "client must be non-null");
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
         Ensure.requireNonNull(path, "path must be non-null");

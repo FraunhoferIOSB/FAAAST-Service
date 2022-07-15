@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatOperationProviderConfig;
+import java.util.Objects;
 
 
 /**
@@ -43,6 +44,27 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
 
     public void setMethod(String method) {
         this.method = method;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HttpOperationProviderConfig that = (HttpOperationProviderConfig) o;
+        return super.equals(that)
+                && Objects.equals(path, that.path)
+                && Objects.equals(method, that.method);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), path, method);
     }
 
 
