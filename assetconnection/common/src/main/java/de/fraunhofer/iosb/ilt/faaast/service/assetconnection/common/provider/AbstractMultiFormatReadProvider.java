@@ -49,5 +49,5 @@ public abstract class AbstractMultiFormatReadProvider<T extends MultiFormatReadP
      *
      * @return the type information
      */
-    protected abstract TypeInfo<?> getTypeInfo();
+    protected abstract TypeInfo getTypeInfo();
 }

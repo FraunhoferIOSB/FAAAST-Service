@@ -14,42 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config;
 
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 /**
  * Base class for AssetValueProviderConfig supporting multiple data formats
  */
-public abstract class AbstractMultiFormatValueProviderConfig implements MultiFormatValueProviderConfig {
+public abstract class AbstractMultiFormatValueProviderConfig extends AbstractMultiFormatProviderConfig implements MultiFormatValueProviderConfig {
 
-    protected String format;
-    protected String template;
     protected String query;
-
-    @Override
-    public String getFormat() {
-        return format;
-    }
-
-
-    @Override
-    public void setFormat(String format) {
-        this.format = format;
-    }
-
-
-    @Override
-    public String getTemplate() {
-        return template;
-    }
-
-
-    @Override
-    public void setTemplate(String template) {
-        this.template = template;
-    }
-
 
     @Override
     public String getQuery() {
@@ -73,33 +46,20 @@ public abstract class AbstractMultiFormatValueProviderConfig implements MultiFor
         }
         AbstractMultiFormatValueProviderConfig that = (AbstractMultiFormatValueProviderConfig) o;
         return super.equals(that)
-                && Objects.equals(format, that.format)
-                && Objects.equals(template, that.template)
                 && Objects.equals(query, that.query);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(format, template, query);
+        return Objects.hash(super.hashCode(), query);
     }
 
-    protected abstract static class AbstractBuilder<T extends AbstractMultiFormatValueProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    protected abstract static class AbstractBuilder<T extends AbstractMultiFormatValueProviderConfig, B extends AbstractBuilder<T, B>>
+            extends AbstractMultiFormatProviderConfig.AbstractBuilder<T, B> {
 
         public B query(String value) {
             getBuildingInstance().setQuery(value);
-            return getSelf();
-        }
-
-
-        public B format(String value) {
-            getBuildingInstance().setFormat(value);
-            return getSelf();
-        }
-
-
-        public B template(String value) {
-            getBuildingInstance().setTemplate(value);
             return getSelf();
         }
     }

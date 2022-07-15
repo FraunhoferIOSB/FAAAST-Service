@@ -98,7 +98,7 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
      *
      * @return
      */
-    protected abstract TypeInfo<?> getTypeInfo();
+    protected abstract TypeInfo getTypeInfo();
 
 
     /**

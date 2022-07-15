@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config;
 
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -23,38 +22,12 @@ import java.util.Objects;
 /**
  * Base class for AssetOperationProviderConfig supporting multiple data formats
  */
-public abstract class AbstractMultiFormatOperationProviderConfig implements MultiFormatOperationProviderConfig {
+public abstract class AbstractMultiFormatOperationProviderConfig extends AbstractMultiFormatProviderConfig implements MultiFormatOperationProviderConfig {
 
-    protected String format;
-    protected String template;
     protected Map<String, String> queries;
 
     protected AbstractMultiFormatOperationProviderConfig() {
         this.queries = new HashMap<>();
-    }
-
-
-    @Override
-    public String getFormat() {
-        return format;
-    }
-
-
-    @Override
-    public void setFormat(String format) {
-        this.format = format;
-    }
-
-
-    @Override
-    public String getTemplate() {
-        return template;
-    }
-
-
-    @Override
-    public void setTemplate(String template) {
-        this.template = template;
     }
 
 
@@ -80,18 +53,17 @@ public abstract class AbstractMultiFormatOperationProviderConfig implements Mult
         }
         AbstractMultiFormatOperationProviderConfig that = (AbstractMultiFormatOperationProviderConfig) o;
         return super.equals(that)
-                && Objects.equals(format, that.format)
-                && Objects.equals(template, that.template)
                 && Objects.equals(queries, that.queries);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(format, template, queries);
+        return Objects.hash(super.hashCode(), queries);
     }
 
-    protected abstract static class AbstractBuilder<T extends AbstractMultiFormatOperationProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    protected abstract static class AbstractBuilder<T extends AbstractMultiFormatOperationProviderConfig, B extends AbstractBuilder<T, B>>
+            extends AbstractMultiFormatProviderConfig.AbstractBuilder<T, B> {
 
         public B query(String name, String query) {
             getBuildingInstance().getQueries().put(name, query);
@@ -101,18 +73,6 @@ public abstract class AbstractMultiFormatOperationProviderConfig implements Mult
 
         public B queries(Map<String, String> value) {
             getBuildingInstance().setQueries(value);
-            return getSelf();
-        }
-
-
-        public B format(String value) {
-            getBuildingInstance().setFormat(value);
-            return getSelf();
-        }
-
-
-        public B template(String value) {
-            getBuildingInstance().setTemplate(value);
             return getSelf();
         }
     }

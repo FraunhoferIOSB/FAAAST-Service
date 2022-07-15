@@ -19,34 +19,30 @@ import java.util.Objects;
 
 
 /**
- * Base class for AssetSubscriptionProviderConfig supporting multiple data formats
+ * Base class for all multi format provider configs
  */
-public abstract class AbstractMultiFormatSubscriptionProviderConfig implements MultiFormatSubscriptionProviderConfig {
+public class AbstractMultiFormatProviderConfig {
 
     protected String format;
-    protected String query;
+    protected String template;
 
-    @Override
     public String getFormat() {
         return format;
     }
 
 
-    @Override
     public void setFormat(String format) {
         this.format = format;
     }
 
 
-    @Override
-    public String getQuery() {
-        return query;
+    public String getTemplate() {
+        return template;
     }
 
 
-    @Override
-    public void setQuery(String query) {
-        this.query = query;
+    public void setTemplate(String template) {
+        this.template = template;
     }
 
 
@@ -58,30 +54,30 @@ public abstract class AbstractMultiFormatSubscriptionProviderConfig implements M
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractMultiFormatSubscriptionProviderConfig that = (AbstractMultiFormatSubscriptionProviderConfig) o;
+        AbstractMultiFormatProviderConfig that = (AbstractMultiFormatProviderConfig) o;
         return super.equals(that)
                 && Objects.equals(format, that.format)
-                && Objects.equals(query, that.query);
+                && Objects.equals(template, that.template);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), format, query);
+        return Objects.hash(format, template);
     }
 
-    protected abstract static class AbstractBuilder<T extends AbstractMultiFormatSubscriptionProviderConfig, B extends AbstractBuilder<T, B>>
-            extends ExtendableBuilder<T, B> {
-
-        public B query(String value) {
-            getBuildingInstance().setQuery(value);
-            return getSelf();
-        }
-
+    protected abstract static class AbstractBuilder<T extends AbstractMultiFormatProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B format(String value) {
             getBuildingInstance().setFormat(value);
             return getSelf();
         }
+
+
+        public B template(String value) {
+            getBuildingInstance().setTemplate(value);
+            return getSelf();
+        }
     }
+
 }

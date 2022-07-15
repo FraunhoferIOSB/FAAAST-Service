@@ -36,7 +36,7 @@ public class ElementInfo {
     }
 
 
-    public TypeInfo<?> getTypeInfo() {
+    public TypeInfo getTypeInfo() {
         return typeInfo;
     }
 
