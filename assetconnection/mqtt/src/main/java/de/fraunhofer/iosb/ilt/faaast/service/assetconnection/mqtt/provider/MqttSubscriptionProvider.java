@@ -25,7 +25,6 @@ import io.adminshell.aas.v3.model.Reference;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
-
 /**
  * SubscriptionProvider for MQTT protocol
  */
@@ -45,19 +44,16 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
         this.client = client;
     }
 
-
     @Override
     protected TypeInfo getTypeInfo() {
         return serviceContext.getTypeInfo(reference);
     }
 
-
     @Override
     protected void subscribe() throws AssetConnectionException {
         try {
             client.subscribe(config.getTopic(), (topic, message) -> fireNewDataReceived(message.getPayload()));
-        }
-        catch (MqttException e) {
+        } catch (MqttException e) {
             throw new AssetConnectionException(
                     String.format("error subscribing to MQTT asset connection (reference: %s, topic: %s)",
                             AasUtils.asString(reference),
@@ -66,18 +62,18 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
         }
     }
 
-
     @Override
     protected void unsubscribe() throws AssetConnectionException {
-        try {
-            client.unsubscribe(config.getTopic());
-        }
-        catch (MqttException e) {
-            throw new AssetConnectionException(
-                    String.format("error unsubscribing from MQTT asset connection (reference: %s, topic: %s)",
-                            AasUtils.asString(reference),
-                            config.getTopic()),
-                    e);
+        if (client != null && client.isConnected()) {
+            try {
+                client.unsubscribe(config.getTopic());
+            } catch (MqttException e) {
+                throw new AssetConnectionException(
+                        String.format("error unsubscribing from MQTT asset connection (reference: %s, topic: %s)",
+                                AasUtils.asString(reference),
+                                config.getTopic()),
+                        e);
+            }
         }
     }
 }
