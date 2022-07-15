@@ -1,0 +1,105 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config;
+
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatOperationProviderConfig;
+import java.util.Objects;
+
+
+/**
+ * * Config file for HTTP-based
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
+ */
+public class HttpOperationProviderConfig extends AbstractMultiFormatOperationProviderConfig {
+
+    private String path;
+    private String method;
+
+    public String getPath() {
+        return path;
+    }
+
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+
+    public String getMethod() {
+        return method;
+    }
+
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HttpOperationProviderConfig that = (HttpOperationProviderConfig) o;
+        return super.equals(that)
+                && Objects.equals(path, that.path)
+                && Objects.equals(method, that.method);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), path, method);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    protected abstract static class AbstractBuilder<T extends HttpOperationProviderConfig, B extends AbstractBuilder<T, B>>
+            extends AbstractMultiFormatOperationProviderConfig.AbstractBuilder<T, B> {
+
+        public B path(String value) {
+            getBuildingInstance().setPath(value);
+            return getSelf();
+        }
+
+
+        public B method(String value) {
+            getBuildingInstance().setMethod(value);
+            return getSelf();
+        }
+
+    }
+
+    public static class Builder extends AbstractBuilder<HttpOperationProviderConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected HttpOperationProviderConfig newBuildingInstance() {
+            return new HttpOperationProviderConfig();
+        }
+    }
+
+}

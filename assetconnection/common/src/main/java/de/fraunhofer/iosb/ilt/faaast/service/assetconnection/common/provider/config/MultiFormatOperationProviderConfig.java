@@ -12,14 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config;
+
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import java.util.Map;
+
 
 /**
- * Supported content formats for MQTT payload.
+ * AssetOperationProviderConfig supporting multiple data formats
  */
-public enum ContentFormat {
-    JSON,
-    XML;
+public interface MultiFormatOperationProviderConfig extends AssetOperationProviderConfig, MultiFormatWriteProviderConfig {
+    public Map<String, String> getQueries();
 
-    public static final ContentFormat DEFAULT = JSON;
+
+    public void setQueries(Map<String, String> queries);
 }

@@ -12,37 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentFormat;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatValueProviderConfig;
+import java.util.Objects;
 
 
 /**
  * * Config file for MQTT-based
  * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
  */
-public class MqttValueProviderConfig implements AssetValueProviderConfig {
+public class MqttValueProviderConfig extends AbstractMultiFormatValueProviderConfig {
 
-    private ContentFormat contentFormat;
     private String topic;
-    private String query;
-
-    public MqttValueProviderConfig() {
-        this.contentFormat = ContentFormat.DEFAULT;
-    }
-
-
-    public ContentFormat getContentFormat() {
-        return contentFormat;
-    }
-
-
-    public void setContentFormat(ContentFormat contentFormat) {
-        this.contentFormat = contentFormat;
-    }
-
 
     public String getTopic() {
         return topic;
@@ -54,13 +36,23 @@ public class MqttValueProviderConfig implements AssetValueProviderConfig {
     }
 
 
-    public String getQuery() {
-        return query;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        MqttValueProviderConfig that = (MqttValueProviderConfig) o;
+        return super.equals(that)
+                && Objects.equals(topic, that.topic);
     }
 
 
-    public void setQuery(String query) {
-        this.query = query;
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), topic);
     }
 
 
@@ -68,22 +60,11 @@ public class MqttValueProviderConfig implements AssetValueProviderConfig {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends MqttValueProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B query(String value) {
-            getBuildingInstance().setQuery(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<T extends MqttValueProviderConfig, B extends AbstractBuilder<T, B>>
+            extends AbstractMultiFormatValueProviderConfig.AbstractBuilder<T, B> {
 
         public B topic(String value) {
             getBuildingInstance().setTopic(value);
-            return getSelf();
-        }
-
-
-        public B contentFormat(ContentFormat value) {
-            getBuildingInstance().setContentFormat(value);
             return getSelf();
         }
     }

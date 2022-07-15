@@ -12,24 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 
 
 /**
- * Interface for serializing values before sending them over MQTT.
+ * * Config file for MQTT-based
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
  */
-public interface ContentSerializer {
-
-    /**
-     * Serializes a given value for publishing it via MQTT.
-     *
-     * @param value value to write
-     * @param query additional query options
-     * @return a string representation of the value
-     * @throws AssetConnectionException if writing failed
-     */
-    public String write(DataElementValue value, String query) throws AssetConnectionException;
-}
+public class MqttOperationProviderConfig implements AssetOperationProviderConfig {}

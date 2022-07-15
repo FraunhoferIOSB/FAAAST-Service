@@ -40,8 +40,10 @@
         <module>endpoint/http</module>
         <module>messagebus/internal</module>
         <module>persistence/memory</module>
+        <module>assetconnection/common</module>
         <module>assetconnection/mqtt</module>
         <module>assetconnection/opcua</module>
+        <module>assetconnection/http</module>
         <module>dataformat/json</module>
         <module>starter</module>
         <module>test</module>
@@ -121,6 +123,7 @@
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <spotless.version>2.23.0</spotless.version>
         <system.stubs.junit4.version>2.0.1</system.stubs.junit4.version>
+        <wiremock.version>2.33.2</wiremock.version>
     </properties>
     <dependencies>
         <dependency>

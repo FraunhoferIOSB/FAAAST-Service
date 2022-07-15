@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
@@ -20,42 +20,35 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttSubscriptionProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttValueProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttOperationProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpSubscriptionProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpValueProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.Reference;
+import java.net.http.HttpClient;
 import java.util.HashMap;
 import java.util.Map;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * Implementation of
  * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection}
- * for the MQTT protocol.
+ * for the HTTP protocol.
  * <p>
  * Following asset connection operations are supported:
  * <ul>
- * <li>setting values (via MQTT publish)
- * <li>subscribing to values (via MQTT subscribe)
+ * <li>setting values (via HTTP PUT)
+ * <li>reading values (via HTTP GET)
  * </ul>
  * <p>
  * Following asset connection operations are not supported:
  * <ul>
- * <li>reading values
+ * <li>subscribing to values
  * <li>executing operations
  * </ul>
  * <p>
@@ -63,50 +56,41 @@ import org.slf4j.LoggerFactory;
  * {@link io.adminshell.aas.v3.model.Property} resp.
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
  * <p>
- * This class uses a single underlying MQTT connection.
+ * This class uses a single underlying HTTP connection.
  */
-public class MqttAssetConnection
-        implements AssetConnection<MqttAssetConnectionConfig, MqttValueProviderConfig, MqttOperationProviderConfig, MqttSubscriptionProviderConfig> {
+public class HttpAssetConnection
+        implements AssetConnection<HttpAssetConnectionConfig, HttpValueProviderConfig, HttpOperationProviderConfig, HttpSubscriptionProviderConfig> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MqttAssetConnection.class);
-    private MqttClient client;
-    private MqttAssetConnectionConfig config;
+    private final HttpClient client;
+    private HttpAssetConnectionConfig config;
     private final Map<Reference, AssetOperationProvider> operationProviders;
     private ServiceContext serviceContext;
     private final Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
     private final Map<Reference, AssetValueProvider> valueProviders;
 
-    public MqttAssetConnection() {
-        this.valueProviders = new HashMap<>();
-        this.operationProviders = new HashMap<>();
-        this.subscriptionProviders = new HashMap<>();
+    public HttpAssetConnection() {
+        client = HttpClient.newBuilder().build();
+        valueProviders = new HashMap<>();
+        operationProviders = new HashMap<>();
+        subscriptionProviders = new HashMap<>();
+    }
+
+
+    protected HttpAssetConnection(CoreConfig coreConfig, HttpAssetConnectionConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
+        this();
+        init(coreConfig, config, serviceContext);
     }
 
 
     @Override
-    public MqttAssetConnectionConfig asConfig() {
+    public HttpAssetConnectionConfig asConfig() {
         return config;
     }
 
 
     @Override
     public void close() {
-        if (client != null) {
-            if (client.isConnected()) {
-                try {
-                    client.disconnect();
-                }
-                catch (MqttException e) {
-                    LOGGER.debug("MQTT connection could not be properly closed", e);
-                }
-            }
-            try {
-                client.close(true);
-            }
-            catch (MqttException e) {
-                LOGGER.debug("MQTT connection could not be properly closed", e);
-            }
-        }
+        // no need to close a HTTP connection
     }
 
 
@@ -136,39 +120,13 @@ public class MqttAssetConnection
      * @throws IllegalArgumentException if serviceContext if null
      */
     @Override
-    public void init(CoreConfig coreConfig, MqttAssetConnectionConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
+    public void init(CoreConfig coreConfig, HttpAssetConnectionConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
         Ensure.requireNonNull(config, "config must be non-null");
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         this.config = config;
         this.serviceContext = serviceContext;
         try {
-            client = new MqttClient(config.getServerUri(), config.getClientId(), new MemoryPersistence());
-            client.setCallback(new MqttCallback() {
-                @Override
-                public void connectionLost(Throwable throwable) {
-                    LOGGER.warn("MQTT asset connection lost (url: {}, reason: {})",
-                            config.getServerUri(),
-                            throwable.getMessage(),
-                            throwable);
-                }
-
-
-                @Override
-                public void deliveryComplete(IMqttDeliveryToken imdt) {
-                    // intentionally left empty
-                }
-
-
-                @Override
-                public void messageArrived(String string, MqttMessage mm) throws Exception {
-                    // intentionally left empty
-                }
-            });
-            MqttConnectOptions options = new MqttConnectOptions();
-            options.setCleanSession(true);
-            client.connect(options);
-
             for (var providerConfig: config.getValueProviders().entrySet()) {
                 registerValueProvider(providerConfig.getKey(), providerConfig.getValue());
             }
@@ -180,8 +138,8 @@ public class MqttAssetConnection
             }
 
         }
-        catch (MqttException | AssetConnectionException e) {
-            throw new ConfigurationInitializationException("initializaing MQTT asset connection failed", e);
+        catch (AssetConnectionException e) {
+            throw new ConfigurationInitializationException("initializing HTTP asset connection failed", e);
         }
     }
 
@@ -192,8 +150,10 @@ public class MqttAssetConnection
      * @throws UnsupportedOperationException as this operation is not supported
      */
     @Override
-    public void registerOperationProvider(Reference reference, MqttOperationProviderConfig providerConfig) throws AssetConnectionException {
-        throw new UnsupportedOperationException("executing operations via MQTT not supported.");
+    public void registerOperationProvider(Reference reference, HttpOperationProviderConfig providerConfig) throws AssetConnectionException {
+        Ensure.requireNonNull(reference, "reference must be non-null");
+        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
+        this.operationProviders.put(reference, new HttpOperationProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig));
     }
 
 
@@ -204,10 +164,10 @@ public class MqttAssetConnection
      * @throws IllegalArgumentException if providerConfig is null
      */
     @Override
-    public void registerSubscriptionProvider(Reference reference, MqttSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
+    public void registerSubscriptionProvider(Reference reference, HttpSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
         Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
-        this.subscriptionProviders.put(reference, new MqttSubscriptionProvider(serviceContext, reference, client, providerConfig));
+        this.subscriptionProviders.put(reference, new HttpSubscriptionProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig));
     }
 
 
@@ -218,10 +178,14 @@ public class MqttAssetConnection
      * @throws IllegalArgumentException if providerConfig is null
      */
     @Override
-    public void registerValueProvider(Reference reference, MqttValueProviderConfig providerConfig) throws AssetConnectionException {
-        Ensure.requireNonNull(reference, "reference must be non-null");
-        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
-        this.valueProviders.put(reference, new MqttValueProvider(serviceContext, reference, client, providerConfig));
+    public void registerValueProvider(Reference reference, HttpValueProviderConfig providerConfig) throws AssetConnectionException {
+        if (reference == null) {
+            throw new IllegalArgumentException("reference must be non-null");
+        }
+        if (providerConfig == null) {
+            throw new IllegalArgumentException("providerConfig must be non-null");
+        }
+        this.valueProviders.put(reference, new HttpValueProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig));
     }
 
 

@@ -12,13 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.format;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 
 /**
- * * Config file for MQTT-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
+ * Used to annotation implementation of Format interface defining a key property
+ * that will be used in config files.
  */
-public class MqttOperationProviderConfig implements AssetOperationProviderConfig {}
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface Dataformat {
+
+    String key();
+}
