@@ -23,10 +23,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Abstract base class for custom implementations of AssetSubscriptionProvider
@@ -43,9 +43,8 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
     protected MultiFormatSubscriptionProvider(T config) {
         Ensure.requireNonNull(config, "config must be non-null");
         this.config = config;
-        this.listeners = new ArrayList<>();
+        this.listeners = Collections.synchronizedList(new ArrayList<>());
     }
-
 
     @Override
     public void addNewDataListener(NewDataListener listener) throws AssetConnectionException {
@@ -55,7 +54,6 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
         listeners.add(listener);
     }
 
-
     /**
      * Notifies all listeners about new event
      *
@@ -64,22 +62,21 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
     protected void fireNewDataReceived(byte[] value) {
         try {
             DataElementValue newValue = MultiFormatReadWriteHelper.convertForRead(config, value, getTypeInfo());
-            listeners.forEach(x -> {
-                try {
-                    x.newDataReceived(newValue);
-                }
-                catch (Exception e) {
-                    LOGGER.warn("error while calling newDataReceived handler", e);
-                }
-            });
-        }
-        catch (AssetConnectionException e) {
+            synchronized (listeners) {
+                listeners.forEach(x -> {
+                    try {
+                        x.newDataReceived(newValue);
+                    } catch (Exception e) {
+                        LOGGER.warn("error while calling newDataReceived handler", e);
+                    }
+                });
+            }
+        } catch (AssetConnectionException e) {
             LOGGER.error("error deserializing message (received message: {})",
                     new String(value),
                     e);
         }
     }
-
 
     @Override
     public void removeNewDataListener(NewDataListener listener) throws AssetConnectionException {
@@ -89,7 +86,6 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
         }
     }
 
-
     /**
      * Gets type information about the underlying element
      *
@@ -97,14 +93,12 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
      */
     protected abstract TypeInfo getTypeInfo();
 
-
     /**
      * Subscribe via underlying protocol
      *
      * @throws AssetConnectionException if subscription fails
      */
     protected abstract void subscribe() throws AssetConnectionException;
-
 
     /**
      * Unsubscribe via underlying protocol
