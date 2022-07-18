@@ -17,13 +17,18 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
+import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.Variant;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.StatusCodes;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import io.adminshell.aas.v3.model.AssetKind;
 import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.Entity;
@@ -44,7 +49,11 @@ import io.adminshell.aas.v3.model.RelationshipElement;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.List;
 import opc.i4aas.AASAssetKindDataType;
 import opc.i4aas.AASEntityTypeDataType;
@@ -277,7 +286,7 @@ public class ValueConverter {
 
     /**
      * Converts the given datatype to the corresponding AASValueTypeDataType.
-     * 
+     *
      * @param type The desired datatype
      * @return The corresponding AASValueTypeDataType
      */
@@ -325,6 +334,10 @@ public class ValueConverter {
 
             case SHORT:
                 retval = AASValueTypeDataType.Int16;
+                break;
+
+            case DATE_TIME:
+                retval = AASValueTypeDataType.DateTime;
                 break;
 
             default:
@@ -481,7 +494,7 @@ public class ValueConverter {
 
     /**
      * Gets AAS LangString Set from a LocalizedText array.
-     * 
+     *
      * @param value The desired Lang String Set
      * @return The corresponding LocalizedText array
      */
@@ -507,7 +520,8 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given KeyElements value to the corresponding AASKeyElementsDataType
+     * Converts the given KeyElements value to the corresponding
+     * AASKeyElementsDataType
      *
      * @param keyElement The desired KeyElements value.
      * @return The converted AASKeyElementsDataType.
@@ -632,8 +646,9 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given AASKeyElementsDataType to the corresponding KeyElements
-     * 
+     * Converts the given AASKeyElementsDataType to the corresponding
+     * KeyElements
+     *
      * @param value The desired AASKeyElementsDataType
      * @return The corresponding KeyElements type
      */
@@ -822,7 +837,7 @@ public class ValueConverter {
 
     /**
      * Creates a reference from the given List of Keys.
-     * 
+     *
      * @param value The desired list of Keys.
      * @return The created reference.
      */
@@ -851,7 +866,7 @@ public class ValueConverter {
 
     /**
      * Sets the desired value in the given SubmodelElement.
-     * 
+     *
      * @param data The desired SubmodelElementData.
      * @param dv The desired Value.
      */
@@ -862,7 +877,7 @@ public class ValueConverter {
 
     /**
      * Sets the desired value in the given SubmodelElement.
-     * 
+     *
      * @param submodelElement The desired SubmodelElement.
      * @param type The desired type.
      * @param variant The desired Value.
@@ -872,28 +887,19 @@ public class ValueConverter {
             switch (type) {
                 case PROPERTY_VALUE: {
                     Property aasProp = (Property) submodelElement;
-                    String newValue = null;
-                    if (variant.getValue() != null) {
-                        newValue = variant.getValue().toString();
-                    }
+                    String newValue = convertVariantValueToString(variant);
                     aasProp.setValue(newValue);
                     break;
                 }
                 case RANGE_MIN: {
                     Range aasRange = (Range) submodelElement;
-                    String newValue = null;
-                    if (variant.getValue() != null) {
-                        newValue = variant.getValue().toString();
-                    }
+                    String newValue = convertVariantValueToString(variant);
                     aasRange.setMin(newValue);
                     break;
                 }
                 case RANGE_MAX: {
                     Range aasRange = (Range) submodelElement;
-                    String newValue = null;
-                    if (variant.getValue() != null) {
-                        newValue = variant.getValue().toString();
-                    }
+                    String newValue = convertVariantValueToString(variant);
                     aasRange.setMax(newValue);
                     break;
                 }
@@ -975,7 +981,7 @@ public class ValueConverter {
 
     /**
      * Sets the input arguments for an operation into the given inputVariables.
-     * 
+     *
      * @param inputVariables The desired inputVariables.
      * @param inputArguments The desired inputArguments
      * @throws StatusException If the operation fails
@@ -1005,13 +1011,16 @@ public class ValueConverter {
 
 
     /**
-     * Sets the output arguments for an operation from the given output variables.
-     * 
+     * Sets the output arguments for an operation from the given output
+     * variables.
+     *
      * @param outputVariables The desired output variables
      * @param outputArguments The desired output arguments
      * @throws StatusException If the operation fails
+     * @throws ValueMappingException Error when mapping to ElementValue fails
      */
-    public static void setOutputArguments(List<OperationVariable> outputVariables, Variant[] outputArguments) throws StatusException {
+    public static void setOutputArguments(List<OperationVariable> outputVariables, Variant[] outputArguments) throws StatusException, ValueMappingException {
+
         if (outputArguments.length != outputVariables.size()) {
             throw new StatusException(StatusCodes.Bad_InvalidArgument);
         }
@@ -1034,20 +1043,20 @@ public class ValueConverter {
 
     /**
      * Gets the corresponding variant value from a given SubmodelElement
-     * 
+     *
      * @param submodelElement The desired SubmodelElement
      * @param type The desired type
      * @return The corresponding value
+     * @throws ValueMappingException Error when mapping to ElementValue fails
      */
     @SuppressWarnings("java:S1301")
-    public static Variant getSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type) {
+    public static Variant getSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type) throws ValueMappingException {
         Variant retval;
 
         try {
             switch (type) {
                 case PROPERTY_VALUE: {
-                    Property aasProp = (Property) submodelElement;
-                    retval = new Variant(aasProp.getValue());
+                    retval = createVariant(ElementValueMapper.<Property, PropertyValue> toValue(submodelElement).getValue().getValue());
                     break;
                 }
 
@@ -1059,6 +1068,55 @@ public class ValueConverter {
         catch (Exception ex) {
             LOGGER.error("getSubmodelElementValue Exception", ex);
             throw ex;
+        }
+
+        return retval;
+    }
+
+
+    public static DateTime createDateTime(ZonedDateTime value) {
+        return new DateTime(GregorianCalendar.from(value));
+    }
+
+
+    public static DateTime createDateTime(LocalDateTime value) {
+        return new DateTime(GregorianCalendar.from(value.atZone(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE))));
+    }
+
+
+    private static String convertVariantValueToString(Variant variant) {
+        String retval = "";
+        if (variant.getValue() != null) {
+            // special treatment for DateTime
+            if (variant.getValue() instanceof DateTime) {
+                //DateTime.
+                retval = ((DateTime) variant.getValue()).getUtcCalendar().toZonedDateTime().toString();
+            }
+            else {
+                retval = variant.getValue().toString();
+            }
+        }
+
+        return retval;
+    }
+
+
+    private static Variant createVariant(Object value) {
+        Variant retval = null;
+
+        if (value == null) {
+            retval = Variant.NULL;
+        }
+        else if (value instanceof ZonedDateTime) {
+            // special treatment for DateTime
+            retval = new Variant(createDateTime((ZonedDateTime) value));
+        }
+        else if (value instanceof LocalDateTime) {
+            // special treatment for DateTime
+            retval = new Variant(createDateTime((LocalDateTime) value));
+        }
+        else {
+            retval = new Variant(value);
         }
 
         return retval;

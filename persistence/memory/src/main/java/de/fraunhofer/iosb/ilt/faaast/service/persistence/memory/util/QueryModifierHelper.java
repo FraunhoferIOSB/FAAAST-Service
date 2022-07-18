@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementVisitor;
@@ -43,7 +43,7 @@ public class QueryModifierHelper {
      * Apply the
      * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier}
      * to a list of referables Consider the
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend}
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent}
      * and
      * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level} of
      * a query modifier If the extend of the query modifier is
@@ -69,7 +69,7 @@ public class QueryModifierHelper {
      * Apply the
      * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier}
      * to a referable Consider the
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extend}
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent}
      * and
      * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level} of
      * a query modifier If the extend of the query modifier is
@@ -93,7 +93,7 @@ public class QueryModifierHelper {
 
 
     private static void applyQueryModifierExtend(Referable referable, QueryModifier modifier) {
-        if (modifier.getExtend() == Extend.WITHOUT_BLOB_VALUE) {
+        if (modifier.getExtent() == Extent.WITHOUT_BLOB_VALUE) {
             AssetAdministrationShellElementWalker.builder()
                     .visitor(new DefaultAssetAdministrationShellElementVisitor() {
                         @Override

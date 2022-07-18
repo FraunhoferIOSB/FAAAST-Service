@@ -31,6 +31,7 @@ import com.prosysopc.ua.server.instantiation.TypeDefinitionBasedNodeBuilderConfi
 import com.prosysopc.ua.server.nodes.PlainMethod;
 import com.prosysopc.ua.server.nodes.PlainProperty;
 import com.prosysopc.ua.stack.builtintypes.ByteString;
+import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
@@ -66,6 +67,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
@@ -107,8 +109,10 @@ import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -2036,16 +2040,22 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     prop.addProperty(myBoolProperty);
                     break;
 
-                //                case DateTime:
-                //                    PlainProperty<DateTime> myDateProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                    myDateProperty.setDataTypeId(Identifiers.DateTime);
-                //                    // TO DO integrate Property value
-                //                    //if (val != null) {
-                //                    //    myDateProperty.setValue(new DateTime(((DateValue)val).getValue().toGregorianCalendar()));
-                //                    //}
-                //                    prop.addProperty(myDateProperty);
-                //                    break;
-                //
+                case DateTime:
+                    PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
+                    myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
+                    if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+                        if (typedValue.getValue() instanceof DateTimeValue) {
+                            DateTimeValue dtval = (DateTimeValue) typedValue.getValue();
+                            DateTime dt = ValueConverter.createDateTime(dtval.getValue());
+                            myDateTimeProperty.setValue(dt);
+                        }
+                        else {
+                            myDateTimeProperty.setValue(typedValue.getValue().getValue());
+                        }
+                    }
+                    prop.addProperty(myDateTimeProperty);
+                    break;
+
                 case Int32:
                     PlainProperty<Integer> myIntProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
                     myIntProperty.setDataTypeId(Identifiers.Int32);
@@ -2225,6 +2235,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             Object obj = tv.getValue();
             if ((tv instanceof DecimalValue) || (tv instanceof IntegerValue)) {
                 obj = Long.parseLong(obj.toString());
+            }
+            else if (tv instanceof DateTimeValue) {
+                ZonedDateTime zdt = (ZonedDateTime) obj;
+                obj = new DateTime(GregorianCalendar.from(zdt));
             }
             property.setValue(obj);
 
@@ -2571,25 +2585,42 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     }
                     break;
 
-                //                case DateTime:
-                //                    if (minValue != null) {
-                //                        PlainProperty<DateTime> myDateProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
-                //                        myDateProperty.setDataTypeId(Identifiers.DateTime);
-                //                        // TO DO integrate Range value
-                //                        //myDateProperty.setValue(new DateTime(((DateValue)minVal).getValue().toGregorianCalendar()));
-                //                        myDateProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myDateProperty);
-                //                    }
-                //
-                //                    if (maxValue != null) {
-                //                        PlainProperty<DateTime> myDateProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
-                //                        myDateProperty.setDataTypeId(Identifiers.DateTime);
-                //                        // TO DO integrate Range value
-                //                        //myDateProperty.setValue(new DateTime(((DateValue)maxVal).getValue().toGregorianCalendar()));
-                //                        myDateProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myDateProperty);
-                //                    }
-                //                    break;
+                case DateTime:
+                    if (minValue != null) {
+                        PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
+                        myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
+                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                            if (minTypedValue instanceof DateTimeValue) {
+                                DateTimeValue dtval = (DateTimeValue) minTypedValue;
+                                DateTime dt = ValueConverter.createDateTime(dtval.getValue());
+                                myDateTimeProperty.setValue(dt);
+                            }
+                            else {
+                                myDateTimeProperty.setValue(minTypedValue.getValue());
+                            }
+                        }
+                        myDateTimeProperty.setDescription(new LocalizedText("", ""));
+                        range.addProperty(myDateTimeProperty);
+                    }
+
+                    if (maxValue != null) {
+                        PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(this, myPropertyIdMax, browseNameMax, displayNameMax);
+                        myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
+                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                            if (maxTypedValue instanceof DateTimeValue) {
+                                DateTimeValue dtval = (DateTimeValue) maxTypedValue;
+                                DateTime dt = ValueConverter.createDateTime(dtval.getValue());
+                                myDateTimeProperty.setValue(dt);
+                            }
+                            else {
+                                myDateTimeProperty.setValue(maxTypedValue.getValue());
+                            }
+                        }
+                        myDateTimeProperty.setDescription(new LocalizedText("", ""));
+                        range.addProperty(myDateTimeProperty);
+                    }
+                    break;
+
                 case Int32:
                     if (minValue != null) {
                         PlainProperty<Integer> myIntProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
@@ -3136,7 +3167,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             method.setInputArguments(inputs);
 
-            Argument[] outputs = new Argument[1];
+            Argument[] outputs = new Argument[aasOperation.getOutputVariables().size()];
             for (int i = 0; i < aasOperation.getOutputVariables().size(); i++) {
                 OperationVariable v = aasOperation.getOutputVariables().get(i);
                 outputs[i] = new Argument();
@@ -4080,11 +4111,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             if ((tvmin instanceof DecimalValue) || (tvmin instanceof IntegerValue)) {
                 objmin = Long.parseLong(objmin.toString());
             }
+            else if (tvmin instanceof DateTimeValue) {
+                objmin = ValueConverter.createDateTime((ZonedDateTime) objmin);
+            }
 
             TypedValue<?> tvmax = value.getMax();
             Object objmax = tvmax.getValue();
             if ((tvmax instanceof DecimalValue) || (tvmax instanceof IntegerValue)) {
                 objmax = Long.parseLong(objmax.toString());
+            }
+            else if (tvmax instanceof DateTimeValue) {
+                objmax = ValueConverter.createDateTime((ZonedDateTime) objmax);
             }
 
             range.setMin(objmin);

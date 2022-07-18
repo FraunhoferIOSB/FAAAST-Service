@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * Chapter 6.3.2
  */
-public class GetAllSubmodelsRequest extends RequestWithModifier<GetAllSubmodelsResponse> {
+public class GetAllSubmodelsRequest extends AbstractGetSubmodelRequest<GetAllSubmodelsResponse> {
 
     @Override
     public boolean equals(Object o) {

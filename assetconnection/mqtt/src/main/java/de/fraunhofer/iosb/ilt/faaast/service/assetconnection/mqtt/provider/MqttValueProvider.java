@@ -14,64 +14,57 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.content.ContentSerializerFactory;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatValueProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import io.adminshell.aas.v3.model.Reference;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 
-public class MqttValueProvider implements AssetValueProvider {
+/**
+ * ValueProvider for MQTT
+ */
+public class MqttValueProvider extends MultiFormatValueProvider<MqttValueProviderConfig> {
 
+    private final ServiceContext serviceContext;
+    private final Reference reference;
     private final MqttClient client;
-    private final MqttValueProviderConfig providerConfig;
 
-    /**
-     * Creates new instance.
-     *
-     * @param client MQTT client to use, must be non-null
-     * @param providerConfig configuration, must be non-null
-     * @throws IllegalArgumentException if client is null
-     * @throws IllegalArgumentException if providerConfig is null
-     */
-    public MqttValueProvider(MqttClient client, MqttValueProviderConfig providerConfig) {
+    public MqttValueProvider(ServiceContext serviceContext, Reference reference, MqttClient client, MqttValueProviderConfig config) {
+        super(config);
+        Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
+        Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.requireNonNull(client, "client must be non-null");
-        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
+        this.serviceContext = serviceContext;
+        this.reference = reference;
         this.client = client;
-        this.providerConfig = providerConfig;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws UnsupportedOperationException as this operation is not supported
-     */
-    @Override
-    public DataElementValue getValue() throws AssetConnectionException {
-        throw new UnsupportedOperationException("reading values via MQTT not supported.");
     }
 
 
     @Override
-    public void setValue(DataElementValue value) throws AssetConnectionException {
+    public byte[] getRawValue() throws AssetConnectionException {
+        throw new UnsupportedOperationException("Read operation not supported by MQTT");
+    }
+
+
+    @Override
+    public void setRawValue(byte[] value) throws AssetConnectionException {
         try {
-            if (!(value instanceof PropertyValue)) {
-                throw new AssetConnectionException(String.format("unsupported value (%s)", value.getClass().getSimpleName()));
-            }
-            client.publish(
-                    providerConfig.getTopic(),
-                    new MqttMessage(ContentSerializerFactory
-                            .create(providerConfig.getContentFormat())
-                            .write(value, providerConfig.getQuery())
-                            .getBytes()));
+            client.publish(config.getTopic(), new MqttMessage(value));
         }
         catch (MqttException e) {
             throw new AssetConnectionException("writing value via MQTT asset connection failed", e);
         }
+    }
+
+
+    @Override
+    protected TypeInfo getTypeInfo() {
+        return serviceContext.getTypeInfo(reference);
     }
 }

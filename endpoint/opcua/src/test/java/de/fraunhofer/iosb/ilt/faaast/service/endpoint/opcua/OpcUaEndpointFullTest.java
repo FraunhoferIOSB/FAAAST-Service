@@ -21,6 +21,7 @@ import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.client.UaClient;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
+import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
@@ -43,6 +44,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnecti
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
@@ -56,9 +58,14 @@ import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultQualifier;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASIdentifierTypeDataType;
 import opc.i4aas.AASKeyDataType;
@@ -86,7 +93,7 @@ public class OpcUaEndpointFullTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointFullTest.class);
 
     private static final int OPC_TCP_PORT = 18123;
-    private static final long DEFAULT_TIMEOUT = 1000;
+    private static final long DEFAULT_TIMEOUT = 500;
 
     private static final String ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
 
@@ -869,6 +876,65 @@ public class OpcUaEndpointFullTest {
         Assert.assertNotNull("testUnorderedSubmodelElementCollection Node Null", smNode);
 
         TestUtils.checkType(client, smNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
+
+        System.out.println("disconnect client");
+        client.disconnect();
+    }
+
+
+    @Test
+    public void testDateTimeProperty()
+            throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException, StatusException, InterruptedException {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_6_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testDateTimeProperty Browse Result Null", bpres);
+        Assert.assertEquals("testDateTimeProperty Browse Result: size doesn't match", 1, bpres.length);
+        Assert.assertTrue("testDateTimeProperty Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testDateTimeProperty Submodel Null", targets);
+        Assert.assertTrue("testDateTimeProperty Submodel empty", targets.length > 0);
+
+        NodeId smNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        Assert.assertNotNull("testDateTimeProperty SubmodelNode Null", smNode);
+
+        browsePath.clear();
+        relPath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_DATETIME_PROP_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HasProperty, false, true, new QualifiedName(aasns, TestConstants.PROPERTY_VALUE_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(smNode, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testDateTimeProperty Browse (2) Result Null", bpres);
+        Assert.assertEquals("testDateTimeProperty Browse (2) Result: size doesn't match", 1, bpres.length);
+        Assert.assertTrue("testDateTimeProperty Browse (2) Result Good", bpres[0].getStatusCode().isGood());
+        targets = bpres[0].getTargets();
+        Assert.assertNotNull("testDateTimeProperty Property Null", targets);
+        Assert.assertTrue("testDateTimeProperty Property empty", targets.length > 0);
+
+        NodeId propValueNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        Assert.assertNotNull("testDateTimeProperty Node Null", propValueNode);
+
+        DateTime dt = new DateTime(2022, Calendar.JULY, 8, 10, 22, 4, 0, TimeZone.getTimeZone("UTC"));
+        TestUtils.checkAasPropertyObject(client, smNode, aasns, TestConstants.FULL_DATETIME_PROP_NAME, AASModelingKindDataType.Instance, "Parameter",
+                AASValueTypeDataType.DateTime, dt, new ArrayList<>());
+
+        ZonedDateTime zdtnew = ZonedDateTime.now(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE));
+        DateTime dtnew = new DateTime(GregorianCalendar.from(zdtnew));
+        TestUtils.writeNewValueIntern(client, propValueNode, dt, dtnew);
 
         System.out.println("disconnect client");
         client.disconnect();
