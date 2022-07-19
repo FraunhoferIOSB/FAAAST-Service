@@ -12,10 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.starter.util;
+package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.DeserializationException;
 import io.adminshell.aas.v3.dataformat.Deserializer;
 import io.adminshell.aas.v3.dataformat.aasx.AASXDeserializer;
@@ -76,7 +75,7 @@ public class AASEnvironmentHelper {
         if (!dataFormat.getFileExtensions().contains(fileExtension)) {
             LOGGER.warn("attempting to read AAS environment file with unsupported file extension (data format: {}, supported file extensions: {}, actual file extension: {}",
                     dataFormat,
-                    dataFormat.getFileExtensions().stream().collect(Collectors.joining(",")),
+                    String.join(",", dataFormat.getFileExtensions()),
                     fileExtension);
         }
         if (dataFormat == DataFormat.AASX) {
@@ -88,7 +87,7 @@ public class AASEnvironmentHelper {
             }
         }
         if (!deserializers.containsKey(dataFormat)) {
-            throw new DeserializationException(String.format("unsupported data format: ", dataFormat));
+            throw new DeserializationException(String.format("unsupported data format: '%s'", dataFormat));
         }
         return deserializers.get(dataFormat).read(file);
     }
@@ -123,7 +122,7 @@ public class AASEnvironmentHelper {
         throw new DeserializationException(
                 String.format("error reading AAS file - could be not parsed using any of the potential data formats identified by file extension (potential data formats: %s)",
                         potentialDataFormats.stream()
-                                .map(x -> x.name())
+                                .map(Enum::name)
                                 .collect(Collectors.joining(","))));
     }
 }

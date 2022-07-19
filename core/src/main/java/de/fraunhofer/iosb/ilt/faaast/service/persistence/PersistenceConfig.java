@@ -15,16 +15,75 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
+import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 
 
 /**
- * Generic persistance configuration. When implementing a custom persistence
+ * Generic persistence configuration. When implementing a custom persistence
  * inherit from this class to create a custom configuration.
  *
  * @param <T> type of the persistence
  */
 public class PersistenceConfig<T extends Persistence> extends Config<T> {
+
+    private static final boolean DEFAULT_DECOUPLE_ENVIRONMENT = true;
+    private String modelPath;
+    private AssetAdministrationShellEnvironment environment;
+    private boolean decoupleEnvironment;
+
+    public PersistenceConfig(String modelPath) {
+        this.modelPath = modelPath;
+        decoupleEnvironment = DEFAULT_DECOUPLE_ENVIRONMENT;
+    }
+
+
+    public PersistenceConfig() {
+        decoupleEnvironment = DEFAULT_DECOUPLE_ENVIRONMENT;
+    }
+
+
+    public String getModelPath() {
+        return modelPath;
+    }
+
+
+    /**
+     * Could be overwritten by setting an AASEnvironment
+     */
+    public void setModelPath(String modelPath) {
+        this.modelPath = modelPath;
+    }
+
+
+    public AssetAdministrationShellEnvironment getEnvironment() {
+        return environment;
+    }
+
+
+    /**
+     * Overwrites the AASEnvironment from model path
+     * 
+     * @param environment
+     */
+    public void setEnvironment(AssetAdministrationShellEnvironment environment) {
+        this.environment = environment;
+    }
+
+
+    public boolean isDecoupleEnvironment() {
+        return decoupleEnvironment;
+    }
+
+
+    /**
+     * If true then a copied version of the environment is used
+     *
+     * @param decoupleEnvironment
+     */
+    public void setDecoupleEnvironment(boolean decoupleEnvironment) {
+        this.decoupleEnvironment = decoupleEnvironment;
+    }
 
     /**
      * Abstract builder class that should be used for builders of inheriting
@@ -35,6 +94,23 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
      * @param <B> type of this builder, needed for inheritance builder pattern
      */
     public abstract static class AbstractBuilder<T extends Persistence, C extends PersistenceConfig<T>, B extends AbstractBuilder<T, C, B>> extends ExtendableBuilder<C, B> {
+
+        public B modelPath(String modelPath) {
+            getBuildingInstance().setModelPath(modelPath);
+            return getSelf();
+        }
+
+
+        public B environment(AssetAdministrationShellEnvironment env) {
+            getBuildingInstance().setEnvironment(env);
+            return getSelf();
+        }
+
+
+        public B decoupleEnvironment(boolean decouple) {
+            getBuildingInstance().setDecoupleEnvironment(decouple);
+            return getSelf();
+        }
 
     }
 

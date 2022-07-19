@@ -125,6 +125,7 @@ public class HttpEndpointIT {
                         .requestHandlerThreadPoolSize(2)
                         .build())
                 .persistence(PersistenceInMemoryConfig.builder()
+                        .environment(environment)
                         .build())
                 .endpoints(List.of(HttpEndpointConfig.builder()
                         .port(PORT)
@@ -132,7 +133,7 @@ public class HttpEndpointIT {
                 .messageBus(MessageBusInternalConfig.builder()
                         .build())
                 .build();
-        service = new Service(environment, serviceConfig);
+        service = new Service(serviceConfig);
         messageBus = service.getMessageBus();
         service.start();
     }

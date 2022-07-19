@@ -15,15 +15,16 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection.TestAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
-import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal;
+import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASSimple;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,19 +39,24 @@ public class TestService extends Service {
     /**
      * Creates a new instance of TestService
      *
-     * @param endpoint
-     * @param assetConnection The desired AssetConnection
+     * @param assetConnectionConfig The desired AssetConnection
      * @param full True if the full example is requested, otherwise the simple
      *            is used
      * @throws ConfigurationException If the operation fails
      */
     @SuppressWarnings("rawtypes")
-    public TestService(Endpoint endpoint, AssetConnection assetConnection, boolean full) throws ConfigurationException, AssetConnectionException {
-        super(CoreConfig.builder().build(),
-                full ? AASFull.ENVIRONMENT : AASSimple.ENVIRONMENT,
-                new PersistenceInMemory(),
-                new MessageBusInternal(),
-                List.of(endpoint),
-                assetConnection != null ? List.of(assetConnection) : new ArrayList<>());
+    public TestService(OpcUaEndpointConfig config, TestAssetConnectionConfig assetConnectionConfig, boolean full) throws ConfigurationException, AssetConnectionException {
+        super(ServiceConfig.builder()
+                .core(CoreConfig.builder()
+                        .requestHandlerThreadPoolSize(2)
+                        .build())
+                .persistence(PersistenceInMemoryConfig.builder()
+                        .environment(full ? AASFull.ENVIRONMENT : AASSimple.ENVIRONMENT)
+                        .build())
+                .endpoint(config)
+                .messageBus(MessageBusInternalConfig.builder()
+                        .build())
+                .assetConnections(assetConnectionConfig != null ? List.of(assetConnectionConfig) : new ArrayList<>())
+                .build());
     }
 }
