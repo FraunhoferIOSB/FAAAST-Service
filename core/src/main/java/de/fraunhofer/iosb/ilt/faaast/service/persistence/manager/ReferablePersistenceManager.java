@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.manager;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
@@ -36,7 +36,7 @@ import java.util.Objects;
 
 
 /**
- * Class to handle {@link io.adminshell.aas.v3.model.Referable}
+ * Class to handle {@link Referable}
  */
 public class ReferablePersistenceManager extends PersistenceManager {
 
@@ -71,15 +71,15 @@ public class ReferablePersistenceManager extends PersistenceManager {
      * Get the submodel elements associated to the reference.Supported are two
      * possible parents of submodel elements:
      * <ul>
-     * <li>{@link io.adminshell.aas.v3.model.Submodel}
-     * <li>{@link io.adminshell.aas.v3.model.SubmodelElementCollection}
+     * <li>{@link Submodel}
+     * <li>{@link SubmodelElementCollection}
      * </ul>
      *
      * @param reference to the submodel or submodel element collection
      * @param semanticId of the submodel elements
      * @return List of submodel elements matching the parameters
      * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException
+     * ResourceNotFoundException
      *             if resource is not found
      */
     public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId) throws ResourceNotFoundException {
@@ -111,8 +111,8 @@ public class ReferablePersistenceManager extends PersistenceManager {
      * submodel element cannot be determined. Supported parent references could
      * be references to a
      * <ul>
-     * <li>{@link io.adminshell.aas.v3.model.Submodel} or to a
-     * <li>{@link io.adminshell.aas.v3.model.SubmodelElementCollection}
+     * <li>{@link Submodel} or to a
+     * <li>{@link SubmodelElementCollection}
      * </ul>
      *
      * @param parent reference to the parent
@@ -120,7 +120,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
      * @param submodelElement which should be updated or created
      * @return the updated or created submodel element
      * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException
+     * ResourceNotFoundException
      *             if resource is not found
      */
     public SubmodelElement putSubmodelElement(Reference parent, Reference reference, SubmodelElement submodelElement) throws ResourceNotFoundException {
@@ -155,11 +155,11 @@ public class ReferablePersistenceManager extends PersistenceManager {
 
 
     /**
-     * Remove a {@link io.adminshell.aas.v3.model.Referable}
+     * Remove a {@link Referable}
      *
      * @param reference of the referable which should be removed
      * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException
+     * ResourceNotFoundException
      *             if resource is not found
      */
     public void remove(Reference reference) throws ResourceNotFoundException {
