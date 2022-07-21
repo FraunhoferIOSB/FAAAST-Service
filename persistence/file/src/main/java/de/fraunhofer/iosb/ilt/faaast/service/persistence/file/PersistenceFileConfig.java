@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 import java.nio.file.Path;
+import java.util.Objects;
 
 
 /**
@@ -69,6 +70,28 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
 
     public void setLoadOriginalFileOnStartUp(boolean loadOriginalFileOnStartUp) {
         this.loadOriginalFileOnStartUp = loadOriginalFileOnStartUp;
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PersistenceFileConfig other = (PersistenceFileConfig) obj;
+        if (!Objects.equals(this.destination, other.destination)) {
+            return false;
+        }
+        if (!Objects.equals(this.overrideOriginalModelFile, other.overrideOriginalModelFile)) {
+            return false;
+        }
+        return Objects.equals(this.loadOriginalFileOnStartUp, other.loadOriginalFileOnStartUp);
     }
 
 

@@ -73,9 +73,10 @@ public class AASEnvironmentHelper {
         Ensure.requireNonNull(dataFormat, "dataFormat must be non-null");
         String fileExtension = FilenameUtils.getExtension(file.getName());
         if (!dataFormat.getFileExtensions().contains(fileExtension)) {
+            String dataFormatFileExtensions = String.join(",", dataFormat.getFileExtensions());
             LOGGER.warn("attempting to read AAS environment file with unsupported file extension (data format: {}, supported file extensions: {}, actual file extension: {}",
                     dataFormat,
-                    String.join(",", dataFormat.getFileExtensions()),
+                    dataFormatFileExtensions,
                     fileExtension);
         }
         if (dataFormat == DataFormat.AASX) {

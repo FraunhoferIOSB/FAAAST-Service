@@ -41,19 +41,15 @@ public class PersistenceFileLoadingFileTest {
     public static final String SRC_TEST_RESOURCES = "src/test/resources";
     private AssetAdministrationShellEnvironment environment;
     private Persistence persistence;
-    private ServiceContext serviceContext;
-
-    private static PersistenceFileConfig config;
 
     private static final String ENV_FILE = "src/test/resources/AASFull.json";
 
     public void init(PersistenceFileConfig persistenceFileConfig) throws ConfigurationException, AssetConnectionException {
         this.environment = AASFull.createEnvironment();
         this.persistence = new PersistenceFile();
-        serviceContext = Mockito.mock(ServiceContext.class);
-        config = persistenceFileConfig;
+        ServiceContext serviceContext = Mockito.mock(ServiceContext.class);
         persistence.init(CoreConfig.builder().build(),
-                config,
+                persistenceFileConfig,
                 serviceContext);
     }
 
@@ -117,7 +113,7 @@ public class PersistenceFileLoadingFileTest {
 
     @After
     public void cleanUp() throws IOException {
-        Files.deleteIfExists(Path.of(config.getDestination(), FileHelper.FILENAME));
+        Files.deleteIfExists(((PersistenceFile) persistence).getFilePath());
     }
 
 }

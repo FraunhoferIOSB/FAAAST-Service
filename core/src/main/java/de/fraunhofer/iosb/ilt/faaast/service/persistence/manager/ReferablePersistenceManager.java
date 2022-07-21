@@ -85,7 +85,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
     public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId) throws ResourceNotFoundException {
         ensureInitialized();
         if (reference == null || reference.getKeys() == null || reference.getKeys().isEmpty()) {
-            return null;
+            return List.of();
         }
         Referable referable = AasUtils.resolve(reference, aasEnvironment);
         if (referable == null) {

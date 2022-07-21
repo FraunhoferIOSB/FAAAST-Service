@@ -56,6 +56,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -68,13 +69,12 @@ public class PersistenceFileTest {
 
     private AssetAdministrationShellEnvironment environment;
     private Persistence persistence;
-    private ServiceContext serviceContext;
 
     @Before
     public void init() throws ConfigurationException, AssetConnectionException {
         this.environment = AASFull.createEnvironment();
         this.persistence = new PersistenceFile();
-        serviceContext = Mockito.mock(ServiceContext.class);
+        ServiceContext serviceContext = Mockito.mock(ServiceContext.class);
         persistence.init(CoreConfig.builder().build(),
                 PersistenceFileConfig.builder()
                         .environment(environment)
@@ -478,14 +478,13 @@ public class PersistenceFileTest {
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
         String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
         Reference parent = ReferenceBuilderHelper.build(aasId, submodelId, submodelElementCollectionIdShort);
-        Assert.assertEquals(((SubmodelElementCollection) environment.getSubmodels().stream()
+        Assert.assertNull(((SubmodelElementCollection) Objects.requireNonNull(environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(submodelId))
                 .findFirst().get().getSubmodelElements().stream()
                 .filter(y -> y.getIdShort().equalsIgnoreCase(submodelElementCollectionIdShort))
-                .findFirst().orElse(null))
+                .findFirst().orElse(null)))
                         .getValues().stream()
-                        .filter(x -> x.getIdShort().equalsIgnoreCase(idShort)).findFirst().orElse(null),
-                null);
+                        .filter(x -> x.getIdShort().equalsIgnoreCase(idShort)).findFirst().orElse(null));
         persistence.put(parent, null, expected);
         SubmodelElement actual = persistence.get(ReferenceBuilderHelper.build(aasId, submodelId, submodelElementCollectionIdShort, idShort), QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
@@ -696,7 +695,7 @@ public class PersistenceFileTest {
     @AfterClass
     public static void cleanUp() throws IOException {
         Files.deleteIfExists(Path.of(PersistenceFileConfig.builder()
-                .build().getDestination(), FileHelper.FILENAME));
+                .build().getDestination(), FileHelper.DEFAULT_FILENAME));
     }
 
 }

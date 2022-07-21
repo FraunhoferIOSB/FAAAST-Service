@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
@@ -38,23 +39,21 @@ public class FileHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHelper.class);
     public static final String FILENAME_SUFFIX = "json";
 
-    public static String DEFAULT_FILENAME = "environment_createdByFAAAST" + "." + FILENAME_SUFFIX;
-    public static String FILENAME = DEFAULT_FILENAME;
+    public static final String DEFAULT_FILENAME = "environment_createdByFAAAST" + "." + FILENAME_SUFFIX;
+
+    private String filename = DEFAULT_FILENAME;
 
     private String destination;
 
-    private PersistenceFileConfig config;
-
-    private ExecutorService executorService;
+    private final ExecutorService executorService;
 
     public FileHelper(PersistenceFileConfig config) {
-        this.config = config;
         this.destination = config.getDestination();
 
         if (config.isOverrideOriginalModelFile()) {
             Ensure.requireNonNull(config.getModelPath());
             File modelFile = new File(config.getModelPath());
-            FILENAME = modelFile.getName();
+            filename = modelFile.getName();
             destination = modelFile.getParent();
         }
 
@@ -66,16 +65,19 @@ public class FileHelper {
     }
 
 
-    public String save(AssetAdministrationShellEnvironment environment) {
+    public Path getFilePath() {
+        return Path.of(destination, filename);
+    }
+
+
+    public void save(AssetAdministrationShellEnvironment environment) {
         try {
-            String path = Path.of(destination, FILENAME).toString();
-            FileWriter myWriter = new FileWriter(path);
+            FileWriter myWriter = new FileWriter(getFilePath().toString());
             myWriter.write(new JsonSerializer().write(environment));
             myWriter.close();
-            return path;
         }
         catch (IOException | SerializationException e) {
-            throw new RuntimeException(e);
+            LOGGER.error(String.format("Could not save environment to file %s", Path.of(destination, filename)), e);
         }
     }
 
@@ -86,10 +88,10 @@ public class FileHelper {
 
 
     public AssetAdministrationShellEnvironment loadAASEnvironment() throws IOException, DeserializationException {
-        String path = Path.of(destination, FILENAME).toString();
+        String path = Path.of(destination, filename).toString();
         File f = new File(path);
         if (f.exists() && !f.isDirectory()) {
-            String env = FileUtils.readFileToString(new File(path), "UTF-8");
+            String env = FileUtils.readFileToString(new File(path), Charsets.UTF_8);
             return new JsonDeserializer().read(env);
         }
         return null;

@@ -51,6 +51,7 @@ import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Before;
@@ -62,7 +63,6 @@ public class PersistenceBasicTest {
 
     private AssetAdministrationShellEnvironment environment;
     private Persistence persistence;
-    private ServiceContext serviceContext;
 
     class PersistenceTest extends PersistenceBasic<PersistenceTestConfig> {
         public String afterInitValue;
@@ -101,7 +101,7 @@ public class PersistenceBasicTest {
     public void init() throws ConfigurationException, AssetConnectionException {
         environment = AASFull.createEnvironment();
         persistence = new PersistenceTest();
-        serviceContext = Mockito.mock(ServiceContext.class);
+        ServiceContext serviceContext = Mockito.mock(ServiceContext.class);
         persistence.init(CoreConfig.builder().build(),
                 PersistenceTestConfig.builder()
                         .environment(environment)
@@ -510,14 +510,13 @@ public class PersistenceBasicTest {
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
         String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
         Reference parent = ReferenceBuilderHelper.build(aasId, submodelId, submodelElementCollectionIdShort);
-        Assert.assertEquals(((SubmodelElementCollection) environment.getSubmodels().stream()
+        Assert.assertNull(((SubmodelElementCollection) Objects.requireNonNull(environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(submodelId))
                 .findFirst().get().getSubmodelElements().stream()
                 .filter(y -> y.getIdShort().equalsIgnoreCase(submodelElementCollectionIdShort))
-                .findFirst().orElse(null))
+                .findFirst().orElse(null)))
                         .getValues().stream()
-                        .filter(x -> x.getIdShort().equalsIgnoreCase(idShort)).findFirst().orElse(null),
-                null);
+                        .filter(x -> x.getIdShort().equalsIgnoreCase(idShort)).findFirst().orElse(null));
         persistence.put(parent, null, expected);
         SubmodelElement actual = persistence.get(ReferenceBuilderHelper.build(aasId, submodelId, submodelElementCollectionIdShort, idShort), QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);

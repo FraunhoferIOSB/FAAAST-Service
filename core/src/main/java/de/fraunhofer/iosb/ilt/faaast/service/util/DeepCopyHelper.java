@@ -102,7 +102,7 @@ public class DeepCopyHelper {
      * @throws RuntimeException when operation fails
      */
     public static <T extends Referable> List<T> deepCopy(Collection<? extends T> referables,
-                                                         Class<T> outputClass) {
+                                                         Class<? extends T> outputClass) {
         if (outputClass == null) {
             throw new IllegalArgumentException("outputClass must be non-null");
         }

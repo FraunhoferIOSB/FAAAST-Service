@@ -46,7 +46,7 @@ public class EnvironmentHelper {
                 .stream()
                 .filter(filter)
                 .collect(Collectors.toList());
-        Class shellClass = shellList.size() > 0 ? shellList.get(0).getClass() : DefaultAssetAdministrationShell.class;
+        Class<? extends AssetAdministrationShell> shellClass = !shellList.isEmpty() ? shellList.get(0).getClass() : DefaultAssetAdministrationShell.class;
         return DeepCopyHelper.deepCopy(shellList,
                 shellClass);
     }

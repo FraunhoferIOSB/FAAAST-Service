@@ -56,7 +56,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 
 
-public abstract class PersistenceBasic<T extends PersistenceConfig> implements Persistence<T> {
+public abstract class PersistenceBasic<T extends PersistenceConfig<?>> implements Persistence<T> {
     private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
     protected AssetAdministrationShellEnvironment aasEnvironment;
     private T config;
@@ -66,7 +66,7 @@ public abstract class PersistenceBasic<T extends PersistenceConfig> implements P
     protected final PackagePersistenceManager packagePersistenceManager;
     protected final ReferablePersistenceManager referablePersistenceManager;
 
-    public PersistenceBasic() {
+    protected PersistenceBasic() {
         operationResultMap = new ConcurrentHashMap<>();
         operationHandleMap = new ConcurrentHashMap<>();
         identifiablePersistenceManager = new IdentifiablePersistenceManager();
@@ -125,13 +125,13 @@ public abstract class PersistenceBasic<T extends PersistenceConfig> implements P
 
 
     @Override
-    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException {
+    public <I extends Identifiable> I get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException {
         if (id == null) {
             return null;
         }
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
-        return (T) QueryModifierHelper.applyQueryModifier(
-                (Identifiable) identifiablePersistenceManager.getIdentifiableById(id),
+        return (I) QueryModifierHelper.applyQueryModifier(
+                (I) identifiablePersistenceManager.getIdentifiableById(id),
                 modifier);
     }
 
@@ -296,7 +296,7 @@ public abstract class PersistenceBasic<T extends PersistenceConfig> implements P
 
 
     @Override
-    public TypeInfo getTypeInfo(Reference reference) {
+    public TypeInfo<?> getTypeInfo(Reference reference) {
         return TypeExtractor.extractTypeInfo(AasUtils.resolve(reference, getEnvironment()));
     }
 

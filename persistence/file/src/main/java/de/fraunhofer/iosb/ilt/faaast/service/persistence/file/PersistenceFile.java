@@ -26,6 +26,7 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 
 /**
@@ -47,17 +48,11 @@ public class PersistenceFile extends PersistenceBasic<PersistenceFileConfig> {
     @Override
     public void initAASEnvironment(PersistenceFileConfig config) {
         fileHelper = new FileHelper(config);
-        if (!config.isLoadOriginalFileOnStartUp()) {
-            try {
+        try {
+            if (!config.isLoadOriginalFileOnStartUp()) {
                 aasEnvironment = fileHelper.loadAASEnvironment();
             }
-            catch (IOException | DeserializationException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        if (aasEnvironment == null) {
-            try {
+            if (aasEnvironment == null) {
                 if (config.getEnvironment() != null) {
                     aasEnvironment = config.isDecoupleEnvironment() ? DeepCopyHelper.deepCopy(config.getEnvironment()) : config.getEnvironment();
                 }
@@ -65,9 +60,9 @@ public class PersistenceFile extends PersistenceBasic<PersistenceFileConfig> {
                     aasEnvironment = AASEnvironmentHelper.fromFile(new File(config.getModelPath()));
                 }
             }
-            catch (DeserializationException e) {
-                throw new IllegalArgumentException("Error deserializing AAS Environment", e);
-            }
+        }
+        catch (DeserializationException | IOException e) {
+            throw new IllegalArgumentException("Error deserializing AAS Environment", e);
         }
         identifiablePersistenceManager.setAasEnvironment(aasEnvironment);
         referablePersistenceManager.setAasEnvironment(aasEnvironment);
@@ -75,9 +70,13 @@ public class PersistenceFile extends PersistenceBasic<PersistenceFileConfig> {
     }
 
 
+    public Path getFilePath() {
+        return fileHelper.getFilePath();
+    }
+
+
     @Override
     public void afterInit() {
-
         fileHelper.save(super.getEnvironment());
     }
 
