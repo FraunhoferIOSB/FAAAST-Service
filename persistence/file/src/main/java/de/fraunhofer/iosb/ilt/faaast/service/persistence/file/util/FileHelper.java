@@ -71,10 +71,8 @@ public class FileHelper {
 
 
     public void save(AssetAdministrationShellEnvironment environment) {
-        try {
-            FileWriter myWriter = new FileWriter(getFilePath().toString());
+        try (FileWriter myWriter = new FileWriter(getFilePath().toString())) {
             myWriter.write(new JsonSerializer().write(environment));
-            myWriter.close();
         }
         catch (IOException | SerializationException e) {
             LOGGER.error(String.format("Could not save environment to file %s", Path.of(destination, filename)), e);

@@ -95,6 +95,12 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
     }
 
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this);
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
