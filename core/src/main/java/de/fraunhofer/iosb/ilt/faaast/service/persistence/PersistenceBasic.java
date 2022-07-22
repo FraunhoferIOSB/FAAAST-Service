@@ -130,7 +130,7 @@ public abstract class PersistenceBasic<T extends PersistenceConfig<?>> implement
             return null;
         }
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
-        return (I) QueryModifierHelper.applyQueryModifier(
+        return QueryModifierHelper.applyQueryModifier(
                 (I) identifiablePersistenceManager.getIdentifiableById(id),
                 modifier);
     }
