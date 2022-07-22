@@ -48,6 +48,7 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -95,7 +96,7 @@ public abstract class PersistenceBasic<T extends PersistenceConfig<?>> implement
                 aasEnvironment = AASEnvironmentHelper.fromFile(new File(config.getModelPath()));
             }
         }
-        catch (DeserializationException e) {
+        catch (DeserializationException | IOException e) {
             throw new IllegalArgumentException("Error deserializing AAS Environment", e);
         }
         identifiablePersistenceManager.setAasEnvironment(aasEnvironment);

@@ -14,21 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.file.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.file.PersistenceFileConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.DeserializationException;
 import io.adminshell.aas.v3.dataformat.SerializationException;
-import io.adminshell.aas.v3.dataformat.json.JsonDeserializer;
-import io.adminshell.aas.v3.dataformat.json.JsonSerializer;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.apache.commons.codec.Charsets;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +46,8 @@ public class FileHelper {
 
     private final ExecutorService executorService;
 
+    private final DataFormat dataFormat;
+
     public FileHelper(PersistenceFileConfig config) {
         this.destination = config.getDestination();
 
@@ -56,6 +57,13 @@ public class FileHelper {
             filename = modelFile.getName();
             destination = modelFile.getParent();
         }
+
+        List<DataFormat> possibleDataFormats = DataFormat.forFileExtension(FilenameUtils.getExtension(filename));
+        if (possibleDataFormats.size() > 1) {
+            LOGGER.warn(String.format("Found multiple possible Serializers. Using Serializer for %s",
+                    possibleDataFormats.get(0).toString()));
+        }
+        dataFormat = possibleDataFormats.get(0);
 
         executorService = Executors.newFixedThreadPool(
                 1,
@@ -71,8 +79,8 @@ public class FileHelper {
 
 
     public void save(AssetAdministrationShellEnvironment environment) {
-        try (FileWriter myWriter = new FileWriter(getFilePath().toString())) {
-            myWriter.write(new JsonSerializer().write(environment));
+        try {
+            AASEnvironmentHelper.toFile(environment, dataFormat, new File(String.valueOf(getFilePath())));
         }
         catch (IOException | SerializationException e) {
             LOGGER.error(String.format("Could not save environment to file %s", Path.of(destination, filename)), e);
@@ -89,8 +97,7 @@ public class FileHelper {
         String path = Path.of(destination, filename).toString();
         File f = new File(path);
         if (f.exists() && !f.isDirectory()) {
-            String env = FileUtils.readFileToString(new File(path), Charsets.UTF_8);
-            return new JsonDeserializer().read(env);
+            return AASEnvironmentHelper.fromFile(f);
         }
         return null;
     }

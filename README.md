@@ -510,7 +510,7 @@ The file persistence keeps the entire AAS Environment in a model file which is s
 
 File Persistence configuration supports the following configuration parameters:
 -   `destination` (optional, default: `/`): Path under which the model file created by the persistence is to be saved
--   `overrideOriginalModelFile` (optional, default: `false`): If true the model file parsed on startup will be overriden with changes. If false a copy of the model file will be created by the persistence which keeps the changes. At this moment only JSON files are supported to be overriden.
+-   `overrideOriginalModelFile` (optional, default: `false`): If true the model file parsed on startup will be overriden with changes. If false a copy of the model file will be created by the persistence which keeps the changes.
 -   `loadOriginalFileOnStartUp` (optional, default: `false`): If true the original file is loaded at every startup. If false, the created model file with the changes is loaded at startup.
 
 Example configuration for the file persistence:
