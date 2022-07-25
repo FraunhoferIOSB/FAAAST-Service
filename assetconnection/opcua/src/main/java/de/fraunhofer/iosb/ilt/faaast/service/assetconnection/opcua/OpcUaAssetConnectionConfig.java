@@ -12,10 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.config;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
@@ -29,6 +28,8 @@ public class OpcUaAssetConnectionConfig
         extends AssetConnectionConfig<OpcUaAssetConnection, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig> {
 
     private String host;
+    private String username;
+    private String password;
 
     @Override
     public boolean equals(Object o) {
@@ -54,9 +55,29 @@ public class OpcUaAssetConnectionConfig
     }
 
 
+    public String getUsername() {
+        return username;
+    }
+
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+
+    public String getPassword() {
+        return password;
+    }
+
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), host);
+        return Objects.hash(super.hashCode(), host, username, password);
     }
 
 
@@ -70,6 +91,18 @@ public class OpcUaAssetConnectionConfig
 
         public B host(String value) {
             getBuildingInstance().setHost(value);
+            return getSelf();
+        }
+
+
+        public B username(String value) {
+            getBuildingInstance().setUsername(value);
+            return getSelf();
+        }
+
+
+        public B password(String value) {
+            getBuildingInstance().setPassword(value);
             return getSelf();
         }
     }

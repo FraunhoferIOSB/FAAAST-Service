@@ -30,9 +30,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.Reference;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.http.HttpClient;
 import java.util.HashMap;
 import java.util.Map;
+import org.codehaus.plexus.util.StringUtils;
 
 
 /**
@@ -69,7 +72,16 @@ public class HttpAssetConnection
     private final Map<Reference, AssetValueProvider> valueProviders;
 
     public HttpAssetConnection() {
-        client = HttpClient.newBuilder().build();
+        HttpClient.Builder builder = HttpClient.newBuilder();
+        if (StringUtils.isNotBlank(config.getUsername())) {
+            builder = builder.authenticator(new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(config.getUsername(), config.getPassword().toCharArray());
+                }
+            });
+        }
+        client = builder.build();
         valueProviders = new HashMap<>();
         operationProviders = new HashMap<>();
         subscriptionProviders = new HashMap<>();

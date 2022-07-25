@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.config.OpcUaAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.OpcUaOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.OpcUaSubscriptionProvider;
@@ -37,8 +36,11 @@ import io.adminshell.aas.v3.model.Reference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
+import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
+import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
@@ -123,6 +125,9 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
 
 
     private void connect() throws AssetConnectionException {
+        IdentityProvider identityProvider = StringUtils.isAllBlank(config.getUsername())
+                ? AnonymousProvider.INSTANCE
+                : new UsernameProvider(config.getUsername(), config.getPassword());
         try {
             client = OpcUaClient.create(
                     config.getHost(),
@@ -132,7 +137,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
                     configBuilder -> configBuilder
                             .setApplicationName(LocalizedText.english("AAS-Service"))
                             .setApplicationUri("urn:de:fraunhofer:iosb:aas:service")
-                            .setIdentityProvider(AnonymousProvider.INSTANCE)
+                            .setIdentityProvider(identityProvider)
                             .setRequestTimeout(uint(1000))
                             .setAcknowledgeTimeout(uint(1000))
                             .build());

@@ -29,6 +29,8 @@ import java.util.Objects;
 public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetConnection, HttpValueProviderConfig, HttpOperationProviderConfig, HttpSubscriptionProviderConfig> {
 
     private URL baseUrl;
+    private String username;
+    private String password;
 
     public URL getBaseUrl() {
         return baseUrl;
@@ -40,9 +42,29 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
     }
 
 
+    public String getUsername() {
+        return username;
+    }
+
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+
+    public String getPassword() {
+        return password;
+    }
+
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(baseUrl);
+        return Objects.hash(baseUrl, username, password);
     }
 
 
@@ -58,10 +80,10 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
             return false;
         }
         final HttpAssetConnectionConfig other = (HttpAssetConnectionConfig) obj;
-        if (!Objects.equals(this.baseUrl, other.baseUrl)) {
-            return false;
-        }
-        return Objects.equals(this.baseUrl, other.baseUrl);
+        return super.equals(other)
+                && Objects.equals(this.baseUrl, other.baseUrl)
+                && Objects.equals(this.username, other.username)
+                && Objects.equals(this.password, other.password);
     }
 
 
@@ -81,6 +103,18 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
 
         public B baseUrl(String value) throws MalformedURLException {
             getBuildingInstance().setBaseUrl(new URL(value));
+            return getSelf();
+        }
+
+
+        public B username(String value) {
+            getBuildingInstance().setUsername(value);
+            return getSelf();
+        }
+
+
+        public B password(String value) {
+            getBuildingInstance().setPassword(value);
             return getSelf();
         }
 
