@@ -170,9 +170,9 @@ public class MqttAssetConnection
             options.setCleanSession(true);
             if (StringUtils.isNotBlank(config.getUsername())) {
                 options.setUserName(config.getUsername());
-            }
-            if (StringUtils.isNotBlank(config.getPassword())) {
-                options.setPassword(config.getPassword().toCharArray());
+                options.setPassword(config.getPassword() != null
+                        ? config.getPassword().toCharArray()
+                        : new char[0]);
             }
             client.connect(options);
             for (var providerConfig: config.getValueProviders().entrySet()) {
