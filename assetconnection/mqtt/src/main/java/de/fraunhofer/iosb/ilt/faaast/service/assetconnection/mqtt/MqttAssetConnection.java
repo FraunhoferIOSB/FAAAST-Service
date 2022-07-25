@@ -31,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.HashMap;
 import java.util.Map;
+import org.codehaus.plexus.util.StringUtils;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -167,8 +168,13 @@ public class MqttAssetConnection
             });
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);
+            if (StringUtils.isNotBlank(config.getUsername())) {
+                options.setUserName(config.getUsername());
+                options.setPassword(config.getPassword() != null
+                        ? config.getPassword().toCharArray()
+                        : new char[0]);
+            }
             client.connect(options);
-
             for (var providerConfig: config.getValueProviders().entrySet()) {
                 registerValueProvider(providerConfig.getKey(), providerConfig.getValue());
             }
