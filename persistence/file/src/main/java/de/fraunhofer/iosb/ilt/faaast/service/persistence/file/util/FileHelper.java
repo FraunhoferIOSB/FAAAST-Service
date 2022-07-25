@@ -25,10 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,40 +34,53 @@ import org.slf4j.LoggerFactory;
 public class FileHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHelper.class);
-    public static final String FILENAME_SUFFIX = "json";
 
-    public static final String DEFAULT_FILENAME = "environment_createdByFAAAST" + "." + FILENAME_SUFFIX;
+    public static final DataFormat DEFAULT_DATAFORMAT = DataFormat.JSON;
+
+    public static final String DEFAULT_FILENAME_PREFIX = "environment_createdByFAAAST";
+    public static final String DEFAULT_FILENAME = DEFAULT_FILENAME_PREFIX + "." + DEFAULT_DATAFORMAT.toString().toLowerCase();
 
     private String filename = DEFAULT_FILENAME;
 
     private String destination;
 
-    private final ExecutorService executorService;
+    private DataFormat dataFormat = DEFAULT_DATAFORMAT;
 
-    private final DataFormat dataFormat;
+    private final PersistenceFileConfig config;
 
     public FileHelper(PersistenceFileConfig config) {
         this.destination = config.getDestination();
+        this.config = config;
+        settingFileName();
+    }
 
+
+    private void settingFileName() {
         if (config.isOverrideOriginalModelFile()) {
             Ensure.requireNonNull(config.getModelPath());
             File modelFile = new File(config.getModelPath());
             filename = modelFile.getName();
             destination = modelFile.getParent();
+            dataFormat = findDataFormat(modelFile.getName());
         }
+        else if (StringUtils.isNotBlank(config.getModelPath()) && config.getDesiredDataformat() == null) {
+            dataFormat = findDataFormat(config.getModelPath());
+            filename = DEFAULT_FILENAME_PREFIX + "." + dataFormat.toString().toLowerCase();
+        }
+        else if (config.getDesiredDataformat() != null) {
+            dataFormat = config.getDesiredDataformat();
+            filename = DEFAULT_FILENAME_PREFIX + "." + dataFormat.toString().toLowerCase();
+        }
+    }
 
+
+    private DataFormat findDataFormat(String filename) {
         List<DataFormat> possibleDataFormats = DataFormat.forFileExtension(FilenameUtils.getExtension(filename));
         if (possibleDataFormats.size() > 1) {
             LOGGER.warn(String.format("Found multiple possible Serializers. Using Serializer for %s",
                     possibleDataFormats.get(0).toString()));
         }
-        dataFormat = possibleDataFormats.get(0);
-
-        executorService = Executors.newFixedThreadPool(
-                1,
-                new BasicThreadFactory.Builder()
-                        .namingPattern("FileHelper" + "-%d")
-                        .build());
+        return possibleDataFormats.get(0);
     }
 
 
@@ -85,11 +96,6 @@ public class FileHelper {
         catch (IOException | SerializationException e) {
             LOGGER.error(String.format("Could not save environment to file %s", Path.of(destination, filename)), e);
         }
-    }
-
-
-    public void saveAsync(AssetAdministrationShellEnvironment environment) {
-        executorService.submit(() -> save(environment));
     }
 
 

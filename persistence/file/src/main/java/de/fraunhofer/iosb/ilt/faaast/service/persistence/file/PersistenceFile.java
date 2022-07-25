@@ -59,6 +59,7 @@ public class PersistenceFile extends PersistenceBasic<PersistenceFileConfig> {
                 else {
                     aasEnvironment = AASEnvironmentHelper.fromFile(new File(config.getModelPath()));
                 }
+                fileHelper.save(aasEnvironment);
             }
         }
         catch (DeserializationException | IOException e) {

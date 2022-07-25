@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -35,6 +36,8 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
     private static final boolean DEFAULT_LOAD_ORIGINAL_FILE = false;
 
     private boolean loadOriginalFileOnStartUp;
+
+    private DataFormat desiredDataformat;
 
     public PersistenceFileConfig() {
         this.destination = DEFAULT_BASE_PATH;
@@ -73,6 +76,16 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
     }
 
 
+    public DataFormat getDesiredDataformat() {
+        return desiredDataformat;
+    }
+
+
+    public void setDesiredDataformat(DataFormat desiredDataformat) {
+        this.desiredDataformat = desiredDataformat;
+    }
+
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -89,6 +102,9 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
             return false;
         }
         if (!Objects.equals(this.overrideOriginalModelFile, other.overrideOriginalModelFile)) {
+            return false;
+        }
+        if (!Objects.equals(this.desiredDataformat, other.desiredDataformat)) {
             return false;
         }
         return Objects.equals(this.loadOriginalFileOnStartUp, other.loadOriginalFileOnStartUp);
@@ -122,6 +138,12 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
 
         public B loadOriginalFileOnStartup(boolean loadOriginalFileOnStartup) {
             getBuildingInstance().setLoadOriginalFileOnStartUp(loadOriginalFileOnStartup);
+            return getSelf();
+        }
+
+
+        public B desiredDataformat(DataFormat dataFormat) {
+            getBuildingInstance().setDesiredDataformat(dataFormat);
             return getSelf();
         }
 
