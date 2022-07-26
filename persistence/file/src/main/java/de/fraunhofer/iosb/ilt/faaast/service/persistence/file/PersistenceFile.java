@@ -27,6 +27,8 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,12 +47,21 @@ public class PersistenceFile extends PersistenceBasic<PersistenceFileConfig> {
 
     private FileHelper fileHelper;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceFile.class);
+
     @Override
     public void initAASEnvironment(PersistenceFileConfig config) {
         fileHelper = new FileHelper(config);
         try {
             if (!config.isLoadOriginalFileOnStartUp()) {
                 aasEnvironment = fileHelper.loadAASEnvironment();
+                Path filePath = fileHelper.getFilePath().toAbsolutePath();
+                if (aasEnvironment != null) {
+                    LOGGER.info(String.format("File Persistence uses existing model file %s", filePath));
+                }
+                else {
+                    LOGGER.info(String.format("File Persistence creates model file %s", filePath));
+                }
             }
             if (aasEnvironment == null) {
                 if (config.getEnvironment() != null) {
@@ -71,6 +82,11 @@ public class PersistenceFile extends PersistenceBasic<PersistenceFileConfig> {
     }
 
 
+    /**
+     * Get the current file path of the model file used by the file persistence
+     *
+     * @return file path of the model file
+     */
     public Path getFilePath() {
         return fileHelper.getFilePath();
     }

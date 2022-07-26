@@ -57,6 +57,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 
 
+/**
+ * An implementation of a persistence can inherit from this abstract class.
+ * Provides create, read, update and delete actions with the element of the corresponding
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} in memory.
+ * An implementation can override the methods to perform custom actions.
+ *
+ * @param <T> type of the corresponding configuration class
+ */
 public abstract class PersistenceBasic<T extends PersistenceConfig<?>> implements Persistence<T> {
     private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
     protected AssetAdministrationShellEnvironment aasEnvironment;

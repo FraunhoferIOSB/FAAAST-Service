@@ -31,6 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Helper class for loading and saving {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} to/from a
+ * file
+ */
 public class FileHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHelper.class);
@@ -62,6 +66,7 @@ public class FileHelper {
             filename = modelFile.getName();
             destination = modelFile.getParent();
             dataFormat = findDataFormat(modelFile.getName());
+            LOGGER.info(String.format("File Persistence overrides the original model file %s", getFilePath().toAbsolutePath()));
         }
         else if (StringUtils.isNotBlank(config.getModelPath()) && config.getDesiredDataformat() == null) {
             dataFormat = findDataFormat(config.getModelPath());
@@ -84,11 +89,21 @@ public class FileHelper {
     }
 
 
+    /**
+     * Get the current file path of the model file used by the file persistence
+     *
+     * @return file path of the model file
+     */
     public Path getFilePath() {
         return Path.of(destination, filename);
     }
 
 
+    /**
+     * Saves the given {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} to a file
+     *
+     * @param environment to save
+     */
     public void save(AssetAdministrationShellEnvironment environment) {
         try {
             AASEnvironmentHelper.toFile(environment, dataFormat, new File(String.valueOf(getFilePath())));
@@ -99,6 +114,13 @@ public class FileHelper {
     }
 
 
+    /**
+     * Loads the {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} from a file
+     *
+     * @return the parsed {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
+     * @throws IOException if reading of file fails
+     * @throws DeserializationException if deserialization fails
+     */
     public AssetAdministrationShellEnvironment loadAASEnvironment() throws IOException, DeserializationException {
         String path = Path.of(destination, filename).toString();
         File f = new File(path);

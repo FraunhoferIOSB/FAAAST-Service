@@ -121,8 +121,7 @@ public class PersistenceFileLoadingFileTest {
 
     @Test
     public void loadXMLFileTest() throws ResourceNotFoundException, ConfigurationException, AssetConnectionException, IOException {
-        File copied = new File(
-                SRC_TEST_RESOURCES + "/AASFull.xml");
+        File copied = new File(ENV_FILE_XML);
         PersistenceFileConfig config = createPersistenceConfig(false, false, copied.getPath());
         init(config);
         String path = Path.of(config.getDestination(), FileHelper.DEFAULT_FILENAME_PREFIX + "." + "xml").toString();
@@ -133,8 +132,7 @@ public class PersistenceFileLoadingFileTest {
 
     @Test
     public void desiredDataFormatTest() throws ResourceNotFoundException, ConfigurationException, AssetConnectionException, IOException {
-        File copied = new File(
-                SRC_TEST_RESOURCES + "/AASFull.xml");
+        File copied = new File(ENV_FILE_XML);
         PersistenceFileConfig config = PersistenceFileConfig.builder()
                 .modelPath(copied.getAbsolutePath())
                 .destination(SRC_TEST_RESOURCES)
