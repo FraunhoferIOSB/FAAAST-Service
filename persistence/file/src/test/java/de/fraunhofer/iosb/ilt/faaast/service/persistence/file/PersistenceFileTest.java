@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceBasicSuperTest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceSuperTest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.file.util.FileHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.io.IOException;
@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import org.junit.AfterClass;
 
 
-public class PersistenceFileTest extends PersistenceBasicSuperTest {
+public class PersistenceFileTest extends PersistenceSuperTest {
 
     @Override
     public Persistence getPersistenceImplementation() {

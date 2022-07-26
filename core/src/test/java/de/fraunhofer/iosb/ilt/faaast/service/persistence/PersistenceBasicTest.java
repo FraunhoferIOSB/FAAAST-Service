@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public class PersistenceBasicTest extends PersistenceBasicSuperTest {
+public class PersistenceBasicTest extends PersistenceSuperTest {
 
     class PersistenceTest extends PersistenceBasic<PersistenceTestConfig> {
         public String afterInitValue;
