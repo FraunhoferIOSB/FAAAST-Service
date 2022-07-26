@@ -75,6 +75,18 @@ public enum Datatype {
     }
 
 
+    /**
+     * Checks if a given string is a valid (i.e. supported) datatype.
+     *
+     * @param name name of the datatype
+     * @return true is it is a valid datatype, otherwise false
+     */
+    public static boolean isValid(String name) {
+        return Stream.of(Datatype.values())
+                .anyMatch(x -> x.getName().equals(name));
+    }
+
+
     private Datatype(String name, Class<? extends TypedValue> implementation) {
         this.name = name;
         this.implementation = implementation;
