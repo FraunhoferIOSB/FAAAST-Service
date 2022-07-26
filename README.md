@@ -483,15 +483,13 @@ Each persistence configuration supports at least the following configuration par
 -   `decoupleEnvironment` (optional, default: `true`): Only applicable if the AAS Environment is given as Java Object. If set to true, the persistence makes a deep copy of the AAS Environment and decouples the internal AAS Environment from the AAS Environment parsed on startup. If set to false, the same object instance is used in the FA³ST Service, which may have unexpected side effects.
 
 Example of a persistence configuration:
-```
+```json
 {
-	...
 	"persistence" : {
 		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory",
 		"modelPath" : "{pathTo}/FAAAST-Service/misc/examples/demoAAS.json",
 		"decoupleEnvironment" : true
 	}
-	...
 }
 ```
 
@@ -512,17 +510,19 @@ File Persistence configuration supports the following configuration parameters:
 -   `destination` (optional, default: `/`): Path under which the model file created by the persistence is to be saved
 -   `overrideOriginalModelFile` (optional, default: `false`): If true the model file parsed on startup will be overriden with changes. If false a copy of the model file will be created by the persistence which keeps the changes.
 -   `loadOriginalFileOnStartUp` (optional, default: `false`): If true the original file is loaded at every startup. If false, the created model file with the changes is loaded at startup.
+-   `desiredDataformat` (optional, default: same data format as input file): Determines the data format of the created file by file persistence. Ignored if the `overrideOriginalModelFile` parameter is set to true. Supported data formats are `JSON`, `XML`, `AML`, `RDF`, `AASX`, `JSONLD`, `UANODESET`.
 
 Example configuration for the file persistence:
 
 ```json
 {
 	"persistence" : {
-		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceFile",
+		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.file.PersistenceFile",
 		"modelPath" : "{pathTo}/FAAAST-Service/misc/examples/demoAAS.json",
-		"destination": "{pathTo}/FAAAST-Service/misc/examples/",
+		"destination": ".",
 		"overrideOriginalModelFile": false,
-		"loadOriginalFileOnStartUp": false
+		"loadOriginalFileOnStartUp": false,
+		"desiredDataformat": "XML"
 	}
 }
 ```
