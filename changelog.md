@@ -8,7 +8,7 @@
 *   validation now checks for unsupported datatypes
 
 **Internal changes & Bugfixes**
-*
+*   fixed potential crash when initializing value with empty string althtough that is not a valid value according to the value type, e.g. int, double, etc. (empty string value is treated the same as null)
 
 ## Release version 0.1.0
 
