@@ -31,44 +31,9 @@ import java.util.List;
  * definitions.
  */
 public class ValueTypeValidator {
-    //
-    //    List<String> errors = new ArrayList<>();
-    //
-    //    private ValueTypeValidator() {
-    //        this.visitor = new DefaultAssetAdministrationShellElementVisitor() {
-    //            @Override
-    //            public void visit(Extension extension) {
-    //                DefaultAssetAdministrationShellElementVisitor.super.visit(extension);
-    //                if (extension != null && !Datatype.isValid(extension.getValueType())) {
-    //                    errors.add(
-    //                            String.format("Unsupported datatype '%s' found on element of type 'Extension' with name '%s'", extension.getValueType(), extension.getName()));
-    //                }
-    //            }
-    //
-    //            @Override
-    //            public void visit(Property property) {
-    //                DefaultAssetAdministrationShellElementVisitor.super.visit(property);
-    //                if (property != null && !Datatype.isValid(property.getValueType())) {
-    //                    errors.add(String.format("Unsupported datatype '%s' found on element of type 'Property' with idShort '%s'", property.getValueType(),
-    //                            property.getIdShort()));
-    //                }
-    //            }
-    //
-    //            @Override
-    //            public void visit(Qualifier qualifier) {
-    //                if (qualifier != null && !Datatype.isValid(qualifier.getValueType())) {
-    //                    errors.add(String.format("Unsupported datatype '%s' found on element of type 'Qualifier'", qualifier.getValueType()));
-    //                }
-    //            }
-    //
-    //            @Override
-    //            public void visit(Range range) {
-    //                if (range != null && !Datatype.isValid(range.getValueType())) {
-    //                    errors.add(String.format("Unsupported datatype '%s' found on element of type 'Range' with idShort '%s'", range.getValueType(), range.getIdShort()));
-    //                }
-    //            }
-    //        };
-    //    }
+
+    private ValueTypeValidator() {}
+
 
     /**
      * Validates datatypes used in a given AAS-model object recursively.
