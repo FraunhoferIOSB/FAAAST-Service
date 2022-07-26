@@ -66,7 +66,8 @@ public class FileHelper {
             filename = modelFile.getName();
             destination = modelFile.getParent();
             dataFormat = findDataFormat(modelFile.getName());
-            LOGGER.info(String.format("File Persistence overrides the original model file %s", getFilePath().toAbsolutePath()));
+            Path filePath = getFilePath().toAbsolutePath();
+            LOGGER.info("File Persistence overrides the original model file {}", filePath);
         }
         else if (StringUtils.isNotBlank(config.getModelPath()) && config.getDesiredDataformat() == null) {
             dataFormat = findDataFormat(config.getModelPath());
@@ -82,8 +83,8 @@ public class FileHelper {
     private DataFormat findDataFormat(String filename) {
         List<DataFormat> possibleDataFormats = DataFormat.forFileExtension(FilenameUtils.getExtension(filename));
         if (possibleDataFormats.size() > 1) {
-            LOGGER.warn(String.format("Found multiple possible Serializers. Using Serializer for %s",
-                    possibleDataFormats.get(0).toString()));
+            String possibleDataformat = possibleDataFormats.get(0).toString();
+            LOGGER.warn("Found multiple possible Serializers. Using Serializer for {}", possibleDataformat);
         }
         return possibleDataFormats.get(0);
     }

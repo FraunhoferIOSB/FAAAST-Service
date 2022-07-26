@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 public class AASEnvironmentHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AASEnvironmentHelper.class);
+    private static final String FILE_MUST_BE_NON_NULL = "file must be non-null";
     private static Map<DataFormat, Deserializer> deserializers;
     private static Map<DataFormat, Serializer> serializers;
     public static final AssetAdministrationShellEnvironment EMPTY_AAS = new DefaultAssetAdministrationShellEnvironment.Builder().build();
@@ -87,7 +88,7 @@ public class AASEnvironmentHelper {
      * @throws SerializationException if serialization fails
      */
     public static void toFile(AssetAdministrationShellEnvironment environment, DataFormat dataFormat, File file) throws IOException, SerializationException {
-        Ensure.requireNonNull(file, "file must be non-null");
+        Ensure.requireNonNull(file, FILE_MUST_BE_NON_NULL);
         Ensure.requireNonNull(dataFormat, "dataFormat must be non-null");
         Ensure.requireNonNull(environment, "AAS environment must be non-null");
 
@@ -124,7 +125,7 @@ public class AASEnvironmentHelper {
      * @throws FileNotFoundException if file is not found
      */
     public static AssetAdministrationShellEnvironment fromFile(File file, DataFormat dataFormat) throws DeserializationException, IOException {
-        Ensure.requireNonNull(file, "file must be non-null");
+        Ensure.requireNonNull(file, FILE_MUST_BE_NON_NULL);
         Ensure.requireNonNull(dataFormat, "dataFormat must be non-null");
         String fileExtension = FilenameUtils.getExtension(file.getName());
         if (!dataFormat.getFileExtensions().contains(fileExtension)) {
@@ -163,7 +164,7 @@ public class AASEnvironmentHelper {
      *             * @throws DeserializationException if deserialization fails
      */
     public static AssetAdministrationShellEnvironment fromFile(File file) throws DeserializationException, IOException {
-        Ensure.requireNonNull(file, "file must be non-null");
+        Ensure.requireNonNull(file, FILE_MUST_BE_NON_NULL);
         String fileExtension = FilenameUtils.getExtension(file.getName());
         List<DataFormat> potentialDataFormats = DataFormat.forFileExtension(fileExtension);
         if (potentialDataFormats.isEmpty()) {

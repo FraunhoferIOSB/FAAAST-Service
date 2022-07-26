@@ -57,10 +57,10 @@ public class PersistenceFile extends PersistenceBasic<PersistenceFileConfig> {
                 aasEnvironment = fileHelper.loadAASEnvironment();
                 Path filePath = fileHelper.getFilePath().toAbsolutePath();
                 if (aasEnvironment != null) {
-                    LOGGER.info(String.format("File Persistence uses existing model file %s", filePath));
+                    LOGGER.info("File Persistence uses existing model file {}", filePath);
                 }
                 else {
-                    LOGGER.info(String.format("File Persistence creates model file %s", filePath));
+                    LOGGER.info("File Persistence creates model file {}", filePath);
                 }
             }
             if (aasEnvironment == null) {
