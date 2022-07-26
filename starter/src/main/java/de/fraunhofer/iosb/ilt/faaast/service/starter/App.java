@@ -27,6 +27,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -412,6 +414,13 @@ public class App implements Runnable {
 
     private boolean validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
         LOGGER.debug("Validating model...");
+        try {
+            ValueTypeValidator.validate(aasEnv);
+        }
+        catch (ValidationException e) {
+            LOGGER.info("Model validation failed with the following error(s):{}{}", System.lineSeparator(), e.getMessage());
+            return false;
+        }
         ShaclValidator shaclValidator = ShaclValidator.getInstance();
         ValidationReport report = shaclValidator.validateGetReport(aasEnv);
         if (report.conforms()) {
