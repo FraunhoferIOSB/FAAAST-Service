@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,7 @@ public class DateTimeValue extends TypedValue<ZonedDateTime> {
 
     @Override
     public void fromString(String value) throws ValueFormatException {
-        if (value == null) {
+        if (StringUtils.isAllBlank(value)) {
             this.setValue(null);
             return;
         }

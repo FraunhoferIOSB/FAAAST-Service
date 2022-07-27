@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import org.apache.commons.lang3.StringUtils;
+
+
 public class DoubleValue extends TypedValue<Double> {
 
     public DoubleValue() {
@@ -34,7 +37,7 @@ public class DoubleValue extends TypedValue<Double> {
 
     @Override
     public void fromString(String value) throws ValueFormatException {
-        if (value == null) {
+        if (StringUtils.isAllBlank(value)) {
             this.setValue(null);
             return;
         }

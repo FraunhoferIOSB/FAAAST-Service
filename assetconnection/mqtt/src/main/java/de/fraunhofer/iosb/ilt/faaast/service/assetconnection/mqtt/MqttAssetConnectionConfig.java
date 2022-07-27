@@ -29,6 +29,8 @@ public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetCo
 
     private String serverUri;
     private String clientId;
+    private String username;
+    private String password;
 
     public MqttAssetConnectionConfig() {
         clientId = UUID.randomUUID().toString().replace("-", "");
@@ -55,9 +57,29 @@ public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetCo
     }
 
 
+    public String getUsername() {
+        return username;
+    }
+
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+
+    public String getPassword() {
+        return password;
+    }
+
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(serverUri, clientId);
+        return Objects.hash(serverUri, clientId, username, password);
     }
 
 
@@ -73,10 +95,11 @@ public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetCo
             return false;
         }
         final MqttAssetConnectionConfig other = (MqttAssetConnectionConfig) obj;
-        if (!Objects.equals(this.serverUri, other.serverUri)) {
-            return false;
-        }
-        return Objects.equals(this.clientId, other.clientId);
+        return super.equals(other)
+                && Objects.equals(this.serverUri, other.serverUri)
+                && Objects.equals(this.clientId, other.clientId)
+                && Objects.equals(this.username, other.username)
+                && Objects.equals(this.password, other.password);
     }
 
 
@@ -99,6 +122,18 @@ public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetCo
             return getSelf();
         }
 
+
+        public B username(String value) {
+            getBuildingInstance().setUsername(value);
+            return getSelf();
+        }
+
+
+        public B password(String value) {
+            getBuildingInstance().setPassword(value);
+            return getSelf();
+        }
+
     }
 
     public static class Builder extends AbstractBuilder<MqttAssetConnectionConfig, Builder> {
@@ -114,4 +149,5 @@ public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetCo
             return new MqttAssetConnectionConfig();
         }
     }
+
 }
