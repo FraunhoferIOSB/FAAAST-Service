@@ -409,6 +409,13 @@ public class App implements Runnable {
         LOGGER.info("|_|/_/    \\_\\     |_____/   |_|      |_____/ \\___|_|    \\_/ |_|\\___\\___|");
         LOGGER.info("");
         LOGGER.info("-------------------------------------------------------------------------");
+        try {
+            Stream.of(new PropertiesVersionProvider().getVersion()).forEach(LOGGER::info);
+        }
+        catch (Exception e) {
+            LOGGER.info("error determining version info (reason: {})", e.getMessage());
+        }
+        LOGGER.info("-------------------------------------------------------------------------");
     }
 
 
@@ -482,8 +489,8 @@ public class App implements Runnable {
         public String[] getVersion() throws Exception {
             Map<String, String> gitInfo = new ObjectMapper().readValue(App.class.getClassLoader().getResourceAsStream("git.json"), TYPE_MAP_STRING_STRING);
             return new String[] {
-                    String.format("%s v%s", APP_NAME, gitInfo.get(PATH_GIT_BUILD_VERSION)),
-                    String.format("Git Details: %s", gitInfo.get(PATH_GIT_COMMIT_ID_DESCRIBE)),
+                    String.format("Version %s", gitInfo.get(PATH_GIT_BUILD_VERSION)),
+                    String.format("Git Commit ID: %s", gitInfo.get(PATH_GIT_COMMIT_ID_DESCRIBE)),
                     String.format("Commit Time: %s", gitInfo.get(PATH_GIT_COMMIT_TIME)),
             };
         }
