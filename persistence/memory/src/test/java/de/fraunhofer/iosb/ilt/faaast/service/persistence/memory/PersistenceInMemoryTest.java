@@ -85,7 +85,7 @@ public class PersistenceInMemoryTest {
     public void configurationOfEnvironmentWithModelPathTest() throws ConfigurationInitializationException, ResourceNotFoundException {
         persistence.init(CoreConfig.builder().build(),
                 PersistenceInMemoryConfig.builder()
-                        .modelPath(MODEL_PATH)
+                        .initialModel(MODEL_PATH)
                         .build(),
                 serviceContext);
 
@@ -105,7 +105,7 @@ public class PersistenceInMemoryTest {
     public void configurationOfEnvironmentWithModelPathAndEnvironmentTest() throws ConfigurationInitializationException, ResourceNotFoundException {
         persistence.init(CoreConfig.builder().build(),
                 PersistenceInMemoryConfig.builder()
-                        .modelPath(MODEL_PATH)
+                        .initialModel(MODEL_PATH)
                         .environment(environment)
                         .build(),
                 serviceContext);

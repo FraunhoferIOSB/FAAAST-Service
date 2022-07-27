@@ -16,8 +16,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import io.adminshell.aas.v3.dataformat.DeserializationException;
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -25,64 +32,92 @@ import java.util.Objects;
  */
 public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceFileConfig.class);
     private static final String DEFAULT_BASE_PATH = Path.of("").toAbsolutePath().toString();
+    private static final boolean DEFAULT_KEEP_INITIAL = true;
+    public static final DataFormat DEFAULT_DATAFORMAT = DataFormat.JSON;
+    public static final String DEFAULT_FILENAME_PREFIX = "environment_createdByFAAAST";
+    public static final String DEFAULT_FILENAME = DEFAULT_FILENAME_PREFIX + "." + DEFAULT_DATAFORMAT.toString().toLowerCase();
 
-    private String destination;
+    private String dataDir;
 
-    private static final boolean DEFAULT_OVERRIDE_ORIGINAL_FILE = false;
+    private boolean keepInitial;
 
-    private boolean overrideOriginalModelFile;
+    private String filename = DEFAULT_FILENAME;
 
-    private static final boolean DEFAULT_LOAD_ORIGINAL_FILE = false;
-
-    private boolean loadOriginalFileOnStartUp;
-
-    private DataFormat desiredDataformat;
+    private DataFormat dataformat;
 
     public PersistenceFileConfig() {
-        this.destination = DEFAULT_BASE_PATH;
-        this.overrideOriginalModelFile = DEFAULT_OVERRIDE_ORIGINAL_FILE;
-        this.loadOriginalFileOnStartUp = DEFAULT_LOAD_ORIGINAL_FILE;
+        dataDir = DEFAULT_BASE_PATH;
+        keepInitial = DEFAULT_KEEP_INITIAL;
     }
 
 
-    public String getDestination() {
-        return destination;
+    /**
+     * Sets the file name according to the configuration parameters
+     *
+     * @throws DeserializationException if parsing of aas environment fails
+     */
+    public void init() throws DeserializationException {
+        if (!isKeepInitial()) {
+            Ensure.requireNonNull(getInitialModel());
+            File initialModel = new File(getInitialModel());
+            filename = initialModel.getName();
+            dataDir = initialModel.getParent();
+            dataformat = AASEnvironmentHelper.getDataformat(initialModel);
+            Path filePath = getFilePath().toAbsolutePath();
+            LOGGER.info("File Persistence overrides the original model file {}", filePath);
+        }
+        else if (StringUtils.isNotBlank(getInitialModel()) && dataformat == null) {
+            dataformat = AASEnvironmentHelper.getDataformat(new File(getInitialModel()));
+            filename = DEFAULT_FILENAME_PREFIX + "." + dataformat.toString().toLowerCase();
+        }
+        else if (dataformat != null) {
+            filename = DEFAULT_FILENAME_PREFIX + "." + dataformat.toString().toLowerCase();
+        }
+        else {
+            dataformat = DEFAULT_DATAFORMAT;
+        }
     }
 
 
-    public void setDestination(String destination) {
-        this.destination = destination;
+    /**
+     * Get the current file path of the model file used by the file persistence
+     *
+     * @return file path of the model file
+     */
+    public Path getFilePath() {
+        return Path.of(dataDir, filename);
     }
 
 
-    public boolean isOverrideOriginalModelFile() {
-        return overrideOriginalModelFile;
+    public String getDataDir() {
+        return dataDir;
     }
 
 
-    public void setOverrideOriginalModelFile(boolean overrideOriginalModelFile) {
-        this.overrideOriginalModelFile = overrideOriginalModelFile;
+    public void setDataDir(String dataDir) {
+        this.dataDir = dataDir;
     }
 
 
-    public boolean isLoadOriginalFileOnStartUp() {
-        return loadOriginalFileOnStartUp;
+    public boolean isKeepInitial() {
+        return keepInitial;
     }
 
 
-    public void setLoadOriginalFileOnStartUp(boolean loadOriginalFileOnStartUp) {
-        this.loadOriginalFileOnStartUp = loadOriginalFileOnStartUp;
+    public void setKeepInitial(boolean keepInitial) {
+        this.keepInitial = keepInitial;
     }
 
 
-    public DataFormat getDesiredDataformat() {
-        return desiredDataformat;
+    public DataFormat getDataformat() {
+        return dataformat;
     }
 
 
-    public void setDesiredDataformat(DataFormat desiredDataformat) {
-        this.desiredDataformat = desiredDataformat;
+    public void setDataformat(DataFormat dataformat) {
+        this.dataformat = dataformat;
     }
 
 
@@ -98,22 +133,16 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
             return false;
         }
         final PersistenceFileConfig other = (PersistenceFileConfig) obj;
-        if (!Objects.equals(this.destination, other.destination)) {
-            return false;
-        }
-        if (!Objects.equals(this.overrideOriginalModelFile, other.overrideOriginalModelFile)) {
-            return false;
-        }
-        if (!Objects.equals(this.desiredDataformat, other.desiredDataformat)) {
-            return false;
-        }
-        return Objects.equals(this.loadOriginalFileOnStartUp, other.loadOriginalFileOnStartUp);
+
+        return Objects.equals(this.dataDir, other.dataDir) &&
+                Objects.equals(this.keepInitial, other.keepInitial) &&
+                Objects.equals(this.dataformat, other.dataformat);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this);
+        return Objects.hash(super.hashCode(), this.dataDir, this.keepInitial, this.dataformat);
     }
 
 
@@ -124,26 +153,20 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
     private abstract static class AbstractBuilder<T extends PersistenceFileConfig, B extends AbstractBuilder<T, B>>
             extends PersistenceConfig.AbstractBuilder<PersistenceFile, T, B> {
 
-        public B overrideOriginalModelFile(boolean overrideOriginalModelFile) {
-            getBuildingInstance().setOverrideOriginalModelFile(overrideOriginalModelFile);
+        public B keepInitial(boolean value) {
+            getBuildingInstance().setKeepInitial(value);
             return getSelf();
         }
 
 
-        public B destination(String destination) {
-            getBuildingInstance().setDestination(destination);
+        public B dataDir(String value) {
+            getBuildingInstance().setDataDir(value);
             return getSelf();
         }
 
 
-        public B loadOriginalFileOnStartup(boolean loadOriginalFileOnStartup) {
-            getBuildingInstance().setLoadOriginalFileOnStartUp(loadOriginalFileOnStartup);
-            return getSelf();
-        }
-
-
-        public B desiredDataformat(DataFormat dataFormat) {
-            getBuildingInstance().setDesiredDataformat(dataFormat);
+        public B dataformat(DataFormat value) {
+            getBuildingInstance().setDataformat(value);
             return getSelf();
         }
 

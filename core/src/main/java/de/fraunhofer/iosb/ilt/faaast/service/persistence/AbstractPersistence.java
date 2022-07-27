@@ -65,7 +65,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @param <T> type of the corresponding configuration class
  */
-public abstract class PersistenceBasic<T extends PersistenceConfig<?>> implements Persistence<T> {
+public abstract class AbstractPersistence<T extends PersistenceConfig<?>> implements Persistence<T> {
     private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
     protected AssetAdministrationShellEnvironment aasEnvironment;
     private T config;
@@ -75,7 +75,7 @@ public abstract class PersistenceBasic<T extends PersistenceConfig<?>> implement
     protected final PackagePersistenceManager packagePersistenceManager;
     protected final ReferablePersistenceManager referablePersistenceManager;
 
-    protected PersistenceBasic() {
+    protected AbstractPersistence() {
         operationResultMap = new ConcurrentHashMap<>();
         operationHandleMap = new ConcurrentHashMap<>();
         identifiablePersistenceManager = new IdentifiablePersistenceManager();
@@ -86,7 +86,7 @@ public abstract class PersistenceBasic<T extends PersistenceConfig<?>> implement
 
     @Override
     public void init(CoreConfig coreConfig, T config, ServiceContext context) {
-        if (config.getEnvironment() == null && StringUtils.isBlank(config.getModelPath())) {
+        if (config.getEnvironment() == null && StringUtils.isBlank(config.getInitialModel())) {
             throw new IllegalArgumentException("Neither AAS Environment nor the model path was set");
         }
         initAASEnvironment(config);
@@ -101,7 +101,7 @@ public abstract class PersistenceBasic<T extends PersistenceConfig<?>> implement
                 aasEnvironment = config.isDecoupleEnvironment() ? DeepCopyHelper.deepCopy(config.getEnvironment()) : config.getEnvironment();
             }
             else {
-                aasEnvironment = AASEnvironmentHelper.fromFile(new File(config.getModelPath()));
+                aasEnvironment = AASEnvironmentHelper.fromFile(new File(config.getInitialModel()));
             }
         }
         catch (DeserializationException | IOException e) {

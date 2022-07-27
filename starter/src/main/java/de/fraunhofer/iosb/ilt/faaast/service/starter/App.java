@@ -204,7 +204,7 @@ public class App implements Runnable {
         if (validateModel) {
             try {
                 AssetAdministrationShellEnvironment model = config.getPersistence().getEnvironment() == null
-                        ? AASEnvironmentHelper.fromFile(new File(config.getPersistence().getModelPath()))
+                        ? AASEnvironmentHelper.fromFile(new File(config.getPersistence().getInitialModel()))
                         : config.getPersistence().getEnvironment();
                 return validate(model);
             }
@@ -319,42 +319,42 @@ public class App implements Runnable {
             return ServiceConfigHelper.load(configFile);
         }
         LOGGER.info("Config: empty (default)");
-        return ServiceConfigHelper.DEFAULT_SERVICE_CONFIG;
+        return ServiceConfigHelper.getDefaultServiceConfig();
     }
 
 
     private void withModel(ServiceConfig config) {
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
             LOGGER.info("Model: {} (CLI)", modelFile.getAbsoluteFile());
-            if (StringUtils.isNoneBlank(config.getPersistence().getModelPath())) {
+            if (StringUtils.isNoneBlank(config.getPersistence().getInitialModel())) {
                 LOGGER.info("Overriding Model Path {} set in Config File with {}",
-                        config.getPersistence().getModelPath(),
+                        config.getPersistence().getInitialModel(),
                         modelFile.getAbsoluteFile());
             }
-            config.getPersistence().setModelPath(modelFile.getAbsolutePath());
+            config.getPersistence().setInitialModel(modelFile.getAbsolutePath());
             return;
         }
         if (System.getenv(ENV_MODEL_FILE_PATH) != null && !System.getenv(ENV_MODEL_FILE_PATH).isBlank()) {
             LOGGER.info("Model: {} (ENV)", System.getenv(ENV_MODEL_FILE_PATH));
-            if (StringUtils.isNoneBlank(config.getPersistence().getModelPath())) {
+            if (StringUtils.isNoneBlank(config.getPersistence().getInitialModel())) {
                 LOGGER.info("Overriding model path {} set in Config File with {}",
-                        config.getPersistence().getModelPath(),
+                        config.getPersistence().getInitialModel(),
                         System.getenv(ENV_MODEL_FILE_PATH));
             }
-            config.getPersistence().setModelPath(System.getenv(ENV_MODEL_FILE_PATH));
+            config.getPersistence().setInitialModel(System.getenv(ENV_MODEL_FILE_PATH));
             modelFile = new File(System.getenv(ENV_MODEL_FILE_PATH));
             return;
         }
 
-        if (StringUtils.isNoneBlank(config.getPersistence().getModelPath())) {
-            LOGGER.info("Model: {} (CONFIG)", config.getPersistence().getModelPath());
+        if (StringUtils.isNoneBlank(config.getPersistence().getInitialModel())) {
+            LOGGER.info("Model: {} (CONFIG)", config.getPersistence().getInitialModel());
             return;
         }
 
         Optional<File> defaultModel = findDefaultModel();
         if (defaultModel.isPresent()) {
             LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
-            config.getPersistence().setModelPath(defaultModel.get().getAbsolutePath());
+            config.getPersistence().setInitialModel(defaultModel.get().getAbsolutePath());
             modelFile = new File(defaultModel.get().getAbsolutePath());
             return;
         }

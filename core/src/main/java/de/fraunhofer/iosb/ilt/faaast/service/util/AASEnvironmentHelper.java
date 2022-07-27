@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 public class AASEnvironmentHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AASEnvironmentHelper.class);
-    private static final String FILE_MUST_BE_NON_NULL = "file must be non-null";
+    private static final String MSG_FILE_MUST_BE_NON_NULL = "file must be non-null";
     private static Map<DataFormat, Deserializer> deserializers;
     private static Map<DataFormat, Serializer> serializers;
     public static final AssetAdministrationShellEnvironment EMPTY_AAS = new DefaultAssetAdministrationShellEnvironment.Builder().build();
@@ -88,7 +88,7 @@ public class AASEnvironmentHelper {
      * @throws SerializationException if serialization fails
      */
     public static void toFile(AssetAdministrationShellEnvironment environment, DataFormat dataFormat, File file) throws IOException, SerializationException {
-        Ensure.requireNonNull(file, FILE_MUST_BE_NON_NULL);
+        Ensure.requireNonNull(file, MSG_FILE_MUST_BE_NON_NULL);
         Ensure.requireNonNull(dataFormat, "dataFormat must be non-null");
         Ensure.requireNonNull(environment, "AAS environment must be non-null");
 
@@ -125,7 +125,7 @@ public class AASEnvironmentHelper {
      * @throws FileNotFoundException if file is not found
      */
     public static AssetAdministrationShellEnvironment fromFile(File file, DataFormat dataFormat) throws DeserializationException, IOException {
-        Ensure.requireNonNull(file, FILE_MUST_BE_NON_NULL);
+        Ensure.requireNonNull(file, MSG_FILE_MUST_BE_NON_NULL);
         Ensure.requireNonNull(dataFormat, "dataFormat must be non-null");
         String fileExtension = FilenameUtils.getExtension(file.getName());
         if (!dataFormat.getFileExtensions().contains(fileExtension)) {
@@ -164,12 +164,7 @@ public class AASEnvironmentHelper {
      *             * @throws DeserializationException if deserialization fails
      */
     public static AssetAdministrationShellEnvironment fromFile(File file) throws DeserializationException, IOException {
-        Ensure.requireNonNull(file, FILE_MUST_BE_NON_NULL);
-        String fileExtension = FilenameUtils.getExtension(file.getName());
-        List<DataFormat> potentialDataFormats = DataFormat.forFileExtension(fileExtension);
-        if (potentialDataFormats.isEmpty()) {
-            throw new DeserializationException(String.format("error reading AAS file - no supported data format found for extension '%s'", fileExtension));
-        }
+        List<DataFormat> potentialDataFormats = getDataFormats(file);
         for (DataFormat dataFormat: potentialDataFormats) {
             try {
                 return fromFile(file, dataFormat);
@@ -183,5 +178,35 @@ public class AASEnvironmentHelper {
                         potentialDataFormats.stream()
                                 .map(Enum::name)
                                 .collect(Collectors.joining(","))));
+    }
+
+
+    public static DataFormat getDataformat(File file) throws DeserializationException {
+        List<DataFormat> potentialDataFormats = getDataFormats(file);
+        for (DataFormat dataFormat: potentialDataFormats) {
+            try {
+                fromFile(file, dataFormat);
+                return dataFormat;
+            }
+            catch (DeserializationException | IOException e) {
+                // intentionally suppress exception as this probably indicates that we have an ambiguous file extension and this was not the correct deserializer
+            }
+        }
+        throw new DeserializationException(
+                String.format("error reading AAS file - could be not parsed using any of the potential data formats identified by file extension (potential data formats: %s)",
+                        potentialDataFormats.stream()
+                                .map(Enum::name)
+                                .collect(Collectors.joining(","))));
+    }
+
+
+    private static List<DataFormat> getDataFormats(File file) throws DeserializationException {
+        Ensure.requireNonNull(file, MSG_FILE_MUST_BE_NON_NULL);
+        String fileExtension = FilenameUtils.getExtension(file.getName());
+        List<DataFormat> potentialDataFormats = DataFormat.forFileExtension(fileExtension);
+        if (potentialDataFormats.isEmpty()) {
+            throw new DeserializationException(String.format("error reading AAS file - no supported data format found for extension '%s'", fileExtension));
+        }
+        return potentialDataFormats;
     }
 }

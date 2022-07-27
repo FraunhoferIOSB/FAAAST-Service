@@ -3,7 +3,8 @@
 ## Current development version (0.2.0-SNAPSHOT)
 
 **New Features**
-* Path to AAS Environment model can be set in persistence config
+-   Path to AAS Environment model can be set in persistence config
+-   File Persistence is implemented
 
 **Internal changes & Bugfixes**
 *

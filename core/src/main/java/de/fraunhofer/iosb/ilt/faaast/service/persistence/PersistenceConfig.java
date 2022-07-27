@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.util.Objects;
 
 
 /**
@@ -28,12 +29,12 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 public class PersistenceConfig<T extends Persistence> extends Config<T> {
 
     private static final boolean DEFAULT_DECOUPLE_ENVIRONMENT = true;
-    private String modelPath;
+    private String initialModel;
     private AssetAdministrationShellEnvironment environment;
     private boolean decoupleEnvironment;
 
-    public PersistenceConfig(String modelPath) {
-        this.modelPath = modelPath;
+    public PersistenceConfig(String initialModel) {
+        this.initialModel = initialModel;
         decoupleEnvironment = DEFAULT_DECOUPLE_ENVIRONMENT;
     }
 
@@ -43,16 +44,16 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
     }
 
 
-    public String getModelPath() {
-        return modelPath;
+    public String getInitialModel() {
+        return initialModel;
     }
 
 
     /**
      * Could be overwritten by setting an AASEnvironment
      */
-    public void setModelPath(String modelPath) {
-        this.modelPath = modelPath;
+    public void setInitialModel(String initialModel) {
+        this.initialModel = initialModel;
     }
 
 
@@ -85,6 +86,31 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
         this.decoupleEnvironment = decoupleEnvironment;
     }
 
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PersistenceConfig<?> other = (PersistenceConfig<?>) obj;
+
+        return Objects.equals(this.initialModel, other.initialModel)
+                && Objects.equals(this.decoupleEnvironment, other.decoupleEnvironment)
+                && Objects.equals(this.environment, other.environment);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), this.initialModel, this.decoupleEnvironment, this.environment);
+    }
+
     /**
      * Abstract builder class that should be used for builders of inheriting
      * classes.
@@ -95,20 +121,20 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
      */
     public abstract static class AbstractBuilder<T extends Persistence, C extends PersistenceConfig<T>, B extends AbstractBuilder<T, C, B>> extends ExtendableBuilder<C, B> {
 
-        public B modelPath(String modelPath) {
-            getBuildingInstance().setModelPath(modelPath);
+        public B initialModel(String value) {
+            getBuildingInstance().setInitialModel(value);
             return getSelf();
         }
 
 
-        public B environment(AssetAdministrationShellEnvironment env) {
-            getBuildingInstance().setEnvironment(env);
+        public B environment(AssetAdministrationShellEnvironment value) {
+            getBuildingInstance().setEnvironment(value);
             return getSelf();
         }
 
 
-        public B decoupleEnvironment(boolean decouple) {
-            getBuildingInstance().setDecoupleEnvironment(decouple);
+        public B decoupleEnvironment(boolean value) {
+            getBuildingInstance().setDecoupleEnvironment(value);
             return getSelf();
         }
 

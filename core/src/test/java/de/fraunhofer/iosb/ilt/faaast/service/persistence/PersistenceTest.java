@@ -20,9 +20,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public class PersistenceBasicTest extends PersistenceSuperTest {
+public class PersistenceTest extends AbstractPersistenceTest {
 
-    class PersistenceTest extends PersistenceBasic<PersistenceTestConfig> {
+    static class PersistenceTestImplementation extends AbstractPersistence<PersistenceTestConfig> {
         public String afterInitValue;
 
         @Override
@@ -31,13 +31,13 @@ public class PersistenceBasicTest extends PersistenceSuperTest {
         }
     }
 
-    static class PersistenceTestConfig extends PersistenceConfig<PersistenceTest> {
+    static class PersistenceTestConfig extends PersistenceConfig<PersistenceTestImplementation> {
         public static Builder builder() {
             return new Builder();
         }
 
         private abstract static class AbstractBuilder<T extends PersistenceTestConfig, B extends AbstractBuilder<T, B>>
-                extends PersistenceConfig.AbstractBuilder<PersistenceTest, T, B> {
+                extends PersistenceConfig.AbstractBuilder<PersistenceTestImplementation, T, B> {
 
         }
 
@@ -57,7 +57,7 @@ public class PersistenceBasicTest extends PersistenceSuperTest {
 
     @Override
     public Persistence getPersistenceImplementation() {
-        return new PersistenceTest();
+        return new PersistenceTestImplementation();
     }
 
 
@@ -77,7 +77,7 @@ public class PersistenceBasicTest extends PersistenceSuperTest {
 
     @Test
     public void testAfterInit() {
-        Assert.assertEquals("initialized", ((PersistenceTest) persistence).afterInitValue);
+        Assert.assertEquals("initialized", ((PersistenceTestImplementation) persistence).afterInitValue);
     }
 
 }

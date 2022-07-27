@@ -65,10 +65,10 @@ import org.mockito.Mockito;
  * {@link de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence}.
  */
 @Ignore
-public abstract class PersistenceSuperTest {
+public abstract class AbstractPersistenceTest {
 
-    private AssetAdministrationShellEnvironment environment;
-    public Persistence persistence;
+    protected AssetAdministrationShellEnvironment environment;
+    protected Persistence persistence;
 
     public abstract Persistence getPersistenceImplementation();
 

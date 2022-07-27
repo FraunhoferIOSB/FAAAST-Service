@@ -15,11 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceBasic;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.file.util.FileHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import io.adminshell.aas.v3.dataformat.DeserializationException;
+import io.adminshell.aas.v3.dataformat.SerializationException;
+import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Reference;
@@ -43,34 +44,34 @@ import org.slf4j.LoggerFactory;
  * <li>SubmodelElementStructs
  * </ul>
  */
-public class PersistenceFile extends PersistenceBasic<PersistenceFileConfig> {
-
-    private FileHelper fileHelper;
+public class PersistenceFile extends AbstractPersistence<PersistenceFileConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceFile.class);
 
+    private PersistenceFileConfig config;
+
     @Override
     public void initAASEnvironment(PersistenceFileConfig config) {
-        fileHelper = new FileHelper(config);
+        this.config = config;
         try {
-            if (!config.isLoadOriginalFileOnStartUp()) {
-                aasEnvironment = fileHelper.loadAASEnvironment();
-                Path filePath = fileHelper.getFilePath().toAbsolutePath();
-                if (aasEnvironment != null) {
-                    LOGGER.info("File Persistence uses existing model file {}", filePath);
-                }
-                else {
-                    LOGGER.info("File Persistence creates model file {}", filePath);
-                }
+            config.init();
+            aasEnvironment = loadAASEnvironment();
+            Path filePath = config.getFilePath().toAbsolutePath();
+            if (aasEnvironment != null) {
+                LOGGER.info("File Persistence uses existing model file {}", filePath);
             }
+            else {
+                LOGGER.info("File Persistence creates model file {}", filePath);
+            }
+
             if (aasEnvironment == null) {
                 if (config.getEnvironment() != null) {
                     aasEnvironment = config.isDecoupleEnvironment() ? DeepCopyHelper.deepCopy(config.getEnvironment()) : config.getEnvironment();
                 }
                 else {
-                    aasEnvironment = AASEnvironmentHelper.fromFile(new File(config.getModelPath()));
+                    aasEnvironment = AASEnvironmentHelper.fromFile(new File(config.getInitialModel()));
                 }
-                fileHelper.save(aasEnvironment);
+                save();
             }
         }
         catch (DeserializationException | IOException e) {
@@ -82,26 +83,35 @@ public class PersistenceFile extends PersistenceBasic<PersistenceFileConfig> {
     }
 
 
-    /**
-     * Get the current file path of the model file used by the file persistence
-     *
-     * @return file path of the model file
-     */
-    public Path getFilePath() {
-        return fileHelper.getFilePath();
+    @Override
+    public void afterInit() {
+        save();
     }
 
 
-    @Override
-    public void afterInit() {
-        fileHelper.save(super.getEnvironment());
+    private void save() {
+        try {
+            AASEnvironmentHelper.toFile(aasEnvironment, config.getDataformat(), new File(String.valueOf(config.getFilePath())));
+        }
+        catch (IOException | SerializationException e) {
+            LOGGER.error(String.format("Could not save environment to file %s", config.getFilePath()), e);
+        }
+    }
+
+
+    private AssetAdministrationShellEnvironment loadAASEnvironment() throws IOException, DeserializationException {
+        File f = new File(config.getFilePath().toString());
+        if (f.exists() && !f.isDirectory()) {
+            return AASEnvironmentHelper.fromFile(f);
+        }
+        return null;
     }
 
 
     @Override
     public Identifiable put(Identifiable identifiable) {
         Identifiable element = super.put(identifiable);
-        fileHelper.save(getEnvironment());
+        save();
         return element;
     }
 
@@ -109,7 +119,7 @@ public class PersistenceFile extends PersistenceBasic<PersistenceFileConfig> {
     @Override
     public SubmodelElement put(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException {
         SubmodelElement element = super.put(parent, referenceToSubmodelElement, submodelElement);
-        fileHelper.save(getEnvironment());
+        save();
         return element;
     }
 
@@ -117,20 +127,20 @@ public class PersistenceFile extends PersistenceBasic<PersistenceFileConfig> {
     @Override
     public void remove(Identifier id) throws ResourceNotFoundException {
         super.remove(id);
-        fileHelper.save(getEnvironment());
+        save();
     }
 
 
     @Override
     public void remove(Reference reference) throws ResourceNotFoundException {
         super.remove(reference);
-        fileHelper.save(getEnvironment());
+        save();
     }
 
 
     @Override
     public void remove(String packageId) {
         super.remove(packageId);
-        fileHelper.save(getEnvironment());
+        save();
     }
 }
