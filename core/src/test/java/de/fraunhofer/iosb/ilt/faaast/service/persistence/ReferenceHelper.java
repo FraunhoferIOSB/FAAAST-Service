@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ReferenceBuilderHelper {
+public class ReferenceHelper {
 
-    private ReferenceBuilderHelper() {}
+    private ReferenceHelper() {}
 
 
     public static Reference build(String aasIdentifier, String submodelIdentifier, String submodelElementIdshort) {
@@ -53,7 +53,7 @@ public class ReferenceBuilderHelper {
 
 
     public static Reference build(String aasIdentifier, String submodelIdentifier, String submodelElementCollectionIdshort, String submodelElementIdshort) {
-        Reference reference = ReferenceBuilderHelper.build(aasIdentifier, submodelIdentifier, submodelElementCollectionIdshort);
+        Reference reference = ReferenceHelper.build(aasIdentifier, submodelIdentifier, submodelElementCollectionIdshort);
         reference.getKeys().add(new DefaultKey.Builder()
                 .idType(KeyType.ID_SHORT)
                 .type(null)
