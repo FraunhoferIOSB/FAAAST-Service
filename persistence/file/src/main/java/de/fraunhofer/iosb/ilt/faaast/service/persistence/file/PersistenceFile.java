@@ -34,10 +34,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of
- * {@link de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence} for a file storage.
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence} for a
+ * file storage.
  * <p>
- * Following types are not supported in the
- * current version:
+ * Following types are not supported in the current version:
  * <ul>
  * <li>AASX packages
  * <li>Package Descriptors
@@ -47,8 +47,6 @@ import org.slf4j.LoggerFactory;
 public class PersistenceFile extends AbstractInMemoryPersistence<PersistenceFileConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceFile.class);
-
-    private PersistenceFileConfig config;
 
     @Override
     public void initAASEnvironment(PersistenceFileConfig config) {

@@ -341,10 +341,9 @@ public class ReferenceHelper {
                         .type(null)
                         .value(x)
                         .build()));
-        Reference reference = new DefaultReference.Builder()
+        return new DefaultReference.Builder()
                 .keys(keyList)
                 .build();
-        return reference;
     }
 
 
