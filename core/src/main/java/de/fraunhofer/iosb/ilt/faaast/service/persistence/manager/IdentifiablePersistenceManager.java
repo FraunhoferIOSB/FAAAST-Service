@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.manager;
 
 import com.google.common.base.Objects;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.EnvironmentHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.EnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
@@ -43,13 +43,13 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Class to handle {@link io.adminshell.aas.v3.model.Identifiable} Following
+ * Class to handle {@link Identifiable} Following
  * identifiables are supported:
  * <ul>
- * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
- * <li>{@link io.adminshell.aas.v3.model.Submodel}
- * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
- * <li>{@link io.adminshell.aas.v3.model.Asset}
+ * <li>{@link AssetAdministrationShell}
+ * <li>{@link Submodel}
+ * <li>{@link ConceptDescription}
+ * <li>{@link Asset}
  * </ul>
  */
 public class IdentifiablePersistenceManager extends PersistenceManager {
@@ -58,10 +58,10 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
      * Get an identifiable by its identifier Following identifiables are
      * supported:
      * <ul>
-     * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
-     * <li>{@link io.adminshell.aas.v3.model.Submodel}
-     * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
-     * <li>{@link io.adminshell.aas.v3.model.Asset}
+     * <li>{@link AssetAdministrationShell}
+     * <li>{@link Submodel}
+     * <li>{@link ConceptDescription}
+     * <li>{@link Asset}
      * </ul>
      *
      * @param id of the Identifiable
@@ -89,8 +89,8 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
      * Get a list of asset administration shells by idShort and by a list of
      * assetIds. The assetIds could contain two types
      * <ul>
-     * <li>{@link de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification}
-     * <li>{@link de.fraunhofer.iosb.ilt.faaast.service.model.asset.SpecificAssetIdentification}
+     * <li>{@link GlobalAssetIdentification}
+     * <li>{@link SpecificAssetIdentification}
      * </ul>
      * If both parameters are null all asset administration shells will be
      * returned.
@@ -176,10 +176,10 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
      * Remove an identifiable by its identifier. Following identifiables are
      * supported:
      * <ul>
-     * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
-     * <li>{@link io.adminshell.aas.v3.model.Submodel}
-     * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
-     * <li>{@link io.adminshell.aas.v3.model.Asset}
+     * <li>{@link AssetAdministrationShell}
+     * <li>{@link Submodel}
+     * <li>{@link ConceptDescription}
+     * <li>{@link Asset}
      * </ul>
      *
      * @param id of the indetifiable which should be removed
@@ -211,10 +211,10 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
     /**
      * Create or Update an identifiable. Following identifiables are supported:
      * <ul>
-     * <li>{@link io.adminshell.aas.v3.model.AssetAdministrationShell}
-     * <li>{@link io.adminshell.aas.v3.model.Submodel}
-     * <li>{@link io.adminshell.aas.v3.model.ConceptDescription}
-     * <li>{@link io.adminshell.aas.v3.model.Asset}
+     * <li>{@link AssetAdministrationShell}
+     * <li>{@link Submodel}
+     * <li>{@link ConceptDescription}
+     * <li>{@link Asset}
      * </ul>
      *
      * @param identifiable which should be added or updated

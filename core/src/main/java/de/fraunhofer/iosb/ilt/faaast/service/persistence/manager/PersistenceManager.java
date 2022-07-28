@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.manager;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.manager;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;

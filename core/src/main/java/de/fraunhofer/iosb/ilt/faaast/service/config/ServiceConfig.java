@@ -62,16 +62,10 @@ public class ServiceConfig {
             return false;
         }
         final ServiceConfig other = (ServiceConfig) obj;
-        if (!Objects.equals(this.core, other.core)) {
-            return false;
-        }
-        if (!Objects.equals(this.assetConnections, other.assetConnections)) {
-            return false;
-        }
-        if (!Objects.equals(this.endpoints, other.endpoints)) {
-            return false;
-        }
-        return Objects.equals(this.persistence, other.persistence);
+        return Objects.equals(this.core, other.core)
+                && Objects.equals(this.assetConnections, other.assetConnections)
+                && Objects.equals(this.endpoints, other.endpoints)
+                && Objects.equals(this.persistence, other.persistence);
     }
 
 
@@ -157,10 +151,7 @@ public class ServiceConfig {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 29 * hash + Objects.hashCode(this.core);
-        hash = 29 * hash + Objects.hashCode(this.assetConnections);
-        return hash;
+        return Objects.hash(core, assetConnections, persistence, endpoints);
     }
 
     /**

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
@@ -46,7 +46,7 @@ public class EnvironmentHelper {
                 .stream()
                 .filter(filter)
                 .collect(Collectors.toList());
-        Class shellClass = shellList.size() > 0 ? shellList.get(0).getClass() : DefaultAssetAdministrationShell.class;
+        Class<? extends AssetAdministrationShell> shellClass = !shellList.isEmpty() ? shellList.get(0).getClass() : DefaultAssetAdministrationShell.class;
         return DeepCopyHelper.deepCopy(shellList,
                 shellClass);
     }

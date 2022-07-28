@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
@@ -41,14 +41,14 @@ public class QueryModifierHelper {
 
     /**
      * Apply the
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier}
+     * {@link QueryModifier}
      * to a list of referables Consider the
      * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent}
      * and
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level} of
+     * {@link Level} of
      * a query modifier If the extend of the query modifier is
      * "WithoutBlobValue" all submodel elements of type
-     * {@link io.adminshell.aas.v3.model.Blob} are removed.If the level of the
+     * {@link Blob} are removed.If the level of the
      * query modifier is "Core" all underlying submodel element collection
      * values are removed.
      *
@@ -67,14 +67,14 @@ public class QueryModifierHelper {
 
     /**
      * Apply the
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier}
+     * {@link QueryModifier}
      * to a referable Consider the
      * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent}
      * and
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level} of
+     * {@link Level} of
      * a query modifier If the extend of the query modifier is
      * "WithoutBlobValue" all submodel elements of type
-     * {@link io.adminshell.aas.v3.model.Blob} are removed.If the level of the
+     * {@link Blob} are removed.If the level of the
      * query modifier is "Core" all underlying submodel element collection
      * values are removed.
      *

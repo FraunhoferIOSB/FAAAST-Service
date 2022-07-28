@@ -12,15 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
+package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
@@ -32,10 +30,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.ReferenceBuilderHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -53,8 +50,8 @@ import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
-import java.io.File;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Before;
@@ -62,89 +59,33 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 
-public class PersistenceInMemoryTest {
+/**
+ * A test class for a persistence implementation should inherit from this
+ * abstract class. This class provides basic tests for all methods defined in
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence}.
+ */
+public abstract class AbstractInMemoryPersistenceBaseTest {
 
-    private static final File MODEL_PATH = new File("src/test/resources/AASFull.json");
-    private AssetAdministrationShellEnvironment environment;
-    private Persistence persistence;
-    private ServiceContext serviceContext;
+    protected AssetAdministrationShellEnvironment environment;
+    protected Persistence persistence;
+
+    public abstract Persistence getPersistenceImplementation();
+
+
+    public abstract AssetAdministrationShellEnvironment getEnvironment();
+
+
+    public abstract PersistenceConfig getPersistenceConfig();
+
 
     @Before
     public void init() throws ConfigurationException, AssetConnectionException {
-        this.environment = AASFull.createEnvironment();
-        this.persistence = new PersistenceInMemory();
-        serviceContext = Mockito.mock(ServiceContext.class);
+        environment = getEnvironment();
+        persistence = getPersistenceImplementation();
+        ServiceContext serviceContext = Mockito.mock(ServiceContext.class);
         persistence.init(CoreConfig.builder().build(),
-                PersistenceInMemoryConfig.builder()
-                        .environment(environment)
-                        .build(),
+                getPersistenceConfig(),
                 serviceContext);
-    }
-
-
-    @Test
-    public void configurationOfEnvironmentWithModelPathTest() throws ConfigurationInitializationException, ResourceNotFoundException {
-        persistence.init(CoreConfig.builder().build(),
-                PersistenceInMemoryConfig.builder()
-                        .initialModel(MODEL_PATH)
-                        .build(),
-                serviceContext);
-
-        Identifier id = new DefaultIdentifier.Builder()
-                .identifier("https://acplt.org/Test_AssetAdministrationShell_Mandatory")
-                .idType(IdentifierType.IRI)
-                .build();
-        AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
-                .filter(x -> x.getIdentification().equals(id))
-                .findFirst().get();
-        AssetAdministrationShell actual = (AssetAdministrationShell) persistence.get(id, QueryModifier.DEFAULT);
-        Assert.assertEquals(expected, actual);
-    }
-
-
-    @Test
-    public void configurationOfEnvironmentWithModelPathAndEnvironmentTest() throws ConfigurationInitializationException, ResourceNotFoundException {
-        persistence.init(CoreConfig.builder().build(),
-                PersistenceInMemoryConfig.builder()
-                        .initialModel(MODEL_PATH)
-                        .environment(environment)
-                        .build(),
-                serviceContext);
-
-        Identifier id = new DefaultIdentifier.Builder()
-                .identifier("https://acplt.org/Test_AssetAdministrationShell_Mandatory")
-                .idType(IdentifierType.IRI)
-                .build();
-        AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
-                .filter(x -> x.getIdentification().equals(id))
-                .findFirst().get();
-        AssetAdministrationShell actual = (AssetAdministrationShell) persistence.get(id, QueryModifier.DEFAULT);
-        Assert.assertEquals(expected, actual);
-    }
-
-
-    @Test
-    public void configurationOfEnvironmentWithEnvironmentNoDecoupleTest() throws ConfigurationInitializationException, ResourceNotFoundException {
-        persistence.init(CoreConfig.builder().build(),
-                PersistenceInMemoryConfig.builder()
-                        .environment(environment)
-                        .decoupleEnvironment(false)
-                        .build(),
-                serviceContext);
-
-        String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        Identifier id = new DefaultIdentifier.Builder()
-                .identifier(submodelId)
-                .idType(IdentifierType.IRI)
-                .build();
-        Submodel expected = environment.getSubmodels().stream()
-                .filter(x -> x.getIdentification().equals(id))
-                .findFirst().get();
-        Submodel actual = (Submodel) persistence.get(id, QueryModifier.DEFAULT);
-        Assert.assertEquals(expected, actual);
-
-        environment.getSubmodels().removeIf(x -> x.getIdentification().equals(id));
-        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.get(id, QueryModifier.DEFAULT));
     }
 
 
@@ -159,7 +100,7 @@ public class PersistenceInMemoryTest {
         String assId = "https://acplt.org/Test_AssetAdministrationShell";
         String submodelId = "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial";
         String submodelElementIdShort = "ExampleEntity2";
-        Reference reference = ReferenceBuilderHelper.build(
+        Reference reference = ReferenceHelper.build(
                 assId,
                 submodelId,
                 submodelElementIdShort);
@@ -180,7 +121,7 @@ public class PersistenceInMemoryTest {
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
         String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
         String submodelElementIdShort = "ExampleBlob";
-        Reference reference = ReferenceBuilderHelper.build(
+        Reference reference = ReferenceHelper.build(
                 aasId,
                 submodelId,
                 submodelElementCollectionIdShort,
@@ -376,7 +317,7 @@ public class PersistenceInMemoryTest {
     public void getSubmodelElementsTest() throws ResourceNotFoundException {
         String aasIdShort = "TestAssetAdministrationShell";
         String submodelId = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
-        Reference submodelReference = ReferenceBuilderHelper.build(aasIdShort, submodelId);
+        Reference submodelReference = ReferenceHelper.build(aasIdShort, submodelId);
         List<SubmodelElement> expected = environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(submodelId))
                 .findFirst().get()
@@ -390,7 +331,7 @@ public class PersistenceInMemoryTest {
     public void getSubmodelElementsWithSemanticIdTest() throws ResourceNotFoundException {
         String aasIdShort = "TestAssetAdministrationShell";
         String submodelId = "http://acplt.org/Submodels/Assets/TestAsset/Identification";
-        Reference submodelReference = ReferenceBuilderHelper.build(aasIdShort, submodelId);
+        Reference submodelReference = ReferenceHelper.build(aasIdShort, submodelId);
         Reference semanticIdReference = new DefaultReference.Builder()
                 .key(new DefaultKey.Builder()
                         .type(KeyElements.GLOBAL_REFERENCE)
@@ -412,7 +353,7 @@ public class PersistenceInMemoryTest {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
         String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
-        Reference reference = ReferenceBuilderHelper.build(aasId, submodelId, submodelElementCollectionIdShort);
+        Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort);
         List<SubmodelElement> expected = List.copyOf(((SubmodelElementCollection) environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(submodelId))
                 .findFirst().get()
@@ -507,8 +448,8 @@ public class PersistenceInMemoryTest {
         expected.setIdShort(idShort);
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        Reference parent = ReferenceBuilderHelper.build(aasId, submodelId);
-        Reference submodelElementReference = ReferenceBuilderHelper.build(aasId, submodelId, idShort);
+        Reference parent = ReferenceHelper.build(aasId, submodelId);
+        Reference submodelElementReference = ReferenceHelper.build(aasId, submodelId, idShort);
         persistence.put(parent, null, expected);
         SubmodelElement actual = persistence.get(submodelElementReference, QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
@@ -525,7 +466,7 @@ public class PersistenceInMemoryTest {
         SubmodelElement expected = DeepCopyHelper.deepCopy(submodelElement, submodelElement.getClass());
         String category = "NewCategory";
         expected.setCategory(category);
-        Reference reference = ReferenceBuilderHelper.build(aasId, submodelId, submodelElement.getIdShort());
+        Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElement.getIdShort());
         persistence.put(null, reference, expected);
         SubmodelElement actual = persistence.get(reference, QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
@@ -541,17 +482,16 @@ public class PersistenceInMemoryTest {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
         String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
-        Reference parent = ReferenceBuilderHelper.build(aasId, submodelId, submodelElementCollectionIdShort);
-        Assert.assertEquals(((SubmodelElementCollection) environment.getSubmodels().stream()
+        Reference parent = ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort);
+        Assert.assertNull(((SubmodelElementCollection) Objects.requireNonNull(environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(submodelId))
                 .findFirst().get().getSubmodelElements().stream()
                 .filter(y -> y.getIdShort().equalsIgnoreCase(submodelElementCollectionIdShort))
-                .findFirst().orElse(null))
+                .findFirst().orElse(null)))
                         .getValues().stream()
-                        .filter(x -> x.getIdShort().equalsIgnoreCase(idShort)).findFirst().orElse(null),
-                null);
+                        .filter(x -> x.getIdShort().equalsIgnoreCase(idShort)).findFirst().orElse(null));
         persistence.put(parent, null, expected);
-        SubmodelElement actual = persistence.get(ReferenceBuilderHelper.build(aasId, submodelId, submodelElementCollectionIdShort, idShort), QueryModifier.DEFAULT);
+        SubmodelElement actual = persistence.get(ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort, idShort), QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }
 
@@ -572,7 +512,7 @@ public class PersistenceInMemoryTest {
         SubmodelElement expected = DeepCopyHelper.deepCopy(submodelElement, submodelElement.getClass());
         String category = "NewCategory";
         expected.setCategory(category);
-        Reference reference = ReferenceBuilderHelper.build(aasId, submodelId, submodelElementCollectionIdShort, submodelElement.getIdShort());
+        Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort, submodelElement.getIdShort());
         persistence.put(null, reference, expected);
         SubmodelElement actual = persistence.get(reference, new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build());
         Assert.assertEquals(expected, actual);
@@ -608,7 +548,7 @@ public class PersistenceInMemoryTest {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
         String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
-        Reference reference = ReferenceBuilderHelper.build(aasId, submodelId, submodelElementCollectionIdShort);
+        Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort);
         Assert.assertNotNull(persistence.get(reference, QueryModifier.DEFAULT));
         persistence.remove(reference);
         Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.get(reference, QueryModifier.DEFAULT));
@@ -621,7 +561,7 @@ public class PersistenceInMemoryTest {
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
         String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
         String submodelElementIdShort = "ExampleFile";
-        Reference reference = ReferenceBuilderHelper.build(aasId, submodelId, submodelElementCollectionIdShort, submodelElementIdShort);
+        Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort, submodelElementIdShort);
         Assert.assertNotNull(persistence.get(reference, new OutputModifier()));
         persistence.remove(reference);
         Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.get(reference, QueryModifier.DEFAULT));
@@ -633,7 +573,7 @@ public class PersistenceInMemoryTest {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell";
         String submodelId = "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial";
         String submodelElementIdShort = "ExampleEntity2";
-        Reference reference = ReferenceBuilderHelper.build(aasId, submodelId, submodelElementIdShort);
+        Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElementIdShort);
         Assert.assertNotNull(persistence.get(reference, new OutputModifier()));
         persistence.remove(reference);
         Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.get(reference, QueryModifier.DEFAULT));
@@ -674,7 +614,7 @@ public class PersistenceInMemoryTest {
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
         String submodelElementCollectionIdShort = "ExampleSubmodelCollectionUnordered";
         String submodelElementIdShort = "ExampleBlob";
-        Reference reference = ReferenceBuilderHelper.build(aasId, submodelId, submodelElementCollectionIdShort, submodelElementIdShort);
+        Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort, submodelElementIdShort);
         QueryModifier queryModifier = new QueryModifier.Builder().extend(Extent.WITH_BLOB_VALUE).build();
         Identifier submodelIdentifier = new DefaultIdentifier.Builder()
                 .idType(IdentifierType.IRI)

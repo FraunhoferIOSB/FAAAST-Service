@@ -41,6 +41,7 @@
         <module>messagebus/internal</module>
         <module>persistence/memory</module>
         <module>assetconnection/common</module>
+        <module>persistence/file</module>
         <module>assetconnection/mqtt</module>
         <module>assetconnection/opcua</module>
         <module>assetconnection/http</module>
