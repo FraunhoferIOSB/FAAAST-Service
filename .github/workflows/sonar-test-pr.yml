@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Fetch PR number
         id: fetch
-        uses: chrweiss/pull-request-number-action@v0.2
+        uses: FraunhoferIOSB/pull-request-number-action@v0.1.0
         with:
           repo-to-check: '${{ github.event.workflow_run.repository.url }}'
           name-of-pr: '${{ github.event.workflow_run.head_branch }}'
