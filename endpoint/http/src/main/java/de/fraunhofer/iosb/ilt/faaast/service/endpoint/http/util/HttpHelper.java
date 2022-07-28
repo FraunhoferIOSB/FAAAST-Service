@@ -14,7 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.jetty.http.HttpStatus;
 
 
@@ -56,5 +62,30 @@ public class HttpHelper {
             default:
                 throw new IllegalArgumentException(String.format("unsupported status code '%s'", statusCode.name()));
         }
+    }
+
+
+    /**
+     * Finds all methods of the url for which there is an implemented request mapper
+     * registered to the given mapping manager
+     *
+     * @param mappingManager where the request mappers are registered
+     * @param url which should be checked
+     * @return all supported HTTP Methods of the given request
+     */
+    public static List<HttpMethod> findSupportedHTTPMethods(RequestMappingManager mappingManager, String url) {
+        List<HttpMethod> allowedMethods = new ArrayList<>();
+        for (HttpMethod httpMethod: HttpMethod.values()) {
+            try {
+                HttpRequest httpRequest = HttpRequest.builder()
+                        .path(url)
+                        .method(httpMethod)
+                        .build();
+                mappingManager.findRequestMapper(httpRequest);
+                allowedMethods.add(httpMethod);
+            }
+            catch (InvalidRequestException ignored) {}
+        }
+        return allowedMethods;
     }
 }

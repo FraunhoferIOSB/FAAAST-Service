@@ -36,8 +36,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -68,13 +73,19 @@ public class RequestHandler extends AbstractHandler {
 
     @Override
     public void handle(String string, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        setCORS(response);
         BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8)) {
             @Override
             public void close() throws IOException {
                 request.getInputStream().close();
             }
         };
+        if (handlePreflightedCORSRequest(request, response, baseRequest)) {
+            return;
+        }
+        if (config.isCorsEnabled()) {
+            setCORSHeader(response);
+        }
+
         HttpRequest httpRequest = HttpRequest.builder()
                 .path(request.getRequestURI().replaceAll("/$", ""))
                 .query(request.getQueryString())
@@ -104,13 +115,53 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    private void setCORS(HttpServletResponse response) {
-        if (config.isCorsEnabled()) {
-            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
-            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, "true");
-            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER, "GET, PUT, POST");
-            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_HEADERS_HEADER, "Content-Type");
+    private void setCORSHeader(HttpServletResponse response) {
+        response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
+        response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, "true");
+        response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_HEADERS_HEADER, "Content-Type");
+    }
+
+
+    private boolean handlePreflightedCORSRequest(HttpServletRequest request, HttpServletResponse response, Request baseRequest) {
+        if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
+            setCORSHeader(response);
+
+            List<HttpMethod> requestedHTTPMethods = getRequestedHTTPMethods(request);
+            List<HttpMethod> allowedMethods = HttpHelper.findSupportedHTTPMethods(mappingManager, request.getRequestURI().replaceAll("/$", ""));
+
+            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER,
+                    allowedMethods.stream()
+                            .map(HttpMethod::name)
+                            .collect(Collectors.joining(",")));
+
+            if (new HashSet<>(allowedMethods).containsAll(requestedHTTPMethods)) {
+                sendSuccess(response, 204);
+            }
+            else {
+                sendError(response, StatusCode.CLIENT_ERROR_BAD_REQUEST);
+            }
+            baseRequest.setHandled(true);
+            return true;
         }
+        return false;
+    }
+
+
+    private List<HttpMethod> getRequestedHTTPMethods(HttpServletRequest request) {
+        String methodHeader = request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER);
+        List<HttpMethod> requestedMethods = new ArrayList<>();
+        if (StringUtils.isNotBlank(methodHeader)) {
+            Arrays.stream(methodHeader.split(",")).forEach(x -> {
+                try {
+                    HttpMethod method = HttpMethod.valueOf(x.trim());
+                    requestedMethods.add(method);
+                }
+                catch (IllegalArgumentException e) {
+                    //intentionally empty
+                }
+            });
+        }
+        return requestedMethods;
     }
 
 
@@ -119,8 +170,7 @@ public class RequestHandler extends AbstractHandler {
      * object
      *
      * @param response http response object
-     * @param httpStatusCode http status code
-     * @param errorMessage clear text error message
+     * @param statusCode http status code
      */
     private void sendFailure(HttpServletResponse response, StatusCode statusCode, Result result) {
         int httpStatusCode = HttpHelper.toHttpStatusCode(statusCode);

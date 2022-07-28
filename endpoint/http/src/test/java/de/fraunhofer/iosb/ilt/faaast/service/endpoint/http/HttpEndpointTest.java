@@ -55,6 +55,7 @@ import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringRequestContent;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -127,12 +128,12 @@ public class HttpEndpointTest {
 
 
     public ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters) throws Exception {
-        return execute(method, path, parameters, null, null);
+        return execute(method, path, parameters, null, null, null);
     }
 
 
     public ContentResponse execute(HttpMethod method, String path) throws Exception {
-        return execute(method, path, null, null, null);
+        return execute(method, path, null, null, null, null);
     }
 
 
@@ -141,11 +142,11 @@ public class HttpEndpointTest {
                 "content", outputModifier.getContent().name().toLowerCase(),
                 "level", outputModifier.getLevel().name().toLowerCase(),
                 "extend", outputModifier.getExtent().name().toLowerCase()),
-                null, null);
+                null, null, null);
     }
 
 
-    public ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters, String body, String contentType) throws Exception {
+    public ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters, String body, String contentType, Map<String, String> headers) throws Exception {
         Request request = client.newRequest(HOST, port)
                 .method(method)
                 .path(path);
@@ -162,6 +163,11 @@ public class HttpEndpointTest {
                 request = request.body(new StringRequestContent(body));
             }
         }
+        if (headers != null) {
+            for (Map.Entry<String, String> header: headers.entrySet()) {
+                request = request.header(header.getKey(), header.getValue());
+            }
+        }
         return request.send();
     }
 
@@ -176,7 +182,36 @@ public class HttpEndpointTest {
     @Test
     public void testCORSEnabled() throws Exception {
         ContentResponse response = execute(HttpMethod.GET, "/foo/bar");
-        Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+        Assert.assertEquals("*", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER));
+        Assert.assertEquals("true", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER));
+        Assert.assertEquals("Content-Type", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_HEADERS_HEADER));
+    }
+
+
+    @Test
+    public void testValidPreflightedCORSRequest() throws Exception {
+        ContentResponse response = execute(HttpMethod.OPTIONS, "/shells", null, null, null,
+                Map.of(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER, "*"));
+        Assert.assertEquals("GET,POST", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER));
+        Assert.assertEquals(204, response.getStatus());
+    }
+
+
+    @Test
+    public void testPreflightedCORSRequestNoMethods() throws Exception {
+        ContentResponse response = execute(HttpMethod.OPTIONS, "/", null, null, null,
+                Map.of(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER, "*"));
+        Assert.assertEquals("", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER));
+        Assert.assertEquals(204, response.getStatus());
+    }
+
+
+    @Test
+    public void testInvalidPreflightedCORSRequest() throws Exception {
+        ContentResponse response = execute(HttpMethod.OPTIONS, "/shells", null, null, null,
+                Map.of(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER, "PUT"));
+        Assert.assertEquals("GET,POST", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER));
+        Assert.assertEquals(400, response.getStatus());
     }
 
 

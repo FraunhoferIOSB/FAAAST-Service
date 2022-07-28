@@ -88,6 +88,25 @@ public class RequestMappingManager {
 
 
     /**
+     * Finds corresponding protocol-agnostic request for given HTTP request.
+     *
+     * @param httpRequest HTTP-based request to find a suitable request mapper
+     * @return protocol-agnostic request
+     * @throws InvalidRequestException if no mapper is found for request
+     */
+    public RequestMapper findRequestMapper(HttpRequest httpRequest) throws InvalidRequestException {
+        Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
+        Optional<RequestMapper> mapper = mappers.stream()
+                .filter(request -> request.matches(httpRequest))
+                .findAny();
+        if (mapper.isEmpty()) {
+            throw new InvalidRequestException("no matching request mapper found");
+        }
+        return mapper.get();
+    }
+
+
+    /**
      * Finds corresponding protocol-agnostic request for given HTTP request and
      * converts it.
      *
@@ -97,14 +116,7 @@ public class RequestMappingManager {
      *             mapping fails
      */
     public Request map(HttpRequest httpRequest) throws InvalidRequestException {
-        Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
-        Optional<RequestMapper> mapper = mappers.stream()
-                .filter(request -> request.matches(httpRequest))
-                .findAny();
-        if (mapper.isEmpty()) {
-            throw new InvalidRequestException("no matching request mapper found");
-        }
-        return mapper.get().parse(httpRequest);
+        return findRequestMapper(httpRequest).parse(httpRequest);
     }
 
 }
