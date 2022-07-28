@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.io.File;
 import java.util.Objects;
 
 
@@ -29,11 +30,11 @@ import java.util.Objects;
 public class PersistenceConfig<T extends Persistence> extends Config<T> {
 
     private static final boolean DEFAULT_DECOUPLE_ENVIRONMENT = true;
-    private String initialModel;
+    private File initialModel;
     private AssetAdministrationShellEnvironment environment;
     private boolean decoupleEnvironment;
 
-    public PersistenceConfig(String initialModel) {
+    public PersistenceConfig(File initialModel) {
         this.initialModel = initialModel;
         decoupleEnvironment = DEFAULT_DECOUPLE_ENVIRONMENT;
     }
@@ -44,15 +45,18 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
     }
 
 
-    public String getInitialModel() {
+    public File getInitialModel() {
         return initialModel;
     }
 
 
     /**
-     * Could be overwritten by setting an AASEnvironment
+     * Sets model file containing initial model. Initial model is the model that
+     * is loaded on first start.
+     *
+     * @param initialModel the model file
      */
-    public void setInitialModel(String initialModel) {
+    public void setInitialModel(File initialModel) {
         this.initialModel = initialModel;
     }
 
@@ -64,7 +68,7 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
 
     /**
      * Overwrites the AASEnvironment from model path
-     * 
+     *
      * @param environment
      */
     public void setEnvironment(AssetAdministrationShellEnvironment environment) {
@@ -99,7 +103,6 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
             return false;
         }
         final PersistenceConfig<?> other = (PersistenceConfig<?>) obj;
-
         return Objects.equals(this.initialModel, other.initialModel)
                 && Objects.equals(this.decoupleEnvironment, other.decoupleEnvironment)
                 && Objects.equals(this.environment, other.environment);
@@ -121,7 +124,7 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
      */
     public abstract static class AbstractBuilder<T extends Persistence, C extends PersistenceConfig<T>, B extends AbstractBuilder<T, C, B>> extends ExtendableBuilder<C, B> {
 
-        public B initialModel(String value) {
+        public B initialModel(File value) {
             getBuildingInstance().setInitialModel(value);
             return getSelf();
         }

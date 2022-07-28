@@ -22,7 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistenceTest;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractInMemoryPersistenceBaseTest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -38,12 +38,12 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 
-public class PersistenceFileTest extends AbstractPersistenceTest {
+public class PersistenceFileTest extends AbstractInMemoryPersistenceBaseTest {
 
     public static final String SRC_TEST_RESOURCES = "src/test/resources";
 
-    private static final String ENV_FILE_JSON = "src/test/resources/AASFull.json";
-    private static final String ENV_FILE_XML = "src/test/resources/AASFull.xml";
+    private static final File ENV_FILE_JSON = new File("src/test/resources/AASFull.json");
+    private static final File ENV_FILE_XML = new File("src/test/resources/AASFull.xml");
 
     @Override
     public Persistence getPersistenceImplementation() {
@@ -80,7 +80,7 @@ public class PersistenceFileTest extends AbstractPersistenceTest {
     }
 
 
-    private PersistenceFileConfig createPersistenceConfig(boolean keepInitial, String initialModel) {
+    private PersistenceFileConfig createPersistenceConfig(boolean keepInitial, File initialModel) {
         return PersistenceFileConfig.builder()
                 .initialModel(initialModel)
                 .dataDir(SRC_TEST_RESOURCES)
@@ -108,12 +108,11 @@ public class PersistenceFileTest extends AbstractPersistenceTest {
 
     @Test
     public void keepInitialTest() throws ResourceNotFoundException, ConfigurationException, AssetConnectionException, IOException {
-        File copied = new File(
-                SRC_TEST_RESOURCES + "/AASFull_temp.json");
-        File original = new File(ENV_FILE_JSON);
+        File copied = new File(SRC_TEST_RESOURCES + "/AASFull_temp.json");
+        File original = ENV_FILE_JSON;
         FileUtils.copyFile(original, copied);
 
-        PersistenceFileConfig config = createPersistenceConfig(false, copied.getPath());
+        PersistenceFileConfig config = createPersistenceConfig(false, copied);
         init(config);
         Identifier identifier = environment.getAssetAdministrationShells().get(0).getIdentification();
         removeElementAndReloadPersistence(config, identifier);
@@ -126,8 +125,8 @@ public class PersistenceFileTest extends AbstractPersistenceTest {
 
     @Test
     public void loadXMLFileTest() throws ConfigurationException, AssetConnectionException {
-        File copied = new File(ENV_FILE_XML);
-        PersistenceFileConfig config = createPersistenceConfig(true, copied.getPath());
+        File copied = ENV_FILE_XML;
+        PersistenceFileConfig config = createPersistenceConfig(true, copied);
         init(config);
         String path = Path.of(config.getDataDir(), PersistenceFileConfig.DEFAULT_FILENAME_PREFIX + "." + "xml").toString();
         File f = new File(path);
@@ -137,9 +136,9 @@ public class PersistenceFileTest extends AbstractPersistenceTest {
 
     @Test
     public void dataFormatTest() throws ConfigurationException, AssetConnectionException {
-        File copied = new File(ENV_FILE_XML);
+        File copied = ENV_FILE_XML;
         PersistenceFileConfig config = PersistenceFileConfig.builder()
-                .initialModel(copied.getAbsolutePath())
+                .initialModel(copied)
                 .dataDir(SRC_TEST_RESOURCES)
                 .keepInitial(true)
                 .dataformat(DataFormat.JSONLD)

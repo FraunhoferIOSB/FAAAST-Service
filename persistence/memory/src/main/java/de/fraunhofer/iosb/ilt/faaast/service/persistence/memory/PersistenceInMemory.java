@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistence;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractInMemoryPersistence;
 
 
 /**
@@ -31,11 +31,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistence;
  * <li>SubmodelElementStructs
  * </ul>
  */
-public class PersistenceInMemory extends AbstractPersistence<PersistenceInMemoryConfig> {
-
-    @Override
-    public void afterInit() {
-        //intentionally empty
-    }
+public class PersistenceInMemory extends AbstractInMemoryPersistence<PersistenceInMemoryConfig> {
 
 }

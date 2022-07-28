@@ -47,7 +47,6 @@ import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -59,23 +58,27 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * An implementation of a persistence can inherit from this abstract class.
- * Provides create, read, update and delete actions with the element of the corresponding
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} in memory.
- * An implementation can override the methods to perform custom actions.
+ * Provides create, read, update and delete actions with the element of the
+ * corresponding
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} in
+ * memory. An implementation can override the methods to perform custom actions.
  *
  * @param <T> type of the corresponding configuration class
  */
-public abstract class AbstractPersistence<T extends PersistenceConfig<?>> implements Persistence<T> {
-    private static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
+public abstract class AbstractInMemoryPersistence<T extends PersistenceConfig<?>> implements Persistence<T> {
+
+    protected static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
     protected AssetAdministrationShellEnvironment aasEnvironment;
-    private T config;
+    protected CoreConfig coreConfig;
+    protected T config;
+    protected ServiceContext context;
     protected final IdentifiablePersistenceManager identifiablePersistenceManager;
-    private final Map<String, OperationHandle> operationHandleMap;
-    private final Map<String, OperationResult> operationResultMap;
+    protected final Map<String, OperationHandle> operationHandleMap;
+    protected final Map<String, OperationResult> operationResultMap;
     protected final PackagePersistenceManager packagePersistenceManager;
     protected final ReferablePersistenceManager referablePersistenceManager;
 
-    protected AbstractPersistence() {
+    protected AbstractInMemoryPersistence() {
         operationResultMap = new ConcurrentHashMap<>();
         operationHandleMap = new ConcurrentHashMap<>();
         identifiablePersistenceManager = new IdentifiablePersistenceManager();
@@ -86,22 +89,24 @@ public abstract class AbstractPersistence<T extends PersistenceConfig<?>> implem
 
     @Override
     public void init(CoreConfig coreConfig, T config, ServiceContext context) {
-        if (config.getEnvironment() == null && StringUtils.isBlank(config.getInitialModel())) {
-            throw new IllegalArgumentException("Neither AAS Environment nor the model path was set");
-        }
-        initAASEnvironment(config);
+        Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
+        Ensure.requireNonNull(config, "config must be non-null");
+        Ensure.requireNonNull(context, "context must be non-null");
+        Ensure.require(config.getEnvironment() != null || config.getInitialModel() != null, "Either AAS Environment or initial model must be provided");
+        this.coreConfig = coreConfig;
         this.config = config;
-        afterInit();
+        this.context = context;
+        initAASEnvironment(config);
     }
 
 
-    public void initAASEnvironment(T config) {
+    protected void initAASEnvironment(T config) {
         try {
             if (config.getEnvironment() != null) {
                 aasEnvironment = config.isDecoupleEnvironment() ? DeepCopyHelper.deepCopy(config.getEnvironment()) : config.getEnvironment();
             }
             else {
-                aasEnvironment = AASEnvironmentHelper.fromFile(new File(config.getInitialModel()));
+                aasEnvironment = AASEnvironmentHelper.fromFile(config.getInitialModel());
             }
         }
         catch (DeserializationException | IOException e) {
@@ -111,9 +116,6 @@ public abstract class AbstractPersistence<T extends PersistenceConfig<?>> implem
         referablePersistenceManager.setAasEnvironment(aasEnvironment);
         packagePersistenceManager.setAasEnvironment(aasEnvironment);
     }
-
-
-    public abstract void afterInit();
 
 
     public T getConfig() {

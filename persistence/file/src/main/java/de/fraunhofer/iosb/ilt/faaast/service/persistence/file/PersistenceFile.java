@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistence;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractInMemoryPersistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import io.adminshell.aas.v3.dataformat.DeserializationException;
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * <li>SubmodelElementStructs
  * </ul>
  */
-public class PersistenceFile extends AbstractPersistence<PersistenceFileConfig> {
+public class PersistenceFile extends AbstractInMemoryPersistence<PersistenceFileConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceFile.class);
 
@@ -69,7 +69,7 @@ public class PersistenceFile extends AbstractPersistence<PersistenceFileConfig> 
                     aasEnvironment = config.isDecoupleEnvironment() ? DeepCopyHelper.deepCopy(config.getEnvironment()) : config.getEnvironment();
                 }
                 else {
-                    aasEnvironment = AASEnvironmentHelper.fromFile(new File(config.getInitialModel()));
+                    aasEnvironment = AASEnvironmentHelper.fromFile(config.getInitialModel());
                 }
                 save();
             }
@@ -80,12 +80,6 @@ public class PersistenceFile extends AbstractPersistence<PersistenceFileConfig> 
         identifiablePersistenceManager.setAasEnvironment(aasEnvironment);
         referablePersistenceManager.setAasEnvironment(aasEnvironment);
         packagePersistenceManager.setAasEnvironment(aasEnvironment);
-    }
-
-
-    @Override
-    public void afterInit() {
-        save();
     }
 
 

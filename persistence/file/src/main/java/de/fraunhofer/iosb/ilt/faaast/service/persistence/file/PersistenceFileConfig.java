@@ -19,10 +19,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.DeserializationException;
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,15 +59,14 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
     public void init() throws DeserializationException {
         if (!isKeepInitial()) {
             Ensure.requireNonNull(getInitialModel());
-            File initialModel = new File(getInitialModel());
-            filename = initialModel.getName();
-            dataDir = initialModel.getParent();
-            dataformat = AASEnvironmentHelper.getDataformat(initialModel);
+            filename = getInitialModel().getName();
+            dataDir = getInitialModel().getParent();
+            dataformat = AASEnvironmentHelper.getDataformat(getInitialModel());
             Path filePath = getFilePath().toAbsolutePath();
             LOGGER.info("File Persistence overrides the original model file {}", filePath);
         }
-        else if (StringUtils.isNotBlank(getInitialModel()) && dataformat == null) {
-            dataformat = AASEnvironmentHelper.getDataformat(new File(getInitialModel()));
+        else if (getInitialModel() != null && dataformat == null) {
+            dataformat = AASEnvironmentHelper.getDataformat(getInitialModel());
             filename = DEFAULT_FILENAME_PREFIX + "." + dataformat.toString().toLowerCase();
         }
         else if (dataformat != null) {

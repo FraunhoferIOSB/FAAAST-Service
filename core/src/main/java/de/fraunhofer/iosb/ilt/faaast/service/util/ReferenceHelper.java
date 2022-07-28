@@ -313,4 +313,62 @@ public class ReferenceHelper {
         result.getKeys().remove(result.getKeys().size() - 1);
         return result;
     }
+
+
+    /**
+     * Builds a reference identifying a submodel element
+     *
+     * @param aasIdentifier the AAS identifier
+     * @param submodelIdentifier the submodel identifier
+     * @param submodelElementIdshorts the submodel element idShort path
+     * @return a reference to the submodel element
+     */
+    public static Reference build(String aasIdentifier, String submodelIdentifier, String... submodelElementIdshorts) {
+        List<Key> keyList = new ArrayList<>();
+        keyList.add(new DefaultKey.Builder()
+                .idType(KeyType.IRI)
+                .type(null)
+                .value(aasIdentifier)
+                .build());
+        keyList.add(new DefaultKey.Builder()
+                .idType(KeyType.IRI)
+                .type(null)
+                .value(submodelIdentifier)
+                .build());
+        Stream.of(submodelElementIdshorts).forEach(
+                x -> keyList.add(new DefaultKey.Builder()
+                        .idType(KeyType.ID_SHORT)
+                        .type(null)
+                        .value(x)
+                        .build()));
+        Reference reference = new DefaultReference.Builder()
+                .keys(keyList)
+                .build();
+        return reference;
+    }
+
+
+    /**
+     * Builds a reference identifying a submodel
+     *
+     * @param aasIdentifier the AAS identifier
+     * @param submodelIdentifier the submodel identifier
+     * @return a reference to the submodel
+     */
+    public static Reference build(String aasIdentifier, String submodelIdentifier) {
+        List<Key> keyList = new ArrayList<>();
+        keyList.add(new DefaultKey.Builder()
+                .idType(KeyType.IRI)
+                .type(null)
+                .value(aasIdentifier)
+                .build());
+        keyList.add(new DefaultKey.Builder()
+                .idType(KeyType.IRI)
+                .type(null)
+                .value(submodelIdentifier)
+                .build());
+        return new DefaultReference.Builder()
+                .keys(keyList)
+                .build();
+    }
 }

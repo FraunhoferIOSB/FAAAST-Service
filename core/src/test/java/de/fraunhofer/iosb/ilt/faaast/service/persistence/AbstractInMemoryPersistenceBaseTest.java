@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -54,18 +55,16 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 
 /**
- * A test class for a persistence implementation should inherit from this abstract class.
- * This class provides basic tests for all methods defined in
+ * A test class for a persistence implementation should inherit from this
+ * abstract class. This class provides basic tests for all methods defined in
  * {@link de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence}.
  */
-@Ignore
-public abstract class AbstractPersistenceTest {
+public abstract class AbstractInMemoryPersistenceBaseTest {
 
     protected AssetAdministrationShellEnvironment environment;
     protected Persistence persistence;

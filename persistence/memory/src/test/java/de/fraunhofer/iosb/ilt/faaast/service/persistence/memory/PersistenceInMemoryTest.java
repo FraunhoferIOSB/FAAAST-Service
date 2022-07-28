@@ -53,6 +53,7 @@ import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
@@ -63,7 +64,7 @@ import org.mockito.Mockito;
 
 public class PersistenceInMemoryTest {
 
-    private static final String MODEL_PATH = "src/test/resources/AASFull.json";
+    private static final File MODEL_PATH = new File("src/test/resources/AASFull.json");
     private AssetAdministrationShellEnvironment environment;
     private Persistence persistence;
     private ServiceContext serviceContext;
