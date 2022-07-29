@@ -140,7 +140,7 @@ public class RequestHandler extends AbstractHandler {
                             .filter(StringUtils::isNoneBlank)
                             .map(x -> HttpMethod.valueOf(x.trim()))
                             .collect(Collectors.toSet())
-                    : new HashSet();
+                    : new HashSet<>();
             Set<HttpMethod> allowedMethods = HttpHelper.findSupportedHTTPMethods(mappingManager, request.getRequestURI().replaceAll("/$", ""));
             allowedMethods.add(HttpMethod.OPTIONS);
             response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER,
