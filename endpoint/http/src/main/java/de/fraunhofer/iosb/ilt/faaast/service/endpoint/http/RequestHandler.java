@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import static org.eclipse.jetty.servlets.CrossOriginFilter.ACCESS_CONTROL_MAX_AGE_HEADER;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
@@ -21,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
@@ -37,7 +40,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -51,6 +58,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
  */
 public class RequestHandler extends AbstractHandler {
 
+    private static final int DEFAULT_PREFLIGHT_MAX_AGE = 1800;
     private final ServiceContext serviceContext;
     private final HttpEndpointConfig config;
     private final RequestMappingManager mappingManager;
@@ -68,13 +76,21 @@ public class RequestHandler extends AbstractHandler {
 
     @Override
     public void handle(String string, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        setCORS(response);
         BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8)) {
             @Override
             public void close() throws IOException {
                 request.getInputStream().close();
             }
         };
+
+        if (config.isCorsEnabled()) {
+            setCORSHeader(response);
+            if (isPreflightedCORSRequest(request)) {
+                handlePreflightedCORSRequest(request, response, baseRequest);
+                return;
+            }
+        }
+
         HttpRequest httpRequest = HttpRequest.builder()
                 .path(request.getRequestURI().replaceAll("/$", ""))
                 .query(request.getQueryString())
@@ -104,12 +120,49 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    private void setCORS(HttpServletResponse response) {
-        if (config.isCorsEnabled()) {
-            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
-            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, "true");
-            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER, "GET, PUT, POST");
-            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_HEADERS_HEADER, "Content-Type");
+    private void setCORSHeader(HttpServletResponse response) {
+        response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
+        response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, "true");
+        response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_HEADERS_HEADER, "Content-Type");
+    }
+
+
+    private boolean isPreflightedCORSRequest(HttpServletRequest request) {
+        return request.getMethod().equalsIgnoreCase(HttpMethod.OPTIONS.name());
+    }
+
+
+    private void handlePreflightedCORSRequest(HttpServletRequest request, HttpServletResponse response, Request baseRequest) {
+        try {
+            Set<HttpMethod> requestedHTTPMethods = request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER) != null
+                    ? Stream.of(request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER)
+                            .split(HttpConstants.HEADER_VALUE_SEPARATOR))
+                            .filter(StringUtils::isNoneBlank)
+                            .map(x -> HttpMethod.valueOf(x.trim()))
+                            .collect(Collectors.toSet())
+                    : new HashSet<>();
+            Set<HttpMethod> allowedMethods = HttpHelper.findSupportedHTTPMethods(mappingManager, request.getRequestURI().replaceAll("/$", ""));
+            allowedMethods.add(HttpMethod.OPTIONS);
+            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER,
+                    allowedMethods.stream()
+                            .map(HttpMethod::name)
+                            .collect(Collectors.joining(HttpConstants.HEADER_VALUE_SEPARATOR)));
+            if (allowedMethods.containsAll(requestedHTTPMethods)) {
+                response.setHeader(ACCESS_CONTROL_MAX_AGE_HEADER, String.valueOf(DEFAULT_PREFLIGHT_MAX_AGE));
+                sendSuccess(response, HttpStatus.NO_CONTENT_204);
+            }
+            else {
+                sendError(response, StatusCode.CLIENT_ERROR_BAD_REQUEST);
+            }
+        }
+        catch (RuntimeException e) {
+            sendError(response, StatusCode.CLIENT_ERROR_BAD_REQUEST,
+                    String.format("invalid value for %s: %s",
+                            CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER,
+                            request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER)));
+        }
+        finally {
+            baseRequest.setHandled(true);
         }
     }
 
@@ -119,8 +172,7 @@ public class RequestHandler extends AbstractHandler {
      * object
      *
      * @param response http response object
-     * @param httpStatusCode http status code
-     * @param errorMessage clear text error message
+     * @param statusCode http status code
      */
     private void sendFailure(HttpServletResponse response, StatusCode statusCode, Result result) {
         int httpStatusCode = HttpHelper.toHttpStatusCode(statusCode);
