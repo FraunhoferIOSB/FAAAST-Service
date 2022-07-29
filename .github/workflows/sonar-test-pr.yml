@@ -1,0 +1,44 @@
+name: Maven Pull Request Sonar Test
+
+on:
+  workflow_run:
+    workflows: [Maven Pull Request Build]
+    types:
+      - completed
+
+jobs:
+  on-success:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.fork == true }}
+    steps:
+      - name: Fetch PR number
+        id: fetch
+        uses: FraunhoferIOSB/pull-request-number-action@v0.1.0
+        with:
+          repo-to-check: '${{ github.event.workflow_run.repository.url }}'
+          name-of-pr: '${{ github.event.workflow_run.head_branch }}'
+
+      - uses: actions/checkout@v3
+        with:
+            repository: '${{ github.event.workflow_run.head_repository.full_name }}'
+            ref: '${{ github.event.workflow_run.head_branch }}'
+
+      - name: Test with Sonar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: >
+          mvn -B verify
+          --settings maven-ci-settings.xml
+          -P coverage sonar:sonar
+          -Dsonar.projectKey=FraunhoferIOSB_FAAAST-Service
+          -Dsonar.pullrequest.key='${{ steps.fetch.outputs.pr-number }}'
+          -Dsonar.pullrequest.branch='${{ github.event.workflow_run.head_branch }}'
+          -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
+          -Dmaven.javadoc.skip=true
+
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - run: echo 'The triggering workflow failed'
