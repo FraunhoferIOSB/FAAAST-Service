@@ -9,16 +9,16 @@
 
 *   Asset Connection
 	*   HTTP asset connection added
-	*   Basic authentication (username & password) added
+	*   Basic authentication (username & password) added for OPC UA, MQTT and HTTP
 	*   Introducing protocol-agnostic library for handling different payload formats including extracting relevant information from received messages as well as template-based formatting of outgoing messages (currently only implemented for JSON)
 
-*   Support for output modifier `content=path`
+*   HTTP Endpoint
+	*   Support for output modifier `content=path`
+	*   CORS support, can be enabled by setting `isCorsEnabled=true` in config (default: false)
 
 *   Support for `valueType=DateTime`
 
 *   Support for Java 16
-
-*   HTTP endpoint now offers basic CORS support
 
 *   Improved robustness (e.g. against common invalid user input or network issues)
 
@@ -41,7 +41,7 @@
 	*   print warning upon connection loss
 	*   properly handle invalid messages without crashing
 
-*   Added strict enforcement of valid output modifiers for each command
+*   Added strict enforcement of valid output modifiers for each API call
 
 *   Dynamically allocate ports in unit tests
 
