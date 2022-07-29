@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import static org.eclipse.jetty.servlets.CrossOriginFilter.ACCESS_CONTROL_MAX_AGE_HEADER;
+
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
@@ -56,6 +58,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
  */
 public class RequestHandler extends AbstractHandler {
 
+    private static final int DEFAULT_PREFLIGHT_MAX_AGE = 1800;
     private final ServiceContext serviceContext;
     private final HttpEndpointConfig config;
     private final RequestMappingManager mappingManager;
@@ -145,6 +148,7 @@ public class RequestHandler extends AbstractHandler {
                             .map(HttpMethod::name)
                             .collect(Collectors.joining(HttpConstants.HEADER_VALUE_SEPARATOR)));
             if (allowedMethods.containsAll(requestedHTTPMethods)) {
+                response.setHeader(ACCESS_CONTROL_MAX_AGE_HEADER, String.valueOf(DEFAULT_PREFLIGHT_MAX_AGE));
                 sendSuccess(response, HttpStatus.NO_CONTENT_204);
             }
             else {
