@@ -79,11 +79,13 @@ public class RequestHandler extends AbstractHandler {
                 request.getInputStream().close();
             }
         };
-        if (handlePreflightedCORSRequest(request, response, baseRequest)) {
-            return;
-        }
+
         if (config.isCorsEnabled()) {
             setCORSHeader(response);
+            if (isPreflightedCORSRequest(request)) {
+                handlePreflightedCORSRequest(request, response, baseRequest);
+                return;
+            }
         }
 
         HttpRequest httpRequest = HttpRequest.builder()
@@ -122,28 +124,27 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    private boolean handlePreflightedCORSRequest(HttpServletRequest request, HttpServletResponse response, Request baseRequest) {
-        if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
-            setCORSHeader(response);
+    private boolean isPreflightedCORSRequest(HttpServletRequest request) {
+        return request.getMethod().equalsIgnoreCase("OPTIONS");
+    }
 
-            List<HttpMethod> requestedHTTPMethods = getRequestedHTTPMethods(request);
-            List<HttpMethod> allowedMethods = HttpHelper.findSupportedHTTPMethods(mappingManager, request.getRequestURI().replaceAll("/$", ""));
 
-            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER,
-                    allowedMethods.stream()
-                            .map(HttpMethod::name)
-                            .collect(Collectors.joining(",")));
+    private void handlePreflightedCORSRequest(HttpServletRequest request, HttpServletResponse response, Request baseRequest) {
+        List<HttpMethod> requestedHTTPMethods = getRequestedHTTPMethods(request);
+        List<HttpMethod> allowedMethods = HttpHelper.findSupportedHTTPMethods(mappingManager, request.getRequestURI().replaceAll("/$", ""));
 
-            if (new HashSet<>(allowedMethods).containsAll(requestedHTTPMethods)) {
-                sendSuccess(response, 204);
-            }
-            else {
-                sendError(response, StatusCode.CLIENT_ERROR_BAD_REQUEST);
-            }
-            baseRequest.setHandled(true);
-            return true;
+        response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER,
+                allowedMethods.stream()
+                        .map(HttpMethod::name)
+                        .collect(Collectors.joining(",")));
+
+        if (new HashSet<>(allowedMethods).containsAll(requestedHTTPMethods)) {
+            sendSuccess(response, 204);
         }
-        return false;
+        else {
+            sendError(response, StatusCode.CLIENT_ERROR_BAD_REQUEST);
+        }
+        baseRequest.setHandled(true);
     }
 
 

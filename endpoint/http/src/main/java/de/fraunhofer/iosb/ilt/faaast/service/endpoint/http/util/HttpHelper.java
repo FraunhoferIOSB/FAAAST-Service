@@ -84,7 +84,9 @@ public class HttpHelper {
                 mappingManager.findRequestMapper(httpRequest);
                 allowedMethods.add(httpMethod);
             }
-            catch (InvalidRequestException ignored) {}
+            catch (InvalidRequestException ignored) {
+                //intentionally empty
+            }
         }
         return allowedMethods;
     }

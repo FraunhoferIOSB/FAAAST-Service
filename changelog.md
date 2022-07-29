@@ -8,6 +8,7 @@
 *   Add basic for basic username & password authentication for asset connections (MQTT, OPC UA, HTTP)
 *   validation now checks for unsupported datatypes
 *   always print version info when starting via CLI
+*   Support preflighted CORS requests in HTTP Endpoint
 
 **Internal changes & Bugfixes**
 *   fixed potential crash when initializing value with empty string althtough that is not a valid value according to the value type, e.g. int, double, etc. (empty string value is treated the same as null)
