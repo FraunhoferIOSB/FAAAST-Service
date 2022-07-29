@@ -19,8 +19,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.eclipse.jetty.http.HttpStatus;
 
 
@@ -73,8 +73,8 @@ public class HttpHelper {
      * @param url which should be checked
      * @return all supported HTTP Methods of the given request
      */
-    public static List<HttpMethod> findSupportedHTTPMethods(RequestMappingManager mappingManager, String url) {
-        List<HttpMethod> allowedMethods = new ArrayList<>();
+    public static Set<HttpMethod> findSupportedHTTPMethods(RequestMappingManager mappingManager, String url) {
+        Set<HttpMethod> allowedMethods = new HashSet<>();
         for (HttpMethod httpMethod: HttpMethod.values()) {
             try {
                 HttpRequest httpRequest = HttpRequest.builder()

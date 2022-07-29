@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
@@ -36,12 +37,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Request;
@@ -125,44 +125,41 @@ public class RequestHandler extends AbstractHandler {
 
 
     private boolean isPreflightedCORSRequest(HttpServletRequest request) {
-        return request.getMethod().equalsIgnoreCase("OPTIONS");
+        return request.getMethod().equalsIgnoreCase(HttpMethod.OPTIONS.name());
     }
 
 
     private void handlePreflightedCORSRequest(HttpServletRequest request, HttpServletResponse response, Request baseRequest) {
-        List<HttpMethod> requestedHTTPMethods = getRequestedHTTPMethods(request);
-        List<HttpMethod> allowedMethods = HttpHelper.findSupportedHTTPMethods(mappingManager, request.getRequestURI().replaceAll("/$", ""));
-
-        response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER,
-                allowedMethods.stream()
-                        .map(HttpMethod::name)
-                        .collect(Collectors.joining(",")));
-
-        if (new HashSet<>(allowedMethods).containsAll(requestedHTTPMethods)) {
-            sendSuccess(response, 204);
+        try {
+            Set<HttpMethod> requestedHTTPMethods = request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER) != null
+                    ? Stream.of(request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER)
+                            .split(HttpConstants.HEADER_VALUE_SEPARATOR))
+                            .filter(StringUtils::isNoneBlank)
+                            .map(x -> HttpMethod.valueOf(x.trim()))
+                            .collect(Collectors.toSet())
+                    : new HashSet();
+            Set<HttpMethod> allowedMethods = HttpHelper.findSupportedHTTPMethods(mappingManager, request.getRequestURI().replaceAll("/$", ""));
+            allowedMethods.add(HttpMethod.OPTIONS);
+            response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER,
+                    allowedMethods.stream()
+                            .map(HttpMethod::name)
+                            .collect(Collectors.joining(HttpConstants.HEADER_VALUE_SEPARATOR)));
+            if (allowedMethods.containsAll(requestedHTTPMethods)) {
+                sendSuccess(response, HttpStatus.NO_CONTENT_204);
+            }
+            else {
+                sendError(response, StatusCode.CLIENT_ERROR_BAD_REQUEST);
+            }
         }
-        else {
-            sendError(response, StatusCode.CLIENT_ERROR_BAD_REQUEST);
+        catch (RuntimeException e) {
+            sendError(response, StatusCode.CLIENT_ERROR_BAD_REQUEST,
+                    String.format("invalid value for %s: %s",
+                            CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER,
+                            request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER)));
         }
-        baseRequest.setHandled(true);
-    }
-
-
-    private List<HttpMethod> getRequestedHTTPMethods(HttpServletRequest request) {
-        String methodHeader = request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER);
-        List<HttpMethod> requestedMethods = new ArrayList<>();
-        if (StringUtils.isNotBlank(methodHeader)) {
-            Arrays.stream(methodHeader.split(",")).forEach(x -> {
-                try {
-                    HttpMethod method = HttpMethod.valueOf(x.trim());
-                    requestedMethods.add(method);
-                }
-                catch (IllegalArgumentException e) {
-                    //intentionally empty
-                }
-            });
+        finally {
+            baseRequest.setHandled(true);
         }
-        return requestedMethods;
     }
 
 
