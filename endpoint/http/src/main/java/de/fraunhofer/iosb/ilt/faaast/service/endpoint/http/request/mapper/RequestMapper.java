@@ -98,7 +98,7 @@ public abstract class RequestMapper {
      * @throws InvalidRequestException if conversion fails
      * @throws IllegalArgumentException if httpRequest is null
      */
-    public final Request<? extends Response> parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public final Request parse(HttpRequest httpRequest) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         Matcher matcher = Pattern.compile(urlPattern).matcher(httpRequest.getPath());
         if (matcher.matches()) {
@@ -125,7 +125,7 @@ public abstract class RequestMapper {
      * @throws InvalidRequestException if conversion fails
      * @throws IllegalArgumentException if httpRequest is null
      */
-    public abstract Request<? extends Response> doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException;
+    public abstract Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException;
 
 
     /**
