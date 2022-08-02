@@ -29,7 +29,7 @@ public class ObjectHelper {
 
     /**
      * Checks if an object is a collection-like type
-     * ({@link Collection}, {@link Map} or {@link Array}).
+     * ({@link Collection}, {@link Map} or array).
      *
      * @param obj The object to check
      * @return true if object is collection-like type, false otherwise. If input
