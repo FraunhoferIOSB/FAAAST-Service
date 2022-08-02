@@ -283,10 +283,6 @@ HTTP GET http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2R
 ```
 
 ### The following interface URLs are currently not (yet) supported
--   Submodel Repository Interface (Alternative Interface URLs "Swagger Doc Feb. 2022",
-[DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-Environment/V1.0RC01#/Asset%20Administration%20Shell%20Environment/GetSubmodel) (yet not fully specified))
->/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/...
-
 -   AASX File Server Interface (not yet supported)
 >/packages
 
