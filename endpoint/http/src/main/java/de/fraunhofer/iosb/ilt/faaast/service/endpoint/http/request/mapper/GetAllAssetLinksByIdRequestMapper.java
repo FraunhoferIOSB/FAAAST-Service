@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import java.util.Map;
 
 
 /**
@@ -28,25 +29,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
  */
 public class GetAllAssetLinksByIdRequestMapper extends RequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^lookup/shells/(.*)$";
+    private static final String AAS_ID = "aasId";
+    private static final String PATTERN = String.format("lookup/shells/(?<%s>.*)", AAS_ID);
 
     public GetAllAssetLinksByIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return GetAllAssetLinksByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(2))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(AAS_ID))))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

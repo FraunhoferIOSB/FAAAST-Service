@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescript
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import java.util.Map;
 
 
 /**
@@ -31,28 +32,20 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper
         extends RequestMapperWithOutputModifier<GetAllConceptDescriptionsByDataSpecificationReferenceRequest, GetAllConceptDescriptionsByDataSpecificationReferenceResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^concept-descriptions$";
-    private static final String QUERYPARAM1 = "dataSpecificationRef";
+    private static final String PATTERN = "concept-descriptions";
+    private static final String QUERY_PARAMETER_DATA_SPECIFICATION_REF = "dataSpecificationRef";
 
     public GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
+        additionalMatcher = x -> x.hasQueryParameter(QUERY_PARAMETER_DATA_SPECIFICATION_REF);
     }
 
 
     @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllConceptDescriptionsByDataSpecificationReferenceRequest.builder()
-                .dataSpecification(AasUtils.parseReference(EncodingHelper.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM1))))
+                .dataSpecification(AasUtils.parseReference(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QUERY_PARAMETER_DATA_SPECIFICATION_REF))))
                 .outputModifier(outputModifier)
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && httpRequest.getQueryParameters().containsKey(QUERYPARAM1);
     }
 }

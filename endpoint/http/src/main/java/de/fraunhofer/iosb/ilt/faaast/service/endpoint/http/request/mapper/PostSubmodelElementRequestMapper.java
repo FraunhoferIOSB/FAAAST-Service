@@ -18,11 +18,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.AasRequestContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
+import java.util.Map;
 
 
 /**
@@ -30,26 +32,19 @@ import io.adminshell.aas.v3.model.SubmodelElement;
  */
 public class PostSubmodelElementRequestMapper extends RequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
-    private static final String PATTERN = "^submodels/(.*?)/submodel/submodel-elements$";
+    private static final String SUBMODEL_ID = "submodelId";
+    private static final String PATTERN = String.format("submodels/(?<%s>.*?)/submodel/submodel-elements", SUBMODEL_ID);
 
     public PostSubmodelElementRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.POST, PATTERN, new AasRequestContext());
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PostSubmodelElementRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
                 .submodelElement(parseBody(httpRequest, SubmodelElement.class))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

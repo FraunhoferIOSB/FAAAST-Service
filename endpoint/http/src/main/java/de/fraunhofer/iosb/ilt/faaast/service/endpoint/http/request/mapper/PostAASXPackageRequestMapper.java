@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequ
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import java.util.Map;
 
 
 /**
@@ -26,16 +27,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
  */
 public class PostAASXPackageRequestMapper extends RequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
-    private static final String PATTERN = "^packages$";
+    private static final String PATTERN = "packages";
 
     public PostAASXPackageRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.POST, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         // PostAASXPackageRequest request = new PostAASXPackageRequest();
         throw new InvalidRequestException("PostAASXPackage currently not supported");
         // TODO: Needs specialy handling in HTTP server because it is 'multipart/form-data'
@@ -47,12 +47,5 @@ public class PostAASXPackageRequestMapper extends RequestMapper {
         //        request.setFile(IdGenerator.parseFile(httpRequest.getBody()));
         //        request.setAasIds(IdGenerator.parseAssetIds(httpRequest.getBody()));
         //return request;
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

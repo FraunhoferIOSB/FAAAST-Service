@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAssetAdministratio
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import java.util.Map;
 
 
 /**
@@ -30,26 +31,19 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
  */
 public class GetAssetAdministrationShellRequestMapper extends RequestMapperWithOutputModifier<GetAssetAdministrationShellRequest, GetAssetAdministrationShellResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^shells/(.*)/aas$";
+    private static final String AAS_ID = "aasId";
+    private static final String PATTERN = String.format("shells/(?<%s>.*)/aas", AAS_ID);
 
     public GetAssetAdministrationShellRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAssetAdministrationShellRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(AAS_ID))))
                 .outputModifier(outputModifier)
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

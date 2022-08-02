@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelReference
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import io.adminshell.aas.v3.model.Reference;
+import java.util.Map;
 
 
 /**
@@ -30,26 +31,19 @@ import io.adminshell.aas.v3.model.Reference;
  */
 public class PostSubmodelReferenceRequestMapper extends RequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
-    private static final String PATTERN = "^shells/(.*)/aas/submodels$";
+    private static final String AAS_ID = "aasId";
+    private static final String PATTERN = String.format("shells/(?<%s>.*)/aas/submodels", AAS_ID);
 
     public PostSubmodelReferenceRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.POST, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PostSubmodelReferenceRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(AAS_ID))))
                 .submodelRef(parseBody(httpRequest, Reference.class))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

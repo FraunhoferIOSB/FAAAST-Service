@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.AasRequestContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
@@ -25,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRe
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import java.util.Map;
 
 
 /**
@@ -33,30 +35,28 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
  */
 public class InvokeOperationRequestMapper extends RequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
-    private static final String PATTERN = "^submodels/(.*?)/submodel/submodel-elements/(.*)/invoke$";
-    private static final String QUERY_PARAM_ASYNC = "async";
+    private static final String SUBMODEL_ID = "submodelId";
+    private static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
+    private static final String PATTERN = String.format(
+            "submodels/(?<%s>.*?)/submodel/submodel-elements/(?<%s>.*)/invoke",
+            SUBMODEL_ID,
+            SUBMODEL_ELEMENT_PATH);
+    private static final String QUERY_PARAMETER_ASYNC = "async";
 
     public InvokeOperationRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.POST, PATTERN, new AasRequestContext());
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
-        boolean async = Boolean.parseBoolean(httpRequest.getQueryParameter(QUERY_PARAM_ASYNC));
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
+        boolean async = httpRequest.hasQueryParameter(QUERY_PARAMETER_ASYNC)
+                && Boolean.parseBoolean(httpRequest.getQueryParameter(QUERY_PARAMETER_ASYNC));
         InvokeOperationRequest request = async
                 ? parseBody(httpRequest, InvokeOperationAsyncRequest.class)
                 : parseBody(httpRequest, InvokeOperationSyncRequest.class);
-        request.setId(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))));
-        request.setPath(ElementPathHelper.toKeys(EncodingHelper.urlDecode(httpRequest.getPathElements().get(4))));
+        request.setId(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))));
+        request.setPath(ElementPathHelper.toKeys(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH))));
         return request;
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

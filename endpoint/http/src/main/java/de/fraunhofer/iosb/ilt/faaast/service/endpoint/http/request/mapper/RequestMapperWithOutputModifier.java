@@ -17,7 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
@@ -26,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 
 /**
@@ -40,8 +43,8 @@ public abstract class RequestMapperWithOutputModifier<T extends RequestWithModif
     private static final String PARAMETER_CONTENT = "content";
     private static final String PARAMETER_EXTEND = "extend";
 
-    public RequestMapperWithOutputModifier(ServiceContext serviceContext) {
-        super(serviceContext);
+    public RequestMapperWithOutputModifier(ServiceContext serviceContext, HttpMethod method, String urlPattern, RequestContext... contextualizations) {
+        super(serviceContext, method, urlPattern, contextualizations);
     }
 
 
@@ -50,15 +53,16 @@ public abstract class RequestMapperWithOutputModifier<T extends RequestWithModif
      * modifier information
      *
      * @param httpRequest the HTTP request to convert
+     * @param urlParameters map of named regex groups and their values
      * @param outputModifier output modifier for this request
      * @return the protocol-agnostic request
      * @throws InvalidRequestException if conversion fails
      */
-    public abstract RequestWithModifier<R> parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException;
+    public abstract RequestWithModifier<R> doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException;
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         Class<RequestWithModifier<R>> rawType = (Class<RequestWithModifier<R>>) TypeToken.of(getClass()).resolveType(RequestMapperWithOutputModifier.class.getTypeParameters()[0])
                 .getRawType();
         try {
@@ -79,7 +83,7 @@ public abstract class RequestMapperWithOutputModifier<T extends RequestWithModif
                 request.checkExtentModifierValid(extent);
                 outputModifier.extend(extent);
             }
-            return parse(httpRequest, outputModifier.build());
+            return doParse(httpRequest, urlParameters, outputModifier.build());
         }
         catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new InvalidRequestException("error resolving request class while trying to determine output modifier constraints", e);

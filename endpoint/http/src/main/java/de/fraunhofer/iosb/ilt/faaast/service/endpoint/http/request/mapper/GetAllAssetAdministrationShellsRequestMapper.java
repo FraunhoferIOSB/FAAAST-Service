@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
+import java.util.Map;
 
 
 /**
@@ -28,29 +29,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
  */
 public class GetAllAssetAdministrationShellsRequestMapper extends RequestMapperWithOutputModifier<GetAllAssetAdministrationShellsRequest, GetAllAssetAdministrationShellsResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^shells$";
-    private static final String QUERYPARAM1 = "assetIds";
-    private static final String QUERYPARAM2 = "idShort";
+    private static final String PATTERN = "shells";
+    private static final String QUERY_PARAMETER_ASSET_IDS = "assetIds";
+    private static final String QUERY_PARAMETER_ID_SHORT = "idShort";
 
     public GetAllAssetAdministrationShellsRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
+        additionalMatcher = x -> !x.hasQueryParameter(QUERY_PARAMETER_ASSET_IDS)
+                && !x.hasQueryParameter(QUERY_PARAMETER_ID_SHORT);
     }
 
 
     @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllAssetAdministrationShellsRequest.builder()
                 .outputModifier(outputModifier)
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && !httpRequest.getQueryParameters().containsKey(QUERYPARAM1)
-                && !httpRequest.getQueryParameters().containsKey(QUERYPARAM2);
     }
 }

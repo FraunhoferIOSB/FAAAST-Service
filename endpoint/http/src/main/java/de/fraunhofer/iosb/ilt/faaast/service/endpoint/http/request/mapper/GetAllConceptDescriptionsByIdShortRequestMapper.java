@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIdShortResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIdShortRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
+import java.util.Map;
 
 
 /**
@@ -29,28 +30,20 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 public class GetAllConceptDescriptionsByIdShortRequestMapper
         extends RequestMapperWithOutputModifier<GetAllConceptDescriptionsByIdShortRequest, GetAllConceptDescriptionsByIdShortResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^concept-descriptions$";
-    private static final String QUERYPARAM1 = "idShort";
+    private static final String PATTERN = "concept-descriptions";
+    private static final String QUERY_PARAMETER_ID_SHORT = "idShort";
 
     public GetAllConceptDescriptionsByIdShortRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
+        additionalMatcher = x -> x.hasQueryParameter(QUERY_PARAMETER_ID_SHORT);
     }
 
 
     @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllConceptDescriptionsByIdShortRequest.builder()
-                .idShort(httpRequest.getQueryParameters().get(QUERYPARAM1))
+                .idShort(httpRequest.getQueryParameter(QUERY_PARAMETER_ID_SHORT))
                 .outputModifier(outputModifier)
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && httpRequest.getQueryParameters().containsKey(QUERYPARAM1);
     }
 }

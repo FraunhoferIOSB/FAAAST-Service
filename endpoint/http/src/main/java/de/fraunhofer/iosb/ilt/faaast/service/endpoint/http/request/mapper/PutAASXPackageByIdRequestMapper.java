@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequ
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import java.util.Map;
 
 
 /**
@@ -26,23 +27,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
  */
 public class PutAASXPackageByIdRequestMapper extends RequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
-    private static final String PATTERN = "^packages/(.*)$";
+    private static final String PACKAGE_ID = "packageId";
+    private static final String PATTERN = String.format("packages/(?<%s>.*)", PACKAGE_ID);
 
     public PutAASXPackageByIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.PUT, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         throw new InvalidRequestException("PutAASXPackageById currently not supported");
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

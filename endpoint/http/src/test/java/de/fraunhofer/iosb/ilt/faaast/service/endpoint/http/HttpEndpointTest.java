@@ -43,6 +43,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.SubmodelElement;
+import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
+import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultRange;
@@ -92,7 +94,6 @@ public class HttpEndpointTest {
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
             port = serverSocket.getLocalPort();
         }
-
         deserializer = new HttpJsonDeserializer();
         serviceContext = mock(ServiceContext.class);
         endpoint = new HttpEndpoint();
@@ -462,6 +463,49 @@ public class HttpEndpointTest {
         Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
         List<SubmodelElement> actual = deserializer.readList(new String(response.getContent()), SubmodelElement.class);
         Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testGetAllSubmodelElementsInAasContext() throws Exception {
+        List<SubmodelElement> expected = List.of(
+                new DefaultProperty.Builder()
+                        .idShort("property1")
+                        .value("hello world")
+                        .valueType("string")
+                        .build(),
+                new DefaultRange.Builder()
+                        .idShort("range1")
+                        .min("1.1")
+                        .max("2.0")
+                        .valueType("double")
+                        .build());
+        when(serviceContext.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .payload(expected)
+                .build());
+        String aasId = "aasId";
+        mockAasContext(serviceContext, aasId);
+        ContentResponse response = execute(
+                HttpMethod.GET,
+                String.format("/shells/%s/aas/submodels/foo/submodel/submodel-elements", EncodingHelper.base64UrlEncode(aasId)),
+                new OutputModifier.Builder()
+                        .content(Content.NORMAL)
+                        .build());
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        List<SubmodelElement> actual = deserializer.readList(new String(response.getContent()), SubmodelElement.class);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    private void mockAasContext(ServiceContext serviceContext, String aasId) {
+        when(serviceContext.getAASEnvironment()).thenReturn(new DefaultAssetAdministrationShellEnvironment.Builder()
+                .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
+                        .identification(new DefaultIdentifier.Builder()
+                                .identifier(aasId)
+                                .build())
+                        .build())
+                .build());
     }
 
 

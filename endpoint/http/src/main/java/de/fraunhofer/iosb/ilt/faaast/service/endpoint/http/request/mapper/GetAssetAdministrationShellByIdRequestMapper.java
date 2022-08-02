@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAssetAdministratio
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import java.util.Map;
 
 
 /**
@@ -30,27 +31,20 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
  */
 public class GetAssetAdministrationShellByIdRequestMapper extends RequestMapperWithOutputModifier<GetAssetAdministrationShellByIdRequest, GetAssetAdministrationShellByIdResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "(?!.*/aas)^shells/(.*?)$";
+    private static final String AAS_ID = "aasId";
+    private static final String PATTERN = String.format("(?!.*/aas)shells/(?<%s>.*?)", AAS_ID);
 
     public GetAssetAdministrationShellByIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
+        additionalMatcher = x -> x.getPathElements().size() == 2;
     }
 
 
     @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAssetAdministrationShellByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(AAS_ID))))
                 .outputModifier(outputModifier)
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && (httpRequest.getPathElements().size() == 2); // TODO: not nice, needs hotfix
     }
 }
