@@ -161,7 +161,8 @@ public class AASEnvironmentHelper {
      * @param file the file to read
      * @return the deserialized AAS enviroment
      * @throws DeserializationException if file extensions is not supported
-     *             * @throws DeserializationException if deserialization fails
+     * @throws DeserializationException if deserialization fails
+     * @throws java.io.IOException if file access fails
      */
     public static AssetAdministrationShellEnvironment fromFile(File file) throws DeserializationException, IOException {
         List<DataFormat> potentialDataFormats = getDataFormats(file);

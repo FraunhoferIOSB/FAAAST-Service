@@ -43,7 +43,7 @@ public class Ensure {
      * @param <T> the type of the reference
      * @return {@code obj} if not {@code null}
      * @throws IllegalArgumentException if {@code obj} is {@code null}
-     * @see java.util.Objects#requireNonNull(T)
+     * @see java.util.Objects#requireNonNull(Object)
      */
     public static <T> T requireNonNull(T obj) {
         if (obj == null) {
@@ -75,7 +75,7 @@ public class Ensure {
      * @param <T> the type of the reference
      * @return {@code obj} if not {@code null}
      * @throws IllegalArgumentException if {@code obj} is {@code null}
-     * @see java.util.Objects#requireNonNull(T, String)
+     * @see java.util.Objects#requireNonNull(Object, String)
      */
     public static <T> T requireNonNull(T obj, String message) {
         if (obj == null) {
@@ -107,7 +107,7 @@ public class Ensure {
      * @param messageSupplier the message supplier
      * @return {@code obj} if not {@code null}
      * @throws IllegalArgumentException if {@code obj} is {@code null}
-     * @see java.util.Objects#requireNonNull(T, Supplier<String>)
+     * @see java.util.Objects#requireNonNull(Object, Supplier)
      */
     public static <T> T requireNonNull(T obj, Supplier<String> messageSupplier) {
         if (obj == null) {

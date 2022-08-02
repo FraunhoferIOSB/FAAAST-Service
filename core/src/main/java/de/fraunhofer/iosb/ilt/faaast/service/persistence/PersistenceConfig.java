@@ -69,7 +69,7 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
     /**
      * Overwrites the AASEnvironment from model path
      *
-     * @param environment
+     * @param environment the environment to set
      */
     public void setEnvironment(AssetAdministrationShellEnvironment environment) {
         this.environment = environment;
@@ -84,7 +84,7 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
     /**
      * If true then a copied version of the environment is used
      *
-     * @param decoupleEnvironment
+     * @param decoupleEnvironment flag indicating whether to decouple the environment
      */
     public void setDecoupleEnvironment(boolean decoupleEnvironment) {
         this.decoupleEnvironment = decoupleEnvironment;

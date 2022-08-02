@@ -148,7 +148,7 @@ public class AssetConnectionManager {
 
 
     /**
-     * If a {@link ValueProvider} exists for given reference, the provided will
+     * If a {@link AssetValueProvider} exists for given reference, the provided will
      * be written; otherwise nothing happens
      *
      * @param reference reference to element to check for asset connection
