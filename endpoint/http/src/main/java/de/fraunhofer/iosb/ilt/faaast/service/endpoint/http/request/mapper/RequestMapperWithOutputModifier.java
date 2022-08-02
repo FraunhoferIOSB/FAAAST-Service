@@ -43,7 +43,7 @@ public abstract class RequestMapperWithOutputModifier<T extends RequestWithModif
     private static final String PARAMETER_CONTENT = "content";
     private static final String PARAMETER_EXTEND = "extend";
 
-    public RequestMapperWithOutputModifier(ServiceContext serviceContext, HttpMethod method, String urlPattern, RequestContext... contextualizations) {
+    protected RequestMapperWithOutputModifier(ServiceContext serviceContext, HttpMethod method, String urlPattern, RequestContext... contextualizations) {
         super(serviceContext, method, urlPattern, contextualizations);
     }
 

@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.ArrayList;
@@ -97,7 +98,7 @@ public abstract class RequestMapper {
      * @throws InvalidRequestException if conversion fails
      * @throws IllegalArgumentException if httpRequest is null
      */
-    public final Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public final Request<? extends Response> parse(HttpRequest httpRequest) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         Matcher matcher = Pattern.compile(urlPattern).matcher(httpRequest.getPath());
         if (matcher.matches()) {
@@ -124,7 +125,7 @@ public abstract class RequestMapper {
      * @throws InvalidRequestException if conversion fails
      * @throws IllegalArgumentException if httpRequest is null
      */
-    public abstract Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException;
+    public abstract Request<? extends Response> doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException;
 
 
     /**
