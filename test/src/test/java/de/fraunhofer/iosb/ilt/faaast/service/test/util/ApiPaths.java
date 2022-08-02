@@ -217,7 +217,7 @@ public class ApiPaths {
 
 
         public SubmodelInterface submodelInterface(Submodel submodel) {
-            return new SubmodelInterface(submodel.getIdentification().getIdentifier());
+            return new SubmodelInterface(submodel(submodel));
         }
 
 

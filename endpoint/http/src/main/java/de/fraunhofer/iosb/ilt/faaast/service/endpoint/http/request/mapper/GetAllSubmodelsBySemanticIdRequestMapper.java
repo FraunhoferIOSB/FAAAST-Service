@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsBySema
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import io.adminshell.aas.v3.model.Reference;
+import java.util.Map;
 
 
 /**
@@ -32,33 +33,30 @@ import io.adminshell.aas.v3.model.Reference;
  */
 public class GetAllSubmodelsBySemanticIdRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelsBySemanticIdRequest, GetAllSubmodelsBySemanticIdResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^submodels$";
-    private static final String QUERYPARAM = "semanticId";
+    private static final String PATTERN = "submodels";
+    private static final String QUERY_PARAMETER_SEMANTIC_ID = "semanticId";
 
     public GetAllSubmodelsBySemanticIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
+        additionalMatcher = x -> x.hasQueryParameter(QUERY_PARAMETER_SEMANTIC_ID);
     }
 
 
     @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException {
+    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         try {
             return GetAllSubmodelsBySemanticIdRequest.builder()
-                    .semanticId(deserializer.read(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameters().get(QUERYPARAM)), Reference.class))
+                    .semanticId(deserializer.read(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QUERY_PARAMETER_SEMANTIC_ID)), Reference.class))
                     .outputModifier(outputModifier)
                     .build();
         }
         catch (DeserializationException e) {
-            throw new InvalidRequestException(String.format("error deserializing %s", QUERYPARAM), e);
+            throw new InvalidRequestException(
+                    String.format(
+                            "error deserializing %s (value: %s)",
+                            QUERY_PARAMETER_SEMANTIC_ID,
+                            httpRequest.getQueryParameter(QUERY_PARAMETER_SEMANTIC_ID)),
+                    e);
         }
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && httpRequest.getQueryParameters().containsKey(QUERYPARAM);
     }
 }

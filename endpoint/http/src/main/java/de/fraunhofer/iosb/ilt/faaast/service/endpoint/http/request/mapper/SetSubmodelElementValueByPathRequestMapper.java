@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.AasRequestContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
@@ -33,6 +34,7 @@ import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -42,20 +44,26 @@ import java.util.Objects;
  */
 public class SetSubmodelElementValueByPathRequestMapper extends RequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
-    private static final String PATTERN = "^submodels/(.*?)/submodel/submodel-elements/(.*)$";
-    private static final String QUERYPARAM1 = "content";
-    private static final String QUERYVALUE1 = "value";
+    private static final String SUBMODEL_ID = "submodelId";
+    private static final String SUBMODEL_ELEMENT_PATH = "submodelElementpAth";
+    private static final String PATTERN = String.format(
+            "submodels/(?<%s>.*?)/submodel/submodel-elements/(?<%s>.*)",
+            SUBMODEL_ID,
+            SUBMODEL_ELEMENT_PATH);
+    private static final String QUERY_PARAMETER_CONTENT = "content";
+    private static final String QUERY_PARAMETER_CONTENT_VALUE = "value";
 
     public SetSubmodelElementValueByPathRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.PUT, PATTERN, new AasRequestContext());
+        additionalMatcher = x -> x.hasQueryParameter(QUERY_PARAMETER_CONTENT)
+                && Objects.equals(x.getQueryParameter(QUERY_PARAMETER_CONTENT), QUERY_PARAMETER_CONTENT_VALUE);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        final List<Key> path = ElementPathHelper.toKeys(EncodingHelper.urlDecode(httpRequest.getPathElements().get(4)));
-        final Identifier identifier = IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1)));
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
+        final List<Key> path = ElementPathHelper.toKeys(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)));
+        final Identifier identifier = IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID)));
         return SetSubmodelElementValueByPathRequest.builder()
                 .id(identifier)
                 .path(path)
@@ -81,13 +89,5 @@ public class SetSubmodelElementValueByPathRequestMapper extends RequestMapper {
                     }
                 })
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && (httpRequest.getQueryParameters().containsKey(QUERYPARAM1) && Objects.equals(httpRequest.getQueryParameters().get(QUERYPARAM1), QUERYVALUE1));
     }
 }

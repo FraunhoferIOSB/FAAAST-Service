@@ -17,12 +17,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.AasRequestContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetOperationAsyncResultResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetOperationAsyncResultRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import java.util.Map;
 
 
 /**
@@ -31,27 +33,26 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
  */
 public class GetOperationAsyncResultRequestMapper extends RequestMapperWithOutputModifier<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^submodels/(.*?)/submodel/submodel-elements/(.*)/operation-results/(.*)$";
+    private static final String SUBMODEL_ID = "submodelId";
+    private static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
+    private static final String HANDLE_ID = "handleId";
+    private static final String PATTERN = String.format(
+            "submodels/(?<%s>.*?)/submodel/submodel-elements/(?<%s>.*)/operation-results/(?<%s>.*)",
+            SUBMODEL_ID,
+            SUBMODEL_ELEMENT_PATH,
+            HANDLE_ID);
 
     public GetOperationAsyncResultRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN, new AasRequestContext());
     }
 
 
     @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetOperationAsyncResultRequest.builder()
-                .path(ElementPathHelper.toKeys(httpRequest.getPathElements().get(4)))
-                .handleId(EncodingHelper.base64Decode(httpRequest.getPathElements().get(6)))
+                .path(ElementPathHelper.toKeys(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
+                .handleId(EncodingHelper.base64Decode(urlParameters.get(HANDLE_ID)))
                 .outputModifier(outputModifier)
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

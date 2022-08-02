@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostConceptDescriptionRequest;
 import io.adminshell.aas.v3.model.ConceptDescription;
+import java.util.Map;
 
 
 /**
@@ -28,25 +29,17 @@ import io.adminshell.aas.v3.model.ConceptDescription;
  */
 public class PostConceptDescriptionRequestMapper extends RequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
-    private static final String PATTERN = "^concept-descriptions$";
+    private static final String PATTERN = "concept-descriptions";
 
     public PostConceptDescriptionRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.POST, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PostConceptDescriptionRequest.builder()
                 .conceptDescription(parseBody(httpRequest, ConceptDescription.class))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

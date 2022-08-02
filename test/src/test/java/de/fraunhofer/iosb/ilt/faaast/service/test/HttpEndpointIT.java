@@ -48,6 +48,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.AssetInformation;
@@ -95,6 +96,26 @@ public class HttpEndpointIT {
     private static AssetAdministrationShellEnvironment environment;
     private static Service service;
     private final ObjectMapper mapper;
+    private static final Path pathForTestSubmodel3 = Path.builder()
+            .id("TestSubmodel3")
+            .child("ExampleRelationshipElement")
+            .child("ExampleAnnotatedRelationshipElement")
+            .child("ExampleOperation")
+            .child("ExampleCapability")
+            .child("ExampleBasicEvent")
+            .child(Path.builder()
+                    .id("ExampleSubmodelCollectionOrdered")
+                    .child("ExampleProperty")
+                    .child("ExampleMultiLanguageProperty")
+                    .child("ExampleRange")
+                    .build())
+            .child(Path.builder()
+                    .id("ExampleSubmodelCollectionUnordered")
+                    .child("ExampleBlob")
+                    .child("ExampleFile")
+                    .child("ExampleReferenceElement")
+                    .build())
+            .build();
 
     public HttpEndpointIT() {
         this.mapper = new ObjectMapper();
@@ -287,10 +308,10 @@ public class HttpEndpointIT {
                         x -> assertExecute(HttpMethod.DELETE,
                                 API_PATHS.aasRepository().assetAdministrationShell(expected),
                                 StatusCode.SUCCESS_NO_CONTENT)));
-        List<AssetAdministrationShell> after = HttpHelper.getWithMultipleResult(
+        List<AssetAdministrationShell> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.aasRepository().assetAdministrationShells(),
                 AssetAdministrationShell.class);
-        Assert.assertFalse(after.contains(expected));
+        Assert.assertFalse(actual.contains(expected));
     }
 
 
@@ -410,10 +431,10 @@ public class HttpEndpointIT {
                                 HttpMethod.DELETE,
                                 API_PATHS.aasInterface(aas).submodel(submodelToDelete),
                                 StatusCode.SUCCESS_NO_CONTENT)));
-        List<Reference> after = HttpHelper.getWithMultipleResult(
+        List<Reference> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.aasInterface(aas).submodels(),
                 Reference.class);
-        Assert.assertFalse(after.contains(submodelToDelete));
+        Assert.assertFalse(actual.contains(submodelToDelete));
     }
 
 
@@ -561,10 +582,10 @@ public class HttpEndpointIT {
                                 HttpMethod.DELETE,
                                 API_PATHS.conceptDescriptionRepository().conceptDescription(expected),
                                 StatusCode.SUCCESS_NO_CONTENT)));
-        List<ConceptDescription> after = HttpHelper.getWithMultipleResult(
+        List<ConceptDescription> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.conceptDescriptionRepository().conceptDescriptions(),
                 ConceptDescription.class);
-        Assert.assertFalse(after.contains(expected));
+        Assert.assertFalse(actual.contains(expected));
     }
 
 
@@ -660,10 +681,10 @@ public class HttpEndpointIT {
                                 expected,
                                 expected,
                                 SubmodelElement.class)));
-        List<SubmodelElement> after = HttpHelper.getWithMultipleResult(
+        List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
-        Assert.assertTrue(after.contains(expected));
+        Assert.assertTrue(actual.contains(expected));
     }
 
 
@@ -686,10 +707,10 @@ public class HttpEndpointIT {
                                 expected,
                                 expected,
                                 SubmodelElement.class)));
-        List<SubmodelElement> after = HttpHelper.getWithMultipleResult(
+        List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
-        Assert.assertTrue(after.contains(expected));
+        Assert.assertTrue(actual.contains(expected));
     }
 
 
@@ -711,10 +732,10 @@ public class HttpEndpointIT {
                                 HttpMethod.DELETE,
                                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
                                 StatusCode.SUCCESS)));
-        List<SubmodelElement> after = HttpHelper.getWithMultipleResult(
+        List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
-        Assert.assertFalse(after.contains(expected));
+        Assert.assertFalse(actual.contains(expected));
     }
 
 
@@ -795,11 +816,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelLevelCore()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel expected = DeepCopyHelper.deepCopy(environment.getSubmodels().get(2), Submodel.class);
-        expected.getSubmodelElements().forEach(x -> {
-            if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
-                ((SubmodelElementCollection) x).getValues().clear();
-            }
-        });
+        clearSubmodelElementCollections(expected);
         assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
@@ -820,26 +837,7 @@ public class HttpEndpointIT {
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel submodel = environment.getSubmodels().get(2);
         ExtendHelper.withoutBlobValue(submodel);
-        Path expected = Path.builder()
-                .id("TestSubmodel3")
-                .child("ExampleRelationshipElement")
-                .child("ExampleAnnotatedRelationshipElement")
-                .child("ExampleOperation")
-                .child("ExampleCapability")
-                .child("ExampleBasicEvent")
-                .child(Path.builder()
-                        .id("ExampleSubmodelCollectionOrdered")
-                        .child("ExampleProperty")
-                        .child("ExampleMultiLanguageProperty")
-                        .child("ExampleRange")
-                        .build())
-                .child(Path.builder()
-                        .id("ExampleSubmodelCollectionUnordered")
-                        .child("ExampleBlob")
-                        .child("ExampleFile")
-                        .child("ExampleReferenceElement")
-                        .build())
-                .build();
+        Path expected = pathForTestSubmodel3;
         assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
@@ -857,31 +855,8 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelLevelCoreContentPath()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel submodel = DeepCopyHelper.deepCopy(environment.getSubmodels().get(2), Submodel.class);
-        submodel.getSubmodelElements().forEach(x -> {
-            if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
-                ((SubmodelElementCollection) x).getValues().clear();
-            }
-        });
-        Path expected = Path.builder()
-                .id("TestSubmodel3")
-                .child("ExampleRelationshipElement")
-                .child("ExampleAnnotatedRelationshipElement")
-                .child("ExampleOperation")
-                .child("ExampleCapability")
-                .child("ExampleBasicEvent")
-                .child(Path.builder()
-                        .id("ExampleSubmodelCollectionOrdered")
-                        .child("ExampleProperty")
-                        .child("ExampleMultiLanguageProperty")
-                        .child("ExampleRange")
-                        .build())
-                .child(Path.builder()
-                        .id("ExampleSubmodelCollectionUnordered")
-                        .child("ExampleBlob")
-                        .child("ExampleFile")
-                        .child("ExampleReferenceElement")
-                        .build())
-                .build();
+        clearSubmodelElementCollections(submodel);
+        Path expected = pathForTestSubmodel3;
         assertEvent(
                 messageBus,
                 ElementReadEventMessage.class,
@@ -953,10 +928,300 @@ public class HttpEndpointIT {
                                 expected,
                                 expected,
                                 SubmodelElement.class)));
-        List<SubmodelElement> after = HttpHelper.getWithMultipleResult(
+        List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
-        Assert.assertTrue(after.contains(expected));
+        Assert.assertTrue(actual.contains(expected));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceCreateSubmodelElementInAasContext()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        SubmodelElement expected = new DefaultProperty.Builder()
+                .idShort("newProperty")
+                .build();
+        assertEvent(
+                messageBus,
+                ElementCreateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecuteSingle(
+                                HttpMethod.POST,
+                                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                                StatusCode.SUCCESS_CREATED,
+                                expected,
+                                expected,
+                                SubmodelElement.class)));
+        List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
+                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                SubmodelElement.class);
+        Assert.assertTrue(actual.contains(expected));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceCreateSubmodelElementWithIdInUrlInAasContext()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        SubmodelElement expected = new DefaultProperty.Builder()
+                .idShort("newProperty")
+                .build();
+        assertEvent(
+                messageBus,
+                ElementCreateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecuteSingle(
+                                HttpMethod.POST,
+                                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
+                                StatusCode.SUCCESS_CREATED,
+                                expected,
+                                expected,
+                                SubmodelElement.class)));
+        List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
+                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                SubmodelElement.class);
+        Assert.assertTrue(actual.contains(expected));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceDeleteSubmodelElementInAasContext()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        SubmodelElement expected = submodel.getSubmodelElements().get(0);
+        List<SubmodelElement> before = HttpHelper.getWithMultipleResult(
+                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                SubmodelElement.class);
+        Assert.assertTrue(before.contains(expected));
+        assertEvent(
+                messageBus,
+                ElementDeleteEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecute(
+                                HttpMethod.DELETE,
+                                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
+                                StatusCode.SUCCESS)));
+        List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
+                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                SubmodelElement.class);
+        Assert.assertFalse(actual.contains(expected));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceGetSubmodelInAasContext()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        Submodel expected = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecuteSingle(
+                                HttpMethod.GET,
+                                API_PATHS.aasInterface(aas).submodelInterface(expected).submodel(),
+                                StatusCode.SUCCESS,
+                                null,
+                                expected,
+                                Submodel.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceGetSubmodelElementInAasContext()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        SubmodelElement expected = submodel.getSubmodelElements().get(0);
+        assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecuteSingle(
+                                HttpMethod.GET,
+                                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
+                                StatusCode.SUCCESS,
+                                null,
+                                expected,
+                                SubmodelElement.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceGetSubmodelElementsInAasContext()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        List<SubmodelElement> expected = submodel.getSubmodelElements();
+        assertExecuteMultiple(
+                HttpMethod.GET,
+                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                StatusCode.SUCCESS,
+                null,
+                expected,
+                SubmodelElement.class);
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceGetSubmodelContentValueInAasContext()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        String expected = new JsonSerializer().write(submodel, new OutputModifier.Builder()
+                .content(Content.VALUE)
+                .build());
+        assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                submodel,
+                LambdaExceptionHelper.wrap(
+                        x -> {
+                            HttpResponse<String> response = HttpHelper.get(
+                                    API_PATHS.aasInterface(aas).submodelInterface(submodel).submodel(Content.VALUE));
+                            Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+                            JSONAssert.assertEquals(expected, response.body(), false);
+                        }));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceGetSubmodelLevelCoreInAasContext()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        Submodel expected = DeepCopyHelper.deepCopy(AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class), Submodel.class);
+        clearSubmodelElementCollections(expected);
+        assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecuteSingle(
+                                HttpMethod.GET,
+                                API_PATHS.aasInterface(aas).submodelInterface(expected).submodel(Level.CORE),
+                                StatusCode.SUCCESS,
+                                null,
+                                expected,
+                                Submodel.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceGetSubmodelContentPathInAasContext()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        // submodel not part of aas on purpose/because it is not part of any aas in environment
+        Submodel submodel = environment.getSubmodels().get(2);
+        ExtendHelper.withoutBlobValue(submodel);
+        Path expected = pathForTestSubmodel3;
+        assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                submodel,
+                LambdaExceptionHelper.wrap(
+                        x -> {
+                            HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface(aas).submodelInterface(submodel).submodel(Level.DEEP, Content.PATH));
+                            Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+                            JSONAssert.assertEquals(mapper.writeValueAsString(expected.getPaths()), response.body(), false);
+                        }));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceGetSubmodelLevelCoreContentPathInAasContext()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
+        // submodel not part of aas on purpose/because it is not part of any aas in environment
+        Submodel submodel = DeepCopyHelper.deepCopy(environment.getSubmodels().get(2), Submodel.class);
+        clearSubmodelElementCollections(submodel);
+        Path expected = pathForTestSubmodel3;
+        assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                submodel,
+                LambdaExceptionHelper.wrap(
+                        x -> {
+                            HttpResponse<String> response = HttpHelper.get(API_PATHS.aasInterface(aas).submodelInterface(submodel).submodel(Level.CORE, Content.PATH));
+                            Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+                            JSONAssert.assertEquals(mapper.writeValueAsString(expected.asCorePath().getPaths()), response.body(), false);
+                        }));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceGetSubmodelLevelDeepInAasContext()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        Submodel expected = DeepCopyHelper.deepCopy(AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class), Submodel.class);
+        ExtendHelper.withoutBlobValue(expected);
+        assertEvent(
+                messageBus,
+                ElementReadEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecuteSingle(
+                                HttpMethod.GET,
+                                API_PATHS.aasInterface(aas).submodelInterface(expected).submodel(Level.DEEP),
+                                StatusCode.SUCCESS,
+                                null,
+                                expected,
+                                Submodel.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceUpdateSubmodelInAasContext()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        Submodel expected = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        expected.setIdShort("changed");
+        assertEvent(
+                messageBus,
+                ElementUpdateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecuteSingle(
+                                HttpMethod.PUT,
+                                API_PATHS.aasInterface(aas).submodelInterface(expected).submodel(),
+                                StatusCode.SUCCESS,
+                                expected,
+                                expected,
+                                Submodel.class)));
+    }
+
+
+    @Test
+    public void testSubmodelInterfaceUpdateSubmodelElementInAasContext()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
+        Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
+        SubmodelElement expected = submodel.getSubmodelElements().get(0);
+        expected.getDescriptions().add(new LangString("foo", "en"));
+        assertEvent(
+                messageBus,
+                ElementUpdateEventMessage.class,
+                expected,
+                LambdaExceptionHelper.wrap(
+                        x -> assertExecuteSingle(
+                                HttpMethod.PUT,
+                                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
+                                StatusCode.SUCCESS,
+                                expected,
+                                expected,
+                                SubmodelElement.class)));
+        List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
+                API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
+                SubmodelElement.class);
+        Assert.assertTrue(actual.contains(expected));
     }
 
 
@@ -1004,10 +1269,10 @@ public class HttpEndpointIT {
                         x -> assertExecute(HttpMethod.DELETE,
                                 API_PATHS.submodelRepository().submodel(expected),
                                 StatusCode.SUCCESS)));
-        List<Submodel> after = HttpHelper.getWithMultipleResult(
+        List<Submodel> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.submodelRepository().submodels(),
                 Submodel.class);
-        Assert.assertFalse(after.contains(expected));
+        Assert.assertFalse(actual.contains(expected));
     }
 
 
@@ -1125,6 +1390,15 @@ public class HttpEndpointIT {
             Object actual = HttpHelper.readResponse(response, type);
             Assert.assertEquals(expected, actual);
         }
+    }
+
+
+    private static void clearSubmodelElementCollections(Submodel submodel) {
+        submodel.getSubmodelElements().forEach(x -> {
+            if (SubmodelElementCollection.class.isAssignableFrom(x.getClass())) {
+                ((SubmodelElementCollection) x).getValues().clear();
+            }
+        });
     }
 
 }

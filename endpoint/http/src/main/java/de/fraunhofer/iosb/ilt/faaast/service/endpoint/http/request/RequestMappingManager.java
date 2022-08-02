@@ -25,7 +25,6 @@ import io.github.classgraph.ScanResult;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,13 +95,10 @@ public class RequestMappingManager {
      */
     public RequestMapper findRequestMapper(HttpRequest httpRequest) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
-        Optional<RequestMapper> mapper = mappers.stream()
+        return mappers.stream()
                 .filter(request -> request.matches(httpRequest))
-                .findAny();
-        if (mapper.isEmpty()) {
-            throw new InvalidRequestException("no matching request mapper found");
-        }
-        return mapper.get();
+                .findAny()
+                .orElseThrow(() -> new InvalidRequestException("no matching request mapper found"));
     }
 
 
