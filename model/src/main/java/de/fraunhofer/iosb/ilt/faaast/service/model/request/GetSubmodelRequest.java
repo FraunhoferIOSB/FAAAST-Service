@@ -15,24 +15,16 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelResponse;
-import io.adminshell.aas.v3.model.Identifier;
 import java.util.Objects;
 
 
 /**
  * Chapter 4.3.2
  */
-public class GetSubmodelRequest extends AbstractGetSubmodelRequest<GetSubmodelResponse> {
+public class GetSubmodelRequest extends SubmodelInterfaceRequest<GetSubmodelResponse> {
 
-    private Identifier id;
-
-    public Identifier getId() {
-        return id;
-    }
-
-
-    public void setId(Identifier id) {
-        this.id = id;
+    public GetSubmodelRequest() {
+        super(OutputModifierConstraints.SUBMODEL);
     }
 
 
@@ -45,14 +37,13 @@ public class GetSubmodelRequest extends AbstractGetSubmodelRequest<GetSubmodelRe
             return false;
         }
         GetSubmodelRequest that = (GetSubmodelRequest) o;
-        return super.equals(that)
-                && Objects.equals(id, that.id);
+        return super.equals(that);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id);
+        return Objects.hash(super.hashCode());
     }
 
 
@@ -60,12 +51,8 @@ public class GetSubmodelRequest extends AbstractGetSubmodelRequest<GetSubmodelRe
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetSubmodelRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetSubmodelRequest, B extends AbstractBuilder<T, B>> extends SubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
-        public B id(Identifier value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
     }
 
     public static class Builder extends AbstractBuilder<GetSubmodelRequest, Builder> {

@@ -21,53 +21,31 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 
+/**
+ * Base class for request that suppport
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier}.
+ *
+ * @param <T> actual type of the request
+ */
 public abstract class RequestWithModifier<T extends Response> extends BaseRequest<T> {
 
-    public static final Set<Content> DEFAULT_SUPPORT_CONTENT_MODIFIERS = Set.of(Content.values());
-    public static final boolean DEFAULT_SUPPORT_EXTENT = true;
-    public static final boolean DEFAULT_SUPPORT_LEVEL = false;
+    private OutputModifierConstraints outputModifierConstraints;
     protected OutputModifier outputModifier;
-    protected Set<Content> supportedContentModifiers;
-    protected boolean supportsExtent;
-    protected boolean supportsLevel;
 
     protected RequestWithModifier() {
-        this(DEFAULT_SUPPORT_EXTENT, DEFAULT_SUPPORT_LEVEL, DEFAULT_SUPPORT_CONTENT_MODIFIERS);
+        this(OutputModifierConstraints.DEFAULT);
     }
 
 
-    protected RequestWithModifier(Content... supportedContentModifiers) {
-        this(DEFAULT_SUPPORT_EXTENT, DEFAULT_SUPPORT_LEVEL, supportedContentModifiers);
-    }
-
-
-    protected RequestWithModifier(boolean supportsExtent, boolean supportsLevel) {
-        this(supportsExtent, supportsLevel, DEFAULT_SUPPORT_CONTENT_MODIFIERS);
-    }
-
-
-    protected RequestWithModifier(boolean supportsExtent, boolean supportsLevel, Content... supportedContentModifiers) {
-        this(supportsExtent, supportsLevel,
-                supportedContentModifiers != null
-                        ? new HashSet<>(Arrays.asList(supportedContentModifiers))
-                        : new HashSet<>());
-    }
-
-
-    protected RequestWithModifier(boolean supportsExtent, boolean supportsLevel, Set<Content> supportedContentModifiers) {
+    protected RequestWithModifier(OutputModifierConstraints outputModifierConstraints) {
         this.outputModifier = OutputModifier.DEFAULT;
-        this.supportsExtent = supportsExtent;
-        this.supportsLevel = supportsLevel;
-        this.supportedContentModifiers = supportedContentModifiers != null
-                ? supportedContentModifiers
-                : new HashSet<>();
+        this.outputModifierConstraints = outputModifierConstraints == null
+                ? OutputModifierConstraints.DEFAULT
+                : outputModifierConstraints;
     }
 
 
@@ -81,6 +59,16 @@ public abstract class RequestWithModifier<T extends Response> extends BaseReques
     }
 
 
+    public OutputModifierConstraints getOutputModifierConstraints() {
+        return outputModifierConstraints;
+    }
+
+
+    public void setOutputModifierConstraints(OutputModifierConstraints outputModifierConstraints) {
+        this.outputModifierConstraints = outputModifierConstraints;
+    }
+
+
     /**
      * Checks if a given content modifier is supported for this type
      *
@@ -89,10 +77,10 @@ public abstract class RequestWithModifier<T extends Response> extends BaseReques
      *             supported
      */
     public void checkContenModifierValid(Content content) {
-        if (content != null && !supportedContentModifiers.contains(content)) {
+        if (content != null && !outputModifierConstraints.getSupportedContentModifiers().contains(content)) {
             throw new IllegalArgumentException(String.format("unsupported value for outputModifier.content (actual: %s, supported: %s)",
                     content,
-                    supportedContentModifiers.stream()
+                    outputModifierConstraints.getSupportedContentModifiers().stream()
                             .map(Object::toString)
                             .collect(Collectors.joining(", "))));
         }
@@ -107,7 +95,7 @@ public abstract class RequestWithModifier<T extends Response> extends BaseReques
      *             supported
      */
     public void checkLevelModifierValid(Level level) {
-        if (!supportsLevel && level != null) {
+        if (!outputModifierConstraints.getSupportsLevel() && level != null) {
             throw new IllegalArgumentException("outputModifier.level not supported for this request");
         }
 
@@ -122,7 +110,7 @@ public abstract class RequestWithModifier<T extends Response> extends BaseReques
      *             supported
      */
     public void checkExtentModifierValid(Extent extent) {
-        if (!supportsExtent && extent != null) {
+        if (!outputModifierConstraints.getSupportsExtent() && extent != null) {
             throw new IllegalArgumentException("outputModifier.extent not supported for this request");
         }
 
@@ -131,7 +119,7 @@ public abstract class RequestWithModifier<T extends Response> extends BaseReques
 
     /**
      * Validates if current output modifier violates the constraints.
-     * 
+     *
      * @throws IllegalArgumentException if there is any violation
      */
     public void validate() {
@@ -140,41 +128,6 @@ public abstract class RequestWithModifier<T extends Response> extends BaseReques
         checkExtentModifierValid(outputModifier.getExtent());
     }
 
-    public abstract static class AbstractBuilder<T extends RequestWithModifier, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B outputModifier(OutputModifier value) {
-            getBuildingInstance().setOutputModifier(value);
-            return getSelf();
-        }
-
-
-        public B supportedContentModifiers(Content... value) {
-            getBuildingInstance().supportedContentModifiers = value != null
-                    ? new HashSet<>(Arrays.asList(value))
-                    : new HashSet<>();
-            return getSelf();
-        }
-
-
-        public B supportedContentModifiers(Set<Content> value) {
-            getBuildingInstance().supportedContentModifiers = value != null
-                    ? value
-                    : new HashSet<>();
-            return getSelf();
-        }
-
-
-        public B supportsExtent(boolean value) {
-            getBuildingInstance().supportsExtent = value;
-            return getSelf();
-        }
-
-
-        public B supportsLevel(boolean value) {
-            getBuildingInstance().supportsLevel = value;
-            return getSelf();
-        }
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -186,14 +139,27 @@ public abstract class RequestWithModifier<T extends Response> extends BaseReques
         }
         RequestWithModifier that = (RequestWithModifier) o;
         return Objects.equals(outputModifier, that.outputModifier)
-                && Objects.equals(supportedContentModifiers, that.supportedContentModifiers)
-                && Objects.equals(supportsExtent, that.supportsExtent)
-                && Objects.equals(supportsLevel, that.supportsLevel);
+                && Objects.equals(outputModifierConstraints, that.outputModifierConstraints);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(outputModifier, supportedContentModifiers, supportsExtent, supportsLevel);
+        return Objects.hash(outputModifier, outputModifierConstraints);
     }
+
+    public abstract static class AbstractBuilder<T extends RequestWithModifier, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B outputModifier(OutputModifier value) {
+            getBuildingInstance().setOutputModifier(value);
+            return getSelf();
+        }
+
+
+        public B outputModifierConstraints(OutputModifierConstraints value) {
+            getBuildingInstance().setOutputModifierConstraints(value);
+            return getSelf();
+        }
+    }
+
 }

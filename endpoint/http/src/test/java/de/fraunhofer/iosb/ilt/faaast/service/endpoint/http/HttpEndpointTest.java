@@ -16,17 +16,21 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse;
@@ -36,12 +40,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelEleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.Identifier;
+import io.adminshell.aas.v3.model.IdentifierType;
+import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
@@ -84,7 +92,8 @@ public class HttpEndpointTest {
     private static int port;
     private static HttpClient client;
     private static HttpEndpoint endpoint;
-    private static ServiceContext serviceContext;
+    private static Service service;
+    private static Persistence persistence;
     private static HttpJsonDeserializer deserializer;
 
     @BeforeClass
@@ -95,17 +104,17 @@ public class HttpEndpointTest {
             port = serverSocket.getLocalPort();
         }
         deserializer = new HttpJsonDeserializer();
-        serviceContext = mock(ServiceContext.class);
+        persistence = mock(Persistence.class);
         endpoint = new HttpEndpoint();
+        service = spy(new Service(CoreConfig.DEFAULT, persistence, mock(MessageBus.class), List.of(endpoint), List.of()));
         endpoint.init(
-                CoreConfig.builder()
-                        .build(),
+                CoreConfig.DEFAULT,
                 HttpEndpointConfig.builder()
                         .port(port)
                         .cors(true)
                         .build(),
-                serviceContext);
-        endpoint.start();
+                service);
+        service.start();
         client = new HttpClient();
         client.start();
     }
@@ -239,7 +248,7 @@ public class HttpEndpointTest {
     @Test
     public void testParamContentNormal() throws Exception {
         Identifier id = new DefaultIdentifier();
-        when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+        when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=normal");
@@ -251,7 +260,7 @@ public class HttpEndpointTest {
     @Ignore("content=trimmed currently under discussion")
     public void testParamContentTrimmed() throws Exception {
         Identifier id = new DefaultIdentifier();
-        when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+        when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=trimmed");
@@ -262,7 +271,7 @@ public class HttpEndpointTest {
     @Test
     public void testParamContentReference() throws Exception {
         Identifier id = new DefaultIdentifier();
-        when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+        when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=reference");
@@ -273,7 +282,7 @@ public class HttpEndpointTest {
     @Test
     public void testParamContentLevelBogus() throws Exception {
         Identifier id = new DefaultIdentifier();
-        when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+        when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=bogus&level=bogus");
@@ -286,7 +295,7 @@ public class HttpEndpointTest {
 
     @Test
     public void testInvalidAASIdentifier() throws Exception {
-        when(serviceContext.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+        when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/shells/bogus/aas");
@@ -304,7 +313,7 @@ public class HttpEndpointTest {
     @Test
     public void testNonExistentId() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(serviceContext.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .payload(null)
                 .build());
@@ -316,7 +325,7 @@ public class HttpEndpointTest {
     @Test
     public void testDoubleQueryValue() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(serviceContext.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -329,7 +338,7 @@ public class HttpEndpointTest {
     @Test
     public void testMissingQueryValue() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(serviceContext.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -342,7 +351,7 @@ public class HttpEndpointTest {
     @Test
     public void testBogusAndMissingQueryValue() throws Exception {
         String idShort = AASFull.SUBMODEL_3.getIdShort() + "123";
-        when(serviceContext.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
+        when(service.execute(any())).thenReturn(GetSubmodelByIdResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -354,7 +363,7 @@ public class HttpEndpointTest {
 
     @Test
     public void testWrongResponse() throws Exception {
-        when(serviceContext.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
+        when(service.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -366,7 +375,7 @@ public class HttpEndpointTest {
 
     @Test
     public void testPostSubmodelNoData() throws Exception {
-        when(serviceContext.execute(any())).thenReturn(PostSubmodelResponse.builder()
+        when(service.execute(any())).thenReturn(PostSubmodelResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(null)
                 .build());
@@ -378,7 +387,7 @@ public class HttpEndpointTest {
     @Test
     public void testGetAllAssetAdministrationShells() throws Exception {
         List<AssetAdministrationShell> expectedPayload = List.of(AASFull.AAS_1);
-        when(serviceContext.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
+        when(service.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expectedPayload)
                 .build());
@@ -396,7 +405,7 @@ public class HttpEndpointTest {
     @Ignore("value only serialization not defined for AssetAdministrationShells")
     public void testGetAllAssetAdministrationShellsValueOnly() throws Exception {
         List<AssetAdministrationShell> expectedPayload = List.of(AASFull.AAS_1);
-        when(serviceContext.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
+        when(service.execute(any())).thenReturn(GetAllAssetAdministrationShellsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expectedPayload)
                 .build());
@@ -423,7 +432,7 @@ public class HttpEndpointTest {
                         .max("2.0")
                         .valueType("double")
                         .build());
-        when(serviceContext.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
+        when(service.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(submodelElements)
                 .build());
@@ -453,7 +462,7 @@ public class HttpEndpointTest {
                         .max("2.0")
                         .valueType("double")
                         .build());
-        when(serviceContext.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
+        when(service.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
                 .statusCode(StatusCode.SUCCESS)
                 .payload(expected)
                 .build());
@@ -468,6 +477,16 @@ public class HttpEndpointTest {
 
     @Test
     public void testGetAllSubmodelElementsInAasContext() throws Exception {
+        String aasId = "aasId";
+        String submodelId = "submodelId";
+        Reference submodelRef = ReferenceHelper.build(aasId, submodelId);
+        AssetAdministrationShell aas = new DefaultAssetAdministrationShell.Builder()
+                .identification(new DefaultIdentifier.Builder()
+                        .idType(IdentifierType.IRI)
+                        .identifier(aasId)
+                        .build())
+                .submodel(submodelRef)
+                .build();
         List<SubmodelElement> expected = List.of(
                 new DefaultProperty.Builder()
                         .idShort("property1")
@@ -480,15 +499,20 @@ public class HttpEndpointTest {
                         .max("2.0")
                         .valueType("double")
                         .build());
-        when(serviceContext.execute(any())).thenReturn(GetAllSubmodelElementsResponse.builder()
-                .statusCode(StatusCode.SUCCESS)
-                .payload(expected)
-                .build());
-        String aasId = "aasId";
-        mockAasContext(serviceContext, aasId);
+        when(service.execute(any())).thenReturn(
+                GetAllSubmodelElementsResponse.builder()
+                        .statusCode(StatusCode.SUCCESS)
+                        .payload(expected)
+                        .build());
+        when(persistence.get(aas.getIdentification(), new OutputModifier.Builder()
+                .level(Level.CORE)
+                .build())).thenReturn(aas);
+        mockAasContext(service, aasId);
         ContentResponse response = execute(
                 HttpMethod.GET,
-                String.format("/shells/%s/aas/submodels/foo/submodel/submodel-elements", EncodingHelper.base64UrlEncode(aasId)),
+                String.format("/shells/%s/aas/submodels/%s/submodel/submodel-elements",
+                        EncodingHelper.base64UrlEncode(aasId),
+                        EncodingHelper.base64UrlEncode(submodelId)),
                 new OutputModifier.Builder()
                         .content(Content.NORMAL)
                         .build());
@@ -512,7 +536,7 @@ public class HttpEndpointTest {
     @Test
     public void testResultServerError() throws Exception {
         Result expected = Result.error(HttpStatus.getMessage(500));
-        when(serviceContext.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()
+        when(service.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.SERVER_INTERNAL_ERROR)
                 .result(expected)
                 .payload(null)
@@ -535,7 +559,7 @@ public class HttpEndpointTest {
     @Test
     public void testResultNotFound() throws Exception {
         Result expected = Result.error(HttpStatus.getMessage(404));
-        when(serviceContext.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()
+        when(service.execute(any())).thenReturn(GetSubmodelElementByPathResponse.builder()
                 .statusCode(StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND)
                 .payload(null)
                 .result(expected)

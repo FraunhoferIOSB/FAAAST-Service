@@ -24,11 +24,12 @@ import java.util.Objects;
 /**
  * Chapter 6.2.4
  */
-public class GetAllAssetAdministrationShellsByAssetIdRequest extends AbstractGetAssetAdministrationShellRequest<GetAllAssetAdministrationShellsByAssetIdResponse> {
+public class GetAllAssetAdministrationShellsByAssetIdRequest extends RequestWithModifier<GetAllAssetAdministrationShellsByAssetIdResponse> {
 
     private List<IdentifierKeyValuePair> assetIds;
 
     public GetAllAssetAdministrationShellsByAssetIdRequest() {
+        super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL);
         this.assetIds = new ArrayList<>();
     }
 

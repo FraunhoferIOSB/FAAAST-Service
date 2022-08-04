@@ -18,34 +18,28 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.AasRequestContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import java.util.Map;
 
 
 /**
- * class to map HTTP-GET-Request path: submodels/{submodelIdentifier}/submodel
+ * class to map HTTP-GET-Request paths: submodels/{submodelIdentifier}/submodel
+ * <br>
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
  */
-public class GetSubmodelRequestMapper extends RequestMapperWithOutputModifier<GetSubmodelRequest, GetSubmodelResponse> {
+public class GetSubmodelRequestMapper extends SubmodelInterfaceRequestMapper<GetSubmodelRequest, GetSubmodelResponse> {
 
-    private static final String SUBMODEL_ID = "submodelId";
-    private static final String PATTERN = String.format("submodels/(?<%s>.*?)/submodel", SUBMODEL_ID);
+    private static final String PATTERN = "";
 
     public GetSubmodelRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.GET, PATTERN, new AasRequestContext());
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
-        return GetSubmodelRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
-                .outputModifier(outputModifier)
-                .build();
+    public GetSubmodelRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
+        return GetSubmodelRequest.builder().build();
     }
 }

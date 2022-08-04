@@ -18,44 +18,55 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.AasRequestContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationAsyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import java.util.Map;
 
 
 /**
- * class to map HTTP-POST-Request path:
+ * Abstract base class for invoke operation requests mapping to the following
+ * HTTP-POST-Request paths:
  * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
+ * <br>
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
+ *
+ * @param <T> actual request type
+ * @param <U> actual response type
  */
-public class InvokeOperationRequestMapper extends RequestMapper {
+public abstract class AbstractInvokeOperationRequestMapper<T extends InvokeOperationRequest<U>, U extends Response> extends SubmodelInterfaceRequestMapper<T, U> {
 
-    private static final String SUBMODEL_ID = "submodelId";
-    private static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
-    private static final String PATTERN = String.format(
-            "submodels/(?<%s>.*?)/submodel/submodel-elements/(?<%s>.*)/invoke",
-            SUBMODEL_ID,
-            SUBMODEL_ELEMENT_PATH);
-    private static final String QUERY_PARAMETER_ASYNC = "async";
+    protected static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
+    protected static final String PATTERN = String.format("submodel-elements/(?<%s>.*)/invoke", SUBMODEL_ELEMENT_PATH);
+    protected static final String QUERY_PARAMETER_ASYNC = "async";
 
-    public InvokeOperationRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.POST, PATTERN, new AasRequestContext());
+    public AbstractInvokeOperationRequestMapper(ServiceContext serviceContext) {
+        super(serviceContext, HttpMethod.POST, PATTERN);
+    }
+
+
+    /**
+     * Checks if a request indicates that the operation should be executed
+     * asynchronously
+     *
+     * @param httpRequest the HTTP request
+     * @return true if is async, false otherwise
+     */
+    protected boolean isAsync(HttpRequest httpRequest) {
+        return httpRequest.hasQueryParameter(QUERY_PARAMETER_ASYNC)
+                && Boolean.parseBoolean(httpRequest.getQueryParameter(QUERY_PARAMETER_ASYNC));
     }
 
 
     @Override
-    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
-        boolean async = httpRequest.hasQueryParameter(QUERY_PARAMETER_ASYNC)
-                && Boolean.parseBoolean(httpRequest.getQueryParameter(QUERY_PARAMETER_ASYNC));
-        InvokeOperationRequest request = async
-                ? parseBody(httpRequest, InvokeOperationAsyncRequest.class)
-                : parseBody(httpRequest, InvokeOperationSyncRequest.class);
-        request.setId(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))));
+    public T doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
+        T request = isAsync(httpRequest)
+                ? (T) parseBody(httpRequest, InvokeOperationAsyncRequest.class)
+                : (T) parseBody(httpRequest, InvokeOperationSyncRequest.class);
         request.setPath(ElementPathHelper.toKeys(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH))));
         return request;
     }

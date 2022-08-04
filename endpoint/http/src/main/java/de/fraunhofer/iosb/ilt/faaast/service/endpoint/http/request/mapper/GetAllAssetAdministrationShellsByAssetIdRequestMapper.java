@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByAssetIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByAssetIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import java.util.Map;
@@ -39,17 +38,22 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestMapper
 
     public GetAllAssetAdministrationShellsByAssetIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
-        additionalMatcher = x -> x.hasQueryParameter(QUERY_PARAMETER_ASSET_IDS);
     }
 
 
     @Override
-    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
+    public boolean matches(HttpRequest httpRequest) {
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QUERY_PARAMETER_ASSET_IDS);
+    }
+
+
+    @Override
+    public GetAllAssetAdministrationShellsByAssetIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier)
+            throws InvalidRequestException {
         try {
             return GetAllAssetAdministrationShellsByAssetIdRequest.builder()
                     .assetIds(deserializer.readList(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QUERY_PARAMETER_ASSET_IDS)),
                             IdentifierKeyValuePair.class))
-                    .outputModifier(outputModifier)
                     .build();
         }
         catch (DeserializationException e) {

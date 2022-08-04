@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import java.util.Map;
 
 
@@ -36,16 +35,20 @@ public class GetAllConceptDescriptionsRequestMapper extends RequestMapperWithOut
 
     public GetAllConceptDescriptionsRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
-        additionalMatcher = x -> !x.hasQueryParameter(QUERY_PARAMETER_ID_SHORT)
-                && !x.hasQueryParameter(QUERY_PARAMETER_IS_CASE_OF)
-                && !x.hasQueryParameter(QUERY_PARAMETER_DATA_SPECIFICATION_REF);
     }
 
 
     @Override
-    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
-        return GetAllConceptDescriptionsRequest.builder()
-                .outputModifier(outputModifier)
-                .build();
+    public boolean matches(HttpRequest httpRequest) {
+        return super.matches(httpRequest)
+                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_ID_SHORT)
+                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_IS_CASE_OF)
+                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_DATA_SPECIFICATION_REF);
+    }
+
+
+    @Override
+    public GetAllConceptDescriptionsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+        return GetAllConceptDescriptionsRequest.builder().build();
     }
 }

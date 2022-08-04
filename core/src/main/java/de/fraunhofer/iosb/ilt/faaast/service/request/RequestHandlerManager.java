@@ -31,6 +31,7 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -80,6 +81,7 @@ public class RequestHandlerManager {
             // TODO change approach for RequestHandler from abstract class to interface 
             // (either with init method or pass all arguments with handle method)
             handlers = scanResult.getSubclasses(RequestHandler.class).loadClasses().stream()
+                    .filter(x -> !Modifier.isAbstract(x.getModifiers()))
                     .map(x -> (Class<? extends RequestHandler>) x)
                     .collect(Collectors.toMap(
                             x -> {

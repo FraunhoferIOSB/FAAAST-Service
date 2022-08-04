@@ -213,7 +213,6 @@ public class Service implements ServiceContext {
             for (AssetConnectionConfig assetConnectionConfig: config.getAssetConnections()) {
                 assetConnections.add((AssetConnection) assetConnectionConfig.newInstance(config.getCore(), this));
             }
-
             assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         }
         endpoints = new ArrayList<>();

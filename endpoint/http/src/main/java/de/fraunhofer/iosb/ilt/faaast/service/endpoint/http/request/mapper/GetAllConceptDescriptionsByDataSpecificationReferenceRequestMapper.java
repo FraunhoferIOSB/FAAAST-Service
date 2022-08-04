@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByDataSpecificationReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByDataSpecificationReferenceRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import java.util.Map;
@@ -37,15 +36,19 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper
 
     public GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
-        additionalMatcher = x -> x.hasQueryParameter(QUERY_PARAMETER_DATA_SPECIFICATION_REF);
     }
 
 
     @Override
-    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+    public boolean matches(HttpRequest httpRequest) {
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QUERY_PARAMETER_DATA_SPECIFICATION_REF);
+    }
+
+
+    @Override
+    public GetAllConceptDescriptionsByDataSpecificationReferenceRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllConceptDescriptionsByDataSpecificationReferenceRequest.builder()
                 .dataSpecification(AasUtils.parseReference(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QUERY_PARAMETER_DATA_SPECIFICATION_REF))))
-                .outputModifier(outputModifier)
                 .build();
     }
 }

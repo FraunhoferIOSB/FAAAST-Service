@@ -185,7 +185,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             List<Key> path = new ArrayList<>();
             path.addAll(refElement.getKeys());
 
-            request.setId(submodel.getIdentification());
+            request.setSubmodelId(submodel.getIdentification());
             request.setPath(path);
             request.setValueParser(new OpcUaElementValueParser());
             if (element instanceof MultiLanguageProperty) {
@@ -240,7 +240,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             List<Key> path = new ArrayList<>();
             path.addAll(refElement.getKeys());
 
-            request.setId(submodel.getIdentification());
+            request.setSubmodelId(submodel.getIdentification());
             request.setPath(path);
             request.setInputArguments(inputVariables);
 

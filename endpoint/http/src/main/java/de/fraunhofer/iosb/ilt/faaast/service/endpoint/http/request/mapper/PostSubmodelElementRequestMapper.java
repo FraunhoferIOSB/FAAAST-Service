@@ -18,32 +18,30 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.AasRequestContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Map;
 
 
 /**
- * class to map HTTP-POST-Request path: submodels/{submodelIdentifier}/submodel
+ * class to map HTTP-POST-Request paths: submodels/{submodelIdentifier}/submodel
+ * <br>
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
  */
-public class PostSubmodelElementRequestMapper extends RequestMapper {
+public class PostSubmodelElementRequestMapper extends SubmodelInterfaceRequestMapper<PostSubmodelElementRequest, PostSubmodelElementResponse> {
 
-    private static final String SUBMODEL_ID = "submodelId";
-    private static final String PATTERN = String.format("submodels/(?<%s>.*?)/submodel/submodel-elements", SUBMODEL_ID);
+    private static final String PATTERN = "submodel-elements";
 
     public PostSubmodelElementRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.POST, PATTERN, new AasRequestContext());
+        super(serviceContext, HttpMethod.POST, PATTERN);
     }
 
 
     @Override
-    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
+    public PostSubmodelElementRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         return PostSubmodelElementRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
                 .submodelElement(parseBody(httpRequest, SubmodelElement.class))
                 .build();
     }

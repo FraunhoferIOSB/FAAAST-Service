@@ -12,24 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.request;
+package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.OutputModifierConstraints;
 
 
 /**
- * Base class for all INVOKE requests holding information about supported output modifier
- *
- * @param <T> type of response
+ * Mixin for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier}
  */
-public abstract class AbstractInvokeOperationRequest<T extends Response> extends RequestWithModifier<T> {
+public abstract class RequestWithModifierMixin {
 
-    protected AbstractInvokeOperationRequest() {
-        super(false, false, Content.NORMAL, Content.VALUE);
-    }
+    @JsonIgnore
+    private OutputModifierConstraints outputModifierConstraints;
 
-    public abstract static class AbstractBuilder<T extends AbstractInvokeOperationRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
-
-    }
+    @JsonIgnore
+    private OutputModifier outputModifier;
 }

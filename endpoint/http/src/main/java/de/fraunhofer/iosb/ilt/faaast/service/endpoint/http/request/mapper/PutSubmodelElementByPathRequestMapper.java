@@ -18,40 +18,41 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.AasRequestContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Map;
 
 
 /**
- * class to map HTTP-PUT-Request path:
+ * class to map HTTP-PUT-Request paths:
  * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+ * <br>
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
  */
-public class PutSubmodelElementByPathRequestMapper extends RequestMapper {
+public class PutSubmodelElementByPathRequestMapper extends SubmodelInterfaceRequestMapper<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
 
-    private static final String SUBMODEL_ID = "submodelId";
     private static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
-    private static final String PATTERN = String.format(
-            "submodels/(?<%s>.*?)/submodel/submodel-elements/(?<%s>.*)",
-            SUBMODEL_ID,
-            SUBMODEL_ELEMENT_PATH);
+    private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);
     private static final String QUERY_PARAMETER_CONTENT = "content";
 
     public PutSubmodelElementByPathRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.PUT, PATTERN, new AasRequestContext());
-        additionalMatcher = x -> !x.hasQueryParameter(QUERY_PARAMETER_CONTENT);
+        super(serviceContext, HttpMethod.PUT, PATTERN);
     }
 
 
     @Override
-    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
+    public boolean matches(HttpRequest httpRequest) {
+        return super.matches(httpRequest) && !httpRequest.hasQueryParameter(QUERY_PARAMETER_CONTENT);
+    }
+
+
+    @Override
+    public PutSubmodelElementByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         return PutSubmodelElementByPathRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
                 .path(ElementPathHelper.toKeys(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH))))
                 .submodelElement(parseBody(httpRequest, SubmodelElement.class))
                 .build();

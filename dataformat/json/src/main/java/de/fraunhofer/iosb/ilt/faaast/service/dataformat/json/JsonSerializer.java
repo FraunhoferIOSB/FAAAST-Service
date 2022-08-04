@@ -20,10 +20,14 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.Serializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.RequestWithModifierMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.SubmodelInterfaceRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EnumSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.ModifierAwareSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.SubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import io.adminshell.aas.v3.dataformat.json.modeltype.ModelTypeProcessor;
@@ -58,6 +62,8 @@ public class JsonSerializer implements Serializer {
         SimpleModule module = new SimpleModule();
         ReflectionHelper.ENUMS.forEach(x -> module.addSerializer(x, new EnumSerializer()));
         mapper.registerModule(module);
+        mapper.addMixIn(RequestWithModifier.class, RequestWithModifierMixin.class);
+        mapper.addMixIn(SubmodelInterfaceRequest.class, SubmodelInterfaceRequestMixin.class);
     }
 
 

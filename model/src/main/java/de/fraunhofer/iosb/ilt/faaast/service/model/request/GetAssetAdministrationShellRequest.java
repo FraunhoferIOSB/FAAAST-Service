@@ -22,9 +22,14 @@ import java.util.Objects;
 /**
  * Chapter 4.2.2
  */
-public class GetAssetAdministrationShellRequest extends AbstractGetAssetAdministrationShellRequest<GetAssetAdministrationShellResponse> {
+public class GetAssetAdministrationShellRequest extends RequestWithModifier<GetAssetAdministrationShellResponse> {
 
     private Identifier id;
+
+    public GetAssetAdministrationShellRequest() {
+        super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL);
+    }
+
 
     public Identifier getId() {
         return id;

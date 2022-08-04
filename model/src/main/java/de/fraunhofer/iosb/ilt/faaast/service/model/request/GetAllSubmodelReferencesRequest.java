@@ -22,9 +22,14 @@ import java.util.Objects;
 /**
  * Chapter 4.2.4
  */
-public class GetAllSubmodelReferencesRequest extends AbstractGetSubmodelReferencelRequest<GetAllSubmodelReferencesResponse> {
+public class GetAllSubmodelReferencesRequest extends RequestWithModifier<GetAllSubmodelReferencesResponse> {
 
     private Identifier id;
+
+    public GetAllSubmodelReferencesRequest() {
+        super(OutputModifierConstraints.NONE);
+    }
+
 
     public Identifier getId() {
         return id;

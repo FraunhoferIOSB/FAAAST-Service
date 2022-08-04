@@ -1118,8 +1118,7 @@ public class HttpEndpointIT {
     @Test
     public void testSubmodelInterfaceGetSubmodelContentPathInAasContext()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
-        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
-        // submodel not part of aas on purpose/because it is not part of any aas in environment
+        AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
         Submodel submodel = environment.getSubmodels().get(2);
         ExtendHelper.withoutBlobValue(submodel);
         Path expected = pathForTestSubmodel3;
@@ -1140,7 +1139,6 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelLevelCoreContentPathInAasContext()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(0);
-        // submodel not part of aas on purpose/because it is not part of any aas in environment
         Submodel submodel = DeepCopyHelper.deepCopy(environment.getSubmodels().get(2), Submodel.class);
         clearSubmodelElementCollections(submodel);
         Path expected = pathForTestSubmodel3;

@@ -40,7 +40,7 @@ import io.adminshell.aas.v3.model.SubmodelElement;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class SetSubmodelElementValueByPathRequestHandler extends RequestHandler<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {
+public class SetSubmodelElementValueByPathRequestHandler extends SubmodelInterfaceRequestHandler<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {
 
     public SetSubmodelElementValueByPathRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
@@ -48,12 +48,12 @@ public class SetSubmodelElementValueByPathRequestHandler extends RequestHandler<
 
 
     @Override
-    public SetSubmodelElementValueByPathResponse process(SetSubmodelElementValueByPathRequest request) throws ResourceNotFoundException, Exception {
+    public SetSubmodelElementValueByPathResponse doProcess(SetSubmodelElementValueByPathRequest request) throws ResourceNotFoundException, Exception {
         if (request == null || request.getValueParser() == null) {
             throw new IllegalArgumentException("value parser of request must be non-null");
         }
         SetSubmodelElementValueByPathResponse response = new SetSubmodelElementValueByPathResponse();
-        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
         SubmodelElement submodelElement = persistence.get(reference, new OutputModifier.Builder()
                 .extend(Extent.WITH_BLOB_VALUE)
                 .build());

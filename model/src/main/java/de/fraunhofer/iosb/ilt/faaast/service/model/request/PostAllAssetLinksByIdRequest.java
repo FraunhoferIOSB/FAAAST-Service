@@ -28,6 +28,7 @@ import java.util.Objects;
  * Chapter 7.2.4
  */
 public class PostAllAssetLinksByIdRequest extends BaseRequest<PostAllAssetLinksByIdResponse> {
+
     private Identifier id;
     private List<IdentifierKeyValuePair> assetLinks;
 
@@ -58,10 +59,12 @@ public class PostAllAssetLinksByIdRequest extends BaseRequest<PostAllAssetLinksB
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         PostAllAssetLinksByIdRequest that = (PostAllAssetLinksByIdRequest) o;
         return Objects.equals(id, that.id)
                 && Objects.equals(assetLinks, that.assetLinks);
@@ -79,6 +82,7 @@ public class PostAllAssetLinksByIdRequest extends BaseRequest<PostAllAssetLinksB
     }
 
     public abstract static class AbstractBuilder<T extends PostAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
         public B id(Identifier value) {
             getBuildingInstance().setId(value);
             return getSelf();

@@ -23,6 +23,8 @@ import java.util.Objects;
  */
 public class CoreConfig {
 
+    public static final CoreConfig DEFAULT = builder().build();
+
     private int requestHandlerThreadPoolSize;
 
     /**

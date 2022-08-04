@@ -45,7 +45,7 @@ import java.util.Objects;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
+public class PutSubmodelElementByPathRequestHandler extends SubmodelInterfaceRequestHandler<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
 
     public PutSubmodelElementByPathRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
@@ -53,10 +53,10 @@ public class PutSubmodelElementByPathRequestHandler extends RequestHandler<PutSu
 
 
     @Override
-    public PutSubmodelElementByPathResponse process(PutSubmodelElementByPathRequest request)
+    public PutSubmodelElementByPathResponse doProcess(PutSubmodelElementByPathRequest request)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException {
         PutSubmodelElementByPathResponse response = new PutSubmodelElementByPathResponse();
-        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
         //Check if submodelelement does exist
         SubmodelElement currentSubmodelElement = persistence.get(reference, QueryModifier.DEFAULT);
         SubmodelElement newSubmodelElement = request.getSubmodelElement();

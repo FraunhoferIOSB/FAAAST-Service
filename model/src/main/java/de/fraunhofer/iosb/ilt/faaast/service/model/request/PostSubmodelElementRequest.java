@@ -14,20 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementResponse;
-import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 /**
  * Chapter 4.3.6
  */
-public class PostSubmodelElementRequest extends BaseRequest<PostSubmodelElementResponse> {
+public class PostSubmodelElementRequest extends SubmodelInterfaceRequest<PostSubmodelElementResponse> {
 
-    private Identifier id;
     private SubmodelElement submodelElement;
 
     public SubmodelElement getSubmodelElement() {
@@ -40,16 +36,6 @@ public class PostSubmodelElementRequest extends BaseRequest<PostSubmodelElementR
     }
 
 
-    public Identifier getId() {
-        return id;
-    }
-
-
-    public void setId(Identifier id) {
-        this.id = id;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -59,13 +45,14 @@ public class PostSubmodelElementRequest extends BaseRequest<PostSubmodelElementR
             return false;
         }
         PostSubmodelElementRequest that = (PostSubmodelElementRequest) o;
-        return Objects.equals(id, that.id) && Objects.equals(submodelElement, that.submodelElement);
+        return super.equals(that)
+                && Objects.equals(submodelElement, that.submodelElement);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, submodelElement);
+        return Objects.hash(super.hashCode(), submodelElement);
     }
 
 
@@ -73,13 +60,7 @@ public class PostSubmodelElementRequest extends BaseRequest<PostSubmodelElementR
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PostSubmodelElementRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B id(Identifier value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<T extends PostSubmodelElementRequest, B extends AbstractBuilder<T, B>> extends SubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B submodelElement(SubmodelElement value) {
             getBuildingInstance().setSubmodelElement(value);

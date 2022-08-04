@@ -136,6 +136,13 @@ public class AASFull {
                                 .idType(KeyType.IRI)
                                 .build())
                         .build())
+                .submodel(new DefaultReference.Builder()
+                        .key(new DefaultKey.Builder()
+                                .type(KeyElements.SUBMODEL)
+                                .value("https://acplt.org/Test_Submodel3")
+                                .idType(KeyType.IRI)
+                                .build())
+                        .build())
                 .build();
     }
 

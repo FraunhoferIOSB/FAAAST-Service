@@ -15,36 +15,36 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.AasRequestContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import java.util.Map;
 
 
 /**
- * class to map HTTP-DELETE-Request path:
+ * class to map HTTP-DELETE-Request paths:
  * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+ * <br>
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
  */
-public class DeleteSubmodelElementByPathRequestMapper extends RequestMapper {
+public class DeleteSubmodelElementByPathRequestMapper extends SubmodelInterfaceRequestMapper<DeleteSubmodelElementByPathRequest, DeleteSubmodelElementByPathResponse> {
 
-    private static final String SUBMODEL_ID = "submodelId";
     private static final String SUBMODEL_ELEMENT_PATH = "submodelelementId";
-    private static final String PATTERN = String.format("submodels/(?<%s>.*?)/submodel/submodel-elements/(?<%s>.*)", SUBMODEL_ID, SUBMODEL_ELEMENT_PATH);
+    private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);
 
     public DeleteSubmodelElementByPathRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.DELETE, PATTERN, new AasRequestContext());
+        super(serviceContext, HttpMethod.DELETE, PATTERN);
     }
 
 
     @Override
-    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
+    public DeleteSubmodelElementByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         return DeleteSubmodelElementByPathRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
                 .path(ElementPathHelper.toKeys(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH))))
                 .build();
     }

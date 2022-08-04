@@ -24,12 +24,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJso
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,14 +36,10 @@ import java.util.regex.Pattern;
  */
 public abstract class RequestMapper {
 
-    protected static final String PATTERN_LINE_START = "^";
-    protected static final String PATTERN_LINE_END = "$";
     protected ServiceContext serviceContext;
     protected HttpJsonDeserializer deserializer;
     protected final HttpMethod method;
     protected String urlPattern;
-    protected List<RequestContext> contextualizations;
-    protected Predicate<HttpRequest> additionalMatcher = x -> true;
 
     protected RequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern, RequestContext... contextualizations) {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
@@ -55,20 +48,13 @@ public abstract class RequestMapper {
         this.serviceContext = serviceContext;
         this.method = method;
         this.urlPattern = urlPattern;
-        this.contextualizations = contextualizations != null ? Arrays.asList(contextualizations) : new ArrayList<>();
         deserializer = new HttpJsonDeserializer();
         init();
     }
 
 
     private void init() {
-        this.contextualizations.forEach(x -> x.init(serviceContext, urlPattern));
-        if (!urlPattern.startsWith(PATTERN_LINE_START)) {
-            urlPattern = PATTERN_LINE_START + urlPattern;
-        }
-        if (!urlPattern.endsWith(PATTERN_LINE_END)) {
-            urlPattern += PATTERN_LINE_END;
-        }
+        urlPattern = RegExHelper.ensureLineMatch(urlPattern);
     }
 
 
@@ -83,9 +69,7 @@ public abstract class RequestMapper {
     public boolean matches(HttpRequest httpRequest) {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         return httpRequest.getMethod().equals(method)
-                && (httpRequest.getPath().matches(urlPattern)
-                        || contextualizations.stream().anyMatch(x -> x.matches(httpRequest.getPath())))
-                && additionalMatcher.test(httpRequest);
+                && httpRequest.getPath().matches(urlPattern);
     }
 
 
@@ -97,18 +81,10 @@ public abstract class RequestMapper {
      * @throws InvalidRequestException if conversion fails
      * @throws IllegalArgumentException if httpRequest is null
      */
-    public final Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         Matcher matcher = Pattern.compile(urlPattern).matcher(httpRequest.getPath());
         if (matcher.matches()) {
-            return doParse(httpRequest, RegExHelper.getGroupValues(urlPattern, httpRequest.getPath()));
-        }
-        Optional<RequestContext> contextualization = contextualizations.stream()
-                .filter(x -> x.matches(httpRequest.getPath()))
-                .findFirst();
-        if (contextualization.isPresent()) {
-            contextualization.get().validate(httpRequest);
-            httpRequest.setPath(contextualization.get().decontextualize(httpRequest.getPath()));
             return doParse(httpRequest, RegExHelper.getGroupValues(urlPattern, httpRequest.getPath()));
         }
         throw new IllegalStateException(String.format("request was matched but no suitable parser found (HTTP method: %s, URL pattern: %s", method, urlPattern));
@@ -166,6 +142,31 @@ public abstract class RequestMapper {
         catch (DeserializationException e) {
             throw new InvalidRequestException("error parsing body", e);
         }
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(serviceContext, deserializer, method, urlPattern);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final RequestMapper other = (RequestMapper) obj;
+        return Objects.equals(this.urlPattern, other.urlPattern)
+                && Objects.equals(this.serviceContext, other.serviceContext)
+                && Objects.equals(this.deserializer, other.deserializer)
+                && Objects.equals(this.method, other.method);
     }
 
 }

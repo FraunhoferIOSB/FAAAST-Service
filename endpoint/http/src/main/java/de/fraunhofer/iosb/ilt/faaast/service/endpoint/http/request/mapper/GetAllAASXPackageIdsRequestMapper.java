@@ -36,7 +36,12 @@ public class GetAllAASXPackageIdsRequestMapper extends RequestMapper {
 
     public GetAllAASXPackageIdsRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
-        additionalMatcher = x -> x.hasQueryParameter(QUERY_PARAMETER_AAA_ID);
+    }
+
+
+    @Override
+    public boolean matches(HttpRequest httpRequest) {
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QUERY_PARAMETER_AAA_ID);
     }
 
 

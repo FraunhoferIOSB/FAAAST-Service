@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelResponse;
-import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Submodel;
 import java.util.Objects;
 
@@ -23,9 +22,8 @@ import java.util.Objects;
 /**
  * Chapter 4.3.5
  */
-public class PutSubmodelRequest extends RequestWithModifier<PutSubmodelResponse> {
+public class PutSubmodelRequest extends SubmodelInterfaceRequest<PutSubmodelResponse> {
 
-    private Identifier id;
     private Submodel submodel;
 
     public Submodel getSubmodel() {
@@ -35,16 +33,6 @@ public class PutSubmodelRequest extends RequestWithModifier<PutSubmodelResponse>
 
     public void setSubmodel(Submodel submodel) {
         this.submodel = submodel;
-    }
-
-
-    public Identifier getId() {
-        return id;
-    }
-
-
-    public void setId(Identifier id) {
-        this.id = id;
     }
 
 
@@ -58,14 +46,13 @@ public class PutSubmodelRequest extends RequestWithModifier<PutSubmodelResponse>
         }
         PutSubmodelRequest that = (PutSubmodelRequest) o;
         return super.equals(that)
-                && Objects.equals(id, that.id)
                 && Objects.equals(submodel, that.submodel);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, submodel);
+        return Objects.hash(super.hashCode(), submodel);
     }
 
 
@@ -73,13 +60,7 @@ public class PutSubmodelRequest extends RequestWithModifier<PutSubmodelResponse>
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PutSubmodelRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
-
-        public B id(Identifier value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<T extends PutSubmodelRequest, B extends AbstractBuilder<T, B>> extends SubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B submodel(Submodel value) {
             getBuildingInstance().setSubmodel(value);

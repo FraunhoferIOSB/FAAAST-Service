@@ -14,11 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelElementByPathResponse;
-import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,23 +24,12 @@ import java.util.Objects;
 /**
  * Chapter 4.3.10
  */
-public class DeleteSubmodelElementByPathRequest extends BaseRequest<DeleteSubmodelElementByPathResponse> {
+public class DeleteSubmodelElementByPathRequest extends SubmodelInterfaceRequest<DeleteSubmodelElementByPathResponse> {
 
-    private Identifier id;
     private List<Key> path;
 
     public DeleteSubmodelElementByPathRequest() {
         this.path = new ArrayList<>();
-    }
-
-
-    public Identifier getId() {
-        return id;
-    }
-
-
-    public void setId(Identifier id) {
-        this.id = id;
     }
 
 
@@ -66,13 +52,14 @@ public class DeleteSubmodelElementByPathRequest extends BaseRequest<DeleteSubmod
             return false;
         }
         DeleteSubmodelElementByPathRequest that = (DeleteSubmodelElementByPathRequest) o;
-        return Objects.equals(id, that.id) && Objects.equals(path, that.path);
+        return super.equals(o)
+                && Objects.equals(path, that.path);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, path);
+        return Objects.hash(super.hashCode(), path);
     }
 
 
@@ -80,13 +67,8 @@ public class DeleteSubmodelElementByPathRequest extends BaseRequest<DeleteSubmod
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends DeleteSubmodelElementByPathRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B id(Identifier value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<T extends DeleteSubmodelElementByPathRequest, B extends AbstractBuilder<T, B>>
+            extends SubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B path(List<Key> value) {
             getBuildingInstance().setPath(value);

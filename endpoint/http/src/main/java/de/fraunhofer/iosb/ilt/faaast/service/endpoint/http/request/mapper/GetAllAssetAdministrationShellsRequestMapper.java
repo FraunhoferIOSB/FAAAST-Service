@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import java.util.Map;
 
 
@@ -35,15 +34,19 @@ public class GetAllAssetAdministrationShellsRequestMapper extends RequestMapperW
 
     public GetAllAssetAdministrationShellsRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
-        additionalMatcher = x -> !x.hasQueryParameter(QUERY_PARAMETER_ASSET_IDS)
-                && !x.hasQueryParameter(QUERY_PARAMETER_ID_SHORT);
     }
 
 
     @Override
-    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
-        return GetAllAssetAdministrationShellsRequest.builder()
-                .outputModifier(outputModifier)
-                .build();
+    public boolean matches(HttpRequest httpRequest) {
+        return super.matches(httpRequest)
+                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_ASSET_IDS)
+                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_ID_SHORT);
+    }
+
+
+    @Override
+    public GetAllAssetAdministrationShellsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+        return GetAllAssetAdministrationShellsRequest.builder().build();
     }
 }

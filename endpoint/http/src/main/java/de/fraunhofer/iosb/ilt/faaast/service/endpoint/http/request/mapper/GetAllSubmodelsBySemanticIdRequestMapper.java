@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsBySemanticIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsBySemanticIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.Map;
@@ -38,16 +37,20 @@ public class GetAllSubmodelsBySemanticIdRequestMapper extends RequestMapperWithO
 
     public GetAllSubmodelsBySemanticIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
-        additionalMatcher = x -> x.hasQueryParameter(QUERY_PARAMETER_SEMANTIC_ID);
     }
 
 
     @Override
-    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
+    public boolean matches(HttpRequest httpRequest) {
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QUERY_PARAMETER_SEMANTIC_ID);
+    }
+
+
+    @Override
+    public GetAllSubmodelsBySemanticIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         try {
             return GetAllSubmodelsBySemanticIdRequest.builder()
                     .semanticId(deserializer.read(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QUERY_PARAMETER_SEMANTIC_ID)), Reference.class))
-                    .outputModifier(outputModifier)
                     .build();
         }
         catch (DeserializationException e) {

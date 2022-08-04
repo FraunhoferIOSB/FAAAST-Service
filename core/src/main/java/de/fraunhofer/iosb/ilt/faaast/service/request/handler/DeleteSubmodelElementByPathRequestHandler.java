@@ -15,8 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
@@ -38,7 +36,7 @@ import io.adminshell.aas.v3.model.SubmodelElement;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class DeleteSubmodelElementByPathRequestHandler extends RequestHandler<DeleteSubmodelElementByPathRequest, DeleteSubmodelElementByPathResponse> {
+public class DeleteSubmodelElementByPathRequestHandler extends SubmodelInterfaceRequestHandler<DeleteSubmodelElementByPathRequest, DeleteSubmodelElementByPathResponse> {
 
     public DeleteSubmodelElementByPathRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
@@ -46,9 +44,9 @@ public class DeleteSubmodelElementByPathRequestHandler extends RequestHandler<De
 
 
     @Override
-    public DeleteSubmodelElementByPathResponse process(DeleteSubmodelElementByPathRequest request) throws ResourceNotFoundException, MessageBusException {
+    protected DeleteSubmodelElementByPathResponse doProcess(DeleteSubmodelElementByPathRequest request) throws Exception {
         DeleteSubmodelElementByPathResponse response = new DeleteSubmodelElementByPathResponse();
-        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
         SubmodelElement submodelElement = persistence.get(reference, new QueryModifier());
         persistence.remove(reference);
         response.setStatusCode(StatusCode.SUCCESS);

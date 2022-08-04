@@ -18,36 +18,31 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.AasRequestContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import io.adminshell.aas.v3.model.Submodel;
 import java.util.Map;
 
 
 /**
- * class to map HTTP-PUT-Request path: submodels/{submodelIdentifier}/submodel
+ * class to map HTTP-PUT-Request paths: submodels/{submodelIdentifier}/submodel
+ * <br>
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
  */
-public class PutSubmodelRequestMapper extends RequestMapperWithOutputModifier<PutSubmodelRequest, PutSubmodelResponse> {
+public class PutSubmodelRequestMapper extends SubmodelInterfaceRequestMapper<PutSubmodelRequest, PutSubmodelResponse> {
 
-    private static final String SUBMODEL_ID = "submodelId";
-    private static final String PATTERN = String.format("submodels/(?<%s>.*?)/submodel", SUBMODEL_ID);
+    private static final String PATTERN = "";
 
     public PutSubmodelRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.PUT, PATTERN, new AasRequestContext());
+        super(serviceContext, HttpMethod.PUT, PATTERN);
     }
 
 
     @Override
-    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
+    public PutSubmodelRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         return PutSubmodelRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
                 .submodel(parseBody(httpRequest, Submodel.class))
-                .outputModifier(outputModifier)
                 .build();
     }
 }

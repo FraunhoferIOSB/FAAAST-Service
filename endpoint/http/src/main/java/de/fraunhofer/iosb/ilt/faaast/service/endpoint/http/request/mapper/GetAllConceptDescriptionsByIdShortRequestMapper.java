@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIdShortResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIdShortRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import java.util.Map;
 
 
@@ -35,15 +34,19 @@ public class GetAllConceptDescriptionsByIdShortRequestMapper
 
     public GetAllConceptDescriptionsByIdShortRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
-        additionalMatcher = x -> x.hasQueryParameter(QUERY_PARAMETER_ID_SHORT);
     }
 
 
     @Override
-    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+    public boolean matches(HttpRequest httpRequest) {
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QUERY_PARAMETER_ID_SHORT);
+    }
+
+
+    @Override
+    public GetAllConceptDescriptionsByIdShortRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllConceptDescriptionsByIdShortRequest.builder()
                 .idShort(httpRequest.getQueryParameter(QUERY_PARAMETER_ID_SHORT))
-                .outputModifier(outputModifier)
                 .build();
     }
 }

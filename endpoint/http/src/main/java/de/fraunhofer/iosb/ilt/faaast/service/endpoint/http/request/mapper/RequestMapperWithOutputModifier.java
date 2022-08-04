@@ -19,8 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestContext;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
@@ -33,7 +31,7 @@ import java.util.Map;
 
 /**
  * Base class for mapping HTTP requests including output modifier information.
- * 
+ *
  * @param <T> type of request
  * @param <R> type of response to the request
  */
@@ -43,8 +41,8 @@ public abstract class RequestMapperWithOutputModifier<T extends RequestWithModif
     private static final String PARAMETER_CONTENT = "content";
     private static final String PARAMETER_EXTEND = "extend";
 
-    protected RequestMapperWithOutputModifier(ServiceContext serviceContext, HttpMethod method, String urlPattern, RequestContext... contextualizations) {
-        super(serviceContext, method, urlPattern, contextualizations);
+    protected RequestMapperWithOutputModifier(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
+        super(serviceContext, method, urlPattern);
     }
 
 
@@ -58,32 +56,35 @@ public abstract class RequestMapperWithOutputModifier<T extends RequestWithModif
      * @return the protocol-agnostic request
      * @throws InvalidRequestException if conversion fails
      */
-    public abstract RequestWithModifier<R> doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException;
+    public abstract T doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException;
 
 
     @Override
-    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
+    public T doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         Class<RequestWithModifier<R>> rawType = (Class<RequestWithModifier<R>>) TypeToken.of(getClass()).resolveType(RequestMapperWithOutputModifier.class.getTypeParameters()[0])
                 .getRawType();
         try {
             RequestWithModifier<R> request = rawType.getConstructor(null).newInstance(null);
-            OutputModifier.Builder outputModifier = new OutputModifier.Builder();
+            OutputModifier.Builder outputModifierBuilder = new OutputModifier.Builder();
             if (httpRequest.hasQueryParameter(PARAMETER_CONTENT)) {
                 Content content = Content.fromString(httpRequest.getQueryParameter(PARAMETER_CONTENT));
                 request.checkContenModifierValid(content);
-                outputModifier.content(content);
+                outputModifierBuilder.content(content);
             }
             if (httpRequest.hasQueryParameter(PARAMETER_LEVEL)) {
                 Level level = Level.fromString(httpRequest.getQueryParameter(PARAMETER_LEVEL));
                 request.checkLevelModifierValid(level);
-                outputModifier.level(level);
+                outputModifierBuilder.level(level);
             }
             if (httpRequest.hasQueryParameter(PARAMETER_EXTEND)) {
                 Extent extent = Extent.fromString(httpRequest.getQueryParameter(PARAMETER_EXTEND));
                 request.checkExtentModifierValid(extent);
-                outputModifier.extend(extent);
+                outputModifierBuilder.extend(extent);
             }
-            return doParse(httpRequest, urlParameters, outputModifier.build());
+            OutputModifier outputModifier = outputModifierBuilder.build();
+            T result = doParse(httpRequest, urlParameters, outputModifier);
+            result.setOutputModifier(outputModifier);
+            return result;
         }
         catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new InvalidRequestException("error resolving request class while trying to determine output modifier constraints", e);

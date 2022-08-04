@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import java.util.Map;
 
 
@@ -35,16 +34,20 @@ public class GetAllSubmodelsRequestMapper extends RequestMapperWithOutputModifie
 
     public GetAllSubmodelsRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
-        additionalMatcher = x -> !x.hasQueryParameter(QUERY_PARAMETER_SEMANTIC_ID)
-                && !x.hasQueryParameter(QUERY_PARAMETER_ID_SHORT);
     }
 
 
     @Override
-    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
-        return GetAllSubmodelsRequest.builder()
-                .outputModifier(outputModifier)
-                .build();
+    public boolean matches(HttpRequest httpRequest) {
+        return super.matches(httpRequest)
+                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_SEMANTIC_ID)
+                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_ID_SHORT);
+    }
+
+
+    @Override
+    public GetAllSubmodelsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+        return GetAllSubmodelsRequest.builder().build();
     }
 
 }

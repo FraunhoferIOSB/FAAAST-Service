@@ -42,7 +42,7 @@ import java.util.List;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class GetAllSubmodelElementsRequestHandler extends RequestHandler<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
+public class GetAllSubmodelElementsRequestHandler extends SubmodelInterfaceRequestHandler<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
 
     public GetAllSubmodelElementsRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
@@ -50,10 +50,10 @@ public class GetAllSubmodelElementsRequestHandler extends RequestHandler<GetAllS
 
 
     @Override
-    public GetAllSubmodelElementsResponse process(GetAllSubmodelElementsRequest request)
+    public GetAllSubmodelElementsResponse doProcess(GetAllSubmodelElementsRequest request)
             throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException {
         GetAllSubmodelElementsResponse response = new GetAllSubmodelElementsResponse();
-        Reference reference = ReferenceHelper.toReference(request.getId(), Submodel.class);
+        Reference reference = ReferenceHelper.toReference(request.getSubmodelId(), Submodel.class);
         List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, null, request.getOutputModifier());
         syncWithAsset(reference, submodelElements);
         response.setPayload(submodelElements);

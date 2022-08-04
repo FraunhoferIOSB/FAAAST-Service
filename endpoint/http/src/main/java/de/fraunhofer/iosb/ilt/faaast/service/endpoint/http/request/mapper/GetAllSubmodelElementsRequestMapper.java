@@ -17,37 +17,37 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.AasRequestContext;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelElementsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import java.util.Map;
 
 
 /**
- * class to map HTTP-GET-Request path:
+ * class to map HTTP-GET-Request paths:
  * submodels/{submodelIdentifier}/submodel/submodel-elements
+ * <br>
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements
  */
-public class GetAllSubmodelElementsRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
+public class GetAllSubmodelElementsRequestMapper extends SubmodelInterfaceRequestMapper<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
 
-    private static final String SUBMODEL_ID = "submodelId";
-    private static final String PATTERN = String.format("submodels/(?<%s>.*?)/submodel/submodel-elements", SUBMODEL_ID);
+    private static final String PATTERN = String.format("submodel-elements", SUBMODEL_ID);
     private static final String QUERY_PARAMETER_PARENT_PATH = "parentPath";
 
     public GetAllSubmodelElementsRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext, HttpMethod.GET, PATTERN, new AasRequestContext());
-        additionalMatcher = x -> !x.hasQueryParameter(QUERY_PARAMETER_PARENT_PATH);
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public RequestWithModifier doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+    public boolean matches(HttpRequest httpRequest) {
+        return super.matches(httpRequest) && !httpRequest.hasQueryParameter(QUERY_PARAMETER_PARENT_PATH);
+    }
+
+
+    @Override
+    public GetAllSubmodelElementsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllSubmodelElementsRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
-                .outputModifier(outputModifier)
                 .build();
     }
 
