@@ -40,7 +40,7 @@ import java.util.Objects;
  */
 public abstract class SubmodelInterfaceRequestHandler<T extends SubmodelInterfaceRequest<U>, U extends Response> extends RequestHandler<T, U> {
 
-    protected SubmodelInterfaceRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+    protected SubmodelInterfaceRequestHandler(Persistence<?> persistence, MessageBus<?> messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
     }
 
@@ -65,11 +65,11 @@ public abstract class SubmodelInterfaceRequestHandler<T extends SubmodelInterfac
     protected void validateSubmodelWithinAAS(T request) throws ResourceNotFoundException {
         if (request.getAasId() != null) {
             Reference submodelRef = ReferenceHelper.toReference(request.getSubmodelId(), Submodel.class);
-            if (!((AssetAdministrationShell) persistence.get(
+            if (((AssetAdministrationShell) persistence.get(
                     request.getAasId(),
                     new OutputModifier.Builder()
                             .level(Level.CORE)
-                            .build())).getSubmodels().stream().anyMatch(x -> Objects.equals(x, submodelRef))) {
+                            .build())).getSubmodels().stream().noneMatch(x -> Objects.equals(x, submodelRef))) {
                 throw new ResourceNotFoundException(String.format(
                         "AAS does not contain requested submodel (aasId: %s, submodelId: %s)",
                         request.getAasId().getIdentifier(),

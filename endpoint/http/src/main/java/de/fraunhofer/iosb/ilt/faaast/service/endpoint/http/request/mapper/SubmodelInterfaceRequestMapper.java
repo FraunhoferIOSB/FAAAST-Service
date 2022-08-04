@@ -140,12 +140,6 @@ public abstract class SubmodelInterfaceRequestMapper<T extends SubmodelInterface
 
 
     @Override
-    public T doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
-        return super.doParse(httpRequest, urlParameters);
-    }
-
-
-    @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), contextualizedUrlPattern);
     }
