@@ -40,7 +40,7 @@ import java.util.Objects;
  */
 public abstract class SubmodelInterfaceRequestHandler<T extends SubmodelInterfaceRequest<U>, U extends Response> extends RequestHandler<T, U> {
 
-    public SubmodelInterfaceRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+    protected SubmodelInterfaceRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
     }
 

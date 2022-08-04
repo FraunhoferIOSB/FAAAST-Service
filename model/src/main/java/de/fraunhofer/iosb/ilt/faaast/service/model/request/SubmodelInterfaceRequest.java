@@ -68,7 +68,7 @@ public abstract class SubmodelInterfaceRequest<T extends Response> extends Reque
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SubmodelInterfaceRequest that = (SubmodelInterfaceRequest) o;
+        SubmodelInterfaceRequest<T> that = (SubmodelInterfaceRequest<T>) o;
         return super.equals(o)
                 && Objects.equals(aasId, that.aasId)
                 && Objects.equals(submodelId, that.submodelId);

@@ -41,7 +41,7 @@ public class OutputModifierConstraints {
     public OutputModifierConstraints() {
         this.supportsExtent = true;
         this.supportsLevel = false;
-        this.supportedContentModifiers = new HashSet();
+        this.supportedContentModifiers = new HashSet<>();
     }
 
 

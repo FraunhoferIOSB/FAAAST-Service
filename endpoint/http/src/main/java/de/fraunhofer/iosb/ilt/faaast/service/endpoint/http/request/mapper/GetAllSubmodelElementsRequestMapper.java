@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class GetAllSubmodelElementsRequestMapper extends SubmodelInterfaceRequestMapper<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
 
-    private static final String PATTERN = String.format("submodel-elements", SUBMODEL_ID);
+    private static final String PATTERN = "submodel-elements";
     private static final String QUERY_PARAMETER_PARENT_PATH = "parentPath";
 
     public GetAllSubmodelElementsRequestMapper(ServiceContext serviceContext) {

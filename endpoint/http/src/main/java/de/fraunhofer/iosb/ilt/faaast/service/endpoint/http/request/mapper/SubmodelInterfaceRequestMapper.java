@@ -128,7 +128,7 @@ public abstract class SubmodelInterfaceRequestMapper<T extends SubmodelInterface
             httpRequest.setPath(withAasContext
                     ? removeAasPath(removeSubmodelPath(httpRequest.getPath()))
                     : removeSubmodelPath(httpRequest.getPath()));
-            SubmodelInterfaceRequest result = doParse(httpRequest, urlParameters);
+            SubmodelInterfaceRequest<R> result = doParse(httpRequest, urlParameters);
             if (withAasContext) {
                 result.setAasId(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID))));
             }
@@ -162,7 +162,7 @@ public abstract class SubmodelInterfaceRequestMapper<T extends SubmodelInterface
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final SubmodelInterfaceRequestMapper other = (SubmodelInterfaceRequestMapper) obj;
+        final SubmodelInterfaceRequestMapper<T, R> other = (SubmodelInterfaceRequestMapper<T, R>) obj;
         return super.equals(other)
                 && Objects.equals(this.contextualizedUrlPattern, other.contextualizedUrlPattern);
     }

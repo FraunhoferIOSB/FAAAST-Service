@@ -44,7 +44,7 @@ public abstract class AbstractInvokeOperationRequestMapper<T extends InvokeOpera
     protected static final String PATTERN = String.format("submodel-elements/(?<%s>.*)/invoke", SUBMODEL_ELEMENT_PATH);
     protected static final String QUERY_PARAMETER_ASYNC = "async";
 
-    public AbstractInvokeOperationRequestMapper(ServiceContext serviceContext) {
+    protected AbstractInvokeOperationRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.POST, PATTERN);
     }
 

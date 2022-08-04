@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -41,7 +40,7 @@ public abstract class RequestMapper {
     protected final HttpMethod method;
     protected String urlPattern;
 
-    protected RequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern, RequestContext... contextualizations) {
+    protected RequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         Ensure.requireNonNull(method, "method must be non-null");
         Ensure.requireNonNull(urlPattern, "urlPattern must be non-null");
