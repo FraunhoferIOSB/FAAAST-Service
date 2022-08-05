@@ -23,6 +23,9 @@ import java.util.List;
  */
 public class CollectionHelper {
 
+    private CollectionHelper() {}
+
+
     /**
      * Adds the element to the collection. If the concrete collection supports adding an element at a specific index
      * the element will be added at the given index.
@@ -38,6 +41,7 @@ public class CollectionHelper {
         if (List.class.isAssignableFrom(collection.getClass())) {
             ((List<T>) collection).add(index >= 0 ? index : collection.size(), element);
         }
+        //TODO: expand with other implementations
         else {
             collection.add(element);
         }
