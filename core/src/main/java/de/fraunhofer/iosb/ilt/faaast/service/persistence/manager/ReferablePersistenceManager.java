@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
+import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -78,9 +79,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
      * @param reference to the submodel or submodel element collection
      * @param semanticId of the submodel elements
      * @return List of submodel elements matching the parameters
-     * @throws
-     * ResourceNotFoundException
-     *             if resource is not found
+     * @throws ResourceNotFoundException if resource is not found
      */
     public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId) throws ResourceNotFoundException {
         ensureInitialized();
@@ -119,9 +118,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
      * @param reference reference to the submodel element
      * @param submodelElement which should be updated or created
      * @return the updated or created submodel element
-     * @throws
-     * ResourceNotFoundException
-     *             if resource is not found
+     * @throws ResourceNotFoundException if resource is not found
      */
     public SubmodelElement putSubmodelElement(Reference parent, Reference reference, SubmodelElement submodelElement) throws ResourceNotFoundException {
         ensureInitialized();
@@ -148,8 +145,12 @@ public class ReferablePersistenceManager extends PersistenceManager {
                     Submodel.class,
                     SubmodelElementCollection.class));
         }
-        submodelElements.removeIf(x -> x.getIdShort().equalsIgnoreCase(submodelElement.getIdShort()));
-        submodelElements.add(submodelElement);
+        CollectionHelper.put(submodelElements,
+                submodelElements.stream()
+                        .filter(x -> x.getIdShort().equalsIgnoreCase(submodelElement.getIdShort()))
+                        .findFirst()
+                        .orElse(null),
+                submodelElement);
         return submodelElement;
     }
 
@@ -158,9 +159,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
      * Remove a {@link Referable}
      *
      * @param reference of the referable which should be removed
-     * @throws
-     * ResourceNotFoundException
-     *             if resource is not found
+     * @throws ResourceNotFoundException if resource is not found
      */
     public void remove(Reference reference) throws ResourceNotFoundException {
         Ensure.require(!ReferenceHelper.isNullOrEmpty(reference), "reference must be non-empty");

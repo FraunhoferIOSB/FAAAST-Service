@@ -460,16 +460,20 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
     public void putSubmodelElementChangeInSubmodelTest() throws ResourceNotFoundException {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
-        SubmodelElement submodelElement = environment.getSubmodels().stream()
-                .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(submodelId))
-                .findFirst().get().getSubmodelElements().get(0);
+        Submodel submodel = environment.getSubmodels().stream()
+                .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(submodelId)).findFirst().get();
+        int idxExpected = 0;
+        SubmodelElement submodelElement = submodel.getSubmodelElements().get(idxExpected);
         SubmodelElement expected = DeepCopyHelper.deepCopy(submodelElement, submodelElement.getClass());
         String category = "NewCategory";
         expected.setCategory(category);
         Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElement.getIdShort());
         persistence.put(null, reference, expected);
-        SubmodelElement actual = persistence.get(reference, QueryModifier.DEFAULT);
-        Assert.assertEquals(expected, actual);
+        SubmodelElement actualSubmodelElement = persistence.get(reference, QueryModifier.DEFAULT);
+        Submodel actualSubmodel = (Submodel) persistence.get(submodel.getIdentification(), QueryModifier.DEFAULT);
+        int idxActual = actualSubmodel.getSubmodelElements().indexOf(expected);
+        Assert.assertEquals(expected, actualSubmodelElement);
+        Assert.assertEquals(idxExpected, idxActual);
     }
 
 
@@ -598,13 +602,16 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
 
     @Test
     public void putIdentifiableChangeTest() throws ResourceNotFoundException {
-        ConceptDescription expected = DeepCopyHelper.deepCopy(environment.getConceptDescriptions().get(0),
-                environment.getConceptDescriptions().get(0).getClass());
+        int expectedIndex = 0;
+        ConceptDescription expected = DeepCopyHelper.deepCopy(environment.getConceptDescriptions().get(expectedIndex),
+                environment.getConceptDescriptions().get(expectedIndex).getClass());
         String category = "NewCategory";
         expected.setCategory(category);
         persistence.put(expected);
         ConceptDescription actual = (ConceptDescription) persistence.get(expected.getIdentification(), QueryModifier.DEFAULT);
+        int actualIndex = persistence.get(null, null, null, QueryModifier.DEFAULT).indexOf(actual);
         Assert.assertEquals(expected, actual);
+        Assert.assertEquals(expectedIndex, actualIndex);
     }
 
 

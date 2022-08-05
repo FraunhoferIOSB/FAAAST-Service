@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -61,8 +62,14 @@ public class EnvironmentHelper {
      * @param <T> type of the identifiable
      */
     public static <T extends Identifiable> void updateIdentifiableList(List<T> list, Identifiable identifiable) {
-        list.removeIf(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(identifiable.getIdentification().getIdentifier()));
-        list.add((T) identifiable);
+        Identifiable actualIdentifiable = list.stream()
+                .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(identifiable.getIdentification().getIdentifier()))
+                .findFirst()
+                .orElse(null);
+
+        int index = list.indexOf(actualIdentifiable);
+        list.remove(actualIdentifiable);
+        CollectionHelper.add(list, index, (T) identifiable);
     }
 
 }
