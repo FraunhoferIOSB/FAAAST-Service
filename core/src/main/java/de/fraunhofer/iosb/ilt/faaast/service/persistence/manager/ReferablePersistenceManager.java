@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.AssetAdministrationShellElementWalker;
 import de.fraunhofer.iosb.ilt.faaast.service.model.visitor.DefaultAssetAdministrationShellElementVisitor;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.EnvironmentHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
@@ -34,7 +34,6 @@ import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 
 /**
@@ -146,15 +145,12 @@ public class ReferablePersistenceManager extends PersistenceManager {
                     Submodel.class,
                     SubmodelElementCollection.class));
         }
-        Predicate<SubmodelElement> filter = x -> x.getIdShort().equalsIgnoreCase(submodelElement.getIdShort());
-        int idx = List.class.isAssignableFrom(submodelElements.getClass()) ? ((List<SubmodelElement>) submodelElements)
-                .indexOf(submodelElements.stream()
-                        .filter(filter)
+        CollectionHelper.put(submodelElements,
+                submodelElements.stream()
+                        .filter(x -> x.getIdShort().equalsIgnoreCase(submodelElement.getIdShort()))
                         .findFirst()
-                        .orElse(null))
-                : submodelElements.size();
-        submodelElements.removeIf(filter);
-        EnvironmentHelper.add(submodelElements, idx, submodelElement);
+                        .orElse(null),
+                submodelElement);
         return submodelElement;
     }
 

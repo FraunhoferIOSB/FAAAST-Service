@@ -14,13 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -70,28 +69,7 @@ public class EnvironmentHelper {
 
         int index = list.indexOf(actualIdentifiable);
         list.remove(actualIdentifiable);
-        add(list, index, (T) identifiable);
-    }
-
-
-    /**
-     * Adds the element to the collection. If the concrete collection supports adding an element at a specific index
-     * the element will be added at the given index.
-     * If not, the element is added at the end of the collection.
-     *
-     * @param collection to add the element
-     * @param index where to add the element in the list. Ignored when negative.
-     * @param element to add
-     * @param <T> type of the element
-     */
-    public static <T> void add(Collection<T> collection, int index, T element) {
-        Ensure.requireNonNull(element, "Element must be non-null");
-        if (List.class.isAssignableFrom(collection.getClass())) {
-            ((List<T>) collection).add(index >= 0 ? index : collection.size(), element);
-        }
-        else {
-            collection.add(element);
-        }
+        CollectionHelper.add(list, index, (T) identifiable);
     }
 
 }
