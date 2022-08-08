@@ -19,7 +19,6 @@ In order to use the HTTP-Endpoint the configuration settings require to include 
 	]
 }
 ```
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- HTTP-EXAMPLE -->
 ## HTTP Example
@@ -37,7 +36,6 @@ http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/sub
 ```
 
 Returns a specific submodel element from the Submodel at a specified path
-<p align="right">(<a href="#top">back to top</a>)</p>
 <hr>
 
 ## HTTP-API
@@ -86,7 +84,6 @@ http://url:port?level=deep&content=value
 ```
 FA³ST Service currently supports only content=value and content=normal
 
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### The following interface URLs are currently not (yet) supported
 -   Asset Administration Shell Registry Interface (not in Scope of FA³ST-Service)

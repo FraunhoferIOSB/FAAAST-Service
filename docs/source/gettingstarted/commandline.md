@@ -1,4 +1,4 @@
-## Usage with Command Line
+# Usage with Command Line
 
 To start a FA³ST Service from the command line:
 1.  Move to the starter project and build the project
@@ -53,7 +53,7 @@ Following command line parameters could be used:
 <hr>
 <p>
 
-### Change the Configuration
+## Change the Configuration
 <p>
 
 In general there are 3 ways to configure your FA³ST Service:
@@ -106,7 +106,7 @@ core.requestHandlerThreadPoolSize=42 endpoints[0].port=8081
 <hr>
 <p>
 
-### Special Parameters
+## Special Parameters
 
 The parameter `--endpoint` accepts a list of endpoints which should be started with the service. Currently supported is `http` and `opcua`. So a execution of
 ```sh

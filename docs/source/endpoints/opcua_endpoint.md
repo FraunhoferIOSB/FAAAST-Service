@@ -1,5 +1,4 @@
-<!-- OPC UA ENDPOINT -->
-### OPC UA Endpoint Interface
+# OPC UA Endpoint Interface
 The OPC UA Endpoint allows accessing data and execute operations within the FA³ST-Service via OPC UA.
 For detailed information on OPC UA see
 [About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/)
@@ -30,10 +29,9 @@ In order to use the OPC UA Endpoint, the configuration settings require to inclu
 }
 ```
 
-"tcpPort" is the desired Port for the OPC UA TCP Protocol (opc.tcp).
-"secondsTillShutdown" is the number of seconds the server waits for clients to disconnect when stopping the Endpoint.
-When the Endpoint is stopped, the server sends a predefined event to all connected clients, that the OPC UA Server is about to shutdown. Now, the OPC UA Server waits the given number of seconds before he stops, to give the clients the possibility to disconnect from the Server.
-When "secondsTillShutdown" is 0, the Endpoint doesn't wait and stops immediately.
+OPC UA Endpoint configuration supports the following configuration parameters
+-   `tcpPort` is the desired Port for the OPC UA TCP Protocol (opc.tcp). Default is 4840.
+-   `secondsTillShutdown` is the number of seconds the server waits for clients to disconnect when stopping the Endpoint. When the Endpoint is stopped, the server sends a predefined event to all connected clients, that the OPC UA Server is about to shutdown. Now, the OPC UA Server waits the given number of seconds before he stops, to give the clients the possibility to disconnect from the Server. When `secondsTillShutdown` is 0, the Endpoint doesn't wait and stops immediately.
 
 To connect to the OPC UA Endpoint, you need an OPC UA Client.
 Here are some examples of OPC UA Clients:
@@ -49,8 +47,8 @@ C#-based sample code from the OPC Foundation.
 -   [Eclipse Milo](https://github.com/eclipse/milo)
 Java-based Open Source SDK for Java.
 
-Here you can see a sample Screenshot with UaExpert.
-![Screenshot with UaExpert](./images/OpcUaEndpoint.png/ "Screenshot with UaExpert")
+Here you can see a sample Screenshot with UaExpert.   
+![Screenshot with UaExpert](../images/OpcUaEndpoint.png "Screenshot with UaExpert")
 
 ## Supported Functions
 -   Operations (OPC UA method calls). Exception: Inoutput-Variables are not supported in OPC UA.
@@ -105,6 +103,3 @@ Here you can see a sample Screenshot with UaExpert.
     -   DateTime
     -   LocalizedText
     -   UtcTime
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-<hr>
