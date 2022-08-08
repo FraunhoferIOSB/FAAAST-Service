@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * class to map HTTP-GET-Request path: lookup/shells
  */
-public class GetAllAssetAdministrationShellIdsByAssetLinkRequestMapper extends RequestMapper {
+public class GetAllAssetAdministrationShellIdsByAssetLinkRequestMapper extends AbstractRequestMapper {
 
     private static final String PATTERN = "lookup/shells";
 

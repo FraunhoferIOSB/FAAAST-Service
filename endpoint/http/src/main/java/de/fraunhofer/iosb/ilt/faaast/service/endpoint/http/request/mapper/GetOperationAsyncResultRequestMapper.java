@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetOperationAsyn
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetOperationAsyncResultRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
@@ -34,8 +35,8 @@ import java.util.Map;
  */
 public class GetOperationAsyncResultRequestMapper extends AbstractSubmodelInterfaceRequestMapper<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
 
-    private static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
-    private static final String HANDLE_ID = "handleId";
+    private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
+    private static final String HANDLE_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)/operation-results/(?<%s>.*)", SUBMODEL_ELEMENT_PATH, HANDLE_ID);
 
     public GetOperationAsyncResultRequestMapper(ServiceContext serviceContext) {

@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class PostAllAssetLinksByIdRequestHandler extends RequestHandler<PostAllAssetLinksByIdRequest, PostAllAssetLinksByIdResponse> {
+public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<PostAllAssetLinksByIdRequest, PostAllAssetLinksByIdResponse> {
 
     public PostAllAssetLinksByIdRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

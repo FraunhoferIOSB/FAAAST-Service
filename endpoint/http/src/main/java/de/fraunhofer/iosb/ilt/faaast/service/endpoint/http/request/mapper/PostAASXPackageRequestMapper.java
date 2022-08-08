@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * class to map HTTP-POST-Request path: packages
  */
-public class PostAASXPackageRequestMapper extends RequestMapper {
+public class PostAASXPackageRequestMapper extends AbstractRequestMapper {
 
     private static final String PATTERN = "packages";
 

@@ -1114,7 +1114,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testReadValueFromAssetConnectionAndUpdatePersistence() throws AssetConnectionException, ResourceNotFoundException, ValueMappingException, MessageBusException {
-        RequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(persistence, messageBus, assetConnectionManager);
+        AbstractRequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(persistence, messageBus, assetConnectionManager);
         Reference parentRef = new DefaultReference.Builder()
                 .key(new DefaultKey.Builder()
                         .value("sub")

@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * Chapter 6.4.3
  */
-public class GetConceptDescriptionByIdRequest extends RequestWithModifier<GetConceptDescriptionByIdResponse> {
+public class GetConceptDescriptionByIdRequest extends AbstractRequestWithModifier<GetConceptDescriptionByIdResponse> {
 
     private Identifier id;
 
@@ -60,7 +60,8 @@ public class GetConceptDescriptionByIdRequest extends RequestWithModifier<GetCon
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
         public B id(Identifier value) {
             getBuildingInstance().setId(value);

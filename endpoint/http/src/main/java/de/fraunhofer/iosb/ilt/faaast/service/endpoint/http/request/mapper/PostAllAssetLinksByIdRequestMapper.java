@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import java.util.Map;
 
@@ -29,9 +30,9 @@ import java.util.Map;
 /**
  * class to map HTTP-POST-Request path: lookup/shells/{aasIdentifier}
  */
-public class PostAllAssetLinksByIdRequestMapper extends RequestMapper {
+public class PostAllAssetLinksByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final String AAS_ID = "aasId";
+    private static final String AAS_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("lookup/shells/(?<%s>.*)", AAS_ID);
 
     public PostAllAssetLinksByIdRequestMapper(ServiceContext serviceContext) {

@@ -21,15 +21,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetLinksByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-GET-Request path: lookup/shells/{aasIdentifier}
  */
-public class GetAllAssetLinksByIdRequestMapper extends RequestMapper {
+public class GetAllAssetLinksByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final String AAS_ID = "aasId";
+    private static final String AAS_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("lookup/shells/(?<%s>.*)", AAS_ID);
 
     public GetAllAssetLinksByIdRequestMapper(ServiceContext serviceContext) {

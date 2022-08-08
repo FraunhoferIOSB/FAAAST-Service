@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
  * Chapter 4.3.9
  */
-public class SetSubmodelElementValueByPathResponse extends BaseResponse {
+public class SetSubmodelElementValueByPathResponse extends AbstractResponse {
 
     public static SetSubmodelElementValueByPathResponse.Builder builder() {
         return new SetSubmodelElementValueByPathResponse.Builder();

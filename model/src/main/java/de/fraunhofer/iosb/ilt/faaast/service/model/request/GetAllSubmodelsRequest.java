@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * Chapter 6.3.2
  */
-public class GetAllSubmodelsRequest extends RequestWithModifier<GetAllSubmodelsResponse> {
+public class GetAllSubmodelsRequest extends AbstractRequestWithModifier<GetAllSubmodelsResponse> {
 
     public GetAllSubmodelsRequest() {
         super(OutputModifierConstraints.SUBMODEL);
@@ -51,7 +51,7 @@ public class GetAllSubmodelsRequest extends RequestWithModifier<GetAllSubmodelsR
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetAllSubmodelsRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {}
+    public abstract static class AbstractBuilder<T extends GetAllSubmodelsRequest, B extends AbstractBuilder<T, B>> extends AbstractRequestWithModifier.AbstractBuilder<T, B> {}
 
     public static class Builder extends AbstractBuilder<GetAllSubmodelsRequest, Builder> {
 

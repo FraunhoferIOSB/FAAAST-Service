@@ -29,7 +29,7 @@ import java.util.Map;
  * class to map HTTP-GET-Request path: concept-descriptions
  */
 public class GetAllConceptDescriptionsByIsCaseOfRequestMapper
-        extends RequestMapperWithOutputModifier<GetAllConceptDescriptionsByIsCaseOfRequest, GetAllConceptDescriptionsByIsCaseOfResponse> {
+        extends AbstractRequestMapperWithOutputModifier<GetAllConceptDescriptionsByIsCaseOfRequest, GetAllConceptDescriptionsByIsCaseOfResponse> {
 
     private static final String PATTERN = "concept-descriptions";
 

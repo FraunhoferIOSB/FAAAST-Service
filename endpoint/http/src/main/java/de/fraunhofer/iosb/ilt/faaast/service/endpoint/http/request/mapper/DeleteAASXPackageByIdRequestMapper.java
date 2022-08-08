@@ -20,15 +20,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteAASXPackageByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-DELETE-Request path: packages/{packageId}
  */
-public class DeleteAASXPackageByIdRequestMapper extends RequestMapper {
+public class DeleteAASXPackageByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final String PACKAGE_ID = "packageId";
+    private static final String PACKAGE_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("packages/(?<%s>.*)", PACKAGE_ID);
 
     public DeleteAASXPackageByIdRequestMapper(ServiceContext serviceContext) {

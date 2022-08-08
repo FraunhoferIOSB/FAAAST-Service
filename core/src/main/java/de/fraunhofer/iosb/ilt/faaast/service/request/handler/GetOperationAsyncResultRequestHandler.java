@@ -31,7 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class GetOperationAsyncResultRequestHandler extends RequestHandler<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
+public class GetOperationAsyncResultRequestHandler extends AbstractRequestHandler<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
 
     public GetOperationAsyncResultRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

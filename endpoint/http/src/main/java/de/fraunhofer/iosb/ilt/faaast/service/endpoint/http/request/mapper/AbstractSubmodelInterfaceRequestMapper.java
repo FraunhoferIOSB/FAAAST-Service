@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -41,11 +42,11 @@ import org.apache.commons.lang3.StringUtils;
  * @param <T> actual type of the request
  * @param <R> actual type of the response
  */
-public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractSubmodelInterfaceRequest<R>, R extends Response> extends RequestMapperWithOutputModifier<T, R> {
+public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractSubmodelInterfaceRequest<R>, R extends Response>
+        extends AbstractRequestMapperWithOutputModifier<T, R> {
 
-    private static final String PATH_SEPERATOR = "/";
-    protected static final String AAS_ID = "aasId";
-    protected static final String SUBMODEL_ID = "submodelId";
+    protected static final String AAS_ID = RegExHelper.uniqueGroupName();
+    protected static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
     protected static final String AAS_PATH_PATTERN = String.format("shells/(?<%s>.*?)/aas/", AAS_ID);
     protected static final String SUBMODEL_PATH_PATTERN = String.format("submodels/(?<%s>.*?)/submodel", SUBMODEL_ID);
     protected String contextualizedUrlPattern;
@@ -68,7 +69,7 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
     private static String addSubmodelPath(String urlPattern) {
         return String.format("%s%s%s",
                 SUBMODEL_PATH_PATTERN,
-                StringUtils.isNoneBlank(urlPattern) && !urlPattern.startsWith(PATH_SEPERATOR)
+                StringUtils.isNoneBlank(urlPattern) && !urlPattern.startsWith(HttpConstants.PATH_SEPERATOR)
                         ? "/"
                         : "",
                 urlPattern);

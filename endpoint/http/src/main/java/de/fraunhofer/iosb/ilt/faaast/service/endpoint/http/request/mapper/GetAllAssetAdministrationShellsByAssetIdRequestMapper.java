@@ -31,7 +31,7 @@ import java.util.Map;
  * class to map HTTP-GET-Request path: shells
  */
 public class GetAllAssetAdministrationShellsByAssetIdRequestMapper
-        extends RequestMapperWithOutputModifier<GetAllAssetAdministrationShellsByAssetIdRequest, GetAllAssetAdministrationShellsByAssetIdResponse> {
+        extends AbstractRequestMapperWithOutputModifier<GetAllAssetAdministrationShellsByAssetIdRequest, GetAllAssetAdministrationShellsByAssetIdResponse> {
 
     private static final String PATTERN = "shells";
 

@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * class to map HTTP-POST-Request path: submodel
  */
-public class PostSubmodelRequestMapper extends RequestMapper {
+public class PostSubmodelRequestMapper extends AbstractRequestMapper {
 
     private static final String PATTERN = "submodels";
 

@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelResponse;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Chapter 6.3.6
  */
-public class PostSubmodelRequest extends BaseRequest<PostSubmodelResponse> {
+public class PostSubmodelRequest extends AbstractRequest<PostSubmodelResponse> {
 
     private Submodel submodel;
 

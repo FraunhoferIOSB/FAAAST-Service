@@ -24,7 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractRequestWithModifier;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
@@ -35,9 +35,9 @@ import java.util.Map;
  * @param <T> type of request
  * @param <R> type of response to the request
  */
-public abstract class RequestMapperWithOutputModifier<T extends RequestWithModifier<R>, R extends Response> extends RequestMapper {
+public abstract class AbstractRequestMapperWithOutputModifier<T extends AbstractRequestWithModifier<R>, R extends Response> extends AbstractRequestMapper {
 
-    protected RequestMapperWithOutputModifier(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
+    protected AbstractRequestMapperWithOutputModifier(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
         super(serviceContext, method, urlPattern);
     }
 
@@ -57,10 +57,11 @@ public abstract class RequestMapperWithOutputModifier<T extends RequestWithModif
 
     @Override
     public T doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
-        Class<RequestWithModifier<R>> rawType = (Class<RequestWithModifier<R>>) TypeToken.of(getClass()).resolveType(RequestMapperWithOutputModifier.class.getTypeParameters()[0])
+        Class<AbstractRequestWithModifier<R>> rawType = (Class<AbstractRequestWithModifier<R>>) TypeToken.of(getClass())
+                .resolveType(AbstractRequestMapperWithOutputModifier.class.getTypeParameters()[0])
                 .getRawType();
         try {
-            RequestWithModifier<R> request = rawType.getConstructor(null).newInstance(null);
+            AbstractRequestWithModifier<R> request = rawType.getConstructor(null).newInstance(null);
             OutputModifier.Builder outputModifierBuilder = new OutputModifier.Builder();
             if (httpRequest.hasQueryParameter(QueryParameters.CONTENT)) {
                 Content content = Content.fromString(httpRequest.getQueryParameter(QueryParameters.CONTENT));

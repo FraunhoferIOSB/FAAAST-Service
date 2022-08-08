@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * class to map HTTP-GET-Request path: concept-descriptions
  */
-public class GetAllConceptDescriptionsRequestMapper extends RequestMapperWithOutputModifier<GetAllConceptDescriptionsRequest, GetAllConceptDescriptionsResponse> {
+public class GetAllConceptDescriptionsRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllConceptDescriptionsRequest, GetAllConceptDescriptionsResponse> {
 
     private static final String PATTERN = "concept-descriptions";
 

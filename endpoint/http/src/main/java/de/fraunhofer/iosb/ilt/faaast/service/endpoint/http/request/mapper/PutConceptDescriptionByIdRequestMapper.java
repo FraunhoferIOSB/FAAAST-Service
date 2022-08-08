@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import java.util.Map;
 
@@ -29,9 +30,9 @@ import java.util.Map;
 /**
  * class to map HTTP-PUT-Request path: concept-descriptions/{cdIdentifier}
  */
-public class PutConceptDescriptionByIdRequestMapper extends RequestMapper {
+public class PutConceptDescriptionByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final String CONCEPT_ID = "conceptId";
+    private static final String CONCEPT_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("concept-descriptions/(?<%s>.*)", CONCEPT_ID);
 
     public PutConceptDescriptionByIdRequestMapper(ServiceContext serviceContext) {

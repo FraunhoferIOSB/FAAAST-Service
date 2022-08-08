@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetInformationResponse;
 import io.adminshell.aas.v3.model.AssetInformation;
 import io.adminshell.aas.v3.model.Identifier;
@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Chapter 4.2.8
  */
-public class PutAssetInformationRequest extends BaseRequest<PutAssetInformationResponse> {
+public class PutAssetInformationRequest extends AbstractRequest<PutAssetInformationResponse> {
 
     private Identifier id;
     private AssetInformation assetInfo;

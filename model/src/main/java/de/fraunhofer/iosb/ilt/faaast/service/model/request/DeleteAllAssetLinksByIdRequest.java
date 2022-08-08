@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteAllAssetLinksByIdResponse;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Chapter 7.2.5
  */
-public class DeleteAllAssetLinksByIdRequest extends BaseRequest<DeleteAllAssetLinksByIdResponse> {
+public class DeleteAllAssetLinksByIdRequest extends AbstractRequest<DeleteAllAssetLinksByIdResponse> {
 
     private Identifier id;
 

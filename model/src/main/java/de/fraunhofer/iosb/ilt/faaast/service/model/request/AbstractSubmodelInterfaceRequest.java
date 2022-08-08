@@ -25,7 +25,7 @@ import java.util.Objects;
  *
  * @param <T> actual type of the request
  */
-public abstract class AbstractSubmodelInterfaceRequest<T extends Response> extends RequestWithModifier<T> {
+public abstract class AbstractSubmodelInterfaceRequest<T extends Response> extends AbstractRequestWithModifier<T> {
 
     protected Identifier aasId;
     protected Identifier submodelId;
@@ -80,7 +80,8 @@ public abstract class AbstractSubmodelInterfaceRequest<T extends Response> exten
         return Objects.hash(super.hashCode(), aasId, submodelId);
     }
 
-    public abstract static class AbstractBuilder<T extends AbstractSubmodelInterfaceRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends AbstractSubmodelInterfaceRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
         public B aasId(Identifier value) {
             getBuildingInstance().setAasId(value);

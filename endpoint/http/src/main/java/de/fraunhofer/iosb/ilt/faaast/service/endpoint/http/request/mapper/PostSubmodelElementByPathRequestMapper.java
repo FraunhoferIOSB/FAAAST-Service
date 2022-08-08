@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElem
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ import java.util.Map;
  */
 public class PostSubmodelElementByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PostSubmodelElementByPathRequest, PostSubmodelElementByPathResponse> {
 
-    private static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
+    private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);
 
     public PostSubmodelElementByPathRequestMapper(ServiceContext serviceContext) {

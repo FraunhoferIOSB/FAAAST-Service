@@ -26,7 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.TypeInstantiationException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.request.handler.RequestHandler;
+import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.Constructor;
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 public class RequestHandlerManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandlerManager.class);
-    private Map<Class<? extends Request>, ? extends RequestHandler> handlers;
+    private Map<Class<? extends Request>, ? extends AbstractRequestHandler> handlers;
     private ExecutorService requestHandlerExecutorService;
     private final CoreConfig coreConfig;
     private final Persistence persistence;
@@ -73,23 +73,22 @@ public class RequestHandlerManager {
                 messageBus,
                 assetConnectionManager
         };
-        final Class<?>[] constructorArgTypes = RequestHandler.class.getConstructors()[0].getParameterTypes();
+        final Class<?>[] constructorArgTypes = AbstractRequestHandler.class.getConstructors()[0].getParameterTypes();
         try (ScanResult scanResult = new ClassGraph()
                 .enableAllInfo()
                 .acceptPackages(getClass().getPackageName())
                 .scan()) {
             // TODO change approach for RequestHandler from abstract class to interface 
             // (either with init method or pass all arguments with handle method)
-            handlers = scanResult.getSubclasses(RequestHandler.class).loadClasses().stream()
+            handlers = scanResult.getSubclasses(AbstractRequestHandler.class).loadClasses().stream()
                     .filter(x -> !Modifier.isAbstract(x.getModifiers()))
-                    .map(x -> (Class<? extends RequestHandler>) x)
-                    .collect(Collectors.toMap(
-                            x -> {
-                                return (Class<? extends Request>) TypeToken.of(x).resolveType(RequestHandler.class.getTypeParameters()[0]).getRawType();
-                            },
+                    .map(x -> (Class<? extends AbstractRequestHandler>) x)
+                    .collect(Collectors.toMap(x -> {
+                        return (Class<? extends Request>) TypeToken.of(x).resolveType(AbstractRequestHandler.class.getTypeParameters()[0]).getRawType();
+                    },
                             x -> {
                                 try {
-                                    Constructor<? extends RequestHandler> constructor = x.getConstructor(constructorArgTypes);
+                                    Constructor<? extends AbstractRequestHandler> constructor = x.getConstructor(constructorArgTypes);
                                     return constructor.newInstance(constructorArgs);
                                 }
                                 catch (NoSuchMethodException | SecurityException e) {
@@ -109,6 +108,7 @@ public class RequestHandlerManager {
                                 return null;
                             }));
         }
+        // filter out null values from handlers that could not be instantiated so that later we don't need to check for null on each access
         // filter out null values from handlers that could not be instantiated so that later we don't need to check for null on each access
 
         // create request handler executor service 

@@ -35,7 +35,7 @@ import io.adminshell.aas.v3.model.Submodel;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class DeleteSubmodelByIdRequestHandler extends RequestHandler<DeleteSubmodelByIdRequest, DeleteSubmodelByIdResponse> {
+public class DeleteSubmodelByIdRequestHandler extends AbstractRequestHandler<DeleteSubmodelByIdRequest, DeleteSubmodelByIdResponse> {
 
     public DeleteSubmodelByIdRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

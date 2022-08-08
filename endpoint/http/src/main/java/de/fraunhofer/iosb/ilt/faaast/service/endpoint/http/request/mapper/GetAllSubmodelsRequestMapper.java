@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * class to map HTTP-GET-Request path: submodels
  */
-public class GetAllSubmodelsRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelsRequest, GetAllSubmodelsResponse> {
+public class GetAllSubmodelsRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllSubmodelsRequest, GetAllSubmodelsResponse> {
 
     private static final String PATTERN = "submodels";
 

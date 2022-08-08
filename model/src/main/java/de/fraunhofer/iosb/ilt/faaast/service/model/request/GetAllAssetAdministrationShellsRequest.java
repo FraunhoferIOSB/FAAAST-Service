@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * Chapter 6.2.2
  */
-public class GetAllAssetAdministrationShellsRequest extends RequestWithModifier<GetAllAssetAdministrationShellsResponse> {
+public class GetAllAssetAdministrationShellsRequest extends AbstractRequestWithModifier<GetAllAssetAdministrationShellsResponse> {
 
     public GetAllAssetAdministrationShellsRequest() {
         super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL);
@@ -52,7 +52,7 @@ public class GetAllAssetAdministrationShellsRequest extends RequestWithModifier<
     }
 
     public abstract static class AbstractBuilder<T extends GetAllAssetAdministrationShellsRequest, B extends AbstractBuilder<T, B>>
-            extends RequestWithModifier.AbstractBuilder<T, B> {
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
     }
 

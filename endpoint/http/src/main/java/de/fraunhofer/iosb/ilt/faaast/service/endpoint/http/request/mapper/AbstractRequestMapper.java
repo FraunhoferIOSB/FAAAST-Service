@@ -33,14 +33,14 @@ import java.util.regex.Pattern;
 /**
  * Base class for mapping HTTP requests to protocl-agnostic requests.
  */
-public abstract class RequestMapper {
+public abstract class AbstractRequestMapper {
 
     protected final ServiceContext serviceContext;
     protected final HttpJsonDeserializer deserializer;
     protected final HttpMethod method;
     protected String urlPattern;
 
-    protected RequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
+    protected AbstractRequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         Ensure.requireNonNull(method, "method must be non-null");
         Ensure.requireNonNull(urlPattern, "urlPattern must be non-null");
@@ -161,7 +161,7 @@ public abstract class RequestMapper {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final RequestMapper other = (RequestMapper) obj;
+        final AbstractRequestMapper other = (AbstractRequestMapper) obj;
         return Objects.equals(this.urlPattern, other.urlPattern)
                 && Objects.equals(this.serviceContext, other.serviceContext)
                 && Objects.equals(this.deserializer, other.deserializer)

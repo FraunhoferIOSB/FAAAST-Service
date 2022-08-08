@@ -22,15 +22,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelByIdR
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-GET-Request path: submodels{submodelIdentifier}
  */
-public class GetSubmodelByIdRequestMapper extends RequestMapperWithOutputModifier<GetSubmodelByIdRequest, GetSubmodelByIdResponse> {
+public class GetSubmodelByIdRequestMapper extends AbstractRequestMapperWithOutputModifier<GetSubmodelByIdRequest, GetSubmodelByIdResponse> {
 
-    private static final String SUBMODEL_ID = "submodelId";
+    private static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("(?!.*/submodel)submodels/(?<%s>.*)", SUBMODEL_ID);
 
     public GetSubmodelByIdRequestMapper(ServiceContext serviceContext) {

@@ -15,11 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.RandomStringUtils;
 
 
 /**
@@ -27,11 +29,28 @@ import java.util.regex.Pattern;
  */
 public class RegExHelper {
 
+    private static final Set<String> ACTIVE_GROUP_NAMES = new HashSet<>();
     private static final String PATTERN_LINE_START = "^";
     private static final String PATTERN_LINE_END = "$";
     private static final Pattern PATTERN_NAMED_GROUP = Pattern.compile("\\(\\?<([a-zA-Z][a-zA-Z0-9]*)>");
 
     private RegExHelper() {}
+
+
+    /**
+     * Generate a random unique group name based on UUID without special
+     * characters.
+     *
+     * @return random unique group name.
+     */
+    public static String uniqueGroupName() {
+        String result;
+        do {
+            result = RandomStringUtils.randomAlphabetic(10);
+        } while (ACTIVE_GROUP_NAMES.contains(result));
+        ACTIVE_GROUP_NAMES.add(result);
+        return result;
+    }
 
 
     /**
@@ -79,10 +98,10 @@ public class RegExHelper {
 
 
     /**
-     * Finds a named groups (in the form of {@literal '(?<[group name]>)')} in the pattern
-     * and extracts the corresponding values from the input. If pattern does not
-     * contain named groups or input does not match pattern and empty list is
-     * return.
+     * Finds a named groups (in the form of {@literal '(?<[group name]>)')} in
+     * the pattern and extracts the corresponding values from the input. If
+     * pattern does not contain named groups or input does not match pattern and
+     * empty list is return.
      *
      * @param pattern the pattern to evaluate
      * @param input the value to evaludate the pattern against

@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * Chapter 6.4.2
  */
-public class GetAllConceptDescriptionsRequest extends RequestWithModifier<GetAllConceptDescriptionsResponse> {
+public class GetAllConceptDescriptionsRequest extends AbstractRequestWithModifier<GetAllConceptDescriptionsResponse> {
 
     @Override
     public boolean equals(Object o) {
@@ -46,7 +46,8 @@ public class GetAllConceptDescriptionsRequest extends RequestWithModifier<GetAll
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetAllConceptDescriptionsRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {}
+    public abstract static class AbstractBuilder<T extends GetAllConceptDescriptionsRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {}
 
     public static class Builder extends AbstractBuilder<GetAllConceptDescriptionsRequest, Builder> {
 

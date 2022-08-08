@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Chapter 6.2.4
  */
-public class GetAllAssetAdministrationShellsByAssetIdRequest extends RequestWithModifier<GetAllAssetAdministrationShellsByAssetIdResponse> {
+public class GetAllAssetAdministrationShellsByAssetIdRequest extends AbstractRequestWithModifier<GetAllAssetAdministrationShellsByAssetIdResponse> {
 
     private List<IdentifierKeyValuePair> assetIds;
 
@@ -69,7 +69,7 @@ public class GetAllAssetAdministrationShellsByAssetIdRequest extends RequestWith
     }
 
     public abstract static class AbstractBuilder<T extends GetAllAssetAdministrationShellsByAssetIdRequest, B extends AbstractBuilder<T, B>>
-            extends RequestWithModifier.AbstractBuilder<T, B> {
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
         public B assetId(IdentifierKeyValuePair value) {
             getBuildingInstance().getAssetIds().add(value);

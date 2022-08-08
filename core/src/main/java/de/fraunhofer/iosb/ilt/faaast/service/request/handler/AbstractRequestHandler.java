@@ -44,13 +44,13 @@ import java.util.Optional;
  * @param <I> type of the request
  * @param <O> type of the corresponding response
  */
-public abstract class RequestHandler<I extends Request<O>, O extends Response> {
+public abstract class AbstractRequestHandler<I extends Request<O>, O extends Response> {
 
     protected final Persistence persistence;
     protected final MessageBus messageBus;
     protected final AssetConnectionManager assetConnectionManager;
 
-    public RequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
+    public AbstractRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         this.persistence = persistence;
         this.messageBus = messageBus;
         this.assetConnectionManager = assetConnectionManager;
@@ -70,7 +70,7 @@ public abstract class RequestHandler<I extends Request<O>, O extends Response> {
      *             type is inaccessible
      */
     public O newResponse() throws NoSuchMethodException, InstantiationException, InvocationTargetException, IllegalAccessException {
-        Class<?> responseType = TypeToken.of(getClass()).resolveType(RequestHandler.class.getTypeParameters()[1]).getRawType();
+        Class<?> responseType = TypeToken.of(getClass()).resolveType(AbstractRequestHandler.class.getTypeParameters()[1]).getRawType();
         return (O) responseType.getConstructor().newInstance();
     }
 

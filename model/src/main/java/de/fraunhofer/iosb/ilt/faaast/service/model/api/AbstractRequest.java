@@ -19,6 +19,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.api;
  *
  * @param <T> type of the corresponding response
  */
-public abstract class BaseRequest<T extends Response> implements Request<T> {
+public abstract class AbstractRequest<T extends Response> implements Request<T> {
 
 }

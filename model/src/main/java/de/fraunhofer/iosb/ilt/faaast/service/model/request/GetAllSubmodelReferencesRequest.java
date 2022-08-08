@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * Chapter 4.2.4
  */
-public class GetAllSubmodelReferencesRequest extends RequestWithModifier<GetAllSubmodelReferencesResponse> {
+public class GetAllSubmodelReferencesRequest extends AbstractRequestWithModifier<GetAllSubmodelReferencesResponse> {
 
     private Identifier id;
 
@@ -65,7 +65,8 @@ public class GetAllSubmodelReferencesRequest extends RequestWithModifier<GetAllS
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetAllSubmodelReferencesRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetAllSubmodelReferencesRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
         public B id(Identifier value) {
             getBuildingInstance().setId(value);

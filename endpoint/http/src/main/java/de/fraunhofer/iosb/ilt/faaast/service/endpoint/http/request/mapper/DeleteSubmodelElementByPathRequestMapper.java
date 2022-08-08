@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelEl
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
@@ -34,7 +35,7 @@ import java.util.Map;
  */
 public class DeleteSubmodelElementByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<DeleteSubmodelElementByPathRequest, DeleteSubmodelElementByPathResponse> {
 
-    private static final String SUBMODEL_ELEMENT_PATH = "submodelelementId";
+    private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);
 
     public DeleteSubmodelElementByPathRequestMapper(ServiceContext serviceContext) {

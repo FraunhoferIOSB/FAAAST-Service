@@ -39,7 +39,7 @@ import java.util.List;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class GetAllSubmodelsBySemanticIdRequestHandler extends RequestHandler<GetAllSubmodelsBySemanticIdRequest, GetAllSubmodelsBySemanticIdResponse> {
+public class GetAllSubmodelsBySemanticIdRequestHandler extends AbstractRequestHandler<GetAllSubmodelsBySemanticIdRequest, GetAllSubmodelsBySemanticIdResponse> {
 
     public GetAllSubmodelsBySemanticIdRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

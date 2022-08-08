@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * Chapter 6.4.4
  */
-public class GetAllConceptDescriptionsByIdShortRequest extends RequestWithModifier<GetAllConceptDescriptionsByIdShortResponse> {
+public class GetAllConceptDescriptionsByIdShortRequest extends AbstractRequestWithModifier<GetAllConceptDescriptionsByIdShortResponse> {
 
     private String idShort;
 
@@ -60,7 +60,7 @@ public class GetAllConceptDescriptionsByIdShortRequest extends RequestWithModifi
     }
 
     public abstract static class AbstractBuilder<T extends GetAllConceptDescriptionsByIdShortRequest, B extends AbstractBuilder<T, B>>
-            extends RequestWithModifier.AbstractBuilder<T, B> {
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
         public B idShort(String value) {
             getBuildingInstance().setIdShort(value);

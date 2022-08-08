@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.RequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.github.classgraph.ClassGraph;
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 public class RequestMappingManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestMappingManager.class);
-    private List<RequestMapper> mappers;
+    private List<AbstractRequestMapper> mappers;
     protected ServiceContext serviceContext;
 
     public RequestMappingManager(ServiceContext serviceContext) {
@@ -51,13 +51,13 @@ public class RequestMappingManager {
                 .acceptPackages(getClass().getPackageName())
                 .scan()) {
             mappers = scanResult
-                    .getSubclasses(RequestMapper.class.getName())
+                    .getSubclasses(AbstractRequestMapper.class.getName())
                     .filter(x -> !x.isAbstract() && !x.isInterface())
-                    .loadClasses(RequestMapper.class)
+                    .loadClasses(AbstractRequestMapper.class)
                     .stream()
                     .map(x -> {
                         try {
-                            Constructor<RequestMapper> constructor = x.getConstructor(ServiceContext.class);
+                            Constructor<AbstractRequestMapper> constructor = x.getConstructor(ServiceContext.class);
                             return constructor.newInstance(serviceContext);
                         }
                         catch (NoSuchMethodException | SecurityException e) {
@@ -93,7 +93,7 @@ public class RequestMappingManager {
      * @return protocol-agnostic request
      * @throws InvalidRequestException if no mapper is found for request
      */
-    public RequestMapper findRequestMapper(HttpRequest httpRequest) throws InvalidRequestException {
+    public AbstractRequestMapper findRequestMapper(HttpRequest httpRequest) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         return mappers.stream()
                 .filter(request -> request.matches(httpRequest))

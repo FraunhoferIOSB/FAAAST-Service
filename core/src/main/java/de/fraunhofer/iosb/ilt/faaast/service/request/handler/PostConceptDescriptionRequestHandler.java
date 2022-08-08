@@ -32,7 +32,7 @@ import io.adminshell.aas.v3.model.ConceptDescription;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class PostConceptDescriptionRequestHandler extends RequestHandler<PostConceptDescriptionRequest, PostConceptDescriptionResponse> {
+public class PostConceptDescriptionRequestHandler extends AbstractRequestHandler<PostConceptDescriptionRequest, PostConceptDescriptionResponse> {
 
     public PostConceptDescriptionRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

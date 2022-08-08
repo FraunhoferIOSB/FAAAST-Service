@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * Chapter 6.4.6
  */
-public class GetAllConceptDescriptionsByDataSpecificationReferenceRequest extends RequestWithModifier<GetAllConceptDescriptionsByDataSpecificationReferenceResponse> {
+public class GetAllConceptDescriptionsByDataSpecificationReferenceRequest extends AbstractRequestWithModifier<GetAllConceptDescriptionsByDataSpecificationReferenceResponse> {
 
     private Reference dataSpecificationReference;
 
@@ -61,7 +61,7 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequest extend
     }
 
     public abstract static class AbstractBuilder<T extends GetAllConceptDescriptionsByDataSpecificationReferenceRequest, B extends AbstractBuilder<T, B>>
-            extends RequestWithModifier.AbstractBuilder<T, B> {
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
         public B dataSpecification(Reference value) {
             getBuildingInstance().setDataSpecificationReference(value);

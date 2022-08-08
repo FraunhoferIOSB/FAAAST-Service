@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * Chapter 6.3.4
  */
-public class GetAllSubmodelsBySemanticIdRequest extends RequestWithModifier<GetAllSubmodelsBySemanticIdResponse> {
+public class GetAllSubmodelsBySemanticIdRequest extends AbstractRequestWithModifier<GetAllSubmodelsBySemanticIdResponse> {
 
     private Reference semanticId;
 
@@ -65,7 +65,8 @@ public class GetAllSubmodelsBySemanticIdRequest extends RequestWithModifier<GetA
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetAllSubmodelsBySemanticIdRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetAllSubmodelsBySemanticIdRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
         public B semanticId(Reference value) {
             getBuildingInstance().setSemanticId(value);

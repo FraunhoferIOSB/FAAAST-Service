@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * class to map HTTP-GET-Request path: submodels
  */
-public class GetAllSubmodelsBySemanticIdRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelsBySemanticIdRequest, GetAllSubmodelsBySemanticIdResponse> {
+public class GetAllSubmodelsBySemanticIdRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllSubmodelsBySemanticIdRequest, GetAllSubmodelsBySemanticIdResponse> {
 
     private static final String PATTERN = "submodels";
 

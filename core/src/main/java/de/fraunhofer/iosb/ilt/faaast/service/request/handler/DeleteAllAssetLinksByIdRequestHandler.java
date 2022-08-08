@@ -33,7 +33,7 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class DeleteAllAssetLinksByIdRequestHandler extends RequestHandler<DeleteAllAssetLinksByIdRequest, DeleteAllAssetLinksByIdResponse> {
+public class DeleteAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<DeleteAllAssetLinksByIdRequest, DeleteAllAssetLinksByIdResponse> {
 
     public DeleteAllAssetLinksByIdRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

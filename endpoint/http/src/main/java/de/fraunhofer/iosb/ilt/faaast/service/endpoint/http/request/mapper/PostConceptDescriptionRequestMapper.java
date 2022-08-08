@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * class to map HTTP-POST-Request path: concept-description/{cdIdentifier}
  */
-public class PostConceptDescriptionRequestMapper extends RequestMapper {
+public class PostConceptDescriptionRequestMapper extends AbstractRequestMapper {
 
     private static final String PATTERN = "concept-descriptions";
 

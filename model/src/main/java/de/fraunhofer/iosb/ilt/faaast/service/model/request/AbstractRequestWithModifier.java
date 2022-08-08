@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
@@ -31,17 +31,17 @@ import java.util.stream.Collectors;
  *
  * @param <T> actual type of the request
  */
-public abstract class RequestWithModifier<T extends Response> extends BaseRequest<T> {
+public abstract class AbstractRequestWithModifier<T extends Response> extends AbstractRequest<T> {
 
     private OutputModifierConstraints outputModifierConstraints;
     protected OutputModifier outputModifier;
 
-    protected RequestWithModifier() {
+    protected AbstractRequestWithModifier() {
         this(OutputModifierConstraints.DEFAULT);
     }
 
 
-    protected RequestWithModifier(OutputModifierConstraints outputModifierConstraints) {
+    protected AbstractRequestWithModifier(OutputModifierConstraints outputModifierConstraints) {
         this.outputModifier = OutputModifier.DEFAULT;
         this.outputModifierConstraints = outputModifierConstraints == null
                 ? OutputModifierConstraints.DEFAULT
@@ -137,7 +137,7 @@ public abstract class RequestWithModifier<T extends Response> extends BaseReques
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        RequestWithModifier that = (RequestWithModifier) o;
+        AbstractRequestWithModifier that = (AbstractRequestWithModifier) o;
         return Objects.equals(outputModifier, that.outputModifier)
                 && Objects.equals(outputModifierConstraints, that.outputModifierConstraints);
     }
@@ -148,7 +148,7 @@ public abstract class RequestWithModifier<T extends Response> extends BaseReques
         return Objects.hash(outputModifier, outputModifierConstraints);
     }
 
-    public abstract static class AbstractBuilder<T extends RequestWithModifier, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends AbstractRequestWithModifier, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B outputModifier(OutputModifier value) {
             getBuildingInstance().setOutputModifier(value);

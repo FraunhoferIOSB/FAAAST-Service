@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelReferenceResponse;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Reference;
@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Chapter 4.2.5
  */
-public class PostSubmodelReferenceRequest extends BaseRequest<PostSubmodelReferenceResponse> {
+public class PostSubmodelReferenceRequest extends AbstractRequest<PostSubmodelReferenceResponse> {
 
     private Identifier id;
     private Reference submodelRef;

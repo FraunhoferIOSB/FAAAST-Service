@@ -21,15 +21,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-DELETE-Request path: shells/{aasIdentifier}
  */
-public class DeleteAssetAdministrationShellByIdRequestMapper extends RequestMapper {
+public class DeleteAssetAdministrationShellByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final String AAS_ID = "aasId";
+    private static final String AAS_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("(?!.*/aas)shells/(?<%s>.*)", AAS_ID);
 
     public DeleteAssetAdministrationShellByIdRequestMapper(ServiceContext serviceContext) {

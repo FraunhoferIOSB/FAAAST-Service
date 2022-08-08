@@ -22,15 +22,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetAdminist
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-GET-Request path: shells
  */
-public class GetAssetAdministrationShellByIdRequestMapper extends RequestMapperWithOutputModifier<GetAssetAdministrationShellByIdRequest, GetAssetAdministrationShellByIdResponse> {
+public class GetAssetAdministrationShellByIdRequestMapper
+        extends AbstractRequestMapperWithOutputModifier<GetAssetAdministrationShellByIdRequest, GetAssetAdministrationShellByIdResponse> {
 
-    private static final String AAS_ID = "aasId";
+    private static final String AAS_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("(?!.*/aas)shells/(?<%s>.*?)", AAS_ID);
 
     public GetAssetAdministrationShellByIdRequestMapper(ServiceContext serviceContext) {

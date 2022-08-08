@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -30,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.Submodel;
@@ -48,10 +50,8 @@ import java.util.Objects;
 public class SetSubmodelElementValueByPathRequestMapper
         extends AbstractSubmodelInterfaceRequestMapper<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {
 
-    private static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
+    private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);
-    private static final String QUERY_PARAMETER_CONTENT = "content";
-    private static final String QUERY_PARAMETER_CONTENT_VALUE = "value";
 
     public SetSubmodelElementValueByPathRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.PUT, PATTERN);
@@ -61,8 +61,8 @@ public class SetSubmodelElementValueByPathRequestMapper
     @Override
     public boolean matches(HttpRequest httpRequest) {
         return super.matches(httpRequest)
-                && httpRequest.hasQueryParameter(QUERY_PARAMETER_CONTENT)
-                && Objects.equals(httpRequest.getQueryParameter(QUERY_PARAMETER_CONTENT), QUERY_PARAMETER_CONTENT_VALUE);
+                && httpRequest.hasQueryParameter(QueryParameters.CONTENT)
+                && Objects.equals(httpRequest.getQueryParameter(QueryParameters.CONTENT), Content.VALUE.name().toLowerCase());
     }
 
 

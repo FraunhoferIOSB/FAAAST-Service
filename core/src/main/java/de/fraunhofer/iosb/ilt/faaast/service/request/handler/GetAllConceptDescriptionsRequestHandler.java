@@ -35,7 +35,7 @@ import java.util.List;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class GetAllConceptDescriptionsRequestHandler extends RequestHandler<GetAllConceptDescriptionsRequest, GetAllConceptDescriptionsResponse> {
+public class GetAllConceptDescriptionsRequestHandler extends AbstractRequestHandler<GetAllConceptDescriptionsRequest, GetAllConceptDescriptionsResponse> {
 
     public GetAllConceptDescriptionsRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationReques
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
@@ -40,7 +41,7 @@ import java.util.Map;
  */
 public abstract class AbstractInvokeOperationRequestMapper<T extends InvokeOperationRequest<U>, U extends Response> extends AbstractSubmodelInterfaceRequestMapper<T, U> {
 
-    protected static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
+    protected static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
     protected static final String PATTERN = String.format("submodel-elements/(?<%s>.*)/invoke", SUBMODEL_ELEMENT_PATH);
 
     protected AbstractInvokeOperationRequestMapper(ServiceContext serviceContext) {

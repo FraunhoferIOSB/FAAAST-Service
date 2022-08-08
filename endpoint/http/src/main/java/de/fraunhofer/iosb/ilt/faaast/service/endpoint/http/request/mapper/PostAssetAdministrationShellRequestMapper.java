@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * class to map HTTP-POST-Request path: shells
  */
-public class PostAssetAdministrationShellRequestMapper extends RequestMapper {
+public class PostAssetAdministrationShellRequestMapper extends AbstractRequestMapper {
 
     private static final String PATTERN = "shells";
 

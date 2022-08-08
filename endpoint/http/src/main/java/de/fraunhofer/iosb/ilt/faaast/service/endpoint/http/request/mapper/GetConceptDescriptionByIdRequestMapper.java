@@ -21,15 +21,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-PUT-Request path: concept-descriptions/{cdIdentifier}
  */
-public class GetConceptDescriptionByIdRequestMapper extends RequestMapper {
+public class GetConceptDescriptionByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final String CONCEPT_ID = "conceptId";
+    private static final String CONCEPT_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("concept-descriptions/(?<%s>.*)", CONCEPT_ID);
 
     public GetConceptDescriptionByIdRequestMapper(ServiceContext serviceContext) {

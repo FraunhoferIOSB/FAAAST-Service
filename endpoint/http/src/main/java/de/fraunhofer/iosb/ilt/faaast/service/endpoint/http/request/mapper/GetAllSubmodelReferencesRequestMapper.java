@@ -22,15 +22,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelRe
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelReferencesRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-GET-Request path: /shells/{aasIdentifier}/aas/submodels
  */
-public class GetAllSubmodelReferencesRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
+public class GetAllSubmodelReferencesRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
 
-    private static final String AAS_ID = "aasId";
+    private static final String AAS_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("shells/(?<%s>.*)/aas/submodels", AAS_ID);
 
     public GetAllSubmodelReferencesRequestMapper(ServiceContext serviceContext) {

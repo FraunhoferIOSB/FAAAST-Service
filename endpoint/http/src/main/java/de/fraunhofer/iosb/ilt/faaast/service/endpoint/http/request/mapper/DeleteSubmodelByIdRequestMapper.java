@@ -21,15 +21,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-DELETE-Request path: submodels/{submodelIdentifier}
  */
-public class DeleteSubmodelByIdRequestMapper extends RequestMapper {
+public class DeleteSubmodelByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final String SUBMODEL_ID = "submodelId";
+    private static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("(?!.*/submodel)submodels/(?<%s>.*)", SUBMODEL_ID);
 
     public DeleteSubmodelByIdRequestMapper(ServiceContext serviceContext) {

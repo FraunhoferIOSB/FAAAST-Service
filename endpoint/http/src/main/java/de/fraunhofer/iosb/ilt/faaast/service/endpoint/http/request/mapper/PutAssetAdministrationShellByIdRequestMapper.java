@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import java.util.Map;
 
@@ -29,9 +30,9 @@ import java.util.Map;
 /**
  * class to map HTTP-PUT-Request path: shells
  */
-public class PutAssetAdministrationShellByIdRequestMapper extends RequestMapper {
+public class PutAssetAdministrationShellByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final String AAS_ID = "aasId";
+    private static final String AAS_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("(?!.*/aas)shells/(?<%s>.*)", AAS_ID);
 
     public PutAssetAdministrationShellByIdRequestMapper(ServiceContext serviceContext) {

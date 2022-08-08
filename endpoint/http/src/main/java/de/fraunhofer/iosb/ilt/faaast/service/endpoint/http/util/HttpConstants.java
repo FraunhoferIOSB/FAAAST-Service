@@ -20,6 +20,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
 public class HttpConstants {
 
     public static final String HEADER_VALUE_SEPARATOR = ",";
+    public static final String PATH_SEPERATOR = "/";
 
     private HttpConstants() {}
 }

@@ -19,15 +19,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequ
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-PUT-Request path: packages/{packageId}
  */
-public class PutAASXPackageByIdRequestMapper extends RequestMapper {
+public class PutAASXPackageByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final String PACKAGE_ID = "packageId";
+    private static final String PACKAGE_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("packages/(?<%s>.*)", PACKAGE_ID);
 
     public PutAASXPackageByIdRequestMapper(ServiceContext serviceContext) {

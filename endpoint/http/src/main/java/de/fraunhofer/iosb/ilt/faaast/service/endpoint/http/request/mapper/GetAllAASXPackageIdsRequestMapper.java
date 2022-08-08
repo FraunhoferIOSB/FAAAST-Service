@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 /**
  * class to map HTTP-GET-Request path: packages?aasId={aasIds}
  */
-public class GetAllAASXPackageIdsRequestMapper extends RequestMapper {
+public class GetAllAASXPackageIdsRequestMapper extends AbstractRequestMapper {
 
     private static final String PATTERN = "packages";
 

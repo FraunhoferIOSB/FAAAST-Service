@@ -20,15 +20,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAASXByPackageIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import java.util.Map;
 
 
 /**
  * class to map HTTP-GET-Request path: packages/{packageId}
  */
-public class GetAASXByPackageIdRequestMapper extends RequestMapper {
+public class GetAASXByPackageIdRequestMapper extends AbstractRequestMapper {
 
-    private static final String PACKAGE_ID = "packageId";
+    private static final String PACKAGE_ID = RegExHelper.uniqueGroupName();
     private static final String PATTERN = String.format("packages/(?<%s>.*)", PACKAGE_ID);
 
     public GetAASXByPackageIdRequestMapper(ServiceContext serviceContext) {
