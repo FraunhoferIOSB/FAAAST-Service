@@ -33,7 +33,6 @@ import java.util.Map;
 public class GetAllSubmodelsBySemanticIdRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelsBySemanticIdRequest, GetAllSubmodelsBySemanticIdResponse> {
 
     private static final String PATTERN = "submodels";
-    private static final String QUERY_PARAMETER_SEMANTIC_ID = "semanticId";
 
     public GetAllSubmodelsBySemanticIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -42,7 +41,7 @@ public class GetAllSubmodelsBySemanticIdRequestMapper extends RequestMapperWithO
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QUERY_PARAMETER_SEMANTIC_ID);
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.SEMANTIC_ID);
     }
 
 
@@ -50,15 +49,15 @@ public class GetAllSubmodelsBySemanticIdRequestMapper extends RequestMapperWithO
     public GetAllSubmodelsBySemanticIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         try {
             return GetAllSubmodelsBySemanticIdRequest.builder()
-                    .semanticId(deserializer.read(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QUERY_PARAMETER_SEMANTIC_ID)), Reference.class))
+                    .semanticId(deserializer.read(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.SEMANTIC_ID)), Reference.class))
                     .build();
         }
         catch (DeserializationException e) {
             throw new InvalidRequestException(
                     String.format(
                             "error deserializing %s (value: %s)",
-                            QUERY_PARAMETER_SEMANTIC_ID,
-                            httpRequest.getQueryParameter(QUERY_PARAMETER_SEMANTIC_ID)),
+                            QueryParameters.SEMANTIC_ID,
+                            httpRequest.getQueryParameter(QueryParameters.SEMANTIC_ID)),
                     e);
         }
     }

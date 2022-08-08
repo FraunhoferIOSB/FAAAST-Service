@@ -32,7 +32,7 @@ import java.util.Map;
  * <br>
  * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/(.*)
  */
-public class GetOperationAsyncResultRequestMapper extends SubmodelInterfaceRequestMapper<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
+public class GetOperationAsyncResultRequestMapper extends AbstractSubmodelInterfaceRequestMapper<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
 
     private static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
     private static final String HANDLE_ID = "handleId";

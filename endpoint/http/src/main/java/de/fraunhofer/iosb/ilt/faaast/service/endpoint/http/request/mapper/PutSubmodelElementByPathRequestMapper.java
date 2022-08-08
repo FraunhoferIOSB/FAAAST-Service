@@ -33,11 +33,10 @@ import java.util.Map;
  * <br>
  * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
  */
-public class PutSubmodelElementByPathRequestMapper extends SubmodelInterfaceRequestMapper<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
+public class PutSubmodelElementByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
 
     private static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
     private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);
-    private static final String QUERY_PARAMETER_CONTENT = "content";
 
     public PutSubmodelElementByPathRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.PUT, PATTERN);
@@ -46,7 +45,7 @@ public class PutSubmodelElementByPathRequestMapper extends SubmodelInterfaceRequ
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && !httpRequest.hasQueryParameter(QUERY_PARAMETER_CONTENT);
+        return super.matches(httpRequest) && !httpRequest.hasQueryParameter(QueryParameters.CONTENT);
     }
 
 

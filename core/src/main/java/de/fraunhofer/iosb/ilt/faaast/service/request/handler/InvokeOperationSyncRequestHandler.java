@@ -52,7 +52,7 @@ import java.util.concurrent.TimeoutException;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class InvokeOperationSyncRequestHandler extends SubmodelInterfaceRequestHandler<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
+public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterfaceRequestHandler<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
 
     public InvokeOperationSyncRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

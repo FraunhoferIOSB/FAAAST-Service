@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Chapter 4.3.8
  */
-public class PutSubmodelElementByPathRequest extends SubmodelInterfaceRequest<PutSubmodelElementByPathResponse> {
+public class PutSubmodelElementByPathRequest extends AbstractSubmodelInterfaceRequest<PutSubmodelElementByPathResponse> {
 
     private List<Key> path;
     private SubmodelElement submodelElement;
@@ -81,7 +81,7 @@ public class PutSubmodelElementByPathRequest extends SubmodelInterfaceRequest<Pu
     }
 
     public abstract static class AbstractBuilder<T extends PutSubmodelElementByPathRequest, B extends AbstractBuilder<T, B>>
-            extends SubmodelInterfaceRequest.AbstractBuilder<T, B> {
+            extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B path(List<Key> value) {
             getBuildingInstance().setPath(value);

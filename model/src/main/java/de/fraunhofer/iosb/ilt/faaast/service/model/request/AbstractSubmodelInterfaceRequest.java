@@ -25,17 +25,17 @@ import java.util.Objects;
  *
  * @param <T> actual type of the request
  */
-public abstract class SubmodelInterfaceRequest<T extends Response> extends RequestWithModifier<T> {
+public abstract class AbstractSubmodelInterfaceRequest<T extends Response> extends RequestWithModifier<T> {
 
     protected Identifier aasId;
     protected Identifier submodelId;
 
-    protected SubmodelInterfaceRequest() {
+    protected AbstractSubmodelInterfaceRequest() {
         super();
     }
 
 
-    protected SubmodelInterfaceRequest(OutputModifierConstraints outputModifierConstraints) {
+    protected AbstractSubmodelInterfaceRequest(OutputModifierConstraints outputModifierConstraints) {
         super(outputModifierConstraints);
     }
 
@@ -68,7 +68,7 @@ public abstract class SubmodelInterfaceRequest<T extends Response> extends Reque
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SubmodelInterfaceRequest<T> that = (SubmodelInterfaceRequest<T>) o;
+        AbstractSubmodelInterfaceRequest<T> that = (AbstractSubmodelInterfaceRequest<T>) o;
         return super.equals(o)
                 && Objects.equals(aasId, that.aasId)
                 && Objects.equals(submodelId, that.submodelId);
@@ -80,7 +80,7 @@ public abstract class SubmodelInterfaceRequest<T extends Response> extends Reque
         return Objects.hash(super.hashCode(), aasId, submodelId);
     }
 
-    public abstract static class AbstractBuilder<T extends SubmodelInterfaceRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends AbstractSubmodelInterfaceRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
 
         public B aasId(Identifier value) {
             getBuildingInstance().setAasId(value);

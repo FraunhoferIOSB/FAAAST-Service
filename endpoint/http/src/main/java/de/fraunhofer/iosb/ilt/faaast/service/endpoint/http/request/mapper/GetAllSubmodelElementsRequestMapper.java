@@ -29,10 +29,9 @@ import java.util.Map;
  * <br>
  * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements
  */
-public class GetAllSubmodelElementsRequestMapper extends SubmodelInterfaceRequestMapper<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
+public class GetAllSubmodelElementsRequestMapper extends AbstractSubmodelInterfaceRequestMapper<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
 
     private static final String PATTERN = "submodel-elements";
-    private static final String QUERY_PARAMETER_PARENT_PATH = "parentPath";
 
     public GetAllSubmodelElementsRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -41,7 +40,7 @@ public class GetAllSubmodelElementsRequestMapper extends SubmodelInterfaceReques
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && !httpRequest.hasQueryParameter(QUERY_PARAMETER_PARENT_PATH);
+        return super.matches(httpRequest) && !httpRequest.hasQueryParameter(QueryParameters.PARENT_PATH);
     }
 
 

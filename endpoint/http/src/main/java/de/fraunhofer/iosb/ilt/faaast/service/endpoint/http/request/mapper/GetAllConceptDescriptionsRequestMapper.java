@@ -29,9 +29,6 @@ import java.util.Map;
 public class GetAllConceptDescriptionsRequestMapper extends RequestMapperWithOutputModifier<GetAllConceptDescriptionsRequest, GetAllConceptDescriptionsResponse> {
 
     private static final String PATTERN = "concept-descriptions";
-    private static final String QUERY_PARAMETER_ID_SHORT = "idShort";
-    private static final String QUERY_PARAMETER_IS_CASE_OF = "isCaseOf";
-    private static final String QUERY_PARAMETER_DATA_SPECIFICATION_REF = "dataSpecificationRef";
 
     public GetAllConceptDescriptionsRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -41,9 +38,9 @@ public class GetAllConceptDescriptionsRequestMapper extends RequestMapperWithOut
     @Override
     public boolean matches(HttpRequest httpRequest) {
         return super.matches(httpRequest)
-                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_ID_SHORT)
-                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_IS_CASE_OF)
-                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_DATA_SPECIFICATION_REF);
+                && !httpRequest.hasQueryParameter(QueryParameters.ID_SHORT)
+                && !httpRequest.hasQueryParameter(QueryParameters.IS_CASE_OF)
+                && !httpRequest.hasQueryParameter(QueryParameters.DATA_SPECIFICATION_REF);
     }
 
 

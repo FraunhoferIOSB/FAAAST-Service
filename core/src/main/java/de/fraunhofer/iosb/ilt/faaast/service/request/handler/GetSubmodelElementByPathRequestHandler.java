@@ -45,7 +45,7 @@ import java.util.Optional;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class GetSubmodelElementByPathRequestHandler extends SubmodelInterfaceRequestHandler<GetSubmodelElementByPathRequest, GetSubmodelElementByPathResponse> {
+public class GetSubmodelElementByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<GetSubmodelElementByPathRequest, GetSubmodelElementByPathResponse> {
 
     public GetSubmodelElementByPathRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

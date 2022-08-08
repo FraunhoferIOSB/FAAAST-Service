@@ -29,7 +29,7 @@ import java.util.Map;
  * <br>
  * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
  */
-public class GetSubmodelRequestMapper extends SubmodelInterfaceRequestMapper<GetSubmodelRequest, GetSubmodelResponse> {
+public class GetSubmodelRequestMapper extends AbstractSubmodelInterfaceRequestMapper<GetSubmodelRequest, GetSubmodelResponse> {
 
     private static final String PATTERN = "";
 

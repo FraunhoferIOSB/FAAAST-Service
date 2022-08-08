@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * Chapter 4.3.5
  */
-public class PutSubmodelRequest extends SubmodelInterfaceRequest<PutSubmodelResponse> {
+public class PutSubmodelRequest extends AbstractSubmodelInterfaceRequest<PutSubmodelResponse> {
 
     private Submodel submodel;
 
@@ -60,7 +60,7 @@ public class PutSubmodelRequest extends SubmodelInterfaceRequest<PutSubmodelResp
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends PutSubmodelRequest, B extends AbstractBuilder<T, B>> extends SubmodelInterfaceRequest.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends PutSubmodelRequest, B extends AbstractBuilder<T, B>> extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B submodel(Submodel value) {
             getBuildingInstance().setSubmodel(value);

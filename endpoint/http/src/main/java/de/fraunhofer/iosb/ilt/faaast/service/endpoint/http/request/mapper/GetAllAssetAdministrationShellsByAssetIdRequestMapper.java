@@ -34,7 +34,6 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestMapper
         extends RequestMapperWithOutputModifier<GetAllAssetAdministrationShellsByAssetIdRequest, GetAllAssetAdministrationShellsByAssetIdResponse> {
 
     private static final String PATTERN = "shells";
-    private static final String QUERY_PARAMETER_ASSET_IDS = "assetIds";
 
     public GetAllAssetAdministrationShellsByAssetIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -43,7 +42,7 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestMapper
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QUERY_PARAMETER_ASSET_IDS);
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.ASSET_IDS);
     }
 
 
@@ -52,13 +51,13 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestMapper
             throws InvalidRequestException {
         try {
             return GetAllAssetAdministrationShellsByAssetIdRequest.builder()
-                    .assetIds(deserializer.readList(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QUERY_PARAMETER_ASSET_IDS)),
+                    .assetIds(deserializer.readList(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QueryParameters.ASSET_IDS)),
                             IdentifierKeyValuePair.class))
                     .build();
         }
         catch (DeserializationException e) {
             throw new InvalidRequestException(
-                    String.format("error deserializing %s (value: %s)", QUERY_PARAMETER_ASSET_IDS, httpRequest.getQueryParameter(QUERY_PARAMETER_ASSET_IDS)), e);
+                    String.format("error deserializing %s (value: %s)", QueryParameters.ASSET_IDS, httpRequest.getQueryParameter(QueryParameters.ASSET_IDS)), e);
         }
     }
 }

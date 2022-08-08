@@ -30,7 +30,7 @@ import java.util.Map;
  * <br>
  * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
  */
-public class PutSubmodelRequestMapper extends SubmodelInterfaceRequestMapper<PutSubmodelRequest, PutSubmodelResponse> {
+public class PutSubmodelRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PutSubmodelRequest, PutSubmodelResponse> {
 
     private static final String PATTERN = "";
 

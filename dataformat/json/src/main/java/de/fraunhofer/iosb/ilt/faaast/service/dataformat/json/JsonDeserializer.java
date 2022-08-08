@@ -46,8 +46,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueM
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PropertyValueMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.RequestWithModifierMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.SubmodelInterfaceRequestMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.SubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
@@ -262,7 +262,7 @@ public class JsonDeserializer implements Deserializer {
     protected void modifyMapper(JsonMapper mapper) {
         mapper.addMixIn(PropertyValue.class, PropertyValueMixin.class);
         mapper.addMixIn(RequestWithModifier.class, RequestWithModifierMixin.class);
-        mapper.addMixIn(SubmodelInterfaceRequest.class, SubmodelInterfaceRequestMixin.class);
+        mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, SubmodelInterfaceRequestMixin.class);
         SimpleModule module = new SimpleModule() {
             @Override
             public void setupModule(SetupContext context) {

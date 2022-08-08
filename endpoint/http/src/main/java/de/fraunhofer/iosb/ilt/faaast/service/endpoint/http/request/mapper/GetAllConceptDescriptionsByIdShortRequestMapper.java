@@ -30,7 +30,6 @@ public class GetAllConceptDescriptionsByIdShortRequestMapper
         extends RequestMapperWithOutputModifier<GetAllConceptDescriptionsByIdShortRequest, GetAllConceptDescriptionsByIdShortResponse> {
 
     private static final String PATTERN = "concept-descriptions";
-    private static final String QUERY_PARAMETER_ID_SHORT = "idShort";
 
     public GetAllConceptDescriptionsByIdShortRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -39,14 +38,14 @@ public class GetAllConceptDescriptionsByIdShortRequestMapper
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QUERY_PARAMETER_ID_SHORT);
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.ID_SHORT);
     }
 
 
     @Override
     public GetAllConceptDescriptionsByIdShortRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllConceptDescriptionsByIdShortRequest.builder()
-                .idShort(httpRequest.getQueryParameter(QUERY_PARAMETER_ID_SHORT))
+                .idShort(httpRequest.getQueryParameter(QueryParameters.ID_SHORT))
                 .build();
     }
 }

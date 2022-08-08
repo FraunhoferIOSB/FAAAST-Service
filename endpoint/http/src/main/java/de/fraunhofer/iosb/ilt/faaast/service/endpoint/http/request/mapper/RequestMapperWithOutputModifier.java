@@ -37,10 +37,6 @@ import java.util.Map;
  */
 public abstract class RequestMapperWithOutputModifier<T extends RequestWithModifier<R>, R extends Response> extends RequestMapper {
 
-    private static final String PARAMETER_LEVEL = "level";
-    private static final String PARAMETER_CONTENT = "content";
-    private static final String PARAMETER_EXTEND = "extend";
-
     protected RequestMapperWithOutputModifier(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
         super(serviceContext, method, urlPattern);
     }
@@ -66,18 +62,18 @@ public abstract class RequestMapperWithOutputModifier<T extends RequestWithModif
         try {
             RequestWithModifier<R> request = rawType.getConstructor(null).newInstance(null);
             OutputModifier.Builder outputModifierBuilder = new OutputModifier.Builder();
-            if (httpRequest.hasQueryParameter(PARAMETER_CONTENT)) {
-                Content content = Content.fromString(httpRequest.getQueryParameter(PARAMETER_CONTENT));
+            if (httpRequest.hasQueryParameter(QueryParameters.CONTENT)) {
+                Content content = Content.fromString(httpRequest.getQueryParameter(QueryParameters.CONTENT));
                 request.checkContenModifierValid(content);
                 outputModifierBuilder.content(content);
             }
-            if (httpRequest.hasQueryParameter(PARAMETER_LEVEL)) {
-                Level level = Level.fromString(httpRequest.getQueryParameter(PARAMETER_LEVEL));
+            if (httpRequest.hasQueryParameter(QueryParameters.LEVEL)) {
+                Level level = Level.fromString(httpRequest.getQueryParameter(QueryParameters.LEVEL));
                 request.checkLevelModifierValid(level);
                 outputModifierBuilder.level(level);
             }
-            if (httpRequest.hasQueryParameter(PARAMETER_EXTEND)) {
-                Extent extent = Extent.fromString(httpRequest.getQueryParameter(PARAMETER_EXTEND));
+            if (httpRequest.hasQueryParameter(QueryParameters.EXTENT)) {
+                Extent extent = Extent.fromString(httpRequest.getQueryParameter(QueryParameters.EXTENT));
                 request.checkExtentModifierValid(extent);
                 outputModifierBuilder.extend(extent);
             }

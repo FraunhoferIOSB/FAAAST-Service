@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Chapter 4.3.10
  */
-public class DeleteSubmodelElementByPathRequest extends SubmodelInterfaceRequest<DeleteSubmodelElementByPathResponse> {
+public class DeleteSubmodelElementByPathRequest extends AbstractSubmodelInterfaceRequest<DeleteSubmodelElementByPathResponse> {
 
     private List<Key> path;
 
@@ -68,7 +68,7 @@ public class DeleteSubmodelElementByPathRequest extends SubmodelInterfaceRequest
     }
 
     public abstract static class AbstractBuilder<T extends DeleteSubmodelElementByPathRequest, B extends AbstractBuilder<T, B>>
-            extends SubmodelInterfaceRequest.AbstractBuilder<T, B> {
+            extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B path(List<Key> value) {
             getBuildingInstance().setPath(value);

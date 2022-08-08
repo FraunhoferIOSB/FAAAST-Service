@@ -32,7 +32,7 @@ import java.util.Map;
  * <br>
  * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
  */
-public class DeleteSubmodelElementByPathRequestMapper extends SubmodelInterfaceRequestMapper<DeleteSubmodelElementByPathRequest, DeleteSubmodelElementByPathResponse> {
+public class DeleteSubmodelElementByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<DeleteSubmodelElementByPathRequest, DeleteSubmodelElementByPathResponse> {
 
     private static final String SUBMODEL_ELEMENT_PATH = "submodelelementId";
     private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);

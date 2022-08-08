@@ -45,7 +45,8 @@ import java.util.Objects;
  * <br>
  * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
  */
-public class SetSubmodelElementValueByPathRequestMapper extends SubmodelInterfaceRequestMapper<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {
+public class SetSubmodelElementValueByPathRequestMapper
+        extends AbstractSubmodelInterfaceRequestMapper<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {
 
     private static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
     private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);

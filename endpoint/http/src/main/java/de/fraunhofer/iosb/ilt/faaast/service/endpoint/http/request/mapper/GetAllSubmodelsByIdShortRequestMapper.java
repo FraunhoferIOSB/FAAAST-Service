@@ -29,7 +29,6 @@ import java.util.Map;
 public class GetAllSubmodelsByIdShortRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelsByIdShortRequest, GetAllSubmodelsByIdShortResponse> {
 
     private static final String PATTERN = "submodels";
-    private static final String QUERY_PARAMETER_ID_SHORT = "idShort";
 
     public GetAllSubmodelsByIdShortRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -38,14 +37,14 @@ public class GetAllSubmodelsByIdShortRequestMapper extends RequestMapperWithOutp
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QUERY_PARAMETER_ID_SHORT);
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.ID_SHORT);
     }
 
 
     @Override
     public GetAllSubmodelsByIdShortRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllSubmodelsByIdShortRequest.builder()
-                .idShort(httpRequest.getQueryParameter(QUERY_PARAMETER_ID_SHORT))
+                .idShort(httpRequest.getQueryParameter(QueryParameters.ID_SHORT))
                 .build();
     }
 }

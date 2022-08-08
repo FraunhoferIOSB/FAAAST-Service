@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Chapter 4.3.13
  */
-public class GetOperationAsyncResultRequest extends SubmodelInterfaceRequest<GetOperationAsyncResultResponse> {
+public class GetOperationAsyncResultRequest extends AbstractSubmodelInterfaceRequest<GetOperationAsyncResultResponse> {
 
     private List<Key> path;
     private String handleId;
@@ -79,7 +79,8 @@ public class GetOperationAsyncResultRequest extends SubmodelInterfaceRequest<Get
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetOperationAsyncResultRequest, B extends AbstractBuilder<T, B>> extends SubmodelInterfaceRequest.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetOperationAsyncResultRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B handleId(String value) {
             getBuildingInstance().setHandleId(value);

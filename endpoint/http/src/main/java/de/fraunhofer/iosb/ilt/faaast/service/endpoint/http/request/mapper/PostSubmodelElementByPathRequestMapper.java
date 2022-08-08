@@ -33,7 +33,7 @@ import java.util.Map;
  * <br>
  * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
  */
-public class PostSubmodelElementByPathRequestMapper extends SubmodelInterfaceRequestMapper<PostSubmodelElementByPathRequest, PostSubmodelElementByPathResponse> {
+public class PostSubmodelElementByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PostSubmodelElementByPathRequest, PostSubmodelElementByPathResponse> {
 
     private static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
     private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);

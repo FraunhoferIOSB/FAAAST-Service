@@ -40,7 +40,7 @@ import io.adminshell.aas.v3.model.SubmodelElement;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class PostSubmodelElementRequestHandler extends SubmodelInterfaceRequestHandler<PostSubmodelElementRequest, PostSubmodelElementResponse> {
+public class PostSubmodelElementRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PostSubmodelElementRequest, PostSubmodelElementResponse> {
 
     public PostSubmodelElementRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

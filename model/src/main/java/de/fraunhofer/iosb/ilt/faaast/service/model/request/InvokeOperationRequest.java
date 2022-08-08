@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public abstract class InvokeOperationRequest<T extends Response> extends SubmodelInterfaceRequest<T> {
+public abstract class InvokeOperationRequest<T extends Response> extends AbstractSubmodelInterfaceRequest<T> {
 
     private static final long DEFAULT_TIMEOUT = 1000;
     protected List<Key> path;
@@ -121,7 +121,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends Submode
         this.timeout = timeout;
     }
 
-    public abstract static class AbstractBuilder<T extends InvokeOperationRequest, B extends AbstractBuilder<T, B>> extends SubmodelInterfaceRequest.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends InvokeOperationRequest, B extends AbstractBuilder<T, B>> extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B content(Content value) {
             OutputModifier.Builder builder = new OutputModifier.Builder();

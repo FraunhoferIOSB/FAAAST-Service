@@ -35,8 +35,8 @@ import java.util.regex.Pattern;
  */
 public abstract class RequestMapper {
 
-    protected ServiceContext serviceContext;
-    protected HttpJsonDeserializer deserializer;
+    protected final ServiceContext serviceContext;
+    protected final HttpJsonDeserializer deserializer;
     protected final HttpMethod method;
     protected String urlPattern;
 

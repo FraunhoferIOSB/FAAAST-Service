@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequ
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.SubmodelInterfaceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
@@ -41,7 +41,7 @@ import org.apache.commons.lang3.StringUtils;
  * @param <T> actual type of the request
  * @param <R> actual type of the response
  */
-public abstract class SubmodelInterfaceRequestMapper<T extends SubmodelInterfaceRequest<R>, R extends Response> extends RequestMapperWithOutputModifier<T, R> {
+public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractSubmodelInterfaceRequest<R>, R extends Response> extends RequestMapperWithOutputModifier<T, R> {
 
     private static final String PATH_SEPERATOR = "/";
     protected static final String AAS_ID = "aasId";
@@ -59,7 +59,7 @@ public abstract class SubmodelInterfaceRequestMapper<T extends SubmodelInterface
      * @param urlPattern the URL pattern, but only the part after
      *            ".../submodel/"
      */
-    protected SubmodelInterfaceRequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
+    protected AbstractSubmodelInterfaceRequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
         super(serviceContext, method, addSubmodelPath(urlPattern));
         this.contextualizedUrlPattern = RegExHelper.ensureLineMatch(addAasPath(addSubmodelPath(urlPattern)));
     }
@@ -116,7 +116,7 @@ public abstract class SubmodelInterfaceRequestMapper<T extends SubmodelInterface
      * @throws IllegalArgumentException if httpRequest is null
      */
     @Override
-    public SubmodelInterfaceRequest parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public AbstractSubmodelInterfaceRequest parse(HttpRequest httpRequest) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         boolean withAasContext = hasAasPath(httpRequest.getPath());
         String pattern = withAasContext
@@ -128,7 +128,7 @@ public abstract class SubmodelInterfaceRequestMapper<T extends SubmodelInterface
             httpRequest.setPath(withAasContext
                     ? removeAasPath(removeSubmodelPath(httpRequest.getPath()))
                     : removeSubmodelPath(httpRequest.getPath()));
-            SubmodelInterfaceRequest<R> result = doParse(httpRequest, urlParameters);
+            AbstractSubmodelInterfaceRequest<R> result = doParse(httpRequest, urlParameters);
             if (withAasContext) {
                 result.setAasId(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID))));
             }
@@ -156,7 +156,7 @@ public abstract class SubmodelInterfaceRequestMapper<T extends SubmodelInterface
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final SubmodelInterfaceRequestMapper<T, R> other = (SubmodelInterfaceRequestMapper<T, R>) obj;
+        final AbstractSubmodelInterfaceRequestMapper<T, R> other = (AbstractSubmodelInterfaceRequestMapper<T, R>) obj;
         return super.equals(other)
                 && Objects.equals(this.contextualizedUrlPattern, other.contextualizedUrlPattern);
     }

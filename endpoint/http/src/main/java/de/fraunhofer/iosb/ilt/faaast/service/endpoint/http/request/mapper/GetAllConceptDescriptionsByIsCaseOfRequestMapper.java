@@ -32,7 +32,6 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestMapper
         extends RequestMapperWithOutputModifier<GetAllConceptDescriptionsByIsCaseOfRequest, GetAllConceptDescriptionsByIsCaseOfResponse> {
 
     private static final String PATTERN = "concept-descriptions";
-    private static final String QUERY_PARAMETER_IS_CASE_OF = "isCaseOf";
 
     public GetAllConceptDescriptionsByIsCaseOfRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -41,14 +40,14 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestMapper
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QUERY_PARAMETER_IS_CASE_OF);
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.IS_CASE_OF);
     }
 
 
     @Override
     public GetAllConceptDescriptionsByIsCaseOfRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllConceptDescriptionsByIsCaseOfRequest.builder()
-                .isCaseOf(AasUtils.parseReference(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QUERY_PARAMETER_IS_CASE_OF))))
+                .isCaseOf(AasUtils.parseReference(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QueryParameters.IS_CASE_OF))))
                 .build();
     }
 }

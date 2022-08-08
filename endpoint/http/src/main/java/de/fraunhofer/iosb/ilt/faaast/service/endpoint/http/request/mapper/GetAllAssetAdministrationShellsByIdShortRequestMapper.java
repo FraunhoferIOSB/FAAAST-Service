@@ -30,7 +30,6 @@ public class GetAllAssetAdministrationShellsByIdShortRequestMapper
         extends RequestMapperWithOutputModifier<GetAllAssetAdministrationShellsByIdShortRequest, GetAllAssetAdministrationShellsByIdShortResponse> {
 
     private static final String PATTERN = "shells";
-    private static final String QUERY_PARAMETER_ID_SHORT = "idShort";
 
     public GetAllAssetAdministrationShellsByIdShortRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -39,14 +38,14 @@ public class GetAllAssetAdministrationShellsByIdShortRequestMapper
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QUERY_PARAMETER_ID_SHORT);
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.ID_SHORT);
     }
 
 
     @Override
     public GetAllAssetAdministrationShellsByIdShortRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllAssetAdministrationShellsByIdShortRequest.builder()
-                .idShort(httpRequest.getQueryParameters().get(QUERY_PARAMETER_ID_SHORT))
+                .idShort(httpRequest.getQueryParameters().get(QueryParameters.ID_SHORT))
                 .build();
     }
 }

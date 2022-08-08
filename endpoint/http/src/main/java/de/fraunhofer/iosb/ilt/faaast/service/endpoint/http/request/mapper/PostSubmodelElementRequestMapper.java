@@ -30,7 +30,7 @@ import java.util.Map;
  * <br>
  * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
  */
-public class PostSubmodelElementRequestMapper extends SubmodelInterfaceRequestMapper<PostSubmodelElementRequest, PostSubmodelElementResponse> {
+public class PostSubmodelElementRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PostSubmodelElementRequest, PostSubmodelElementResponse> {
 
     private static final String PATTERN = "submodel-elements";
 

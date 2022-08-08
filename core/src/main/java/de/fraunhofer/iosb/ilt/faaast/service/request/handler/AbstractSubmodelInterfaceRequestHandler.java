@@ -20,14 +20,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.SubmodelInterfaceRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
-import java.util.Objects;
 
 
 /**
@@ -38,9 +37,9 @@ import java.util.Objects;
  * @param <T> actual type of the request
  * @param <U> actual type of the response
  */
-public abstract class SubmodelInterfaceRequestHandler<T extends SubmodelInterfaceRequest<U>, U extends Response> extends RequestHandler<T, U> {
+public abstract class AbstractSubmodelInterfaceRequestHandler<T extends AbstractSubmodelInterfaceRequest<U>, U extends Response> extends RequestHandler<T, U> {
 
-    protected SubmodelInterfaceRequestHandler(Persistence<?> persistence, MessageBus<?> messageBus, AssetConnectionManager assetConnectionManager) {
+    protected AbstractSubmodelInterfaceRequestHandler(Persistence<?> persistence, MessageBus<?> messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
     }
 
@@ -69,7 +68,9 @@ public abstract class SubmodelInterfaceRequestHandler<T extends SubmodelInterfac
                     request.getAasId(),
                     new OutputModifier.Builder()
                             .level(Level.CORE)
-                            .build())).getSubmodels().stream().noneMatch(x -> Objects.equals(x, submodelRef))) {
+                            .build()))
+                                    .getSubmodels().stream()
+                                    .noneMatch(x -> ReferenceHelper.isEqualsIgnoringKeyType(x, submodelRef))) {
                 throw new ResourceNotFoundException(String.format(
                         "AAS does not contain requested submodel (aasId: %s, submodelId: %s)",
                         request.getAasId().getIdentifier(),

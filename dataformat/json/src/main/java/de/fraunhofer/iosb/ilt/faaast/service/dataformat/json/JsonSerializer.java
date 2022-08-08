@@ -26,8 +26,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EnumSeri
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.ModifierAwareSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.SubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import io.adminshell.aas.v3.dataformat.json.modeltype.ModelTypeProcessor;
@@ -63,7 +63,7 @@ public class JsonSerializer implements Serializer {
         ReflectionHelper.ENUMS.forEach(x -> module.addSerializer(x, new EnumSerializer()));
         mapper.registerModule(module);
         mapper.addMixIn(RequestWithModifier.class, RequestWithModifierMixin.class);
-        mapper.addMixIn(SubmodelInterfaceRequest.class, SubmodelInterfaceRequestMixin.class);
+        mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, SubmodelInterfaceRequestMixin.class);
     }
 
 

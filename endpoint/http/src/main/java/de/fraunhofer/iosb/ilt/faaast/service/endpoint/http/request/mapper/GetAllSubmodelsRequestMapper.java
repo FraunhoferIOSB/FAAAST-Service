@@ -29,8 +29,6 @@ import java.util.Map;
 public class GetAllSubmodelsRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelsRequest, GetAllSubmodelsResponse> {
 
     private static final String PATTERN = "submodels";
-    private static final String QUERY_PARAMETER_SEMANTIC_ID = "semanticId";
-    private static final String QUERY_PARAMETER_ID_SHORT = "idShort";
 
     public GetAllSubmodelsRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -40,8 +38,8 @@ public class GetAllSubmodelsRequestMapper extends RequestMapperWithOutputModifie
     @Override
     public boolean matches(HttpRequest httpRequest) {
         return super.matches(httpRequest)
-                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_SEMANTIC_ID)
-                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_ID_SHORT);
+                && !httpRequest.hasQueryParameter(QueryParameters.SEMANTIC_ID)
+                && !httpRequest.hasQueryParameter(QueryParameters.ID_SHORT);
     }
 
 

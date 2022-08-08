@@ -38,11 +38,10 @@ import java.util.Map;
  * @param <T> actual request type
  * @param <U> actual response type
  */
-public abstract class AbstractInvokeOperationRequestMapper<T extends InvokeOperationRequest<U>, U extends Response> extends SubmodelInterfaceRequestMapper<T, U> {
+public abstract class AbstractInvokeOperationRequestMapper<T extends InvokeOperationRequest<U>, U extends Response> extends AbstractSubmodelInterfaceRequestMapper<T, U> {
 
     protected static final String SUBMODEL_ELEMENT_PATH = "submodelElementPath";
     protected static final String PATTERN = String.format("submodel-elements/(?<%s>.*)/invoke", SUBMODEL_ELEMENT_PATH);
-    protected static final String QUERY_PARAMETER_ASYNC = "async";
 
     protected AbstractInvokeOperationRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.POST, PATTERN);
@@ -57,8 +56,8 @@ public abstract class AbstractInvokeOperationRequestMapper<T extends InvokeOpera
      * @return true if is async, false otherwise
      */
     protected boolean isAsync(HttpRequest httpRequest) {
-        return httpRequest.hasQueryParameter(QUERY_PARAMETER_ASYNC)
-                && Boolean.parseBoolean(httpRequest.getQueryParameter(QUERY_PARAMETER_ASYNC));
+        return httpRequest.hasQueryParameter(QueryParameters.ASYNC)
+                && Boolean.parseBoolean(httpRequest.getQueryParameter(QueryParameters.ASYNC));
     }
 
 

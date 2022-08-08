@@ -42,7 +42,7 @@ import java.util.List;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class GetAllSubmodelElementsRequestHandler extends SubmodelInterfaceRequestHandler<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
+public class GetAllSubmodelElementsRequestHandler extends AbstractSubmodelInterfaceRequestHandler<GetAllSubmodelElementsRequest, GetAllSubmodelElementsResponse> {
 
     public GetAllSubmodelElementsRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

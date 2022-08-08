@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class InvokeOperationAsyncRequestHandler extends SubmodelInterfaceRequestHandler<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
+public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfaceRequestHandler<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvokeOperationAsyncRequestHandler.class);
 

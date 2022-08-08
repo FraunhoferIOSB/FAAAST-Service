@@ -32,7 +32,6 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper
         extends RequestMapperWithOutputModifier<GetAllConceptDescriptionsByDataSpecificationReferenceRequest, GetAllConceptDescriptionsByDataSpecificationReferenceResponse> {
 
     private static final String PATTERN = "concept-descriptions";
-    private static final String QUERY_PARAMETER_DATA_SPECIFICATION_REF = "dataSpecificationRef";
 
     public GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -41,14 +40,14 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QUERY_PARAMETER_DATA_SPECIFICATION_REF);
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.DATA_SPECIFICATION_REF);
     }
 
 
     @Override
     public GetAllConceptDescriptionsByDataSpecificationReferenceRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllConceptDescriptionsByDataSpecificationReferenceRequest.builder()
-                .dataSpecification(AasUtils.parseReference(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QUERY_PARAMETER_DATA_SPECIFICATION_REF))))
+                .dataSpecification(AasUtils.parseReference(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QueryParameters.DATA_SPECIFICATION_REF))))
                 .build();
     }
 }

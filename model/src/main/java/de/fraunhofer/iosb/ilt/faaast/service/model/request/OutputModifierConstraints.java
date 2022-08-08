@@ -25,7 +25,8 @@ import java.util.Set;
 /**
  * Allows defining constaints on which
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier}
- * are supported/accepted.
+ * are supported/accepted. By default, 'extent' is supported while 'level' is
+ * not supported.
  */
 public class OutputModifierConstraints {
 

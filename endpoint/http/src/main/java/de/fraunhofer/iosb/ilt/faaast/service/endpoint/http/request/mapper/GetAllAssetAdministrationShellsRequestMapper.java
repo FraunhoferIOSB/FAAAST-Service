@@ -29,8 +29,6 @@ import java.util.Map;
 public class GetAllAssetAdministrationShellsRequestMapper extends RequestMapperWithOutputModifier<GetAllAssetAdministrationShellsRequest, GetAllAssetAdministrationShellsResponse> {
 
     private static final String PATTERN = "shells";
-    private static final String QUERY_PARAMETER_ASSET_IDS = "assetIds";
-    private static final String QUERY_PARAMETER_ID_SHORT = "idShort";
 
     public GetAllAssetAdministrationShellsRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -40,8 +38,8 @@ public class GetAllAssetAdministrationShellsRequestMapper extends RequestMapperW
     @Override
     public boolean matches(HttpRequest httpRequest) {
         return super.matches(httpRequest)
-                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_ASSET_IDS)
-                && !httpRequest.hasQueryParameter(QUERY_PARAMETER_ID_SHORT);
+                && !httpRequest.hasQueryParameter(QueryParameters.ASSET_IDS)
+                && !httpRequest.hasQueryParameter(QueryParameters.ID_SHORT);
     }
 
 

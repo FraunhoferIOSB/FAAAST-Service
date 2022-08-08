@@ -32,7 +32,6 @@ import java.util.stream.Stream;
 public class GetAllAASXPackageIdsRequestMapper extends RequestMapper {
 
     private static final String PATTERN = "packages";
-    private static final String QUERY_PARAMETER_AAA_ID = "aasId";
 
     public GetAllAASXPackageIdsRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -41,14 +40,14 @@ public class GetAllAASXPackageIdsRequestMapper extends RequestMapper {
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QUERY_PARAMETER_AAA_ID);
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.AAS_ID);
     }
 
 
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return GetAllAASXPackageIdsRequest.builder()
-                .aasIds(Stream.of(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QUERY_PARAMETER_AAA_ID)).split(","))
+                .aasIds(Stream.of(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QueryParameters.AAS_ID)).split(","))
                         .map(x -> IdentifierHelper.parseIdentifier(x))
                         .collect(Collectors.toList()))
                 .build();
