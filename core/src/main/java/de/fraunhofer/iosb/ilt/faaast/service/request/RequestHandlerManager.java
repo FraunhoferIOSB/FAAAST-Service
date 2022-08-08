@@ -73,19 +73,16 @@ public class RequestHandlerManager {
                 messageBus,
                 assetConnectionManager
         };
-        final Class<?>[] constructorArgTypes = AbstractRequestHandler.class.getConstructors()[0].getParameterTypes();
+        final Class<?>[] constructorArgTypes = AbstractRequestHandler.class.getDeclaredConstructors()[0].getParameterTypes();
         try (ScanResult scanResult = new ClassGraph()
                 .enableAllInfo()
                 .acceptPackages(getClass().getPackageName())
                 .scan()) {
-            // TODO change approach for RequestHandler from abstract class to interface 
-            // (either with init method or pass all arguments with handle method)
             handlers = scanResult.getSubclasses(AbstractRequestHandler.class).loadClasses().stream()
                     .filter(x -> !Modifier.isAbstract(x.getModifiers()))
                     .map(x -> (Class<? extends AbstractRequestHandler>) x)
-                    .collect(Collectors.toMap(x -> {
-                        return (Class<? extends Request>) TypeToken.of(x).resolveType(AbstractRequestHandler.class.getTypeParameters()[0]).getRawType();
-                    },
+                    .collect(Collectors.toMap(
+                            x -> (Class<? extends Request>) TypeToken.of(x).resolveType(AbstractRequestHandler.class.getTypeParameters()[0]).getRawType(),
                             x -> {
                                 try {
                                     Constructor<? extends AbstractRequestHandler> constructor = x.getConstructor(constructorArgTypes);
@@ -93,14 +90,14 @@ public class RequestHandlerManager {
                                 }
                                 catch (NoSuchMethodException | SecurityException e) {
                                     LOGGER.warn("request handler implementation could not be loaded, "
-                                            + "reason: missing constructor (implementation class: {}, required constructor signature: {}",
+                                            + "reason: missing constructor (implementation class: {}, required constructor signature: {})",
                                             x.getName(),
                                             constructorArgTypes,
                                             e);
                                 }
                                 catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                                     LOGGER.warn("request handler implementation could not be loaded, "
-                                            + "reason: calling constructor failed (implementation class: {}, constructor arguments: {}",
+                                            + "reason: calling constructor failed (implementation class: {}, constructor arguments: {})",
                                             x.getName(),
                                             constructorArgs,
                                             e);
@@ -108,10 +105,6 @@ public class RequestHandlerManager {
                                 return null;
                             }));
         }
-        // filter out null values from handlers that could not be instantiated so that later we don't need to check for null on each access
-        // filter out null values from handlers that could not be instantiated so that later we don't need to check for null on each access
-
-        // create request handler executor service 
         requestHandlerExecutorService = Executors.newFixedThreadPool(
                 coreConfig.getRequestHandlerThreadPoolSize(),
                 new BasicThreadFactory.Builder()

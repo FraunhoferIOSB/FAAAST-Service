@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  *
  * @param <T> actual type of the request
  */
-public abstract class AbstractRequestWithModifier<T extends Response> extends AbstractRequest<T> {
+public abstract class AbstractRequestWithModifier<T extends Response> implements Request<T> {
 
     private OutputModifierConstraints outputModifierConstraints;
     protected OutputModifier outputModifier;

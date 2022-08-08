@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostConceptDescriptionResponse;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Chapter 6.4.7
  */
-public class PostConceptDescriptionRequest extends AbstractRequest<PostConceptDescriptionResponse> {
+public class PostConceptDescriptionRequest implements Request<PostConceptDescriptionResponse> {
 
     private ConceptDescription conceptDescription;
 

@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetLinksByIdResponse;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Chapter 7.2.3
  */
-public class GetAllAssetLinksByIdRequest extends AbstractRequest<GetAllAssetLinksByIdResponse> {
+public class GetAllAssetLinksByIdRequest implements Request<GetAllAssetLinksByIdResponse> {
 
     private Identifier id;
 

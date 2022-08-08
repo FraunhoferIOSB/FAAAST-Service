@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteAssetAdministrationShellByIdResponse;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Chapter 6.2.8
  */
-public class DeleteAssetAdministrationShellByIdRequest extends AbstractRequest<DeleteAssetAdministrationShellByIdResponse> {
+public class DeleteAssetAdministrationShellByIdRequest implements Request<DeleteAssetAdministrationShellByIdResponse> {
 
     private Identifier id;
 

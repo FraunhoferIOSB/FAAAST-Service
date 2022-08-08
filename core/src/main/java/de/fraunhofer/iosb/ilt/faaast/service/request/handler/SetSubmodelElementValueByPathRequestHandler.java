@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
@@ -49,7 +48,7 @@ public class SetSubmodelElementValueByPathRequestHandler
 
 
     @Override
-    public SetSubmodelElementValueByPathResponse doProcess(SetSubmodelElementValueByPathRequest request) throws ResourceNotFoundException, Exception {
+    public SetSubmodelElementValueByPathResponse doProcess(SetSubmodelElementValueByPathRequest request) throws Exception {
         if (request == null || request.getValueParser() == null) {
             throw new IllegalArgumentException("value parser of request must be non-null");
         }

@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostAssetAdministrationShellResponse;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Chapter 6.2.6
  */
-public class PostAssetAdministrationShellRequest extends AbstractRequest<PostAssetAdministrationShellResponse> {
+public class PostAssetAdministrationShellRequest implements Request<PostAssetAdministrationShellResponse> {
 
     private AssetAdministrationShell aas;
 

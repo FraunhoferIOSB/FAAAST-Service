@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelByIdResponse;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Submodel;
@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Chapter 6.3.7
  */
-public class PutSubmodelByIdRequest extends AbstractRequest<PutSubmodelByIdResponse> {
+public class PutSubmodelByIdRequest implements Request<PutSubmodelByIdResponse> {
 
     private Identifier id;
     private Submodel submodel;

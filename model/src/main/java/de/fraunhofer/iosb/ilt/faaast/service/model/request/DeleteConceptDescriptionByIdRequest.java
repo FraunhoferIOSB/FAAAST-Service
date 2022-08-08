@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteConceptDescriptionByIdResponse;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Chapter 6.4.9
  */
-public class DeleteConceptDescriptionByIdRequest extends AbstractRequest<DeleteConceptDescriptionByIdResponse> {
+public class DeleteConceptDescriptionByIdRequest implements Request<DeleteConceptDescriptionByIdResponse> {
 
     private Identifier id;
 
