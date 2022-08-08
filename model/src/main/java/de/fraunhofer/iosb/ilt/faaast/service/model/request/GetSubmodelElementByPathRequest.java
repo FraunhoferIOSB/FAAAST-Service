@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelElementByPathResponse;
-import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +24,12 @@ import java.util.Objects;
 /**
  * Chapter 4.3.4
  */
-public class GetSubmodelElementByPathRequest extends AbstractGetSubmodelElementRequest<GetSubmodelElementByPathResponse> {
+public class GetSubmodelElementByPathRequest extends AbstractSubmodelInterfaceRequest<GetSubmodelElementByPathResponse> {
 
-    private Identifier id;
     private List<Key> path;
 
     public GetSubmodelElementByPathRequest() {
+        super(OutputModifierConstraints.SUBMODEL_ELEMENT);
         this.path = new ArrayList<>();
     }
 
@@ -45,16 +44,6 @@ public class GetSubmodelElementByPathRequest extends AbstractGetSubmodelElementR
     }
 
 
-    public Identifier getId() {
-        return id;
-    }
-
-
-    public void setId(Identifier id) {
-        this.id = id;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -65,14 +54,13 @@ public class GetSubmodelElementByPathRequest extends AbstractGetSubmodelElementR
         }
         GetSubmodelElementByPathRequest that = (GetSubmodelElementByPathRequest) o;
         return super.equals(that)
-                && Objects.equals(id, that.id)
                 && Objects.equals(path, that.path);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, path);
+        return Objects.hash(super.hashCode(), path);
     }
 
 
@@ -80,13 +68,8 @@ public class GetSubmodelElementByPathRequest extends AbstractGetSubmodelElementR
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetSubmodelElementByPathRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
-
-        public B id(Identifier value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<T extends GetSubmodelElementByPathRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B path(List<Key> value) {
             getBuildingInstance().setPath(value);

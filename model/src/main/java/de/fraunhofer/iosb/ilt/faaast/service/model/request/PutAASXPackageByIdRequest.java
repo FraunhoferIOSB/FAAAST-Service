@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.AASXPackageBase;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAASXPackageByIdResponse;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
@@ -27,7 +27,7 @@ import java.util.Objects;
 /**
  * Chapter 4.5.5
  */
-public class PutAASXPackageByIdRequest extends BaseRequest<PutAASXPackageByIdResponse> {
+public class PutAASXPackageByIdRequest implements Request<PutAASXPackageByIdResponse> {
 
     private String packageId;
     private List<Identifier> aasIds;

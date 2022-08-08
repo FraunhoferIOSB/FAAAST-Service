@@ -12,21 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.request;
+package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.adminshell.aas.v3.model.Identifier;
 
 
 /**
- * Base class for all GET requests the return Submodel objects
- * holding information about supported output modifier
- *
- * @param <T> type of response
+ * Mixin for
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.SubmodelInterfaceRequest}
  */
-public abstract class AbstractGetSubmodelRequest<T extends Response> extends RequestWithModifier<T> {
+public abstract class SubmodelInterfaceRequestMixin {
 
-    protected AbstractGetSubmodelRequest() {
-        super(true, true, Content.NORMAL, Content.VALUE, Content.REFERENCE, Content.PATH);
-    }
+    @JsonIgnore
+    private Identifier submodelId;
 }

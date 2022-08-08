@@ -20,37 +20,32 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByIdShortResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByIdShortRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-Request path: shells
  */
 public class GetAllAssetAdministrationShellsByIdShortRequestMapper
-        extends RequestMapperWithOutputModifier<GetAllAssetAdministrationShellsByIdShortRequest, GetAllAssetAdministrationShellsByIdShortResponse> {
+        extends AbstractRequestMapperWithOutputModifier<GetAllAssetAdministrationShellsByIdShortRequest, GetAllAssetAdministrationShellsByIdShortResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^shells$";
-    private static final String QUERYPARAM = "idShort";
+    private static final String PATTERN = "shells";
 
     public GetAllAssetAdministrationShellsByIdShortRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
-    }
-
-
-    @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
-        return GetAllAssetAdministrationShellsByIdShortRequest.builder()
-                .idShort(httpRequest.getQueryParameters().get(QUERYPARAM))
-                .outputModifier(outputModifier)
-                .build();
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && httpRequest.getQueryParameters().containsKey(QUERYPARAM);
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.ID_SHORT);
+    }
+
+
+    @Override
+    public GetAllAssetAdministrationShellsByIdShortRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+        return GetAllAssetAdministrationShellsByIdShortRequest.builder()
+                .idShort(httpRequest.getQueryParameters().get(QueryParameters.ID_SHORT))
+                .build();
     }
 }

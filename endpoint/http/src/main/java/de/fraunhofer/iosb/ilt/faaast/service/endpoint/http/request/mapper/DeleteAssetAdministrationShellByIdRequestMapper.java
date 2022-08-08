@@ -21,32 +21,27 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-DELETE-Request path: shells/{aasIdentifier}
  */
-public class DeleteAssetAdministrationShellByIdRequestMapper extends RequestMapper {
+public class DeleteAssetAdministrationShellByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.DELETE;
-    private static final String PATTERN = "(?!.*/aas)^shells/(.*)$";
+    private static final String AAS_ID = RegExHelper.uniqueGroupName();
+    private static final String PATTERN = String.format("(?!.*/aas)shells/(?<%s>.*)", AAS_ID);
 
     public DeleteAssetAdministrationShellByIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.DELETE, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return DeleteAssetAdministrationShellByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(AAS_ID))))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

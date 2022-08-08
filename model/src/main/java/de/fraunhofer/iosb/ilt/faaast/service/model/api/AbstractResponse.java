@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * Abstract base class for protocol-agnostic responses.
  */
-public abstract class BaseResponse implements Response {
+public abstract class AbstractResponse implements Response {
 
     protected StatusCode statusCode;
     protected Result result;
@@ -38,7 +38,7 @@ public abstract class BaseResponse implements Response {
     }
 
 
-    protected BaseResponse() {
+    protected AbstractResponse() {
         this.statusCode = StatusCode.SERVER_INTERNAL_ERROR;
         this.result = Result.builder()
                 .success(false)
@@ -74,7 +74,7 @@ public abstract class BaseResponse implements Response {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        BaseResponse that = (BaseResponse) o;
+        AbstractResponse that = (AbstractResponse) o;
         return statusCode == that.statusCode && Objects.equals(result, that.result);
     }
 
@@ -84,7 +84,7 @@ public abstract class BaseResponse implements Response {
         return Objects.hash(statusCode, result);
     }
 
-    public abstract static class AbstractBuilder<T extends BaseResponse, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends AbstractResponse, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B statusCode(StatusCode value) {
             getBuildingInstance().setStatusCode(value);

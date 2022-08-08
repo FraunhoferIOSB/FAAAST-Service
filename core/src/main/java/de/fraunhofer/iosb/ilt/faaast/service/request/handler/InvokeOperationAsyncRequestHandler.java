@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
+public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfaceRequestHandler<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvokeOperationAsyncRequestHandler.class);
 
@@ -61,9 +61,9 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
 
 
     @Override
-    public InvokeOperationAsyncResponse process(InvokeOperationAsyncRequest request) throws ResourceNotFoundException, ValueMappingException, MessageBusException, Exception {
+    public InvokeOperationAsyncResponse doProcess(InvokeOperationAsyncRequest request) throws ResourceNotFoundException, ValueMappingException, MessageBusException, Exception {
         InvokeOperationAsyncResponse response = new InvokeOperationAsyncResponse();
-        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
         OperationHandle operationHandle = executeOperationAsync(reference, request);
         response.setPayload(operationHandle);
         response.setStatusCode(StatusCode.SUCCESS);
@@ -97,7 +97,6 @@ public class InvokeOperationAsyncRequestHandler extends RequestHandler<InvokeOpe
                 operationResult.setExecutionState(ExecutionState.COMPLETED);
                 operationResult.setOutputArguments(Arrays.asList(x));
                 operationResult.setInoutputArguments(Arrays.asList(y));
-
                 persistence.putOperationContext(operationHandle.getHandleId(), operationHandle.getRequestId(), operationResult);
                 messageBus.publish(OperationFinishEventMessage.builder()
                         .element(reference)

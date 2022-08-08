@@ -21,32 +21,27 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetConceptDescriptionByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-PUT-Request path: concept-descriptions/{cdIdentifier}
  */
-public class GetConceptDescriptionByIdRequestMapper extends RequestMapper {
+public class GetConceptDescriptionByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^concept-descriptions/(.*)$";
+    private static final String CONCEPT_ID = RegExHelper.uniqueGroupName();
+    private static final String PATTERN = String.format("concept-descriptions/(?<%s>.*)", CONCEPT_ID);
 
     public GetConceptDescriptionByIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return GetConceptDescriptionByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(CONCEPT_ID))))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

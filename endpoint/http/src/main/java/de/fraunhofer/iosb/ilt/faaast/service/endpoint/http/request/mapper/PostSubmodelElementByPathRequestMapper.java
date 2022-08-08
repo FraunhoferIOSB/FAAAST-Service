@@ -18,41 +18,38 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
+import java.util.Map;
 
 
 /**
- * class to map HTTP-POST-Request path:
+ * class to map HTTP-POST-Request paths:
  * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+ * <br>
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
  */
-public class PostSubmodelElementByPathRequestMapper extends RequestMapper {
+public class PostSubmodelElementByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PostSubmodelElementByPathRequest, PostSubmodelElementByPathResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
-    private static final String PATTERN = "^submodels/(.*?)/submodel/submodel-elements/(.*)$";
+    private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
+    private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);
 
     public PostSubmodelElementByPathRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.POST, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public PostSubmodelElementByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         return PostSubmodelElementByPathRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
-                .path(ElementPathHelper.toKeys(EncodingHelper.urlDecode(httpRequest.getPathElements().get(4))))
+                .path(ElementPathHelper.toKeys(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH))))
                 .submodelElement(parseBody(httpRequest, SubmodelElement.class))
                 .build();
     }
 
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
-    }
 }

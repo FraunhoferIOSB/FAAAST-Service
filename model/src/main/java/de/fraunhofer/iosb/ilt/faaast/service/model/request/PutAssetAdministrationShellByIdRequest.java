@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetAdministrationShellByIdResponse;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.Identifier;
@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Chapter 6.2.7
  */
-public class PutAssetAdministrationShellByIdRequest extends BaseRequest<PutAssetAdministrationShellByIdResponse> {
+public class PutAssetAdministrationShellByIdRequest implements Request<PutAssetAdministrationShellByIdResponse> {
 
     private Identifier id;
     private AssetAdministrationShell aas;

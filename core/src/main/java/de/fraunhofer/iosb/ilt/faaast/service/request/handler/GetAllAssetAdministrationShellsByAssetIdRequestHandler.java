@@ -45,7 +45,7 @@ import java.util.List;
  * corresponding events to the message bus.
  */
 public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
-        extends RequestHandler<GetAllAssetAdministrationShellsByAssetIdRequest, GetAllAssetAdministrationShellsByAssetIdResponse> {
+        extends AbstractRequestHandler<GetAllAssetAdministrationShellsByAssetIdRequest, GetAllAssetAdministrationShellsByAssetIdResponse> {
 
     public GetAllAssetAdministrationShellsByAssetIdRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

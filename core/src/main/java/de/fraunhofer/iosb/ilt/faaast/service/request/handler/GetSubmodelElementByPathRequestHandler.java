@@ -45,7 +45,7 @@ import java.util.Optional;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSubmodelElementByPathRequest, GetSubmodelElementByPathResponse> {
+public class GetSubmodelElementByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<GetSubmodelElementByPathRequest, GetSubmodelElementByPathResponse> {
 
     public GetSubmodelElementByPathRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
@@ -53,12 +53,11 @@ public class GetSubmodelElementByPathRequestHandler extends RequestHandler<GetSu
 
 
     @Override
-    public GetSubmodelElementByPathResponse process(GetSubmodelElementByPathRequest request)
+    public GetSubmodelElementByPathResponse doProcess(GetSubmodelElementByPathRequest request)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException {
         GetSubmodelElementByPathResponse response = new GetSubmodelElementByPathResponse();
-        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
         SubmodelElement submodelElement = persistence.get(reference, request.getOutputModifier());
-
         Optional<DataElementValue> valueFromAssetConnection = assetConnectionManager.readValue(reference);
         if (valueFromAssetConnection.isPresent()) {
             ElementValue oldValue = ElementValueMapper.toValue(submodelElement);

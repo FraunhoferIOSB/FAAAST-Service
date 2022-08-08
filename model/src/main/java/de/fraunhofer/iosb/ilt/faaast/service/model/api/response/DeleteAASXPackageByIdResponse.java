@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
  * Chapter 4.5.6
  */
-public class DeleteAASXPackageByIdResponse extends BaseResponse {
+public class DeleteAASXPackageByIdResponse extends AbstractResponse {
 
     public static DeleteAASXPackageByIdResponse.Builder builder() {
         return new DeleteAASXPackageByIdResponse.Builder();

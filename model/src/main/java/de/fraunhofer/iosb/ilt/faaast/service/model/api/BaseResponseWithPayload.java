@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * Abstract base class for protocol-agnostic responses containing payload.
  */
-public abstract class BaseResponseWithPayload<T> extends BaseResponse {
+public abstract class BaseResponseWithPayload<T> extends AbstractResponse {
 
     protected T payload;
     protected MediaType contentType = MediaType.ANY_TYPE;
@@ -69,7 +69,7 @@ public abstract class BaseResponseWithPayload<T> extends BaseResponse {
         this.contentType = contentType;
     }
 
-    public abstract static class AbstractBuilder<T, R extends BaseResponseWithPayload<T>, B extends AbstractBuilder<T, R, B>> extends BaseResponse.AbstractBuilder<R, B> {
+    public abstract static class AbstractBuilder<T, R extends BaseResponseWithPayload<T>, B extends AbstractBuilder<T, R, B>> extends AbstractResponse.AbstractBuilder<R, B> {
 
         public B payload(T value) {
             getBuildingInstance().setPayload(value);

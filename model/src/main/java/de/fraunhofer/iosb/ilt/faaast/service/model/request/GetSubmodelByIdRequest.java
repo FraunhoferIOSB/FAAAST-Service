@@ -22,9 +22,14 @@ import java.util.Objects;
 /**
  * Chapter 6.3.3
  */
-public class GetSubmodelByIdRequest extends AbstractGetSubmodelRequest<GetSubmodelByIdResponse> {
+public class GetSubmodelByIdRequest extends AbstractRequestWithModifier<GetSubmodelByIdResponse> {
 
     private Identifier id;
+
+    public GetSubmodelByIdRequest() {
+        super(OutputModifierConstraints.SUBMODEL);
+    }
+
 
     public Identifier getId() {
         return id;
@@ -60,7 +65,7 @@ public class GetSubmodelByIdRequest extends AbstractGetSubmodelRequest<GetSubmod
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetSubmodelByIdRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetSubmodelByIdRequest, B extends AbstractBuilder<T, B>> extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
         public B id(Identifier value) {
             getBuildingInstance().setId(value);

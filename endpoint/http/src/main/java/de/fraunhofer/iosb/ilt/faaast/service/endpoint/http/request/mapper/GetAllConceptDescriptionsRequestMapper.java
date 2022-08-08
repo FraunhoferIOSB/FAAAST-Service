@@ -20,39 +20,32 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-GET-Request path: concept-descriptions
  */
-public class GetAllConceptDescriptionsRequestMapper extends RequestMapperWithOutputModifier<GetAllConceptDescriptionsRequest, GetAllConceptDescriptionsResponse> {
+public class GetAllConceptDescriptionsRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllConceptDescriptionsRequest, GetAllConceptDescriptionsResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^concept-descriptions$";
-    private static final String QUERYPARAM1 = "idShort";
-    private static final String QUERYPARAM2 = "isCaseOf";
-    private static final String QUERYPARAM3 = "dataSpecificationRef";
+    private static final String PATTERN = "concept-descriptions";
 
     public GetAllConceptDescriptionsRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
-    }
-
-
-    @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
-        return GetAllConceptDescriptionsRequest.builder()
-                .outputModifier(outputModifier)
-                .build();
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && !httpRequest.getQueryParameters().containsKey(QUERYPARAM1)
-                && !httpRequest.getQueryParameters().containsKey(QUERYPARAM2)
-                && !httpRequest.getQueryParameters().containsKey(QUERYPARAM3);
+        return super.matches(httpRequest)
+                && !httpRequest.hasQueryParameter(QueryParameters.ID_SHORT)
+                && !httpRequest.hasQueryParameter(QueryParameters.IS_CASE_OF)
+                && !httpRequest.hasQueryParameter(QueryParameters.DATA_SPECIFICATION_REF);
+    }
+
+
+    @Override
+    public GetAllConceptDescriptionsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+        return GetAllConceptDescriptionsRequest.builder().build();
     }
 }

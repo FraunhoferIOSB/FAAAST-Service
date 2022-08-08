@@ -577,7 +577,7 @@ public class RequestHandlerManagerTest {
         when(persistence.get(environment.getSubmodels().get(0).getIdentification(), new OutputModifier()))
                 .thenReturn(environment.getSubmodels().get(0));
         GetSubmodelRequest request = new GetSubmodelRequest.Builder()
-                .id(environment.getSubmodels().get(0).getIdentification())
+                .submodelId(environment.getSubmodels().get(0).getIdentification())
                 .outputModifier(new OutputModifier())
                 .build();
         GetSubmodelResponse actual = manager.execute(request);
@@ -594,7 +594,7 @@ public class RequestHandlerManagerTest {
         when(persistence.put(environment.getSubmodels().get(0)))
                 .thenReturn(environment.getSubmodels().get(0));
         PutSubmodelRequest request = new PutSubmodelRequest.Builder()
-                .id(environment.getSubmodels().get(0).getIdentification())
+                .submodelId(environment.getSubmodels().get(0).getIdentification())
                 .submodel(environment.getSubmodels().get(0))
                 .outputModifier(new OutputModifier())
                 .submodel(environment.getSubmodels().get(0))
@@ -614,7 +614,7 @@ public class RequestHandlerManagerTest {
         when(persistence.getSubmodelElements(reference, (Reference) null, new OutputModifier()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements());
         GetAllSubmodelElementsRequest request = new GetAllSubmodelElementsRequest.Builder()
-                .id(environment.getSubmodels().get(0).getIdentification())
+                .submodelId(environment.getSubmodels().get(0).getIdentification())
                 .outputModifier(new OutputModifier())
                 .build();
         GetAllSubmodelElementsResponse actual = manager.execute(request);
@@ -632,7 +632,7 @@ public class RequestHandlerManagerTest {
         when(persistence.put(reference, (Reference) null, environment.getSubmodels().get(0).getSubmodelElements().get(0)))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         PostSubmodelElementRequest request = new PostSubmodelElementRequest.Builder()
-                .id(environment.getSubmodels().get(0).getIdentification())
+                .submodelId(environment.getSubmodels().get(0).getIdentification())
                 .submodelElement(environment.getSubmodels().get(0).getSubmodelElements().get(0))
                 .build();
         PostSubmodelElementResponse actual = manager.execute(request);
@@ -658,7 +658,7 @@ public class RequestHandlerManagerTest {
         when(assetValueProvider.getValue()).thenReturn(propertyValue);
 
         GetSubmodelElementByPathRequest request = new GetSubmodelElementByPathRequest.Builder()
-                .id(submodel.getIdentification())
+                .submodelId(submodel.getIdentification())
                 .outputModifier(new OutputModifier())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
@@ -682,7 +682,7 @@ public class RequestHandlerManagerTest {
         when(persistence.put(any(), argThat((Reference t) -> true), any()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         PostSubmodelElementByPathRequest request = new PostSubmodelElementByPathRequest.Builder()
-                .id(environment.getSubmodels().get(0).getIdentification())
+                .submodelId(environment.getSubmodels().get(0).getIdentification())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
         PostSubmodelElementByPathResponse actual = manager.execute(request);
@@ -713,7 +713,7 @@ public class RequestHandlerManagerTest {
         when(assetConnectionManager.hasValueProvider(any())).thenReturn(true);
 
         PutSubmodelElementByPathRequest request = new PutSubmodelElementByPathRequest.Builder()
-                .id(environment.getSubmodels().get(0).getIdentification())
+                .submodelId(environment.getSubmodels().get(0).getIdentification())
                 .submodelElement(newSubmodelElement)
                 .build();
         PutSubmodelElementByPathResponse actual = manager.execute(request);
@@ -735,7 +735,7 @@ public class RequestHandlerManagerTest {
                 .value(new StringValue("Test"))
                 .build();
         SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest.Builder<ElementValue>()
-                .id(environment.getSubmodels().get(0).getIdentification())
+                .submodelId(environment.getSubmodels().get(0).getIdentification())
                 .value(propertyValue)
                 .valueParser(new ElementValueParser<ElementValue>() {
                     @Override
@@ -764,7 +764,7 @@ public class RequestHandlerManagerTest {
         when(persistence.get(reference, new QueryModifier()))
                 .thenReturn(environment.getSubmodels().get(0).getSubmodelElements().get(0));
         DeleteSubmodelElementByPathRequest request = new DeleteSubmodelElementByPathRequest.Builder()
-                .id(submodel.getIdentification())
+                .submodelId(submodel.getIdentification())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
                 .build();
         DeleteSubmodelElementByPathResponse actual = manager.execute(request);
@@ -821,7 +821,7 @@ public class RequestHandlerManagerTest {
 
         InvokeOperationAsyncRequest invokeOperationAsyncRequest = new InvokeOperationAsyncRequest.Builder()
                 .requestId("1")
-                .id(new DefaultIdentifier.Builder()
+                .submodelId(new DefaultIdentifier.Builder()
                         .idType(IdentifierType.IRI)
                         .identifier("http://example.org")
                         .build())
@@ -851,7 +851,7 @@ public class RequestHandlerManagerTest {
                 .requestId("1")
                 .inoutputArguments(operation.getInoutputVariables())
                 .inputArguments(operation.getInputVariables())
-                .id(new DefaultIdentifier.Builder()
+                .submodelId(new DefaultIdentifier.Builder()
                         .idType(IdentifierType.IRI)
                         .identifier("http://example.org")
                         .build())
@@ -1094,7 +1094,7 @@ public class RequestHandlerManagerTest {
                         .type(KeyElements.PROPERTY)
                         .idType(KeyType.ID_SHORT)
                         .build()))
-                .id(new DefaultIdentifier.Builder().identifier("test").idType(IdentifierType.IRI).build())
+                .submodelId(new DefaultIdentifier.Builder().identifier("test").idType(IdentifierType.IRI).build())
                 .build();
     }
 
@@ -1114,7 +1114,7 @@ public class RequestHandlerManagerTest {
 
     @Test
     public void testReadValueFromAssetConnectionAndUpdatePersistence() throws AssetConnectionException, ResourceNotFoundException, ValueMappingException, MessageBusException {
-        RequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(persistence, messageBus, assetConnectionManager);
+        AbstractRequestHandler requestHandler = new DeleteSubmodelByIdRequestHandler(persistence, messageBus, assetConnectionManager);
         Reference parentRef = new DefaultReference.Builder()
                 .key(new DefaultKey.Builder()
                         .value("sub")

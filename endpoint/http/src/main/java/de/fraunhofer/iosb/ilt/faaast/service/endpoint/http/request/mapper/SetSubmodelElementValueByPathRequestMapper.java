@@ -16,9 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -28,36 +31,46 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ElementPathHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
 /**
  * class to map HTTP-PUT-Request path:
  * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+ * <br>
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
  */
-public class SetSubmodelElementValueByPathRequestMapper extends RequestMapper {
+public class SetSubmodelElementValueByPathRequestMapper
+        extends AbstractSubmodelInterfaceRequestMapper<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
-    private static final String PATTERN = "^submodels/(.*?)/submodel/submodel-elements/(.*)$";
-    private static final String QUERYPARAM1 = "content";
-    private static final String QUERYVALUE1 = "value";
+    private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
+    private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);
 
     public SetSubmodelElementValueByPathRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.PUT, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
-        final List<Key> path = ElementPathHelper.toKeys(EncodingHelper.urlDecode(httpRequest.getPathElements().get(4)));
-        final Identifier identifier = IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1)));
+    public boolean matches(HttpRequest httpRequest) {
+        return super.matches(httpRequest)
+                && httpRequest.hasQueryParameter(QueryParameters.CONTENT)
+                && Objects.equals(httpRequest.getQueryParameter(QueryParameters.CONTENT), Content.VALUE.name().toLowerCase());
+    }
+
+
+    @Override
+    public SetSubmodelElementValueByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
+        final List<Key> path = ElementPathHelper.toKeys(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)));
+        final Identifier identifier = IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID)));
         return SetSubmodelElementValueByPathRequest.builder()
-                .id(identifier)
                 .path(path)
                 .value(httpRequest.getBody())
                 .valueParser(new ElementValueParser<Object>() {
@@ -83,11 +96,4 @@ public class SetSubmodelElementValueByPathRequestMapper extends RequestMapper {
                 .build();
     }
 
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && (httpRequest.getQueryParameters().containsKey(QUERYPARAM1) && Objects.equals(httpRequest.getQueryParameters().get(QUERYPARAM1), QUERYVALUE1));
-    }
 }

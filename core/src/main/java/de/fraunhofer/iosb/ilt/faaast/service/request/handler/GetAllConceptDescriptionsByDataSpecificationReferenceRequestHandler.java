@@ -36,7 +36,7 @@ import java.util.List;
  * corresponding events to the message bus.
  */
 public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestHandler
-        extends RequestHandler<GetAllConceptDescriptionsByDataSpecificationReferenceRequest, GetAllConceptDescriptionsByDataSpecificationReferenceResponse> {
+        extends AbstractRequestHandler<GetAllConceptDescriptionsByDataSpecificationReferenceRequest, GetAllConceptDescriptionsByDataSpecificationReferenceResponse> {
 
     public GetAllConceptDescriptionsByDataSpecificationReferenceRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

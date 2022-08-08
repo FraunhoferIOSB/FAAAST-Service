@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutConceptDescriptionByIdResponse;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.Identifier;
@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Chapter 6.4.8
  */
-public class PutConceptDescriptionByIdRequest extends BaseRequest<PutConceptDescriptionByIdResponse> {
+public class PutConceptDescriptionByIdRequest implements Request<PutConceptDescriptionByIdResponse> {
 
     private Identifier id;
     private ConceptDescription conceptDescription;

@@ -20,32 +20,27 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAASXByPackageIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-GET-Request path: packages/{packageId}
  */
-public class GetAASXByPackageIdRequestMapper extends RequestMapper {
+public class GetAASXByPackageIdRequestMapper extends AbstractRequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^packages/(.*)$";
+    private static final String PACKAGE_ID = RegExHelper.uniqueGroupName();
+    private static final String PATTERN = String.format("packages/(?<%s>.*)", PACKAGE_ID);
 
     public GetAASXByPackageIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return GetAASXByPackageIdRequest.builder()
-                .packageId(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1)))
+                .packageId(EncodingHelper.base64Decode(urlParameters.get(PACKAGE_ID)))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

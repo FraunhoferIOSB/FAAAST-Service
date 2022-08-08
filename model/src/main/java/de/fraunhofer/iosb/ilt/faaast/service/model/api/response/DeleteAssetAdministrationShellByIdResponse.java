@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
  * Chapter 6.2.8
  */
-public class DeleteAssetAdministrationShellByIdResponse extends BaseResponse {
+public class DeleteAssetAdministrationShellByIdResponse extends AbstractResponse {
 
     public static DeleteAssetAdministrationShellByIdResponse.Builder builder() {
         return new DeleteAssetAdministrationShellByIdResponse.Builder();

@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteSubmodelByIdResponse;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Chapter 6.3.8
  */
-public class DeleteSubmodelByIdRequest extends BaseRequest<DeleteSubmodelByIdResponse> {
+public class DeleteSubmodelByIdRequest implements Request<DeleteSubmodelByIdResponse> {
 
     private Identifier id;
 

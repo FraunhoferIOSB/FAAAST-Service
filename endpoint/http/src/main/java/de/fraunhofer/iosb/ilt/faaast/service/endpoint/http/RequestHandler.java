@@ -29,7 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -218,8 +218,8 @@ public class RequestHandler extends AbstractHandler {
         else if (BaseResponseWithPayload.class.isAssignableFrom(apiResponse.getClass())) {
             try {
                 Object payload = ((BaseResponseWithPayload) apiResponse).getPayload();
-                if (RequestWithModifier.class.isAssignableFrom(apiRequest.getClass())) {
-                    sendJson(response, statusCode, serializer.write(payload, ((RequestWithModifier) apiRequest).getOutputModifier()));
+                if (AbstractRequestWithModifier.class.isAssignableFrom(apiRequest.getClass())) {
+                    sendJson(response, statusCode, serializer.write(payload, ((AbstractRequestWithModifier) apiRequest).getOutputModifier()));
                 }
                 else {
                     sendJson(response, statusCode, serializer.write(((BaseResponseWithPayload) apiResponse).getPayload()));

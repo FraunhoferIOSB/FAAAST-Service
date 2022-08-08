@@ -20,36 +20,29 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAssetAdministrationShellRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-GET-Request path: shells/{aasIdentifier}/aas
  */
-public class GetAssetAdministrationShellRequestMapper extends RequestMapperWithOutputModifier<GetAssetAdministrationShellRequest, GetAssetAdministrationShellResponse> {
+public class GetAssetAdministrationShellRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAssetAdministrationShellRequest, GetAssetAdministrationShellResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^shells/(.*)/aas$";
+    private static final String AAS_ID = RegExHelper.uniqueGroupName();
+    private static final String PATTERN = String.format("shells/(?<%s>.*)/aas", AAS_ID);
 
     public GetAssetAdministrationShellRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+    public GetAssetAdministrationShellRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAssetAdministrationShellRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
-                .outputModifier(outputModifier)
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(AAS_ID))))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

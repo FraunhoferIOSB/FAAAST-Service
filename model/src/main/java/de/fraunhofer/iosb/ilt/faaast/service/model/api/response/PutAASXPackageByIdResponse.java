@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
  * Chapter 4.5.5
  */
-public class PutAASXPackageByIdResponse extends BaseResponse {
+public class PutAASXPackageByIdResponse extends AbstractResponse {
 
     public static PutAASXPackageByIdResponse.Builder builder() {
         return new PutAASXPackageByIdResponse.Builder();

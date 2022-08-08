@@ -20,36 +20,29 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetSubmodelByIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-GET-Request path: submodels{submodelIdentifier}
  */
-public class GetSubmodelByIdRequestMapper extends RequestMapperWithOutputModifier<GetSubmodelByIdRequest, GetSubmodelByIdResponse> {
+public class GetSubmodelByIdRequestMapper extends AbstractRequestMapperWithOutputModifier<GetSubmodelByIdRequest, GetSubmodelByIdResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "(?!.*/submodel)^submodels/(.*)";
+    private static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
+    private static final String PATTERN = String.format("(?!.*/submodel)submodels/(?<%s>.*)", SUBMODEL_ID);
 
     public GetSubmodelByIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+    public GetSubmodelByIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetSubmodelByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
-                .outputModifier(outputModifier)
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

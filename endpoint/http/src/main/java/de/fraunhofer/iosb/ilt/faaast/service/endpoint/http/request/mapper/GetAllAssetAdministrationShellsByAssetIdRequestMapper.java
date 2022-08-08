@@ -22,45 +22,42 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByAssetIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsByAssetIdRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-GET-Request path: shells
  */
 public class GetAllAssetAdministrationShellsByAssetIdRequestMapper
-        extends RequestMapperWithOutputModifier<GetAllAssetAdministrationShellsByAssetIdRequest, GetAllAssetAdministrationShellsByAssetIdResponse> {
+        extends AbstractRequestMapperWithOutputModifier<GetAllAssetAdministrationShellsByAssetIdRequest, GetAllAssetAdministrationShellsByAssetIdResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^shells$";
-    private static final String QUERYPARAM = "assetIds";
+    private static final String PATTERN = "shells";
 
     public GetAllAssetAdministrationShellsByAssetIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
-    }
-
-
-    @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) throws InvalidRequestException {
-        try {
-            return GetAllAssetAdministrationShellsByAssetIdRequest.builder()
-                    .assetIds(deserializer.readList(EncodingHelper.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM)),
-                            IdentifierKeyValuePair.class))
-                    .outputModifier(outputModifier)
-                    .build();
-        }
-        catch (DeserializationException e) {
-            throw new InvalidRequestException(String.format("error deserializing %s", QUERYPARAM), e);
-        }
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
     public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && httpRequest.getQueryParameters().containsKey(QUERYPARAM);
+        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.ASSET_IDS);
+    }
+
+
+    @Override
+    public GetAllAssetAdministrationShellsByAssetIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier)
+            throws InvalidRequestException {
+        try {
+            return GetAllAssetAdministrationShellsByAssetIdRequest.builder()
+                    .assetIds(deserializer.readList(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QueryParameters.ASSET_IDS)),
+                            IdentifierKeyValuePair.class))
+                    .build();
+        }
+        catch (DeserializationException e) {
+            throw new InvalidRequestException(
+                    String.format("error deserializing %s (value: %s)", QueryParameters.ASSET_IDS, httpRequest.getQueryParameter(QueryParameters.ASSET_IDS)), e);
+        }
     }
 }

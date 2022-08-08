@@ -40,7 +40,7 @@ import io.adminshell.aas.v3.model.SubmodelElement;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class PostSubmodelElementByPathRequestHandler extends RequestHandler<PostSubmodelElementByPathRequest, PostSubmodelElementByPathResponse> {
+public class PostSubmodelElementByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PostSubmodelElementByPathRequest, PostSubmodelElementByPathResponse> {
 
     public PostSubmodelElementByPathRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
@@ -48,9 +48,9 @@ public class PostSubmodelElementByPathRequestHandler extends RequestHandler<Post
 
 
     @Override
-    public PostSubmodelElementByPathResponse process(PostSubmodelElementByPathRequest request) throws ResourceNotFoundException, ValueMappingException, Exception {
+    public PostSubmodelElementByPathResponse doProcess(PostSubmodelElementByPathRequest request) throws ResourceNotFoundException, ValueMappingException, Exception {
         PostSubmodelElementByPathResponse response = new PostSubmodelElementByPathResponse();
-        Reference parentReference = ReferenceHelper.toReference(request.getId(), Submodel.class);
+        Reference parentReference = ReferenceHelper.toReference(request.getSubmodelId(), Submodel.class);
         Reference childReference = AasUtils.toReference(parentReference, request.getSubmodelElement());
         SubmodelElement submodelElement = persistence.put(parentReference, null, request.getSubmodelElement());
         response.setPayload(submodelElement);

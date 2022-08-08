@@ -21,9 +21,14 @@ import java.util.Objects;
 /**
  * Chapter 6.3.5
  */
-public class GetAllSubmodelsByIdShortRequest extends AbstractGetSubmodelRequest<GetAllSubmodelsByIdShortResponse> {
+public class GetAllSubmodelsByIdShortRequest extends AbstractRequestWithModifier<GetAllSubmodelsByIdShortResponse> {
 
     private String idShort;
+
+    public GetAllSubmodelsByIdShortRequest() {
+        super(OutputModifierConstraints.SUBMODEL);
+    }
+
 
     public String getIdShort() {
         return idShort;
@@ -59,7 +64,8 @@ public class GetAllSubmodelsByIdShortRequest extends AbstractGetSubmodelRequest<
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetAllSubmodelsByIdShortRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetAllSubmodelsByIdShortRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
         public B idShort(String value) {
             getBuildingInstance().setIdShort(value);

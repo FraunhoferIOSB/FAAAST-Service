@@ -22,34 +22,29 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import io.adminshell.aas.v3.model.Submodel;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-PUT-Request path: submodels/{submodelIdentifier}
  */
-public class PutSubmodelByIdRequestMapper extends RequestMapper {
+public class PutSubmodelByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
-    private static final String PATTERN = "(?!.*/submodel)^submodels/(.*)$";
+    private static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
+    private static final String PATTERN = String.format("(?!.*/submodel)submodels/(?<%s>.*)", SUBMODEL_ID);
 
     public PutSubmodelByIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.PUT, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PutSubmodelByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
                 .submodel(parseBody(httpRequest, Submodel.class))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }
