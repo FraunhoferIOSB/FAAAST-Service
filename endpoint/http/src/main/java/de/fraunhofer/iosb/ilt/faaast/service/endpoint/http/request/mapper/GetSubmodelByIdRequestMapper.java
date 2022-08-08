@@ -32,7 +32,7 @@ import java.util.Map;
 public class GetSubmodelByIdRequestMapper extends AbstractRequestMapperWithOutputModifier<GetSubmodelByIdRequest, GetSubmodelByIdResponse> {
 
     private static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("(?!.*/submodel)submodels/(?<%s>.*)", SUBMODEL_ID);
+    private static final String PATTERN = String.format("(?!.*/submodel)submodels/%s", pathElement(SUBMODEL_ID));
 
     public GetSubmodelByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);

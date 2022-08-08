@@ -39,8 +39,8 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestMapper
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.IS_CASE_OF);
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.IS_CASE_OF);
     }
 
 

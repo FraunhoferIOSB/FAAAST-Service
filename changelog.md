@@ -16,6 +16,7 @@
 	*   API: `SubmodelInterface` calls now also available in combination with `Asset Administration Shell Interface`, e.g. /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
 	*   Support for output modifier `content=path`
 	*   CORS support, can be enabled by setting `isCorsEnabled=true` in config (default: false)
+	*   now returns status code 405 Method Not Allowed if URL is correct but requested method is not supported
 
 *   Support for `valueType=DateTime`
 

@@ -549,8 +549,17 @@ public class HttpEndpointTest {
 
     @Test
     public void testResultBadRequest() throws Exception {
-        Result expected = Result.error("no matching request mapper found");
+        Result expected = Result.error("no matching request mapper found for URL 'shellsX'");
         ContentResponse response = execute(HttpMethod.GET, "/shellsX/");
+        Result actual = deserializer.read(new String(response.getContent()), Result.class);
+        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+    }
+
+
+    @Test
+    public void testMethodNotAllowed() throws Exception {
+        Result expected = Result.error("method 'PUT' not allowed for URL 'shells' (allowed methods: GET, POST)");
+        ContentResponse response = execute(HttpMethod.PUT, "/shells");
         Result actual = deserializer.read(new String(response.getContent()), Result.class);
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
     }

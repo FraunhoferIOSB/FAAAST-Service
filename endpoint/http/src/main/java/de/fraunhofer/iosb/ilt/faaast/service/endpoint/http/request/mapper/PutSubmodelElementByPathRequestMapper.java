@@ -37,7 +37,7 @@ import java.util.Map;
 public class PutSubmodelElementByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PutSubmodelElementByPathRequest, PutSubmodelElementByPathResponse> {
 
     private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);
+    private static final String PATTERN = String.format("submodel-elements/%s", pathElement(SUBMODEL_ELEMENT_PATH));
 
     public PutSubmodelElementByPathRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.PUT, PATTERN);
@@ -45,8 +45,8 @@ public class PutSubmodelElementByPathRequestMapper extends AbstractSubmodelInter
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && !httpRequest.hasQueryParameter(QueryParameters.CONTENT);
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) && !httpRequest.hasQueryParameter(QueryParameters.CONTENT);
     }
 
 

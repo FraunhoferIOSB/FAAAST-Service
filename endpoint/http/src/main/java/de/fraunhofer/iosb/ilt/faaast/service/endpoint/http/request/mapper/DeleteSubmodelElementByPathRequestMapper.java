@@ -36,7 +36,7 @@ import java.util.Map;
 public class DeleteSubmodelElementByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<DeleteSubmodelElementByPathRequest, DeleteSubmodelElementByPathResponse> {
 
     private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);
+    private static final String PATTERN = String.format("submodel-elements/%s", pathElement(SUBMODEL_ELEMENT_PATH));
 
     public DeleteSubmodelElementByPathRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.DELETE, PATTERN);

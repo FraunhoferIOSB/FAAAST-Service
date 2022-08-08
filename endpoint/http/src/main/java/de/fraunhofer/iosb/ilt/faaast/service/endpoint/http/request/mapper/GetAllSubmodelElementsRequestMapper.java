@@ -39,8 +39,8 @@ public class GetAllSubmodelElementsRequestMapper extends AbstractSubmodelInterfa
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && !httpRequest.hasQueryParameter(QueryParameters.PARENT_PATH);
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) && !httpRequest.hasQueryParameter(QueryParameters.PARENT_PATH);
     }
 
 

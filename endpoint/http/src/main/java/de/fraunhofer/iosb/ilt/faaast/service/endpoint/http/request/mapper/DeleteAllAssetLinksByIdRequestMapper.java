@@ -31,7 +31,7 @@ import java.util.Map;
 public class DeleteAllAssetLinksByIdRequestMapper extends AbstractRequestMapper {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("lookup/shells/(?<%s>.*)", AAS_ID);
+    private static final String PATTERN = String.format("lookup/shells/%s", pathElement(AAS_ID));
 
     public DeleteAllAssetLinksByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.DELETE, PATTERN);

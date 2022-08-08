@@ -37,7 +37,7 @@ import java.util.Map;
 public class PostSubmodelElementByPathRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PostSubmodelElementByPathRequest, PostSubmodelElementByPathResponse> {
 
     private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);
+    private static final String PATTERN = String.format("submodel-elements/%s", pathElement(SUBMODEL_ELEMENT_PATH));
 
     public PostSubmodelElementByPathRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.POST, PATTERN);

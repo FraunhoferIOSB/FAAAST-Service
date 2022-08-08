@@ -33,7 +33,7 @@ import java.util.Map;
 public class PutSubmodelByIdRequestMapper extends AbstractRequestMapper {
 
     private static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("(?!.*/submodel)submodels/(?<%s>.*)", SUBMODEL_ID);
+    private static final String PATTERN = String.format("(?!.*/submodel)submodels/%s", pathElement(SUBMODEL_ID));
 
     public PutSubmodelByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.PUT, PATTERN);

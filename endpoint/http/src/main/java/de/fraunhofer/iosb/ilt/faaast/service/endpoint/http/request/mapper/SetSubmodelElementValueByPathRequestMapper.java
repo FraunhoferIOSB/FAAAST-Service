@@ -51,7 +51,7 @@ public class SetSubmodelElementValueByPathRequestMapper
         extends AbstractSubmodelInterfaceRequestMapper<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {
 
     private static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("submodel-elements/(?<%s>.*)", SUBMODEL_ELEMENT_PATH);
+    private static final String PATTERN = String.format("submodel-elements/%s", pathElement(SUBMODEL_ELEMENT_PATH));
 
     public SetSubmodelElementValueByPathRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.PUT, PATTERN);
@@ -59,8 +59,8 @@ public class SetSubmodelElementValueByPathRequestMapper
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest)
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest)
                 && httpRequest.hasQueryParameter(QueryParameters.CONTENT)
                 && Objects.equals(httpRequest.getQueryParameter(QueryParameters.CONTENT), Content.VALUE.name().toLowerCase());
     }

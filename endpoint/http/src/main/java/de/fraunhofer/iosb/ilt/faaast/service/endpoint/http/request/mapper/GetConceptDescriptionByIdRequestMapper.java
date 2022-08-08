@@ -31,7 +31,7 @@ import java.util.Map;
 public class GetConceptDescriptionByIdRequestMapper extends AbstractRequestMapper {
 
     private static final String CONCEPT_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("concept-descriptions/(?<%s>.*)", CONCEPT_ID);
+    private static final String PATTERN = String.format("concept-descriptions/%s", pathElement(CONCEPT_ID));
 
     public GetConceptDescriptionByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);

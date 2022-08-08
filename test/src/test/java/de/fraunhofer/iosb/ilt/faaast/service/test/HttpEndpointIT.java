@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.test;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
+import static de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.CLIENT_METHOD_NOT_ALLOWED;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.assertEvent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -1360,6 +1361,13 @@ public class HttpEndpointIT {
                                 expected,
                                 expected,
                                 Submodel.class)));
+    }
+
+
+    @Test
+    public void testMethodNotAllowed() throws Exception {
+        HttpResponse response = HttpHelper.execute(HttpMethod.PUT, API_PATHS.aasRepository().assetAdministrationShells());
+        Assert.assertEquals(toHttpStatusCode(CLIENT_METHOD_NOT_ALLOWED), response.statusCode());
     }
 
 

@@ -47,8 +47,8 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
 
     protected static final String AAS_ID = RegExHelper.uniqueGroupName();
     protected static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
-    protected static final String AAS_PATH_PATTERN = String.format("shells/(?<%s>.*?)/aas/", AAS_ID);
-    protected static final String SUBMODEL_PATH_PATTERN = String.format("submodels/(?<%s>.*?)/submodel", SUBMODEL_ID);
+    protected static final String AAS_PATH_PATTERN = String.format("shells/%s/aas/", pathElement(AAS_ID));
+    protected static final String SUBMODEL_PATH_PATTERN = String.format("submodels/%s/submodel", pathElement(SUBMODEL_ID));
     protected String contextualizedUrlPattern;
 
     /**
@@ -101,10 +101,8 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest)
-                || (httpRequest.getMethod().equals(method)
-                        && httpRequest.getPath().matches(contextualizedUrlPattern));
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) || httpRequest.getPath().matches(contextualizedUrlPattern);
     }
 
 
