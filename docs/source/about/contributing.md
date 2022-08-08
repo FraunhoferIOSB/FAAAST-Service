@@ -20,7 +20,7 @@ You can automatically format your code by running
 Additionally, you can import the eclipse formatting rules defined in _/codestyle_ into our IDE.
 
 ## Third Party License
-If you use additional dependencies please be sure that the licenses of these dependencies are compliant with our [License](#license). If you are not sure which license your dependencies have, you can run
+If you use additional dependencies please be sure that the licenses of these dependencies are compliant with our License. If you are not sure which license your dependencies have, you can run
 >mvn license:aggregate-third-party-report
 
 and check the generated report in the directory `docs/third_party_licenses_report.html`.
