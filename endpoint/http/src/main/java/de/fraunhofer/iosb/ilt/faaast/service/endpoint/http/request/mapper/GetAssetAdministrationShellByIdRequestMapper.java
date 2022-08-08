@@ -33,7 +33,7 @@ public class GetAssetAdministrationShellByIdRequestMapper
         extends AbstractRequestMapperWithOutputModifier<GetAssetAdministrationShellByIdRequest, GetAssetAdministrationShellByIdResponse> {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("(?!.*/aas)shells/(?<%s>.*?)", AAS_ID);
+    private static final String PATTERN = String.format("(?!.*/aas)shells/%s", pathElement(AAS_ID));
 
     public GetAssetAdministrationShellByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);
@@ -41,8 +41,8 @@ public class GetAssetAdministrationShellByIdRequestMapper
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.getPathElements().size() == 2;
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) && httpRequest.getPathElements().size() == 2;
     }
 
 

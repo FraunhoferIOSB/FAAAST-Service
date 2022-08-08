@@ -34,8 +34,7 @@ public class InvokeOperationSyncRequestMapper extends AbstractInvokeOperationReq
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest)
-                && !isAsync(httpRequest);
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) && !isAsync(httpRequest);
     }
 }

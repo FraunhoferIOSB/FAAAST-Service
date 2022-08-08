@@ -39,8 +39,8 @@ public class GetAllAASXPackageIdsRequestMapper extends AbstractRequestMapper {
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.AAS_ID);
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.AAS_ID);
     }
 
 

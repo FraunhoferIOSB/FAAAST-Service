@@ -32,7 +32,7 @@ import java.util.Map;
 public class GetAssetInformationRequestMapper extends AbstractRequestMapper {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/(?<%s>.*)/aas/asset-information", AAS_ID);
+    private static final String PATTERN = String.format("shells/%s/aas/asset-information", pathElement(AAS_ID));
 
     public GetAssetInformationRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);

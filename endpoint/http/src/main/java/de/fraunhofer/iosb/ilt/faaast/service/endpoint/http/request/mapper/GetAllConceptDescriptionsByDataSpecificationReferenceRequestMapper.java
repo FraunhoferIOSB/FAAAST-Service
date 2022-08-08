@@ -40,8 +40,8 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.DATA_SPECIFICATION_REF);
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.DATA_SPECIFICATION_REF);
     }
 
 

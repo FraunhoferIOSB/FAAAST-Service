@@ -19,6 +19,7 @@ import static org.eclipse.jetty.servlets.CrossOriginFilter.ACCESS_CONTROL_MAX_AG
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
@@ -90,7 +91,6 @@ public class RequestHandler extends AbstractHandler {
                 return;
             }
         }
-
         HttpRequest httpRequest = HttpRequest.builder()
                 .path(request.getRequestURI().replaceAll("/$", ""))
                 .query(request.getQueryString())
@@ -101,22 +101,21 @@ public class RequestHandler extends AbstractHandler {
                                 x -> x,
                                 x -> request.getHeader(x))))
                 .build();
-        de.fraunhofer.iosb.ilt.faaast.service.model.api.Request apiRequest = null;
         try {
-            apiRequest = mappingManager.map(httpRequest);
+            executeAndSend(response, mappingManager.map(httpRequest));
+        }
+        catch (MethodNotAllowedException e) {
+            sendError(response, StatusCode.CLIENT_METHOD_NOT_ALLOWED, e.getMessage());
         }
         catch (InvalidRequestException | IllegalArgumentException e) {
             sendError(response, StatusCode.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
-            baseRequest.setHandled(true);
-            return;
-        }
-        try {
-            executeAndSend(response, apiRequest);
         }
         catch (SerializationException e) {
             sendException(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
         }
-        baseRequest.setHandled(true);
+        finally {
+            baseRequest.setHandled(true);
+        }
     }
 
 

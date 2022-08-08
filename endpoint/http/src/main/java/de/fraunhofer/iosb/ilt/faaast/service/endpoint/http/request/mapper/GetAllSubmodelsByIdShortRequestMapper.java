@@ -36,8 +36,8 @@ public class GetAllSubmodelsByIdShortRequestMapper extends AbstractRequestMapper
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.ID_SHORT);
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.ID_SHORT);
     }
 
 

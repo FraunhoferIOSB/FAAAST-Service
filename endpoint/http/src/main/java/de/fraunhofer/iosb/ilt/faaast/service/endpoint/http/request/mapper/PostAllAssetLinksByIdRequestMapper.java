@@ -33,7 +33,7 @@ import java.util.Map;
 public class PostAllAssetLinksByIdRequestMapper extends AbstractRequestMapper {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("lookup/shells/(?<%s>.*)", AAS_ID);
+    private static final String PATTERN = String.format("lookup/shells/%s", pathElement(AAS_ID));
 
     public PostAllAssetLinksByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.POST, PATTERN);

@@ -34,8 +34,7 @@ public class InvokeOperationAsyncRequestMapper extends AbstractInvokeOperationRe
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest)
-                && isAsync(httpRequest);
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) && isAsync(httpRequest);
     }
 }

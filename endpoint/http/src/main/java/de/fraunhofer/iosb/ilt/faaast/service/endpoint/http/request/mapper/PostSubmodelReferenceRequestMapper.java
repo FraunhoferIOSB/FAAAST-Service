@@ -33,7 +33,7 @@ import java.util.Map;
 public class PostSubmodelReferenceRequestMapper extends AbstractRequestMapper {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/(?<%s>.*)/aas/submodels", AAS_ID);
+    private static final String PATTERN = String.format("shells/%s/aas/submodels", pathElement(AAS_ID));
 
     public PostSubmodelReferenceRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.POST, PATTERN);

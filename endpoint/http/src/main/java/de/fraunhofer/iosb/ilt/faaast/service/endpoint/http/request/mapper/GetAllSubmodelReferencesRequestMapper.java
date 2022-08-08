@@ -32,7 +32,7 @@ import java.util.Map;
 public class GetAllSubmodelReferencesRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllSubmodelReferencesRequest, GetAllSubmodelReferencesResponse> {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/(?<%s>.*)/aas/submodels", AAS_ID);
+    private static final String PATTERN = String.format("shells/%s/aas/submodels", pathElement(AAS_ID));
 
     public GetAllSubmodelReferencesRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);

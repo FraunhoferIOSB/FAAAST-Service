@@ -39,7 +39,9 @@ public class DeleteSubmodelReferenceRequestMapper extends AbstractRequestMapper 
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
     private static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("shells/(?<%s>.*)/aas/submodels/(?<%s>.*)", AAS_ID, SUBMODEL_ID);
+    private static final String PATTERN = String.format("shells/%s/aas/submodels/%s",
+            pathElement(AAS_ID),
+            pathElement(SUBMODEL_ID));
 
     public DeleteSubmodelReferenceRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.DELETE, PATTERN);

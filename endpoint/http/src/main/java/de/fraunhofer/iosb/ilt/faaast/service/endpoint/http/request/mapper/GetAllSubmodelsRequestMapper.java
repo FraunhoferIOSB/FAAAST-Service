@@ -36,8 +36,8 @@ public class GetAllSubmodelsRequestMapper extends AbstractRequestMapperWithOutpu
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest)
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest)
                 && !httpRequest.hasQueryParameter(QueryParameters.SEMANTIC_ID)
                 && !httpRequest.hasQueryParameter(QueryParameters.ID_SHORT);
     }

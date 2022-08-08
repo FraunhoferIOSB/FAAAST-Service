@@ -30,7 +30,7 @@ import java.util.Map;
 public class GetAASXByPackageIdRequestMapper extends AbstractRequestMapper {
 
     private static final String PACKAGE_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("packages/(?<%s>.*)", PACKAGE_ID);
+    private static final String PATTERN = String.format("packages/%s", pathElement(PACKAGE_ID));
 
     public GetAASXByPackageIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.GET, PATTERN);

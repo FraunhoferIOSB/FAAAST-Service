@@ -36,8 +36,8 @@ public class GetAllConceptDescriptionsRequestMapper extends AbstractRequestMappe
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest)
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest)
                 && !httpRequest.hasQueryParameter(QueryParameters.ID_SHORT)
                 && !httpRequest.hasQueryParameter(QueryParameters.IS_CASE_OF)
                 && !httpRequest.hasQueryParameter(QueryParameters.DATA_SPECIFICATION_REF);

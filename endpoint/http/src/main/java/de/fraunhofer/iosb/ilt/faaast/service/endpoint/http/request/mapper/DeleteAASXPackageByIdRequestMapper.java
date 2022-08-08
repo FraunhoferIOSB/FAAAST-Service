@@ -30,7 +30,7 @@ import java.util.Map;
 public class DeleteAASXPackageByIdRequestMapper extends AbstractRequestMapper {
 
     private static final String PACKAGE_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("packages/(?<%s>.*)", PACKAGE_ID);
+    private static final String PATTERN = String.format("packages/%s", pathElement(PACKAGE_ID));
 
     public DeleteAASXPackageByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.DELETE, PATTERN);

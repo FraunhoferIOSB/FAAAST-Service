@@ -31,7 +31,7 @@ import java.util.Map;
 public class DeleteConceptDescriptionByIdRequestMapper extends AbstractRequestMapper {
 
     private static final String CONCEPT_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("concept-descriptions/(?<%s>.*)", CONCEPT_ID);
+    private static final String PATTERN = String.format("concept-descriptions/%s", pathElement(CONCEPT_ID));
 
     public DeleteConceptDescriptionByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.DELETE, PATTERN);

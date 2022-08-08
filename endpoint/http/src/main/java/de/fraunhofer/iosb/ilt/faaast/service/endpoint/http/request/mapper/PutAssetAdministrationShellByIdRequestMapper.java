@@ -33,7 +33,7 @@ import java.util.Map;
 public class PutAssetAdministrationShellByIdRequestMapper extends AbstractRequestMapper {
 
     private static final String AAS_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("(?!.*/aas)shells/(?<%s>.*)", AAS_ID);
+    private static final String PATTERN = String.format("(?!.*/aas)shells/%s", pathElement(AAS_ID));
 
     public PutAssetAdministrationShellByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.PUT, PATTERN);

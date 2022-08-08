@@ -29,7 +29,7 @@ import java.util.Map;
 public class PutAASXPackageByIdRequestMapper extends AbstractRequestMapper {
 
     private static final String PACKAGE_ID = RegExHelper.uniqueGroupName();
-    private static final String PATTERN = String.format("packages/(?<%s>.*)", PACKAGE_ID);
+    private static final String PATTERN = String.format("packages/%s", pathElement(PACKAGE_ID));
 
     public PutAASXPackageByIdRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.PUT, PATTERN);

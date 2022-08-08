@@ -37,8 +37,8 @@ public class GetAllAssetAdministrationShellsRequestMapper
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest)
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest)
                 && !httpRequest.hasQueryParameter(QueryParameters.ASSET_IDS)
                 && !httpRequest.hasQueryParameter(QueryParameters.ID_SHORT);
     }

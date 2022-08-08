@@ -52,8 +52,18 @@ public abstract class AbstractRequestMapper {
     }
 
 
+    protected static final String pathElement(String name) {
+        return String.format("(?<%s>[^/]*)", name);
+    }
+
+
     private void init() {
         urlPattern = RegExHelper.ensureLineMatch(urlPattern);
+    }
+
+
+    public HttpMethod getMethod() {
+        return method;
     }
 
 
@@ -65,10 +75,9 @@ public abstract class AbstractRequestMapper {
      * @return true if matches, otherwise false
      * @throws IllegalArgumentException if httpRequest is null
      */
-    public boolean matches(HttpRequest httpRequest) {
+    public boolean matchesUrl(HttpRequest httpRequest) {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
-        return httpRequest.getMethod().equals(method)
-                && httpRequest.getPath().matches(urlPattern);
+        return httpRequest.getPath().matches(urlPattern);
     }
 
 

@@ -40,8 +40,8 @@ public class GetAllSubmodelsBySemanticIdRequestMapper extends AbstractRequestMap
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return super.matches(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.SEMANTIC_ID);
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.SEMANTIC_ID);
     }
 
 
