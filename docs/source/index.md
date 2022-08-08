@@ -32,7 +32,7 @@ gettingstarted/docker.md
 ```{toctree} 
 :caption: Architecture
 :maxdepth: 3
-architecture
+architecture/architecture.md
 ```
 
 ```{toctree} 
@@ -45,18 +45,18 @@ endpoints/opcua_endpoint.md
 ```{toctree} 
 :caption: Asset Connections
 :maxdepth: 3
-assetconnetions/assetconnection.md
-assetconnetions/http_assetconnection.md
-assetconnetions/opcua_assetconnection.md
-assetconnetions/mqtt_assetconnection.md
+assetconnections/assetconnection.md
+assetconnections/http_assetconnection.md
+assetconnections/opcua_assetconnection.md
+assetconnections/mqtt_assetconnection.md
 ```
 
 ```{toctree} 
 :caption: Persistence
 :maxdepth: 3
-persistence/persistence.md
-persistence/inmemory_persistence.md
-persistence/file_persistence.md
+persistences/persistence.md
+persistences/inmemory_persistence.md
+persistences/file_persistence.md
 ```
 
 ```{toctree} 
