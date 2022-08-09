@@ -17,7 +17,7 @@ The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools
 
 ## Getting Started
 
-Here you find a brief overview about how to integrate the FA³ST Service to your project or build it at your own. 
+Here you find a brief overview about how to integrate the FA³ST Service to your project or build it at your own.
 A detailled documentation you find :blue_book: [here](https://faaast-service.readthedocs.io/)
 
 ### Prerequisites
