@@ -20,8 +20,8 @@ In order to use the HTTP-Endpoint the configuration settings require to include 
 }
 ```
 
-<!-- HTTP-EXAMPLE -->
 ## HTTP Example
+
 Sample HTTP-Call for Operation _GetSubmodelElementByPath_
 using the parameters
 -   _submodelIdentifier_: https://acplt.org/Test_Submodel (must be base64URL-encoded)
@@ -36,10 +36,11 @@ http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/sub
 ```
 
 Returns a specific submodel element from the Submodel at a specified path
-<hr>
 
 ## HTTP-API
+
 ### The following interface URLs are fully supported
+
 -   Asset Administration Shell Repository Interface
     -   /shells (GET, POST)
     -   /shells/{aasIdentifier} (GET, PUT, DELETE)
@@ -73,30 +74,30 @@ Returns a specific submodel element from the Submodel at a specified path
     -   concept-descriptions/{cdIdentifier} (GET, PUT, DELETE)
 
 ### Optional query params are
+
 -   level=deep/core
 -   content=normal/trimmed/value
 -   extent=WithoutBLOBValue/WithBLOBValue
 -   InvokeOperation supports async=true/false
 
 They are added to the URL as regular query params
+
 ```sh
 http://url:port?level=deep&content=value
 ```
+
 FA³ST Service currently supports only content=value and content=normal
 
 
 ### The following interface URLs are currently not (yet) supported
+
 -   Asset Administration Shell Registry Interface (not in Scope of FA³ST-Service)
-
 -   Submodel Registry Interface (not in Scope of FA³ST-Service)
-
 -   AASX File Server Interface (not yet supported)
     -   /packages
     -   /packages/{packageId}
-
 -   Asset Administration Shell Serialization Interface (not yet supported)
     -   /serialization (GET)
-
 -   Asset Administration Shell Basic Discovery (not yet supported)
     -   /lookup/shells
     -   /lookup/shells/{aasIdentifier}
