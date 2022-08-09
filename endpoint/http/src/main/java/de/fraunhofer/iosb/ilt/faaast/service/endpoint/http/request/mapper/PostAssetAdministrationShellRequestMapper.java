@@ -21,32 +21,25 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostAssetAdministrationShellRequest;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-POST-Request path: shells
  */
-public class PostAssetAdministrationShellRequestMapper extends RequestMapper {
+public class PostAssetAdministrationShellRequestMapper extends AbstractRequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
-    private static final String PATTERN = "^shells$";
+    private static final String PATTERN = "shells";
 
     public PostAssetAdministrationShellRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.POST, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PostAssetAdministrationShellRequest.builder()
                 .aas(parseBody(httpRequest, AssetAdministrationShell.class))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

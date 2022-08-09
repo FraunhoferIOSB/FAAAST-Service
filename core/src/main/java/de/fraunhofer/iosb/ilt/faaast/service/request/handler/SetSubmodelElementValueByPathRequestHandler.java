@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
@@ -40,7 +39,8 @@ import io.adminshell.aas.v3.model.SubmodelElement;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class SetSubmodelElementValueByPathRequestHandler extends RequestHandler<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {
+public class SetSubmodelElementValueByPathRequestHandler
+        extends AbstractSubmodelInterfaceRequestHandler<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {
 
     public SetSubmodelElementValueByPathRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
@@ -48,12 +48,12 @@ public class SetSubmodelElementValueByPathRequestHandler extends RequestHandler<
 
 
     @Override
-    public SetSubmodelElementValueByPathResponse process(SetSubmodelElementValueByPathRequest request) throws ResourceNotFoundException, Exception {
+    public SetSubmodelElementValueByPathResponse doProcess(SetSubmodelElementValueByPathRequest request) throws Exception {
         if (request == null || request.getValueParser() == null) {
             throw new IllegalArgumentException("value parser of request must be non-null");
         }
         SetSubmodelElementValueByPathResponse response = new SetSubmodelElementValueByPathResponse();
-        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
         SubmodelElement submodelElement = persistence.get(reference, new OutputModifier.Builder()
                 .extend(Extent.WITH_BLOB_VALUE)
                 .build());

@@ -15,24 +15,16 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse;
-import io.adminshell.aas.v3.model.Identifier;
 import java.util.Objects;
 
 
 /**
  * Chapter 4.3.3
  */
-public class GetAllSubmodelElementsRequest extends AbstractGetSubmodelElementRequest<GetAllSubmodelElementsResponse> {
+public class GetAllSubmodelElementsRequest extends AbstractSubmodelInterfaceRequest<GetAllSubmodelElementsResponse> {
 
-    private Identifier id;
-
-    public Identifier getId() {
-        return id;
-    }
-
-
-    public void setId(Identifier id) {
-        this.id = id;
+    public GetAllSubmodelElementsRequest() {
+        super(OutputModifierConstraints.SUBMODEL_ELEMENT);
     }
 
 
@@ -45,14 +37,13 @@ public class GetAllSubmodelElementsRequest extends AbstractGetSubmodelElementReq
             return false;
         }
         GetAllSubmodelElementsRequest that = (GetAllSubmodelElementsRequest) o;
-        return super.equals(that)
-                && Objects.equals(id, that.id);
+        return super.equals(that);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id);
+        return Objects.hash(super.hashCode());
     }
 
 
@@ -60,12 +51,9 @@ public class GetAllSubmodelElementsRequest extends AbstractGetSubmodelElementReq
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetAllSubmodelElementsRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetAllSubmodelElementsRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
-        public B id(Identifier value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
     }
 
     public static class Builder extends AbstractBuilder<GetAllSubmodelElementsRequest, Builder> {

@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GenerateSerializationByIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import io.adminshell.aas.v3.model.Identifier;
@@ -27,7 +27,7 @@ import java.util.Objects;
 /**
  * Chapter 4.4.2
  */
-public class GenerateSerializationByIdsRequest extends BaseRequest<GenerateSerializationByIdsResponse> {
+public class GenerateSerializationByIdsRequest implements Request<GenerateSerializationByIdsResponse> {
 
     private List<Identifier> aasIds;
     private List<Identifier> submodelIds;

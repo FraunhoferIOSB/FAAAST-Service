@@ -20,37 +20,32 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIdShortResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIdShortRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-GET-Request path: concept-descriptions
  */
 public class GetAllConceptDescriptionsByIdShortRequestMapper
-        extends RequestMapperWithOutputModifier<GetAllConceptDescriptionsByIdShortRequest, GetAllConceptDescriptionsByIdShortResponse> {
+        extends AbstractRequestMapperWithOutputModifier<GetAllConceptDescriptionsByIdShortRequest, GetAllConceptDescriptionsByIdShortResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^concept-descriptions$";
-    private static final String QUERYPARAM1 = "idShort";
+    private static final String PATTERN = "concept-descriptions";
 
     public GetAllConceptDescriptionsByIdShortRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.ID_SHORT);
+    }
+
+
+    @Override
+    public GetAllConceptDescriptionsByIdShortRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllConceptDescriptionsByIdShortRequest.builder()
-                .idShort(httpRequest.getQueryParameters().get(QUERYPARAM1))
-                .outputModifier(outputModifier)
+                .idShort(httpRequest.getQueryParameter(QueryParameters.ID_SHORT))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && httpRequest.getQueryParameters().containsKey(QUERYPARAM1);
     }
 }

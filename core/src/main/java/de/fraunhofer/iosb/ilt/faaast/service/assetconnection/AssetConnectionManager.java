@@ -53,7 +53,7 @@ public class AssetConnectionManager {
             for (var subscriptionInfo: subscriptionProviders.entrySet()) {
                 subscriptionInfo.getValue().addNewDataListener((DataElementValue data) -> {
                     serviceContext.execute(SetSubmodelElementValueByPathRequest.builder()
-                            .id(new DefaultIdentifier.Builder()
+                            .submodelId(new DefaultIdentifier.Builder()
                                     .identifier(subscriptionInfo.getKey().getKeys().get(0).getValue())
                                     .idType(IdentifierType.IRI)
                                     .build())
@@ -148,7 +148,7 @@ public class AssetConnectionManager {
 
 
     /**
-     * If a {@link ValueProvider} exists for given reference, the provided will
+     * If a {@link AssetValueProvider} exists for given reference, the provided will
      * be written; otherwise nothing happens
      *
      * @param reference reference to element to check for asset connection

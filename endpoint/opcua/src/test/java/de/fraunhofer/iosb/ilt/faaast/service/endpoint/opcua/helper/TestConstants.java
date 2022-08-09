@@ -59,6 +59,7 @@ public class TestConstants {
     public static final String FULL_OPERATION_NAME = "ExampleOperation";
     public static final String FULL_ENTITY2_NAME = "ExampleEntity2";
     public static final String FULL_CAPABILITY_NAME = "ExampleCapability";
+    public static final String FULL_DATETIME_PROP_NAME = "DateTimeProperty";
 
     public static final String MODELING_KIND_NAME = "ModelingKind";
     public static final String CATEGORY_NAME = "Category";
@@ -89,6 +90,7 @@ public class TestConstants {
     public static final int AAS_SUBMODEL_TYPE_ID = 1006;
     public static final int AAS_SUBMODEL_ELEM_COLL_TYPE_ID = 1010;
     public static final int AAS_OREDER_SM_ELEM_COLL_TYPE_ID = 1011;
+    public static final int AAS_PROPERTY_TYPE_ID = 1013;
     public static final int AAS_IDENTIFIER_TYPE_ID = 1029;
     public static final int AAS_ADMIN_INFO_TYPE_ID = 1030;
     public static final int AAS_ASSET_INFO_TYPE_ID = 1031;

@@ -21,32 +21,27 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-DELETE-Request path: submodels/{submodelIdentifier}
  */
-public class DeleteSubmodelByIdRequestMapper extends RequestMapper {
+public class DeleteSubmodelByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.DELETE;
-    private static final String PATTERN = "(?!.*/submodel)^submodels/(.*)$";
+    private static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
+    private static final String PATTERN = String.format("(?!.*/submodel)submodels/%s", pathElement(SUBMODEL_ID));
 
     public DeleteSubmodelByIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.DELETE, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return DeleteSubmodelByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

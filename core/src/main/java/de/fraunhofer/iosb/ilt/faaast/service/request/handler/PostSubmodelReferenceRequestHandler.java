@@ -35,7 +35,7 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class PostSubmodelReferenceRequestHandler extends RequestHandler<PostSubmodelReferenceRequest, PostSubmodelReferenceResponse> {
+public class PostSubmodelReferenceRequestHandler extends AbstractRequestHandler<PostSubmodelReferenceRequest, PostSubmodelReferenceResponse> {
 
     public PostSubmodelReferenceRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

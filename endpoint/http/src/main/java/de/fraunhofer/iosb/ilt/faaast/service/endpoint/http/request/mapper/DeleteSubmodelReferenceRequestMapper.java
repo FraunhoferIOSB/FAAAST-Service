@@ -21,33 +21,38 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.Reference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-DELETE-Request path:
  * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}
  */
-public class DeleteSubmodelReferenceRequestMapper extends RequestMapper {
+public class DeleteSubmodelReferenceRequestMapper extends AbstractRequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.DELETE;
-    private static final String PATTERN = "^shells/(.*)/aas/submodels/(.*)";
+    private static final String AAS_ID = RegExHelper.uniqueGroupName();
+    private static final String SUBMODEL_ID = RegExHelper.uniqueGroupName();
+    private static final String PATTERN = String.format("shells/%s/aas/submodels/%s",
+            pathElement(AAS_ID),
+            pathElement(SUBMODEL_ID));
 
     public DeleteSubmodelReferenceRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.DELETE, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return DeleteSubmodelReferenceRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
-                .submodelRef(toReference(EncodingHelper.base64Decode(httpRequest.getPathElements().get(4))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(AAS_ID))))
+                .submodelRef(toReference(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
                 .build();
     }
 
@@ -56,7 +61,6 @@ public class DeleteSubmodelReferenceRequestMapper extends RequestMapper {
         Reference result;
         try {
             result = ReflectionHelper.getDefaultImplementation(Reference.class).getConstructor().newInstance();
-
             Key key = ReflectionHelper.getDefaultImplementation(Key.class).getConstructor().newInstance();
             key.setIdType(IdentifierHelper.guessKeyType(id));
             key.setType(KeyElements.SUBMODEL);
@@ -68,12 +72,5 @@ public class DeleteSubmodelReferenceRequestMapper extends RequestMapper {
         catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             throw new IllegalArgumentException("error parsing reference from id", e);
         }
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
     }
 }

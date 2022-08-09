@@ -35,7 +35,7 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class PutAssetAdministrationShellRequestHandler extends RequestHandler<PutAssetAdministrationShellRequest, PutAssetAdministrationShellResponse> {
+public class PutAssetAdministrationShellRequestHandler extends AbstractRequestHandler<PutAssetAdministrationShellRequest, PutAssetAdministrationShellResponse> {
 
     public PutAssetAdministrationShellRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

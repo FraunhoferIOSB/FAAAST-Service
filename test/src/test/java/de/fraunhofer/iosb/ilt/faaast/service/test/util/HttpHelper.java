@@ -74,6 +74,11 @@ public class HttpHelper {
     }
 
 
+    public static HttpResponse<String> execute(HttpMethod method, String url) throws IOException, InterruptedException, URISyntaxException, SerializationException {
+        return execute(method, url, null);
+    }
+
+
     public static HttpResponse<String> put(String url, Object payload) throws IOException, InterruptedException, URISyntaxException, SerializationException {
         return HttpClient.newHttpClient()
                 .send(HttpRequest.newBuilder()

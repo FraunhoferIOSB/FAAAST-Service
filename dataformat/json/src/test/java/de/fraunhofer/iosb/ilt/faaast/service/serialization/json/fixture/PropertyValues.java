@@ -44,6 +44,8 @@ import io.adminshell.aas.v3.model.impl.DefaultRelationshipElement;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.io.File;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 
 public class PropertyValues {
@@ -84,6 +86,13 @@ public class PropertyValues {
             .kind(ModelingKind.INSTANCE)
             .valueType(Datatype.DOUBLE.getName())
             .value("42.17")
+            .build();
+    public static final Property PROPERTY_DATETIME = new DefaultProperty.Builder()
+            .category("category")
+            .idShort("propDateTime")
+            .kind(ModelingKind.INSTANCE)
+            .valueType(Datatype.DATE_TIME.getName())
+            .value(ZonedDateTime.of(2022, 7, 31, 17, 8, 51, 0, ZoneOffset.UTC).toString())
             .build();
 
     public static final Property PROPERTY_INT = new DefaultProperty.Builder()
@@ -179,6 +188,7 @@ public class PropertyValues {
     public static final File PROPERTY_INT_FILE = new File(RESOURCE_PATH + "/property-int.json");
     public static final File PROPERTY_DOUBLE_FILE = new File(RESOURCE_PATH + "/property-double.json");
     public static final File PROPERTY_STRING_FILE = new File(RESOURCE_PATH + "/property-string.json");
+    public static final File PROPERTY_DATETIME_FILE = new File(RESOURCE_PATH + "/property-datetime.json");
 
     private PropertyValues() {
 

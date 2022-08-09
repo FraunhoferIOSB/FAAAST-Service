@@ -30,7 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class GenerateSerializationByIdsRequestHandler extends RequestHandler<GenerateSerializationByIdsRequest, GenerateSerializationByIdsResponse> {
+public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHandler<GenerateSerializationByIdsRequest, GenerateSerializationByIdsResponse> {
 
     public GenerateSerializationByIdsRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

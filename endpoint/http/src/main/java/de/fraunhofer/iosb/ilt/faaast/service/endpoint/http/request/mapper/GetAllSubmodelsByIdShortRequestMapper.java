@@ -20,36 +20,31 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsByIdShortResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsByIdShortRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-Request path: submodels
  */
-public class GetAllSubmodelsByIdShortRequestMapper extends RequestMapperWithOutputModifier<GetAllSubmodelsByIdShortRequest, GetAllSubmodelsByIdShortResponse> {
+public class GetAllSubmodelsByIdShortRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllSubmodelsByIdShortRequest, GetAllSubmodelsByIdShortResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^submodels$";
-    private static final String QUERYPARAM = "idShort";
+    private static final String PATTERN = "submodels";
 
     public GetAllSubmodelsByIdShortRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.ID_SHORT);
+    }
+
+
+    @Override
+    public GetAllSubmodelsByIdShortRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllSubmodelsByIdShortRequest.builder()
-                .idShort(httpRequest.getQueryParameters().get(QUERYPARAM))
-                .outputModifier(outputModifier)
+                .idShort(httpRequest.getQueryParameter(QueryParameters.ID_SHORT))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && httpRequest.getQueryParameters().containsKey(QUERYPARAM);
     }
 }

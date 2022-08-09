@@ -452,6 +452,7 @@ public class TestUtils {
         Assert.assertTrue("checkAasPropertyString Property empty", targets.length > 0);
         NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
+        checkType(client, propertyNode, new NodeId(aasns, TestConstants.AAS_PROPERTY_TYPE_ID));
         checkDisplayName(client, propertyNode, name);
         checkCategoryNode(client, propertyNode, aasns, category);
         checkModelingKindNode(client, propertyNode, aasns, kind);
@@ -484,7 +485,8 @@ public class TestUtils {
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
 
         Variant var = new Variant(propValue);
-        Assert.assertEquals(var, value.getValue());
+        Variant var2 = value.getValue();
+        Assert.assertEquals(var, var2);
     }
 
 

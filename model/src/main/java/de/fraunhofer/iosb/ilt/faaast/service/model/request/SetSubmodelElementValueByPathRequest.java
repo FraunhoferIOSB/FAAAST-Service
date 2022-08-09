@@ -14,12 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.SetSubmodelElementValueByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
-import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,9 +25,8 @@ import java.util.Objects;
 /**
  * Chapter 4.3.9
  */
-public class SetSubmodelElementValueByPathRequest<T> extends BaseRequest<SetSubmodelElementValueByPathResponse> {
+public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInterfaceRequest<SetSubmodelElementValueByPathResponse> {
 
-    private Identifier id;
     private List<Key> path;
     private T rawValue;
     private ElementValueParser valueParser;
@@ -41,16 +37,6 @@ public class SetSubmodelElementValueByPathRequest<T> extends BaseRequest<SetSubm
     }
 
 
-    public Identifier getId() {
-        return id;
-    }
-
-
-    public void setId(Identifier id) {
-        this.id = id;
-    }
-
-
     public List<Key> getPath() {
         return path;
     }
@@ -58,25 +44,6 @@ public class SetSubmodelElementValueByPathRequest<T> extends BaseRequest<SetSubm
 
     public void setPath(List<Key> path) {
         this.path = path;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        SetSubmodelElementValueByPathRequest that = (SetSubmodelElementValueByPathRequest) o;
-        return Objects.equals(id, that.id) && Objects.equals(path, that.path) && Objects.equals(rawValue, that.rawValue);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, path, rawValue);
     }
 
 
@@ -100,17 +67,33 @@ public class SetSubmodelElementValueByPathRequest<T> extends BaseRequest<SetSubm
     }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SetSubmodelElementValueByPathRequest that = (SetSubmodelElementValueByPathRequest) o;
+        return super.equals(that)
+                && Objects.equals(path, that.path)
+                && Objects.equals(rawValue, that.rawValue);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), path, rawValue);
+    }
+
+
     public static <T> Builder<T> builder() {
         return new Builder<>();
     }
 
-    public abstract static class AbstractBuilder<U, T extends SetSubmodelElementValueByPathRequest<U>, B extends AbstractBuilder<U, T, B>> extends ExtendableBuilder<T, B> {
-
-        public B id(Identifier value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<U, T extends SetSubmodelElementValueByPathRequest<U>, B extends AbstractBuilder<U, T, B>>
+            extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B path(List<Key> value) {
             getBuildingInstance().setPath(value);

@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
+import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.Variant;
@@ -27,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import io.adminshell.aas.v3.model.AssetKind;
 import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.Entity;
@@ -47,7 +49,11 @@ import io.adminshell.aas.v3.model.RelationshipElement;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.List;
 import opc.i4aas.AASAssetKindDataType;
 import opc.i4aas.AASEntityTypeDataType;
@@ -322,6 +328,10 @@ public class ValueConverter {
 
             case SHORT:
                 retval = AASValueTypeDataType.Int16;
+                break;
+
+            case DATE_TIME:
+                retval = AASValueTypeDataType.DateTime;
                 break;
 
             default:
@@ -871,28 +881,19 @@ public class ValueConverter {
             switch (type) {
                 case PROPERTY_VALUE: {
                     Property aasProp = (Property) submodelElement;
-                    String newValue = null;
-                    if (variant.getValue() != null) {
-                        newValue = variant.getValue().toString();
-                    }
+                    String newValue = convertVariantValueToString(variant);
                     aasProp.setValue(newValue);
                     break;
                 }
                 case RANGE_MIN: {
                     Range aasRange = (Range) submodelElement;
-                    String newValue = null;
-                    if (variant.getValue() != null) {
-                        newValue = variant.getValue().toString();
-                    }
+                    String newValue = convertVariantValueToString(variant);
                     aasRange.setMin(newValue);
                     break;
                 }
                 case RANGE_MAX: {
                     Range aasRange = (Range) submodelElement;
-                    String newValue = null;
-                    if (variant.getValue() != null) {
-                        newValue = variant.getValue().toString();
-                    }
+                    String newValue = convertVariantValueToString(variant);
                     aasRange.setMax(newValue);
                     break;
                 }
@@ -1048,7 +1049,7 @@ public class ValueConverter {
         try {
             switch (type) {
                 case PROPERTY_VALUE: {
-                    retval = new Variant(ElementValueMapper.<Property, PropertyValue> toValue(submodelElement).getValue().getValue());
+                    retval = createVariant(ElementValueMapper.<Property, PropertyValue> toValue(submodelElement).getValue().getValue());
                     break;
                 }
 
@@ -1060,6 +1061,55 @@ public class ValueConverter {
         catch (Exception ex) {
             LOGGER.error("getSubmodelElementValue Exception", ex);
             throw ex;
+        }
+
+        return retval;
+    }
+
+
+    public static DateTime createDateTime(ZonedDateTime value) {
+        return new DateTime(GregorianCalendar.from(value));
+    }
+
+
+    public static DateTime createDateTime(LocalDateTime value) {
+        return new DateTime(GregorianCalendar.from(value.atZone(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE))));
+    }
+
+
+    private static String convertVariantValueToString(Variant variant) {
+        String retval = "";
+        if (variant.getValue() != null) {
+            // special treatment for DateTime
+            if (variant.getValue() instanceof DateTime) {
+                //DateTime.
+                retval = ((DateTime) variant.getValue()).getUtcCalendar().toZonedDateTime().toString();
+            }
+            else {
+                retval = variant.getValue().toString();
+            }
+        }
+
+        return retval;
+    }
+
+
+    private static Variant createVariant(Object value) {
+        Variant retval = null;
+
+        if (value == null) {
+            retval = Variant.NULL;
+        }
+        else if (value instanceof ZonedDateTime) {
+            // special treatment for DateTime
+            retval = new Variant(createDateTime((ZonedDateTime) value));
+        }
+        else if (value instanceof LocalDateTime) {
+            // special treatment for DateTime
+            retval = new Variant(createDateTime((LocalDateTime) value));
+        }
+        else {
+            retval = new Variant(value);
         }
 
         return retval;

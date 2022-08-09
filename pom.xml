@@ -40,8 +40,11 @@
         <module>endpoint/http</module>
         <module>messagebus/internal</module>
         <module>persistence/memory</module>
+        <module>assetconnection/common</module>
+        <module>persistence/file</module>
         <module>assetconnection/mqtt</module>
         <module>assetconnection/opcua</module>
+        <module>assetconnection/http</module>
         <module>dataformat/json</module>
         <module>starter</module>
         <module>test</module>
@@ -89,6 +92,7 @@
         <maven.plugin.buildhelper.version>3.3.0</maven.plugin.buildhelper.version>
         <maven.plugin.compiler.version>3.10.1</maven.plugin.compiler.version>
         <maven.plugin.failsafe.version>3.0.0-M7</maven.plugin.failsafe.version>
+        <maven.plugin.git.commit.id.version>5.0.0</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.0.1</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.8</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.2.2</maven.plugin.jar.version>
@@ -98,7 +102,7 @@
         <maven.plugin.owasp.version>7.1.1</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.6.3</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.0</maven.plugin.proguard.version>
-        <maven.plugin.prosys.codegen.version>4.8.0-16</maven.plugin.prosys.codegen.version>
+        <maven.plugin.prosys.codegen.version>4.8.2-20</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.3.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
@@ -110,7 +114,7 @@
         <proguard.core.version>9.0.2</proguard.core.version>
         <proguard.version>7.2.2</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <prosys.sdk.version>4.8.0-25</prosys.sdk.version>
+        <prosys.sdk.version>4.8.2-35</prosys.sdk.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.version>1.7.36</slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
@@ -119,8 +123,9 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <spotless.version>2.23.0</spotless.version>
+        <spotless.version>2.24.0</spotless.version>
         <system.stubs.junit4.version>2.0.1</system.stubs.junit4.version>
+        <wiremock.version>2.33.2</wiremock.version>
     </properties>
     <dependencies>
         <dependency>

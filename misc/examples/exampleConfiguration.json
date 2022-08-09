@@ -6,8 +6,10 @@
             "@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
             "port": 8080
         }],
-    "persistence": {
-        "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+    "persistence" : {
+        "@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory",
+        "initialModel" : "./misc/examples/demoAAS.json",
+        "decoupleEnvironment" : true
     },
     "messageBus": {
         "@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"

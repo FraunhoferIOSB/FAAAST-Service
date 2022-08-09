@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Chapter 4.3.13
  */
-public class GetOperationAsyncResultRequest extends RequestWithModifier<GetOperationAsyncResultResponse> {
+public class GetOperationAsyncResultRequest extends AbstractSubmodelInterfaceRequest<GetOperationAsyncResultResponse> {
 
     private List<Key> path;
     private String handleId;
@@ -41,6 +41,16 @@ public class GetOperationAsyncResultRequest extends RequestWithModifier<GetOpera
 
     public void setPath(List<Key> path) {
         this.path = path;
+    }
+
+
+    public String getHandleId() {
+        return handleId;
+    }
+
+
+    public void setHandleId(String handleId) {
+        this.handleId = handleId;
     }
 
 
@@ -65,21 +75,12 @@ public class GetOperationAsyncResultRequest extends RequestWithModifier<GetOpera
     }
 
 
-    public String getHandleId() {
-        return handleId;
-    }
-
-
-    public void setHandleId(String handleId) {
-        this.handleId = handleId;
-    }
-
-
     public static Builder builder() {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends GetOperationAsyncResultRequest, B extends AbstractBuilder<T, B>> extends RequestWithModifier.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends GetOperationAsyncResultRequest, B extends AbstractBuilder<T, B>>
+            extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B handleId(String value) {
             getBuildingInstance().setHandleId(value);

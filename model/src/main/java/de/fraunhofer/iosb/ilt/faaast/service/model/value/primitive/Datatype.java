@@ -30,7 +30,7 @@ public enum Datatype {
     // TODO implement all data types
     //    Date,
     //    Time,
-    //    DateTime,
+    DATE_TIME("datetime", DateTimeValue.class),
     //    DateTimeStamp,
     //    gYear,
     //    gMonth,
@@ -72,6 +72,18 @@ public enum Datatype {
                 .filter(x -> x.getName().equals(name))
                 .findAny()
                 .orElse(DEFAULT);
+    }
+
+
+    /**
+     * Checks if a given string is a valid (i.e. supported) datatype.
+     *
+     * @param name name of the datatype
+     * @return true is it is a valid datatype, otherwise false
+     */
+    public static boolean isValid(String name) {
+        return Stream.of(Datatype.values())
+                .anyMatch(x -> x.getName().equals(name));
     }
 
 

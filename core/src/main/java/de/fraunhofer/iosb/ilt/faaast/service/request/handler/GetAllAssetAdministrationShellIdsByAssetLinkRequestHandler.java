@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  * corresponding events to the message bus.
  */
 public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
-        extends RequestHandler<GetAllAssetAdministrationShellIdsByAssetLinkRequest, GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
+        extends AbstractRequestHandler<GetAllAssetAdministrationShellIdsByAssetLinkRequest, GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
 
     public GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);

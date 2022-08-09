@@ -36,6 +36,7 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -51,7 +52,7 @@ import java.util.concurrent.TimeoutException;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
+public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterfaceRequestHandler<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
 
     public InvokeOperationSyncRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
@@ -59,8 +60,8 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
 
 
     @Override
-    public InvokeOperationSyncResponse process(InvokeOperationSyncRequest request) throws ValueMappingException, ResourceNotFoundException, MessageBusException {
-        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getId(), Submodel.class);
+    public InvokeOperationSyncResponse doProcess(InvokeOperationSyncRequest request) throws ValueMappingException, ResourceNotFoundException, MessageBusException {
+        Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
         InvokeOperationSyncResponse response = new InvokeOperationSyncResponse();
         messageBus.publish(OperationInvokeEventMessage.builder()
                 .element(reference)
@@ -86,7 +87,6 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
                     AasUtils.asString(reference),
                     request.getRequestId()));
         }
-
         AssetOperationProvider assetOperationProvider = assetConnectionManager.getOperationProvider(reference);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<OperationVariable[]> future = executor.submit(new Callable<OperationVariable[]>() {
@@ -116,7 +116,7 @@ public class InvokeOperationSyncRequestHandler extends RequestHandler<InvokeOper
                     .build();
             Thread.currentThread().interrupt();
         }
-        catch (Exception e) {
+        catch (InterruptedException | ExecutionException e) {
             result = OperationResult.builder()
                     .requestId(request.getRequestId())
                     .inoutputArguments(request.getInoutputArguments())

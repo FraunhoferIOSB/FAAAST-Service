@@ -20,37 +20,32 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-GET-Request path: shells
  */
-public class GetAllAssetAdministrationShellsRequestMapper extends RequestMapperWithOutputModifier<GetAllAssetAdministrationShellsRequest, GetAllAssetAdministrationShellsResponse> {
+public class GetAllAssetAdministrationShellsRequestMapper
+        extends AbstractRequestMapperWithOutputModifier<GetAllAssetAdministrationShellsRequest, GetAllAssetAdministrationShellsResponse> {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^shells$";
-    private static final String QUERYPARAM1 = "assetIds";
-    private static final String QUERYPARAM2 = "idShort";
+    private static final String PATTERN = "shells";
 
     public GetAllAssetAdministrationShellsRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public RequestWithModifier parse(HttpRequest httpRequest, OutputModifier outputModifier) {
-        return GetAllAssetAdministrationShellsRequest.builder()
-                .outputModifier(outputModifier)
-                .build();
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest)
+                && !httpRequest.hasQueryParameter(QueryParameters.ASSET_IDS)
+                && !httpRequest.hasQueryParameter(QueryParameters.ID_SHORT);
     }
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && !httpRequest.getQueryParameters().containsKey(QUERYPARAM1)
-                && !httpRequest.getQueryParameters().containsKey(QUERYPARAM2);
+    public GetAllAssetAdministrationShellsRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
+        return GetAllAssetAdministrationShellsRequest.builder().build();
     }
 }

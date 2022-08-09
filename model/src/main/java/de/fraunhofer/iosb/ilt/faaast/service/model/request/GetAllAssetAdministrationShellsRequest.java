@@ -21,7 +21,12 @@ import java.util.Objects;
 /**
  * Chapter 6.2.2
  */
-public class GetAllAssetAdministrationShellsRequest extends AbstractGetAssetAdministrationShellRequest<GetAllAssetAdministrationShellsResponse> {
+public class GetAllAssetAdministrationShellsRequest extends AbstractRequestWithModifier<GetAllAssetAdministrationShellsResponse> {
+
+    public GetAllAssetAdministrationShellsRequest() {
+        super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL);
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -47,7 +52,7 @@ public class GetAllAssetAdministrationShellsRequest extends AbstractGetAssetAdmi
     }
 
     public abstract static class AbstractBuilder<T extends GetAllAssetAdministrationShellsRequest, B extends AbstractBuilder<T, B>>
-            extends RequestWithModifier.AbstractBuilder<T, B> {
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
     }
 

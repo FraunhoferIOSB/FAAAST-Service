@@ -22,33 +22,28 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetAdministrationShellByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-PUT-Request path: shells
  */
-public class PutAssetAdministrationShellByIdRequestMapper extends RequestMapper {
+public class PutAssetAdministrationShellByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.PUT;
-    private static final String PATTERN = "(?!.*/aas)^shells/(.*)$";
+    private static final String AAS_ID = RegExHelper.uniqueGroupName();
+    private static final String PATTERN = String.format("(?!.*/aas)shells/%s", pathElement(AAS_ID));
 
     public PutAssetAdministrationShellByIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.PUT, PATTERN);
     }
 
 
     @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
-    }
-
-
-    @Override
-    public Request parse(HttpRequest httpRequest) throws InvalidRequestException {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PutAssetAdministrationShellByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(AAS_ID))))
                 .aas(parseBody(httpRequest, AssetAdministrationShell.class))
                 .build();
     }

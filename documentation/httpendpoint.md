@@ -63,6 +63,13 @@ Returns a specific submodel element from the Submodel at a specified path
     -   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke (POST)
     -   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/{handle-Id} (GET)
 
+-   Submodel Interface (combined with Asset Administration Shell Interface)
+    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel (GET, PUT)
+    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements (POST)
+    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath} (GET, POST, PUT, DELETE)
+    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke (POST)
+    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/{handle-Id} (GET)
+
 -   Concept Description Repository Interface
     -   concept-descriptions (GET, POST)
     -   concept-descriptions/{cdIdentifier} (GET, PUT, DELETE)
@@ -82,13 +89,6 @@ FA³ST Service currently supports only content=value and content=normal
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ### The following interface URLs are currently not (yet) supported
--   Submodel Repository Interface (Alternative Interface URLs "Swagger Doc May 2022", [DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository](https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShell-Environment/V1.0RC01#/Asset%20Administration%20Shell%20Environment/GetSubmodel) (yet not fully specified))
-    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
-    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements
-    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
-    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
-    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/{handleId}
-
 -   Asset Administration Shell Registry Interface (not in Scope of FA³ST-Service)
 
 -   Submodel Registry Interface (not in Scope of FA³ST-Service)

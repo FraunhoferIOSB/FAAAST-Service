@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
  * Chapter 4.2.8
  */
-public class PutAssetInformationResponse extends BaseResponse {
+public class PutAssetInformationResponse extends AbstractResponse {
 
     public static PutAssetInformationResponse.Builder builder() {
         return new PutAssetInformationResponse.Builder();

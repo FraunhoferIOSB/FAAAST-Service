@@ -38,7 +38,7 @@ import io.adminshell.aas.v3.model.Submodel;
  * Is responsible for communication with the persistence and sends the
  * corresponding events to the message bus.
  */
-public class GetSubmodelRequestHandler extends RequestHandler<GetSubmodelRequest, GetSubmodelResponse> {
+public class GetSubmodelRequestHandler extends AbstractSubmodelInterfaceRequestHandler<GetSubmodelRequest, GetSubmodelResponse> {
 
     public GetSubmodelRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
@@ -46,12 +46,11 @@ public class GetSubmodelRequestHandler extends RequestHandler<GetSubmodelRequest
 
 
     @Override
-    public GetSubmodelResponse process(GetSubmodelRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
+    public GetSubmodelResponse doProcess(GetSubmodelRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
         GetSubmodelResponse response = new GetSubmodelResponse();
-        Submodel submodel = (Submodel) persistence.get(request.getId(), request.getOutputModifier());
+        Submodel submodel = (Submodel) persistence.get(request.getSubmodelId(), request.getOutputModifier());
         response.setPayload(submodel);
         response.setStatusCode(StatusCode.SUCCESS);
-
         Reference reference = AasUtils.toReference(submodel);
         syncWithAsset(reference, submodel.getSubmodelElements());
         messageBus.publish(ElementReadEventMessage.builder()

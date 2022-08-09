@@ -22,9 +22,14 @@ import java.util.Objects;
 /**
  * Chapter 6.3.2
  */
-public class GetAssetAdministrationShellByIdRequest extends AbstractGetAssetAdministrationShellRequest<GetAssetAdministrationShellByIdResponse> {
+public class GetAssetAdministrationShellByIdRequest extends AbstractRequestWithModifier<GetAssetAdministrationShellByIdResponse> {
 
     private Identifier id;
+
+    public GetAssetAdministrationShellByIdRequest() {
+        super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL);
+    }
+
 
     public Identifier getId() {
         return id;
@@ -61,7 +66,7 @@ public class GetAssetAdministrationShellByIdRequest extends AbstractGetAssetAdmi
     }
 
     public abstract static class AbstractBuilder<T extends GetAssetAdministrationShellByIdRequest, B extends AbstractBuilder<T, B>>
-            extends RequestWithModifier.AbstractBuilder<T, B> {
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
         public B id(Identifier value) {
             getBuildingInstance().setId(value);

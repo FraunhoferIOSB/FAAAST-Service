@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * Chapter 6.4.5
  */
-public class GetAllConceptDescriptionsByIsCaseOfRequest extends RequestWithModifier<GetAllConceptDescriptionsByIsCaseOfResponse> {
+public class GetAllConceptDescriptionsByIsCaseOfRequest extends AbstractRequestWithModifier<GetAllConceptDescriptionsByIsCaseOfResponse> {
 
     private Reference isCaseOf;
 
@@ -61,7 +61,7 @@ public class GetAllConceptDescriptionsByIsCaseOfRequest extends RequestWithModif
     }
 
     public abstract static class AbstractBuilder<T extends GetAllConceptDescriptionsByIsCaseOfRequest, B extends AbstractBuilder<T, B>>
-            extends RequestWithModifier.AbstractBuilder<T, B> {
+            extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
         public B isCaseOf(Reference value) {
             getBuildingInstance().setIsCaseOf(value);

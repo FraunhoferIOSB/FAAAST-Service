@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteAASXPackageByIdResponse;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
@@ -23,7 +23,7 @@ import java.util.Objects;
 /**
  * Chapter 4.5.6
  */
-public class DeleteAASXPackageByIdRequest extends BaseRequest<DeleteAASXPackageByIdResponse> {
+public class DeleteAASXPackageByIdRequest implements Request<DeleteAASXPackageByIdResponse> {
 
     private String packageId;
 

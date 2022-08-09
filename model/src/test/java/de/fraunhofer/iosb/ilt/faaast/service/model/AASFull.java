@@ -136,6 +136,13 @@ public class AASFull {
                                 .idType(KeyType.IRI)
                                 .build())
                         .build())
+                .submodel(new DefaultReference.Builder()
+                        .key(new DefaultKey.Builder()
+                                .type(KeyElements.SUBMODEL)
+                                .value("https://acplt.org/Test_Submodel3")
+                                .idType(KeyType.IRI)
+                                .build())
+                        .build())
                 .build();
     }
 
@@ -1381,6 +1388,13 @@ public class AASFull {
                                         .build())
                                 .build())
                         .ordered(false)
+                        .build())
+                .submodelElement(new DefaultProperty.Builder()
+                        .kind(ModelingKind.INSTANCE)
+                        .idShort("DateTimeProperty")
+                        .category("Parameter")
+                        .value("2022-07-08T10:22:04")
+                        .valueType("datetime")
                         .build())
                 .build();
     }

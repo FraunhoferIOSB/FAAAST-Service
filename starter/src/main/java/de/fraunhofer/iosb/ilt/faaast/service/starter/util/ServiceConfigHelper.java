@@ -62,14 +62,17 @@ public class ServiceConfigHelper {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
-    public static final ServiceConfig DEFAULT_SERVICE_CONFIG = new ServiceConfig.Builder()
-            .core(new CoreConfig.Builder().requestHandlerThreadPoolSize(2).build())
-            .persistence(new PersistenceInMemoryConfig())
-            .endpoint(new HttpEndpointConfig())
-            .messageBus(new MessageBusInternalConfig())
-            .build();
-
     private ServiceConfigHelper() {}
+
+
+    public static ServiceConfig getDefaultServiceConfig() {
+        return new ServiceConfig.Builder()
+                .core(new CoreConfig.Builder().requestHandlerThreadPoolSize(2).build())
+                .persistence(new PersistenceInMemoryConfig())
+                .endpoint(new HttpEndpointConfig())
+                .messageBus(new MessageBusInternalConfig())
+                .build();
+    }
 
 
     public static ServiceConfig load(File configFile) throws IOException {
@@ -83,7 +86,7 @@ public class ServiceConfigHelper {
 
 
     public static void autoComplete(ServiceConfig serviceConfig) {
-        ServiceConfig defaultConfig = DEFAULT_SERVICE_CONFIG;
+        ServiceConfig defaultConfig = getDefaultServiceConfig();
         if (serviceConfig.getCore() == null) {
             serviceConfig.setCore(defaultConfig.getCore());
             LOGGER.debug("No configuration for core found - using default");

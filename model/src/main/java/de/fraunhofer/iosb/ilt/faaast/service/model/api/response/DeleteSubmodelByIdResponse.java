@@ -14,13 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
  * Chapter 6.3.8
  */
-public class DeleteSubmodelByIdResponse extends BaseResponse {
+public class DeleteSubmodelByIdResponse extends AbstractResponse {
 
     public static DeleteSubmodelByIdResponse.Builder builder() {
         return new DeleteSubmodelByIdResponse.Builder();

@@ -17,20 +17,17 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 
-public abstract class InvokeOperationRequest<T extends Response> extends AbstractInvokeOperationRequest<T> {
+public abstract class InvokeOperationRequest<T extends Response> extends AbstractSubmodelInterfaceRequest<T> {
 
     private static final long DEFAULT_TIMEOUT = 1000;
-    protected Identifier id;
     protected List<Key> path;
     protected List<OperationVariable> inputArguments;
     protected List<OperationVariable> inoutputArguments;
@@ -38,21 +35,16 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
     protected String requestId;
 
     protected InvokeOperationRequest() {
+        super(OutputModifierConstraints.builder()
+                .supportsExtent(false)
+                .supportsLevel(false)
+                .supportedContentModifiers(Content.NORMAL, Content.VALUE)
+                .build());
         this.path = new ArrayList<>();
         this.inputArguments = new ArrayList<>();
         this.inoutputArguments = new ArrayList<>();
         this.timeout = DEFAULT_TIMEOUT;
         this.requestId = UUID.randomUUID().toString();
-    }
-
-
-    public Identifier getId() {
-        return id;
-    }
-
-
-    public void setId(Identifier id) {
-        this.id = id;
     }
 
 
@@ -105,7 +97,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
             return false;
         }
         InvokeOperationRequest that = (InvokeOperationRequest) o;
-        return Objects.equals(id, that.id)
+        return super.equals(that)
                 && Objects.equals(path, that.path)
                 && Objects.equals(inputArguments, that.inputArguments)
                 && Objects.equals(inoutputArguments, that.inoutputArguments)
@@ -116,7 +108,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, path, inputArguments, inoutputArguments, timeout, requestId);
+        return Objects.hash(super.hashCode(), path, inputArguments, inoutputArguments, timeout, requestId);
     }
 
 
@@ -129,13 +121,7 @@ public abstract class InvokeOperationRequest<T extends Response> extends Abstrac
         this.timeout = timeout;
     }
 
-    public abstract static class AbstractBuilder<T extends InvokeOperationRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B id(Identifier value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<T extends InvokeOperationRequest, B extends AbstractBuilder<T, B>> extends AbstractSubmodelInterfaceRequest.AbstractBuilder<T, B> {
 
         public B content(Content value) {
             OutputModifier.Builder builder = new OutputModifier.Builder();

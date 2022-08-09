@@ -58,6 +58,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>persistence-file</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>persistence-memory</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -80,41 +85,6 @@
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>${picocli.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-aasx</artifactId>
-            <version>${aas.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-aml</artifactId>
-            <version>${aas.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-core</artifactId>
-            <version>${aas.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-json</artifactId>
-            <version>${aas.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-rdf</artifactId>
-            <version>${aas.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-uanodeset</artifactId>
-            <version>${aas.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-xml</artifactId>
-            <version>${aas.version}</version>
         </dependency>
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
@@ -159,6 +129,15 @@
                             <password>${env.DOCKER_TOKEN}</password>
                         </auth>
                     </to>
+                    <extraDirectories>
+                        <paths>
+                            <path>
+                                <from>${project.build.outputDirectory}</from>
+                                <into>/app/resources</into>
+                                <includes>git.json</includes>
+                            </path>
+                        </paths>
+                    </extraDirectories>
                 </configuration>
             </plugin>
             <plugin>
@@ -181,13 +160,13 @@
             <plugin>
                 <groupId>io.github.git-commit-id</groupId>
                 <artifactId>git-commit-id-maven-plugin</artifactId>
-                <version>5.0.0</version>
+                <version>${maven.plugin.git.commit.id.version}</version>
                 <configuration>
                     <dotGitDirectory>${root.basedir}/.git</dotGitDirectory>
                     <prefix>git</prefix>
                     <verbose>false</verbose>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>${project.build.directory}/git.json</generateGitPropertiesFilename>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.json</generateGitPropertiesFilename>
                     <format>json</format>
                     <offline>true</offline>
                     <gitDescribe>
@@ -202,7 +181,7 @@
                         <goals>
                             <goal>revision</goal>
                         </goals>
-                        <phase>package</phase>
+                        <phase>generate-resources</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -230,10 +209,6 @@
                             </filters>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                                    <resource>git.json</resource>
-                                    <file>${project.build.directory}/git.json</file>
-                                </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>de.fraunhofer.iosb.ilt.faaast.service.starter.App</mainClass>
                                 </transformer>

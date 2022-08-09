@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
 import java.math.BigDecimal;
+import org.apache.commons.lang3.StringUtils;
 
 
 public class DecimalValue extends TypedValue<BigDecimal> {
@@ -30,14 +31,8 @@ public class DecimalValue extends TypedValue<BigDecimal> {
 
 
     @Override
-    public String asString() {
-        return value != null ? value.toString() : "";
-    }
-
-
-    @Override
     public void fromString(String value) throws ValueFormatException {
-        if (value == null) {
+        if (StringUtils.isAllBlank(value)) {
             this.setValue(null);
             return;
         }

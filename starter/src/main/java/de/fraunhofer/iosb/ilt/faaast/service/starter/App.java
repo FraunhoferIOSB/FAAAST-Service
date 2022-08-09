@@ -27,8 +27,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
-import de.fraunhofer.iosb.ilt.faaast.service.starter.util.AASEnvironmentHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.DeserializationException;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -199,13 +201,19 @@ public class App implements Runnable {
     }
 
 
-    private boolean validateModelIfRequired(AssetAdministrationShellEnvironment model) {
+    private boolean validateModelIfRequired(ServiceConfig config) {
         if (validateModel) {
             try {
+                AssetAdministrationShellEnvironment model = config.getPersistence().getEnvironment() == null
+                        ? AASEnvironmentHelper.fromFile(config.getPersistence().getInitialModel())
+                        : config.getPersistence().getEnvironment();
                 return validate(model);
             }
             catch (IOException e) {
                 LOGGER.error("Unexpected exception with validating model", e);
+            }
+            catch (DeserializationException e) {
+                LOGGER.error("Error loading model file", e);
             }
         }
         return true;
@@ -223,15 +231,8 @@ public class App implements Runnable {
             LOGGER.error("Error loading config file", e);
             return;
         }
-        AssetAdministrationShellEnvironment model = null;
-        try {
-            model = getModel();
-        }
-        catch (DeserializationException e) {
-            LOGGER.error("Error loading model file", e);
-            return;
-        }
-        if (!validateModelIfRequired(model)) {
+        withModel(config);
+        if (!validateModelIfRequired(config)) {
             return;
         }
         if (autoCompleteConfiguration) {
@@ -255,14 +256,14 @@ public class App implements Runnable {
             return;
         }
         if (!dryRun) {
-            runService(model, config);
+            runService(config);
         }
     }
 
 
-    private void runService(AssetAdministrationShellEnvironment model, ServiceConfig config) {
+    private void runService(ServiceConfig config) {
         try {
-            serviceRef.set(new Service(model, config));
+            serviceRef.set(new Service(config));
             LOGGER.info("Starting FA³ST Service...");
             LOGGER.debug("Using configuration file: ");
             printConfig(config);
@@ -319,24 +320,44 @@ public class App implements Runnable {
             return ServiceConfigHelper.load(configFile);
         }
         LOGGER.info("Config: empty (default)");
-        return ServiceConfigHelper.DEFAULT_SERVICE_CONFIG;
+        return ServiceConfigHelper.getDefaultServiceConfig();
     }
 
 
-    private AssetAdministrationShellEnvironment getModel() throws DeserializationException {
+    private void withModel(ServiceConfig config) {
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
             LOGGER.info("Model: {} (CLI)", modelFile.getAbsoluteFile());
-            return AASEnvironmentHelper.fromFile(modelFile);
+            if (config.getPersistence().getInitialModel() != null) {
+                LOGGER.info("Overriding Model Path {} set in Config File with {}",
+                        config.getPersistence().getInitialModel(),
+                        modelFile.getAbsoluteFile());
+            }
+            config.getPersistence().setInitialModel(modelFile);
+            return;
         }
         if (System.getenv(ENV_MODEL_FILE_PATH) != null && !System.getenv(ENV_MODEL_FILE_PATH).isBlank()) {
+            LOGGER.info("Model: {} (ENV)", System.getenv(ENV_MODEL_FILE_PATH));
+            if (config.getPersistence().getInitialModel() != null) {
+                LOGGER.info("Overriding model path {} set in Config File with {}",
+                        config.getPersistence().getInitialModel(),
+                        System.getenv(ENV_MODEL_FILE_PATH));
+            }
+            config.getPersistence().setInitialModel(new File(System.getenv(ENV_MODEL_FILE_PATH)));
             modelFile = new File(System.getenv(ENV_MODEL_FILE_PATH));
-            LOGGER.info("Model: {} (ENV)", modelFile.getAbsoluteFile());
-            return AASEnvironmentHelper.fromFile(new File(System.getenv(ENV_MODEL_FILE_PATH)));
+            return;
         }
+
+        if (config.getPersistence().getInitialModel() != null) {
+            LOGGER.info("Model: {} (CONFIG)", config.getPersistence().getInitialModel());
+            return;
+        }
+
         Optional<File> defaultModel = findDefaultModel();
         if (defaultModel.isPresent()) {
             LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
-            return AASEnvironmentHelper.fromFile(defaultModel.get());
+            config.getPersistence().setInitialModel(defaultModel.get());
+            modelFile = new File(defaultModel.get().getAbsolutePath());
+            return;
         }
         if (useEmptyModel) {
             LOGGER.info("Model: empty (CLI)");
@@ -346,7 +367,7 @@ public class App implements Runnable {
         }
         LOGGER.info("Model validation is disabled when using empty model");
         validateModel = false;
-        return AASEnvironmentHelper.EMPTY_AAS;
+        config.getPersistence().setEnvironment(AASEnvironmentHelper.EMPTY_AAS);
     }
 
 
@@ -387,11 +408,25 @@ public class App implements Runnable {
         LOGGER.info("|_|/_/    \\_\\     |_____/   |_|      |_____/ \\___|_|    \\_/ |_|\\___\\___|");
         LOGGER.info("");
         LOGGER.info("-------------------------------------------------------------------------");
+        try {
+            Stream.of(new PropertiesVersionProvider().getVersion()).forEach(LOGGER::info);
+        }
+        catch (Exception e) {
+            LOGGER.info("error determining version info (reason: {})", e.getMessage());
+        }
+        LOGGER.info("-------------------------------------------------------------------------");
     }
 
 
     private boolean validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
         LOGGER.debug("Validating model...");
+        try {
+            ValueTypeValidator.validate(aasEnv);
+        }
+        catch (ValidationException e) {
+            LOGGER.info("Model validation failed with the following error(s):{}{}", System.lineSeparator(), e.getMessage());
+            return false;
+        }
         ShaclValidator shaclValidator = ShaclValidator.getInstance();
         ValidationReport report = shaclValidator.validateGetReport(aasEnv);
         if (report.conforms()) {
@@ -453,8 +488,8 @@ public class App implements Runnable {
         public String[] getVersion() throws Exception {
             Map<String, String> gitInfo = new ObjectMapper().readValue(App.class.getClassLoader().getResourceAsStream("git.json"), TYPE_MAP_STRING_STRING);
             return new String[] {
-                    String.format("%s v%s", APP_NAME, gitInfo.get(PATH_GIT_BUILD_VERSION)),
-                    String.format("Git Details: %s", gitInfo.get(PATH_GIT_COMMIT_ID_DESCRIBE)),
+                    String.format("Version %s", gitInfo.get(PATH_GIT_BUILD_VERSION)),
+                    String.format("Git Commit ID: %s", gitInfo.get(PATH_GIT_COMMIT_ID_DESCRIBE)),
                     String.format("Commit Time: %s", gitInfo.get(PATH_GIT_COMMIT_TIME)),
             };
         }

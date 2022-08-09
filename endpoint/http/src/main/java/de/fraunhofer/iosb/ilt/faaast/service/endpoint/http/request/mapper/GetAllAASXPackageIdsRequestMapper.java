@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAASXPackageIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,31 +29,27 @@ import java.util.stream.Stream;
 /**
  * class to map HTTP-GET-Request path: packages?aasId={aasIds}
  */
-public class GetAllAASXPackageIdsRequestMapper extends RequestMapper {
+public class GetAllAASXPackageIdsRequestMapper extends AbstractRequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
-    private static final String PATTERN = "^packages$";
-    private static final String QUERYPARAM = "aasId";
+    private static final String PATTERN = "packages";
 
     public GetAllAASXPackageIdsRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.GET, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
+    public boolean matchesUrl(HttpRequest httpRequest) {
+        return super.matchesUrl(httpRequest) && httpRequest.hasQueryParameter(QueryParameters.AAS_ID);
+    }
+
+
+    @Override
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return GetAllAASXPackageIdsRequest.builder()
-                .aasIds(Stream.of(EncodingHelper.base64Decode(httpRequest.getQueryParameters().get(QUERYPARAM)).split(","))
+                .aasIds(Stream.of(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QueryParameters.AAS_ID)).split(","))
                         .map(x -> IdentifierHelper.parseIdentifier(x))
                         .collect(Collectors.toList()))
                 .build();
-    }
-
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN)
-                && httpRequest.getQueryParameters().containsKey(QUERYPARAM);
     }
 }

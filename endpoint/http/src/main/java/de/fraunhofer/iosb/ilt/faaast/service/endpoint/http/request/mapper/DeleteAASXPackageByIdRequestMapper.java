@@ -20,32 +20,28 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteAASXPackageByIdRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
+import java.util.Map;
 
 
 /**
  * class to map HTTP-DELETE-Request path: packages/{packageId}
  */
-public class DeleteAASXPackageByIdRequestMapper extends RequestMapper {
+public class DeleteAASXPackageByIdRequestMapper extends AbstractRequestMapper {
 
-    private static final HttpMethod HTTP_METHOD = HttpMethod.DELETE;
-    private static final String PATTERN = "^packages/(.*)$";
+    private static final String PACKAGE_ID = RegExHelper.uniqueGroupName();
+    private static final String PATTERN = String.format("packages/%s", pathElement(PACKAGE_ID));
 
     public DeleteAASXPackageByIdRequestMapper(ServiceContext serviceContext) {
-        super(serviceContext);
+        super(serviceContext, HttpMethod.DELETE, PATTERN);
     }
 
 
     @Override
-    public Request parse(HttpRequest httpRequest) {
+    public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return DeleteAASXPackageByIdRequest.builder()
-                .packageId(EncodingHelper.base64Decode(httpRequest.getPathElements().get(1)))
+                .packageId(EncodingHelper.base64Decode(urlParameters.get(PACKAGE_ID)))
                 .build();
     }
 
-
-    @Override
-    public boolean matches(HttpRequest httpRequest) {
-        return httpRequest.getMethod().equals(HTTP_METHOD)
-                && httpRequest.getPath().matches(PATTERN);
-    }
 }

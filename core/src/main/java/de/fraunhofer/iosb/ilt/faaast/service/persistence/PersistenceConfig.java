@@ -15,16 +15,104 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
+import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.io.File;
+import java.util.Objects;
 
 
 /**
- * Generic persistance configuration. When implementing a custom persistence
+ * Generic persistence configuration. When implementing a custom persistence
  * inherit from this class to create a custom configuration.
  *
  * @param <T> type of the persistence
  */
 public class PersistenceConfig<T extends Persistence> extends Config<T> {
+
+    private static final boolean DEFAULT_DECOUPLE_ENVIRONMENT = true;
+    private File initialModel;
+    private AssetAdministrationShellEnvironment environment;
+    private boolean decoupleEnvironment;
+
+    public PersistenceConfig(File initialModel) {
+        this.initialModel = initialModel;
+        decoupleEnvironment = DEFAULT_DECOUPLE_ENVIRONMENT;
+    }
+
+
+    public PersistenceConfig() {
+        decoupleEnvironment = DEFAULT_DECOUPLE_ENVIRONMENT;
+    }
+
+
+    public File getInitialModel() {
+        return initialModel;
+    }
+
+
+    /**
+     * Sets model file containing initial model. Initial model is the model that
+     * is loaded on first start.
+     *
+     * @param initialModel the model file
+     */
+    public void setInitialModel(File initialModel) {
+        this.initialModel = initialModel;
+    }
+
+
+    public AssetAdministrationShellEnvironment getEnvironment() {
+        return environment;
+    }
+
+
+    /**
+     * Overwrites the AASEnvironment from model path
+     *
+     * @param environment the environment to set
+     */
+    public void setEnvironment(AssetAdministrationShellEnvironment environment) {
+        this.environment = environment;
+    }
+
+
+    public boolean isDecoupleEnvironment() {
+        return decoupleEnvironment;
+    }
+
+
+    /**
+     * If true then a copied version of the environment is used
+     *
+     * @param decoupleEnvironment flag indicating whether to decouple the environment
+     */
+    public void setDecoupleEnvironment(boolean decoupleEnvironment) {
+        this.decoupleEnvironment = decoupleEnvironment;
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PersistenceConfig<?> other = (PersistenceConfig<?>) obj;
+        return Objects.equals(this.initialModel, other.initialModel)
+                && Objects.equals(this.decoupleEnvironment, other.decoupleEnvironment)
+                && Objects.equals(this.environment, other.environment);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), this.initialModel, this.decoupleEnvironment, this.environment);
+    }
 
     /**
      * Abstract builder class that should be used for builders of inheriting
@@ -35,6 +123,23 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
      * @param <B> type of this builder, needed for inheritance builder pattern
      */
     public abstract static class AbstractBuilder<T extends Persistence, C extends PersistenceConfig<T>, B extends AbstractBuilder<T, C, B>> extends ExtendableBuilder<C, B> {
+
+        public B initialModel(File value) {
+            getBuildingInstance().setInitialModel(value);
+            return getSelf();
+        }
+
+
+        public B environment(AssetAdministrationShellEnvironment value) {
+            getBuildingInstance().setEnvironment(value);
+            return getSelf();
+        }
+
+
+        public B decoupleEnvironment(boolean value) {
+            getBuildingInstance().setDecoupleEnvironment(value);
+            return getSelf();
+        }
 
     }
 

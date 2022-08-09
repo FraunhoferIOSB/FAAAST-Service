@@ -34,7 +34,6 @@ import com.prosysopc.ua.stack.core.RelativePath;
 import com.prosysopc.ua.stack.core.RelativePathElement;
 import com.prosysopc.ua.stack.core.ServerState;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
@@ -96,7 +95,6 @@ public class OpcUaEndpointTest {
     private static int OPC_TCP_PORT;
     private static String ENDPOINT_URL;
 
-    private static OpcUaEndpoint endpoint;
     private static TestService service;
     private static int aasns;
 
@@ -113,15 +111,12 @@ public class OpcUaEndpointTest {
     public static void startTest() throws ConfigurationException, Exception {
         OPC_TCP_PORT = findFreePort();
         ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
-        CoreConfig coreConfig = new CoreConfig();
 
         OpcUaEndpointConfig config = new OpcUaEndpointConfig();
         config.setTcpPort(OPC_TCP_PORT);
         config.setSecondsTillShutdown(0);
 
-        endpoint = new OpcUaEndpoint();
-        service = new TestService(endpoint, null, false);
-        endpoint.init(coreConfig, config, service);
+        service = new TestService(config, null, false);
         service.start();
     }
 
@@ -129,9 +124,6 @@ public class OpcUaEndpointTest {
     @AfterClass
     public static void stopTest() {
         LOGGER.trace("stopTest");
-        if (endpoint != null) {
-            endpoint.stop();
-        }
 
         if (service != null) {
             service.stop();
