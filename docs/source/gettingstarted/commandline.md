@@ -1,24 +1,23 @@
 # Usage with Command Line
 
 To start a FA³ST Service from the command line:
+
 1.  Move to the starter project and build the project
 
-    ```sh
-    cd /starter
-    mvn clean package
-    ```
-
+```sh
+cd /starter
+mvn clean package
+```
 2.  Move to the generated `.jar` file
 
-    ```sh
-    cd starter/target
-    ```
-
+```sh
+cd starter/target
+```
 3.  Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use an example AASEnvironment from us [here](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/misc/examples/demoAAS.json).
 
-  ```sh
-  java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
-  ```
+```sh
+java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
+```
 
 Currently we supporting following formats of the Asset Administration Shell Environment model:
 >json, json-ld, aml, xml, opcua nodeset, rdf
@@ -53,10 +52,10 @@ Following command line parameters could be used:
 -V, --version              	Print version information and exit.
 ```
 
-
 ## Change the Configuration
 
 In general there are 3 ways to configure your FA³ST Service:
+
 1.  Default values
 2.  Commandline parameters
 3.  Environment Variables
@@ -97,8 +96,7 @@ If you want to change for example the requestHandlerThreadPoolSize in the core c
 You could also use properties to adjust configuration components. To change the `requestHandlerThreadPoolSize` of the core component and the port of the http endpoint use
 
 ```sh
-java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
-core.requestHandlerThreadPoolSize=42 endpoints[0].port=8081
+java -jar starter-{version}.jar -m {path/to/your/AASEnvironment} core.requestHandlerThreadPoolSize=42 endpoints[0].port=8081
 ```
 
 ## Special Parameters
