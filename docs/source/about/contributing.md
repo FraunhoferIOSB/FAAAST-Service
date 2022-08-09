@@ -12,6 +12,7 @@ Don't forget to rate the project! Thanks again!
 5.  Open a Pull Request
 
 ## Code Formatting
+
 The project uses _spotless:check_ in the build cycle, which means the project only compiles if all code, *.pom and *.xml files are formatted according to the project's codestyle definitions (see details on [spotless](https://github.com/diffplug/spotless)).
 You can automatically format your code by running
 
@@ -20,6 +21,7 @@ You can automatically format your code by running
 Additionally, you can import the eclipse formatting rules defined in _/codestyle_ into our IDE.
 
 ## Third Party License
+
 If you use additional dependencies please be sure that the licenses of these dependencies are compliant with our License. If you are not sure which license your dependencies have, you can run
 >mvn license:aggregate-third-party-report
 
