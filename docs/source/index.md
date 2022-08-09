@@ -21,6 +21,7 @@ FA³ST Service provides the following functionalities:
 
 
 ```{toctree} 
+:hidden:
 :caption: Getting Started
 :maxdepth: 3
 gettingstarted/gettingstarted.md
@@ -30,12 +31,14 @@ gettingstarted/docker.md
 ```
 
 ```{toctree} 
+:hidden:
 :caption: Architecture
 :maxdepth: 3
 architecture/architecture.md
 ```
 
 ```{toctree} 
+:hidden:
 :caption: Endpoints
 :maxdepth: 3
 endpoints/http_endpoint.md
@@ -43,6 +46,7 @@ endpoints/opcua_endpoint.md
 ```
 
 ```{toctree} 
+:hidden:
 :caption: Asset Connections
 :maxdepth: 3
 assetconnections/assetconnection.md
@@ -52,6 +56,7 @@ assetconnections/mqtt_assetconnection.md
 ```
 
 ```{toctree} 
+:hidden:
 :caption: Persistence
 :maxdepth: 3
 persistences/persistence.md
@@ -60,6 +65,7 @@ persistences/file_persistence.md
 ```
 
 ```{toctree} 
+:hidden:
 :caption: About
 :maxdepth: 2
 about/about.md
