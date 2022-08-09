@@ -10,6 +10,7 @@ At first glance the evolving specification of the AAS seems pretty complex and a
 
 Next milestone is to publish a first 1.0.0 release to Maven Central and DockerHub.
 Some of the features we are working on include
+
 -   improve stability/robustness
 -   improve usability
 -   implement a file & database persistence in FA³ST Service

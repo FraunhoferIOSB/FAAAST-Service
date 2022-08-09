@@ -2,7 +2,7 @@
 
 ![FA³ST Service Architecture](../images/fa3st-service-default-implementations.png)
 
-Fa³ST Service uses an open architecture and defines interfaces for most functionality. This allows for easy extension by 3rd parties. However, FA³ST Service also includes one or more  useful default implementations for each interface:
+FA³ST Service uses an open architecture and defines interfaces for most functionality. This allows for easy extension by 3rd parties. However, FA³ST Service also includes one or more  useful default implementations for each interface:
 
 -   [HTTP Endpoint](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/endpoint/http/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/http/HttpEndpoint.java)
 -   [OPC UA Endpoint](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/endpoint/opcua/src/main/java/de/fraunhofer/iosb/ilt/faaast/service/endpoint/opcua/OpcUaEndpoint.java)
