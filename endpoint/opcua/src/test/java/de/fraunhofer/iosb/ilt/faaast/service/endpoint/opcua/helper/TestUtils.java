@@ -130,12 +130,12 @@ public class TestUtils {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkModelingKind Browse Result Null", bpres);
-        Assert.assertEquals("checkModelingKind Browse Result: size doesn't match", 1, bpres.length);
+        Assert.assertNotNull("checkModelingKindNode Browse Result Null", bpres);
+        Assert.assertEquals("checkModelingKindNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkModelingKind Browse Target Node Null", targets);
-        Assert.assertTrue("checkModelingKind Browse targets empty", targets.length > 0);
+        Assert.assertNotNull("checkModelingKindNode Browse Target Node Null", targets);
+        Assert.assertTrue("checkModelingKindNode Browse targets empty", targets.length > 0);
 
         checkModelingKind(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), modelingKind);
     }
@@ -362,12 +362,12 @@ public class TestUtils {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkPropertyBool Browse Result Null", bpres);
-        Assert.assertEquals("checkPropertyBool Browse Result: size doesn't match", 1, bpres.length);
+        Assert.assertNotNull("checkVariableBool Browse Result Null", bpres);
+        Assert.assertEquals("checkVariableBool Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkPropertyBool Node Targets Null", targets);
-        Assert.assertTrue("checkPropertyBool Node targets empty", targets.length > 0);
+        Assert.assertNotNull("checkVariableBool Node Targets Null", targets);
+        Assert.assertTrue("checkVariableBool Node targets empty", targets.length > 0);
 
         DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -444,12 +444,12 @@ public class TestUtils {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkAasPropertyString Browse Property Result Null", bpres);
-        Assert.assertEquals("checkAasPropertyString Browse Property Result: size doesn't match", 1, bpres.length);
+        Assert.assertNotNull("checkAasPropertyObject Browse Property Result Null", bpres);
+        Assert.assertEquals("checkAasPropertyObject Browse Property Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkAasPropertyString Property Null", targets);
-        Assert.assertTrue("checkAasPropertyString Property empty", targets.length > 0);
+        Assert.assertNotNull("checkAasPropertyObject Property Null", targets);
+        Assert.assertTrue("checkAasPropertyObject Property empty", targets.length > 0);
         NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         checkType(client, propertyNode, new NodeId(aasns, TestConstants.AAS_PROPERTY_TYPE_ID));
@@ -468,25 +468,24 @@ public class TestUtils {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkAasPropertyString Browse Value & Type Result Null", bpres);
-        Assert.assertEquals("checkAasPropertyString Browse Value & Type Result: size doesn't match", 2, bpres.length);
+        Assert.assertNotNull("checkAasPropertyObject Browse Value & Type Result Null", bpres);
+        Assert.assertEquals("checkAasPropertyObject Browse Value & Type Result: size doesn't match", 2, bpres.length);
 
         targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkAasPropertyString ValueType Null", targets);
-        Assert.assertTrue("checkAasPropertyString ValueType empty", targets.length > 0);
+        Assert.assertNotNull("checkAasPropertyObject ValueType Null", targets);
+        Assert.assertTrue("checkAasPropertyObject ValueType empty", targets.length > 0);
         DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertEquals(valueType.ordinal(), value.getValue().intValue());
 
         targets = bpres[1].getTargets();
-        Assert.assertNotNull("checkAasPropertyString Value Null", targets);
-        Assert.assertTrue("checkAasPropertyString value empty", targets.length > 0);
+        Assert.assertNotNull("checkAasPropertyObject Value Null", targets);
+        Assert.assertTrue("checkAasPropertyObject value empty", targets.length > 0);
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
 
         Variant var = new Variant(propValue);
-        Variant var2 = value.getValue();
-        Assert.assertEquals(var, var2);
+        Assert.assertEquals(var, value.getValue());
     }
 
 
