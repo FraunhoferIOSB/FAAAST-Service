@@ -1,5 +1,7 @@
 # Usage with Docker
 
+This section describes the usage with docker and docker compose.
+
 ## Docker-Compose
 
 Clone this repository, navigate to `/misc/docker/` and run this command inside it.
