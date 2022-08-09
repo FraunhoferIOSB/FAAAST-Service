@@ -12,7 +12,7 @@ To start a FA³ST Service from the command line:
     cd starter/target
     ```
 
-3.  Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use a example AASEnvironment from us [here](starter/src/test/resources/AASFull.json).
+3.  Execute the `.jar` file to start a FA³ST Service directly with a default configuration. Replace the `{path/to/your/AASEnvironment}` with your file to the Asset Administration Shell Environment you want to load with the FA³ST Service. If you just want to play around, you can use an example AASEnvironment from us [here](https://github.com/FraunhoferIOSB/FAAAST-Service/blob/main/misc/examples/demoAAS.json).
   ```sh
   java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
   ```
@@ -63,7 +63,7 @@ In general there are 3 ways to configure your FA³ST Service:
 
 The 3 kinds can be combined, e.g. by using the default configuration and customizing with commandline parameters and environment variables. If they conflict, environment variables are preferred over all and commandline parameters are preferred over the default values.
 
-Without any manual customization a FA³ST Service with default configuration will be started. For details to the structure and components of the configuration please have a look at the configuration section [here]()
+Without any manual customization a FA³ST Service with default configuration will be started. For details to the structure and components of the configuration please have a look at the configuration section.
 
 Default Configuration:
 ```json

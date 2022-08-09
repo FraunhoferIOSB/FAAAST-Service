@@ -8,7 +8,7 @@ docker-compose up
 ```
 To use your own AAS environment replace the model file `/misc/examples/demoAAS.json`.
 To modify the configuration edit the file `/misc/examples/exampleConfiguration.json`.
-You can also override configuration values using environment variables [see details](./documentation/commandline.md).
+You can also override configuration values using environment variables. For details have a look into the commandline section.
 
 ## Docker CLI
 To start the FA³ST service with an empty AAS environment execute this command.
