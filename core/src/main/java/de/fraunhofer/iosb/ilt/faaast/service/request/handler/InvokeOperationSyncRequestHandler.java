@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvi
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
@@ -62,21 +61,21 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
     @Override
     public InvokeOperationSyncResponse doProcess(InvokeOperationSyncRequest request) throws ValueMappingException, ResourceNotFoundException, MessageBusException {
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
-        InvokeOperationSyncResponse response = new InvokeOperationSyncResponse();
         messageBus.publish(OperationInvokeEventMessage.builder()
                 .element(reference)
                 .input(ElementValueHelper.toValues(request.getInputArguments()))
                 .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
                 .build());
         OperationResult operationResult = executeOperationSync(reference, request);
-        response.setPayload(operationResult);
-        response.setStatusCode(StatusCode.SUCCESS);
         messageBus.publish(OperationFinishEventMessage.builder()
                 .element(reference)
-                .inoutput(ElementValueHelper.toValues(response.getPayload().getInoutputArguments()))
-                .output(ElementValueHelper.toValues(response.getPayload().getOutputArguments()))
+                .inoutput(ElementValueHelper.toValues(operationResult.getInoutputArguments()))
+                .output(ElementValueHelper.toValues(operationResult.getOutputArguments()))
                 .build());
-        return response;
+        return InvokeOperationSyncResponse.builder()
+                .payload(operationResult)
+                .success()
+                .build();
     }
 
 

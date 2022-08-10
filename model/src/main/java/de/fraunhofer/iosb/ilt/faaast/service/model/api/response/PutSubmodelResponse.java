@@ -14,14 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
 import io.adminshell.aas.v3.model.Submodel;
 
 
 /**
  * Chapter 4.3.5
  */
-public class PutSubmodelResponse extends BaseResponseWithPayload<Submodel> {
+public class PutSubmodelResponse extends AbstractResponseWithPayload<Submodel> {
 
     public static PutSubmodelResponse.Builder builder() {
         return new PutSubmodelResponse.Builder();

@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsByIdShortResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
@@ -49,10 +48,7 @@ public class GetAllSubmodelsByIdShortRequestHandler extends AbstractRequestHandl
     @Override
     public GetAllSubmodelsByIdShortResponse process(GetAllSubmodelsByIdShortRequest request)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
-        GetAllSubmodelsByIdShortResponse response = new GetAllSubmodelsByIdShortResponse();
         List<Submodel> submodels = persistence.get(request.getIdShort(), (Reference) null, request.getOutputModifier());
-        response.setPayload(submodels);
-        response.setStatusCode(StatusCode.SUCCESS);
         if (submodels != null) {
             for (Submodel submodel: submodels) {
                 Reference reference = AasUtils.toReference(submodel);
@@ -63,7 +59,10 @@ public class GetAllSubmodelsByIdShortRequestHandler extends AbstractRequestHandl
                         .build());
             }
         }
-        return response;
+        return GetAllSubmodelsByIdShortResponse.builder()
+                .payload(submodels)
+                .success()
+                .build();
     }
 
 }

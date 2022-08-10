@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIsCaseOfResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIsCaseOfRequest;
@@ -45,10 +44,7 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestHandler
 
     @Override
     public GetAllConceptDescriptionsByIsCaseOfResponse process(GetAllConceptDescriptionsByIsCaseOfRequest request) throws MessageBusException {
-        GetAllConceptDescriptionsByIsCaseOfResponse response = new GetAllConceptDescriptionsByIsCaseOfResponse();
         List<ConceptDescription> conceptDescriptions = persistence.get(null, request.getIsCaseOf(), null, request.getOutputModifier());
-        response.setPayload(conceptDescriptions);
-        response.setStatusCode(StatusCode.SUCCESS);
         if (conceptDescriptions != null) {
             conceptDescriptions.forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> messageBus.publish(ElementReadEventMessage.builder()
@@ -56,6 +52,9 @@ public class GetAllConceptDescriptionsByIsCaseOfRequestHandler
                             .value(x)
                             .build())));
         }
-        return response;
+        return GetAllConceptDescriptionsByIsCaseOfResponse.builder()
+                .payload(conceptDescriptions)
+                .success()
+                .build();
     }
 }

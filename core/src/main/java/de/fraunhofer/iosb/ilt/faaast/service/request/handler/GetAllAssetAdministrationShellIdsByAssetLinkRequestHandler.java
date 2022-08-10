@@ -16,12 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellIdsByAssetLinkResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import io.adminshell.aas.v3.model.Identifiable;
+import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import java.util.List;
 import java.util.Objects;
@@ -55,7 +55,7 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
         List<IdentifierKeyValuePair> specificAssetIds = request.getAssetIdentifierPairs().stream()
                 .filter(x -> !Objects.equals(FaaastConstants.KEY_GLOBAL_ASSET_ID, x.getKey()))
                 .collect(Collectors.toList());
-        response.setPayload(persistence.getEnvironment().getAssetAdministrationShells().stream()
+        List<Identifier> result = persistence.getEnvironment().getAssetAdministrationShells().stream()
                 .filter(aas -> {
                     boolean globalMatch = aas.getAssetInformation().getGlobalAssetId() != null
                             && aas.getAssetInformation().getGlobalAssetId().getKeys() != null
@@ -75,8 +75,10 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
                     return true;
                 })
                 .map(Identifiable::getIdentification)
-                .collect(Collectors.toList()));
-        response.setStatusCode(StatusCode.SUCCESS);
-        return response;
+                .collect(Collectors.toList());
+        return GetAllAssetAdministrationShellIdsByAssetLinkResponse.builder()
+                .payload(result)
+                .success()
+                .build();
     }
 }

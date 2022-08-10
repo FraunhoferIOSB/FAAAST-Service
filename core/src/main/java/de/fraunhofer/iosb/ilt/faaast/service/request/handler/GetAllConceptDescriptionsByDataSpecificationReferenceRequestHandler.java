@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByDataSpecificationReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByDataSpecificationReferenceRequest;
@@ -45,10 +44,7 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestHandler
 
     @Override
     public GetAllConceptDescriptionsByDataSpecificationReferenceResponse process(GetAllConceptDescriptionsByDataSpecificationReferenceRequest request) throws MessageBusException {
-        GetAllConceptDescriptionsByDataSpecificationReferenceResponse response = new GetAllConceptDescriptionsByDataSpecificationReferenceResponse();
         List<ConceptDescription> conceptDescriptions = persistence.get(null, null, request.getDataSpecificationReference(), request.getOutputModifier());
-        response.setPayload(conceptDescriptions);
-        response.setStatusCode(StatusCode.SUCCESS);
         if (conceptDescriptions != null) {
             conceptDescriptions.forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> messageBus.publish(ElementReadEventMessage.builder()
@@ -56,7 +52,10 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestHandler
                             .value(x)
                             .build())));
         }
-        return response;
+        return GetAllConceptDescriptionsByDataSpecificationReferenceResponse.builder()
+                .payload(conceptDescriptions)
+                .success()
+                .build();
     }
 
 }

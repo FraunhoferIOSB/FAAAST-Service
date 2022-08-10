@@ -15,14 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.AASXPackageBase;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
 import java.util.Objects;
 
 
 /**
  * Chapter 4.5.3
  */
-public class GetAASXByPackageIdResponse extends BaseResponseWithPayload<AASXPackageBase> {
+public class GetAASXByPackageIdResponse extends AbstractResponseWithPayload<AASXPackageBase> {
 
     private String filename;
 

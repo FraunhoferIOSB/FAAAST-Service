@@ -26,7 +26,7 @@ public class DeleteAllAssetLinksByIdResponse extends AbstractResponse {
         return new DeleteAllAssetLinksByIdResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<DeleteAllAssetLinksByIdResponse, DeleteAllAssetLinksByIdResponse.Builder> {
+    public static class Builder extends AbstractResponse.AbstractBuilder<DeleteAllAssetLinksByIdResponse, Builder> {
 
         @Override
         protected DeleteAllAssetLinksByIdResponse.Builder getSelf() {

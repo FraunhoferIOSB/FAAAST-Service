@@ -40,7 +40,7 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
     @Override
     public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request) {
         GenerateSerializationByIdsResponse response = new GenerateSerializationByIdsResponse();
-        response.setContentType(request.getSerializationFormat().getContentType());
+        response.setDataformat(request.getSerializationFormat());
         //TODO implement Serialization
         // this requires uniform interface for de-/serializers, which can only be detected through reflection because otherwise we will have circular dependencies
         response.setStatusCode(StatusCode.SERVER_INTERNAL_ERROR);

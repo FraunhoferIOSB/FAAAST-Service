@@ -30,7 +30,7 @@ public enum DataFormat {
     JSON(MediaType.JSON_UTF_8, "json"),
     XML(MediaType.XML_UTF_8, "xml"),
     RDF(MediaType.PLAIN_TEXT_UTF_8, "rdf", "xml", "ttl", "n3", "nt", "nq"),
-    JSONLD(MediaType.JSON_UTF_8, "jsonld", "json-ld"),
+    JSONLD(MediaType.create("application", "ld+json"), "jsonld", "json-ld"),
     AML(MediaType.XML_UTF_8, "aml", "xml"),
     AASX(MediaType.ZIP, "aasx"),
     UANODESET(MediaType.XML_UTF_8, "xml");

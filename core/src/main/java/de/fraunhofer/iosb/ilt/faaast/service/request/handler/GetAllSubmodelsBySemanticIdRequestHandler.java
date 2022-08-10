@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsBySemanticIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
@@ -49,10 +48,7 @@ public class GetAllSubmodelsBySemanticIdRequestHandler extends AbstractRequestHa
     @Override
     public GetAllSubmodelsBySemanticIdResponse process(GetAllSubmodelsBySemanticIdRequest request)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
-        GetAllSubmodelsBySemanticIdResponse response = new GetAllSubmodelsBySemanticIdResponse();
         List<Submodel> submodels = persistence.get(null, request.getSemanticId(), request.getOutputModifier());
-        response.setPayload(submodels);
-        response.setStatusCode(StatusCode.SUCCESS);
         if (submodels != null) {
             for (Submodel submodel: submodels) {
                 Reference reference = AasUtils.toReference(submodel);
@@ -63,6 +59,9 @@ public class GetAllSubmodelsBySemanticIdRequestHandler extends AbstractRequestHa
                         .build());
             }
         }
-        return response;
+        return GetAllSubmodelsBySemanticIdResponse.builder()
+                .payload(submodels)
+                .success()
+                .build();
     }
 }

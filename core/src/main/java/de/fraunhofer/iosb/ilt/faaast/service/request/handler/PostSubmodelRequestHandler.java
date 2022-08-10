@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
@@ -46,17 +45,17 @@ public class PostSubmodelRequestHandler extends AbstractRequestHandler<PostSubmo
 
     @Override
     public PostSubmodelResponse process(PostSubmodelRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, Exception {
-        PostSubmodelResponse response = new PostSubmodelResponse();
         Submodel submodel = (Submodel) persistence.put(request.getSubmodel());
-        response.setPayload(submodel);
-        response.setStatusCode(StatusCode.SUCCESS_CREATED);
         Reference reference = AasUtils.toReference(submodel);
         syncWithAsset(reference, submodel.getSubmodelElements());
         messageBus.publish(ElementCreateEventMessage.builder()
                 .element(reference)
                 .value(submodel)
                 .build());
-        return response;
+        return PostSubmodelResponse.builder()
+                .payload(submodel)
+                .created()
+                .build();
     }
 
 }

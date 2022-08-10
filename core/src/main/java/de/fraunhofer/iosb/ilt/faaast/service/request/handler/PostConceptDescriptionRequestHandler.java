@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostConceptDescriptionResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostConceptDescriptionRequest;
@@ -41,15 +40,15 @@ public class PostConceptDescriptionRequestHandler extends AbstractRequestHandler
 
     @Override
     public PostConceptDescriptionResponse process(PostConceptDescriptionRequest request) throws Exception {
-        PostConceptDescriptionResponse response = new PostConceptDescriptionResponse();
         ConceptDescription conceptDescription = (ConceptDescription) persistence.put(request.getConceptDescription());
-        response.setPayload(conceptDescription);
-        response.setStatusCode(StatusCode.SUCCESS_CREATED);
         messageBus.publish(ElementCreateEventMessage.builder()
                 .element(conceptDescription)
                 .value(conceptDescription)
                 .build());
-        return response;
+        return PostConceptDescriptionResponse.builder()
+                .payload(conceptDescription)
+                .created()
+                .build();
     }
 
 }

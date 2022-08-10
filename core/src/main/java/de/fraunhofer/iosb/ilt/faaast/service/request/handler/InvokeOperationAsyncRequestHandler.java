@@ -20,7 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvi
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
@@ -62,17 +61,17 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
 
     @Override
     public InvokeOperationAsyncResponse doProcess(InvokeOperationAsyncRequest request) throws ResourceNotFoundException, ValueMappingException, MessageBusException, Exception {
-        InvokeOperationAsyncResponse response = new InvokeOperationAsyncResponse();
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
         OperationHandle operationHandle = executeOperationAsync(reference, request);
-        response.setPayload(operationHandle);
-        response.setStatusCode(StatusCode.SUCCESS);
         messageBus.publish(OperationInvokeEventMessage.builder()
                 .element(reference)
                 .input(ElementValueHelper.toValues(request.getInputArguments()))
                 .inoutput(ElementValueHelper.toValues(request.getInoutputArguments()))
                 .build());
-        return response;
+        return InvokeOperationAsyncResponse.builder()
+                .payload(operationHandle)
+                .success()
+                .build();
     }
 
 

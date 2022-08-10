@@ -21,6 +21,7 @@ public class HttpConstants {
 
     public static final String HEADER_VALUE_SEPARATOR = ",";
     public static final String PATH_SEPERATOR = "/";
+    public static final String HEADER_ACCEPT = "Accept";
 
     private HttpConstants() {}
 }

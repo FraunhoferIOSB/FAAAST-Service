@@ -14,14 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 
 
 /**
  * Chapter 4.3.11
  */
-public class InvokeOperationSyncResponse extends BaseResponseWithPayload<OperationResult> {
+public class InvokeOperationSyncResponse extends AbstractResponseWithPayload<OperationResult> {
 
     public static InvokeOperationSyncResponse.Builder builder() {
         return new InvokeOperationSyncResponse.Builder();

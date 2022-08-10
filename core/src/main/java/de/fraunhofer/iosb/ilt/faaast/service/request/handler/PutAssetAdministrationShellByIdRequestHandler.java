@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetAdministrationShellByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
@@ -44,16 +43,16 @@ public class PutAssetAdministrationShellByIdRequestHandler extends AbstractReque
 
     @Override
     public PutAssetAdministrationShellByIdResponse process(PutAssetAdministrationShellByIdRequest request) throws ResourceNotFoundException, MessageBusException {
-        PutAssetAdministrationShellByIdResponse response = new PutAssetAdministrationShellByIdResponse();
         AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getAas().getIdentification(), new OutputModifier());
         shell = (AssetAdministrationShell) persistence.put(request.getAas());
-        response.setPayload(shell);
-        response.setStatusCode(StatusCode.SUCCESS);
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(shell)
                 .value(shell)
                 .build());
-        return response;
+        return PutAssetAdministrationShellByIdResponse.builder()
+                .payload(shell)
+                .success()
+                .build();
     }
 
 }

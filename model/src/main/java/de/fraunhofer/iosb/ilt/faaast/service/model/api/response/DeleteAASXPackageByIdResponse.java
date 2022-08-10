@@ -26,7 +26,7 @@ public class DeleteAASXPackageByIdResponse extends AbstractResponse {
         return new DeleteAASXPackageByIdResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<DeleteAASXPackageByIdResponse, DeleteAASXPackageByIdResponse.Builder> {
+    public static class Builder extends AbstractResponse.AbstractBuilder<DeleteAASXPackageByIdResponse, Builder> {
 
         @Override
         protected DeleteAASXPackageByIdResponse.Builder getSelf() {

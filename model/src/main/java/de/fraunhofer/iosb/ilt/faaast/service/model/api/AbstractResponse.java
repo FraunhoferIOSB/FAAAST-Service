@@ -92,8 +92,27 @@ public abstract class AbstractResponse implements Response {
         }
 
 
+        public B success() {
+            getBuildingInstance().setStatusCode(StatusCode.SUCCESS);
+            return getSelf();
+        }
+
+
+        public B created() {
+            getBuildingInstance().setStatusCode(StatusCode.SUCCESS_CREATED);
+            return getSelf();
+        }
+
+
         public B result(Result value) {
             getBuildingInstance().setResult(value);
+            return getSelf();
+        }
+
+
+        public B error(StatusCode statusCode, String message) {
+            getBuildingInstance().setStatusCode(statusCode);
+            getBuildingInstance().setResult(Result.error(message));
             return getSelf();
         }
     }

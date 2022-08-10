@@ -26,7 +26,7 @@ public class DeleteConceptDescriptionByIdResponse extends AbstractResponse {
         return new DeleteConceptDescriptionByIdResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<DeleteConceptDescriptionByIdResponse, DeleteConceptDescriptionByIdResponse.Builder> {
+    public static class Builder extends AbstractResponse.AbstractBuilder<DeleteConceptDescriptionByIdResponse, Builder> {
 
         @Override
         protected DeleteConceptDescriptionByIdResponse.Builder getSelf() {

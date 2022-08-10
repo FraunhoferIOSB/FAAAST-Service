@@ -14,20 +14,36 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
 
+import com.google.common.net.MediaType;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.eclipse.jetty.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Helper class providing HTTP specific functionality.
  */
 public class HttpHelper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpHelper.class);
 
     private HttpHelper() {}
 
@@ -66,8 +82,8 @@ public class HttpHelper {
 
 
     /**
-     * Finds all methods of the url for which there is an implemented request mapper
-     * registered to the given mapping manager
+     * Finds all methods of the url for which there is an implemented request
+     * mapper registered to the given mapping manager
      *
      * @param mappingManager where the request mappers are registered
      * @param url which should be checked
@@ -89,5 +105,105 @@ public class HttpHelper {
             }
         }
         return allowedMethods;
+    }
+
+
+    /**
+     * Parses a comma-separated list. Also trims white space on all entries.
+     *
+     * @param input the comma-separated list
+     * @return the parsed list
+     */
+    public static List<String> parseCommaSeparatedList(String input) {
+        return new ArrayList<>(Arrays.asList(input.split("\\s*,\\s*")));
+    }
+
+
+    /**
+     * Sends a HTTP response with given statusCode and corresponding HTTP status
+     * code as message.
+     *
+     * @param response HTTP response object
+     * @param statusCode the statusCode to send
+     */
+    public static void send(HttpServletResponse response, StatusCode statusCode) {
+        send(response, statusCode, HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode)));
+    }
+
+
+    /**
+     * Sends a HTTP response with given statusCode and messages.
+     *
+     * @param response HTTP response object
+     * @param statusCode the statusCode to send
+     * @param message the message to send
+     */
+    public static void send(HttpServletResponse response, StatusCode statusCode, String message) {
+        send(response, statusCode, Result.error(message));
+    }
+
+
+    /**
+     * Sends a HTTP response with given statusCode and result.
+     *
+     * @param response HTTP response object
+     * @param statusCode statusCode to send
+     * @param result the result to send
+     */
+    private static void send(HttpServletResponse response, StatusCode statusCode, Result result) {
+        try {
+            sendJson(response, statusCode, new HttpJsonSerializer().write(result));
+        }
+        catch (SerializationException e) {
+            send(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
+        }
+    }
+
+
+    /**
+     * Sends a HTTP response with given statusCode and JSON payload.
+     *
+     * @param response HTTP response object
+     * @param statusCode statusCode to send
+     * @param content JSON payload
+     */
+    public static void sendJson(HttpServletResponse response, StatusCode statusCode, String content) {
+        sendContent(response,
+                statusCode,
+                content != null
+                        ? content.getBytes(StandardCharsets.UTF_8)
+                        : null,
+                MediaType.JSON_UTF_8);
+    }
+
+
+    /**
+     * Sends a HTTP response with given statusCode, payload and contentType.
+     *
+     * @param response HTTP response object
+     * @param statusCode statusCode to send
+     * @param content the content to send
+     * @param contentType the contentType to use
+     */
+    public static void sendContent(HttpServletResponse response, StatusCode statusCode, byte[] content, MediaType contentType) {
+        response.setStatus(toHttpStatusCode(statusCode));
+        response.setContentType(contentType.toString());
+        try {
+            if (contentType.charset().isPresent()) {
+                response.setCharacterEncoding(contentType.charset().get().toString());
+            }
+        }
+        catch (IllegalStateException | IllegalCharsetNameException | UnsupportedCharsetException e) {
+            LOGGER.warn("could not determine charset for contentType '{}'", contentType, e);
+        }
+        if (content != null) {
+            try {
+                response.getOutputStream().write(content);
+                response.getOutputStream().flush();
+            }
+            catch (IOException e) {
+                send(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
+            }
+        }
     }
 }
