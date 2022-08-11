@@ -50,9 +50,6 @@ public class GenerateSerializationByIdsResponse extends AbstractResponseWithPayl
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         GenerateSerializationByIdsResponse that = (GenerateSerializationByIdsResponse) o;
         return super.equals(that)
                 && Objects.equals(dataformat, that.dataformat);

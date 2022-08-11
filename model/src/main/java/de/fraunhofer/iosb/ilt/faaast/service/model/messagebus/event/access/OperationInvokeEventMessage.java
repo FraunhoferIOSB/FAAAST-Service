@@ -62,11 +62,10 @@ public class OperationInvokeEventMessage extends ExecuteEventMessage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         OperationInvokeEventMessage that = (OperationInvokeEventMessage) o;
-        return Objects.equals(input, that.input) && Objects.equals(inoutput, that.inoutput);
+        return super.equals(o)
+                && Objects.equals(input, that.input)
+                && Objects.equals(inoutput, that.inoutput);
     }
 
 

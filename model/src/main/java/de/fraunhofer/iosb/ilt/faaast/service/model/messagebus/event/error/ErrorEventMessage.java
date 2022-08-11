@@ -75,11 +75,9 @@ public class ErrorEventMessage extends EventMessage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         ErrorEventMessage that = (ErrorEventMessage) o;
-        return Objects.equals(exception, that.exception)
+        return super.equals(o)
+                && Objects.equals(exception, that.exception)
                 && Objects.equals(throwingSource, that.throwingSource)
                 && Objects.equals(errorLevel, that.errorLevel);
     }

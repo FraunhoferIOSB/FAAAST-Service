@@ -42,11 +42,8 @@ public abstract class AbstractResponseWithPayload<T> extends AbstractResponse {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         AbstractResponseWithPayload<T> that = (AbstractResponseWithPayload<T>) o;
-        return super.equals(that)
+        return super.equals(o)
                 && Objects.equals(payload, that.payload);
     }
 

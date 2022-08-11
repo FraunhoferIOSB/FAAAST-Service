@@ -44,11 +44,9 @@ public class GetAASXByPackageIdResponse extends AbstractResponseWithPayload<AASX
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         GetAASXByPackageIdResponse that = (GetAASXByPackageIdResponse) o;
-        return Objects.equals(filename, that.filename);
+        return super.equals(o)
+                && Objects.equals(filename, that.filename);
     }
 
 

@@ -51,7 +51,6 @@ public abstract class AbstractMappingManager<T> {
 
 
     private void init() {
-        Stream.of(constructorArgs).map(x -> x.getClass().getName()).collect(Collectors.joining(","));
         try (ScanResult scanResult = new ClassGraph()
                 .enableAllInfo()
                 .acceptPackages(getClass().getPackageName())
