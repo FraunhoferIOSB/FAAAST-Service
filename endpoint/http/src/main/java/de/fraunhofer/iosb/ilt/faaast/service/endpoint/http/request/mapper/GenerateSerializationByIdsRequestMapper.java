@@ -65,7 +65,7 @@ public class GenerateSerializationByIdsRequestMapper extends AbstractRequestMapp
                             .stream()
                             .map(MediaType::parse)
                             .flatMap(x -> matchingDataFormats(x).stream())
-                            .sorted(Comparator.comparingInt(x -> x.getPriority()))
+                            .sorted(Comparator.comparingInt(DataFormat::getPriority))
                             .findAny()
                             .orElseThrow(() -> new InvalidRequestException(String.format(
                                     "requested data format not valid (%s)",

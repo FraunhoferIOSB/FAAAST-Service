@@ -26,7 +26,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 
@@ -121,7 +120,6 @@ public class HttpHelper {
 
 
     public static <T> T readResponse(HttpResponse<String> response, Class<T> type) throws DeserializationException {
-        String string = new String(response.body().getBytes(), StandardCharsets.UTF_8);
         return new JsonApiDeserializer().read(response.body(), type);
     }
 

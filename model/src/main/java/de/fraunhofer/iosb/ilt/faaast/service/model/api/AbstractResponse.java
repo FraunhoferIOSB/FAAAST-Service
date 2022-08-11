@@ -75,7 +75,8 @@ public abstract class AbstractResponse implements Response {
             return false;
         }
         AbstractResponse that = (AbstractResponse) o;
-        return statusCode == that.statusCode && Objects.equals(result, that.result);
+        return Objects.equals(statusCode, that.statusCode)
+                && Objects.equals(result, that.result);
     }
 
 

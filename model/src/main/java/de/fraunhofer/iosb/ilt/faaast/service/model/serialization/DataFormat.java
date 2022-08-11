@@ -53,7 +53,7 @@ public enum DataFormat {
         return Stream.of(DataFormat.values())
                 .filter(x -> x.getFileExtensions().contains(fileExtension))
                 .sorted(Comparator.<DataFormat> comparingInt(x -> x.getFileExtensions().size())
-                        .thenComparing(Comparator.comparingInt(x -> x.getPriority())))
+                        .thenComparing(Comparator.comparingInt(DataFormat::getPriority)))
                 .collect(Collectors.toList());
     }
 

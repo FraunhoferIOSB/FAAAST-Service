@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
 import io.adminshell.aas.v3.dataformat.json.modeltype.ModelTypeProcessor;
 import java.util.List;
@@ -69,6 +70,7 @@ public class JsonApiSerializer implements ApiSerializer {
 
     @Override
     public String write(Object obj, OutputModifier modifier) throws SerializationException {
+        Ensure.requireNonNull(modifier, "modifier must be non-null");
         if (modifier != null && modifier.getContent() == Content.VALUE) {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtent());
         }

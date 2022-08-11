@@ -17,8 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 import io.github.classgraph.ClassGraph;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -26,7 +24,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ReflectionHelper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReflectionHelper.class);
     private static final String ROOT_PACKAGE_NAME = "de.fraunhofer.iosb.ilt.faaast.service";
     private static final String MODEL_PACKAGE_NAME = ROOT_PACKAGE_NAME + ".model";
 

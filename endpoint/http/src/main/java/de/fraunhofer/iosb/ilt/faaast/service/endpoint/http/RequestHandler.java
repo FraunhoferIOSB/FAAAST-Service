@@ -47,8 +47,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -58,7 +56,6 @@ import org.slf4j.LoggerFactory;
  */
 public class RequestHandler extends AbstractHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
     private static final int DEFAULT_PREFLIGHT_MAX_AGE = 1800;
     private final ServiceContext serviceContext;
     private final HttpEndpointConfig config;
@@ -109,10 +106,7 @@ public class RequestHandler extends AbstractHandler {
         catch (InvalidRequestException | IllegalArgumentException e) {
             HttpHelper.send(response, StatusCode.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
         }
-        catch (SerializationException e) {
-            HttpHelper.send(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
-        }
-        catch (Exception e) {
+        catch (SerializationException | RuntimeException e) {
             HttpHelper.send(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
         }
         finally {

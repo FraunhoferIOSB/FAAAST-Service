@@ -34,11 +34,8 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public class ResponseWithPayloadResponseMapper<T> extends AbstractResponseMapper<AbstractResponseWithPayload<T>> {
 
-    private final HttpJsonSerializer serializer;
-
     public ResponseWithPayloadResponseMapper(ServiceContext serviceContext) {
         super(serviceContext);
-        this.serializer = new HttpJsonSerializer();
     }
 
 
@@ -47,7 +44,7 @@ public class ResponseWithPayloadResponseMapper<T> extends AbstractResponseMapper
         try {
             HttpHelper.sendJson(httpResponse,
                     apiResponse.getStatusCode(),
-                    serializer.write(
+                    new HttpJsonSerializer().write(
                             apiResponse.getPayload(),
                             AbstractRequestWithModifier.class.isAssignableFrom(apiRequest.getClass())
                                     ? ((AbstractRequestWithModifier) apiRequest).getOutputModifier()

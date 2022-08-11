@@ -81,7 +81,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
     private static final String ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL = "typeInfo must be non-null";
 
     public JsonApiDeserializer() {
-        this.wrapper = new DeserializerWrapper(x -> modifyMapper(x));
+        this.wrapper = new DeserializerWrapper(this::modifyMapper);
     }
 
 

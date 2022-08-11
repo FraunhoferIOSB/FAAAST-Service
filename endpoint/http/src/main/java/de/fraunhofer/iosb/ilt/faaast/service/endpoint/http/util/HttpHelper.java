@@ -28,11 +28,11 @@ import java.io.IOException;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,7 +115,9 @@ public class HttpHelper {
      * @return the parsed list
      */
     public static List<String> parseCommaSeparatedList(String input) {
-        return new ArrayList<>(Arrays.asList(input.split("\\s*,\\s*")));
+        return Stream.of(input.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
     }
 
 

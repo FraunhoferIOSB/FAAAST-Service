@@ -16,78 +16,25 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response;
 
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.AbstractMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper.AbstractResponseMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.MostSpecificClassComparator;
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ScanResult;
 import jakarta.servlet.http.HttpServletResponse;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * Maps a given API response to HTTP by finding the best suited (most specific)
  * response mapper.
  */
-public class ResponseMappingManager {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestMappingManager.class);
-    private List<AbstractResponseMapper> mappers;
-    protected ServiceContext serviceContext;
+public class ResponseMappingManager extends AbstractMappingManager<AbstractResponseMapper> {
 
     public ResponseMappingManager(ServiceContext serviceContext) {
-        this.serviceContext = serviceContext;
-        init();
-    }
-
-
-    private void init() {
-        try (ScanResult scanResult = new ClassGraph()
-                .enableAllInfo()
-                .acceptPackages(getClass().getPackageName())
-                .scan()) {
-            mappers = scanResult
-                    .getSubclasses(AbstractResponseMapper.class.getName())
-                    .filter(x -> !x.isAbstract() && !x.isInterface())
-                    .loadClasses(AbstractResponseMapper.class)
-                    .stream()
-                    .map(x -> {
-                        try {
-                            return ConstructorUtils.invokeConstructor(x, serviceContext);
-                        }
-                        catch (NoSuchMethodException | SecurityException e) {
-                            LOGGER.warn("response mapper implementation could not be loaded, "
-                                    + "reason: missing constructor (implementation class: {}, required constructor signature: {})",
-                                    x.getName(),
-                                    ServiceContext.class.getName(),
-                                    e);
-                        }
-                        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                            LOGGER.warn("response mapper implementation could not be loaded, "
-                                    + "reason: calling constructor failed (implementation class: {}, constructor arguments: {})",
-                                    x.getName(),
-                                    ServiceContext.class.getName(),
-                                    e);
-                        }
-                        LOGGER.debug("unable to instantiate class {}", x.getName());
-                        return null;
-                    })
-                    .filter(x -> x != null)
-                    .collect(Collectors.toList());
-            mappers.stream()
-                    .filter(x -> x == null)
-                    .collect(Collectors.toList());
-        }
+        super(AbstractResponseMapper.class, serviceContext);
     }
 
 
@@ -109,8 +56,8 @@ public class ResponseMappingManager {
         mappers.stream()
                 .map(x -> Pair.of(x, TypeToken.of(x.getClass()).resolveType(AbstractResponseMapper.class.getTypeParameters()[0]).getRawType()))
                 .filter(x -> x.getValue().isAssignableFrom(apiResponse.getClass()))
-                .sorted(Comparator.comparing(x -> x.getValue(), new MostSpecificClassComparator()))
-                .map(x -> x.getKey())
+                .sorted(Comparator.comparing(Pair::getValue, new MostSpecificClassComparator()))
+                .map(Pair::getKey)
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException(String.format("no matching response mapper found for type '%s'", apiResponse.getClass())))
                 .map(apiRequest, apiResponse, httpResponse);

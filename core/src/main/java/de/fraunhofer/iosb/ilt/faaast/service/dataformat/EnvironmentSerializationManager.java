@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.slf4j.Logger;
@@ -45,8 +45,8 @@ public class EnvironmentSerializationManager {
             return;
         }
         initialized = true;
-        serializers = new HashMap<>();
-        deserializers = new HashMap<>();
+        serializers = new EnumMap<>(DataFormat.class);
+        deserializers = new EnumMap<>(DataFormat.class);
         try (ScanResult scanResult = new ClassGraph()
                 .enableClassInfo()
                 .enableAnnotationInfo()
@@ -96,8 +96,8 @@ public class EnvironmentSerializationManager {
         catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
             throw new IllegalArgumentException(String.format("unable to instantiate serializer for %s (class: %s)",
                     dataFormat,
-                    serializers.get(dataFormat).getName(),
-                    e));
+                    serializers.get(dataFormat).getName()),
+                    e);
         }
     }
 
@@ -120,8 +120,8 @@ public class EnvironmentSerializationManager {
         catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
             throw new IllegalArgumentException(String.format("unable to instantiate deserializer for %s (class: %s)",
                     dataFormat,
-                    deserializers.get(dataFormat).getName(),
-                    e));
+                    deserializers.get(dataFormat).getName()),
+                    e);
         }
     }
 

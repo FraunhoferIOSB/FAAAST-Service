@@ -46,7 +46,6 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
 
     @Override
     public GetAllAssetAdministrationShellIdsByAssetLinkResponse process(GetAllAssetAdministrationShellIdsByAssetLinkRequest request) {
-        GetAllAssetAdministrationShellIdsByAssetLinkResponse response = new GetAllAssetAdministrationShellIdsByAssetLinkResponse();
         // TODO update Persistence interface to forward query; specification does not say whether to use AND or OR on global/specific assetIds
         List<String> globalAssetIds = request.getAssetIdentifierPairs().stream()
                 .filter(x -> Objects.equals(FaaastConstants.KEY_GLOBAL_ASSET_ID, x.getKey()))

@@ -15,75 +15,24 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.AbstractMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ScanResult;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.reflect.ConstructorUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * Finds matching request mapper for given HTTP request.
  */
-public class RequestMappingManager {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestMappingManager.class);
-    private List<AbstractRequestMapper> mappers;
-    protected ServiceContext serviceContext;
+public class RequestMappingManager extends AbstractMappingManager<AbstractRequestMapper> {
 
     public RequestMappingManager(ServiceContext serviceContext) {
-        this.serviceContext = serviceContext;
-        init();
-    }
-
-
-    private void init() {
-        try (ScanResult scanResult = new ClassGraph()
-                .enableAllInfo()
-                .acceptPackages(getClass().getPackageName())
-                .scan()) {
-            mappers = scanResult
-                    .getSubclasses(AbstractRequestMapper.class.getName())
-                    .filter(x -> !x.isAbstract() && !x.isInterface())
-                    .loadClasses(AbstractRequestMapper.class)
-                    .stream()
-                    .map(x -> {
-                        try {
-                            return ConstructorUtils.invokeConstructor(x, serviceContext);
-                        }
-                        catch (NoSuchMethodException | SecurityException e) {
-                            LOGGER.warn("request mapper implementation could not be loaded, "
-                                    + "reason: missing constructor (implementation class: {}, required constructor signature: {})",
-                                    x.getName(),
-                                    ServiceContext.class.getName(),
-                                    e);
-                        }
-                        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                            LOGGER.warn("request mapper implementation could not be loaded, "
-                                    + "reason: calling constructor failed (implementation class: {}, constructor arguments: {})",
-                                    x.getName(),
-                                    ServiceContext.class.getName(),
-                                    e);
-                        }
-                        LOGGER.debug("unable to instantiate class {}", x.getName());
-                        return null;
-                    })
-                    .filter(x -> x != null)
-                    .collect(Collectors.toList());
-            mappers.stream()
-                    .filter(x -> x == null)
-                    .collect(Collectors.toList());
-        }
+        super(AbstractRequestMapper.class, serviceContext);
     }
 
 

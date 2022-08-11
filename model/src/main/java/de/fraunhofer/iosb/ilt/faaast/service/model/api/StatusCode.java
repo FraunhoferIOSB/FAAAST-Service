@@ -49,7 +49,7 @@ public enum StatusCode {
         return type == Type.ERROR;
     }
 
-    private static enum Type {
+    private enum Type {
         SUCCESS,
         ERROR,
         EXCEPTION
