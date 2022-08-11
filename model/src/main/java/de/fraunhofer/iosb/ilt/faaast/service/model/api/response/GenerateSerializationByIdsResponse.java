@@ -51,7 +51,7 @@ public class GenerateSerializationByIdsResponse extends AbstractResponseWithPayl
             return false;
         }
         GenerateSerializationByIdsResponse that = (GenerateSerializationByIdsResponse) o;
-        return super.equals(that)
+        return super.equals(o)
                 && Objects.equals(dataformat, that.dataformat);
     }
 
