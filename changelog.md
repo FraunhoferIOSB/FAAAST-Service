@@ -13,7 +13,9 @@
 	*   Introducing protocol-agnostic library for handling different payload formats including extracting relevant information from received messages as well as template-based formatting of outgoing messages (currently only implemented for JSON)
 
 *   HTTP Endpoint
-	*   API: `SubmodelInterface` calls now also available in combination with `Asset Administration Shell Interface`, e.g. /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
+	*   API
+		*   `Submodel Interface` calls now also available in combination with `Asset Administration Shell Interface`, e.g. /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
+		*   `Asset Administration Shell Serialization Interface` now supported (at /serialization)
 	*   Support for output modifier `content=path`
 	*   CORS support, can be enabled by setting `isCorsEnabled=true` in config (default: false)
 	*   now returns status code 405 Method Not Allowed if URL is correct but requested method is not supported
