@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import java.util.Objects;
 
+
 /**
  * Class with Configuration information for the OPC UA Endpoint.
  *
@@ -32,6 +33,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         this.tcpPort = DEFAULT_PORT;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -45,10 +47,12 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
                 && Objects.equals(secondsTillShutdown, that.secondsTillShutdown);
     }
 
+
     @Override
     public int hashCode() {
         return Objects.hash(tcpPort, secondsTillShutdown);
     }
+
 
     /**
      * Gets the desired port for the OPC.TCP Endpoint
@@ -59,6 +63,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         return tcpPort;
     }
 
+
     /**
      * Sets the given port for the OPC.TCP Endpoint
      *
@@ -67,6 +72,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     public void setTcpPort(int tcpPort) {
         this.tcpPort = tcpPort;
     }
+
 
     /**
      * Gets the number of seconds until the server stops on shutdown
@@ -77,6 +83,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         return secondsTillShutdown;
     }
 
+
     /**
      * Sets the number of seconds until the server stops on shutdown
      *
@@ -85,6 +92,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     public void setSecondsTillShutdown(int value) {
         secondsTillShutdown = value;
     }
+
 
     public static Builder builder() {
         return new Builder();
@@ -96,6 +104,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
             getBuildingInstance().setTcpPort(value);
             return getSelf();
         }
+
 
         public B secondsTillShutdown(int value) {
             getBuildingInstance().setSecondsTillShutdown(value);
@@ -109,6 +118,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         protected Builder getSelf() {
             return this;
         }
+
 
         @Override
         protected OpcUaEndpointConfig newBuildingInstance() {
