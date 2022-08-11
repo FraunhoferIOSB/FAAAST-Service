@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper.AbstractResponseMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
@@ -58,7 +57,7 @@ public abstract class AbstractMappingManager<T> {
                 .acceptPackages(getClass().getPackageName())
                 .scan()) {
             mappers = scanResult
-                    .getSubclasses(AbstractResponseMapper.class.getName())
+                    .getSubclasses(mapperType.getName())
                     .filter(x -> !x.isAbstract() && !x.isInterface())
                     .loadClasses(mapperType)
                     .stream()
