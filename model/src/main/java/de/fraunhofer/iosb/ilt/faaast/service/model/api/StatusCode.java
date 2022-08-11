@@ -34,13 +34,16 @@ public enum StatusCode {
         this.type = type;
     }
 
+
     public boolean isSuccess() {
         return type == Type.SUCCESS;
     }
 
+
     public boolean isError() {
         return type == Type.ERROR;
     }
+
 
     public boolean isException() {
         return type == Type.ERROR;

@@ -29,7 +29,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.handler.AbstractRequestHandler;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.List;
@@ -40,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,8 +85,7 @@ public class RequestHandlerManager {
                             x -> (Class<? extends Request>) TypeToken.of(x).resolveType(AbstractRequestHandler.class.getTypeParameters()[0]).getRawType(),
                             x -> {
                                 try {
-                                    Constructor<? extends AbstractRequestHandler> constructor = x.getConstructor(constructorArgTypes);
-                                    return constructor.newInstance(constructorArgs);
+                                    return ConstructorUtils.invokeConstructor(x, constructorArgs);
                                 }
                                 catch (NoSuchMethodException | SecurityException e) {
                                     LOGGER.warn("request handler implementation could not be loaded, "
@@ -170,7 +169,8 @@ public class RequestHandlerManager {
 
     private static <I extends Request<O>, O extends Response> O createResponse(I request, StatusCode statusCode, MessageType messageType, String message) {
         try {
-            O response = (O) TypeToken.of(request.getClass()).resolveType(Request.class.getTypeParameters()[0]).getRawType().getConstructor().newInstance();
+
+            O response = (O) ConstructorUtils.invokeConstructor(TypeToken.of(request.getClass()).resolveType(Request.class.getTypeParameters()[0]).getRawType());
             response.setStatusCode(statusCode);
             response.getResult().setSuccess(false);
             response.getResult().setMessages(List.of(

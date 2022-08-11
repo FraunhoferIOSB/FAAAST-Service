@@ -15,8 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GenerateSerializationByIdsResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -34,10 +37,14 @@ public class GenerateSerializationByIdsResponseMapper extends AbstractResponseMa
 
     @Override
     public void map(Request<GenerateSerializationByIdsResponse> apiRequest, GenerateSerializationByIdsResponse apiResponse, HttpServletResponse httpResponse) {
-        HttpHelper.sendContent(httpResponse,
-                apiResponse.getStatusCode(),
-                // TODO serialize depending on requested format given by apiResponse.getDataformat()                
-                "".getBytes(),
-                apiResponse.getDataformat().getContentType());
+        try {
+            HttpHelper.sendContent(httpResponse,
+                    apiResponse.getStatusCode(),
+                    EnvironmentSerializationManager.serializerFor(apiResponse.getDataformat()).write(apiResponse.getPayload()),
+                    apiResponse.getDataformat().getContentType());
+        }
+        catch (SerializationException e) {
+            HttpHelper.send(httpResponse, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
+        }
     }
 }

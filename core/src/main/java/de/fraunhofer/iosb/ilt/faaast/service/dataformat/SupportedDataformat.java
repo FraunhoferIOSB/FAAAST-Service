@@ -12,17 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
+package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
+
+import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 
 /**
- * Utility class for HTTP-related constants
+ * Annotation required for implementations of {@link EnvironmentSerializer} and
+ * {@link EnvironmentDeserializer} to indicate which {@link DataFormat} they
+ * serve.
  */
-public class HttpConstants {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface SupportedDataformat {
 
-    public static final String HEADER_VALUE_SEPARATOR = ",";
-    public static final String PATH_SEPERATOR = "/";
-    public static final String HEADER_ACCEPT = "Accept";
-    public static final String HEADER_CONTENT_TYPE = "content-type";
-
-    private HttpConstants() {}
+    DataFormat value();
 }

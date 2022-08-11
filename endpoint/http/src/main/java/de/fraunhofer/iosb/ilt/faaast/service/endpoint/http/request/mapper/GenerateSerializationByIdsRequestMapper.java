@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import io.adminshell.aas.v3.model.Identifier;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,6 +65,7 @@ public class GenerateSerializationByIdsRequestMapper extends AbstractRequestMapp
                             .stream()
                             .map(MediaType::parse)
                             .flatMap(x -> matchingDataFormats(x).stream())
+                            .sorted(Comparator.comparingInt(x -> x.getPriority()))
                             .findAny()
                             .orElseThrow(() -> new InvalidRequestException(String.format(
                                     "requested data format not valid (%s)",

@@ -18,8 +18,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.ApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.Serializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.RequestWithModifierMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.SubmodelInterfaceRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.EnumSerializer;
@@ -35,18 +35,18 @@ import java.util.List;
 
 
 /**
- * JSON serializer for FA³ST supporting different output modifier as defined by
- * specification.
+ * JSON API serializer for FA³ST supporting different output modifier as defined
+ * by specification.
  * <p>
  * Currently supports only content=value.
  */
-public class JsonSerializer implements Serializer {
+public class JsonApiSerializer implements ApiSerializer {
 
     private final PathJsonSerializer pathSerializer;
     private final ValueOnlyJsonSerializer valueOnlySerializer;
     private final SerializerWrapper wrapper;
 
-    public JsonSerializer() {
+    public JsonApiSerializer() {
         this.wrapper = new SerializerWrapper(this::modifyMapper);
         this.pathSerializer = new PathJsonSerializer();
         this.valueOnlySerializer = new ValueOnlyJsonSerializer();

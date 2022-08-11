@@ -15,11 +15,21 @@
 package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GenerateSerializationByIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import io.adminshell.aas.v3.model.AssetAdministrationShell;
+import io.adminshell.aas.v3.model.Submodel;
+import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -32,18 +42,34 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
  */
 public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHandler<GenerateSerializationByIdsRequest, GenerateSerializationByIdsResponse> {
 
+    private static final OutputModifier OUTPUT_MODIFIER = new OutputModifier.Builder()
+            .content(Content.NORMAL)
+            .extend(Extent.WITH_BLOB_VALUE)
+            .level(Level.DEEP)
+            .build();
+
     public GenerateSerializationByIdsRequestHandler(Persistence persistence, MessageBus messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
     }
 
 
     @Override
-    public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request) {
-        GenerateSerializationByIdsResponse response = new GenerateSerializationByIdsResponse();
-        response.setDataformat(request.getSerializationFormat());
-        //TODO implement Serialization
-        // this requires uniform interface for de-/serializers, which can only be detected through reflection because otherwise we will have circular dependencies
-        response.setStatusCode(StatusCode.SERVER_INTERNAL_ERROR);
-        return response;
+    public GenerateSerializationByIdsResponse process(GenerateSerializationByIdsRequest request) throws ResourceNotFoundException {
+        return GenerateSerializationByIdsResponse.builder()
+                .dataformat(request.getSerializationFormat())
+                .payload(new DefaultAssetAdministrationShellEnvironment.Builder()
+                        .assetAdministrationShells(
+                                request.getAasIds().stream()
+                                        .map(LambdaExceptionHelper.rethrowFunction(x -> (AssetAdministrationShell) persistence.get(x, OUTPUT_MODIFIER)))
+                                        .collect(Collectors.toList()))
+                        .submodels(request.getSubmodelIds().stream()
+                                .map(LambdaExceptionHelper.rethrowFunction(x -> (Submodel) persistence.get(x, OUTPUT_MODIFIER)))
+                                .collect(Collectors.toList()))
+                        .conceptDescriptions(request.getIncludeConceptDescriptions()
+                                ? persistence.getEnvironment().getConceptDescriptions()
+                                : List.of())
+                        .build())
+                .success()
+                .build();
     }
 }

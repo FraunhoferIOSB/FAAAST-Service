@@ -25,11 +25,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.MostSpecificClassComparator;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import jakarta.servlet.http.HttpServletResponse;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,8 +63,7 @@ public class ResponseMappingManager {
                     .stream()
                     .map(x -> {
                         try {
-                            Constructor<AbstractResponseMapper> constructor = x.getConstructor(ServiceContext.class);
-                            return constructor.newInstance(serviceContext);
+                            return ConstructorUtils.invokeConstructor(x, serviceContext);
                         }
                         catch (NoSuchMethodException | SecurityException e) {
                             LOGGER.warn("response mapper implementation could not be loaded, "

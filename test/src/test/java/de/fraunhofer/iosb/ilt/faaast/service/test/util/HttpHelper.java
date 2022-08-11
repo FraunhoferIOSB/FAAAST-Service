@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.test.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import java.io.IOException;
 import java.net.URI;
@@ -26,6 +26,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 
@@ -83,7 +84,7 @@ public class HttpHelper {
         return HttpClient.newHttpClient()
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
-                        .PUT(HttpRequest.BodyPublishers.ofString(new JsonSerializer().write(payload)))
+                        .PUT(HttpRequest.BodyPublishers.ofString(new JsonApiSerializer().write(payload)))
                         .build(),
                         BodyHandlers.ofString());
     }
@@ -93,7 +94,7 @@ public class HttpHelper {
         return HttpClient.newHttpClient()
                 .send(HttpRequest.newBuilder()
                         .uri(new URI(url))
-                        .POST(HttpRequest.BodyPublishers.ofString(new JsonSerializer().write(payload)))
+                        .POST(HttpRequest.BodyPublishers.ofString(new JsonApiSerializer().write(payload)))
                         .build(),
                         BodyHandlers.ofString());
     }
@@ -120,11 +121,12 @@ public class HttpHelper {
 
 
     public static <T> T readResponse(HttpResponse<String> response, Class<T> type) throws DeserializationException {
-        return new JsonDeserializer().read(response.body(), type);
+        String string = new String(response.body().getBytes(), StandardCharsets.UTF_8);
+        return new JsonApiDeserializer().read(response.body(), type);
     }
 
 
     public static <T> List<T> readResponseList(HttpResponse<String> response, Class<T> type) throws DeserializationException {
-        return new JsonDeserializer().readList(response.body(), type);
+        return new JsonApiDeserializer().readList(response.body(), type);
     }
 }

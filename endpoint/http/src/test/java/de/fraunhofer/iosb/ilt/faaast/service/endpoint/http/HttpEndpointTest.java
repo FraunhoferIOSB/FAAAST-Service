@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -40,6 +41,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetAdminist
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GenerateSerializationByIdsRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -69,16 +71,17 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringRequestContent;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -124,6 +127,13 @@ public class HttpEndpointTest {
     }
 
 
+    @Before
+    public void setUp() {
+        Mockito.reset(persistence);
+        Mockito.reset(service);
+    }
+
+
     @AfterClass
     public static void cleanUp() {
         if (client != null) {
@@ -165,7 +175,7 @@ public class HttpEndpointTest {
 
 
     public ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters, String body, String contentType, Map<String, String> headers) throws Exception {
-        Request request = client.newRequest(HOST, port)
+        org.eclipse.jetty.client.api.Request request = client.newRequest(HOST, port)
                 .method(method)
                 .path(path);
         if (parameters != null) {
@@ -413,7 +423,7 @@ public class HttpEndpointTest {
                 .submodels(AASFull.SUBMODEL_5)
                 .build();
         when(service.execute(any())).thenReturn(GenerateSerializationByIdsResponse.builder()
-                .datformat(DataFormat.JSON)
+                .dataformat(DataFormat.JSON)
                 .payload(expected)
                 .statusCode(StatusCode.SUCCESS)
                 .build());
@@ -447,11 +457,12 @@ public class HttpEndpointTest {
                 .submodels(AASFull.SUBMODEL_4)
                 .submodels(AASFull.SUBMODEL_5)
                 .build();
-        when(service.execute(any())).thenReturn(GenerateSerializationByIdsResponse.builder()
-                .datformat(DataFormat.JSON)
-                .payload(expected)
-                .statusCode(StatusCode.SUCCESS)
-                .build());
+        when(service.execute(argThat((GenerateSerializationByIdsRequest request) -> request.getSerializationFormat() == DataFormat.JSON)))
+                .thenReturn(GenerateSerializationByIdsResponse.builder()
+                        .dataformat(DataFormat.JSON)
+                        .payload(expected)
+                        .statusCode(StatusCode.SUCCESS)
+                        .build());
         ContentResponse response = execute(
                 HttpMethod.GET,
                 "/serialization",

@@ -23,11 +23,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,8 +59,7 @@ public class RequestMappingManager {
                     .stream()
                     .map(x -> {
                         try {
-                            Constructor<AbstractRequestMapper> constructor = x.getConstructor(ServiceContext.class);
-                            return constructor.newInstance(serviceContext);
+                            return ConstructorUtils.invokeConstructor(x, serviceContext);
                         }
                         catch (NoSuchMethodException | SecurityException e) {
                             LOGGER.warn("request mapper implementation could not be loaded, "

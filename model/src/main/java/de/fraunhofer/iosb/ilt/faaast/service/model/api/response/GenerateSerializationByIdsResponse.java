@@ -67,7 +67,7 @@ public class GenerateSerializationByIdsResponse extends AbstractResponseWithPayl
     public abstract static class AbstractBuilder<T extends GenerateSerializationByIdsResponse, B extends AbstractBuilder<T, B>>
             extends AbstractResponseWithPayload.AbstractBuilder<AssetAdministrationShellEnvironment, T, B> {
 
-        public B datformat(DataFormat value) {
+        public B dataformat(DataFormat value) {
             getBuildingInstance().setDataformat(value);
             return getSelf();
         }

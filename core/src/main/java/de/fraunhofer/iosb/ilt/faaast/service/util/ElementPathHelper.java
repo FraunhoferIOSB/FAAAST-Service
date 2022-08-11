@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 
 
 /**
@@ -70,7 +71,7 @@ public class ElementPathHelper {
     public static Reference toReference(Reference parent, String elementPath) {
         Reference result;
         try {
-            result = ReflectionHelper.getDefaultImplementation(Reference.class).getConstructor().newInstance();
+            result = ConstructorUtils.invokeConstructor(ReflectionHelper.getDefaultImplementation(Reference.class));
             result.setKeys(Stream.concat(parent.getKeys().stream(), toKeys(elementPath).stream())
                     .collect(Collectors.toList()));
             return result;
@@ -92,7 +93,7 @@ public class ElementPathHelper {
         return Stream.of(elementPath.split(ELEMENT_PATH_SEPARATOR))
                 .map(x -> {
                     try {
-                        Key key = ReflectionHelper.getDefaultImplementation(Key.class).getConstructor().newInstance();
+                        Key key = ConstructorUtils.invokeConstructor(ReflectionHelper.getDefaultImplementation(Key.class));
                         key.setIdType(IdentifierHelper.guessKeyType(x));
                         key.setType(KeyElements.SUBMODEL_ELEMENT);
                         key.setValue(x);

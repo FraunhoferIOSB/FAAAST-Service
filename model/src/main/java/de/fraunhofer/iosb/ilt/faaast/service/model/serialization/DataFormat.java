@@ -23,20 +23,22 @@ import java.util.stream.Stream;
 
 
 /**
- * Enum describing supported serialization formats and their corresponding
- * well-known file extensions
+ * Enum describing supported serialization formats, their corresponding content
+ * type, well-known file extensions and priority.
  */
 public enum DataFormat {
-    JSON(MediaType.JSON_UTF_8, "json"),
-    XML(MediaType.XML_UTF_8, "xml"),
-    RDF(MediaType.PLAIN_TEXT_UTF_8, "rdf", "xml", "ttl", "n3", "nt", "nq"),
-    JSONLD(MediaType.create("application", "ld+json"), "jsonld", "json-ld"),
-    AML(MediaType.XML_UTF_8, "aml", "xml"),
-    AASX(MediaType.ZIP, "aasx"),
-    UANODESET(MediaType.XML_UTF_8, "xml");
+
+    JSON(MediaType.JSON_UTF_8, 0, "json"),
+    XML(MediaType.XML_UTF_8, 1, "xml"),
+    RDF(MediaType.PLAIN_TEXT_UTF_8, 2, "rdf", "xml", "ttl", "n3", "nt", "nq"),
+    JSONLD(MediaType.create("application", "ld+json"), 3, "jsonld", "json-ld"),
+    AML(MediaType.XML_UTF_8, 5, "aml", "xml"),
+    AASX(MediaType.ZIP, 4, "aasx"),
+    UANODESET(MediaType.XML_UTF_8, 6, "xml");
 
     private final MediaType contentType;
     private final List<String> fileExtensions;
+    private final int priority;
 
     /**
      * Find potential data formats for given file extension. Returned list is
@@ -50,13 +52,15 @@ public enum DataFormat {
     public static List<DataFormat> forFileExtension(String fileExtension) {
         return Stream.of(DataFormat.values())
                 .filter(x -> x.getFileExtensions().contains(fileExtension))
-                .sorted(Comparator.comparingInt(x -> x.getFileExtensions().size()))
+                .sorted(Comparator.<DataFormat> comparingInt(x -> x.getFileExtensions().size())
+                        .thenComparing(Comparator.comparingInt(x -> x.getPriority())))
                 .collect(Collectors.toList());
     }
 
 
-    private DataFormat(MediaType contentType, String... fileExtensions) {
+    private DataFormat(MediaType contentType, int priority, String... fileExtensions) {
         this.contentType = contentType;
+        this.priority = priority;
         this.fileExtensions = Arrays.asList(fileExtensions);
     }
 
@@ -68,5 +72,10 @@ public enum DataFormat {
 
     public List<String> getFileExtensions() {
         return fileExtensions;
+    }
+
+
+    public int getPriority() {
+        return priority;
     }
 }

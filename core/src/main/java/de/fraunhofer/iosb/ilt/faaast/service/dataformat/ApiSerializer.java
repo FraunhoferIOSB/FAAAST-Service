@@ -25,7 +25,15 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 
-public interface Serializer {
+/**
+ * Seriliazer for API calls. Serializes not only whole
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} but
+ * also other elements like
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShell}, {@link io.adminshell.aas.v3.model.Submodel}
+ * or {@link io.adminshell.aas.v3.model.SubmodelElement} supporting
+ * {@link OutputModifier}.
+ */
+public interface ApiSerializer {
 
     public Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
