@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Not supported yet! Class to handle a
+ * Class to handle a
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GenerateSerializationByIdsRequest}
  * in the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GenerateSerializationByIdsResponse}.
