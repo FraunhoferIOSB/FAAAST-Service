@@ -74,6 +74,9 @@ Returns a specific submodel element from the Submodel at a specified path
     -   concept-descriptions (GET, POST)
     -   concept-descriptions/{cdIdentifier} (GET, PUT, DELETE)
 
+-   Asset Administration Shell Serialization Interface
+    -   /serialization (GET)
+
 ### Optional query params are
 -   level=deep/core
 -   content=normal/trimmed/value
@@ -96,9 +99,6 @@ FA³ST Service currently supports only content=value and content=normal
 -   AASX File Server Interface (not yet supported)
     -   /packages
     -   /packages/{packageId}
-
--   Asset Administration Shell Serialization Interface (not yet supported)
-    -   /serialization (GET)
 
 -   Asset Administration Shell Basic Discovery (not yet supported)
     -   /lookup/shells

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -22,8 +23,9 @@ import static org.mockito.Mockito.when;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
@@ -32,12 +34,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GenerateSerializationByIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelResponse;
+import de.fraunhofer.iosb.ilt.faaast.service.model.request.GenerateSerializationByIdsRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
@@ -47,6 +52,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
+import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.Reference;
@@ -65,16 +71,17 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringRequestContent;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -94,7 +101,7 @@ public class HttpEndpointTest {
     private static HttpEndpoint endpoint;
     private static Service service;
     private static Persistence persistence;
-    private static HttpJsonDeserializer deserializer;
+    private static HttpJsonApiDeserializer deserializer;
 
     @BeforeClass
     public static void init() throws Exception {
@@ -103,7 +110,7 @@ public class HttpEndpointTest {
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
             port = serverSocket.getLocalPort();
         }
-        deserializer = new HttpJsonDeserializer();
+        deserializer = new HttpJsonApiDeserializer();
         persistence = mock(Persistence.class);
         endpoint = new HttpEndpoint();
         service = spy(new Service(CoreConfig.DEFAULT, persistence, mock(MessageBus.class), List.of(endpoint), List.of()));
@@ -117,6 +124,13 @@ public class HttpEndpointTest {
         service.start();
         client = new HttpClient();
         client.start();
+    }
+
+
+    @Before
+    public void setUp() {
+        Mockito.reset(persistence);
+        Mockito.reset(service);
     }
 
 
@@ -161,7 +175,7 @@ public class HttpEndpointTest {
 
 
     public ContentResponse execute(HttpMethod method, String path, Map<String, String> parameters, String body, String contentType, Map<String, String> headers) throws Exception {
-        Request request = client.newRequest(HOST, port)
+        org.eclipse.jetty.client.api.Request request = client.newRequest(HOST, port)
                 .method(method)
                 .path(path);
         if (parameters != null) {
@@ -288,7 +302,7 @@ public class HttpEndpointTest {
         ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=bogus&level=bogus");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
         String actual = response.getContentAsString();
-        String expected = new HttpJsonSerializer().write(Result.error("invalid output modifier"));
+        String expected = new HttpJsonApiSerializer().write(Result.error("invalid output modifier"));
         JSONAssert.assertEquals(expected, actual, RESULT_COMPARATOR);
     }
 
@@ -398,6 +412,77 @@ public class HttpEndpointTest {
         LOGGER.info("http response content: {}", new String(response.getContent(), "UTF-8"));
         List<AssetAdministrationShell> actualPayload = deserializer.readList(new String(response.getContent(), "UTF-8"), AssetAdministrationShell.class);
         Assert.assertEquals(expectedPayload, actualPayload);
+    }
+
+
+    @Test
+    public void testSerializationJson() throws Exception {
+        AssetAdministrationShellEnvironment expected = new DefaultAssetAdministrationShellEnvironment.Builder()
+                .assetAdministrationShells(AASFull.AAS_2)
+                .submodels(AASFull.SUBMODEL_4)
+                .submodels(AASFull.SUBMODEL_5)
+                .build();
+        when(service.execute(any())).thenReturn(GenerateSerializationByIdsResponse.builder()
+                .dataformat(DataFormat.JSON)
+                .payload(expected)
+                .statusCode(StatusCode.SUCCESS)
+                .build());
+        ContentResponse response = execute(
+                HttpMethod.GET,
+                "/serialization",
+                Map.of(
+                        "aasIds", EncodingHelper.base64UrlEncode(expected.getAssetAdministrationShells().stream()
+                                .map(x -> x.getIdentification().getIdentifier())
+                                .collect(Collectors.joining(","))),
+                        "submodelIds", EncodingHelper.base64UrlEncode(expected.getSubmodels().stream()
+                                .map(x -> x.getIdentification().getIdentifier())
+                                .collect(Collectors.joining(","))),
+                        QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS, "false"),
+                null,
+                null,
+                Map.of(
+                        HttpConstants.HEADER_ACCEPT, DataFormat.JSON.getContentType().withoutParameters().toString()));
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        LOGGER.info("http response encoding: {}", response.getEncoding());
+        LOGGER.info("http response content: {}", response.getContentAsString());
+        AssetAdministrationShellEnvironment actual = deserializer.read(response.getContentAsString(), AssetAdministrationShellEnvironment.class);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testSerializationWildcard() throws Exception {
+        AssetAdministrationShellEnvironment expected = new DefaultAssetAdministrationShellEnvironment.Builder()
+                .assetAdministrationShells(AASFull.AAS_2)
+                .submodels(AASFull.SUBMODEL_4)
+                .submodels(AASFull.SUBMODEL_5)
+                .build();
+        when(service.execute(argThat((GenerateSerializationByIdsRequest request) -> request.getSerializationFormat() == DataFormat.JSON)))
+                .thenReturn(GenerateSerializationByIdsResponse.builder()
+                        .dataformat(DataFormat.JSON)
+                        .payload(expected)
+                        .statusCode(StatusCode.SUCCESS)
+                        .build());
+        ContentResponse response = execute(
+                HttpMethod.GET,
+                "/serialization",
+                Map.of(
+                        "aasIds", EncodingHelper.base64UrlEncode(expected.getAssetAdministrationShells().stream()
+                                .map(x -> x.getIdentification().getIdentifier())
+                                .collect(Collectors.joining(","))),
+                        "submodelIds", EncodingHelper.base64UrlEncode(expected.getSubmodels().stream()
+                                .map(x -> x.getIdentification().getIdentifier())
+                                .collect(Collectors.joining(","))),
+                        QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS, "false"),
+                null,
+                null,
+                Map.of(
+                        HttpConstants.HEADER_ACCEPT, "*/*"));
+        Assert.assertEquals(HttpStatus.OK_200, response.getStatus());
+        LOGGER.info("http response encoding: {}", response.getEncoding());
+        LOGGER.info("http response content: {}", response.getContentAsString());
+        AssetAdministrationShellEnvironment actual = deserializer.read(response.getContentAsString(), AssetAdministrationShellEnvironment.class);
+        Assert.assertEquals(expected, actual);
     }
 
 

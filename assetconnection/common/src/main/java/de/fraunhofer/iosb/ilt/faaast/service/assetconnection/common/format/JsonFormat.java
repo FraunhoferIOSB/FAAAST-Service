@@ -22,8 +22,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.ElementInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
@@ -43,12 +43,12 @@ public class JsonFormat implements Format {
 
     public static final String KEY = "JSON";
     private static final String MIME_TYPE = "application/json";
-    private final JsonSerializer serializer;
-    private final JsonDeserializer deserializer;
+    private final JsonApiSerializer serializer;
+    private final JsonApiDeserializer deserializer;
 
     public JsonFormat() {
-        this.serializer = new JsonSerializer();
-        this.deserializer = new JsonDeserializer();
+        this.serializer = new JsonApiSerializer();
+        this.deserializer = new JsonApiDeserializer();
     }
 
 

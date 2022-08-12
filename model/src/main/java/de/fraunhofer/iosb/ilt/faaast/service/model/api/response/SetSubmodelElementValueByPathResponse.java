@@ -26,7 +26,7 @@ public class SetSubmodelElementValueByPathResponse extends AbstractResponse {
         return new SetSubmodelElementValueByPathResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<SetSubmodelElementValueByPathResponse, SetSubmodelElementValueByPathResponse.Builder> {
+    public static class Builder extends AbstractResponse.AbstractBuilder<SetSubmodelElementValueByPathResponse, Builder> {
 
         @Override
         protected SetSubmodelElementValueByPathResponse.Builder getSelf() {

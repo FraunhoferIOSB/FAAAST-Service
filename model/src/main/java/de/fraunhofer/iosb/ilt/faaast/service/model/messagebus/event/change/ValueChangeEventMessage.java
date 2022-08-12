@@ -54,11 +54,9 @@ public class ValueChangeEventMessage extends ChangeEventMessage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         ValueChangeEventMessage that = (ValueChangeEventMessage) o;
-        return Objects.equals(oldValue, that.oldValue)
+        return super.equals(o)
+                && Objects.equals(oldValue, that.oldValue)
                 && Objects.equals(newValue, that.newValue);
     }
 

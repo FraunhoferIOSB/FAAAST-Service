@@ -43,11 +43,9 @@ public abstract class ElementChangeEventMessage extends ChangeEventMessage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         ElementChangeEventMessage that = (ElementChangeEventMessage) o;
-        return Objects.equals(value, that.value);
+        return super.equals(o)
+                && Objects.equals(value, that.value);
     }
 
 

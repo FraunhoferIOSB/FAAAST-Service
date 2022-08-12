@@ -26,7 +26,7 @@ public class PutAASXPackageByIdResponse extends AbstractResponse {
         return new PutAASXPackageByIdResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<PutAASXPackageByIdResponse, PutAASXPackageByIdResponse.Builder> {
+    public static class Builder extends AbstractResponse.AbstractBuilder<PutAASXPackageByIdResponse, Builder> {
 
         @Override
         protected PutAASXPackageByIdResponse.Builder getSelf() {

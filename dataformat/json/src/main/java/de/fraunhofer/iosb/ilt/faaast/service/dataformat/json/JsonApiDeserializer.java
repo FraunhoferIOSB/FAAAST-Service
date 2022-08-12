@@ -26,8 +26,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.ApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.Deserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.AnnotatedRelationshipElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ContextAwareElementValueDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ElementValueDeserializer;
@@ -69,9 +69,9 @@ import java.util.Map;
 
 
 /**
- * JSON deserializer for FA³ST.
+ * JSON API deserializer for FA³ST.
  */
-public class JsonDeserializer implements Deserializer {
+public class JsonApiDeserializer implements ApiDeserializer {
 
     private final DeserializerWrapper wrapper;
     private static final String ERROR_MSG_DESERIALIZATION_FAILED = "deserialization failed";
@@ -80,8 +80,8 @@ public class JsonDeserializer implements Deserializer {
     private static final String ERROR_MSG_CONTENT_TYPE_MUST_BE_NON_NULL = "content type must be non-null";
     private static final String ERROR_MSG_TYPE_INFO_MUST_BE_NON_NULL = "typeInfo must be non-null";
 
-    public JsonDeserializer() {
-        this.wrapper = new DeserializerWrapper(x -> modifyMapper(x));
+    public JsonApiDeserializer() {
+        this.wrapper = new DeserializerWrapper(this::modifyMapper);
     }
 
 

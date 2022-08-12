@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -55,7 +54,6 @@ public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
     @Override
     public PutSubmodelElementByPathResponse doProcess(PutSubmodelElementByPathRequest request)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException {
-        PutSubmodelElementByPathResponse response = new PutSubmodelElementByPathResponse();
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
         //Check if submodelelement does exist
         SubmodelElement currentSubmodelElement = persistence.get(reference, QueryModifier.DEFAULT);
@@ -73,12 +71,13 @@ public class PutSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
             }
         }
         currentSubmodelElement = persistence.put(null, reference, newSubmodelElement);
-        response.setPayload(currentSubmodelElement);
-        response.setStatusCode(StatusCode.SUCCESS);
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(reference)
                 .value(currentSubmodelElement)
                 .build());
-        return response;
+        return PutSubmodelElementByPathResponse.builder()
+                .payload(currentSubmodelElement)
+                .success()
+                .build();
     }
 }

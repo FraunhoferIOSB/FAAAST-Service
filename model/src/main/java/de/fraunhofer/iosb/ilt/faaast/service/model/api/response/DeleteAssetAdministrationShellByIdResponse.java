@@ -26,7 +26,7 @@ public class DeleteAssetAdministrationShellByIdResponse extends AbstractResponse
         return new DeleteAssetAdministrationShellByIdResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<DeleteAssetAdministrationShellByIdResponse, DeleteAssetAdministrationShellByIdResponse.Builder> {
+    public static class Builder extends AbstractResponse.AbstractBuilder<DeleteAssetAdministrationShellByIdResponse, Builder> {
 
         @Override
         protected DeleteAssetAdministrationShellByIdResponse.Builder getSelf() {

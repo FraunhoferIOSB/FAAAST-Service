@@ -26,7 +26,7 @@ public class PutAssetInformationResponse extends AbstractResponse {
         return new PutAssetInformationResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<PutAssetInformationResponse, PutAssetInformationResponse.Builder> {
+    public static class Builder extends AbstractResponse.AbstractBuilder<PutAssetInformationResponse, Builder> {
 
         @Override
         protected PutAssetInformationResponse.Builder getSelf() {

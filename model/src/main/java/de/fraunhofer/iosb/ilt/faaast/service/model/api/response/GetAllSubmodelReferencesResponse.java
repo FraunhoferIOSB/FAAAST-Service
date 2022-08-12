@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.List;
 
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Chapter 4.2.4
  */
-public class GetAllSubmodelReferencesResponse extends BaseResponseWithPayload<List<Reference>> {
+public class GetAllSubmodelReferencesResponse extends AbstractResponseWithPayload<List<Reference>> {
 
     public static GetAllSubmodelReferencesResponse.Builder builder() {
         return new GetAllSubmodelReferencesResponse.Builder();

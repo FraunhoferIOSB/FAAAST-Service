@@ -21,13 +21,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.DeleteSubmodelReferenceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
-import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.Reference;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
+import io.adminshell.aas.v3.model.KeyType;
+import io.adminshell.aas.v3.model.Submodel;
 import java.util.Map;
 
 
@@ -51,26 +48,11 @@ public class DeleteSubmodelReferenceRequestMapper extends AbstractRequestMapper 
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return DeleteSubmodelReferenceRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(AAS_ID))))
-                .submodelRef(toReference(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID))))
+                .submodelRef(ReferenceHelper.toReference(
+                        EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID)),
+                        KeyType.IRI,
+                        Submodel.class))
                 .build();
-    }
-
-
-    private Reference toReference(String id) {
-        Reference result;
-        try {
-            result = ReflectionHelper.getDefaultImplementation(Reference.class).getConstructor().newInstance();
-            Key key = ReflectionHelper.getDefaultImplementation(Key.class).getConstructor().newInstance();
-            key.setIdType(IdentifierHelper.guessKeyType(id));
-            key.setType(KeyElements.SUBMODEL);
-            key.setValue(id);
-            result.setKeys(Arrays.asList(key));
-            return result;
-
-        }
-        catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
-            throw new IllegalArgumentException("error parsing reference from id", e);
-        }
     }
 }

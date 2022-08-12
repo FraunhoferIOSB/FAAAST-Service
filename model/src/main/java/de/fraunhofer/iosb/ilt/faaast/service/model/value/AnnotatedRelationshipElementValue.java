@@ -36,11 +36,9 @@ public class AnnotatedRelationshipElementValue extends RelationshipElementValue 
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         AnnotatedRelationshipElementValue that = (AnnotatedRelationshipElementValue) o;
-        return Objects.equals(annotations, that.annotations);
+        return super.equals(o)
+                && Objects.equals(annotations, that.annotations);
     }
 
 

@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -42,7 +42,7 @@ import org.junit.Test;
 
 public class JsonDeserializerTest {
 
-    private final JsonDeserializer deserializer = new JsonDeserializer();
+    private final JsonApiDeserializer deserializer = new JsonApiDeserializer();
 
     @Test
     public void testAnnotatedRelationshipElementProperty() throws DeserializationException, FileNotFoundException, IOException, ValueMappingException {

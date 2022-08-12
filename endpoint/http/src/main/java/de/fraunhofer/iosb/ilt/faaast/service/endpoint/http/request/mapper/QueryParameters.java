@@ -20,16 +20,19 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper;
 public class QueryParameters {
 
     public static final String AAS_ID = "aasId";
+    public static final String AAS_IDS = "aasIds";
     public static final String ASSET_IDS = "assetIds";
     public static final String ASYNC = "async";
     public static final String CONTENT = "content";
     public static final String DATA_SPECIFICATION_REF = "dataSpecificationRef";
     public static final String EXTENT = "extend";
     public static final String ID_SHORT = "idShort";
+    public static final String INCLUDE_CONCEPT_DESCRIPTIONS = "includeConceptDescriptions";
     public static final String IS_CASE_OF = "isCaseOf";
     public static final String LEVEL = "level";
     public static final String PARENT_PATH = "parentPath";
     public static final String SEMANTIC_ID = "semanticId";
+    public static final String SUBMODEL_IDS = "submodelIds";
 
     private QueryParameters() {}
 }

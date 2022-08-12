@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelElementsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
@@ -52,12 +51,9 @@ public class GetAllSubmodelElementsRequestHandler extends AbstractSubmodelInterf
     @Override
     public GetAllSubmodelElementsResponse doProcess(GetAllSubmodelElementsRequest request)
             throws AssetConnectionException, ValueMappingException, ResourceNotFoundException, MessageBusException {
-        GetAllSubmodelElementsResponse response = new GetAllSubmodelElementsResponse();
         Reference reference = ReferenceHelper.toReference(request.getSubmodelId(), Submodel.class);
         List<SubmodelElement> submodelElements = persistence.getSubmodelElements(reference, null, request.getOutputModifier());
         syncWithAsset(reference, submodelElements);
-        response.setPayload(submodelElements);
-        response.setStatusCode(StatusCode.SUCCESS);
         if (submodelElements != null) {
             submodelElements.forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> messageBus.publish(ElementReadEventMessage.builder()
@@ -65,7 +61,10 @@ public class GetAllSubmodelElementsRequestHandler extends AbstractSubmodelInterf
                             .value(x)
                             .build())));
         }
-        return response;
+        return GetAllSubmodelElementsResponse.builder()
+                .payload(submodelElements)
+                .success()
+                .build();
     }
 
 }

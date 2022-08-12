@@ -37,9 +37,13 @@ import java.util.stream.Collectors;
 
 
 /**
- * Deserializer interface for FA³ST
+ * Deseriliazer for API calls. Deserializes not only whole
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} but
+ * also other elements like
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShell}, {@link io.adminshell.aas.v3.model.Submodel}
+ * or {@link io.adminshell.aas.v3.model.SubmodelElement}.
  */
-public interface Deserializer {
+public interface ApiDeserializer {
 
     /**
      * Default charset that will be used when no charset is specified

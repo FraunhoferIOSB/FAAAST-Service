@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.mixins.InvokeOperationRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
 
@@ -23,7 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationReques
 /**
  * JSON deserializer including HTTP specific functionality
  */
-public class HttpJsonDeserializer extends JsonDeserializer {
+public class HttpJsonApiDeserializer extends JsonApiDeserializer {
 
     @Override
     protected void modifyMapper(JsonMapper mapper) {

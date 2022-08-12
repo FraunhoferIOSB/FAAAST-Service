@@ -50,17 +50,14 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         HttpEndpointConfig that = (HttpEndpointConfig) o;
-        return port == that.port;
+        return Objects.equals(port, that.port);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), port);
+        return Objects.hash(port);
     }
 
 
