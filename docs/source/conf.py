@@ -2,7 +2,7 @@
 
 # -- Project information
 
-project = 'FAAAST Service'
+project = 'FA³ST Service'
 copyright = '2022, Fraunhofer IOSB'
 author = 'Fraunhofer IOSB'
 
@@ -29,6 +29,8 @@ templates_path = ['_templates']
 # -- Options for HTML output
 
 html_theme = 'sphinx_rtd_theme'
+
+html_theme_options = {'body_max_width': '70%'}
 
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
