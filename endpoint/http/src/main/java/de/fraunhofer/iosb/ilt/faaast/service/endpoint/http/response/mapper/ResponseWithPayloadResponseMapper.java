@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
@@ -44,7 +44,7 @@ public class ResponseWithPayloadResponseMapper<T> extends AbstractResponseMapper
         try {
             HttpHelper.sendJson(httpResponse,
                     apiResponse.getStatusCode(),
-                    new HttpJsonSerializer().write(
+                    new HttpJsonApiSerializer().write(
                             apiResponse.getPayload(),
                             AbstractRequestWithModifier.class.isAssignableFrom(apiRequest.getClass())
                                     ? ((AbstractRequestWithModifier) apiRequest).getOutputModifier()

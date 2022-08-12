@@ -94,6 +94,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -417,6 +418,30 @@ public class HttpEndpointIT {
     }
 
 
+    @Ignore("Failing because of charset issues, probably caused by admin-shell.io library not respecting charset for de-/serialization")
+    @Test
+    public void testAASSerializationRDF()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        assertSerialization(
+                List.of(environment.getAssetAdministrationShells().get(0)),
+                true,
+                DataFormat.RDF.getContentType(),
+                DataFormat.RDF);
+    }
+
+
+    @Test
+    public void testAASSerializationAASX()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        assertSerialization(
+                // requires AAS without file elements, otherwise AASX de-/serialization fails
+                List.of(environment.getAssetAdministrationShells().get(2)),
+                true,
+                DataFormat.AASX.getContentType(),
+                DataFormat.AASX);
+    }
+
+
     @Test
     public void testAASSerializationWildcard()
             throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
@@ -463,15 +488,14 @@ public class HttpEndpointIT {
                         .build(),
                         HttpResponse.BodyHandlers.ofByteArray());
         Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+        MediaType responseContentType = MediaType.parse(response.headers()
+                .firstValue(HttpConstants.HEADER_CONTENT_TYPE)
+                .orElseThrow());
+        Assert.assertTrue("content-type out of range", responseContentType.is(contentType));
         try (InputStream in = new ByteArrayInputStream(response.body())) {
             AssetAdministrationShellEnvironment actual = EnvironmentSerializationManager
                     .deserializerFor(expectedFormat)
-                    .read(in, MediaType.parse(
-                            response.headers()
-                                    .firstValue(HttpConstants.HEADER_CONTENT_TYPE)
-                                    .orElse(MediaType.JSON_UTF_8.toString()))
-                            .charset()
-                            .or(StandardCharsets.UTF_8))
+                    .read(in, responseContentType.charset().or(StandardCharsets.UTF_8))
                     .getEnvironment();
             Assert.assertEquals(expected, actual);
         }

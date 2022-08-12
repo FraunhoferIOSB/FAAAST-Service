@@ -31,7 +31,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 
 public class HttpJsonSerializerTest {
 
-    private final HttpJsonSerializer serializer = new HttpJsonSerializer();
+    private final HttpJsonApiSerializer serializer = new HttpJsonApiSerializer();
 
     @Test
     public void testEnumsWithCustomNaming() throws SerializationException {

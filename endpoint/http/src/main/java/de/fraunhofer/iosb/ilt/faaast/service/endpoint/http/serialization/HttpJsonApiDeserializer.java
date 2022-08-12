@@ -14,24 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization;
 
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.mixins.InvokeOperationRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationRequest;
 
 
 /**
- * JSON serializer including HTTP specific functionality
+ * JSON deserializer including HTTP specific functionality
  */
-public class HttpJsonSerializer extends JsonApiSerializer {
+public class HttpJsonApiDeserializer extends JsonApiDeserializer {
 
     @Override
     protected void modifyMapper(JsonMapper mapper) {
         super.modifyMapper(mapper);
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
         mapper.addMixIn(InvokeOperationRequest.class, InvokeOperationRequestMixin.class);
     }
 }

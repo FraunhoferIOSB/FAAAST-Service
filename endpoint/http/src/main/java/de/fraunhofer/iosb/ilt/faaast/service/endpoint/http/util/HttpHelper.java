@@ -20,7 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequ
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import jakarta.servlet.http.HttpServletResponse;
@@ -154,7 +154,7 @@ public class HttpHelper {
      */
     private static void send(HttpServletResponse response, StatusCode statusCode, Result result) {
         try {
-            sendJson(response, statusCode, new HttpJsonSerializer().write(result));
+            sendJson(response, statusCode, new HttpJsonApiSerializer().write(result));
         }
         catch (SerializationException e) {
             send(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());

@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.test.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -160,7 +160,7 @@ public class ApiPaths {
         public String assetAdministrationShells(Map<String, String> assetIds) throws SerializationException {
             return String.format("%s?assetIds=%s",
                     assetAdministrationShells(),
-                    EncodingHelper.base64UrlEncode(new HttpJsonSerializer().write(
+                    EncodingHelper.base64UrlEncode(new HttpJsonApiSerializer().write(
                             assetIds.entrySet().stream()
                                     .map(x -> new DefaultIdentifierKeyValuePair.Builder()
                                             .key(x.getKey())

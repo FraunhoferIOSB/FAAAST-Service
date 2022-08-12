@@ -66,7 +66,7 @@ public class GenerateSerializationByIdsRequestMapper extends AbstractRequestMapp
                             .map(MediaType::parse)
                             .flatMap(x -> matchingDataFormats(x).stream())
                             .sorted(Comparator.comparingInt(DataFormat::getPriority))
-                            .findAny()
+                            .findFirst()
                             .orElseThrow(() -> new InvalidRequestException(String.format(
                                     "requested data format not valid (%s)",
                                     httpRequest.getHeader(HttpConstants.HEADER_ACCEPT)))));

@@ -24,8 +24,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
@@ -101,7 +101,7 @@ public class HttpEndpointTest {
     private static HttpEndpoint endpoint;
     private static Service service;
     private static Persistence persistence;
-    private static HttpJsonDeserializer deserializer;
+    private static HttpJsonApiDeserializer deserializer;
 
     @BeforeClass
     public static void init() throws Exception {
@@ -110,7 +110,7 @@ public class HttpEndpointTest {
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
             port = serverSocket.getLocalPort();
         }
-        deserializer = new HttpJsonDeserializer();
+        deserializer = new HttpJsonApiDeserializer();
         persistence = mock(Persistence.class);
         endpoint = new HttpEndpoint();
         service = spy(new Service(CoreConfig.DEFAULT, persistence, mock(MessageBus.class), List.of(endpoint), List.of()));
@@ -302,7 +302,7 @@ public class HttpEndpointTest {
         ContentResponse response = execute(HttpMethod.GET, "/shells/" + EncodingHelper.base64UrlEncode(id.toString()) + "/aas?content=bogus&level=bogus");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
         String actual = response.getContentAsString();
-        String expected = new HttpJsonSerializer().write(Result.error("invalid output modifier"));
+        String expected = new HttpJsonApiSerializer().write(Result.error("invalid output modifier"));
         JSONAssert.assertEquals(expected, actual, RESULT_COMPARATOR);
     }
 

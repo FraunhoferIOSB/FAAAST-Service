@@ -32,7 +32,7 @@ import java.util.Collection;
  * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
  * related files.
  */
-@SupportedDataformat(DataFormat.JSON)
+@SupportedDataformat(DataFormat.AASX)
 public class AasxEnvironmentSerializer implements EnvironmentSerializer {
 
     private final AASXSerializer serializer;

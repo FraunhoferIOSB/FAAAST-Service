@@ -25,7 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.response.ResponseMappingManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
@@ -59,16 +59,18 @@ public class RequestHandler extends AbstractHandler {
     private static final int DEFAULT_PREFLIGHT_MAX_AGE = 1800;
     private final ServiceContext serviceContext;
     private final HttpEndpointConfig config;
-    private final RequestMappingManager mappingManager;
-    private final HttpJsonSerializer serializer;
+    private final RequestMappingManager requestMappingManager;
+    private final ResponseMappingManager responseMappingManager;
+    private final HttpJsonApiSerializer serializer;
 
     public RequestHandler(ServiceContext serviceContext, HttpEndpointConfig config) {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         Ensure.requireNonNull(config, "config must be non-null");
         this.config = config;
         this.serviceContext = serviceContext;
-        this.mappingManager = new RequestMappingManager(serviceContext);
-        this.serializer = new HttpJsonSerializer();
+        this.requestMappingManager = new RequestMappingManager(serviceContext);
+        this.responseMappingManager = new ResponseMappingManager(serviceContext);
+        this.serializer = new HttpJsonApiSerializer();
     }
 
 
@@ -98,7 +100,7 @@ public class RequestHandler extends AbstractHandler {
                                 x -> request.getHeader(x))))
                 .build();
         try {
-            executeAndSend(response, mappingManager.map(httpRequest));
+            executeAndSend(response, requestMappingManager.map(httpRequest));
         }
         catch (MethodNotAllowedException e) {
             HttpHelper.send(response, StatusCode.CLIENT_METHOD_NOT_ALLOWED, e.getMessage());
@@ -136,7 +138,7 @@ public class RequestHandler extends AbstractHandler {
                             .map(x -> HttpMethod.valueOf(x.trim()))
                             .collect(Collectors.toSet())
                     : new HashSet<>();
-            Set<HttpMethod> allowedMethods = HttpHelper.findSupportedHTTPMethods(mappingManager, request.getRequestURI().replaceAll("/$", ""));
+            Set<HttpMethod> allowedMethods = HttpHelper.findSupportedHTTPMethods(requestMappingManager, request.getRequestURI().replaceAll("/$", ""));
             allowedMethods.add(HttpMethod.OPTIONS);
             response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER,
                     allowedMethods.stream()
@@ -177,7 +179,7 @@ public class RequestHandler extends AbstractHandler {
             HttpHelper.sendJson(response, apiResponse.getStatusCode(), serializer.write(apiResponse.getResult()));
         }
         else {
-            new ResponseMappingManager(serviceContext).map(apiRequest, apiResponse, response);
+            responseMappingManager.map(apiRequest, apiResponse, response);
         }
     }
 }

@@ -31,7 +31,7 @@ import org.apache.jena.riot.Lang;
  * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
  * related files.
  */
-@SupportedDataformat(DataFormat.RDF)
+@SupportedDataformat(DataFormat.JSONLD)
 public class JsonLDEnvironmentSerializer implements EnvironmentSerializer {
 
     private final Serializer serializer;
