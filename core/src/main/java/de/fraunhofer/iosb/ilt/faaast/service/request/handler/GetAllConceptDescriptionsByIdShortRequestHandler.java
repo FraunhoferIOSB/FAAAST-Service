@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIdShortResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIdShortRequest;
@@ -45,10 +44,7 @@ public class GetAllConceptDescriptionsByIdShortRequestHandler
 
     @Override
     public GetAllConceptDescriptionsByIdShortResponse process(GetAllConceptDescriptionsByIdShortRequest request) throws MessageBusException {
-        GetAllConceptDescriptionsByIdShortResponse response = new GetAllConceptDescriptionsByIdShortResponse();
         List<ConceptDescription> conceptDescriptions = persistence.get(request.getIdShort(), null, null, request.getOutputModifier());
-        response.setPayload(conceptDescriptions);
-        response.setStatusCode(StatusCode.SUCCESS);
         if (conceptDescriptions != null) {
             conceptDescriptions.forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> messageBus.publish(ElementReadEventMessage.builder()
@@ -56,7 +52,10 @@ public class GetAllConceptDescriptionsByIdShortRequestHandler
                             .value(x)
                             .build())));
         }
-        return response;
+        return GetAllConceptDescriptionsByIdShortResponse.builder()
+                .payload(conceptDescriptions)
+                .success()
+                .build();
     }
 
 }

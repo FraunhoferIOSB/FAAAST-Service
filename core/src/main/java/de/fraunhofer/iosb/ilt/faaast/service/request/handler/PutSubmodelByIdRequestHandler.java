@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -48,19 +47,19 @@ public class PutSubmodelByIdRequestHandler extends AbstractRequestHandler<PutSub
 
     @Override
     public PutSubmodelByIdResponse process(PutSubmodelByIdRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
-        PutSubmodelByIdResponse response = new PutSubmodelByIdResponse();
         //check if resource does exist
         persistence.get(request.getSubmodel().getIdentification(), QueryModifier.DEFAULT);
         Submodel submodel = (Submodel) persistence.put(request.getSubmodel());
-        response.setPayload(submodel);
-        response.setStatusCode(StatusCode.SUCCESS);
         Reference reference = AasUtils.toReference(submodel);
         syncWithAsset(reference, submodel.getSubmodelElements());
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(reference)
                 .value(submodel)
                 .build());
-        return response;
+        return PutSubmodelByIdResponse.builder()
+                .payload(submodel)
+                .success()
+                .build();
     }
 
 }

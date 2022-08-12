@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
@@ -45,7 +45,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 
 public class JsonSerializerTest {
 
-    private final JsonSerializer serializer = new JsonSerializer();
+    private final JsonApiSerializer serializer = new JsonApiSerializer();
 
     @Test
     public void testIdentifiableSerialization() throws Exception {

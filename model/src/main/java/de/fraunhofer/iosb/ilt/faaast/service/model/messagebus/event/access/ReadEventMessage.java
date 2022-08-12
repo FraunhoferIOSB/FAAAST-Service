@@ -44,11 +44,9 @@ public abstract class ReadEventMessage<T> extends AccessEventMessage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         ReadEventMessage<T> that = (ReadEventMessage<T>) o;
-        return Objects.equals(value, that.value);
+        return super.equals(o)
+                && Objects.equals(value, that.value);
     }
 
 

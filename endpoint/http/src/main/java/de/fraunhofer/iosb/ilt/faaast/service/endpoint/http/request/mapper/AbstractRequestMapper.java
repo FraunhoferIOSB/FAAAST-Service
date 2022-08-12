@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 public abstract class AbstractRequestMapper {
 
     protected final ServiceContext serviceContext;
-    protected final HttpJsonDeserializer deserializer;
+    protected final HttpJsonApiDeserializer deserializer;
     protected final HttpMethod method;
     protected String urlPattern;
 
@@ -47,7 +47,7 @@ public abstract class AbstractRequestMapper {
         this.serviceContext = serviceContext;
         this.method = method;
         this.urlPattern = urlPattern;
-        deserializer = new HttpJsonDeserializer();
+        deserializer = new HttpJsonApiDeserializer();
         init();
     }
 

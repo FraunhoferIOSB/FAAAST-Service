@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByAssetIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
@@ -54,7 +53,6 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
 
     @Override
     public GetAllAssetAdministrationShellsByAssetIdResponse process(GetAllAssetAdministrationShellsByAssetIdRequest request) throws MessageBusException {
-        GetAllAssetAdministrationShellsByAssetIdResponse response = new GetAllAssetAdministrationShellsByAssetIdResponse();
         List<AssetIdentification> assetIdentifications = new ArrayList<>();
         List<IdentifierKeyValuePair> identifierKeyValuePairs = request.getAssetIds();
         for (IdentifierKeyValuePair pair: identifierKeyValuePairs) {
@@ -77,16 +75,16 @@ public class GetAllAssetAdministrationShellsByAssetIdRequestHandler
             }
             assetIdentifications.add(id);
         }
-
         List<AssetAdministrationShell> shells = new ArrayList<>(persistence.get(null, assetIdentifications, request.getOutputModifier()));
-        response.setPayload(shells);
-        response.setStatusCode(StatusCode.SUCCESS);
         shells.forEach(LambdaExceptionHelper.rethrowConsumer(
                 x -> messageBus.publish(ElementReadEventMessage.builder()
                         .element(x)
                         .value(x)
                         .build())));
-        return response;
+        return GetAllAssetAdministrationShellsByAssetIdResponse.builder()
+                .payload(shells)
+                .success()
+                .build();
     }
 
 }

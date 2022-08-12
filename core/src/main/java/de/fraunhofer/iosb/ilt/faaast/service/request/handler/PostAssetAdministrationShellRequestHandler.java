@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostAssetAdministrationShellResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PostAssetAdministrationShellRequest;
@@ -41,14 +40,14 @@ public class PostAssetAdministrationShellRequestHandler extends AbstractRequestH
 
     @Override
     public PostAssetAdministrationShellResponse process(PostAssetAdministrationShellRequest request) throws Exception {
-        PostAssetAdministrationShellResponse response = new PostAssetAdministrationShellResponse();
         AssetAdministrationShell shell = (AssetAdministrationShell) persistence.put(request.getAas());
-        response.setPayload(shell);
-        response.setStatusCode(StatusCode.SUCCESS_CREATED);
         messageBus.publish(ElementCreateEventMessage.builder()
                 .element(shell)
                 .value(shell)
                 .build());
-        return response;
+        return PostAssetAdministrationShellResponse.builder()
+                .payload(shell)
+                .created()
+                .build();
     }
 }

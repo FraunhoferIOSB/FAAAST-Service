@@ -15,7 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.test.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.QueryParameters;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -25,8 +26,11 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.maven.shared.utils.StringUtils;
 
 
 public class ApiPaths {
@@ -52,6 +56,11 @@ public class ApiPaths {
 
     public AASBasicDiscovery aasBasicDiscovery() {
         return new AASBasicDiscovery();
+    }
+
+
+    public AASSerializationInterface aasSerialization() {
+        return new AASSerializationInterface();
     }
 
 
@@ -151,7 +160,7 @@ public class ApiPaths {
         public String assetAdministrationShells(Map<String, String> assetIds) throws SerializationException {
             return String.format("%s?assetIds=%s",
                     assetAdministrationShells(),
-                    EncodingHelper.base64UrlEncode(new HttpJsonSerializer().write(
+                    EncodingHelper.base64UrlEncode(new HttpJsonApiSerializer().write(
                             assetIds.entrySet().stream()
                                     .map(x -> new DefaultIdentifierKeyValuePair.Builder()
                                             .key(x.getKey())
@@ -170,6 +179,47 @@ public class ApiPaths {
 
         public String assetAdministrationShell(AssetAdministrationShell aas) {
             return assetAdministrationShell(aas.getIdentification().getIdentifier());
+        }
+    }
+
+    public class AASSerializationInterface {
+
+        public String serialization() {
+            return String.format("%s/serialization", ApiPaths.this.root());
+        }
+
+
+        public String serialization(List<AssetAdministrationShell> aasIds, List<Submodel> submodelIds, boolean includeConceptDescriptions) throws SerializationException {
+            Map<String, String> queryElements = new HashMap<>();
+            if (aasIds != null && !aasIds.isEmpty()) {
+                queryElements.put(QueryParameters.AAS_IDS,
+                        EncodingHelper.base64UrlEncode(
+                                aasIds.stream()
+                                        .map(x -> x.getIdentification().getIdentifier())
+                                        .collect(Collectors.joining(","))));
+            }
+            if (submodelIds != null && !submodelIds.isEmpty()) {
+                queryElements.put(QueryParameters.SUBMODEL_IDS,
+                        EncodingHelper.base64UrlEncode(
+                                submodelIds.stream()
+                                        .map(x -> x.getIdentification().getIdentifier())
+                                        .collect(Collectors.joining(","))));
+            }
+            queryElements.put(QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS, Boolean.toString(includeConceptDescriptions));
+            return serialization() + buildQueryString(queryElements);
+        }
+
+
+        public String serializationFromStrings(List<String> aasIds, List<String> submodelIds, boolean includeConceptDescriptions) throws SerializationException {
+            Map<String, String> queryElements = new HashMap<>();
+            if (aasIds != null && !aasIds.isEmpty()) {
+                queryElements.put(QueryParameters.AAS_IDS, EncodingHelper.base64UrlEncode(aasIds.stream().collect(Collectors.joining(","))));
+            }
+            if (submodelIds != null && !submodelIds.isEmpty()) {
+                queryElements.put(QueryParameters.SUBMODEL_IDS, EncodingHelper.base64UrlEncode(submodelIds.stream().collect(Collectors.joining(","))));
+            }
+            queryElements.put(QueryParameters.INCLUDE_CONCEPT_DESCRIPTIONS, Boolean.toString(includeConceptDescriptions));
+            return serialization() + buildQueryString(queryElements);
         }
     }
 
@@ -284,5 +334,16 @@ public class ApiPaths {
                     submodelElement(idShortPath),
                     handleId);
         }
+    }
+
+    private static String buildQueryString(Map<String, String> variableValues) {
+        String result = variableValues.entrySet().stream()
+                .filter(x -> StringUtils.isNotBlank(x.getValue()))
+                .map(x -> String.format("%s=%s", x.getKey(), x.getValue()))
+                .collect(Collectors.joining("&"));
+        if (StringUtils.isNotBlank(result)) {
+            return "?" + result;
+        }
+        return "";
     }
 }

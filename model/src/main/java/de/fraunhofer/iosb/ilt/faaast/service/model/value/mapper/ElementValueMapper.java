@@ -23,11 +23,11 @@ import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +55,7 @@ public class ElementValueMapper {
                             x -> (Class<? extends SubmodelElement>) TypeToken.of(x).resolveType(DataValueMapper.class.getTypeParameters()[0]).getRawType(),
                             x -> {
                                 try {
-                                    Constructor<? extends DataValueMapper> constructor = x.getConstructor();
-                                    return constructor.newInstance();
+                                    return ConstructorUtils.invokeConstructor(x);
                                 }
                                 catch (NoSuchMethodException | SecurityException e) {
                                     LOGGER.warn("element-value mapper implementation could not be loaded, "

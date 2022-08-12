@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelReferenceResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
@@ -44,19 +43,19 @@ public class PostSubmodelReferenceRequestHandler extends AbstractRequestHandler<
 
     @Override
     public PostSubmodelReferenceResponse process(PostSubmodelReferenceRequest request) throws ResourceNotFoundException, MessageBusException {
-        PostSubmodelReferenceResponse response = new PostSubmodelReferenceResponse();
         AssetAdministrationShell aas = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
         if (!aas.getSubmodels().contains(request.getSubmodelRef())) {
             aas.getSubmodels().add(request.getSubmodelRef());
         }
         persistence.put(aas);
-        response.setPayload(request.getSubmodelRef());
-        response.setStatusCode(StatusCode.SUCCESS_CREATED);
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(aas)
                 .value(aas)
                 .build());
-        return response;
+        return PostSubmodelReferenceResponse.builder()
+                .payload(request.getSubmodelRef())
+                .created()
+                .build();
     }
 
 }

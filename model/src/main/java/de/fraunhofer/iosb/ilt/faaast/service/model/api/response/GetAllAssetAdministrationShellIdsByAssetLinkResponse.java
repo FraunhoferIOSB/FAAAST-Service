@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
 import io.adminshell.aas.v3.model.Identifier;
 import java.util.List;
 
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Chapter 7.2.2
  */
-public class GetAllAssetAdministrationShellIdsByAssetLinkResponse extends BaseResponseWithPayload<List<Identifier>> {
+public class GetAllAssetAdministrationShellIdsByAssetLinkResponse extends AbstractResponseWithPayload<List<Identifier>> {
 
     public static GetAllAssetAdministrationShellIdsByAssetLinkResponse.Builder builder() {
         return new GetAllAssetAdministrationShellIdsByAssetLinkResponse.Builder();

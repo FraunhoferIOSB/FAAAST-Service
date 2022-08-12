@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import java.util.List;
 
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Chapter 7.2.4
  */
-public class PostAllAssetLinksByIdResponse extends BaseResponseWithPayload<List<IdentifierKeyValuePair>> {
+public class PostAllAssetLinksByIdResponse extends AbstractResponseWithPayload<List<IdentifierKeyValuePair>> {
 
     public static PostAllAssetLinksByIdResponse.Builder builder() {
         return new PostAllAssetLinksByIdResponse.Builder();

@@ -22,8 +22,6 @@ import java.util.Objects;
 
 public abstract class TypeInfo<T> {
 
-    // ValueTypeInfo | ElementValueTypeInfo
-    // StructuralTypeInfo | CollectionLikeTypeInfo<T>
     protected Class<?> type;
     private Map<T, TypeInfo> elements;
 

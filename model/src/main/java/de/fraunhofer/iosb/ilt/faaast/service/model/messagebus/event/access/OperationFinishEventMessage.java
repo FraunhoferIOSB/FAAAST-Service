@@ -62,11 +62,10 @@ public class OperationFinishEventMessage extends ExecuteEventMessage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         OperationFinishEventMessage that = (OperationFinishEventMessage) o;
-        return Objects.equals(output, that.output) && Objects.equals(inoutput, that.inoutput);
+        return super.equals(o)
+                && Objects.equals(output, that.output)
+                && Objects.equals(inoutput, that.inoutput);
     }
 
 
