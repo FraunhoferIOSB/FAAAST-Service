@@ -23,7 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
@@ -123,11 +123,11 @@ public class RequestMappingManagerTest {
     private static final SubmodelElement SUBMODEL_ELEMENT = AASFull.SUBMODEL_3.getSubmodelElements().get(0);
     private static final Reference SUBMODEL_ELEMENT_REF = AasUtils.toReference(AasUtils.toReference(SUBMODEL), SUBMODEL_ELEMENT);
     private final RequestMappingManager mappingManager;
-    private final HttpJsonSerializer serializer;
+    private final HttpJsonApiSerializer serializer;
     private final ServiceContext serviceContext;
 
     public RequestMappingManagerTest() {
-        serializer = new HttpJsonSerializer();
+        serializer = new HttpJsonApiSerializer();
         serviceContext = mock(ServiceContext.class);
         mappingManager = new RequestMappingManager(serviceContext);
     }

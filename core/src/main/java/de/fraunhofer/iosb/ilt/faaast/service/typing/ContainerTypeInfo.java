@@ -29,11 +29,9 @@ public class ContainerTypeInfo<T> extends TypeInfo<T> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         ContainerTypeInfo<?> that = (ContainerTypeInfo<?>) o;
-        return Objects.equals(this.contentType, that.contentType);
+        return super.equals(o)
+                && Objects.equals(this.contentType, that.contentType);
     }
 
 

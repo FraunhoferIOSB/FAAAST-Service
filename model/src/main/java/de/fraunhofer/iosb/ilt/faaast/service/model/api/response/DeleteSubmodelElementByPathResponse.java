@@ -26,7 +26,7 @@ public class DeleteSubmodelElementByPathResponse extends AbstractResponse {
         return new DeleteSubmodelElementByPathResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<DeleteSubmodelElementByPathResponse, DeleteSubmodelElementByPathResponse.Builder> {
+    public static class Builder extends AbstractResponse.AbstractBuilder<DeleteSubmodelElementByPathResponse, Builder> {
 
         @Override
         protected DeleteSubmodelElementByPathResponse.Builder getSelf() {

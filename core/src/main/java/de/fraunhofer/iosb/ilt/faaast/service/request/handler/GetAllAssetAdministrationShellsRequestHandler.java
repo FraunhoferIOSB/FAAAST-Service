@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
@@ -45,10 +44,7 @@ public class GetAllAssetAdministrationShellsRequestHandler extends AbstractReque
 
     @Override
     public GetAllAssetAdministrationShellsResponse process(GetAllAssetAdministrationShellsRequest request) throws MessageBusException {
-        GetAllAssetAdministrationShellsResponse response = new GetAllAssetAdministrationShellsResponse();
         List<AssetAdministrationShell> shells = persistence.get(null, (List<AssetIdentification>) null, request.getOutputModifier());
-        response.setPayload(shells);
-        response.setStatusCode(StatusCode.SUCCESS);
         if (shells != null) {
             shells.forEach(LambdaExceptionHelper.rethrowConsumer(
                     x -> messageBus.publish(ElementReadEventMessage.builder()
@@ -56,7 +52,10 @@ public class GetAllAssetAdministrationShellsRequestHandler extends AbstractReque
                             .value(x)
                             .build())));
         }
-        return response;
+        return GetAllAssetAdministrationShellsResponse.builder()
+                .payload(shells)
+                .success()
+                .build();
     }
 
 }

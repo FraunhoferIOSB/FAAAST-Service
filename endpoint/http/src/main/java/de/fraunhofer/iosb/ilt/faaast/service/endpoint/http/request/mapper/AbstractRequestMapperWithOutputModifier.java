@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractRequestWithModifier;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 
 
 /**
@@ -61,7 +62,7 @@ public abstract class AbstractRequestMapperWithOutputModifier<T extends Abstract
                 .resolveType(AbstractRequestMapperWithOutputModifier.class.getTypeParameters()[0])
                 .getRawType();
         try {
-            AbstractRequestWithModifier<R> request = rawType.getConstructor(null).newInstance(null);
+            AbstractRequestWithModifier<R> request = ConstructorUtils.invokeConstructor(rawType);
             OutputModifier.Builder outputModifierBuilder = new OutputModifier.Builder();
             if (httpRequest.hasQueryParameter(QueryParameters.CONTENT)) {
                 Content content = Content.fromString(httpRequest.getQueryParameter(QueryParameters.CONTENT));

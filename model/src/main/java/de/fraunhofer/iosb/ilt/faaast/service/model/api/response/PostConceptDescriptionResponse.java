@@ -14,14 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
 import io.adminshell.aas.v3.model.ConceptDescription;
 
 
 /**
  * Chapter 6.4.7
  */
-public class PostConceptDescriptionResponse extends BaseResponseWithPayload<ConceptDescription> {
+public class PostConceptDescriptionResponse extends AbstractResponseWithPayload<ConceptDescription> {
 
     public static PostConceptDescriptionResponse.Builder builder() {
         return new PostConceptDescriptionResponse.Builder();

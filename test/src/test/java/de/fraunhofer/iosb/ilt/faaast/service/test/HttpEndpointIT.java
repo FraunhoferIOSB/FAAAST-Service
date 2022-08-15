@@ -15,18 +15,20 @@
 package de.fraunhofer.iosb.ilt.faaast.service.test;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
-import static de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode.CLIENT_METHOD_NOT_ALLOWED;
 import static de.fraunhofer.iosb.ilt.faaast.service.test.util.MessageBusHelper.assertEvent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
@@ -40,6 +42,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.Path;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
@@ -64,6 +67,7 @@ import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
+import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultConceptDescription;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
@@ -71,18 +75,26 @@ import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -381,6 +393,112 @@ public class HttpEndpointIT {
                                 expected,
                                 expected,
                                 AssetAdministrationShell.class)));
+    }
+
+
+    @Test
+    public void testAASSerializationJSON()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        assertSerialization(
+                List.of(environment.getAssetAdministrationShells().get(0)),
+                true,
+                MediaType.JSON_UTF_8,
+                DataFormat.JSON);
+    }
+
+
+    @Test
+    public void testAASSerializationXML()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        assertSerialization(
+                List.of(environment.getAssetAdministrationShells().get(0)),
+                true,
+                MediaType.XML_UTF_8,
+                DataFormat.XML);
+    }
+
+
+    @Ignore("Failing because of charset issues, probably caused by admin-shell.io library not respecting charset for de-/serialization")
+    @Test
+    public void testAASSerializationRDF()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        assertSerialization(
+                List.of(environment.getAssetAdministrationShells().get(0)),
+                true,
+                DataFormat.RDF.getContentType(),
+                DataFormat.RDF);
+    }
+
+
+    @Test
+    public void testAASSerializationAASX()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        assertSerialization(
+                // requires AAS without file elements, otherwise AASX de-/serialization fails
+                List.of(environment.getAssetAdministrationShells().get(2)),
+                true,
+                DataFormat.AASX.getContentType(),
+                DataFormat.AASX);
+    }
+
+
+    @Test
+    public void testAASSerializationWildcard()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        assertSerialization(
+                List.of(environment.getAssetAdministrationShells().get(0)),
+                true,
+                MediaType.ANY_TYPE,
+                DataFormat.JSON);
+    }
+
+
+    @Test
+    public void testAASSerializationInvalidDataformat()
+            throws InterruptedException, MessageBusException, IOException, URISyntaxException, SerializationException, DeserializationException {
+        HttpResponse<byte[]> response = HttpClient.newHttpClient()
+                .send(HttpRequest.newBuilder()
+                        .uri(new URI(API_PATHS.aasSerialization().serialization(List.of(), List.of(), false)))
+                        .header(HttpConstants.HEADER_ACCEPT, MediaType.ANY_VIDEO_TYPE.toString())
+                        .GET()
+                        .build(),
+                        HttpResponse.BodyHandlers.ofByteArray());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_ERROR_BAD_REQUEST), response.statusCode());
+    }
+
+
+    private void assertSerialization(List<AssetAdministrationShell> aass, boolean includeConceptDescriptions, MediaType contentType, DataFormat expectedFormat)
+            throws IOException, InterruptedException, SerializationException, URISyntaxException, DeserializationException {
+        AssetAdministrationShellEnvironment expected = new DefaultAssetAdministrationShellEnvironment.Builder()
+                .assetAdministrationShells(aass)
+                .submodels(aass.stream().flatMap(x -> x.getSubmodels().stream())
+                        .map(x -> AasUtils.resolve(x, environment, Submodel.class))
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .collect(Collectors.toList()))
+                .conceptDescriptions(includeConceptDescriptions
+                        ? environment.getConceptDescriptions()
+                        : List.of())
+                .build();
+        HttpResponse<byte[]> response = HttpClient.newHttpClient()
+                .send(HttpRequest.newBuilder()
+                        .uri(new URI(API_PATHS.aasSerialization().serialization(aass, expected.getSubmodels(), includeConceptDescriptions)))
+                        .header(HttpConstants.HEADER_ACCEPT, contentType.toString())
+                        .GET()
+                        .build(),
+                        HttpResponse.BodyHandlers.ofByteArray());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+        MediaType responseContentType = MediaType.parse(response.headers()
+                .firstValue(HttpConstants.HEADER_CONTENT_TYPE)
+                .orElseThrow());
+        Assert.assertTrue("content-type out of range", responseContentType.is(contentType));
+        try (InputStream in = new ByteArrayInputStream(response.body())) {
+            AssetAdministrationShellEnvironment actual = EnvironmentSerializationManager
+                    .deserializerFor(expectedFormat)
+                    .read(in, responseContentType.charset().or(StandardCharsets.UTF_8))
+                    .getEnvironment();
+            Assert.assertEquals(expected, actual);
+        }
     }
 
 
@@ -797,7 +915,7 @@ public class HttpEndpointIT {
     public void testSubmodelInterfaceGetSubmodelContentValue()
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         Submodel submodel = environment.getSubmodels().get(3);
-        String expected = new JsonSerializer().write(submodel, new OutputModifier.Builder()
+        String expected = new JsonApiSerializer().write(submodel, new OutputModifier.Builder()
                 .content(Content.VALUE)
                 .build());
         assertEvent(
@@ -1078,7 +1196,7 @@ public class HttpEndpointIT {
             throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
         AssetAdministrationShell aas = environment.getAssetAdministrationShells().get(1);
         Submodel submodel = AasUtils.resolve(aas.getSubmodels().get(0), environment, Submodel.class);
-        String expected = new JsonSerializer().write(submodel, new OutputModifier.Builder()
+        String expected = new JsonApiSerializer().write(submodel, new OutputModifier.Builder()
                 .content(Content.VALUE)
                 .build());
         assertEvent(
@@ -1332,11 +1450,10 @@ public class HttpEndpointIT {
     @Test
     public void testSubmodelRepositoryGetSubmodelsBySemanticId() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         Submodel expected = environment.getSubmodels().get(1);
-        assertExecuteMultiple(
-                HttpMethod.GET,
+        assertExecuteMultiple(HttpMethod.GET,
                 String.format("%s?semanticId=%s",
                         API_PATHS.submodelRepository().submodels(),
-                        EncodingHelper.base64UrlEncode(new JsonSerializer().write(expected.getSemanticId()))),
+                        EncodingHelper.base64UrlEncode(new JsonApiSerializer().write(expected.getSemanticId()))),
                 StatusCode.SUCCESS,
                 null,
                 List.of(expected),
@@ -1367,7 +1484,7 @@ public class HttpEndpointIT {
     @Test
     public void testMethodNotAllowed() throws Exception {
         HttpResponse response = HttpHelper.execute(HttpMethod.PUT, API_PATHS.aasRepository().assetAdministrationShells());
-        Assert.assertEquals(toHttpStatusCode(CLIENT_METHOD_NOT_ALLOWED), response.statusCode());
+        Assert.assertEquals(toHttpStatusCode(StatusCode.CLIENT_METHOD_NOT_ALLOWED), response.statusCode());
     }
 
 

@@ -26,7 +26,7 @@ public class DeleteSubmodelReferenceResponse extends AbstractResponse {
         return new DeleteSubmodelReferenceResponse.Builder();
     }
 
-    public static class Builder extends AbstractBuilder<DeleteSubmodelReferenceResponse, DeleteSubmodelReferenceResponse.Builder> {
+    public static class Builder extends AbstractResponse.AbstractBuilder<DeleteSubmodelReferenceResponse, Builder> {
 
         @Override
         protected DeleteSubmodelReferenceResponse.Builder getSelf() {

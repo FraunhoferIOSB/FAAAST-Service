@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetLinksByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetLinksByIdRequest;
@@ -47,7 +46,6 @@ public class GetAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<G
 
     @Override
     public GetAllAssetLinksByIdResponse process(GetAllAssetLinksByIdRequest request) throws ResourceNotFoundException {
-        GetAllAssetLinksByIdResponse response = new GetAllAssetLinksByIdResponse();
         AssetAdministrationShell aas = (AssetAdministrationShell) persistence.get(request.getId(), QueryModifier.DEFAULT);
         List<IdentifierKeyValuePair> result = new ArrayList<>(aas.getAssetInformation().getSpecificAssetIds());
         if (aas.getAssetInformation().getGlobalAssetId() != null
@@ -58,9 +56,10 @@ public class GetAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<G
                     .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
                     .build());
         }
-        response.setPayload(result);
-        response.setStatusCode(StatusCode.SUCCESS);
-        return response;
+        return GetAllAssetLinksByIdResponse.builder()
+                .payload(result)
+                .success()
+                .build();
     }
 
 }

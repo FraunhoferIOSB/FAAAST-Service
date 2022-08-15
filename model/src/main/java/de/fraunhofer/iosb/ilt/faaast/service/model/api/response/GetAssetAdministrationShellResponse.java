@@ -14,14 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 
 
 /**
  * Chapter 4.2.2
  */
-public class GetAssetAdministrationShellResponse extends BaseResponseWithPayload<AssetAdministrationShell> {
+public class GetAssetAdministrationShellResponse extends AbstractResponseWithPayload<AssetAdministrationShell> {
 
     public static GetAssetAdministrationShellResponse.Builder builder() {
         return new GetAssetAdministrationShellResponse.Builder();

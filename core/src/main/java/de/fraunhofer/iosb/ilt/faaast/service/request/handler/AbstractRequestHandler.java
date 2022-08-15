@@ -36,6 +36,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 
 
 /**
@@ -70,8 +71,10 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      *             type is inaccessible
      */
     public O newResponse() throws NoSuchMethodException, InstantiationException, InvocationTargetException, IllegalAccessException {
-        Class<?> responseType = TypeToken.of(getClass()).resolveType(AbstractRequestHandler.class.getTypeParameters()[1]).getRawType();
-        return (O) responseType.getConstructor().newInstance();
+        return (O) ConstructorUtils.invokeConstructor(
+                TypeToken.of(getClass())
+                        .resolveType(AbstractRequestHandler.class.getTypeParameters()[1])
+                        .getRawType());
     }
 
 

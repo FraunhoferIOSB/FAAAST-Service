@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetSubmodelElementByPathResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
@@ -55,7 +54,6 @@ public class GetSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
     @Override
     public GetSubmodelElementByPathResponse doProcess(GetSubmodelElementByPathRequest request)
             throws ResourceNotFoundException, ValueMappingException, AssetConnectionException, MessageBusException {
-        GetSubmodelElementByPathResponse response = new GetSubmodelElementByPathResponse();
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
         SubmodelElement submodelElement = persistence.get(reference, request.getOutputModifier());
         Optional<DataElementValue> valueFromAssetConnection = assetConnectionManager.readValue(reference);
@@ -71,12 +69,13 @@ public class GetSubmodelElementByPathRequestHandler extends AbstractSubmodelInte
                         .build());
             }
         }
-        response.setPayload(submodelElement);
-        response.setStatusCode(StatusCode.SUCCESS);
         messageBus.publish(ElementReadEventMessage.builder()
                 .element(reference)
                 .value(submodelElement)
                 .build());
-        return response;
+        return GetSubmodelElementByPathResponse.builder()
+                .payload(submodelElement)
+                .success()
+                .build();
     }
 }

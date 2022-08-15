@@ -271,6 +271,25 @@ public class ReferenceHelper {
 
 
     /**
+     * Create a reference for an {@link io.adminshell.aas.v3.model.Identifiable}
+     *
+     * @param id of the identifiable
+     * @param keyType type of the id
+     * @param clazz of the identifiable
+     * @return reference of the identifiable
+     */
+    public static Reference toReference(String id, KeyType keyType, Class<?> clazz) {
+        return new DefaultReference.Builder()
+                .keys(List.of(new DefaultKey.Builder()
+                        .value(id)
+                        .type(referableToKeyType(clazz))
+                        .idType(keyType)
+                        .build()))
+                .build();
+    }
+
+
+    /**
      * Get the corresponding {@link KeyElements} to the given class
      *
      * @param clazz to convert to a KeyElement

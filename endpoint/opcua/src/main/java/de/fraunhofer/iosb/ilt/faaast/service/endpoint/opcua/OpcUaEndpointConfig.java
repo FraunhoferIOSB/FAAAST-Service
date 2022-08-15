@@ -39,20 +39,22 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-        if (!super.equals(o))
-            return false;
+        }
         OpcUaEndpointConfig that = (OpcUaEndpointConfig) o;
-        return tcpPort == that.tcpPort && secondsTillShutdown == that.secondsTillShutdown && userMap == that.userMap && allowAnonymous == that.allowAnonymous;
+        return Objects.equals(tcpPort, that.tcpPort)
+                && Objects.equals(secondsTillShutdown, that.secondsTillShutdown)
+                && Objects.equals(allowAnonymous, that.allowAnonymous);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), tcpPort, secondsTillShutdown, userMap, allowAnonymous);
+        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous);
     }
 
 
@@ -78,7 +80,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
     /**
      * Gets the number of seconds until the server stops on shutdown
-     * 
+     *
      * @return The desired number of seconds
      */
     public int getSecondsTillShutdown() {
@@ -88,7 +90,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
     /**
      * Sets the number of seconds until the server stops on shutdown
-     * 
+     *
      * @param value The desired number of seconds
      */
     public void setSecondsTillShutdown(int value) {

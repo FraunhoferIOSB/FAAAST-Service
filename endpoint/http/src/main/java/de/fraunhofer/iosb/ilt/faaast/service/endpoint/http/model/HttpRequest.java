@@ -80,6 +80,16 @@ public class HttpRequest extends HttpMessage {
     }
 
 
+    public boolean hasHeader(String name) {
+        return headers.containsKey(name);
+    }
+
+
+    public String getHeader(String name) {
+        return headers.get(name);
+    }
+
+
     public String getQueryParameterOrDefault(String parameter, String defaultValue) {
         return queryParameters.getOrDefault(parameter, defaultValue);
     }

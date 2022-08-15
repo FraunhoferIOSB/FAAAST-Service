@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetOperationAsyncResultResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetOperationAsyncResultRequest;
@@ -40,10 +39,10 @@ public class GetOperationAsyncResultRequestHandler extends AbstractRequestHandle
 
     @Override
     public GetOperationAsyncResultResponse process(GetOperationAsyncResultRequest request) {
-        GetOperationAsyncResultResponse response = new GetOperationAsyncResultResponse();
         OperationResult operationResult = persistence.getOperationResult(request.getHandleId());
-        response.setPayload(operationResult);
-        response.setStatusCode(StatusCode.SUCCESS);
-        return response;
+        return GetOperationAsyncResultResponse.builder()
+                .payload(operationResult)
+                .success()
+                .build();
     }
 }

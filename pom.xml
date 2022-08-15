@@ -96,7 +96,7 @@
         <maven.plugin.gpg.version>3.0.1</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.8</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.2.2</maven.plugin.jar.version>
-        <maven.plugin.javadoc.version>3.4.0</maven.plugin.javadoc.version>
+        <maven.plugin.javadoc.version>3.4.1</maven.plugin.javadoc.version>
         <maven.plugin.jib.version>3.2.1</maven.plugin.jib.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
         <maven.plugin.owasp.version>7.1.1</maven.plugin.owasp.version>
@@ -107,11 +107,11 @@
         <maven.plugin.shade.version>3.3.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
         <milo.version>0.6.7</milo.version>
-        <mockito.version>4.6.1</mockito.version>
+        <mockito.version>4.7.0</mockito.version>
         <moquette.version>0.15.1</moquette.version>
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.6.3</picocli.version>
-        <proguard.core.version>9.0.2</proguard.core.version>
+        <proguard.core.version>9.0.3</proguard.core.version>
         <proguard.version>7.2.2</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>4.8.2-35</prosys.sdk.version>
@@ -123,7 +123,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <spotless.version>2.24.0</spotless.version>
+        <spotless.version>2.24.1</spotless.version>
         <system.stubs.junit4.version>2.0.1</system.stubs.junit4.version>
         <wiremock.version>2.33.2</wiremock.version>
     </properties>

@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.BaseResponseWithPayload;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import java.util.List;
 
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Chapter 6.4.2
  */
-public class GetAllConceptDescriptionsResponse extends BaseResponseWithPayload<List<ConceptDescription>> {
+public class GetAllConceptDescriptionsResponse extends AbstractResponseWithPayload<List<ConceptDescription>> {
 
     public static GetAllConceptDescriptionsResponse.Builder builder() {
         return new GetAllConceptDescriptionsResponse.Builder();

@@ -286,9 +286,6 @@ HTTP GET http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2R
 -   AASX File Server Interface (not yet supported)
 >/packages
 
--   Asset Administration Shell Serialization Interface (not yet supported)
->/serialization (GET)
-
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ### OPC UA Endpoint

@@ -55,7 +55,6 @@ public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<
 
     @Override
     public PostAllAssetLinksByIdResponse process(PostAllAssetLinksByIdRequest request) throws ResourceNotFoundException {
-        PostAllAssetLinksByIdResponse response = new PostAllAssetLinksByIdResponse();
         AssetAdministrationShell aas = (AssetAdministrationShell) persistence.get(request.getId(), QueryModifier.DEFAULT);
         List<IdentifierKeyValuePair> globalKeys = request.getAssetLinks().stream()
                 .filter(x -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(x.getKey()))
@@ -74,11 +73,12 @@ public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<
                                 .build());
             }
             else {
-                response.setError(StatusCode.CLIENT_ERROR_BAD_REQUEST,
-                        String.format("request can contain at most 1 element with key '%s', but %d found",
-                                FaaastConstants.KEY_GLOBAL_ASSET_ID,
-                                globalKeys.size()));
-                return response;
+                return PostAllAssetLinksByIdResponse.builder()
+                        .error(StatusCode.CLIENT_ERROR_BAD_REQUEST,
+                                String.format("request can contain at most 1 element with key '%s', but %d found",
+                                        FaaastConstants.KEY_GLOBAL_ASSET_ID,
+                                        globalKeys.size()))
+                        .build();
             }
         }
         List<IdentifierKeyValuePair> newSpecificAssetIds = request.getAssetLinks().stream()
@@ -96,11 +96,12 @@ public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<
                 aas.getAssetInformation().getSpecificAssetIds().add(newSpecificAssetId);
             }
             else {
-                response.setError(StatusCode.CLIENT_ERROR_BAD_REQUEST,
-                        String.format("error updating specificAssetId - found %d entries for key '%s', but expected only one",
-                                existingLinks.size(),
-                                newSpecificAssetId.getKey()));
-                return response;
+                return PostAllAssetLinksByIdResponse.builder()
+                        .error(StatusCode.CLIENT_ERROR_BAD_REQUEST,
+                                String.format("error updating specificAssetId - found %d entries for key '%s', but expected only one",
+                                        existingLinks.size(),
+                                        newSpecificAssetId.getKey()))
+                        .build();
             }
         }
         aas = (AssetAdministrationShell) persistence.put(aas);
@@ -113,9 +114,10 @@ public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<
                     .value(aas.getAssetInformation().getGlobalAssetId().getKeys().get(aas.getAssetInformation().getGlobalAssetId().getKeys().size() - 1).getValue())
                     .build());
         }
-        response.setPayload(result);
-        response.setStatusCode(StatusCode.SUCCESS_CREATED);
-        return response;
+        return PostAllAssetLinksByIdResponse.builder()
+                .payload(result)
+                .created()
+                .build();
     }
 
 }

@@ -14,17 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
-import com.google.common.net.MediaType;
 import java.util.Objects;
 
 
 /**
  * Abstract base class for protocol-agnostic responses containing payload.
  */
-public abstract class BaseResponseWithPayload<T> extends AbstractResponse {
+public abstract class AbstractResponseWithPayload<T> extends AbstractResponse {
 
     protected T payload;
-    protected MediaType contentType = MediaType.ANY_TYPE;
 
     public T getPayload() {
         return payload;
@@ -44,41 +42,21 @@ public abstract class BaseResponseWithPayload<T> extends AbstractResponse {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
-        BaseResponseWithPayload<?> that = (BaseResponseWithPayload<?>) o;
-        return super.equals(that)
-                && Objects.equals(payload, that.payload)
-                && Objects.equals(contentType, that.contentType);
+        AbstractResponseWithPayload<T> that = (AbstractResponseWithPayload<T>) o;
+        return super.equals(o)
+                && Objects.equals(payload, that.payload);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), payload, contentType);
+        return Objects.hash(super.hashCode(), payload);
     }
 
+    public abstract static class AbstractBuilder<V, T extends AbstractResponseWithPayload<V>, B extends AbstractBuilder<V, T, B>> extends AbstractResponse.AbstractBuilder<T, B> {
 
-    public MediaType getContentType() {
-        return contentType;
-    }
-
-
-    public void setContentType(MediaType contentType) {
-        this.contentType = contentType;
-    }
-
-    public abstract static class AbstractBuilder<T, R extends BaseResponseWithPayload<T>, B extends AbstractBuilder<T, R, B>> extends AbstractResponse.AbstractBuilder<R, B> {
-
-        public B payload(T value) {
+        public B payload(V value) {
             getBuildingInstance().setPayload(value);
-            return getSelf();
-        }
-
-
-        public B contentType(MediaType value) {
-            getBuildingInstance().setContentType(value);
             return getSelf();
         }
     }
