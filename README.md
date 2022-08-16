@@ -73,12 +73,12 @@ Some of the features we are working on include
 -   improve stability/robustness
 -   improve usability
 -   additional implementations of the persistence interface
-    -   file-based (:heavy_check_mark:)
-    -   database-backed
+	-   file-based (:heavy_check_mark:)
+	-   database-backed
 
 -   support for additional APIs
-    -   Administration Shell Serialization Interface (:heavy_check_mark:)
-    -   AASX Server Interface
+	-   Administration Shell Serialization Interface (:heavy_check_mark:)
+	-   AASX Server Interface
 
 ## Contributing
 
