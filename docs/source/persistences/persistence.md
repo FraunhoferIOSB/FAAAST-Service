@@ -1,4 +1,4 @@
-# Persistence
+# General
 Each persistence configuration supports at least the following configuration parameters:
 -   `initialModel` (optional, can be overriden by CLI parameter or environment variable): Path to the AAS Environment model file
 -   `decoupleEnvironment` (optional, default: `true`): Only applicable if the AAS Environment is given as Java Object. If set to true, the persistence makes a deep copy of the AAS Environment and decouples the internal AAS Environment from the AAS Environment parsed on startup. If set to false, the same object instance is used in the FA³ST Service, which may have unexpected side effects.

@@ -1,7 +1,7 @@
 # FA³ST Service 
 ![FA³ST Logo Light](./images/Fa3st-Service_positiv.png "FA³ST Service Logo")
 
-The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service implements the [Asset Administration Shell (AAS) specification from the platform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and builds an easy-to-use web service based on a custom AAS model instance.
+The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service implements the [Asset Administration Shell (AAS) specification by Plattform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and provides an easy-to-use re-active AAS (Type 2) hosting custom AAS models.
 
 **Implemented AAS versions**
 | Part | Version | Comment |
@@ -11,13 +11,13 @@ The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools
 
 ## Features
 
-FA³ST Service provides the following functionalities:
 -   supports several dataformats for the Asset Administration Shell Environment: `json, json-ld, xml, aml, rdf, opcua nodeset`
 -   easy configuration via JSON file
 -   easily expandable with 3rd party implementations for `endpoint, messagebus, persistence, assetconnection`
 -   uses existing open source implementation of AAS datamodel and de-/serializers [admin-shell-io java serializer](https://github.com/admin-shell-io/java-serializer) and [admin-shell-io java model](https://github.com/admin-shell-io/java-model)
 -   synchronization between multiple endpoints
 -   connecting to assets using arbitrary communication protocols
+-   can be used via command-line interface (CLI), as docker container or embedded library
 
 
 ```{toctree} 

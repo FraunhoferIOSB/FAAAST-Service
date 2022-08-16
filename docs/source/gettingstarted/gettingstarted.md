@@ -1,34 +1,14 @@
 # Getting Started
 
-This is an example of how to set up your project locally.
-To get a local copy up and running follow these simple example steps.
-To compile the FA³ST service you need to have a JDK and Maven installed.
-
 ## Prerequisites
 
 -   Java 11+
--   Maven
 
-## Building from Source
+## Usage
 
-```sh
-git clone https://github.com/FraunhoferIOSB/FAAAST-Service
-cd FAAAST-Service
-mvn clean install
-```
-
-## Use
-
-### From JAR
+### From precompiled JAR
 
 [Download latest version as precompiled JAR](https://search.maven.org/remote_content?g=de.fraunhofer.iosb.ilt.faaast.service&a=starter&v=LATEST)
-
-To start the Service from command line use the following commands.
-
-```sh
-cd /starter/target
-java -jar starter-{version}.jar -m {path/to/your/AASEnvironment}
-```
 
 ### As Maven Dependency
 
@@ -60,25 +40,42 @@ configurations.all {
 }
 ```
 
-## Example
+## Building from Source
 
-The following code starts a FA³ST Service with a HTTP endpoint on port 8080.
+### Prerequisites
 
-```java
-String pathToYourAASEnvironment = "{pathTo}\\FAAAST-Service\\misc\\examples\\demoAAS.json";
-AssetAdministrationShellEnvironment environment = AASEnvironmentHelper.fromFile(new File(pathToYourAASEnvironment));
-Service service = new Service(new ServiceConfig.Builder()
-	.core(new CoreConfig.Builder()
-			.requestHandlerThreadPoolSize(2)
-			.build())
-	.persistence(PersistenceInMemoryConfig.builder()
-			.environment(environment)
-			.build())
-	.endpoint(new HttpEndpointConfig())
-	.messageBus(new MessageBusInternalConfig())
-	.build());
-service.start();
+-   Maven
+
+```sh
+git clone https://github.com/FraunhoferIOSB/FAAAST-Service
+cd FAAAST-Service
+mvn clean install
 ```
 
-Afterwards, you can reach the running FA³ST Service via `http://localhost:8080/shells`.
+## Example
 
+This example shows how to start a FA³ST Service given your custom AAS model (called `model.json` for simplicity but can be any relative or absolute path to an AAS model in any supported data format, e.g. JSON, XML, RDF or AASX). The service will expose an HTTP endpoint on default port 8080.
+
+### Via Command-line Interface (CLI)
+
+```sh
+cd /starter/target
+java -jar starter-{version}.jar -m model.json
+```
+
+### From Code (embedded)
+
+```java
+Service service = new Service(ServiceConfig.builder()
+		.core(CoreConfig.builder()
+				.requestHandlerThreadPoolSize(2)
+				.build())
+		.persistence(PersistenceInMemoryConfig.builder()
+				.environment(AASEnvironmentHelper
+						.fromFile(new File("{pathTo}\\FAAAST-Service\\misc\\examples\\demoAAS.json")))
+				.build())
+		.endpoint(HttpEndpointConfig.builder().build())
+		.messageBus(MessageBusInternalConfig.builder().build())
+		.build());
+service.start();
+```

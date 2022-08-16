@@ -1,5 +1,5 @@
-# OPC UA Endpoint Interface
-The OPC UA Endpoint allows accessing data and execute operations within the FA³ST-Service via OPC UA.
+# OPC UA Endpoint
+The OPC UA Endpoint allows accessing data and execute operations within the FA³ST Service via OPC UA.
 For detailed information on OPC UA see
 [About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/)
 
@@ -55,46 +55,23 @@ Here you can see a sample Screenshot with UaExpert.
 
 -   Write Values
     -   Property
-
-    -   Value
-
     -   Range
-
-    -   Min
-        -   Max
-
     -   Blob
-
-    -   Value
-
     -   MultiLanguageProperty
-
-    -   Value
-
     -   ReferenceElement
-
-    -   Value
-
     -   RelationshipElement
-
-    -   First
-        -   Second
-
     -   Entity
 
-    -   GlobalAssetID
-        -   Type
-
 ## Not (yet) Supported Functions
--   Events (not yet supported)
+-   Events
 
--   Write Values (not yet supported)
+-   Write Values
     -   DataSpecifications
     -   Qualifier
     -   Category
     -   ModelingKind
 
--   AASValueTypeDataType (not yet supported)
+-   AASValueTypeDataType
     -   ByteString
     -   Byte
     -   UInt16

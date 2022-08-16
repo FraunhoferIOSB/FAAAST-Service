@@ -1,29 +1,56 @@
-# MQTT Asset Connection
-The MQTT asset connection supports the following functionality:
+# MQTT
 
--   `ValueProvider`: write values only, read not supported
--   `OperationProvider`: not supported
--   `SubscriptionProvider`: subscribe to value changes
+## Supported Providers
 
-**Configuration Parameters**
--   on connection level
--   `serverUri`: URL of the MQTT server
--   `clientId`: id of the MQTT client (optional, default: random)
--   on ValueProdiver level
--   `topic`: MQTT topic to use
--   `contentFormat`: JSON|XML (default: JSON, currently, only JSON supported)
--   `query`: additional information how to format messages sent via MQTT - depends on `contentFormat`. For JSON this is a JSON Path expression.
--   on SubscriptionProdiver level
--   `topic`: MQTT topic to use
--   `contentFormat`: JSON|XML (default: JSON, currently, only JSON supported)
--   `query`: additional information how to extract actual value from received messages - depends on `contentFormat`. For JSON this is a JSON Path expression.
+-   `ValueProvider`
+    -   read :x:
+	-   write :heavy_check_mark:
+-   `OperationProvider` :x:
+-   `SubscriptionProvider` :heavy_check_mark:
 
-Example configuration for one of the providers:
+## Configuration Parameters
+
+### Asset Connection
+
+| Name | Allowed Value | Description |
+|:--| -- | -- |
+| `serverUri` | String | URL of the MQTT server, e.g. _tcp://localhost:1883_ |
+| `clientId` | String | [optional] Id of the MQTT client used to connect to the server, default: random value |
+| `username` | String | [optional] Username for connecting to the MQTT server |
+| `password` | String | [optional] Password for connecting to the MQTT server |
+
+### Value Provider
+
+| Name | Allowed Value | Description |
+|:--| -- | -- |
+| `topic` | String | MQTT topic to use |
+| `format` | JSON|XML | Content format of payload, default: JSON |
+| `template` | String | Template used to format payload
+
+#### Example
 
 ```json
 {
 	"topic": "example/myTopic",
-	"query": "$.property.value",
-	"contentFormat": "JSON"
+	"format": "JSON",
+	"template": "{\"foo\" : \"${value}\"}"
+}
+```
+
+### Subscription Provider
+
+| Name | Allowed Value | Description |
+|:--| -- | -- |
+| `topic` | String | MQTT topic to use |
+| `format` | JSON|XML | Content format of payload, default: JSON |
+| `query` | String | Additional information how to extract actual value from received messages, depends on `format`, e.g. for JSON this is a JSON Path expression.
+
+#### Example
+
+```json
+{
+	"topic": "example/myTopic",
+	"format": "JSON",
+	"query": "$.foo"
 }
 ```

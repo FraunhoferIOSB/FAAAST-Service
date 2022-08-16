@@ -1,31 +1,70 @@
-# OPC UA AssetConnection
-The OPC UA asset connection supports the following functionality:
+# OPC UA
 
--   `ValueProvider`: fully supported (read/write)
--   `OperationProvider`: invoke operations synchroniously, async invocation not supported
--   `SubscriptionProvider`: fully supported
+## Supported Providers
 
-**Configuration Parameters**
--   on connection level
--   `host`: URL of the OPC UA server. Please be sure that the URL starts with `opc.tcp://`.
--   on ValueProdiver level
--   `nodeId`: nodeId of the the OPC UA node to read/write
--   on OperationProdiver level
--   `nodeId`: nodeId of the the OPC UA node representing the OPC UA method to invoke
--   on SubscriptionProdiver level
--   `nodeId`: nodeId of the the OPC UA node to subscribe to
--   `interval`: subscription interval in ms
+-   `ValueProvider`
+    -   read :heavy_check_mark:
+	-   write :heavy_check_mark:
+-   `OperationProvider` :heavy_check_mark:
+-   `SubscriptionProvider` :heavy_check_mark:
 
-Example configuration for a subscription provider:
+## Configuration Parameters
+
+### Asset Connection
+
+| Name | Allowed Value | Description |
+|:--| -- | -- |
+| `host` | String | URL of the OPC UA server, e.g. _opc.tcp://localhost:4840_ |
+| `username` | String | [optional] Username for connecting to the OPC UA server |
+| `password` | String | [optional] Password for connecting to the OPC UA server |
+
+### Value Provider
+
+| Name | Allowed Value | Description |
+|:--| -- | -- |
+| `nodeId` | String | nodeId of the the OPC UA node to read/write  |
+
+#### Example
 
 ```json
 {
-	"nodeId": "some.node.id.property",
+	"nodeId": "ns=com:example;s=foo"
+}
+```
+
+### Operation Provider
+
+| Name | Allowed Value | Description |
+|:--| -- | -- |
+| `nodeId` | String | nodeId of the the OPC UA node to read/write  |
+
+#### Example
+
+```json
+{
+	"nodeId": "ns=com:example;s=foo"
+}
+```
+
+### Subscription Provider
+
+| Name | Allowed Value | Description |
+|:--| -- | -- |
+| `nodeId` | String | nodeId of the the OPC UA node to read/write  |
+| `interval` | long | Interval to poll the server for changes (in ms), currently not used
+
+#### Example
+
+```json
+{
+	"nodeId": "ns=com:example;s=foo",
 	"interval": 1000
 }
 ```
 
-A concrete example for OPC UA asset connection could look like this
+## Complete Example
+
+A complete example for OPC UA asset connection could look like this
 ```json
 
 {
