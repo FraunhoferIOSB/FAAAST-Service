@@ -1,4 +1,4 @@
-# HTTP Endpoint
+# HTTP
 
 The HTTP Endpoint allows accessing data and execute operations within the FA³ST Service via REST-API.
 The HTTP Endpoint is based on the document [Details of the Asset Administration Shell - Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html), _Interoperability at Runtime –

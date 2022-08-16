@@ -3,10 +3,10 @@
 ## Supported Providers
 
 -   `ValueProvider`
-    -   read :heavy_check_mark:
-	-   write :heavy_check_mark:
--   `OperationProvider` :heavy_check_mark:
--   `SubscriptionProvider` :heavy_check_mark: (via polling)
+    -   read |:heavy_check_mark:|
+	-   write |:heavy_check_mark:|
+-   `OperationProvider` |:heavy_check_mark:|
+-   `SubscriptionProvider` |:heavy_check_mark:| (via polling)
 
 ## Configuration Parameters
 
@@ -60,10 +60,10 @@ Operation with input parameters `in1` and `in2` and output parameters `out1` and
 	"path": "/foo/execute",
 	"method": "POST",
 	"format": "JSON",
-	"template": "{\"input1\" : \"${in1}\, \"input2" : \"${in2}\"}",
+	"template": "{\"input1\" : \"${in1}\", \"input2\" : \"${in2}\"}",
 	"queries": {
-		"out1": "$.outpu1",
-		"out2": "$.outpu2"
+		"out1": "$.output1",
+		"out2": "$.output2"
 	}
 }
 ```
