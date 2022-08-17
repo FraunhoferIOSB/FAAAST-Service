@@ -22,12 +22,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import io.adminshell.aas.v3.dataformat.rdf.Serializer;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFLanguages;
 
 
 /**
@@ -38,7 +38,6 @@ import org.apache.jena.riot.RDFLanguages;
 @SupportedDataformat(DataFormat.RDF)
 public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
 
-    public static final Lang DEFAULT_RDF_LANGUAGE = Lang.TTL;
     private final Serializer deserializer;
 
     public RdfEnvironmentDeserializer() {
@@ -54,7 +53,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
      * @param in the InputStream to read
      * @param charset the charset to use
      * @param rdfLanguage the RDF language to use
-     * @return the read {@link io.adminshell.aas.v3.model.EnvironmentContext}
+     * @return the read {@link de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext}
      * @throws DeserializationException if deserialization fails
      */
     public EnvironmentContext read(InputStream in, Charset charset, Lang rdfLanguage) throws DeserializationException {
@@ -64,24 +63,57 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
                     .build();
         }
         catch (io.adminshell.aas.v3.dataformat.DeserializationException | IOException e) {
-            throw new DeserializationException("JSON deserialization failed", e);
+            throw new DeserializationException("RDF deserialization failed", e);
         }
     }
 
 
     @Override
     public EnvironmentContext read(InputStream in, Charset charset) throws DeserializationException {
-        return read(in, charset, DEFAULT_RDF_LANGUAGE);
+        try {
+            return EnvironmentContext.builder()
+                    .environment(deserializer.read(IOUtils.toString(in, charset)))
+                    .build();
+        }
+        catch (io.adminshell.aas.v3.dataformat.DeserializationException | IOException e) {
+            throw new DeserializationException("RDF deserialization failed", e);
+        }
     }
 
 
     @Override
     public EnvironmentContext read(File file, Charset charset) throws DeserializationException {
         try (InputStream in = new FileInputStream(file)) {
-            return read(in, charset, RDFLanguages.filenameToLang(file.getName(), DEFAULT_RDF_LANGUAGE));
+            return read(in, charset);
         }
         catch (IOException e) {
             throw new DeserializationException(String.format("error while deserializing - file not found (%s)", file), e);
+        }
+    }
+
+
+    @Override
+    public EnvironmentContext read(InputStream in) throws DeserializationException {
+        try {
+            return EnvironmentContext.builder()
+                    .environment(deserializer.read(in))
+                    .build();
+        }
+        catch (io.adminshell.aas.v3.dataformat.DeserializationException e) {
+            throw new DeserializationException("RDF deserialization failed", e);
+        }
+    }
+
+
+    @Override
+    public EnvironmentContext read(File file) throws DeserializationException {
+        try {
+            return EnvironmentContext.builder()
+                    .environment(deserializer.read(file))
+                    .build();
+        }
+        catch (io.adminshell.aas.v3.dataformat.DeserializationException | FileNotFoundException e) {
+            throw new DeserializationException("RDF deserialization failed", e);
         }
     }
 }

@@ -16,11 +16,16 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +38,8 @@ import org.slf4j.LoggerFactory;
 public class EnvironmentSerializationManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnvironmentSerializationManager.class);
+    public static final String MSG_DATA_FORMAT_MUST_BE_NON_NULL = "dataFormat must be non-null";
+    private static final String MSG_FILE_MUST_BE_NON_NULL = "file must be non-null";
     private static boolean initialized = false;
     private static Map<DataFormat, Class<? extends EnvironmentSerializer>> serializers;
     private static Map<DataFormat, Class<? extends EnvironmentDeserializer>> deserializers;
@@ -87,7 +94,7 @@ public class EnvironmentSerializationManager {
      *             exists for given dataType or instantiation fails
      */
     public static EnvironmentSerializer serializerFor(DataFormat dataFormat) {
-        Ensure.requireNonNull(dataFormat, "dataFormat must be non-null");
+        Ensure.requireNonNull(dataFormat, MSG_DATA_FORMAT_MUST_BE_NON_NULL);
         init();
         Ensure.require(serializers.containsKey(dataFormat), String.format("no serializer found for data format %s", dataFormat));
         try {
@@ -111,7 +118,7 @@ public class EnvironmentSerializationManager {
      *             exists for given dataType or instantiation fails
      */
     public static EnvironmentDeserializer deserializerFor(DataFormat dataFormat) {
-        Ensure.requireNonNull(dataFormat, "dataFormat must be non-null");
+        Ensure.requireNonNull(dataFormat, MSG_DATA_FORMAT_MUST_BE_NON_NULL);
         init();
         Ensure.require(deserializers.containsKey(dataFormat), String.format("no deserializer found for data format %s", dataFormat));
         try {
@@ -125,4 +132,65 @@ public class EnvironmentSerializationManager {
         }
     }
 
+
+    /**
+     * Reads an
+     * {@link AssetAdministrationShellEnvironment}
+     * from given file while automatically determining used data format based on
+     * file extension.
+     *
+     * @param file the file to read
+     * @return the deserialized environment context
+     * @throws DeserializationException if file extensions is not supported
+     * @throws DeserializationException if deserialization fails
+     */
+    public static EnvironmentContext deserialize(File file) throws DeserializationException {
+        Ensure.requireNonNull(file, MSG_FILE_MUST_BE_NON_NULL);
+        init();
+        List<DataFormat> potentialDataFormats = getDataFormats(file);
+        for (DataFormat dataFormat: potentialDataFormats) {
+            try {
+                return deserializerFor(dataFormat).read(file);
+            }
+            catch (DeserializationException e) {
+                // intentionally suppress exception as this probably indicates that we have an ambiguous file extension and this was not the correct deserializer
+            }
+        }
+
+        throw new DeserializationException(
+                String.format("error reading AAS file - could be not parsed using any of the potential data formats identified by file extension (potential data formats: %s)",
+                        potentialDataFormats.stream()
+                                .map(Enum::name)
+                                .collect(Collectors.joining(","))));
+    }
+
+
+    public static DataFormat getDataFormat(File file) throws DeserializationException {
+        List<DataFormat> potentialDataFormats = getDataFormats(file);
+        for (DataFormat dataFormat: potentialDataFormats) {
+            try {
+                deserializerFor(dataFormat).read(file);
+                return dataFormat;
+            }
+            catch (DeserializationException e) {
+                // intentionally suppress exception as this probably indicates that we have an ambiguous file extension and this was not the correct deserializer
+            }
+        }
+        throw new DeserializationException(
+                String.format("error reading AAS file - could be not parsed using any of the potential data formats identified by file extension (potential data formats: %s)",
+                        potentialDataFormats.stream()
+                                .map(Enum::name)
+                                .collect(Collectors.joining(","))));
+    }
+
+
+    private static List<DataFormat> getDataFormats(File file) throws DeserializationException {
+        Ensure.requireNonNull(file, MSG_FILE_MUST_BE_NON_NULL);
+        String fileExtension = FilenameUtils.getExtension(file.getName());
+        List<DataFormat> potentialDataFormats = DataFormat.forFileExtension(fileExtension);
+        if (potentialDataFormats.isEmpty()) {
+            throw new DeserializationException(String.format("error reading AAS file - no supported data format found for extension '%s'", fileExtension));
+        }
+        return potentialDataFormats;
+    }
 }

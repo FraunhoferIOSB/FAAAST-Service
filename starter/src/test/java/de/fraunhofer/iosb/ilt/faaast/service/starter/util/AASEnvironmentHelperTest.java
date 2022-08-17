@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter.util;
 
-import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
-import io.adminshell.aas.v3.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import io.adminshell.aas.v3.dataformat.Deserializer;
 import io.adminshell.aas.v3.dataformat.aml.AmlDeserializer;
 import io.adminshell.aas.v3.dataformat.i4aas.I4AASDeserializer;
@@ -66,13 +66,13 @@ public class AASEnvironmentHelperTest {
 
     @Test(expected = DeserializationException.class)
     public void testFromFileFileNotExists() throws IOException, DeserializationException, Exception {
-        AASEnvironmentHelper.fromFile(new File("src/test/resources/AASSimple.foo"));
+        EnvironmentSerializationManager.deserialize(new File("src/test/resources/AASSimple.foo"));
     }
 
 
     private void assertEquals(String filePath, Deserializer deserializer) throws Exception, FileNotFoundException, DeserializationException {
         AssetAdministrationShellEnvironment expected = deserializer.read(new File(filePath));
-        AssetAdministrationShellEnvironment actual = AASEnvironmentHelper.fromFile(new File(filePath));
+        AssetAdministrationShellEnvironment actual = EnvironmentSerializationManager.deserialize(new File(filePath)).getEnvironment();
         Assert.assertEquals(expected, actual);
     }
 }

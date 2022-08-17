@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractInMemoryPersistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import io.adminshell.aas.v3.dataformat.DeserializationException;
-import io.adminshell.aas.v3.dataformat.SerializationException;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Identifier;
@@ -67,7 +67,9 @@ public class PersistenceFile extends AbstractInMemoryPersistence<PersistenceFile
                     aasEnvironment = config.isDecoupleEnvironment() ? DeepCopyHelper.deepCopy(config.getEnvironment()) : config.getEnvironment();
                 }
                 else {
-                    aasEnvironment = AASEnvironmentHelper.fromFile(config.getInitialModel());
+                    aasEnvironment = EnvironmentSerializationManager
+                            .deserialize(config.getInitialModel())
+                            .getEnvironment();
                 }
                 save();
             }
@@ -83,7 +85,9 @@ public class PersistenceFile extends AbstractInMemoryPersistence<PersistenceFile
 
     private void save() {
         try {
-            AASEnvironmentHelper.toFile(aasEnvironment, config.getDataformat(), new File(String.valueOf(config.getFilePath())));
+            EnvironmentSerializationManager
+                    .serializerFor(config.getDataformat())
+                    .write(new File(String.valueOf(config.getFilePath())), aasEnvironment);
         }
         catch (IOException | SerializationException e) {
             LOGGER.error(String.format("Could not save environment to file %s", config.getFilePath()), e);
@@ -94,7 +98,9 @@ public class PersistenceFile extends AbstractInMemoryPersistence<PersistenceFile
     private AssetAdministrationShellEnvironment loadAASEnvironment() throws IOException, DeserializationException {
         File f = new File(config.getFilePath().toString());
         if (f.exists() && !f.isDirectory()) {
-            return AASEnvironmentHelper.fromFile(f);
+            return EnvironmentSerializationManager
+                    .deserialize(f)
+                    .getEnvironment();
         }
         return null;
     }
