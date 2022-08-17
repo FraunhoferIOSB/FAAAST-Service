@@ -8,11 +8,6 @@
 
 ### From precompiled JAR
 
-:alien: :alien: :alien:
-|alien| |alien| |alien|
-|:alien:| |:alien:| |:alien:|
-👽 👽 👽
-
 [Download latest version as precompiled JAR](https://search.maven.org/remote_content?g=de.fraunhofer.iosb.ilt.faaast.service&a=starter&v=LATEST)
 
 ### As Maven Dependency

@@ -3,10 +3,10 @@
 ## Supported Providers
 
 -   `ValueProvider`
-    -   read :heavy_check_mark:
-	-   write :heavy_check_mark:
--   `OperationProvider` :heavy_check_mark:
--   `SubscriptionProvider` :heavy_check_mark:
+    -   read ✔️
+	-   write ✔️
+-   `OperationProvider` ✔️
+-   `SubscriptionProvider` ✔️
 
 ## Configuration Parameters
 
