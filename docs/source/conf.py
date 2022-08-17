@@ -9,7 +9,6 @@ author = 'Fraunhofer IOSB'
 # -- General configuration
 
 extensions = [
-    'sphinxemoji.sphinxemoji',
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
@@ -42,5 +41,3 @@ html_static_path = ['_static']
 html_css_files = [
     'css/custom.css',
 ]
-
-sphinxemoji_style = 'twemoji'
