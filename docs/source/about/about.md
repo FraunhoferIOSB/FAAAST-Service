@@ -1,6 +1,6 @@
 # About the Project
 
-The Reference Architecture of Industrie 4.0 (RAMI) presents the [Asset Administration Shell (AAS)](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) as the basis for interoperability. AAS is the digital representation of an asset that is able to provide information about this asset, i.e. information about properties, functionality, parameters, documentation, etc.. The AAS operates as Digital Twin of the asset it represents.
+The Reference Architecture of Industrie 4.0 (RAMI) presents the [Asset Administration Shell (AAS)](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) as the basis for interoperability. AAS is the digital representation of an asset that is able to provide information about this asset, i.e. information about properties, functionality, parameters, documentation, etc. The AAS operates as Digital Twin of the asset it represents.
 Furthermore, the AAS covers all stages of the lifecycle of an asset starting in the development phase, reaching the most importance in the operation phase and finally delivering valuable information for the decline/decomposition phase.
 
 To guarantee the interoperability of assets Industie 4.0 defines an information metamodel for the AAS covering all important aspects as type/instance concept, events, redefined data specification templates, security aspects, mapping of data formats and many more. Moreover interfaces and operations for a registry, a repository, publish and discovery are specified.
@@ -8,14 +8,18 @@ At first glance the evolving specification of the AAS seems pretty complex and a
 
 ## Roadmap
 
-Next milestone is to publish a first 1.0.0 release to Maven Central and DockerHub.
-Some of the features we are working on include
+Next milestone is to release version 1.0.0 to Maven Central and DockerHub.
 
+Some of the features we are working on include
 -   improve stability/robustness
 -   improve usability
--   implement a file & database persistence in FA³ST Service
--   implement the AASX Server interface
--   implement the Asset Administration Shell Serialization interface
+-   additional implementations of the persistence interface
+	-   file-based (✔️)
+	-   database-backed
+
+-   support for additional APIs
+	-   Administration Shell Serialization Interface (✔️)
+	-   AASX Server Interface
 
 ## Contact
 

@@ -20,22 +20,7 @@ In order to use the HTTP Endpoint the configuration settings require to include 
 }
 ```
 
-## HTTP Example
-
-Sample HTTP Call for Operation _GetSubmodelElementByPath_
-using the parameters
--   _submodelIdentifier_: https://acplt.org/Test_Submodel (must be base64URL-encoded)
--   _idShortPath_: ExampleRelationshipElement (must be URL-encoded)
-
-using the query-parameters _level=deep_ and _content=normal_.
-
-> To avoid problems with IRIs in URLs the identifiers shall be BASE64-URL-encoded before using them as parameters in the HTTP APIs. IdshortPaths are URL-encoded to handle including square brackets.
-
-```sh
-http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/submodel/submodel-elements/ExampleRelationshipElement?level=deep&content=normal
-```
-
-## HTTP API
+## API
 
 ### Supported API calls
 
@@ -101,3 +86,18 @@ FA³ST Service currently supports only content=value and content=normal
 -   AASX File Server Interface (probably supported in future)
     -   /packages
     -   /packages/{packageId}
+
+## Example
+
+Sample HTTP Call for Operation _GetSubmodelElementByPath_
+using the parameters
+-   _submodelIdentifier_: https://acplt.org/Test_Submodel (must be base64URL-encoded)
+-   _idShortPath_: ExampleRelationshipElement (must be URL-encoded)
+
+using the query-parameters _level=deep_ and _content=normal_.
+
+> To avoid problems with IRIs in URLs the identifiers shall be BASE64-URL-encoded before using them as parameters in the HTTP APIs. IdshortPaths are URL-encoded to handle including square brackets.
+
+```sh
+http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/submodel/submodel-elements/ExampleRelationshipElement?level=deep&content=normal
+```
