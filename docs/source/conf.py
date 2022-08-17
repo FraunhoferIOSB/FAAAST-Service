@@ -17,6 +17,7 @@ extensions = [
     'myst_parser',
     'sphinx_markdown_tables',
     'sphinxemoji.sphinxemoji'
+    'sphinxemoji'
 ]
 
 intersphinx_mapping = {
@@ -42,3 +43,5 @@ html_static_path = ['_static']
 html_css_files = [
     'css/custom.css',
 ]
+
+sphinxemoji_style = 'twemoji'

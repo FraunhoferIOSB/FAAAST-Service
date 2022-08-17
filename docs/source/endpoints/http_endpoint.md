@@ -44,39 +44,39 @@ http://localhost:8080/submodels/aHR0cHM6Ly9hY3BsdC5vcmcvVGVzdF9TdWJtb2RlbA==/sub
     -   ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red) /shells/{aasIdentifier}
 
 -   Asset Administration Shell Interface
-    -   ![GET]https://img.shields.io/badge/GET-blue ![PUT](https://img.shields.io/badge/PUT-orange) /shells/{aasIdentifier}/aas
-    -   ![GET]https://img.shields.io/badge/GET-blue ![PUT](https://img.shields.io/badge/PUT-orange) /shells/{aasIdentifier}/aas/asset-information
-    -   ![GET]https://img.shields.io/badge/GET-blue ![POST](https://img.shields.io/badge/POST-brightgreen) /shells/{aasIdentifier}/aas/submodels
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) /shells/{aasIdentifier}/aas
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) /shells/{aasIdentifier}/aas/asset-information
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen) /shells/{aasIdentifier}/aas/submodels
     -   ![DELETE](https://img.shields.io/badge/DELETE-red) /shells/{aasIdentifier}/aas/submodels{submodeIdentifier}
 
 -   Submodel Repository Interface
-    -   ![GET]https://img.shields.io/badge/GET-blue ![POST](https://img.shields.io/badge/POST-brightgreen) /submodels
-    -   ![GET]https://img.shields.io/badge/GET-blue ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red) /submodels/{submodelIdentifier}
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen) /submodels
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red) /submodels/{submodelIdentifier}
 
 -   Submodel Interface
-    -   ![GET]https://img.shields.io/badge/GET-blue ![PUT](https://img.shields.io/badge/PUT-orange) /submodels/{submodelIdentifier}/submodel
-    -   ![GET]https://img.shields.io/badge/GET-blue ![POST](https://img.shields.io/badge/POST-brightgreen) /submodels/{submodelIdentifier}/submodel/submodel-elements
-    -   ![GET]https://img.shields.io/badge/GET-blue ![POST](https://img.shields.io/badge/POST-brightgreen) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red) /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) /submodels/{submodelIdentifier}/submodel
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen) /submodels/{submodelIdentifier}/submodel/submodel-elements
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red) /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
     -   ![POST](https://img.shields.io/badge/POST-brightgreen) /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
-    -   ![GET]https://img.shields.io/badge/GET-blue /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/{handle-Id}
+    -   ![GET](https://img.shields.io/badge/GET-blue) /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/{handle-Id}
 
 -   Submodel Interface (combined with Asset Administration Shell Interface)
-    -   ![GET]https://img.shields.io/badge/GET-blue ![PUT](https://img.shields.io/badge/PUT-orange) /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
-    -   ![GET]https://img.shields.io/badge/GET-blue ![POST](https://img.shields.io/badge/POST-brightgreen) /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements
-    -   ![GET]https://img.shields.io/badge/GET-blue ![POST](https://img.shields.io/badge/POST-brightgreen), ![PUT](https://img.shields.io/badge/PUT-orange), ![DELETE](https://img.shields.io/badge/DELETE-red) /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen) /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen), ![PUT](https://img.shields.io/badge/PUT-orange), ![DELETE](https://img.shields.io/badge/DELETE-red) /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
     -   ![POST](https://img.shields.io/badge/POST-brightgreen) /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
-    -   ![GET]https://img.shields.io/badge/GET-blue /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/{handle-Id}
+    -   ![GET](https://img.shields.io/badge/GET-blue) /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/{handle-Id}
 
 -   Concept Description Repository Interface
-    -   ![GET]https://img.shields.io/badge/GET-blue ![POST](https://img.shields.io/badge/POST-brightgreen) /concept-descriptions
-    -   ![GET]https://img.shields.io/badge/GET-blue ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red) /concept-descriptions/{cdIdentifier}
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen) /concept-descriptions
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red) /concept-descriptions/{cdIdentifier}
 
 -   Asset Administration Shell Basic Discovery
-    -   ![GET]https://img.shields.io/badge/GET-blue /lookup/shells
-    -   ![GET]https://img.shields.io/badge/GET-blue ![POST](https://img.shields.io/badge/POST-brightgreen) ![DELETE](https://img.shields.io/badge/DELETE-red) /lookup/shells/{aasIdentifier}
+    -   ![GET](https://img.shields.io/badge/GET-blue) /lookup/shells
+    -   ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen) ![DELETE](https://img.shields.io/badge/DELETE-red) /lookup/shells/{aasIdentifier}
 
 -   Asset Administration Shell Serialization Interface
-    -   ![GET]https://img.shields.io/badge/GET-blue /serialization
+    -   ![GET](https://img.shields.io/badge/GET-blue) /serialization
 
 ### Optional query parameters
 
