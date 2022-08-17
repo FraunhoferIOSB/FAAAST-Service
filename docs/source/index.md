@@ -74,5 +74,8 @@ about/recommended.md
 ```
 
 ```{toctree}
+:hidden:
+:caption: Changelog
+:maxdepth: 2
 changelog/changelog.md
 ```
