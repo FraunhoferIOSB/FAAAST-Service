@@ -9,15 +9,14 @@ author = 'Fraunhofer IOSB'
 # -- General configuration
 
 extensions = [
+    'sphinxemoji.sphinxemoji',
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
     'myst_parser',
-    'sphinx_markdown_tables',
-    'sphinxemoji.sphinxemoji',
-    'sphinxemoji'
+    'sphinx_markdown_tables'
 ]
 
 intersphinx_mapping = {
