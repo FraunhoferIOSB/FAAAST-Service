@@ -1,4 +1,4 @@
-# File
+# File-based Persistence
 The file-based persistence keeps the entire AAS Environment in a model file which is stored at the local machine. Any change request, such as changing the value of a property, results in a change to the AAS environment model file. Thus, changes are stored permanently.
 
 File Persistence configuration supports the following configuration parameters:
