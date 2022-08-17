@@ -147,7 +147,7 @@ public class EnvironmentSerializationManager {
     public static EnvironmentContext deserialize(File file) throws DeserializationException {
         Ensure.requireNonNull(file, MSG_FILE_MUST_BE_NON_NULL);
         init();
-        List<DataFormat> potentialDataFormats = getDataFormats(file);
+        List<DataFormat> potentialDataFormats = getPotentialDataFormats(file);
         for (DataFormat dataFormat: potentialDataFormats) {
             try {
                 return deserializerFor(dataFormat).read(file);
@@ -166,7 +166,7 @@ public class EnvironmentSerializationManager {
 
 
     public static DataFormat getDataFormat(File file) throws DeserializationException {
-        List<DataFormat> potentialDataFormats = getDataFormats(file);
+        List<DataFormat> potentialDataFormats = getPotentialDataFormats(file);
         for (DataFormat dataFormat: potentialDataFormats) {
             try {
                 deserializerFor(dataFormat).read(file);
@@ -184,7 +184,7 @@ public class EnvironmentSerializationManager {
     }
 
 
-    private static List<DataFormat> getDataFormats(File file) throws DeserializationException {
+    private static List<DataFormat> getPotentialDataFormats(File file) throws DeserializationException {
         Ensure.requireNonNull(file, MSG_FILE_MUST_BE_NON_NULL);
         String fileExtension = FilenameUtils.getExtension(file.getName());
         List<DataFormat> potentialDataFormats = DataFormat.forFileExtension(fileExtension);

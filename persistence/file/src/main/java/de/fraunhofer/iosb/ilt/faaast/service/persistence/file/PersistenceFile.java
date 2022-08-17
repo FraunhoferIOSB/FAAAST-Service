@@ -74,7 +74,7 @@ public class PersistenceFile extends AbstractInMemoryPersistence<PersistenceFile
                 save();
             }
         }
-        catch (DeserializationException | IOException e) {
+        catch (DeserializationException e) {
             throw new IllegalArgumentException("Error deserializing AAS Environment", e);
         }
         identifiablePersistenceManager.setAasEnvironment(aasEnvironment);
@@ -95,7 +95,7 @@ public class PersistenceFile extends AbstractInMemoryPersistence<PersistenceFile
     }
 
 
-    private AssetAdministrationShellEnvironment loadAASEnvironment() throws IOException, DeserializationException {
+    private AssetAdministrationShellEnvironment loadAASEnvironment() throws DeserializationException {
         File f = new File(config.getFilePath().toString());
         if (f.exists() && !f.isDirectory()) {
             return EnvironmentSerializationManager
