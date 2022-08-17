@@ -34,34 +34,34 @@ gettingstarted/docker.md
 :hidden:
 :caption: Architecture
 :maxdepth: 3
-architecture/architecture.md
+General <architecture/architecture.md>
 ```
 
 ```{toctree} 
 :hidden:
 :caption: Endpoints
 :maxdepth: 3
-Test123 <endpoints/http_endpoint.md>
-endpoints/opcua_endpoint.md
+HTTP <endpoints/http_endpoint.md>
+OPC UA <endpoints/opcua_endpoint.md>
 ```
 
 ```{toctree} 
 :hidden:
 :caption: Asset Connections
 :maxdepth: 3
-assetconnections/assetconnection.md
-assetconnections/http_assetconnection.md
-assetconnections/opcua_assetconnection.md
-assetconnections/mqtt_assetconnection.md
+General <assetconnections/assetconnection.md>
+HTTP <assetconnections/http_assetconnection.md>
+MQTT <assetconnections/mqtt_assetconnection.md>
+OPC UA <assetconnections/opcua_assetconnection.md>
 ```
 
 ```{toctree} 
 :hidden:
 :caption: Persistence
 :maxdepth: 3
-persistences/persistence.md
-persistences/inmemory_persistence.md
-persistences/file_persistence.md
+General <persistences/persistence.md>
+In-Memory <persistences/inmemory_persistence.md>
+File-based <persistences/file_persistence.md>
 ```
 
 ```{toctree} 

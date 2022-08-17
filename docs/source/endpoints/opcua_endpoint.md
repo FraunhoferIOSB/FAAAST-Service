@@ -1,4 +1,4 @@
-# OPC UA
+# OPC UA Endpoint
 The OPC UA Endpoint allows accessing data and execute operations within the FA³ST Service via OPC UA.
 For detailed information on OPC UA see
 [About OPC UA](https://opcfoundation.org/about/opc-technologies/opc-ua/)

@@ -1,4 +1,4 @@
-# OPC UA
+# OPC UA Asset Connection
 
 ## Supported Providers
 
