@@ -16,7 +16,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'myst_parser',
     'sphinx_markdown_tables',
-    'sphinxemoji.sphinxemoji'
+    'sphinxemoji.sphinxemoji',
     'sphinxemoji'
 ]
 
