@@ -3,11 +3,11 @@
 
 The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Service implements the [Asset Administration Shell (AAS) specification by Plattform Industrie 4.0](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale) and provides an easy-to-use re-active AAS (Type 2) hosting custom AAS models.
 
-**Implemented AAS versions**
-| Part | Version | Comment |
-|:--| -- | -- |
-| Part 1 - The exchange of information between partners in the value chain of Industrie 4.0 | Version 3.0RC01* | * We are using the AAS model java implementation from [admin-shell-io](https://github.com/admin-shell-io/java-model) which is based on Version 3.0RC01 but also covers already some aspects from RC02 |
-| Part 2 - Interoperability at Runtime - Exchanging Information via Application Programming Interfaces | Version 1.0RC02 |  |
+## Implemented AAS Specifications
+| Specification | Version |
+|:--| -- |
+| Details of the Asset Administration Shell - Part 1<br />The exchange of information between partners in the value chain of Industrie 4.0 | Version 3.0RC01<br />(based on [admin-shell-io/java-model](https://github.com/admin-shell-io/java-model))
+| Details of the Asset Administration Shell - Part 2<br />Interoperability at Runtime – Exchanging Information via Application Programming Interfaces | Version 1.0RC02 |
 
 ## Features
 
