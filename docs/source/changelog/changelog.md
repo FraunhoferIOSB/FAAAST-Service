@@ -28,6 +28,8 @@
 
 *   Improved console output (less verbose, always displays version info)
 
+*   Improved documentation
+
 **Internal changes & Bugfixes**
 *   Validation now checks for unsupported datatypes
 

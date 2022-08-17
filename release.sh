@@ -20,6 +20,7 @@ echo "Replacing version numbers"
 mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion="${VERSION}"
 sed -i 's/<tag>HEAD<\/tag>/<tag>v'"${VERSION}"'<\/tag>/g' pom.xml
 sed -r -z 's/(<artifactId>starter<\/artifactId>[\r\n]+\s*<version>)[^<]+(<\/version>)/\1'"${VERSION}"'\2/g' -i README.md
+sed -r -z 's/(<artifactId>starter<\/artifactId>[\r\n]+\s*<version>)[^<]+(<\/version>)/\1'"${VERSION}"'\2/g' -i ./docs/source/gettingstarted/gettingstarted.md
 mvn -B spotless:apply
 
 echo "Git add ."
