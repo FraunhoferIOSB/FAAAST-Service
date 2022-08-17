@@ -2,11 +2,11 @@
 
 ## Supported Providers
 
--   `ValueProvider`
+-   ValueProvider
     -   read ✔️
 	-   write ✔️
--   `OperationProvider` ✔️
--   `SubscriptionProvider` ✔️
+-   OperationProvider ✔️
+-   SubscriptionProvider ✔️
 
 ## Configuration Parameters
 
@@ -14,15 +14,15 @@
 
 | Name | Allowed Value | Description |
 |:--| -- | -- |
-| `host` | String | URL of the OPC UA server, e.g. _opc.tcp://localhost:4840_ |
-| `username` | String | [optional] Username for connecting to the OPC UA server |
-| `password` | String | [optional] Password for connecting to the OPC UA server |
+| host | String | URL of the OPC UA server, e.g. _opc.tcp://localhost:4840_ |
+| username | String | [optional] Username for connecting to the OPC UA server |
+| password | String | [optional] Password for connecting to the OPC UA server |
 
 ### Value Provider
 
 | Name | Allowed Value | Description |
 |:--| -- | -- |
-| `nodeId` | String | nodeId of the the OPC UA node to read/write  |
+| nodeId | String | nodeId of the the OPC UA node to read/write  |
 
 #### Example
 
@@ -36,7 +36,7 @@
 
 | Name | Allowed Value | Description |
 |:--| -- | -- |
-| `nodeId` | String | nodeId of the the OPC UA node to read/write  |
+| nodeId | String | nodeId of the the OPC UA node to read/write  |
 
 #### Example
 
@@ -50,8 +50,8 @@
 
 | Name | Allowed Value | Description |
 |:--| -- | -- |
-| `nodeId` | String | nodeId of the the OPC UA node to read/write  |
-| `interval` | long | Interval to poll the server for changes (in ms), currently not used
+| nodeId | String | nodeId of the the OPC UA node to read/write  |
+| interval | long | Interval to poll the server for changes (in ms), currently not used
 
 #### Example
 
