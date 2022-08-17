@@ -15,8 +15,8 @@
 | Name | Allowed Value | Description |
 |:--| -- | -- |
 | host | String | URL of the OPC UA server, e.g. _opc.tcp://localhost:4840_ |
-| username | String | [optional] Username for connecting to the OPC UA server |
-| password | String | [optional] Password for connecting to the OPC UA server |
+| username | String | _optional_ Username for connecting to the OPC UA server |
+| password | String | _optional_ Password for connecting to the OPC UA server |
 
 ### Value Provider
 
@@ -51,7 +51,7 @@
 | Name | Allowed Value | Description |
 |:--| -- | -- |
 | nodeId | String | nodeId of the the OPC UA node to read/write  |
-| interval | long | Interval to poll the server for changes (in ms), currently not used
+| interval | long | Interval to poll the server for changes (in ms) _currently not used_
 
 #### Example
 

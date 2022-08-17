@@ -15,24 +15,24 @@
 | Name | Allowed Value | Description |
 |:--| -- | -- |
 | serverUri | String | URL of the MQTT server, e.g. _tcp://localhost:1883_ |
-| clientId | String | [optional] Id of the MQTT client used to connect to the server, default: random value |
-| username | String | [optional] Username for connecting to the MQTT server |
-| password | String | [optional] Password for connecting to the MQTT server |
+| clientId | String | _optional_ Id of the MQTT client used to connect to the server, default: random value |
+| username | String | _optional_ Username for connecting to the MQTT server |
+| password | String | _optional_ Password for connecting to the MQTT server |
 
 ### Value Provider
 
 | Name | Allowed Value | Description |
 |:--| -- | -- |
+| format | JSON\|XML | Content format of payload |
 | topic | String | MQTT topic to use |
-| format | JSON|XML | Content format of payload, default: JSON |
-| template | String | Template used to format payload
+| template | String | _optional_ Template used to format payload
 
 #### Example
 
 ```json
 {
-	"topic": "example/myTopic",
 	"format": "JSON",
+	"topic": "example/myTopic",
 	"template": "{\"foo\" : \"${value}\"}"
 }
 ```
@@ -41,16 +41,16 @@
 
 | Name | Allowed Value | Description |
 |:--| -- | -- |
+| format | JSON\|XML | Content format of payload |
 | topic | String | MQTT topic to use |
-| format | JSON|XML | Content format of payload, default: JSON |
-| query | String | Additional information how to extract actual value from received messages, depends on `format`, e.g. for JSON this is a JSON Path expression.
+| query | String | _optional_ Additional information how to extract actual value from received messages, depends on `format`, e.g. for JSON this is a JSON Path expression.
 
 #### Example
 
 ```json
 {
-	"topic": "example/myTopic",
 	"format": "JSON",
+	"topic": "example/myTopic",
 	"query": "$.foo"
 }
 ```
