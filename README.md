@@ -67,7 +67,7 @@ mvn clean install
 
 ## Changelog
 
-You can find the detailed changelog [here](docs/source/changelog.md).
+You can find the detailed changelog [here](docs/source/changelog/changelog.md).
 
 ## Roadmap
 
