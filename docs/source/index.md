@@ -72,3 +72,7 @@ about/about.md
 about/contributing.md
 about/recommended.md
 ```
+
+```{toctree}
+changelog/changelog.md
+```

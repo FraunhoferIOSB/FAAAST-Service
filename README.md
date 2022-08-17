@@ -65,6 +65,10 @@ cd FAAAST-Service
 mvn clean install
 ```
 
+## Changelog
+
+You can find the detailed changelog [here](docs/source/changelog.md).
+
 ## Roadmap
 
 Next milestone is to release version 1.0.0 to Maven Central and DockerHub.
