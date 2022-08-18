@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.AASXPackage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.PackageDescription;
@@ -30,11 +32,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.manager.ReferablePersis
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.util.QueryModifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.dataformat.DeserializationException;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -47,7 +47,6 @@ import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -106,10 +105,12 @@ public abstract class AbstractInMemoryPersistence<T extends PersistenceConfig<?>
                 aasEnvironment = config.isDecoupleEnvironment() ? DeepCopyHelper.deepCopy(config.getEnvironment()) : config.getEnvironment();
             }
             else {
-                aasEnvironment = AASEnvironmentHelper.fromFile(config.getInitialModel());
+                aasEnvironment = EnvironmentSerializationManager
+                        .deserialize(config.getInitialModel())
+                        .getEnvironment();
             }
         }
-        catch (DeserializationException | IOException e) {
+        catch (DeserializationException e) {
             throw new IllegalArgumentException("Error deserializing AAS Environment", e);
         }
         identifiablePersistenceManager.setAasEnvironment(aasEnvironment);

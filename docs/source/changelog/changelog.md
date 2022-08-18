@@ -53,6 +53,8 @@
 
 *   Add builder classes for event messages & config classes
 
+*   Replace AASEnvironmentHelper with methods of EnvironmentSerialization 
+
 ## Release version 0.1.0
 
 First release!

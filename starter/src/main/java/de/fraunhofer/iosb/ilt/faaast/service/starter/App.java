@@ -24,16 +24,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.dataformat.DeserializationException;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.validator.ShaclValidator;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -205,7 +206,7 @@ public class App implements Runnable {
         if (validateModel) {
             try {
                 AssetAdministrationShellEnvironment model = config.getPersistence().getEnvironment() == null
-                        ? AASEnvironmentHelper.fromFile(config.getPersistence().getInitialModel())
+                        ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModel()).getEnvironment()
                         : config.getPersistence().getEnvironment();
                 return validate(model);
             }
@@ -367,7 +368,7 @@ public class App implements Runnable {
         }
         LOGGER.info("Model validation is disabled when using empty model");
         validateModel = false;
-        config.getPersistence().setEnvironment(AASEnvironmentHelper.EMPTY_AAS);
+        config.getPersistence().setEnvironment(new DefaultAssetAdministrationShellEnvironment.Builder().build());
     }
 
 
