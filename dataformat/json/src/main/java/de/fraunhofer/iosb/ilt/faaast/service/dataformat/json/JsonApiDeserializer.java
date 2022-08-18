@@ -43,9 +43,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.TypedV
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueArrayDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueCollectionDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.ValueMapDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractRequestWithModifierMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.AbstractSubmodelInterfaceRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PropertyValueMixin;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.RequestWithModifierMixin;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.SubmodelInterfaceRequestMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractRequestWithModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
@@ -261,8 +261,8 @@ public class JsonApiDeserializer implements ApiDeserializer {
      */
     protected void modifyMapper(JsonMapper mapper) {
         mapper.addMixIn(PropertyValue.class, PropertyValueMixin.class);
-        mapper.addMixIn(AbstractRequestWithModifier.class, RequestWithModifierMixin.class);
-        mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, SubmodelInterfaceRequestMixin.class);
+        mapper.addMixIn(AbstractRequestWithModifier.class, AbstractRequestWithModifierMixin.class);
+        mapper.addMixIn(AbstractSubmodelInterfaceRequest.class, AbstractSubmodelInterfaceRequestMixin.class);
         SimpleModule module = new SimpleModule() {
             @Override
             public void setupModule(SetupContext context) {

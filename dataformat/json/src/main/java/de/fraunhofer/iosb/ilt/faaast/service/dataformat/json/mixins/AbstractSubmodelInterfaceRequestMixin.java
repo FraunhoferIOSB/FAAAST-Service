@@ -15,19 +15,15 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import de.fraunhofer.iosb.ilt.faaast.service.model.request.OutputModifierConstraints;
+import io.adminshell.aas.v3.model.Identifier;
 
 
 /**
  * Mixin for
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.RequestWithModifier}
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest}
  */
-public abstract class RequestWithModifierMixin {
+public abstract class AbstractSubmodelInterfaceRequestMixin {
 
     @JsonIgnore
-    private OutputModifierConstraints outputModifierConstraints;
-
-    @JsonIgnore
-    private OutputModifier outputModifier;
+    private Identifier submodelId;
 }
