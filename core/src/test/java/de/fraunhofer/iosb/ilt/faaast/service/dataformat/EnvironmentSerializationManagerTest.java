@@ -12,10 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.starter.util;
+package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import io.adminshell.aas.v3.dataformat.Deserializer;
 import io.adminshell.aas.v3.dataformat.aml.AmlDeserializer;
 import io.adminshell.aas.v3.dataformat.i4aas.I4AASDeserializer;
@@ -30,7 +28,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 
-public class AASEnvironmentHelperTest {
+public class EnvironmentSerializationManagerTest {
 
     @Test
     public void testFromFileJSON() throws IOException, DeserializationException, Exception {
