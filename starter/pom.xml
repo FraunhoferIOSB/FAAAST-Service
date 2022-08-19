@@ -230,6 +230,12 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
+            <repositories>
+                <repository>
+                    <id>faaast-libs-prosys</id>
+                    <url>https://prosys-opcua.k3s.ilt-dmz.iosb.fraunhofer.de/artifactory/thirdparty-local/</url>
+                </repository>
+            </repositories>
         </profile>
     </profiles>
 </project>
