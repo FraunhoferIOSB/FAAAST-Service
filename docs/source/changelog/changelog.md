@@ -1,6 +1,6 @@
 # Changelog
 
-## Current development version (0.2.0-SNAPSHOT)
+## Release version 0.2.0
 
 **New Features**
 *   Persistence
