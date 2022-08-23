@@ -21,8 +21,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.IllegalCharsetNameException;
@@ -121,6 +123,17 @@ public class HttpHelper {
     }
 
 
+    public static MessageType messageTypeFromstatusCode(StatusCode statusCode) {
+        if (statusCode.isError()) {
+            return MessageType.ERROR;
+        }
+        if (statusCode.isException()) {
+            return MessageType.EXCEPTION;
+        }
+        return MessageType.INFO;
+    }
+
+
     /**
      * Sends a HTTP response with given statusCode and corresponding HTTP status
      * code as message.
@@ -129,19 +142,7 @@ public class HttpHelper {
      * @param statusCode the statusCode to send
      */
     public static void send(HttpServletResponse response, StatusCode statusCode) {
-        send(response, statusCode, HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode)));
-    }
-
-
-    /**
-     * Sends a HTTP response with given statusCode and messages.
-     *
-     * @param response HTTP response object
-     * @param statusCode the statusCode to send
-     * @param message the message to send
-     */
-    public static void send(HttpServletResponse response, StatusCode statusCode, String message) {
-        send(response, statusCode, Result.error(message));
+        send(response, statusCode, Result.of(messageTypeFromstatusCode(statusCode), HttpStatus.getMessage(HttpHelper.toHttpStatusCode(statusCode))));
     }
 
 
@@ -152,12 +153,12 @@ public class HttpHelper {
      * @param statusCode statusCode to send
      * @param result the result to send
      */
-    private static void send(HttpServletResponse response, StatusCode statusCode, Result result) {
+    public static void send(HttpServletResponse response, StatusCode statusCode, Result result) {
         try {
             sendJson(response, statusCode, new HttpJsonApiSerializer().write(result));
         }
         catch (SerializationException e) {
-            send(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
+            sendContent(response, StatusCode.SERVER_INTERNAL_ERROR, null, null);
         }
     }
 
@@ -186,17 +187,23 @@ public class HttpHelper {
      * @param statusCode statusCode to send
      * @param content the content to send
      * @param contentType the contentType to use
+     * @throws IllegalArgumentException if response is null
+     * @throws IllegalArgumentException if statusCode is null
      */
     public static void sendContent(HttpServletResponse response, StatusCode statusCode, byte[] content, MediaType contentType) {
+        Ensure.requireNonNull(response, "response must be non-null");
+        Ensure.requireNonNull(statusCode, "statusCode must be non-null");
         response.setStatus(toHttpStatusCode(statusCode));
-        response.setContentType(contentType.toString());
-        try {
-            if (contentType.charset().isPresent()) {
-                response.setCharacterEncoding(contentType.charset().get().toString());
+        if (contentType != null) {
+            response.setContentType(contentType.toString());
+            try {
+                if (contentType.charset().isPresent()) {
+                    response.setCharacterEncoding(contentType.charset().get().toString());
+                }
             }
-        }
-        catch (IllegalStateException | IllegalCharsetNameException | UnsupportedCharsetException e) {
-            LOGGER.warn("could not determine charset for contentType '{}'", contentType, e);
+            catch (IllegalStateException | IllegalCharsetNameException | UnsupportedCharsetException e) {
+                LOGGER.warn("could not determine charset for contentType '{}'", contentType, e);
+            }
         }
         if (content != null) {
             try {
@@ -204,7 +211,7 @@ public class HttpHelper {
                 response.getOutputStream().flush();
             }
             catch (IOException e) {
-                send(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
+                send(response, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
             }
         }
     }

@@ -74,25 +74,34 @@ public class Result {
     }
 
 
-    public static Result error(String message) {
+    public static Result of(MessageType messageType, String message) {
         return builder()
-                .success(false)
+                .success(messageType == MessageType.INFO || messageType == MessageType.WARNING)
                 .message(Message.builder()
-                        .messageType(MessageType.ERROR)
+                        .messageType(messageType)
                         .text(message)
                         .build())
                 .build();
     }
 
 
+    public static Result info(String message) {
+        return of(MessageType.INFO, message);
+    }
+
+
+    public static Result warning(String message) {
+        return of(MessageType.WARNING, message);
+    }
+
+
+    public static Result error(String message) {
+        return of(MessageType.ERROR, message);
+    }
+
+
     public static Result exception(String message) {
-        return builder()
-                .success(false)
-                .message(Message.builder()
-                        .messageType(MessageType.EXCEPTION)
-                        .text(message)
-                        .build())
-                .build();
+        return of(MessageType.EXCEPTION, message);
     }
 
 
