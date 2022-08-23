@@ -43,6 +43,7 @@ import org.eclipse.milo.opcua.sdk.client.AddressSpace;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.nodes.UaMethodNode;
 import org.eclipse.milo.opcua.sdk.client.nodes.UaNode;
+import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
@@ -115,10 +116,15 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
                     : new Argument[0];
         }
         catch (InterruptedException | ExecutionException e) {
-            Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("Could not read input arguments (nodeId: %s)",
-                    providerConfig.getNodeId()),
-                    e);
+            if ((e.getCause() instanceof UaException) && (((UaException) e.getCause()).getStatusCode().getValue() == StatusCodes.Bad_NotFound)) {
+                return new Argument[0];
+            }
+            else {
+                Thread.currentThread().interrupt();
+                throw new AssetConnectionException(String.format("Could not read input arguments (nodeId: %s)",
+                        providerConfig.getNodeId()),
+                        e);
+            }
         }
     }
 
@@ -130,10 +136,15 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
                     : new Argument[0];
         }
         catch (InterruptedException | ExecutionException e) {
-            Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("Could not read output arguments (nodeId: %s)",
-                    providerConfig.getNodeId()),
-                    e);
+            if ((e.getCause() instanceof UaException) && (((UaException) e.getCause()).getStatusCode().getValue() == StatusCodes.Bad_NotFound)) {
+                return new Argument[0];
+            }
+            else {
+                Thread.currentThread().interrupt();
+                throw new AssetConnectionException(String.format("Could not read output arguments (nodeId: %s)",
+                        providerConfig.getNodeId()),
+                        e);
+            }
         }
     }
 
