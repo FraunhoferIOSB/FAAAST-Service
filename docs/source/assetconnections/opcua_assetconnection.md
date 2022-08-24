@@ -28,7 +28,15 @@
 
 ```json
 {
-	"nodeId": "ns=com:example;s=foo"
+	"nodeId": "nsu=com:example;s=foo"
+}
+```
+
+or
+
+```json
+{
+	"nodeId": "ns=2;s=foo"
 }
 ```
 
@@ -42,7 +50,15 @@
 
 ```json
 {
-	"nodeId": "ns=com:example;s=foo"
+	"nodeId": "nsu=com:example;s=foo"
+}
+```
+
+or
+
+```json
+{
+	"nodeId": "ns=2;s=foo"
 }
 ```
 
@@ -57,7 +73,16 @@
 
 ```json
 {
-	"nodeId": "ns=com:example;s=foo",
+	"nodeId": "nsu=com:example;s=foo",
+	"interval": 1000
+}
+```
+
+or
+
+```json
+{
+	"nodeId": "ns=2;s=foo",
 	"interval": 1000
 }
 ```
