@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import java.util.Objects;
 
 
 /**
@@ -22,6 +23,38 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvi
  * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
  */
 public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig implements AssetOperationProviderConfig {
+
+    protected String parentNodeId;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OpcUaOperationProviderConfig that = (OpcUaOperationProviderConfig) o;
+        return super.equals(o)
+                && Objects.equals(parentNodeId, that.parentNodeId);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), parentNodeId);
+    }
+
+
+    public String getParentNodeId() {
+        return parentNodeId;
+    }
+
+
+    public void setParentNodeId(String parentNodeId) {
+        this.parentNodeId = parentNodeId;
+    }
+
 
     public static Builder builder() {
         return new Builder();
@@ -43,6 +76,11 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
 
     private abstract static class AbstractBuilder<T extends OpcUaOperationProviderConfig, B extends AbstractBuilder<T, B>>
             extends AbstractOpcUaProviderConfig.AbstractBuilder<T, B> {
+
+        public B parentNodeId(String value) {
+            getBuildingInstance().setParentNodeId(value);
+            return getSelf();
+        }
 
     }
 }
