@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -25,6 +27,12 @@ import java.util.Objects;
 public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig implements AssetOperationProviderConfig {
 
     protected String parentNodeId;
+    protected List<ArgumentMapping> argumentMapping;
+
+    public OpcUaOperationProviderConfig() {
+        this.argumentMapping = new ArrayList<>();
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -36,13 +44,14 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
         }
         OpcUaOperationProviderConfig that = (OpcUaOperationProviderConfig) o;
         return super.equals(o)
-                && Objects.equals(parentNodeId, that.parentNodeId);
+                && Objects.equals(parentNodeId, that.parentNodeId)
+                && Objects.equals(argumentMapping, that.argumentMapping);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), parentNodeId);
+        return Objects.hash(super.hashCode(), parentNodeId, argumentMapping);
     }
 
 
@@ -53,6 +62,16 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
 
     public void setParentNodeId(String parentNodeId) {
         this.parentNodeId = parentNodeId;
+    }
+
+
+    public List<ArgumentMapping> getArgumentMapping() {
+        return argumentMapping;
+    }
+
+
+    public void setArgumentMapping(List<ArgumentMapping> argumentMapping) {
+        this.argumentMapping = argumentMapping;
     }
 
 
@@ -82,5 +101,16 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
             return getSelf();
         }
 
+
+        public B argumentMapping(ArgumentMapping value) {
+            getBuildingInstance().getArgumentMapping().add(value);
+            return getSelf();
+        }
+
+
+        public B argumentMappings(List<ArgumentMapping> value) {
+            getBuildingInstance().setArgumentMapping(value);
+            return getSelf();
+        }
     }
 }
