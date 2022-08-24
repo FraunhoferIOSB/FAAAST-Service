@@ -21,16 +21,15 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Stream;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
+import org.eclipse.milo.opcua.stack.core.types.builtin.ExpandedNodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
-import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UShort;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
 import org.eclipse.milo.opcua.stack.core.util.EndpointUtil;
 import org.slf4j.Logger;
@@ -41,7 +40,6 @@ public class OpcUaHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaHelper.class);
     public static final String NODE_ID_SEPARATOR = ";";
-    public static final String NS_PREFIX = "ns=";
 
     private OpcUaHelper() {}
 
@@ -64,27 +62,11 @@ public class OpcUaHelper {
 
 
     public static NodeId parseNodeId(OpcUaClient client, String nodeId) {
-        Optional<String> ns = Stream.of(nodeId.split(NODE_ID_SEPARATOR))
-                .filter(x -> x.startsWith(NS_PREFIX))
-                .findFirst();
-        int namespaceIndex = 0;
-        if (ns.isPresent()) {
-            String namespace = ns.get().replace(NS_PREFIX, "");
-            try {
-                namespaceIndex = Integer.parseUnsignedInt(namespace);
-            }
-            catch (NumberFormatException e) {
-                UShort actualNamespaceIndex = client.getNamespaceTable().getIndex(namespace);
-                if (actualNamespaceIndex == null) {
-                    throw new IllegalArgumentException(String.format("could not resolve namespace '%s'", namespace));
-                }
-                namespaceIndex = actualNamespaceIndex.intValue();
-            }
-            return NodeId.parse(nodeId.replace(ns.get(), NS_PREFIX + namespaceIndex));
+        try {
+            return ExpandedNodeId.parse(nodeId).toNodeIdOrThrow(client.getNamespaceTable());
         }
-        else {
-            LOGGER.debug("nodeId does not contain a namespace - using default: ns=0 (nodeId: {})", nodeId);
-            return NodeId.parse(String.format("ns=0;%s", nodeId));
+        catch (Exception ex) {
+            throw new IllegalArgumentException(ex.getMessage(), ex);
         }
     }
 
