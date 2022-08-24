@@ -2,6 +2,11 @@
 
 ## Current development version (0.3.0-SNAPSHOT)
 
+**Internal changes & Bugfixes**
+*   Asset Connection
+	*   OPC UA operation: fix problem when InputArguments or OutputArguments node was not present
+	*   use ExpandedNodeId to parse NodeId Strings
+
 ## Release version 0.2.1
 
 **Bugfixes**
