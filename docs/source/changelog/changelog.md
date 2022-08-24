@@ -7,6 +7,10 @@
 	*   OPC UA operation: fix problem when InputArguments or OutputArguments node was not present
 	*   use ExpandedNodeId to parse NodeId Strings
 
+**New Features**
+*   Asset Connection
+	*   add ParentNodeId to OpcUaOperationProviderConfig
+
 ## Release version 0.2.1
 
 **Bugfixes**
