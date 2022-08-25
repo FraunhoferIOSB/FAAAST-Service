@@ -2,6 +2,9 @@
 
 ## Current development version (0.3.0-SNAPSHOT)
 
+**Internal changes & Bugfixes**
+*   Streamlining dependencies
+
 ## Release version 0.2.1
 
 **Bugfixes**
