@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
@@ -250,7 +251,13 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             // execute method
             InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
             if (isSuccess(response.getStatusCode())) {
-                LOGGER.info("callOperation: Operation {} executed successfully", operation.getIdShort());
+                if (response.getPayload().getExecutionState() == ExecutionState.COMPLETED) {
+                    LOGGER.info("callOperation: Operation {} executed successfully", operation.getIdShort());
+                }
+                else {
+                    LOGGER.warn("callOperation: Operation {} error executing operation: {}", operation.getIdShort(), response.getPayload().getExecutionState());
+                    throw new StatusException(StatusCodes.Bad_UnexpectedError);
+                }
             }
             else if (response.getStatusCode() == StatusCode.CLIENT_METHOD_NOT_ALLOWED) {
                 LOGGER.warn("callOperation: Operation {} error executing operation: {}", operation.getIdShort(), response.getStatusCode());
