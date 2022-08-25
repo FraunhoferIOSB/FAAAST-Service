@@ -68,7 +68,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.StringRequestContent;
@@ -667,8 +666,9 @@ public class HttpEndpointTest {
 
     private void assertAccessControllAllowMessageHeader(ContentResponse response, HttpMethod... expected) {
         List<String> actual = Arrays.asList(response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER).split(HttpConstants.HEADER_VALUE_SEPARATOR));
-        Assert.assertTrue(CollectionUtils.isEqualCollection(
-                Stream.of(expected).map(Enum::name).collect(Collectors.toList()),
-                actual));
+        List<String> expectedAsString = Stream.of(expected).map(Enum::name).collect(Collectors.toList());
+        Assert.assertTrue(actual.size() == expectedAsString.size()
+                && actual.containsAll(expectedAsString)
+                && expectedAsString.containsAll(actual));
     }
 }
