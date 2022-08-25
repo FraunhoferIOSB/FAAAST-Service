@@ -68,7 +68,7 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
     private Argument[] methodArguments;
     private Argument[] methodOutputArguments;
     private OperationVariable[] outputVariables;
-    private List<ArgumentMapping> argumentMappingList;
+    private List<ArgumentMapping> inputArgumentMappingList;
 
     public OpcUaOperationProvider(ServiceContext serviceContext,
             OpcUaClient client,
@@ -163,9 +163,9 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         if ((parentNodeId == null) || parentNodeId.isNull()) {
             parentNodeId = getParentNode(nodeId).getNodeId();
         }
-        argumentMappingList = providerConfig.getArgumentMapping();
-        if (argumentMappingList == null) {
-            argumentMappingList = new ArrayList<>();
+        inputArgumentMappingList = providerConfig.getInputArgumentMapping();
+        if (inputArgumentMappingList == null) {
+            inputArgumentMappingList = new ArrayList<>();
         }
         methodArguments = getInputArguments(methodNode);
         methodOutputArguments = getOutputArguments(methodNode);
@@ -210,7 +210,7 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         Variant[] result = new Variant[methodArguments.length];
         for (int i = 0; i < methodArguments.length; i++) {
             String argumentName = methodArguments[i].getName();
-            String argumentNameMapped = mapArgumentNameToIdShort(argumentName);
+            String argumentNameMapped = mapInputArgumentNameToIdShort(argumentName);
             ElementValue parameterValue;
             if (inputParameters.containsKey(argumentNameMapped)) {
                 parameterValue = inputParameters.get(argumentNameMapped);
@@ -280,17 +280,29 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
 
     private OperationVariable[] convertResult(CallMethodResult methodResult, Map<String, ElementValue> inoutputParameters, OperationVariable[] inoutputs)
             throws AssetConnectionException {
-        inoutputParameters.entrySet().stream()
-                .filter(x -> hasOutputArgument(x.getKey()))
-                .forEach(LambdaExceptionHelper.rethrowConsumer(x -> ElementValueMapper.setValue(
-                        Stream.of(inoutputs).filter(y -> Objects.equals(x.getKey(), y.getValue().getIdShort())).findAny().get().getValue(),
-                        new PropertyValue(valueConverter.convert(
-                                getOutputArgument(methodResult, x.getKey()),
-                                ((PropertyValue) x.getValue()).getValue().getDataType())))));
+        for (var param: inoutputParameters.entrySet()) {
+            String idShortMapped = mapInputIdShortToArgumentName(param.getKey());
+            if (hasOutputArgument(idShortMapped)) {
+                Optional<OperationVariable> ov = Stream.of(inoutputs).filter(y -> Objects.equals(param.getKey(), y.getValue().getIdShort())).findAny();
+                if (ov.isPresent()) {
+                    ElementValueMapper.setValue(ov.get().getValue(), new PropertyValue(valueConverter.convert(
+                            getOutputArgument(methodResult, idShortMapped),
+                            ((PropertyValue) param.getValue()).getValue().getDataType())));
+                }
+            }
+        }
+        //        inoutputParameters.entrySet().stream()
+        //                .filter(x -> hasOutputArgument(x.getKey()))
+        //                .forEach(LambdaExceptionHelper.rethrowConsumer(x -> ElementValueMapper.setValue(
+        //                        Stream.of(inoutputs).filter(y -> Objects.equals(x.getKey(), y.getValue().getIdShort())).findAny().get().getValue(),
+        //                        new PropertyValue(valueConverter.convert(
+        //                                getOutputArgument(methodResult, x.getKey()),
+        //                                ((PropertyValue) x.getValue()).getValue().getDataType())))));
         List<OperationVariable> list = new ArrayList<>();
         for (OperationVariable ovar: outputVariables) {
-            if (hasOutputArgument(ovar.getValue().getIdShort())) {
-                list.add(convertOutput(getOutputArgument(methodResult, ovar.getValue().getIdShort()), ovar));
+            String idShortMapped = mapInputIdShortToArgumentName(ovar.getValue().getIdShort());
+            if (hasOutputArgument(idShortMapped)) {
+                list.add(convertOutput(getOutputArgument(methodResult, idShortMapped), ovar));
             }
         }
         return list.toArray(OperationVariable[]::new);
@@ -352,8 +364,8 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
     }
 
 
-    private String mapArgumentNameToIdShort(String argumentName) {
-        Optional<ArgumentMapping> rv = argumentMappingList.stream().filter(arg -> arg.getArgumentName().equals(argumentName)).findAny();
+    private String mapInputArgumentNameToIdShort(String argumentName) {
+        Optional<ArgumentMapping> rv = inputArgumentMappingList.stream().filter(arg -> arg.getArgumentName().equals(argumentName)).findAny();
         if (rv.isEmpty()) {
             return argumentName;
         }
@@ -363,8 +375,8 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
     }
 
 
-    private String mapIdShortToArgumentName(String idShort) {
-        Optional<ArgumentMapping> rv = argumentMappingList.stream().filter(arg -> arg.getIdShort().equals(idShort)).findAny();
+    private String mapInputIdShortToArgumentName(String idShort) {
+        Optional<ArgumentMapping> rv = inputArgumentMappingList.stream().filter(arg -> arg.getIdShort().equals(idShort)).findAny();
         if (rv.isEmpty()) {
             return idShort;
         }
