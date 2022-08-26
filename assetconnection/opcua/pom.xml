@@ -29,6 +29,12 @@
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>dataformat-core</artifactId>
             <version>${aas.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
