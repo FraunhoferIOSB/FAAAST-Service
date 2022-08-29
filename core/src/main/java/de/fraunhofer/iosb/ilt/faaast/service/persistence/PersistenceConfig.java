@@ -55,9 +55,15 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
      * is loaded on first start.
      *
      * @param initialModel the model file
+     * @throws RuntimeException
      */
     public void setInitialModel(File initialModel) {
-        this.initialModel = initialModel;
+        if (initialModel.exists() && initialModel.isFile()) {
+            this.initialModel = initialModel;
+        }
+        else {
+            throw new RuntimeException(String.format("The specified file ( %s ) was not found.", initialModel.getAbsoluteFile()));
+        }
     }
 
 
