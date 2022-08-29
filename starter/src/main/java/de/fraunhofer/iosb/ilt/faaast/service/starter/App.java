@@ -348,8 +348,8 @@ public class App implements Runnable {
             catch (IOException e) {
                 LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
             }
-                config.getPersistence().setInitialModel(modelFile);
-                return;
+            config.getPersistence().setInitialModel(modelFile);
+            return;
 
         }
         if (System.getenv(ENV_MODEL_FILE_PATH) != null && !System.getenv(ENV_MODEL_FILE_PATH).isBlank()) {
