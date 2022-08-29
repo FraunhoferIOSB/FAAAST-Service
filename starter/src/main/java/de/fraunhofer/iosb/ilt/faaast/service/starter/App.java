@@ -327,14 +327,20 @@ public class App implements Runnable {
 
     private void withModel(ServiceConfig config) {
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
-            LOGGER.info("Model: {} (CLI)", modelFile.getAbsoluteFile());
-            if (config.getPersistence().getInitialModel() != null) {
-                LOGGER.info("Overriding Model Path {} set in Config File with {}",
-                        config.getPersistence().getInitialModel(),
-                        modelFile.getAbsoluteFile());
+            try {
+                LOGGER.info("Model: {} (CLI)", modelFile.getCanonicalFile());
+                if (config.getPersistence().getInitialModel() != null) {
+                    LOGGER.info("Overriding Model Path {} set in Config File with {}",
+                            config.getPersistence().getInitialModel(),
+                            modelFile.getCanonicalFile());
+                }
             }
-            config.getPersistence().setInitialModel(modelFile);
-            return;
+            catch (IOException e) {
+                LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
+            }
+                config.getPersistence().setInitialModel(modelFile);
+                return;
+
         }
         if (System.getenv(ENV_MODEL_FILE_PATH) != null && !System.getenv(ENV_MODEL_FILE_PATH).isBlank()) {
             LOGGER.info("Model: {} (ENV)", System.getenv(ENV_MODEL_FILE_PATH));
