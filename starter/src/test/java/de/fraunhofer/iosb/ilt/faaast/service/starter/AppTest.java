@@ -35,7 +35,7 @@ import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 
 public class AppTest {
 
-    private static final String MODEL = "src/test/resources/AASMinimal.json";
+    private static final String MODEL = AppTest.class.getResource("/AASMinimal.json").getPath();
     private static final String CONFIG = "src/test/resources/config-minimal.json";
     private App application;
     private CommandLine cmd;
