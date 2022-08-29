@@ -307,7 +307,12 @@ public class App implements Runnable {
 
     private ServiceConfig getConfig() throws IOException {
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_CONFIG)) {
-            LOGGER.info("Config: {} (CLI)", configFile.getAbsoluteFile());
+            try {
+                LOGGER.info("Config: {} (CLI)", configFile.getCanonicalFile());
+            }
+            catch (IOException e) {
+                LOGGER.info("Retrieving path of config file failed with {}", e.getMessage());
+            }
             return ServiceConfigHelper.load(configFile);
         }
         if (System.getenv(ENV_CONFIG_FILE_PATH) != null && !System.getenv(ENV_CONFIG_FILE_PATH).isBlank()) {
@@ -317,7 +322,12 @@ public class App implements Runnable {
         }
         if (new File(CONFIG_FILENAME_DEFAULT).exists()) {
             configFile = new File(CONFIG_FILENAME_DEFAULT);
-            LOGGER.info("Config: {} (default location)", configFile.getAbsoluteFile());
+            try {
+                LOGGER.info("Config: {} (default location)", configFile.getCanonicalFile());
+            }
+            catch (IOException e) {
+                LOGGER.info("Retrieving path of config file failed with {}", e.getMessage());
+            }
             return ServiceConfigHelper.load(configFile);
         }
         LOGGER.info("Config: empty (default)");
