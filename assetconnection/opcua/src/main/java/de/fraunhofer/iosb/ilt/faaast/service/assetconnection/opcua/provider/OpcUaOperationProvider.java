@@ -296,13 +296,6 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
                 }
             }
         }
-        //        inoutputParameters.entrySet().stream()
-        //                .filter(x -> hasOutputArgument(x.getKey()))
-        //                .forEach(LambdaExceptionHelper.rethrowConsumer(x -> ElementValueMapper.setValue(
-        //                        Stream.of(inoutputs).filter(y -> Objects.equals(x.getKey(), y.getValue().getIdShort())).findAny().get().getValue(),
-        //                        new PropertyValue(valueConverter.convert(
-        //                                getOutputArgument(methodResult, x.getKey()),
-        //                                ((PropertyValue) x.getValue()).getValue().getDataType())))));
         List<OperationVariable> list = new ArrayList<>();
         for (OperationVariable ovar: outputVariables) {
             String idShortMapped = mapOutputIdShortToArgumentName(ovar.getValue().getIdShort());
@@ -311,12 +304,6 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
             }
         }
         return list.toArray(OperationVariable[]::new);
-        //        return Stream.of(outputVariables)
-        //                .map(LambdaExceptionHelper.rethrowFunction(
-        //                        x -> hasOutputArgument(x.getValue().getIdShort())
-        //                                ? convertOutput(getOutputArgument(methodResult, x.getValue().getIdShort()), x)
-        //                                : null))
-        //                .toArray(OperationVariable[]::new);
     }
 
 
@@ -371,28 +358,6 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
 
     private String mapInputArgumentNameToIdShort(String argumentName) {
         Optional<ArgumentMapping> rv = inputArgumentMappingList.stream().filter(arg -> arg.getArgumentName().equals(argumentName)).findAny();
-        if (rv.isEmpty()) {
-            return argumentName;
-        }
-        else {
-            return rv.get().getIdShort();
-        }
-    }
-
-
-    private String mapInputIdShortToArgumentName(String idShort) {
-        Optional<ArgumentMapping> rv = inputArgumentMappingList.stream().filter(arg -> arg.getIdShort().equals(idShort)).findAny();
-        if (rv.isEmpty()) {
-            return idShort;
-        }
-        else {
-            return rv.get().getArgumentName();
-        }
-    }
-
-
-    private String mapOutputArgumentNameToIdShort(String argumentName) {
-        Optional<ArgumentMapping> rv = outputArgumentMappingList.stream().filter(arg -> arg.getArgumentName().equals(argumentName)).findAny();
         if (rv.isEmpty()) {
             return argumentName;
         }

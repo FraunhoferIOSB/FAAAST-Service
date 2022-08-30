@@ -32,13 +32,10 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
 import org.eclipse.milo.opcua.stack.core.util.EndpointUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class OpcUaHelper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaHelper.class);
     public static final String NODE_ID_SEPARATOR = ";";
 
     private OpcUaHelper() {}

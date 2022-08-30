@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint.class);
+    private static final String CALL_OPERATION_ERROR_TXT = "callOperation: Operation {} error executing operation: {}";
 
     private ServiceContext service;
     private AssetAdministrationShellEnvironment aasEnvironment;
@@ -255,16 +256,16 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
                     LOGGER.info("callOperation: Operation {} executed successfully", operation.getIdShort());
                 }
                 else {
-                    LOGGER.warn("callOperation: Operation {} error executing operation: {}", operation.getIdShort(), response.getPayload().getExecutionState());
+                    LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getPayload().getExecutionState());
                     throw new StatusException(StatusCodes.Bad_UnexpectedError);
                 }
             }
             else if (response.getStatusCode() == StatusCode.CLIENT_METHOD_NOT_ALLOWED) {
-                LOGGER.warn("callOperation: Operation {} error executing operation: {}", operation.getIdShort(), response.getStatusCode());
+                LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
                 throw new StatusException(StatusCodes.Bad_NotExecutable);
             }
             else {
-                LOGGER.warn("callOperation: Operation {} error executing operation: {}", operation.getIdShort(), response.getStatusCode());
+                LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
                 throw new StatusException(StatusCodes.Bad_UnexpectedError);
             }
 
