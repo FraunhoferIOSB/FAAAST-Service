@@ -69,6 +69,7 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
     private Argument[] methodOutputArguments;
     private OperationVariable[] outputVariables;
     private List<ArgumentMapping> inputArgumentMappingList;
+    private List<ArgumentMapping> outputArgumentMappingList;
 
     public OpcUaOperationProvider(ServiceContext serviceContext,
             OpcUaClient client,
@@ -166,6 +167,10 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         inputArgumentMappingList = providerConfig.getInputArgumentMapping();
         if (inputArgumentMappingList == null) {
             inputArgumentMappingList = new ArrayList<>();
+        }
+        outputArgumentMappingList = providerConfig.getOutputArgumentMapping();
+        if (outputArgumentMappingList == null) {
+            outputArgumentMappingList = new ArrayList<>();
         }
         methodArguments = getInputArguments(methodNode);
         methodOutputArguments = getOutputArguments(methodNode);
@@ -281,7 +286,7 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
     private OperationVariable[] convertResult(CallMethodResult methodResult, Map<String, ElementValue> inoutputParameters, OperationVariable[] inoutputs)
             throws AssetConnectionException {
         for (var param: inoutputParameters.entrySet()) {
-            String idShortMapped = mapInputIdShortToArgumentName(param.getKey());
+            String idShortMapped = mapOutputIdShortToArgumentName(param.getKey());
             if (hasOutputArgument(idShortMapped)) {
                 Optional<OperationVariable> ov = Stream.of(inoutputs).filter(y -> Objects.equals(param.getKey(), y.getValue().getIdShort())).findAny();
                 if (ov.isPresent()) {
@@ -300,7 +305,7 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         //                                ((PropertyValue) x.getValue()).getValue().getDataType())))));
         List<OperationVariable> list = new ArrayList<>();
         for (OperationVariable ovar: outputVariables) {
-            String idShortMapped = mapInputIdShortToArgumentName(ovar.getValue().getIdShort());
+            String idShortMapped = mapOutputIdShortToArgumentName(ovar.getValue().getIdShort());
             if (hasOutputArgument(idShortMapped)) {
                 list.add(convertOutput(getOutputArgument(methodResult, idShortMapped), ovar));
             }
@@ -377,6 +382,28 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
 
     private String mapInputIdShortToArgumentName(String idShort) {
         Optional<ArgumentMapping> rv = inputArgumentMappingList.stream().filter(arg -> arg.getIdShort().equals(idShort)).findAny();
+        if (rv.isEmpty()) {
+            return idShort;
+        }
+        else {
+            return rv.get().getArgumentName();
+        }
+    }
+
+
+    private String mapOutputArgumentNameToIdShort(String argumentName) {
+        Optional<ArgumentMapping> rv = outputArgumentMappingList.stream().filter(arg -> arg.getArgumentName().equals(argumentName)).findAny();
+        if (rv.isEmpty()) {
+            return argumentName;
+        }
+        else {
+            return rv.get().getIdShort();
+        }
+    }
+
+
+    private String mapOutputIdShortToArgumentName(String idShort) {
+        Optional<ArgumentMapping> rv = outputArgumentMappingList.stream().filter(arg -> arg.getIdShort().equals(idShort)).findAny();
         if (rv.isEmpty()) {
             return idShort;
         }

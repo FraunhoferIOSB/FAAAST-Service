@@ -28,9 +28,11 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
 
     protected String parentNodeId;
     protected List<ArgumentMapping> inputArgumentMapping;
+    protected List<ArgumentMapping> outputArgumentMapping;
 
     public OpcUaOperationProviderConfig() {
         this.inputArgumentMapping = new ArrayList<>();
+        this.outputArgumentMapping = new ArrayList<>();
     }
 
 
@@ -45,13 +47,14 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
         OpcUaOperationProviderConfig that = (OpcUaOperationProviderConfig) o;
         return super.equals(o)
                 && Objects.equals(parentNodeId, that.parentNodeId)
-                && Objects.equals(inputArgumentMapping, that.inputArgumentMapping);
+                && Objects.equals(inputArgumentMapping, that.inputArgumentMapping)
+                && Objects.equals(outputArgumentMapping, that.outputArgumentMapping);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), parentNodeId, inputArgumentMapping);
+        return Objects.hash(super.hashCode(), parentNodeId, inputArgumentMapping, outputArgumentMapping);
     }
 
 
@@ -72,6 +75,16 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
 
     public void setInputArgumentMapping(List<ArgumentMapping> value) {
         this.inputArgumentMapping = value;
+    }
+
+
+    public List<ArgumentMapping> getOutputArgumentMapping() {
+        return outputArgumentMapping;
+    }
+
+
+    public void setOutputArgumentMapping(List<ArgumentMapping> value) {
+        this.outputArgumentMapping = value;
     }
 
 
@@ -110,6 +123,18 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
 
         public B inputArgumentMapping(List<ArgumentMapping> value) {
             getBuildingInstance().setInputArgumentMapping(value);
+            return getSelf();
+        }
+
+
+        public B outputArgumentMapping(ArgumentMapping value) {
+            getBuildingInstance().getOutputArgumentMapping().add(value);
+            return getSelf();
+        }
+
+
+        public B outputArgumentMapping(List<ArgumentMapping> value) {
+            getBuildingInstance().setOutputArgumentMapping(value);
             return getSelf();
         }
     }

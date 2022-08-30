@@ -15,39 +15,20 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-aasx</artifactId>
-            <version>${aas.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-aml</artifactId>
-            <version>${aas.version}</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>dataformat-core</artifactId>
             <version>${aas.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-json</artifactId>
-            <version>${aas.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-rdf</artifactId>
-            <version>${aas.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-uanodeset</artifactId>
-            <version>${aas.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-xml</artifactId>
-            <version>${aas.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
@@ -58,6 +39,17 @@
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
             <version>${classgraph.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

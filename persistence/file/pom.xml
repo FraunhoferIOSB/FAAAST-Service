@@ -39,19 +39,26 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-core</artifactId>
-            <version>${aas.version}</version>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons.io.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-json</artifactId>
+            <artifactId>model</artifactId>
             <version>${aas.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
