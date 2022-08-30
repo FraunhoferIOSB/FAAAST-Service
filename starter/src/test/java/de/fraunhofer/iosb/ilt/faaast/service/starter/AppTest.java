@@ -17,14 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.starter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ParameterConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Before;
@@ -138,12 +135,25 @@ public class AppTest {
 
     @Test
     public void testModelFileENV() throws Exception {
-        File actual = withEnv(App.ENV_MODEL_FILE_PATH, MODEL)
+        String modelPathAsString = null;
+        final Path path = Paths.get("./AASMinimal.json");
+        final InputStream resourceAsInputStream = AppTest.class.getResourceAsStream("/AASMinimal.json");
+
+        try {
+            Files.copy(resourceAsInputStream, path);
+            modelPathAsString = path.toString();
+        }
+        catch (IOException e) {
+            System.err.println(e);
+        }
+
+        File actual = withEnv(App.ENV_MODEL_FILE_PATH, modelPathAsString)
                 .execute(() -> {
                     new CommandLine(application).execute();
                     return application.modelFile;
                 });
-        Assert.assertEquals(new File(MODEL), actual);
+        Files.deleteIfExists(path);
+        Assert.assertEquals(new File(modelPathAsString), actual);
     }
 
 
