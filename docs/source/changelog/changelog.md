@@ -6,11 +6,12 @@
 *   Streamlining dependencies
 *   Asset Connection
 	*   OPC UA operation: fix problem when InputArguments or OutputArguments node was not present
-	*   use ExpandedNodeId to parse NodeId Strings
+	*   Use ExpandedNodeId to parse NodeId Strings
 
 **New Features**
 *   Asset Connection
-	*   add ParentNodeId to OpcUaOperationProviderConfig
+	*   Add ParentNodeId to OpcUaOperationProviderConfig
+	*   Introduce mapping between IdShort and Argument Name in OpcUaOperationProviderConfig
 
 ## Release version 0.2.1
 
