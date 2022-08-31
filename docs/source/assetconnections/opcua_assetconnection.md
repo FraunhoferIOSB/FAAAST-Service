@@ -44,13 +44,31 @@ or
 
 | Name | Allowed Value | Description |
 |:--| -- | -- |
-| nodeId | String | nodeId of the the OPC UA node to read/write  |
+| nodeId | String | nodeId of the OPC UA method to call |
+| parentNodeId | String | _optional_ nodeId of the OPC UA object, in which the method is contained. When no parentNodeId is given here, the parent object of the method is used  |
+| inputArgumentMapping | List&lt;ArgumentMapping&gt; | _optional_ list of mappings for input arguments between the idShort of a SubmodelElement and an argument name
+| outputArgumentMapping | List&lt;ArgumentMapping&gt; | _optional_ list of mappings for output arguments between the idShort of a SubmodelElement and an argument name
 
 #### Example
 
 ```json
 {
-	"nodeId": "nsu=com:example;s=foo"
+	"nodeId": "nsu=com:example;s=foo",
+	"parentNodeId": "nsu=com:example;s=fooObject",
+	"inputArgumentMapping": 
+	[
+		{
+			"idShort": "ExampleInputId",
+			"argumentName": "ExampleInput"
+		}
+	],
+	"outputArgumentMapping": 
+	[
+		{
+			"idShort": "ExampleOutputId",
+			"argumentName": "ExampleOutput"
+		}
+	]
 }
 ```
 
@@ -58,7 +76,22 @@ or
 
 ```json
 {
-	"nodeId": "ns=2;s=foo"
+	"nodeId": "ns=2;s=foo",
+	"parentNodeId": "ns=2;s=fooObject",
+	"inputArgumentMapping": 
+	[
+		{
+			"idShort": "ExampleInputId",
+			"argumentName": "ExampleInput"
+		}
+	],
+	"outputArgumentMapping": 
+	[
+		{
+			"idShort": "ExampleOutputId",
+			"argumentName": "ExampleOutput"
+		}
+	]
 }
 ```
 
