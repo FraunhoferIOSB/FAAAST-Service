@@ -121,7 +121,7 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
         }
 
 
-        public B inputArgumentMapping(List<ArgumentMapping> value) {
+        public B inputArgumentMappings(List<ArgumentMapping> value) {
             getBuildingInstance().setInputArgumentMapping(value);
             return getSelf();
         }
@@ -133,7 +133,7 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
         }
 
 
-        public B outputArgumentMapping(List<ArgumentMapping> value) {
+        public B outputArgumentMappings(List<ArgumentMapping> value) {
             getBuildingInstance().setOutputArgumentMapping(value);
             return getSelf();
         }
