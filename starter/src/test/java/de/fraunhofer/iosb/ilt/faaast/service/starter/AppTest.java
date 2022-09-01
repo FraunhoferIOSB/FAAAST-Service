@@ -172,42 +172,42 @@ public class AppTest {
     @Test
     public void testUseEmptyModelCLI() {
         cmd.execute("--emptyModel");
-        Assert.assertEquals(true, application.useEmptyModel);
+        Assert.assertTrue(application.useEmptyModel);
     }
 
 
     @Test
     public void testUseEmptyModelCLIDefault() {
         cmd.execute();
-        Assert.assertEquals(false, application.useEmptyModel);
+        Assert.assertFalse(application.useEmptyModel);
     }
 
 
     @Test
     public void testAutoCompleteConfigurationCLI() {
         cmd.execute("--no-autoCompleteConfig");
-        Assert.assertEquals(false, application.autoCompleteConfiguration);
+        Assert.assertFalse(application.autoCompleteConfiguration);
     }
 
 
     @Test
     public void testAutoCompleteConfigurationCLIDefault() {
         cmd.execute();
-        Assert.assertEquals(true, application.autoCompleteConfiguration);
+        Assert.assertTrue(application.autoCompleteConfiguration);
     }
 
 
     @Test
     public void testModelValidationCLI() {
         cmd.execute("--no-modelValidation");
-        Assert.assertEquals(false, application.validateModel);
+        Assert.assertFalse(application.validateModel);
     }
 
 
     @Test
     public void testModelValidationCLIDefault() {
         cmd.execute("-m", modelPath.toString());
-        Assert.assertEquals(true, application.validateModel);
+        Assert.assertTrue(application.validateModel);
     }
 
 
