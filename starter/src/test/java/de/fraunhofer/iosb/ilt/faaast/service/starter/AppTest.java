@@ -23,19 +23,27 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import picocli.CommandLine;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 
 
 public class AppTest {
 
-    private static final String MODEL = AppTest.class.getResource("/AASMinimal.json").getPath();
+    private static final String MODEL_RESOURCE_PATH = "/AASMinimal.json"; // Path of model resource from core dependency
     private static final String CONFIG = "src/test/resources/config-minimal.json";
     private App application;
     private CommandLine cmd;
+    private Path modelPath;
+
+    @Before
+    public void prepareResources() throws IOException {
+        modelPath = Paths.get("." + MODEL_RESOURCE_PATH);
+        InputStream modelResourceAsStream = AppTest.class.getResourceAsStream(MODEL_RESOURCE_PATH);
+
+        Files.copy(modelResourceAsStream, modelPath);
+    }
+
 
     @Before
     public void initCmd() throws IOException {
@@ -44,6 +52,12 @@ public class AppTest {
         cmd = new CommandLine(application)
                 .setCaseInsensitiveEnumValuesAllowed(true);
         cmd.setOut(new PrintWriter(new StringWriter()));
+    }
+
+
+    @After
+    public void cleanUpResources() throws IOException {
+        Files.deleteIfExists(modelPath);
     }
 
 
@@ -81,7 +95,7 @@ public class AppTest {
 
 
     @Test
-    public void testGetConfigOverrides() throws IOException, Exception {
+    public void testGetConfigOverrides() throws Exception {
         Map<String, String> cliProperties = new HashMap<>();
         cliProperties.put(ParameterConstants.REQUEST_HANDLER_THREAD_POOL_SIZE, "3");
         cliProperties.put(ParameterConstants.ENDPOINT_0_CLASS, HttpEndpoint.class.getCanonicalName());
@@ -128,32 +142,19 @@ public class AppTest {
 
     @Test
     public void testModelFileCLI() {
-        cmd.execute("-m", MODEL);
-        Assert.assertEquals(new File(MODEL), application.modelFile);
+        cmd.execute("-m", modelPath.toString());
+        Assert.assertEquals(modelPath.toFile(), application.modelFile);
     }
 
 
     @Test
     public void testModelFileENV() throws Exception {
-        String modelPathAsString = null;
-        final Path path = Paths.get("./AASMinimal.json");
-        final InputStream resourceAsInputStream = AppTest.class.getResourceAsStream("/AASMinimal.json");
-
-        try {
-            Files.copy(resourceAsInputStream, path);
-            modelPathAsString = path.toString();
-        }
-        catch (IOException e) {
-            System.err.println(e);
-        }
-
-        File actual = withEnv(App.ENV_MODEL_FILE_PATH, modelPathAsString)
+        File actual = withEnv(App.ENV_MODEL_FILE_PATH, modelPath.toString())
                 .execute(() -> {
                     new CommandLine(application).execute();
                     return application.modelFile;
                 });
-        Files.deleteIfExists(path);
-        Assert.assertEquals(new File(modelPathAsString), actual);
+        Assert.assertEquals(modelPath.toFile(), actual);
     }
 
 
@@ -161,10 +162,10 @@ public class AppTest {
     public void testModelFilePrio() throws Exception {
         File actual = withEnv(App.ENV_MODEL_FILE_PATH, "env.json")
                 .execute(() -> {
-                    new CommandLine(application).execute("-m", MODEL);
+                    new CommandLine(application).execute("-m", modelPath.toString());
                     return application.modelFile;
                 });
-        Assert.assertEquals(new File(MODEL), actual);
+        Assert.assertEquals(modelPath.toFile(), actual);
     }
 
 
@@ -205,7 +206,7 @@ public class AppTest {
 
     @Test
     public void testModelValidationCLIDefault() {
-        cmd.execute("-m", MODEL);
+        cmd.execute("-m", modelPath.toString());
         Assert.assertEquals(true, application.validateModel);
     }
 
