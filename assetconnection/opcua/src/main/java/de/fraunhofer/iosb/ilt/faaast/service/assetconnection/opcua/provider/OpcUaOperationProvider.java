@@ -122,6 +122,9 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
                     : new Argument[0];
         }
         catch (InterruptedException | ExecutionException e) {
+            // Workaround to fix a problem when the optional InputArguments node is not present. 
+            // In case of a UaException with StatusCode Bad_NotFound an exception must not be thrown.
+            // Then the method simply has no input arguments.
             if ((e.getCause() instanceof UaException) && (((UaException) e.getCause()).getStatusCode().getValue() == StatusCodes.Bad_NotFound)) {
                 return new Argument[0];
             }
