@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConversionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.ArgumentMapping;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
@@ -277,6 +278,19 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
 
     private OperationVariable[] convertResult(CallMethodResult methodResult, Map<String, ElementValue> inoutputParameters, OperationVariable[] inoutputs)
             throws AssetConnectionException {
+        setInOutResult(inoutputParameters, inoutputs, methodResult);
+        List<OperationVariable> list = new ArrayList<>();
+        for (OperationVariable ovar: outputVariables) {
+            String idShortMapped = mapOutputIdShortToArgumentName(ovar.getValue().getIdShort());
+            if (hasOutputArgument(idShortMapped)) {
+                list.add(convertOutput(getOutputArgument(methodResult, idShortMapped), ovar));
+            }
+        }
+        return list.toArray(OperationVariable[]::new);
+    }
+
+
+    private void setInOutResult(Map<String, ElementValue> inoutputParameters, OperationVariable[] inoutputs, CallMethodResult methodResult) throws ValueConversionException {
         for (var param: inoutputParameters.entrySet()) {
             String idShortMapped = mapOutputIdShortToArgumentName(param.getKey());
             if (hasOutputArgument(idShortMapped)) {
@@ -288,14 +302,6 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
                 }
             }
         }
-        List<OperationVariable> list = new ArrayList<>();
-        for (OperationVariable ovar: outputVariables) {
-            String idShortMapped = mapOutputIdShortToArgumentName(ovar.getValue().getIdShort());
-            if (hasOutputArgument(idShortMapped)) {
-                list.add(convertOutput(getOutputArgument(methodResult, idShortMapped), ovar));
-            }
-        }
-        return list.toArray(OperationVariable[]::new);
     }
 
 
