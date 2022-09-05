@@ -161,12 +161,7 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
     private void init() throws AssetConnectionException {
         nodeId = OpcUaHelper.parseNodeId(client, providerConfig.getNodeId());
         final UaMethodNode methodNode = getMethodNode(nodeId);
-        if (providerConfig.getParentNodeId() != null) {
-            parentNodeId = OpcUaHelper.parseNodeId(client, providerConfig.getParentNodeId());
-        }
-        if ((parentNodeId == null) || parentNodeId.isNull()) {
-            parentNodeId = getParentNode(nodeId).getNodeId();
-        }
+        parentNodeId = providerConfig.getParentNodeId() != null ? OpcUaHelper.parseNodeId(client, providerConfig.getParentNodeId()) : getParentNode(nodeId).getNodeId();
         inputArgumentMappingList = providerConfig.getInputArgumentMapping();
         if (inputArgumentMappingList == null) {
             inputArgumentMappingList = new ArrayList<>();
