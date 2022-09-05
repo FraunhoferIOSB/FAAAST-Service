@@ -356,22 +356,12 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
 
     private String mapInputArgumentNameToIdShort(String argumentName) {
         Optional<ArgumentMapping> rv = inputArgumentMappingList.stream().filter(arg -> arg.getArgumentName().equals(argumentName)).findAny();
-        if (rv.isEmpty()) {
-            return argumentName;
-        }
-        else {
-            return rv.get().getIdShort();
-        }
+        return rv.isEmpty() ? argumentName : rv.get().getIdShort();
     }
 
 
     private String mapOutputIdShortToArgumentName(String idShort) {
         Optional<ArgumentMapping> rv = outputArgumentMappingList.stream().filter(arg -> arg.getIdShort().equals(idShort)).findAny();
-        if (rv.isEmpty()) {
-            return idShort;
-        }
-        else {
-            return rv.get().getArgumentName();
-        }
+        return rv.isEmpty() ? idShort : rv.get().getArgumentName();
     }
 }
