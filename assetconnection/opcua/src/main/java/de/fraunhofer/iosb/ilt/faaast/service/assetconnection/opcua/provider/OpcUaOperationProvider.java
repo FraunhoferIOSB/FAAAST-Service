@@ -162,14 +162,8 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         nodeId = OpcUaHelper.parseNodeId(client, providerConfig.getNodeId());
         final UaMethodNode methodNode = getMethodNode(nodeId);
         parentNodeId = providerConfig.getParentNodeId() != null ? OpcUaHelper.parseNodeId(client, providerConfig.getParentNodeId()) : getParentNode(nodeId).getNodeId();
-        inputArgumentMappingList = providerConfig.getInputArgumentMapping();
-        if (inputArgumentMappingList == null) {
-            inputArgumentMappingList = new ArrayList<>();
-        }
-        outputArgumentMappingList = providerConfig.getOutputArgumentMapping();
-        if (outputArgumentMappingList == null) {
-            outputArgumentMappingList = new ArrayList<>();
-        }
+        inputArgumentMappingList = providerConfig.getInputArgumentMapping() != null ? providerConfig.getInputArgumentMapping() : new ArrayList<>();
+        outputArgumentMappingList = providerConfig.getOutputArgumentMapping() != null ? providerConfig.getOutputArgumentMapping() : new ArrayList<>();
         methodArguments = getInputArguments(methodNode);
         methodOutputArguments = getOutputArguments(methodNode);
         outputVariables = serviceContext.getOperationOutputVariables(reference) != null
