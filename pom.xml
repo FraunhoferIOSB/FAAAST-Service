@@ -81,7 +81,7 @@
         <container.image.tag>latest</container.image.tag>
         <guava.version>31.1-jre</guava.version>
         <jackson.databind.version>2.13.4</jackson.databind.version>
-        <jackson.version>2.13.3</jackson.version>
+        <jackson.version>2.13.4</jackson.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <javax.servlet.version>2.5</javax.servlet.version>
         <jena.version>4.1.0</jena.version>
