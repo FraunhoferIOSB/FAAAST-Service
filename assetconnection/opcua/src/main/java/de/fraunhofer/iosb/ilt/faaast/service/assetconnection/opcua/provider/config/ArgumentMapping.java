@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.con
 import java.util.Objects;
 
 
+/**
+ * Helper class for mapping IdShort to argument names
+ */
 public class ArgumentMapping {
     private String idShort;
     private String argumentName;
