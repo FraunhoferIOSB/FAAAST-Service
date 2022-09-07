@@ -32,7 +32,7 @@ import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
 
 
 /**
- * Implemenation of SubscriptionProvider for OPC UA asset connections. Supports
+ * Implementation of SubscriptionProvider for OPC UA asset connections. Supports
  * subscribing to OPC UA.
  */
 public class OpcUaSubscriptionProvider extends AbstractOpcUaProvider<OpcUaSubscriptionProviderConfig> implements AssetSubscriptionProvider {
