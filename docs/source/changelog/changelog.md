@@ -4,6 +4,8 @@
 
 **Internal changes & Bugfixes**
 *   Streamlining dependencies
+*   Improved console output for file paths
+*   Added checks to ensure model paths provided are valid
 
 ## Release version 0.2.1
 
