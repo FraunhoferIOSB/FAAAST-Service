@@ -17,28 +17,33 @@ package de.fraunhofer.iosb.ilt.faaast.service.starter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ParameterConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.stream.Stream;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import picocli.CommandLine;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 
 
 public class AppTest {
 
-    private static final String MODEL = "src/test/resources/AASMinimal.json";
+    private static final String MODEL_RESOURCE_PATH = "/AASMinimal.json"; // Path of model resource from core dependency
     private static final String CONFIG = "src/test/resources/config-minimal.json";
     private App application;
     private CommandLine cmd;
+    private Path modelPath;
+
+    @Before
+    public void prepareResources() throws IOException {
+        modelPath = Paths.get("." + MODEL_RESOURCE_PATH);
+        InputStream modelResourceAsStream = AppTest.class.getResourceAsStream(MODEL_RESOURCE_PATH);
+
+        Files.copy(modelResourceAsStream, modelPath);
+    }
+
 
     @Before
     public void initCmd() throws IOException {
@@ -47,6 +52,12 @@ public class AppTest {
         cmd = new CommandLine(application)
                 .setCaseInsensitiveEnumValuesAllowed(true);
         cmd.setOut(new PrintWriter(new StringWriter()));
+    }
+
+
+    @After
+    public void cleanUpResources() throws IOException {
+        Files.deleteIfExists(modelPath);
     }
 
 
@@ -84,7 +95,7 @@ public class AppTest {
 
 
     @Test
-    public void testGetConfigOverrides() throws IOException, Exception {
+    public void testGetConfigOverrides() throws Exception {
         Map<String, String> cliProperties = new HashMap<>();
         cliProperties.put(ParameterConstants.REQUEST_HANDLER_THREAD_POOL_SIZE, "3");
         cliProperties.put(ParameterConstants.ENDPOINT_0_CLASS, HttpEndpoint.class.getCanonicalName());
@@ -131,19 +142,19 @@ public class AppTest {
 
     @Test
     public void testModelFileCLI() {
-        cmd.execute("-m", MODEL);
-        Assert.assertEquals(new File(MODEL), application.modelFile);
+        cmd.execute("-m", modelPath.toString());
+        Assert.assertEquals(modelPath.toFile(), application.modelFile);
     }
 
 
     @Test
     public void testModelFileENV() throws Exception {
-        File actual = withEnv(App.ENV_MODEL_FILE_PATH, MODEL)
+        File actual = withEnv(App.ENV_MODEL_FILE_PATH, modelPath.toString())
                 .execute(() -> {
                     new CommandLine(application).execute();
                     return application.modelFile;
                 });
-        Assert.assertEquals(new File(MODEL), actual);
+        Assert.assertEquals(modelPath.toFile(), actual);
     }
 
 
@@ -151,52 +162,52 @@ public class AppTest {
     public void testModelFilePrio() throws Exception {
         File actual = withEnv(App.ENV_MODEL_FILE_PATH, "env.json")
                 .execute(() -> {
-                    new CommandLine(application).execute("-m", MODEL);
+                    new CommandLine(application).execute("-m", modelPath.toString());
                     return application.modelFile;
                 });
-        Assert.assertEquals(new File(MODEL), actual);
+        Assert.assertEquals(modelPath.toFile(), actual);
     }
 
 
     @Test
     public void testUseEmptyModelCLI() {
         cmd.execute("--emptyModel");
-        Assert.assertEquals(true, application.useEmptyModel);
+        Assert.assertTrue(application.useEmptyModel);
     }
 
 
     @Test
     public void testUseEmptyModelCLIDefault() {
         cmd.execute();
-        Assert.assertEquals(false, application.useEmptyModel);
+        Assert.assertFalse(application.useEmptyModel);
     }
 
 
     @Test
     public void testAutoCompleteConfigurationCLI() {
         cmd.execute("--no-autoCompleteConfig");
-        Assert.assertEquals(false, application.autoCompleteConfiguration);
+        Assert.assertFalse(application.autoCompleteConfiguration);
     }
 
 
     @Test
     public void testAutoCompleteConfigurationCLIDefault() {
         cmd.execute();
-        Assert.assertEquals(true, application.autoCompleteConfiguration);
+        Assert.assertTrue(application.autoCompleteConfiguration);
     }
 
 
     @Test
     public void testModelValidationCLI() {
         cmd.execute("--no-modelValidation");
-        Assert.assertEquals(false, application.validateModel);
+        Assert.assertFalse(application.validateModel);
     }
 
 
     @Test
     public void testModelValidationCLIDefault() {
-        cmd.execute("-m", MODEL);
-        Assert.assertEquals(true, application.validateModel);
+        cmd.execute("-m", modelPath.toString());
+        Assert.assertTrue(application.validateModel);
     }
 
 

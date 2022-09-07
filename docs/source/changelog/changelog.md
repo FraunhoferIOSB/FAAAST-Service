@@ -4,6 +4,8 @@
 
 **Internal changes & Bugfixes**
 *   Streamlining dependencies
+*   Improved console output for file paths
+*   Added checks to ensure model paths provided are valid
 *   Asset Connection
 	*   [OPC UA] operation - fix problem when InputArguments or OutputArguments node was not present
 	*   [OPC UA] - Use ExpandedNodeId to parse NodeId Strings
@@ -12,6 +14,7 @@
 *   Asset Connection
 	*   [OPC UA] - Add ParentNodeId to OpcUaOperationProviderConfig
 	*   [OPC UA] - Introduce mapping between IdShort and Argument Name in OpcUaOperationProviderConfig
+
 
 ## Release version 0.2.1
 
