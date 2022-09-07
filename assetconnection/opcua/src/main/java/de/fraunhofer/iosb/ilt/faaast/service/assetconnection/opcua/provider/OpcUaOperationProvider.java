@@ -17,7 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConversionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.ArgumentMapping;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
@@ -33,9 +35,12 @@ import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,6 +48,7 @@ import org.eclipse.milo.opcua.sdk.client.AddressSpace;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.nodes.UaMethodNode;
 import org.eclipse.milo.opcua.sdk.client.nodes.UaNode;
+import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
@@ -53,7 +59,7 @@ import org.eclipse.milo.opcua.stack.core.types.structured.CallMethodResult;
 
 
 /**
- * Implemenation of OperationProvider for OPC UA asset connections. Supports
+ * Implementation of OperationProvider for OPC UA asset connections. Supports
  * executing AAS operations via OPC UA.
  */
 public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperationProviderConfig> implements AssetOperationProvider {
@@ -63,6 +69,8 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
     private Argument[] methodArguments;
     private Argument[] methodOutputArguments;
     private OperationVariable[] outputVariables;
+    private List<ArgumentMapping> inputArgumentMappingList;
+    private List<ArgumentMapping> outputArgumentMappingList;
 
     public OpcUaOperationProvider(ServiceContext serviceContext,
             OpcUaClient client,
@@ -115,10 +123,18 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
                     : new Argument[0];
         }
         catch (InterruptedException | ExecutionException e) {
-            Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("Could not read input arguments (nodeId: %s)",
-                    providerConfig.getNodeId()),
-                    e);
+            // Workaround to fix a problem when the optional InputArguments node is not present. 
+            // In case of a UaException with StatusCode Bad_NotFound an exception must not be thrown.
+            // Then the method simply has no input arguments.
+            if ((e.getCause() instanceof UaException) && (((UaException) e.getCause()).getStatusCode().getValue() == StatusCodes.Bad_NotFound)) {
+                return new Argument[0];
+            }
+            else {
+                Thread.currentThread().interrupt();
+                throw new AssetConnectionException(String.format("Could not read input arguments (nodeId: %s)",
+                        providerConfig.getNodeId()),
+                        e);
+            }
         }
     }
 
@@ -130,10 +146,15 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
                     : new Argument[0];
         }
         catch (InterruptedException | ExecutionException e) {
-            Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("Could not read output arguments (nodeId: %s)",
-                    providerConfig.getNodeId()),
-                    e);
+            if ((e.getCause() instanceof UaException) && (((UaException) e.getCause()).getStatusCode().getValue() == StatusCodes.Bad_NotFound)) {
+                return new Argument[0];
+            }
+            else {
+                Thread.currentThread().interrupt();
+                throw new AssetConnectionException(String.format("Could not read output arguments (nodeId: %s)",
+                        providerConfig.getNodeId()),
+                        e);
+            }
         }
     }
 
@@ -141,7 +162,12 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
     private void init() throws AssetConnectionException {
         nodeId = OpcUaHelper.parseNodeId(client, providerConfig.getNodeId());
         final UaMethodNode methodNode = getMethodNode(nodeId);
-        parentNodeId = getParentNode(nodeId).getNodeId();
+        // treat empty string for parentNodeId like a null pointer
+        parentNodeId = ((providerConfig.getParentNodeId() != null) && (!providerConfig.getParentNodeId().equals("")))
+                ? OpcUaHelper.parseNodeId(client, providerConfig.getParentNodeId())
+                : getParentNode(nodeId).getNodeId();
+        inputArgumentMappingList = providerConfig.getInputArgumentMapping() != null ? providerConfig.getInputArgumentMapping() : new ArrayList<>();
+        outputArgumentMappingList = providerConfig.getOutputArgumentMapping() != null ? providerConfig.getOutputArgumentMapping() : new ArrayList<>();
         methodArguments = getInputArguments(methodNode);
         methodOutputArguments = getOutputArguments(methodNode);
         outputVariables = serviceContext.getOperationOutputVariables(reference) != null
@@ -185,12 +211,13 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         Variant[] result = new Variant[methodArguments.length];
         for (int i = 0; i < methodArguments.length; i++) {
             String argumentName = methodArguments[i].getName();
+            String argumentNameMapped = mapInputArgumentNameToIdShort(argumentName);
             ElementValue parameterValue;
-            if (inputParameters.containsKey(argumentName)) {
-                parameterValue = inputParameters.get(argumentName);
+            if (inputParameters.containsKey(argumentNameMapped)) {
+                parameterValue = inputParameters.get(argumentNameMapped);
             }
-            else if (inoutputParameters.containsKey(argumentName)) {
-                parameterValue = inoutputParameters.get(argumentName);
+            else if (inoutputParameters.containsKey(argumentNameMapped)) {
+                parameterValue = inoutputParameters.get(argumentNameMapped);
             }
             else {
                 throw new AssetConnectionException(String.format("Missing argument (argument name: %s)",
@@ -254,19 +281,30 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
 
     private OperationVariable[] convertResult(CallMethodResult methodResult, Map<String, ElementValue> inoutputParameters, OperationVariable[] inoutputs)
             throws AssetConnectionException {
-        inoutputParameters.entrySet().stream()
-                .filter(x -> hasOutputArgument(x.getKey()))
-                .forEach(LambdaExceptionHelper.rethrowConsumer(x -> ElementValueMapper.setValue(
-                        Stream.of(inoutputs).filter(y -> Objects.equals(x.getKey(), y.getValue().getIdShort())).findAny().get().getValue(),
-                        new PropertyValue(valueConverter.convert(
-                                getOutputArgument(methodResult, x.getKey()),
-                                ((PropertyValue) x.getValue()).getValue().getDataType())))));
-        return Stream.of(outputVariables)
-                .map(LambdaExceptionHelper.rethrowFunction(
-                        x -> hasOutputArgument(x.getValue().getIdShort())
-                                ? convertOutput(getOutputArgument(methodResult, x.getValue().getIdShort()), x)
-                                : null))
-                .toArray(OperationVariable[]::new);
+        setInOutResult(inoutputParameters, inoutputs, methodResult);
+        List<OperationVariable> list = new ArrayList<>();
+        for (OperationVariable ovar: outputVariables) {
+            String idShortMapped = mapOutputIdShortToArgumentName(ovar.getValue().getIdShort());
+            if (hasOutputArgument(idShortMapped)) {
+                list.add(convertOutput(getOutputArgument(methodResult, idShortMapped), ovar));
+            }
+        }
+        return list.toArray(OperationVariable[]::new);
+    }
+
+
+    private void setInOutResult(Map<String, ElementValue> inoutputParameters, OperationVariable[] inoutputs, CallMethodResult methodResult) throws ValueConversionException {
+        for (var param: inoutputParameters.entrySet()) {
+            String idShortMapped = mapOutputIdShortToArgumentName(param.getKey());
+            if (hasOutputArgument(idShortMapped)) {
+                Optional<OperationVariable> ov = Stream.of(inoutputs).filter(y -> Objects.equals(param.getKey(), y.getValue().getIdShort())).findAny();
+                if (ov.isPresent()) {
+                    ElementValueMapper.setValue(ov.get().getValue(), new PropertyValue(valueConverter.convert(
+                            getOutputArgument(methodResult, idShortMapped),
+                            ((PropertyValue) param.getValue()).getValue().getDataType())));
+                }
+            }
+        }
     }
 
 
@@ -316,5 +354,17 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
                 && Objects.equals(methodArguments, that.methodArguments)
                 && Objects.equals(methodOutputArguments, that.methodOutputArguments)
                 && Objects.equals(outputVariables, that.outputVariables);
+    }
+
+
+    private String mapInputArgumentNameToIdShort(String argumentName) {
+        Optional<ArgumentMapping> rv = inputArgumentMappingList.stream().filter(arg -> arg.getArgumentName().equals(argumentName)).findAny();
+        return rv.isEmpty() ? argumentName : rv.get().getIdShort();
+    }
+
+
+    private String mapOutputIdShortToArgumentName(String idShort) {
+        Optional<ArgumentMapping> rv = outputArgumentMappingList.stream().filter(arg -> arg.getIdShort().equals(idShort)).findAny();
+        return rv.isEmpty() ? idShort : rv.get().getArgumentName();
     }
 }

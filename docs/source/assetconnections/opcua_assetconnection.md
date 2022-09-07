@@ -22,13 +22,23 @@
 
 | Name | Allowed Value | Description |
 |:--| -- | -- |
-| nodeId | String | nodeId of the the OPC UA node to read/write  |
+| nodeId | String | nodeId of the the OPC UA node to read/write in ExpandedNodeId format |
+
+All NodeIds (also below) are specified in the ExpandedNodeId format (see [OPC UA Reference, Part 6](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1/), Section ExpandedNodeId). In the following you can see two examples.
 
 #### Example
 
 ```json
 {
-	"nodeId": "ns=com:example;s=foo"
+	"nodeId": "nsu=com:example;s=foo"
+}
+```
+
+or
+
+```json
+{
+	"nodeId": "ns=2;s=foo"
 }
 ```
 
@@ -36,13 +46,31 @@
 
 | Name | Allowed Value | Description |
 |:--| -- | -- |
-| nodeId | String | nodeId of the the OPC UA node to read/write  |
+| nodeId | String | nodeId of the OPC UA method to call in ExpandedNodeId format |
+| parentNodeId | String | _optional_ nodeId of the OPC UA object in ExpandedNodeId format, in which the method is contained. When no parentNodeId is given here, the parent object of the method is used |
+| inputArgumentMapping | List&lt;ArgumentMapping&gt; | _optional_ list of mappings for input arguments between the idShort of a SubmodelElement and an argument name
+| outputArgumentMapping | List&lt;ArgumentMapping&gt; | _optional_ list of mappings for output arguments between the idShort of a SubmodelElement and an argument name
 
 #### Example
 
 ```json
 {
-	"nodeId": "ns=com:example;s=foo"
+	"nodeId": "nsu=com:example;s=foo",
+	"parentNodeId": "nsu=com:example;s=fooObject",
+	"inputArgumentMapping": 
+	[
+		{
+			"idShort": "ExampleInputId",
+			"argumentName": "ExampleInput"
+		}
+	],
+	"outputArgumentMapping": 
+	[
+		{
+			"idShort": "ExampleOutputId",
+			"argumentName": "ExampleOutput"
+		}
+	]
 }
 ```
 
@@ -50,14 +78,14 @@
 
 | Name | Allowed Value | Description |
 |:--| -- | -- |
-| nodeId | String | nodeId of the the OPC UA node to read/write  |
+| nodeId | String | nodeId of the the OPC UA node to read/write in ExpandedNodeId format |
 | interval | long | Interval to poll the server for changes (in ms) _currently not used_
 
 #### Example
 
 ```json
 {
-	"nodeId": "ns=com:example;s=foo",
+	"nodeId": "nsu=com:example;s=foo",
 	"interval": 1000
 }
 ```
@@ -65,6 +93,7 @@
 ## Complete Example
 
 A complete example for OPC UA asset connection could look like this
+
 ```json
 
 {

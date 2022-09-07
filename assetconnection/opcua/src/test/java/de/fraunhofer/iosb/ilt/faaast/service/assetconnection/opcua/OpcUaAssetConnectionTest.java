@@ -20,6 +20,7 @@ import static org.mockito.Mockito.mock;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.ArgumentMapping;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
@@ -41,6 +42,7 @@ import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -207,12 +209,27 @@ public class OpcUaAssetConnectionTest {
                                        Map<String, PropertyValue> expectedInoutput,
                                        Map<String, PropertyValue> expectedOutput)
             throws AssetConnectionException, InterruptedException, ConfigurationInitializationException {
+        assertInvokeOperation(nodeId, sync, input, inoutput, expectedInoutput, expectedOutput, null, null);
+    }
+
+
+    private void assertInvokeOperation(String nodeId,
+                                       boolean sync,
+                                       Map<String, PropertyValue> input,
+                                       Map<String, PropertyValue> inoutput,
+                                       Map<String, PropertyValue> expectedInoutput,
+                                       Map<String, PropertyValue> expectedOutput,
+                                       List<ArgumentMapping> inputMapping,
+                                       List<ArgumentMapping> outputMapping)
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
                 .host(serverUrl)
                 .operationProvider(reference,
                         OpcUaOperationProviderConfig.builder()
                                 .nodeId(nodeId)
+                                .inputArgumentMappings(inputMapping)
+                                .outputArgumentMappings(outputMapping)
                                 .build())
                 .build();
         OperationVariable[] inputVariables = input == null
@@ -292,16 +309,16 @@ public class OpcUaAssetConnectionTest {
         String nodeIdSqrt = "ns=2;s=HelloWorld/sqrt(x)";
         assertInvokeOperation(nodeIdSqrt,
                 true,
-                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0")),
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "9.0")),
                 null,
                 null,
-                Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")));
+                Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "3.0")));
         assertInvokeOperation(nodeIdSqrt,
                 false,
-                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0")),
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "9.0")),
                 null,
                 null,
-                Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")));
+                Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "3.0")));
         assertInvokeOperation(nodeIdSqrt,
                 true,
                 null,
@@ -318,5 +335,47 @@ public class OpcUaAssetConnectionTest {
                 Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0"),
                         "x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")),
                 Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")));
+    }
+
+
+    @Test
+    public void testOperationProviderMapping() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
+        String nodeIdSqrt = "ns=2;s=HelloWorld/sqrt(x)";
+        assertInvokeOperation(nodeIdSqrt,
+                true,
+                Map.of("x_aas", PropertyValue.of(Datatype.DOUBLE, "4.0")),
+                null,
+                null,
+                Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")),
+                List.of(new ArgumentMapping("x_aas", "x")),
+                null);
+        assertInvokeOperation(nodeIdSqrt,
+                false,
+                Map.of("x", PropertyValue.of(Datatype.DOUBLE, "4.0")),
+                null,
+                null,
+                Map.of("x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
+                null,
+                List.of(new ArgumentMapping("x_sqrt_aas", "x_sqrt")));
+        assertInvokeOperation(nodeIdSqrt,
+                true,
+                null,
+                Map.of("x_aas", PropertyValue.of(Datatype.DOUBLE, "4.0"),
+                        "x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "4.0")),
+                Map.of("x_aas", PropertyValue.of(Datatype.DOUBLE, "4.0"),
+                        "x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
+                Map.of("x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
+                List.of(new ArgumentMapping("x_aas", "x")),
+                List.of(new ArgumentMapping("x_sqrt_aas", "x_sqrt")));
+        assertInvokeOperation(nodeIdSqrt,
+                false,
+                null,
+                Map.of("x_aas", PropertyValue.of(Datatype.DOUBLE, "4.0"),
+                        "x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "4.0")),
+                Map.of("x_aas", PropertyValue.of(Datatype.DOUBLE, "4.0"),
+                        "x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
+                Map.of("x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
+                List.of(new ArgumentMapping("x_aas", "x")),
+                List.of(new ArgumentMapping("x_sqrt_aas", "x_sqrt")));
     }
 }
