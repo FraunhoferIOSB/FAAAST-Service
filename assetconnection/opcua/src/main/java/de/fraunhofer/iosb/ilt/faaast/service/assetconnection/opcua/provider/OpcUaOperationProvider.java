@@ -162,7 +162,10 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
     private void init() throws AssetConnectionException {
         nodeId = OpcUaHelper.parseNodeId(client, providerConfig.getNodeId());
         final UaMethodNode methodNode = getMethodNode(nodeId);
-        parentNodeId = providerConfig.getParentNodeId() != null ? OpcUaHelper.parseNodeId(client, providerConfig.getParentNodeId()) : getParentNode(nodeId).getNodeId();
+        // treat empty string for parentNodeId like a null pointer
+        parentNodeId = ((providerConfig.getParentNodeId() != null) && (!providerConfig.getParentNodeId().equals("")))
+                ? OpcUaHelper.parseNodeId(client, providerConfig.getParentNodeId())
+                : getParentNode(nodeId).getNodeId();
         inputArgumentMappingList = providerConfig.getInputArgumentMapping() != null ? providerConfig.getInputArgumentMapping() : new ArrayList<>();
         outputArgumentMappingList = providerConfig.getOutputArgumentMapping() != null ? providerConfig.getOutputArgumentMapping() : new ArrayList<>();
         methodArguments = getInputArguments(methodNode);
