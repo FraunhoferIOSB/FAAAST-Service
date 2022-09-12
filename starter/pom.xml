@@ -16,6 +16,11 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>assetconnection-http</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>assetconnection-mqtt</artifactId>
             <version>${project.version}</version>
         </dependency>

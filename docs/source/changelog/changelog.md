@@ -9,6 +9,7 @@
 *   Asset Connection
 	*   [OPC UA] operation - fix problem when InputArguments or OutputArguments node was not present
 	*   [OPC UA] - Use ExpandedNodeId to parse NodeId Strings
+	*   [HTTP] - fix problem when using HttpAssetConnection configuration
 
 **New Features**
 *   Asset Connection
