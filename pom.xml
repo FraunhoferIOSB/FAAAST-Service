@@ -70,11 +70,9 @@
         </snapshotRepository>
     </distributionManagement>
     <properties>
-        <aas.dataformat.jsonld.version>1.0.2</aas.dataformat.jsonld.version>
         <aas.version>1.2.0</aas.version>
         <awaitility.version>4.2.0</awaitility.version>
         <classgraph.version>4.8.149</classgraph.version>
-        <commons.code.version>1.15</commons.code.version>
         <commons.io.version>2.11.0</commons.io.version>
         <commons.lang3.version>3.12.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
@@ -83,7 +81,6 @@
         <jackson.databind.version>2.13.4</jackson.databind.version>
         <jackson.version>2.13.4</jackson.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
-        <javax.servlet.version>2.5</javax.servlet.version>
         <jena.version>4.6.1</jena.version>
         <jetty.version>11.0.11</jetty.version>
         <jsonassert.version>1.5.1</jsonassert.version>
