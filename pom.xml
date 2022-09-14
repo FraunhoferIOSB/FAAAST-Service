@@ -110,7 +110,7 @@
         <milo.version>0.6.8</milo.version>
         <mockito.version>4.8.0</mockito.version>
         <moquette.version>0.15.1</moquette.version>
-        <netty.version>4.1.81.Final</netty.version>
+        <netty.version>4.1.82.Final</netty.version>
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.6.3</picocli.version>
         <poi.ooxml.version>5.2.2</poi.ooxml.version>
