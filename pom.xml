@@ -128,7 +128,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <spotless.version>2.25.0</spotless.version>
+        <spotless.version>2.26.0</spotless.version>
         <systemstubs.version>2.0.1</systemstubs.version>
         <wiremock.version>2.33.2</wiremock.version>
     </properties>
