@@ -113,7 +113,7 @@
         <netty.version>4.1.82.Final</netty.version>
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.6.3</picocli.version>
-        <poi.ooxml.version>5.2.2</poi.ooxml.version>
+        <poi.ooxml.version>5.2.3</poi.ooxml.version>
         <proguard.core.version>9.0.3</proguard.core.version>
         <proguard.version>7.2.2</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
