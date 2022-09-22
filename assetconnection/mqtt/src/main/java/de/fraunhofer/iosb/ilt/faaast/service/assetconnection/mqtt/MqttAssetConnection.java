@@ -31,7 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.HashMap;
 import java.util.Map;
-import org.codehaus.plexus.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;

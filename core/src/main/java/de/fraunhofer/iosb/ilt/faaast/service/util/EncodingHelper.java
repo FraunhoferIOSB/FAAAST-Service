@@ -64,6 +64,17 @@ public class EncodingHelper {
 
 
     /**
+     * Base64 encode
+     *
+     * @param value value to encode
+     * @return encoded value
+     */
+    public static byte[] base64Encode(byte[] value) {
+        return Base64.getEncoder().encode(value);
+    }
+
+
+    /**
      * Decode a base64 encoded string
      *
      * @param value base64 encoded string

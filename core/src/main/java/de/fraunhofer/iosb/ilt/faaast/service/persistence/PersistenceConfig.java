@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.File;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 
@@ -55,9 +56,15 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
      * is loaded on first start.
      *
      * @param initialModel the model file
+     * @throws RuntimeException
      */
     public void setInitialModel(File initialModel) {
-        this.initialModel = initialModel;
+        if (initialModel.exists() && initialModel.isFile()) {
+            this.initialModel = initialModel;
+        }
+        else {
+            throw new NoSuchElementException(String.format("The specified file ( %s ) was not found.", initialModel.getAbsolutePath()));
+        }
     }
 
 

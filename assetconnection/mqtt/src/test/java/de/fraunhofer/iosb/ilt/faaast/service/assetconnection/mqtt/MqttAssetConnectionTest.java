@@ -19,10 +19,9 @@ import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
+import com.github.valfirst.slf4jtest.LoggingEvent;
+import com.github.valfirst.slf4jtest.TestLogger;
+import com.github.valfirst.slf4jtest.TestLoggerFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
@@ -71,7 +70,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
-import org.slf4j.LoggerFactory;
+import uk.org.lidalia.slf4jext.Level;
 
 
 public class MqttAssetConnectionTest {
@@ -80,8 +79,9 @@ public class MqttAssetConnectionTest {
     private static final long DEFAULT_TIMEOUT = 10000;
     private static final String DEFAULT_TOPIC = "some.mqtt.topic";
     private static final String LOCALHOST = "127.0.0.1";
-    private static final Predicate<ILoggingEvent> LOG_CONNECTION_LOST = x -> x.getLevel() == Level.WARN && x.getMessage().startsWith("MQTT asset connection lost");
-    private static final Predicate<ILoggingEvent> LOG_MSG_DESERIALIZATION_FAILED = x -> x.getLevel() == Level.ERROR
+    private static final Predicate<LoggingEvent> LOG_CONNECTION_LOST = x -> x.getLevel() == Level.WARN
+            && x.getMessage().startsWith("MQTT asset connection lost");
+    private static final Predicate<LoggingEvent> LOG_MSG_DESERIALIZATION_FAILED = x -> x.getLevel() == Level.ERROR
             && x.getMessage().startsWith("error deserializing message");
     private static int mqttPort;
     private static Server mqttServer;
@@ -113,22 +113,6 @@ public class MqttAssetConnectionTest {
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
             return serverSocket.getLocalPort();
         }
-    }
-
-
-    private static ListAppender<ILoggingEvent> getListLogger(Class<?> clazz) {
-        ListAppender<ILoggingEvent> result = new ListAppender<>();
-        result.start();
-        ((Logger) LoggerFactory.getLogger(clazz)).addAppender(result);
-        return result;
-    }
-
-
-    private static boolean hasLogEvent(ListAppender<ILoggingEvent> listLogger, Predicate<ILoggingEvent> predicate) {
-        return listLogger != null
-                && predicate != null
-                && listLogger.list.stream()
-                        .anyMatch(predicate);
     }
 
 
@@ -260,7 +244,7 @@ public class MqttAssetConnectionTest {
             throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException {
         int port = findFreePort();
         Server localServer = startMqttServer(port);
-        ListAppender<ILoggingEvent> listLogger = getListLogger(MqttAssetConnection.class);
+        TestLogger logger = TestLoggerFactory.getTestLogger(MqttAssetConnection.class);
         new MqttAssetConnection().init(CoreConfig.builder()
                 .build(),
                 MqttAssetConnectionConfig.builder()
@@ -269,14 +253,14 @@ public class MqttAssetConnectionTest {
                 mock(ServiceContext.class));
         localServer.stopServer();
         await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
-                .until(() -> !listLogger.list.isEmpty());
-        Assert.assertTrue(hasLogEvent(listLogger, LOG_CONNECTION_LOST));
+                .until(() -> logger.getAllLoggingEvents().stream()
+                        .anyMatch(LOG_CONNECTION_LOST));
     }
 
 
     @Test
     public void testSubscriptionProviderJsonProperty() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
-        //        assertSubscriptionProvider(FORMAT_JSON, "7", PropertyValue.of(Datatype.INT, "7"));
+        assertSubscriptionProvider(FORMAT_JSON, "7", PropertyValue.of(Datatype.INT, "7"));
         assertSubscriptionProvider(FORMAT_JSON, "\"hello world\"", PropertyValue.of(Datatype.STRING, "hello world"));
     }
 
@@ -284,7 +268,7 @@ public class MqttAssetConnectionTest {
     @Test
     public void testSubscriptionProviderJsonPropertyInvalidMessage()
             throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException {
-        ListAppender<ILoggingEvent> listLogger = getListLogger(MultiFormatSubscriptionProvider.class);
+        TestLogger logger = TestLoggerFactory.getTestLogger(MultiFormatSubscriptionProvider.class);
         String message = "7";
         PropertyValue expected = PropertyValue.of(Datatype.INT, message);
         assertSubscriptionProvider(MqttSubscriptionProviderConfig.builder()
@@ -297,22 +281,23 @@ public class MqttAssetConnectionTest {
                 },
                 null,
                 expected, expected);
-        Assert.assertTrue(hasLogEvent(listLogger, LOG_MSG_DESERIALIZATION_FAILED));
+        await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
+                .until(() -> logger.getAllLoggingEvents().stream()
+                        .anyMatch(LOG_MSG_DESERIALIZATION_FAILED));
     }
 
 
     @Test
     public void testSubscriptionProviderJsonPropertyWithInvalidQuery()
             throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException {
-        ListAppender<ILoggingEvent> listLogger = getListLogger(MultiFormatSubscriptionProvider.class);
+        TestLogger logger = TestLoggerFactory.getTestLogger(MultiFormatSubscriptionProvider.class);
         assertSubscriptionProvider(
                 MqttSubscriptionProviderConfig.builder()
                         .format(FORMAT_JSON)
                         .query("~some#invalid#query~")
                         .build(),
                 () -> publishMqtt(DEFAULT_TOPIC, "7"),
-                () -> !listLogger.list.isEmpty());
-        Assert.assertTrue(hasLogEvent(listLogger, LOG_MSG_DESERIALIZATION_FAILED));
+                () -> logger.getAllLoggingEvents().stream().anyMatch(LOG_MSG_DESERIALIZATION_FAILED));
     }
 
 

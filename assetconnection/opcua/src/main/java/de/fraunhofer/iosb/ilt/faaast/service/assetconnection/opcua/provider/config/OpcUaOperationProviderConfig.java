@@ -15,6 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -22,6 +25,68 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvi
  * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
  */
 public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig implements AssetOperationProviderConfig {
+
+    protected String parentNodeId;
+    protected List<ArgumentMapping> inputArgumentMapping;
+    protected List<ArgumentMapping> outputArgumentMapping;
+
+    public OpcUaOperationProviderConfig() {
+        this.inputArgumentMapping = new ArrayList<>();
+        this.outputArgumentMapping = new ArrayList<>();
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OpcUaOperationProviderConfig that = (OpcUaOperationProviderConfig) o;
+        return super.equals(o)
+                && Objects.equals(parentNodeId, that.parentNodeId)
+                && Objects.equals(inputArgumentMapping, that.inputArgumentMapping)
+                && Objects.equals(outputArgumentMapping, that.outputArgumentMapping);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), parentNodeId, inputArgumentMapping, outputArgumentMapping);
+    }
+
+
+    public String getParentNodeId() {
+        return parentNodeId;
+    }
+
+
+    public void setParentNodeId(String parentNodeId) {
+        this.parentNodeId = parentNodeId;
+    }
+
+
+    public List<ArgumentMapping> getInputArgumentMapping() {
+        return inputArgumentMapping;
+    }
+
+
+    public void setInputArgumentMapping(List<ArgumentMapping> value) {
+        this.inputArgumentMapping = value;
+    }
+
+
+    public List<ArgumentMapping> getOutputArgumentMapping() {
+        return outputArgumentMapping;
+    }
+
+
+    public void setOutputArgumentMapping(List<ArgumentMapping> value) {
+        this.outputArgumentMapping = value;
+    }
+
 
     public static Builder builder() {
         return new Builder();
@@ -44,5 +109,33 @@ public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig im
     private abstract static class AbstractBuilder<T extends OpcUaOperationProviderConfig, B extends AbstractBuilder<T, B>>
             extends AbstractOpcUaProviderConfig.AbstractBuilder<T, B> {
 
+        public B parentNodeId(String value) {
+            getBuildingInstance().setParentNodeId(value);
+            return getSelf();
+        }
+
+
+        public B inputArgumentMapping(ArgumentMapping value) {
+            getBuildingInstance().getInputArgumentMapping().add(value);
+            return getSelf();
+        }
+
+
+        public B inputArgumentMappings(List<ArgumentMapping> value) {
+            getBuildingInstance().setInputArgumentMapping(value);
+            return getSelf();
+        }
+
+
+        public B outputArgumentMapping(ArgumentMapping value) {
+            getBuildingInstance().getOutputArgumentMapping().add(value);
+            return getSelf();
+        }
+
+
+        public B outputArgumentMappings(List<ArgumentMapping> value) {
+            getBuildingInstance().setOutputArgumentMapping(value);
+            return getSelf();
+        }
     }
 }

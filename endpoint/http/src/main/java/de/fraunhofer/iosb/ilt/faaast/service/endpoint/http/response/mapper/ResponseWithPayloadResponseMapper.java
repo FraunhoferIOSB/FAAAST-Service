@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJso
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractRequestWithModifier;
@@ -51,7 +52,7 @@ public class ResponseWithPayloadResponseMapper<T> extends AbstractResponseMapper
                                     : OutputModifier.DEFAULT));
         }
         catch (SerializationException e) {
-            HttpHelper.send(httpResponse, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
+            HttpHelper.send(httpResponse, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
         }
     }
 }

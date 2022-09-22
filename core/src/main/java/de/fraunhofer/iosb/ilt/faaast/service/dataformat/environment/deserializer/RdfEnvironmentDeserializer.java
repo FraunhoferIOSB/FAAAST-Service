@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFLanguages;
 
 
 /**
@@ -38,11 +37,23 @@ import org.apache.jena.riot.RDFLanguages;
 @SupportedDataformat(DataFormat.RDF)
 public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
 
-    public static final Lang DEFAULT_RDF_LANGUAGE = Lang.TTL;
     private final Serializer deserializer;
 
     public RdfEnvironmentDeserializer() {
         this.deserializer = new Serializer();
+    }
+
+
+    @Override
+    public EnvironmentContext read(InputStream in, Charset charset) throws DeserializationException {
+        try {
+            return EnvironmentContext.builder()
+                    .environment(deserializer.read(IOUtils.toString(in, charset)))
+                    .build();
+        }
+        catch (io.adminshell.aas.v3.dataformat.DeserializationException | IOException e) {
+            throw new DeserializationException("RDF deserialization failed", e);
+        }
     }
 
 
@@ -54,7 +65,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
      * @param in the InputStream to read
      * @param charset the charset to use
      * @param rdfLanguage the RDF language to use
-     * @return the read {@link io.adminshell.aas.v3.model.EnvironmentContext}
+     * @return the read {@link de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext}
      * @throws DeserializationException if deserialization fails
      */
     public EnvironmentContext read(InputStream in, Charset charset, Lang rdfLanguage) throws DeserializationException {
@@ -64,24 +75,58 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
                     .build();
         }
         catch (io.adminshell.aas.v3.dataformat.DeserializationException | IOException e) {
-            throw new DeserializationException("JSON deserialization failed", e);
+            throw new DeserializationException("RDF deserialization failed", e);
         }
     }
 
 
-    @Override
-    public EnvironmentContext read(InputStream in, Charset charset) throws DeserializationException {
-        return read(in, charset, DEFAULT_RDF_LANGUAGE);
-    }
-
-
-    @Override
-    public EnvironmentContext read(File file, Charset charset) throws DeserializationException {
+    /**
+     * reads a
+     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
+     * and related files
+     *
+     * @param file the file to read
+     * @param charset the charset to use
+     * @param rdfLanguage the RDF language to use
+     * @return the read {@link de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext}
+     * @throws DeserializationException if deserialization fails
+     */
+    public EnvironmentContext read(File file, Charset charset, Lang rdfLanguage) throws DeserializationException {
         try (InputStream in = new FileInputStream(file)) {
-            return read(in, charset, RDFLanguages.filenameToLang(file.getName(), DEFAULT_RDF_LANGUAGE));
+            return read(in, charset, rdfLanguage);
         }
         catch (IOException e) {
             throw new DeserializationException(String.format("error while deserializing - file not found (%s)", file), e);
         }
+    }
+
+
+    /**
+     * reads a
+     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
+     * and related files
+     *
+     * @param in the Inputstream to read
+     * @param rdfLanguage the RDF language to use
+     * @return the read {@link de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext}
+     * @throws DeserializationException if deserialization fails
+     */
+    public EnvironmentContext read(InputStream in, Lang rdfLanguage) throws DeserializationException {
+        return read(in, DEFAULT_CHARSET, rdfLanguage);
+    }
+
+
+    /**
+     * reads a
+     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
+     * and related files
+     *
+     * @param file the File to read
+     * @param rdfLanguage the RDF language to use
+     * @return the read {@link de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext}
+     * @throws DeserializationException if deserialization fails
+     */
+    public EnvironmentContext read(File file, Lang rdfLanguage) throws DeserializationException {
+        return read(file, DEFAULT_CHARSET, rdfLanguage);
     }
 }

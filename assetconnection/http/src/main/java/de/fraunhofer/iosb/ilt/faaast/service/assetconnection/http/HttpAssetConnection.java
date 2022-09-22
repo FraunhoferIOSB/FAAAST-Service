@@ -35,7 +35,7 @@ import java.net.PasswordAuthentication;
 import java.net.http.HttpClient;
 import java.util.HashMap;
 import java.util.Map;
-import org.codehaus.plexus.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**

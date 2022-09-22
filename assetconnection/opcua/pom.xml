@@ -4,7 +4,7 @@
     <parent>
         <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
         <artifactId>service</artifactId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>0.3.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
@@ -21,18 +21,39 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>dataformat-core</artifactId>
             <version>${aas.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>io.github.classgraph</groupId>
-            <artifactId>classgraph</artifactId>
-            <version>${classgraph.version}</version>
+            <groupId>io.admin-shell.aas</groupId>
+            <artifactId>model</artifactId>
+            <version>${aas.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.milo</groupId>
             <artifactId>sdk-client</artifactId>
+            <version>${milo.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.milo</groupId>
+            <artifactId>sdk-core</artifactId>
             <version>${milo.version}</version>
         </dependency>
         <dependency>
@@ -46,9 +67,21 @@
             <version>${milo.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.milo</groupId>
+            <artifactId>stack-server</artifactId>
+            <version>${milo.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

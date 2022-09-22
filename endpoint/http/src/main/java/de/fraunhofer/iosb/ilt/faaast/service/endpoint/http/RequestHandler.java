@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJso
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.servlet.ServletException;
@@ -103,13 +104,13 @@ public class RequestHandler extends AbstractHandler {
             executeAndSend(response, requestMappingManager.map(httpRequest));
         }
         catch (MethodNotAllowedException e) {
-            HttpHelper.send(response, StatusCode.CLIENT_METHOD_NOT_ALLOWED, e.getMessage());
+            HttpHelper.send(response, StatusCode.CLIENT_METHOD_NOT_ALLOWED, Result.error(e.getMessage()));
         }
         catch (InvalidRequestException | IllegalArgumentException e) {
-            HttpHelper.send(response, StatusCode.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
+            HttpHelper.send(response, StatusCode.CLIENT_ERROR_BAD_REQUEST, Result.error(e.getMessage()));
         }
         catch (SerializationException | RuntimeException e) {
-            HttpHelper.send(response, StatusCode.SERVER_INTERNAL_ERROR, e.getMessage());
+            HttpHelper.send(response, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
         }
         finally {
             baseRequest.setHandled(true);
@@ -154,9 +155,9 @@ public class RequestHandler extends AbstractHandler {
         }
         catch (RuntimeException e) {
             HttpHelper.send(response, StatusCode.CLIENT_ERROR_BAD_REQUEST,
-                    String.format("invalid value for %s: %s",
+                    Result.exception(String.format("invalid value for %s: %s",
                             CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER,
-                            request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER)));
+                            request.getHeader(CrossOriginFilter.ACCESS_CONTROL_REQUEST_METHOD_HEADER))));
         }
         finally {
             baseRequest.setHandled(true);
@@ -172,7 +173,7 @@ public class RequestHandler extends AbstractHandler {
         }
         Response apiResponse = serviceContext.execute(apiRequest);
         if (apiResponse == null) {
-            HttpHelper.send(response, StatusCode.SERVER_INTERNAL_ERROR, "empty API response");
+            HttpHelper.send(response, StatusCode.SERVER_INTERNAL_ERROR, Result.exception("empty API response"));
             return;
         }
         if (apiResponse.getResult() != null && !apiResponse.getResult().getSuccess()) {

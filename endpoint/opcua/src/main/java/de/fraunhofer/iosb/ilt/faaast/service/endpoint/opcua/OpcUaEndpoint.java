@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
@@ -49,6 +50,7 @@ import org.slf4j.LoggerFactory;
 public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint.class);
+    private static final String CALL_OPERATION_ERROR_TXT = "callOperation: Operation {} error executing operation: {}";
 
     private ServiceContext service;
     private AssetAdministrationShellEnvironment aasEnvironment;
@@ -228,14 +230,20 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             // execute method
             InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
             if (response.getStatusCode().isSuccess()) {
-                LOGGER.debug("callOperation: Operation {} executed successfully", operation.getIdShort());
+                if (response.getPayload().getExecutionState() == ExecutionState.COMPLETED) {
+                    LOGGER.info("callOperation: Operation {} executed successfully", operation.getIdShort());
+                }
+                else {
+                    LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getPayload().getExecutionState());
+                    throw new StatusException(StatusCodes.Bad_UnexpectedError);
+                }
             }
             else if (response.getStatusCode() == StatusCode.CLIENT_METHOD_NOT_ALLOWED) {
-                LOGGER.warn("callOperation: Operation {} error executing operation: {}", operation.getIdShort(), response.getStatusCode());
+                LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
                 throw new StatusException(StatusCodes.Bad_NotExecutable);
             }
             else {
-                LOGGER.warn("callOperation: Operation {} error executing operation: {}", operation.getIdShort(), response.getStatusCode());
+                LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
                 throw new StatusException(StatusCodes.Bad_UnexpectedError);
             }
 

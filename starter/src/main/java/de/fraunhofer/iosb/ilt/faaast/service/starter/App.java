@@ -24,16 +24,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.AASEnvironmentHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.dataformat.DeserializationException;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.validator.ShaclValidator;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -205,7 +206,7 @@ public class App implements Runnable {
         if (validateModel) {
             try {
                 AssetAdministrationShellEnvironment model = config.getPersistence().getEnvironment() == null
-                        ? AASEnvironmentHelper.fromFile(config.getPersistence().getInitialModel())
+                        ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModel()).getEnvironment()
                         : config.getPersistence().getEnvironment();
                 return validate(model);
             }
@@ -306,7 +307,12 @@ public class App implements Runnable {
 
     private ServiceConfig getConfig() throws IOException {
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_CONFIG)) {
-            LOGGER.info("Config: {} (CLI)", configFile.getAbsoluteFile());
+            try {
+                LOGGER.info("Config: {} (CLI)", configFile.getCanonicalFile());
+            }
+            catch (IOException e) {
+                LOGGER.info("Retrieving path of config file failed with {}", e.getMessage());
+            }
             return ServiceConfigHelper.load(configFile);
         }
         if (System.getenv(ENV_CONFIG_FILE_PATH) != null && !System.getenv(ENV_CONFIG_FILE_PATH).isBlank()) {
@@ -316,7 +322,12 @@ public class App implements Runnable {
         }
         if (new File(CONFIG_FILENAME_DEFAULT).exists()) {
             configFile = new File(CONFIG_FILENAME_DEFAULT);
-            LOGGER.info("Config: {} (default location)", configFile.getAbsoluteFile());
+            try {
+                LOGGER.info("Config: {} (default location)", configFile.getCanonicalFile());
+            }
+            catch (IOException e) {
+                LOGGER.info("Retrieving path of config file failed with {}", e.getMessage());
+            }
             return ServiceConfigHelper.load(configFile);
         }
         LOGGER.info("Config: empty (default)");
@@ -326,14 +337,20 @@ public class App implements Runnable {
 
     private void withModel(ServiceConfig config) {
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
-            LOGGER.info("Model: {} (CLI)", modelFile.getAbsoluteFile());
-            if (config.getPersistence().getInitialModel() != null) {
-                LOGGER.info("Overriding Model Path {} set in Config File with {}",
-                        config.getPersistence().getInitialModel(),
-                        modelFile.getAbsoluteFile());
+            try {
+                LOGGER.info("Model: {} (CLI)", modelFile.getCanonicalFile());
+                if (config.getPersistence().getInitialModel() != null) {
+                    LOGGER.info("Overriding Model Path {} set in Config File with {}",
+                            config.getPersistence().getInitialModel(),
+                            modelFile.getCanonicalFile());
+                }
+            }
+            catch (IOException e) {
+                LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
             }
             config.getPersistence().setInitialModel(modelFile);
             return;
+
         }
         if (System.getenv(ENV_MODEL_FILE_PATH) != null && !System.getenv(ENV_MODEL_FILE_PATH).isBlank()) {
             LOGGER.info("Model: {} (ENV)", System.getenv(ENV_MODEL_FILE_PATH));
@@ -367,7 +384,7 @@ public class App implements Runnable {
         }
         LOGGER.info("Model validation is disabled when using empty model");
         validateModel = false;
-        config.getPersistence().setEnvironment(AASEnvironmentHelper.EMPTY_AAS);
+        config.getPersistence().setEnvironment(new DefaultAssetAdministrationShellEnvironment.Builder().build());
     }
 
 
