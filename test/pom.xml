@@ -74,13 +74,13 @@
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>dataformat-core</artifactId>
-            <version>${aas.version}</version>
+            <version>${aas.dataformat.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>model</artifactId>
-            <version>${aas.version}</version>
+            <version>${aas.model.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

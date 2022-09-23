@@ -116,12 +116,18 @@
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>model</artifactId>
-            <version>${aas.version}</version>
+            <version>${aas.model.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>validator</artifactId>
-            <version>${aas.version}</version>
+            <version>${aas.dataformat.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.jena</groupId>

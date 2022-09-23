@@ -28,7 +28,7 @@
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>dataformat-core</artifactId>
-            <version>${aas.version}</version>
+            <version>${aas.dataformat.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -39,7 +39,13 @@
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>model</artifactId>
-            <version>${aas.version}</version>
+            <version>${aas.model.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
