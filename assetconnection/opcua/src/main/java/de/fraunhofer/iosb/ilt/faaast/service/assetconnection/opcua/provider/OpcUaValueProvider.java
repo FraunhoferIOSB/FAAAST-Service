@@ -102,7 +102,12 @@ public class OpcUaValueProvider extends AbstractOpcUaProvider<OpcUaValueProvider
         try {
             DataValue dataValue = client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()).get();
             OpcUaHelper.checkStatusCode(dataValue.getStatusCode(), "error reading value from asset conenction");
-            return new PropertyValue(valueConverter.convert(dataValue.getValue(), datatype));
+            if ((providerConfig.getArrayElementIndex() == null) || ("".equals(providerConfig.getArrayElementIndex()))) {
+                return new PropertyValue(valueConverter.convert(dataValue.getValue(), datatype));
+            }
+            else {
+                return new PropertyValue(valueConverter.convertArray(dataValue.getValue(), datatype, providerConfig.getArrayElementIndex()));
+            }
         }
         catch (AssetConnectionException | InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();

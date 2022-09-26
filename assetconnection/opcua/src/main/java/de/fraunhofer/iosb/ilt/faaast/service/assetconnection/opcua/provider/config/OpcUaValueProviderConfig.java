@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
+import java.util.Objects;
 
 
 /**
@@ -23,8 +24,40 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderC
  */
 public class OpcUaValueProviderConfig extends AbstractOpcUaProviderConfig implements AssetValueProviderConfig {
 
+    protected String arrayElementIndex;
+
     public static Builder builder() {
         return new Builder();
+    }
+
+
+    public String getArrayElementIndex() {
+        return arrayElementIndex;
+    }
+
+
+    public void setArrayElementIndex(String arrayElementIndex) {
+        this.arrayElementIndex = arrayElementIndex;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OpcUaValueProviderConfig that = (OpcUaValueProviderConfig) o;
+        return super.equals(o)
+                && Objects.equals(arrayElementIndex, that.arrayElementIndex);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), arrayElementIndex);
     }
 
     public static class Builder extends AbstractBuilder<OpcUaValueProviderConfig, Builder> {
@@ -42,6 +75,11 @@ public class OpcUaValueProviderConfig extends AbstractOpcUaProviderConfig implem
     }
 
     private abstract static class AbstractBuilder<T extends OpcUaValueProviderConfig, B extends AbstractBuilder<T, B>> extends AbstractOpcUaProviderConfig.AbstractBuilder<T, B> {
+
+        public B arrayElementIndex(String arrayElementIndex) {
+            getBuildingInstance().setArrayElementIndex(arrayElementIndex);
+            return getSelf();
+        }
 
     }
 }

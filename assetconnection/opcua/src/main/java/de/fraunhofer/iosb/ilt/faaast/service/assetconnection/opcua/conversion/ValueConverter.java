@@ -18,11 +18,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import java.lang.reflect.Array;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.eclipse.milo.opcua.sdk.server.events.conversions.ImplicitConversions;
 import org.eclipse.milo.opcua.stack.core.BuiltinDataType;
 import org.eclipse.milo.opcua.stack.core.Identifiers;
@@ -37,10 +42,12 @@ public class ValueConverter {
 
     private Map<ConversionTypeInfo, AasToOpcUaValueConverter> aasToOpcUaConverters;
     private Map<ConversionTypeInfo, OpcUaToAasValueConverter> opcUaToAasConverters;
+    private Pattern arrayPattern;
 
     public ValueConverter() {
         this.aasToOpcUaConverters = new HashMap<>();
         this.opcUaToAasConverters = new HashMap<>();
+        arrayPattern = Pattern.compile("(?<=\\[).*?(?=\\])");
         register(Datatype.INTEGER, Identifiers.Integer, new AasToOpcUaValueConverter() {
             @Override
             public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
@@ -80,8 +87,7 @@ public class ValueConverter {
      * @param value AAS value
      * @param targetType OPC UA target type
      * @return converted AAS value
-     * @throws ValueConversionException if value or targetType are null
-     * @throws ValueConversionException if conversion fails
+     * @throws ValueConversionException if value or targetType are null or conversion fails
      */
     public Variant convert(TypedValue<?> value, NodeId targetType) throws ValueConversionException {
         if (value == null) {
@@ -103,8 +109,7 @@ public class ValueConverter {
      * @param value OPC UAvalue
      * @param targetType AAS target type
      * @return converted OPC UA value
-     * @throws ValueConversionException if value or targetType are null
-     * @throws ValueConversionException if conversion fails
+     * @throws ValueConversionException if value or targetType are null or conversion fails
      */
     public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
         if (value == null) {
@@ -114,16 +119,77 @@ public class ValueConverter {
             throw new ValueConversionException("targetType value must be non-null");
         }
         if (value.getDataType().isEmpty()) {
-            throw new ValueConversionException(String.format("unabled to determine datatype of OPC UA value (value: %s)", value));
+            throw new ValueConversionException(String.format("unable to determine datatype of OPC UA value (value: %s)", value));
         }
         Optional<NodeId> valueDatatype = value.getDataType().get().toNodeId(null);
         if (valueDatatype.isEmpty()) {
-            throw new ValueConversionException(String.format("unabled to determine nodeId of datatype of OPC UA value (datatype: %s)", value.getDataType().get()));
+            throw new ValueConversionException(String.format("unable to determine nodeId of datatype of OPC UA value (datatype: %s)", value.getDataType().get()));
         }
         OpcUaToAasValueConverter converter = opcUaToAasConverters.getOrDefault(
                 new ConversionTypeInfo(targetType, valueDatatype.get()),
                 new DefaultConverter());
         return converter.convert(value, targetType);
+    }
+
+
+    /**
+     * Converts OPC UA value to AAS target type
+     *
+     * @param value OPC UAvalue
+     * @param targetType AAS target type
+     * @param index The desired index in the array
+     * @return converted OPC UA value
+     * @throws ValueConversionException if value or targetType are null or conversion fails
+     */
+    public TypedValue<?> convertArray(Variant value, Datatype targetType, String index) throws ValueConversionException {
+        if (value == null) {
+            throw new ValueConversionException("value must be non-null");
+        }
+        if (targetType == null) {
+            throw new ValueConversionException("targetType value must be non-null");
+        }
+        if (value.getDataType().isEmpty()) {
+            throw new ValueConversionException(String.format("unable to determine datatype of OPC UA value (value: %s)", value));
+        }
+        if (!value.getValue().getClass().isArray()) {
+            return convert(value, targetType);
+        }
+        if ((index == null) || index.isEmpty()) {
+            throw new ValueConversionException("index must not be empty");
+        }
+
+        Optional<NodeId> valueDatatype = value.getDataType().get().toNodeId(null);
+        if (valueDatatype.isEmpty()) {
+            throw new ValueConversionException(String.format("unable to determine nodeId of datatype of OPC UA value (datatype: %s)", value.getDataType().get()));
+        }
+
+        value = getArrayElement(value, index);
+
+        OpcUaToAasValueConverter converter = opcUaToAasConverters.getOrDefault(
+                new ConversionTypeInfo(targetType, valueDatatype.get()),
+                new DefaultConverter());
+        return converter.convert(value, targetType);
+    }
+
+
+    private Variant getArrayElement(Variant value, String index) throws ValueConversionException {
+        List<Integer> arrayIndizes = new ArrayList<>();
+        Matcher matcher = arrayPattern.matcher(index);
+        while (matcher.find()) {
+            arrayIndizes.add(Integer.valueOf(matcher.group()));
+        }
+
+        Object obj = value.getValue();
+        for (int ind: arrayIndizes) {
+            if (obj.getClass().isArray()) {
+                obj = Array.get(obj, ind);
+            }
+            else {
+                throw new ValueConversionException("value is not an array");
+            }
+        }
+
+        return new Variant(obj);
     }
 
     private static class DefaultConverter implements AasToOpcUaValueConverter, OpcUaToAasValueConverter {
