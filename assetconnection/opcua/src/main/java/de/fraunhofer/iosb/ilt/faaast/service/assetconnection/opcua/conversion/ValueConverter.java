@@ -172,12 +172,30 @@ public class ValueConverter {
     }
 
 
-    private Variant getArrayElement(Variant value, String index) throws ValueConversionException {
-        List<Integer> arrayIndizes = new ArrayList<>();
-        Matcher matcher = arrayPattern.matcher(index);
-        while (matcher.find()) {
-            arrayIndizes.add(Integer.valueOf(matcher.group()));
+    public void setArrayElement(Variant arrayValue, String index, Object indexValue) throws ValueConversionException {
+        List<Integer> arrayIndizes = getArrayIndices(index);
+
+        Object obj = arrayValue.getValue();
+        for (int i = 0; i < arrayIndizes.size() - 1; i++) {
+            if (obj.getClass().isArray()) {
+                obj = Array.get(obj, i);
+            }
+            else {
+                throw new ValueConversionException("value is not an array or not enough dimensions");
+            }
         }
+
+        if (obj.getClass().isArray()) {
+            Array.set(obj, arrayIndizes.get(arrayIndizes.size() - 1), indexValue);
+        }
+        else {
+            throw new ValueConversionException("value is not an array or not enough dimensions");
+        }
+    }
+
+
+    private Variant getArrayElement(Variant value, String index) throws ValueConversionException {
+        List<Integer> arrayIndizes = getArrayIndices(index);
 
         Object obj = value.getValue();
         for (int ind: arrayIndizes) {
@@ -185,11 +203,21 @@ public class ValueConverter {
                 obj = Array.get(obj, ind);
             }
             else {
-                throw new ValueConversionException("value is not an array");
+                throw new ValueConversionException("value is not an array or not enough dimensions");
             }
         }
 
         return new Variant(obj);
+    }
+
+
+    private List<Integer> getArrayIndices(String index) throws NumberFormatException {
+        List<Integer> arrayIndices = new ArrayList<>();
+        Matcher matcher = arrayPattern.matcher(index);
+        while (matcher.find()) {
+            arrayIndices.add(Integer.valueOf(matcher.group()));
+        }
+        return arrayIndices;
     }
 
     private static class DefaultConverter implements AasToOpcUaValueConverter, OpcUaToAasValueConverter {

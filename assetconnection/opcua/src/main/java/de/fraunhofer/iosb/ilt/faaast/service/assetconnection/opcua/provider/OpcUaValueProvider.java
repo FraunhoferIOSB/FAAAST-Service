@@ -34,6 +34,7 @@ import org.eclipse.milo.opcua.sdk.core.nodes.VariableNode;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
+import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
 
 
@@ -128,8 +129,15 @@ public class OpcUaValueProvider extends AbstractOpcUaProvider<OpcUaValueProvider
                     value.getClass()));
         }
         try {
+            Variant writeValue = valueConverter.convert(((PropertyValue) value).getValue(), node.getDataType());
+            if ((providerConfig.getArrayElementIndex() != null) && (!"".equals(providerConfig.getArrayElementIndex()))) {
+                DataValue dataValue = client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()).get();
+                writeValue = valueConverter.convert(((PropertyValue) value).getValue(), node.getDataType());
+                valueConverter.setArrayElement(dataValue.getValue(), providerConfig.getArrayElementIndex(), writeValue.getValue());
+                writeValue = dataValue.getValue();
+            }
             StatusCode result = client.writeValue(node.getNodeId(), new DataValue(
-                    valueConverter.convert(((PropertyValue) value).getValue(), node.getDataType()),
+                    writeValue,
                     null,
                     null)).get();
             OpcUaHelper.checkStatusCode(result, "error setting value on asset connection");

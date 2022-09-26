@@ -166,7 +166,8 @@ public class OpcUaAssetConnectionTest {
     }
 
 
-    private void assertWriteReadValue(String nodeId, PropertyValue expected) throws AssetConnectionException, InterruptedException, ConfigurationInitializationException {
+    private void assertWriteReadValue(String nodeId, PropertyValue expected, String arrayElementIndex)
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
@@ -182,6 +183,7 @@ public class OpcUaAssetConnectionTest {
                         .valueProvider(reference,
                                 OpcUaValueProviderConfig.builder()
                                         .nodeId(nodeId)
+                                        .arrayElementIndex(arrayElementIndex)
                                         .build())
                         .host(serverUrl)
                         .build(),
@@ -195,11 +197,14 @@ public class OpcUaAssetConnectionTest {
 
     @Test
     public void testValueProvider() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
-        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "3.3"));
-        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/String", PropertyValue.of(Datatype.STRING, "hello world!"));
-        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Integer", PropertyValue.of(Datatype.INTEGER, "42"));
-        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Boolean", PropertyValue.of(Datatype.BOOLEAN, "true"));
-        assertReadArrayValue("ns=2;s=HelloWorld/ArrayTypes/Int32Array", PropertyValue.of(Datatype.INTEGER, "32"));
+        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "3.3"), null);
+        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/String", PropertyValue.of(Datatype.STRING, "hello world!"), null);
+        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Integer", PropertyValue.of(Datatype.INTEGER, "42"), null);
+        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Boolean", PropertyValue.of(Datatype.BOOLEAN, "true"), null);
+        // Arrays
+        assertWriteReadValue("ns=2;s=HelloWorld/ArrayTypes/Int32Array", PropertyValue.of(Datatype.INT, "78"), "[2]");
+        assertWriteReadValue("ns=2;s=HelloWorld/ArrayTypes/FloatArray", PropertyValue.of(Datatype.FLOAT, "24.5"), "[1]");
+        assertWriteReadValue("ns=2;s=HelloWorld/ArrayTypes/StringArray", PropertyValue.of(Datatype.STRING, "new test value"), "[3]");
     }
 
 
@@ -380,31 +385,4 @@ public class OpcUaAssetConnectionTest {
                 List.of(new ArgumentMapping("x_sqrt_aas", "x_sqrt")));
     }
 
-
-    private void assertReadArrayValue(String nodeId, PropertyValue expected) throws AssetConnectionException, InterruptedException, ConfigurationInitializationException {
-        Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
-        ServiceContext serviceContext = mock(ServiceContext.class);
-        doReturn(ElementValueTypeInfo.builder()
-                .type(expected.getClass())
-                .datatype(expected.getValue().getDataType())
-                .build())
-                        .when(serviceContext)
-                        .getTypeInfo(reference);
-        OpcUaAssetConnection connection = new OpcUaAssetConnection(
-                CoreConfig.builder()
-                        .build(),
-                OpcUaAssetConnectionConfig.builder()
-                        .valueProvider(reference,
-                                OpcUaValueProviderConfig.builder()
-                                        .nodeId(nodeId)
-                                        .arrayElementIndex("[1]")
-                                        .build())
-                        .host(serverUrl)
-                        .build(),
-                serviceContext);
-        //connection.getValueProviders().get(reference).setValue(expected);
-        DataElementValue actual = connection.getValueProviders().get(reference).getValue();
-        connection.close();
-        Assert.assertEquals(expected, actual);
-    }
 }
