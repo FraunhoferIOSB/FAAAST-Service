@@ -188,7 +188,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
             }
         }
         catch (AssetConnectionException e) {
-            throw new ConfigurationInitializationException("initializaing OPC UA asset connection failed", e);
+            throw new ConfigurationInitializationException("initializing OPC UA asset connection failed", e);
         }
     }
 
