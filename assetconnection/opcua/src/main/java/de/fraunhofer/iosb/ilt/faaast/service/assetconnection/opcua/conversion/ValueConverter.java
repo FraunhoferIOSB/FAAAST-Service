@@ -178,7 +178,7 @@ public class ValueConverter {
         Object obj = arrayValue.getValue();
         for (int i = 0; i < arrayIndizes.size() - 1; i++) {
             if (obj.getClass().isArray()) {
-                obj = Array.get(obj, i);
+                obj = Array.get(obj, arrayIndizes.get(i));
             }
             else {
                 throw new ValueConversionException("value is not an array or not enough dimensions");
