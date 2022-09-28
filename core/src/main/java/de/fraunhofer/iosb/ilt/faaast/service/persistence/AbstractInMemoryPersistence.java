@@ -99,6 +99,11 @@ public abstract class AbstractInMemoryPersistence<T extends PersistenceConfig<?>
     }
 
 
+    /**
+     * Initializes the AASEnvironment
+     *
+     * @param config the configuration to use
+     */
     protected void initAASEnvironment(T config) {
         try {
             if (config.getEnvironment() != null) {

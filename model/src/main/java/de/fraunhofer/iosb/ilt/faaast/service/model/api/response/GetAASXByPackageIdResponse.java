@@ -56,19 +56,19 @@ public class GetAASXByPackageIdResponse extends AbstractResponseWithPayload<AASX
     }
 
 
-    public static GetAASXByPackageIdResponse.Builder builder() {
-        return new GetAASXByPackageIdResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<AASXPackageBase, GetAASXByPackageIdResponse, GetAASXByPackageIdResponse.Builder> {
+    public static class Builder extends AbstractBuilder<AASXPackageBase, GetAASXByPackageIdResponse, Builder> {
 
         @Override
-        protected GetAASXByPackageIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 
 
-        public GetAASXByPackageIdResponse.Builder filename(String value) {
+        public Builder filename(String value) {
             getBuildingInstance().setFilename(value);
             return getSelf();
         }

@@ -31,6 +31,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 
+/**
+ * Extracts type information from different types of objects.
+ */
 public class TypeExtractor {
 
     private static final Type COLLECTION_GENERIC_TOKEN;
@@ -116,6 +119,12 @@ public class TypeExtractor {
     }
 
 
+    /**
+     * Extracts type information for a given object.
+     *
+     * @param obj the object to extract type information from
+     * @return the extracted type information
+     */
     public static TypeInfo extractTypeInfo(Object obj) {
         if (obj == null) {
             return null;

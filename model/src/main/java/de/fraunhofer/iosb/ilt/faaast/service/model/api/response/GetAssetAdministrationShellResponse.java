@@ -23,14 +23,14 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
  */
 public class GetAssetAdministrationShellResponse extends AbstractResponseWithPayload<AssetAdministrationShell> {
 
-    public static GetAssetAdministrationShellResponse.Builder builder() {
-        return new GetAssetAdministrationShellResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<AssetAdministrationShell, GetAssetAdministrationShellResponse, GetAssetAdministrationShellResponse.Builder> {
+    public static class Builder extends AbstractBuilder<AssetAdministrationShell, GetAssetAdministrationShellResponse, Builder> {
 
         @Override
-        protected GetAssetAdministrationShellResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

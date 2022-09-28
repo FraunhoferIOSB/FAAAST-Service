@@ -24,14 +24,14 @@ import java.util.List;
  */
 public class GetAllAssetAdministrationShellsResponse extends AbstractResponseWithPayload<List<AssetAdministrationShell>> {
 
-    public static GetAllAssetAdministrationShellsResponse.Builder builder() {
-        return new GetAllAssetAdministrationShellsResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<AssetAdministrationShell>, GetAllAssetAdministrationShellsResponse, GetAllAssetAdministrationShellsResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<AssetAdministrationShell>, GetAllAssetAdministrationShellsResponse, Builder> {
 
         @Override
-        protected GetAllAssetAdministrationShellsResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

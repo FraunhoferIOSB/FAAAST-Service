@@ -24,14 +24,14 @@ import java.util.List;
  */
 public class PostAllAssetLinksByIdResponse extends AbstractResponseWithPayload<List<IdentifierKeyValuePair>> {
 
-    public static PostAllAssetLinksByIdResponse.Builder builder() {
-        return new PostAllAssetLinksByIdResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<IdentifierKeyValuePair>, PostAllAssetLinksByIdResponse, PostAllAssetLinksByIdResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<IdentifierKeyValuePair>, PostAllAssetLinksByIdResponse, Builder> {
 
         @Override
-        protected PostAllAssetLinksByIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

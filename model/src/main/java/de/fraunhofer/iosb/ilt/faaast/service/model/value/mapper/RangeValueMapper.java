@@ -21,6 +21,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatEx
 import io.adminshell.aas.v3.model.Range;
 
 
+/**
+ * Converts between
+ * {@link io.adminshell.aas.v3.model.Range} and
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue}
+ */
 public class RangeValueMapper implements DataValueMapper<Range, RangeValue> {
 
     @Override

@@ -35,18 +35,33 @@ public enum StatusCode {
     }
 
 
+    /**
+     * Returns whether status code represents success
+     *
+     * @return true if it represents success, false otherwise
+     */
     public boolean isSuccess() {
         return type == Type.SUCCESS;
     }
 
 
+    /**
+     * Returns whether status code represents error
+     *
+     * @return true if it represents error, false otherwise
+     */
     public boolean isError() {
         return type == Type.ERROR;
     }
 
 
+    /**
+     * Returns whether status code represents exception
+     *
+     * @return true if it represents exception, false otherwise
+     */
     public boolean isException() {
-        return type == Type.ERROR;
+        return type == Type.EXCEPTION;
     }
 
     private enum Type {

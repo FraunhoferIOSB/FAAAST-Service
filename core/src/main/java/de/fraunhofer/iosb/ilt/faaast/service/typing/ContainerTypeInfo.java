@@ -17,6 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.typing;
 import java.util.Objects;
 
 
+/**
+ * Holds type information for container types
+ *
+ * @param <T> type of container elements
+ */
 public class ContainerTypeInfo<T> extends TypeInfo<T> {
 
     private Class<?> contentType;

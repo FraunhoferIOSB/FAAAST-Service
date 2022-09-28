@@ -20,6 +20,11 @@ import java.util.Map;
 import java.util.Objects;
 
 
+/**
+ * Abstract base class for holding type information.
+ *
+ * @param <T> the actual type
+ */
 public abstract class TypeInfo<T> {
 
     protected Class<?> type;

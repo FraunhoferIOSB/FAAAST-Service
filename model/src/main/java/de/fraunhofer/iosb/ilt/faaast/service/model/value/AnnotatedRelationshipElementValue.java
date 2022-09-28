@@ -19,6 +19,9 @@ import java.util.Map;
 import java.util.Objects;
 
 
+/**
+ * Value class for AnnotatedRelationShipElement.
+ */
 public class AnnotatedRelationshipElementValue extends RelationshipElementValue {
 
     private Map<String, DataElementValue> annotations;

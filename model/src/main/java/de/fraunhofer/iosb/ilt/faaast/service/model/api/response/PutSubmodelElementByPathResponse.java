@@ -23,14 +23,14 @@ import io.adminshell.aas.v3.model.SubmodelElement;
  */
 public class PutSubmodelElementByPathResponse extends AbstractResponseWithPayload<SubmodelElement> {
 
-    public static PutSubmodelElementByPathResponse.Builder builder() {
-        return new PutSubmodelElementByPathResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<SubmodelElement, PutSubmodelElementByPathResponse, PutSubmodelElementByPathResponse.Builder> {
+    public static class Builder extends AbstractBuilder<SubmodelElement, PutSubmodelElementByPathResponse, Builder> {
 
         @Override
-        protected PutSubmodelElementByPathResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

@@ -22,14 +22,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
  */
 public class DeleteAssetAdministrationShellByIdResponse extends AbstractResponse {
 
-    public static DeleteAssetAdministrationShellByIdResponse.Builder builder() {
-        return new DeleteAssetAdministrationShellByIdResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractResponse.AbstractBuilder<DeleteAssetAdministrationShellByIdResponse, Builder> {
+    public static class Builder extends AbstractBuilder<DeleteAssetAdministrationShellByIdResponse, Builder> {
 
         @Override
-        protected DeleteAssetAdministrationShellByIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

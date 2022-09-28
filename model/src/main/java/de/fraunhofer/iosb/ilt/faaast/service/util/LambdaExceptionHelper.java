@@ -25,34 +25,102 @@ import java.util.function.Supplier;
  */
 public class LambdaExceptionHelper {
 
+    /**
+     * Wrapper for {@link java.util.function.Consumer} with expected exception.
+     *
+     * @param <T> type of input argument
+     * @param <E> type of expected exception
+     */
     @FunctionalInterface
     public interface ConsumerWithExceptions<T, E extends Exception> {
 
-        void accept(T t) throws E;
+        /**
+         * Wrapper for {@link java.util.function.Consumer#accept(java.lang.Object)
+         * }
+         *
+         * @param t the input argument
+         * @throws E if operation fails
+         */
+        public void accept(T t) throws E;
     }
 
+    /**
+     * Wrapper for {@link java.util.function.BiConsumer} with expected
+     * exception.
+     *
+     * @param <T> type of first input argument
+     * @param <U> type of second input argument
+     * @param <E> type of expected exception
+     */
     @FunctionalInterface
     public interface BiConsumerWithExceptions<T, U, E extends Exception> {
 
-        void accept(T t, U u) throws E;
+        /**
+         * Wrapper for {@link java.util.function.BiConsumer#accept(java.lang.Object, java.lang.Object)
+         * }
+         *
+         * @param t the first input argument
+         * @param u the second input argument
+         * @throws E if operation fails
+         */
+        public void accept(T t, U u) throws E;
     }
 
+    /**
+     * Wrapper for {@link java.util.function.Function} with expected exception.
+     *
+     * @param <T> the type of the input to the function
+     * @param <R> the type of the result of the function
+     * @param <E> the type of expected exception
+     */
     @FunctionalInterface
     public interface FunctionWithExceptions<T, R, E extends Exception> {
 
-        R apply(T t) throws E;
+        /**
+         * Wrapper for {@link java.util.function.Function#apply(java.lang.Object)
+         * }
+         *
+         * @param t the function argument
+         * @return the function result
+         * @throws E if operation fails
+         */
+        public R apply(T t) throws E;
     }
 
+    /**
+     * Wrapper for {@link java.util.function.Supplier} with expected exception.
+     *
+     * @param <T> the type of results supplied by this supplier
+     * @param <E> the type of expected exception
+     */
     @FunctionalInterface
     public interface SupplierWithExceptions<T, E extends Exception> {
 
-        T get() throws E;
+        /**
+         * Wrapper for {@link java.util.function.Supplier#get()
+         * }
+         *
+         * @return the result
+         * @throws E if operation fails
+         */
+        public T get() throws E;
     }
 
+    /**
+     * Wrapper for {@link java.lang.Runnable} with expected exception.
+     *
+     * @param <E> the type of expected exception
+     */
     @FunctionalInterface
     public interface RunnableWithExceptions<E extends Exception> {
 
-        void run() throws E;
+        /**
+         * Wrapper for {@link java.lang.Runnable#run()
+         * }
+         *
+         * @throws E if operation fails
+         */
+        public void run() throws E;
     }
 
     /**

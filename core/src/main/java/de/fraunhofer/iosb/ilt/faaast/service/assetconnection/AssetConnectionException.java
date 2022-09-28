@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
+/**
+ * This class represents exceptions related to {@link AssetConnection}.
+ */
 public class AssetConnectionException extends Exception {
 
     public AssetConnectionException(String msg) {

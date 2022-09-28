@@ -22,7 +22,6 @@ import com.puppycrawl.tools.checkstyle.api.TextBlock;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import com.puppycrawl.tools.checkstyle.utils.AnnotationUtil;
 import com.puppycrawl.tools.checkstyle.utils.CheckUtil;
-import com.puppycrawl.tools.checkstyle.utils.CommonUtil;
 import com.puppycrawl.tools.checkstyle.utils.ScopeUtil;
 import de.fraunhofer.iosb.ilt.faaast.service.checks.util.InterfaceHelper;
 import java.util.Set;
@@ -30,13 +29,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
+/**
+ * Extension of
+ * {@link com.puppycrawl.tools.checkstyle.checks.javadoc.MissingJavadocMethodCheck}
+ * providing additional functionality to ignore builder-related methods. By
+ * default, this check uses the regex
+ * <i>(Abstract)?(${classname})?Builder</i> to decide whether a class is a
+ * builder class or not. The string
+ * <i>${classname}</i> is replaced with the name of the enclosing class if
+ * present, otherwise with an empty string. Static builder methods are
+ * identified using the regex <i>builder</i> and are required to take no
+ * parameters and return a type that itself can be identified as builder class.
+ * By default, all methods within builder classes as well as static builder
+ * methods are ignored.
+ */
 @FileStatefulCheck
 public class ExtendedMissingJavadocMethodCheck extends BuilderAwareCheck {
 
-    public static final String MSG_JAVADOC_MISSING = "javadoc.missing";
-    private static final int STATIC_BUILDER_MAX_CHILDREN = 7;
+    private static final String MSG_JAVADOC_MISSING = "javadoc.missing";
     private static final int DEFAULT_MIN_LINE_COUNT = -1;
-    private static final int STATIC_BUILDER_BODY_SIZE = 2;
+    private static final String UNSUPPORTED_TYPE = "UNSUPPORTED_TYPE";
 
     private boolean allowMissingPropertyJavadoc;
     private Set<String> allowedAnnotations = Set.of("Override");
@@ -52,10 +64,11 @@ public class ExtendedMissingJavadocMethodCheck extends BuilderAwareCheck {
         return new int[] {
                 TokenTypes.CLASS_DEF,
                 TokenTypes.INTERFACE_DEF,
+                TokenTypes.ENUM_DEF,
                 TokenTypes.METHOD_DEF,
                 TokenTypes.CTOR_DEF,
                 TokenTypes.ANNOTATION_FIELD_DEF,
-                TokenTypes.COMPACT_CTOR_DEF,
+                TokenTypes.COMPACT_CTOR_DEF
         };
     }
 
@@ -68,7 +81,11 @@ public class ExtendedMissingJavadocMethodCheck extends BuilderAwareCheck {
 
     @Override
     public final int[] getRequiredTokens() {
-        return CommonUtil.EMPTY_INT_ARRAY;
+        return new int[] {
+                TokenTypes.CLASS_DEF,
+                TokenTypes.INTERFACE_DEF,
+                TokenTypes.ENUM_DEF
+        };
     }
 
 
@@ -147,29 +164,52 @@ public class ExtendedMissingJavadocMethodCheck extends BuilderAwareCheck {
     private boolean isMissingJavadocAllowed(final DetailAST ast) {
         return allowMissingPropertyJavadoc
                 && (ignoreStaticBuilderMethods && isStaticBuilderMethod(ast))
-                || (currentlyInClass() && (CheckUtil.isSetterMethod(ast) || CheckUtil.isGetterMethod(ast)))
-                || (currentlyInInterface() && InterfaceHelper.isGetterOrGetterMethod(ast))
+                || isSetterOrGetter(ast)
                 || matchesSkipRegex(ast)
                 || isContentsAllowMissingJavadoc(ast);
     }
 
 
+    private boolean isSetterOrGetter(final DetailAST ast) {
+        return ((currentlyInClass() || currentlyInEnum()) && (CheckUtil.isSetterMethod(ast) || CheckUtil.isGetterMethod(ast)))
+                || (currentlyInInterface() && InterfaceHelper.isGetterOrGetterMethod(ast));
+    }
+
+
+    private static String getReturnType(final DetailAST methodDef) {
+        DetailAST current = methodDef.findFirstToken(TokenTypes.TYPE);
+        String result = null;
+        while (result == null) {
+            if (current.findFirstToken(TokenTypes.IDENT) != null) {
+                result = current.findFirstToken(TokenTypes.IDENT).getText();
+            }
+            else if (current.findFirstToken(TokenTypes.DOT) != null) {
+                current = current.findFirstToken(TokenTypes.DOT).getLastChild();
+            }
+            else if (current.findFirstToken(TokenTypes.ARRAY_DECLARATOR) != null) {
+                result = current.getFirstChild().getText();
+            }
+            else {
+                result = UNSUPPORTED_TYPE;
+            }
+        }
+        return result;
+    }
+
+
     private boolean isStaticBuilderMethod(final DetailAST ast) {
-        if (ast.getType() == TokenTypes.METHOD_DEF
-                && ast.getChildCount() == STATIC_BUILDER_MAX_CHILDREN) {
+        if (ast.getType() == TokenTypes.METHOD_DEF) {
             final DetailAST type = ast.findFirstToken(TokenTypes.TYPE);
             final String name = type.getNextSibling().getText();
-            final String returnType = type.getFirstChild().getText();
+            final String returnType = getReturnType(ast);
             boolean isStatic = ast.findFirstToken(TokenTypes.MODIFIERS).findFirstToken(TokenTypes.LITERAL_STATIC) != null;
             boolean matchesMethodName = name.matches(staticBuilderMethodNameRegex);
             boolean returnTypeIsBuilder = matchesBuilderPattern(returnType);
-            if (isStatic && matchesMethodName && returnTypeIsBuilder) {
-                // ensure body contains only return statement
+            if (isStatic
+                    && matchesMethodName
+                    && (returnTypeIsBuilder || UNSUPPORTED_TYPE.equals(returnType))) {
                 final DetailAST slist = ast.findFirstToken(TokenTypes.SLIST);
-                if (slist != null && slist.getChildCount() == STATIC_BUILDER_BODY_SIZE) {
-                    final DetailAST expr = slist.getFirstChild();
-                    return expr.getType() == TokenTypes.LITERAL_RETURN;
-                }
+                return slist != null && slist.getFirstChild().getType() == TokenTypes.LITERAL_RETURN;
             }
         }
         return false;

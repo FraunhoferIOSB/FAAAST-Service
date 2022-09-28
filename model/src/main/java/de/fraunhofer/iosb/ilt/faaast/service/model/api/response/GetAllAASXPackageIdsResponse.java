@@ -24,14 +24,14 @@ import java.util.List;
  */
 public class GetAllAASXPackageIdsResponse extends AbstractResponseWithPayload<List<PackageDescription>> {
 
-    public static GetAllAASXPackageIdsResponse.Builder builder() {
-        return new GetAllAASXPackageIdsResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<PackageDescription>, GetAllAASXPackageIdsResponse, GetAllAASXPackageIdsResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<PackageDescription>, GetAllAASXPackageIdsResponse, Builder> {
 
         @Override
-        protected GetAllAASXPackageIdsResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

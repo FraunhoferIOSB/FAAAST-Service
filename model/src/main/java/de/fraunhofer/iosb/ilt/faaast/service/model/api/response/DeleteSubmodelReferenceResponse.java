@@ -22,14 +22,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
  */
 public class DeleteSubmodelReferenceResponse extends AbstractResponse {
 
-    public static DeleteSubmodelReferenceResponse.Builder builder() {
-        return new DeleteSubmodelReferenceResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractResponse.AbstractBuilder<DeleteSubmodelReferenceResponse, Builder> {
+    public static class Builder extends AbstractBuilder<DeleteSubmodelReferenceResponse, Builder> {
 
         @Override
-        protected DeleteSubmodelReferenceResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

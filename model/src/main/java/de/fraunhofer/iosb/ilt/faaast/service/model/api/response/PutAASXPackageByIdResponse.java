@@ -22,14 +22,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
  */
 public class PutAASXPackageByIdResponse extends AbstractResponse {
 
-    public static PutAASXPackageByIdResponse.Builder builder() {
-        return new PutAASXPackageByIdResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractResponse.AbstractBuilder<PutAASXPackageByIdResponse, Builder> {
+    public static class Builder extends AbstractBuilder<PutAASXPackageByIdResponse, Builder> {
 
         @Override
-        protected PutAASXPackageByIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

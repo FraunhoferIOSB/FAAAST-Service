@@ -22,14 +22,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
  */
 public class DeleteAASXPackageByIdResponse extends AbstractResponse {
 
-    public static DeleteAASXPackageByIdResponse.Builder builder() {
-        return new DeleteAASXPackageByIdResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractResponse.AbstractBuilder<DeleteAASXPackageByIdResponse, Builder> {
+    public static class Builder extends AbstractBuilder<DeleteAASXPackageByIdResponse, Builder> {
 
         @Override
-        protected DeleteAASXPackageByIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

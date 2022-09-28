@@ -30,5 +30,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface SupportedDataformat {
 
-    DataFormat value();
+    /**
+     * Get the value.
+     *
+     * @return the value
+     */
+    public DataFormat value();
 }

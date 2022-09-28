@@ -23,14 +23,14 @@ import io.adminshell.aas.v3.model.ConceptDescription;
  */
 public class GetConceptDescriptionByIdResponse extends AbstractResponseWithPayload<ConceptDescription> {
 
-    public static GetConceptDescriptionByIdResponse.Builder builder() {
-        return new GetConceptDescriptionByIdResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<ConceptDescription, GetConceptDescriptionByIdResponse, GetConceptDescriptionByIdResponse.Builder> {
+    public static class Builder extends AbstractBuilder<ConceptDescription, GetConceptDescriptionByIdResponse, Builder> {
 
         @Override
-        protected GetConceptDescriptionByIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

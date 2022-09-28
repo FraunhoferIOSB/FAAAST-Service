@@ -24,6 +24,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 
+/**
+ * Converts between
+ * {@link io.adminshell.aas.v3.model.SubmodelElementCollection} and
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue}
+ */
 public class SubmodelElementCollectionValueMapper implements DataValueMapper<SubmodelElementCollection, SubmodelElementCollectionValue> {
 
     @Override

@@ -23,14 +23,14 @@ import io.adminshell.aas.v3.model.AssetInformation;
  */
 public class GetAssetInformationResponse extends AbstractResponseWithPayload<AssetInformation> {
 
-    public static GetAssetInformationResponse.Builder builder() {
-        return new GetAssetInformationResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<AssetInformation, GetAssetInformationResponse, GetAssetInformationResponse.Builder> {
+    public static class Builder extends AbstractBuilder<AssetInformation, GetAssetInformationResponse, Builder> {
 
         @Override
-        protected GetAssetInformationResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

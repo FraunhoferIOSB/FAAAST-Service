@@ -38,6 +38,13 @@ public class PathJsonSerializer {
     }
 
 
+    /**
+     * Serializes an object as string.
+     *
+     * @param obj the object to serialize
+     * @return the string serialization of the object
+     * @throws SerializationException if serialization fails
+     */
     public String write(Object obj) throws SerializationException {
         return write(obj, Level.DEFAULT);
     }

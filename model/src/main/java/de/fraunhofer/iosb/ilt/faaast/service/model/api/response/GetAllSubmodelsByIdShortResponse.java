@@ -24,14 +24,14 @@ import java.util.List;
  */
 public class GetAllSubmodelsByIdShortResponse extends AbstractResponseWithPayload<List<Submodel>> {
 
-    public static GetAllSubmodelsByIdShortResponse.Builder builder() {
-        return new GetAllSubmodelsByIdShortResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<Submodel>, GetAllSubmodelsByIdShortResponse, GetAllSubmodelsByIdShortResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<Submodel>, GetAllSubmodelsByIdShortResponse, Builder> {
 
         @Override
-        protected GetAllSubmodelsByIdShortResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

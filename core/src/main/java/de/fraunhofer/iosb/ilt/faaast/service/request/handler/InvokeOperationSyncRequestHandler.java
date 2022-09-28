@@ -79,6 +79,13 @@ public class InvokeOperationSyncRequestHandler extends AbstractSubmodelInterface
     }
 
 
+    /**
+     * Executes and operation synchroniously.
+     *
+     * @param reference the reference to the AAS operation element
+     * @param request the request
+     * @return the operation result
+     */
     public OperationResult executeOperationSync(Reference reference, InvokeOperationSyncRequest request) {
         if (!assetConnectionManager.hasOperationProvider(reference)) {
             throw new IllegalArgumentException(String.format(

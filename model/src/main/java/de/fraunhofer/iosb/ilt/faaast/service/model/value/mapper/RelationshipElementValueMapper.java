@@ -19,6 +19,11 @@ import io.adminshell.aas.v3.model.RelationshipElement;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 
 
+/**
+ * Converts between
+ * {@link io.adminshell.aas.v3.model.RelationshipElement} and
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue}
+ */
 public class RelationshipElementValueMapper implements DataValueMapper<RelationshipElement, RelationshipElementValue> {
 
     @Override

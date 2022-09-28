@@ -5,7 +5,7 @@
     <module name="TreeWalker">
         <module name="ExtendedMissingJavadocMethod">
             <!-- ignore constructors -->
-            <property name="tokens" value="INTERFACE_DEF,CLASS_DEF,METHOD_DEF,ANNOTATION_FIELD_DEF"/>
+            <property name="tokens" value="INTERFACE_DEF,CLASS_DEF,ENUM_DEF,METHOD_DEF,ANNOTATION_FIELD_DEF"/>
             <property name="scope" value="protected"/>
             <property name="allowMissingPropertyJavadoc" value="true"/>
         </module>

@@ -24,14 +24,14 @@ import java.util.List;
  */
 public class GetAllSubmodelsBySemanticIdResponse extends AbstractResponseWithPayload<List<Submodel>> {
 
-    public static GetAllSubmodelsBySemanticIdResponse.Builder builder() {
-        return new GetAllSubmodelsBySemanticIdResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<Submodel>, GetAllSubmodelsBySemanticIdResponse, GetAllSubmodelsBySemanticIdResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<Submodel>, GetAllSubmodelsBySemanticIdResponse, Builder> {
 
         @Override
-        protected GetAllSubmodelsBySemanticIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

@@ -134,10 +134,8 @@ public class EnvironmentSerializationManager {
 
 
     /**
-     * Reads an
-     * {@link AssetAdministrationShellEnvironment}
-     * from given file while automatically determining used data format based on
-     * file extension.
+     * Reads an {@link AssetAdministrationShellEnvironment} from given file
+     * while automatically determining used data format based on file extension.
      *
      * @param file the file to read
      * @return the deserialized environment context
@@ -165,6 +163,17 @@ public class EnvironmentSerializationManager {
     }
 
 
+    /**
+     * Gets the
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat}
+     * for a given file. This is based on the file extension and in a second
+     * step the content of the file.
+     *
+     * @param file the input file
+     * @return the data format of the file
+     * @throws DeserializationException if there is now data format matching the file extension
+     * @throws DeserializationException file cannot be deserialized in any supported data format
+     */
     public static DataFormat getDataFormat(File file) throws DeserializationException {
         List<DataFormat> potentialDataFormats = getPotentialDataFormats(file);
         for (DataFormat dataFormat: potentialDataFormats) {

@@ -116,6 +116,11 @@ public class SubscriptionInfo {
     }
 
 
+    /**
+     * Sets subscribed events.
+     *
+     * @param subscribedEvents the subscribed events
+     */
     public void setSubscribedEvents(Set<Class<?>> subscribedEvents) {
         if (subscribedEvents != null) {
             this.subscribedEvents = subscribedEvents.stream()
@@ -133,6 +138,11 @@ public class SubscriptionInfo {
     }
 
 
+    /**
+     * Sets the handler.
+     *
+     * @param handler the handler to set
+     */
     public void setHandler(Consumer<EventMessage> handler) {
         Ensure.requireNonNull(handler, "handler must be non-null");
         this.handler = handler;
@@ -144,6 +154,11 @@ public class SubscriptionInfo {
     }
 
 
+    /**
+     * Sets the filter.
+     *
+     * @param filter the filter to set
+     */
     public void setFilter(Predicate<Reference> filter) {
         if (filter != null) {
             this.filter = filter;

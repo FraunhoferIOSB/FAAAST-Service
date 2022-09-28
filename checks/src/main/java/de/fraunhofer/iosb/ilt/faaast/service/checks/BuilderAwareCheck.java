@@ -20,6 +20,10 @@ import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import java.util.Stack;
 
 
+/**
+ * Abstract base class for checkstyle checks that are aware if an element is
+ * inside a builder class or not.
+ */
 public abstract class BuilderAwareCheck extends AbstractCheck {
 
     private static final String CLASSNAME_PLACEHOLDER = "${classname}";
@@ -55,7 +59,8 @@ public abstract class BuilderAwareCheck extends AbstractCheck {
     public void visitToken(DetailAST ast) {
         switch (ast.getType()) {
             case TokenTypes.CLASS_DEF:
-            case TokenTypes.INTERFACE_DEF: {
+            case TokenTypes.INTERFACE_DEF:
+            case TokenTypes.ENUM_DEF: {
                 classHierarchy.push(ast);
                 updateCurrentlyInBuilder();
             }
@@ -63,22 +68,49 @@ public abstract class BuilderAwareCheck extends AbstractCheck {
     }
 
 
+    /**
+     * Checks if current AST element is defined inside a class
+     *
+     * @return true if current AST element is inside a class, false otherwise
+     */
     protected boolean currentlyInClass() {
         return !classHierarchy.isEmpty() && classHierarchy.peek().getType() == TokenTypes.CLASS_DEF;
     }
 
 
+    /**
+     * Checks if current AST element is defined inside an enum
+     *
+     * @return true if current AST element is inside an enum, false otherwise
+     */
+    protected boolean currentlyInEnum() {
+        return !classHierarchy.isEmpty() && classHierarchy.peek().getType() == TokenTypes.ENUM_DEF;
+    }
+
+
+    /**
+     * Checks if current AST element is defined inside an interface
+     *
+     * @return true if current AST element is inside an interface, false
+     *         otherwise
+     */
     protected boolean currentlyInInterface() {
         return !classHierarchy.isEmpty() && classHierarchy.peek().getType() == TokenTypes.INTERFACE_DEF;
     }
 
 
-    protected boolean matchesBuilderPattern(String name) {
+    /**
+     * Checks if a given class name matches the defined builder pattern
+     *
+     * @param className the classname to check
+     * @return true if className matches the builder pattern, false otherwise
+     */
+    protected boolean matchesBuilderPattern(String className) {
         String parentClassName = classHierarchy.size() > 1
                 ? classHierarchy.get(classHierarchy.size() - 2).findFirstToken(TokenTypes.IDENT).getText()
                 : "";
         String regex = builderNameRegex.replace(CLASSNAME_PLACEHOLDER, parentClassName);
-        return name.matches(regex);
+        return className.matches(regex);
     }
 
 

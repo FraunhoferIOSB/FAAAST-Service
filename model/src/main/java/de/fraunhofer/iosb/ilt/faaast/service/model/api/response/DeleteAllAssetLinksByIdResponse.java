@@ -23,13 +23,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 public class DeleteAllAssetLinksByIdResponse extends AbstractResponse {
 
     public static DeleteAllAssetLinksByIdResponse.Builder builder() {
-        return new DeleteAllAssetLinksByIdResponse.Builder();
+        return new Builder();
     }
 
-    public static class Builder extends AbstractResponse.AbstractBuilder<DeleteAllAssetLinksByIdResponse, Builder> {
+    public static class Builder extends AbstractBuilder<DeleteAllAssetLinksByIdResponse, Builder> {
 
         @Override
-        protected DeleteAllAssetLinksByIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

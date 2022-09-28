@@ -37,6 +37,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
+/**
+ * Manages all asset connections and provides convenient functions to
+ * find/access providers.
+ */
 public class AssetConnectionManager {
 
     private final List<AssetConnection> connections;
@@ -148,8 +152,8 @@ public class AssetConnectionManager {
 
 
     /**
-     * If a {@link AssetValueProvider} exists for given reference, the provided will
-     * be written; otherwise nothing happens
+     * If a {@link AssetValueProvider} exists for given reference, the provided
+     * will be written; otherwise nothing happens
      *
      * @param reference reference to element to check for asset connection
      * @param value the value to write

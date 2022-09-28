@@ -27,8 +27,8 @@ public class GenerateSerializationByIdsResponse extends AbstractResponseWithPayl
 
     private DataFormat dataformat;
 
-    public static GenerateSerializationByIdsResponse.Builder builder() {
-        return new GenerateSerializationByIdsResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
 
@@ -73,7 +73,7 @@ public class GenerateSerializationByIdsResponse extends AbstractResponseWithPayl
     public static class Builder extends AbstractBuilder<GenerateSerializationByIdsResponse, Builder> {
 
         @Override
-        protected GenerateSerializationByIdsResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

@@ -70,6 +70,11 @@ public abstract class TypedValue<T> {
     public abstract void fromString(String value) throws ValueFormatException;
 
 
+    /**
+     * Returns the dataType.
+     *
+     * @return the dataType
+     */
     public abstract Datatype getDataType();
 
 

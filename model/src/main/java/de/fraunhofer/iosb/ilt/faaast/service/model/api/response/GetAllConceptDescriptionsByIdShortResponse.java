@@ -24,14 +24,14 @@ import java.util.List;
  */
 public class GetAllConceptDescriptionsByIdShortResponse extends AbstractResponseWithPayload<List<ConceptDescription>> {
 
-    public static GetAllConceptDescriptionsByIdShortResponse.Builder builder() {
-        return new GetAllConceptDescriptionsByIdShortResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<ConceptDescription>, GetAllConceptDescriptionsByIdShortResponse, GetAllConceptDescriptionsByIdShortResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<ConceptDescription>, GetAllConceptDescriptionsByIdShortResponse, Builder> {
 
         @Override
-        protected GetAllConceptDescriptionsByIdShortResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

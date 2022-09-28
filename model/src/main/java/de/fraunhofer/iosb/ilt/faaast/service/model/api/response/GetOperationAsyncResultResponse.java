@@ -23,14 +23,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult
  */
 public class GetOperationAsyncResultResponse extends AbstractResponseWithPayload<OperationResult> {
 
-    public static GetOperationAsyncResultResponse.Builder builder() {
-        return new GetOperationAsyncResultResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<OperationResult, GetOperationAsyncResultResponse, GetOperationAsyncResultResponse.Builder> {
+    public static class Builder extends AbstractBuilder<OperationResult, GetOperationAsyncResultResponse, Builder> {
 
         @Override
-        protected GetOperationAsyncResultResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

@@ -19,6 +19,10 @@ import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import java.util.regex.Pattern;
 
 
+/**
+ * Utility class providing common operations for handling interface classes
+ * within checkstyle checks.
+ */
 public class InterfaceHelper {
 
     private static final Pattern GETTER_PATTERN = Pattern.compile("^(is|get)[A-Z].*");
@@ -28,11 +32,26 @@ public class InterfaceHelper {
     private InterfaceHelper() {}
 
 
+    /**
+     * Checks if given AST element represents a setter or getter method.
+     *
+     * @param ast AST element to check
+     * @return true if ast represents a setter or getter method, false otherwise
+     */
     public static boolean isGetterOrGetterMethod(final DetailAST ast) {
         return isSetterMethod(ast) || isGetterMethod(ast);
     }
 
 
+    /**
+     * Checks if given AST element represents a getter method. To be classified
+     * as getter method, a method must match the naming conventions, have a
+     * non-void return type, take no parameters and not have a body/default
+     * implementation.
+     *
+     * @param ast AST element to check
+     * @return true if ast represents a getter method, false otherwise
+     */
     public static boolean isGetterMethod(final DetailAST ast) {
         if (ast.getType() == TokenTypes.METHOD_DEF
                 && ast.getChildCount() == SETTER_GETTER_MAX_CHILDREN) {
@@ -52,6 +71,15 @@ public class InterfaceHelper {
     }
 
 
+    /**
+     * Checks if given AST element represents a setter method. To be classified
+     * as setter method, a method must match the naming conventions, have void
+     * return type, take a single parameter and not have a body/default
+     * implementation.
+     *
+     * @param ast AST element to check
+     * @return true if ast represents a setter method, false otherwise
+     */
     public static boolean isSetterMethod(final DetailAST ast) {
         if (ast.getType() == TokenTypes.METHOD_DEF
                 && ast.getChildCount() == SETTER_GETTER_MAX_CHILDREN) {

@@ -24,16 +24,16 @@ import java.util.List;
  */
 public class GetAllConceptDescriptionsByDataSpecificationReferenceResponse extends AbstractResponseWithPayload<List<ConceptDescription>> {
 
-    public static GetAllConceptDescriptionsByDataSpecificationReferenceResponse.Builder builder() {
-        return new GetAllConceptDescriptionsByDataSpecificationReferenceResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder
             extends
-            AbstractBuilder<List<ConceptDescription>, GetAllConceptDescriptionsByDataSpecificationReferenceResponse, GetAllConceptDescriptionsByDataSpecificationReferenceResponse.Builder> {
+            AbstractBuilder<List<ConceptDescription>, GetAllConceptDescriptionsByDataSpecificationReferenceResponse, Builder> {
 
         @Override
-        protected GetAllConceptDescriptionsByDataSpecificationReferenceResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

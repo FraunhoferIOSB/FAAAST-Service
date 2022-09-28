@@ -570,6 +570,16 @@ public interface ApiDeserializer {
     public <T extends ElementValue> List<T> readValueList(String json, TypeInfo typeInfo) throws DeserializationException;
 
 
+    /**
+     * Deserializes a JSON containg a list of
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     *
+     * @param <T> expected value type
+     * @param json JSON input string to deserialize
+     * @param submodelElement the submodel element to extract the type information from
+     * @return a list of element values
+     * @throws DeserializationException if deserialization fails
+     */
     public default <T extends ElementValue> List<T> readValueList(String json, SubmodelElement submodelElement) throws DeserializationException {
         return readValueList(json, TypeExtractor.extractTypeInfo(submodelElement));
     }

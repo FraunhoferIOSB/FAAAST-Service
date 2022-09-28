@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.exception;
 
+/**
+ * Base class for exceptions related to configuration.
+ */
 public abstract class ConfigurationException extends Exception {
 
     protected ConfigurationException() {

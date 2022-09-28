@@ -75,6 +75,15 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
     }
 
 
+    /**
+     * Executes and operation asynchroniously.
+     *
+     * @param reference the reference to the AAS operation element
+     * @param request the request
+     * @return an handle that can be used to query the current state of the operation
+     * @throws MessageBusException if publishing on the message bus failed
+     * @throws Exception if executing the operation itself failed
+     */
     public OperationHandle executeOperationAsync(Reference reference, InvokeOperationAsyncRequest request) throws MessageBusException, Exception {
         if (!assetConnectionManager.hasOperationProvider(reference)) {
             throw new IllegalArgumentException(String.format(
