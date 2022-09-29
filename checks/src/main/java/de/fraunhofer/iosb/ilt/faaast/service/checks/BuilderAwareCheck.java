@@ -65,6 +65,7 @@ public abstract class BuilderAwareCheck extends AbstractCheck {
                 classHierarchy.push(ast);
                 updateCurrentlyInBuilder();
             }
+            default:
         }
     }
 
