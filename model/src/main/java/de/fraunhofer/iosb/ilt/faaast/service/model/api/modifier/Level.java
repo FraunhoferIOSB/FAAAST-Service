@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 
 /**
- * Enum of different level options
+ * Enum of different level options.
  */
 public enum Level {
     DEEP,
@@ -27,13 +27,11 @@ public enum Level {
     public static final Level DEFAULT = Level.DEEP;
 
     /**
-     * Returns matching enum value from given string value. The names are
-     * matched case-insensitive, i.e. ignoring case. If the provided value does
-     * not match any enum value then {@link Level.DEFAULT} is returned.
+     * Returns matching enum value from given string value. The names are matched case-insensitive, i.e. ignoring case.
+     * If the provided value does not match any enum value then {@link Level#DEFAULT} is returned.
      *
      * @param value the string value
-     * @return matching enum value or default ({@link Level.DEFAULT}) if there
-     *         is no match
+     * @return matching enum value or default ({@link Level#DEFAULT}) if there is no match
      */
     public static Level fromString(String value) {
         return Stream.of(Level.values())

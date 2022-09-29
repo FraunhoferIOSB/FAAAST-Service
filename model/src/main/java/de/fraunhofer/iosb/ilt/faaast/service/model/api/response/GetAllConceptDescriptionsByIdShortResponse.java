@@ -20,7 +20,7 @@ import java.util.List;
 
 
 /**
- * Chapter 6.4.4
+ * Response class for GetAllConceptDescriptionsByIdShort requests.
  */
 public class GetAllConceptDescriptionsByIdShortResponse extends AbstractResponseWithPayload<List<ConceptDescription>> {
 

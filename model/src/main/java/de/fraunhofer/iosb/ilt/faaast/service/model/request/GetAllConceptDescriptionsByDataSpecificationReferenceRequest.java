@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.4.6
+ * Request class for GetAllConceptDescriptionsByDataSpecificationReference requests.
  */
 public class GetAllConceptDescriptionsByDataSpecificationReferenceRequest extends AbstractRequestWithModifier<GetAllConceptDescriptionsByDataSpecificationReferenceResponse> {
 

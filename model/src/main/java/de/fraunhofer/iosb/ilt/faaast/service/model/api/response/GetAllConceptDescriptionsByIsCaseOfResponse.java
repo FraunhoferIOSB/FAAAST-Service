@@ -20,7 +20,7 @@ import java.util.List;
 
 
 /**
- * Chapter 6.4.5
+ * Response class for GetAllConceptDescriptionsByIsCaseOf requests.
  */
 public class GetAllConceptDescriptionsByIsCaseOfResponse extends AbstractResponseWithPayload<List<ConceptDescription>> {
 

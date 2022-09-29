@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Represents specific asset identification information
+ * Represents specific asset identification information.
  */
 public class SpecificAssetIdentification implements AssetIdentification {
 

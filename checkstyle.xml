@@ -12,5 +12,9 @@
         <module name="ExtendedMissingJavadocType">
             <property name="scope" value="protected"/>
         </module>
+        <module name="JavadocStyle"/>
+        <module name="JavadocParagraph"/>
+        <module name="JavadocContentLocationCheck"/>
+        <module name="RequireEmptyLineBeforeBlockTagGroup"/>
     </module>
 </module>

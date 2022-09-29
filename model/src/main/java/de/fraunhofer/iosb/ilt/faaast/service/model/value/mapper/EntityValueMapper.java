@@ -26,9 +26,8 @@ import java.util.stream.Collectors;
 
 
 /**
- * Converts between
- * {@link io.adminshell.aas.v3.model.Entity} and
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue}
+ * Converts between {@link io.adminshell.aas.v3.model.Entity} and
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue}.
  */
 public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {
 

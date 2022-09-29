@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 6.2.8
+ * Response class for DeleteAssetAdministrationShellById requests.
  */
 public class DeleteAssetAdministrationShellByIdResponse extends AbstractResponse {
 

@@ -36,7 +36,7 @@ public enum StatusCode {
 
 
     /**
-     * Returns whether status code represents success
+     * Returns whether status code represents success.
      *
      * @return true if it represents success, false otherwise
      */
@@ -46,7 +46,7 @@ public enum StatusCode {
 
 
     /**
-     * Returns whether status code represents error
+     * Returns whether status code represents error.
      *
      * @return true if it represents error, false otherwise
      */
@@ -56,7 +56,7 @@ public enum StatusCode {
 
 
     /**
-     * Returns whether status code represents exception
+     * Returns whether status code represents exception.
      *
      * @return true if it represents exception, false otherwise
      */

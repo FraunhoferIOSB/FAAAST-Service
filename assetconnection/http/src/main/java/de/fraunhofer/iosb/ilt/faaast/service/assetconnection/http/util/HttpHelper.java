@@ -28,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Utility class for HTTP communication
+ * Utility class for HTTP communication.
  */
 public class HttpHelper {
 

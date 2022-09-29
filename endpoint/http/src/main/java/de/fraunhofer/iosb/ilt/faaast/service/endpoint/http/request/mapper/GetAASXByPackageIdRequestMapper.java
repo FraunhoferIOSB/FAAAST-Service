@@ -25,7 +25,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-GET-Request path: packages/{packageId}
+ * class to map HTTP-GET-Request path: packages/{packageId}.
  */
 public class GetAASXByPackageIdRequestMapper extends AbstractRequestMapper {
 

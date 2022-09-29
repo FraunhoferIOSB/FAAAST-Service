@@ -66,7 +66,7 @@ import picocli.CommandLine.Spec;
 
 
 /**
- * Class for configuring and starting a FA³ST Service
+ * Class for configuring and starting a FA³ST Service.
  */
 @Command(name = APP_NAME, mixinStandardHelpOptions = true, description = "Starts a FA³ST Service", versionProvider = App.PropertiesVersionProvider.class, usageHelpAutoWidth = true)
 public class App implements Runnable {
@@ -134,7 +134,7 @@ public class App implements Runnable {
     private static int exitCode = -1;
 
     /**
-     * Main entry point
+     * Main entry point.
      *
      * @param args CLI arguments
      */
@@ -503,7 +503,7 @@ public class App implements Runnable {
     }
 
     /**
-     * Provides version information from properies
+     * Provides version information from properies.
      */
     protected static class PropertiesVersionProvider implements IVersionProvider {
 

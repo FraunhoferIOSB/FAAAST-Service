@@ -18,7 +18,7 @@ import java.util.Objects;
 
 
 /**
- * Holds type information for container types
+ * Holds type information for container types.
  *
  * @param <T> type of container elements
  */

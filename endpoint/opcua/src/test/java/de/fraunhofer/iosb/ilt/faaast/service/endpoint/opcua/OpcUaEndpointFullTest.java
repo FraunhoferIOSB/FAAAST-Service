@@ -209,8 +209,8 @@ public class OpcUaEndpointFullTest {
 
 
     /**
-     * Test method for writing a RelationshipElement. Writes the property in the
-     * OPC UA Server and checks the new value in the server.
+     * Test method for writing a RelationshipElement. Writes the property in the OPC UA Server and checks the new value
+     * in the server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
@@ -268,8 +268,8 @@ public class OpcUaEndpointFullTest {
 
 
     /**
-     * Test method for writing a Value of a SubmodelElementCollection. Writes
-     * the property in the OPC UA Server and checks the new value in the server.
+     * Test method for writing a Value of a SubmodelElementCollection. Writes the property in the OPC UA Server and
+     * checks the new value in the server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
@@ -322,8 +322,8 @@ public class OpcUaEndpointFullTest {
 
 
     /**
-     * Test method for writing a Value of a SubmodelElementCollection. Writes
-     * the property in the OPC UA Server and checks the new value in the server.
+     * Test method for writing a Value of a SubmodelElementCollection. Writes the property in the OPC UA Server and
+     * checks the new value in the server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
@@ -371,8 +371,8 @@ public class OpcUaEndpointFullTest {
 
 
     /**
-     * Test method for writing a Value of a SubmodelElementCollection. Writes
-     * the property in the OPC UA Server and checks the new value in the server.
+     * Test method for writing a Value of a SubmodelElementCollection. Writes the property in the OPC UA Server and
+     * checks the new value in the server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
@@ -425,8 +425,8 @@ public class OpcUaEndpointFullTest {
 
 
     /**
-     * Test method for writing a GlobalAssetId of an Entity. Writes the property
-     * in the OPC UA Server and checks the new value in the server.
+     * Test method for writing a GlobalAssetId of an Entity. Writes the property in the OPC UA Server and checks the new
+     * value in the server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
@@ -609,8 +609,7 @@ public class OpcUaEndpointFullTest {
 
 
     /**
-     * Test method for adding a new property to an existing
-     * SubmodelElementCollection.
+     * Test method for adding a new property to an existing SubmodelElementCollection.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails

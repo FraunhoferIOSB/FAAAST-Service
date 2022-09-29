@@ -19,12 +19,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 
 
 /**
- * Provider to read a value supporting multiple data formats
+ * Provider to read a value supporting multiple data formats.
  */
 public interface MultiFormatReadProvider {
 
     /**
-     * Read a value
+     * Read a value.
      *
      * @return the value
      * @throws AssetConnectionException if operation fails
@@ -33,8 +33,8 @@ public interface MultiFormatReadProvider {
 
 
     /**
-     * Read raw value from underlying connection
-     * 
+     * Read raw value from underlying connection.
+     *
      * @return raw value as byte[]
      * @throws AssetConnectionException if operation fails
      */

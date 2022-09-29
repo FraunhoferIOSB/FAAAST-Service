@@ -20,7 +20,7 @@ import java.util.List;
 
 
 /**
- * Chapter 7.2.2
+ * Response class for GetAllAssetAdministrationShellIdsByAssetLink requests.
  */
 public class GetAllAssetAdministrationShellIdsByAssetLinkResponse extends AbstractResponseWithPayload<List<Identifier>> {
 

@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 6.4.9
+ * Response class for DeleteConceptDescriptionById requests.
  */
 public class DeleteConceptDescriptionByIdResponse extends AbstractResponse {
 

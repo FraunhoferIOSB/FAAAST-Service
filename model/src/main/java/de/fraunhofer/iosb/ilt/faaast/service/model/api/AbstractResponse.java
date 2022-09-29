@@ -61,7 +61,7 @@ public abstract class AbstractResponse implements Response {
 
 
     /**
-     * Sets statusCode and message with type error
+     * Sets statusCode and message with type error.
      *
      * @param statusCode the status code to set
      * @param message the message to set

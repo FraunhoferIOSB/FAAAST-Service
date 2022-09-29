@@ -80,13 +80,12 @@ import io.adminshell.aas.v3.model.View;
 
 
 /**
- * Visitor for elements of an
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShell}
+ * Visitor for elements of an {@link io.adminshell.aas.v3.model.AssetAdministrationShell}.
  */
 public interface AssetAdministrationShellElementVisitor {
 
     /**
-     * Visit certificate
+     * Visit certificate.
      *
      * @param certificate the certificate
      */
@@ -94,7 +93,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit constraint
+     * Visit constraint.
      *
      * @param constraint the constraint
      */
@@ -102,7 +101,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit dataElement
+     * Visit dataElement.
      *
      * @param dataElement the dataElement
      */
@@ -110,7 +109,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit dataSpecificationContent
+     * Visit dataSpecificationContent.
      *
      * @param dataSpecificationContent the dataSpecificationContent
      */
@@ -118,7 +117,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit event
+     * Visit event.
      *
      * @param event the event
      */
@@ -126,7 +125,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit hasDataSpecification
+     * Visit hasDataSpecification.
      *
      * @param hasDataSpecification the hasDataSpecification
      */
@@ -134,7 +133,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit hasExtensions
+     * Visit hasExtensions.
      *
      * @param hasExtensions the hasExtensions
      */
@@ -142,7 +141,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit hasKind
+     * Visit hasKind.
      *
      * @param hasKind the hasKind
      */
@@ -150,7 +149,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit hasSemantics
+     * Visit hasSemantics.
      *
      * @param hasSemantics the hasSemantics
      */
@@ -158,7 +157,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit identifiable
+     * Visit identifiable.
      *
      * @param identifiable the identifiable
      */
@@ -166,7 +165,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit submodelElement
+     * Visit submodelElement.
      *
      * @param submodelElement the submodelElement
      */
@@ -174,7 +173,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit qualifiable
+     * Visit qualifiable.
      *
      * @param qualifiable the qualifiable
      */
@@ -182,7 +181,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit referable
+     * Visit referable.
      *
      * @param referable the referable
      */
@@ -190,16 +189,15 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit assetAdministrationShellEnvironment
+     * Visit assetAdministrationShellEnvironment.
      *
-     * @param assetAdministrationShellEnvironment the
-     *            assetAdministrationShellEnvironment
+     * @param assetAdministrationShellEnvironment the assetAdministrationShellEnvironment
      */
     public void visit(AssetAdministrationShellEnvironment assetAdministrationShellEnvironment);
 
 
     /**
-     * Visit accessControl
+     * Visit accessControl.
      *
      * @param accessControl the accessControl
      */
@@ -207,7 +205,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit accessControlPolicyPoints
+     * Visit accessControlPolicyPoints.
      *
      * @param accessControlPolicyPoints the accessControlPolicyPoints
      */
@@ -215,7 +213,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit accessPermissionRule
+     * Visit accessPermissionRule.
      *
      * @param accessPermissionRule the accessPermissionRule
      */
@@ -223,7 +221,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit administrativeInformation
+     * Visit administrativeInformation.
      *
      * @param administrativeInformation the administrativeInformation
      */
@@ -231,7 +229,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit annotatedRelationshipElement
+     * Visit annotatedRelationshipElement.
      *
      * @param annotatedRelationshipElement the annotatedRelationshipElement
      */
@@ -239,7 +237,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit asset
+     * Visit asset.
      *
      * @param asset the asset
      */
@@ -247,7 +245,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit assetAdministrationShell
+     * Visit assetAdministrationShell.
      *
      * @param assetAdministrationShell the assetAdministrationShell
      */
@@ -255,7 +253,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit assetInformation
+     * Visit assetInformation.
      *
      * @param assetInformation the assetInformation
      */
@@ -263,7 +261,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit basicEvent
+     * Visit basicEvent.
      *
      * @param basicEvent the basicEvent
      */
@@ -271,7 +269,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit blob
+     * Visit blob.
      *
      * @param blob the blob
      */
@@ -279,7 +277,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit blobCertificate
+     * Visit blobCertificate.
      *
      * @param blobCertificate the blobCertificate
      */
@@ -287,7 +285,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit capability
+     * Visit capability.
      *
      * @param capability the capability
      */
@@ -295,7 +293,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit conceptDescription
+     * Visit conceptDescription.
      *
      * @param conceptDescription the conceptDescription
      */
@@ -303,7 +301,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit dataSpecificationIEC61360
+     * Visit dataSpecificationIEC61360.
      *
      * @param dataSpecificationIEC61360 the dataSpecificationIEC61360
      */
@@ -311,7 +309,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit dataSpecificationPhysicalUnit
+     * Visit dataSpecificationPhysicalUnit.
      *
      * @param dataSpecificationPhysicalUnit the dataSpecificationPhysicalUnit
      */
@@ -319,7 +317,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit embeddedDataSpecification
+     * Visit embeddedDataSpecification.
      *
      * @param embeddedDataSpecification the embeddedDataSpecification
      */
@@ -327,7 +325,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit entity
+     * Visit entity.
      *
      * @param entity the entity
      */
@@ -335,7 +333,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit eventElement
+     * Visit eventElement.
      *
      * @param eventElement the eventElement
      */
@@ -343,7 +341,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit eventMessage
+     * Visit eventMessage.
      *
      * @param eventMessage the eventMessage
      */
@@ -351,7 +349,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit extension
+     * Visit extension.
      *
      * @param extension the extension
      */
@@ -359,7 +357,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit file
+     * Visit file.
      *
      * @param file the file
      */
@@ -367,7 +365,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit formula
+     * Visit formula.
      *
      * @param formula the formula
      */
@@ -375,7 +373,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit identifier
+     * Visit identifier.
      *
      * @param identifier the identifier
      */
@@ -383,7 +381,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit identifierKeyValuePair
+     * Visit identifierKeyValuePair.
      *
      * @param identifierKeyValuePair the identifierKeyValuePair
      */
@@ -391,7 +389,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit key
+     * Visit key.
      *
      * @param key the key
      */
@@ -399,7 +397,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit langString
+     * Visit langString.
      *
      * @param langString the langString
      */
@@ -407,7 +405,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit multiLanguageProperty
+     * Visit multiLanguageProperty.
      *
      * @param multiLanguageProperty the multiLanguageProperty
      */
@@ -415,7 +413,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit objectAttributes
+     * Visit objectAttributes.
      *
      * @param objectAttributes the objectAttributes
      */
@@ -423,7 +421,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit operation
+     * Visit operation.
      *
      * @param operation the operation
      */
@@ -431,7 +429,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit operationVariable
+     * Visit operationVariable.
      *
      * @param operationVariable the operationVariable
      */
@@ -439,7 +437,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit permission
+     * Visit permission.
      *
      * @param permission the permission
      */
@@ -447,7 +445,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit permissionsPerObject
+     * Visit permissionsPerObject.
      *
      * @param permissionsPerObject the permissionsPerObject
      */
@@ -455,7 +453,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit policyAdministrationPoint
+     * Visit policyAdministrationPoint.
      *
      * @param policyAdministrationPoint the policyAdministrationPoint
      */
@@ -463,7 +461,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit policyDecisionPoint
+     * Visit policyDecisionPoint.
      *
      * @param policyDecisionPoint the policyDecisionPoint
      */
@@ -471,7 +469,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit policyEnforcementPoints
+     * Visit policyEnforcementPoints.
      *
      * @param policyEnforcementPoints the policyEnforcementPoints
      */
@@ -479,7 +477,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit policyInformationPoints
+     * Visit policyInformationPoints.
      *
      * @param policyInformationPoints the policyInformationPoints
      */
@@ -487,7 +485,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit property
+     * Visit property.
      *
      * @param property the property
      */
@@ -495,7 +493,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit qualifier
+     * Visit qualifier.
      *
      * @param qualifier the qualifier
      */
@@ -503,7 +501,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit range
+     * Visit range.
      *
      * @param range the range
      */
@@ -511,7 +509,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit reference
+     * Visit reference.
      *
      * @param reference the reference
      */
@@ -519,7 +517,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit referenceElement
+     * Visit referenceElement.
      *
      * @param referenceElement the referenceElement
      */
@@ -527,7 +525,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit relationshipElement
+     * Visit relationshipElement.
      *
      * @param relationshipElement the relationshipElement
      */
@@ -535,7 +533,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit security
+     * Visit security.
      *
      * @param security the security
      */
@@ -543,7 +541,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit subjectAttributes
+     * Visit subjectAttributes.
      *
      * @param subjectAttributes the subjectAttributes
      */
@@ -551,7 +549,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit submodel
+     * Visit submodel.
      *
      * @param submodel the submodel
      */
@@ -559,7 +557,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit submodelElementCollection
+     * Visit submodelElementCollection.
      *
      * @param submodelElementCollection the submodelElementCollection
      */
@@ -567,7 +565,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit valueList
+     * Visit valueList.
      *
      * @param valueList the valueList
      */
@@ -575,7 +573,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit valueReferencePair
+     * Visit valueReferencePair.
      *
      * @param valueReferencePair the valueReferencePair
      */
@@ -583,7 +581,7 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit view
+     * Visit view.
      *
      * @param view the view
      */

@@ -19,7 +19,7 @@ import io.adminshell.aas.v3.model.ConceptDescription;
 
 
 /**
- * Chapter 6.4.7
+ * Response class for PostConceptDescription requests.
  */
 public class PostConceptDescriptionResponse extends AbstractResponseWithPayload<ConceptDescription> {
 

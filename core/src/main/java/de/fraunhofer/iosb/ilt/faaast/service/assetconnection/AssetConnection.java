@@ -20,14 +20,12 @@ import java.util.Map;
 
 
 /**
- * Interface for asset connections, i.e. connecting assets to the AAS (a.k.a.
- * lower DT interface). An asset connection can support the following
- * operations:
+ * Interface for asset connections, i.e. connecting assets to the AAS (a.k.a. lower DT interface). An asset connection
+ * can support the following operations:
  * <ul>
  * <li>get/set data values from/to the asset (via {@link AssetValueProvider})
  * <li>execute operations on the asset (via {@link AssetOperationProvider})
- * <li>subscribe to new values from the asset (via
- * {@link AssetSubscriptionProvider})
+ * <li>subscribe to new values from the asset (via {@link AssetSubscriptionProvider})
  * </ul>
  *
  * @param <T> corresponding config type
@@ -58,8 +56,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
     /**
      * Registers an operation provider for this asset connection.
      *
-     * @param reference Reference to the AAS element that this provider will map
-     *            to
+     * @param reference Reference to the AAS element that this provider will map to
      * @param providerConfig AssetOperationProvider instance to use
      * @throws AssetConnectionException if registering provider fails
      */
@@ -69,8 +66,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
     /**
      * Registers a subscription provider for this asset connection.
      *
-     * @param reference Reference to the AAS element that this provider will map
-     *            to
+     * @param reference Reference to the AAS element that this provider will map to
      * @param providerConfig AssetSubscriptionProvider instance to use
      * @throws AssetConnectionException if registering provider fails
      */
@@ -80,8 +76,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
     /**
      * Registers a value provider for this asset connection.
      *
-     * @param reference Reference to the AAS element that this provider will map
-     *            to
+     * @param reference Reference to the AAS element that this provider will map to
      * @param providerConfig AssetValueProvider instance to use
      * @throws AssetConnectionException if registering provider fails
      */
@@ -89,8 +84,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
 
 
     /**
-     * Compares two instances of AssetConnection if they are referencing the
-     * same asset connection.
+     * Compares two instances of AssetConnection if they are referencing the same asset connection.
      *
      * @param other other AssetConnection to compare to this.
      * @return true if other is the same as this.
@@ -101,8 +95,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
     /**
      * Unregisters an operation provider for this asset connection.
      *
-     * @param reference Reference to the AAS element that this provider should
-     *            be unregistered for
+     * @param reference Reference to the AAS element that this provider should be unregistered for
      * @throws AssetConnectionException if unregistering provider fails
      */
     public void unregisterOperationProvider(Reference reference) throws AssetConnectionException;
@@ -111,8 +104,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
     /**
      * Unregisters a subscription provider for this asset connection.
      *
-     * @param reference Reference to the AAS element that this provider should
-     *            be unregistered for
+     * @param reference Reference to the AAS element that this provider should be unregistered for
      * @throws AssetConnectionException if unregistering provider fails
      */
     public void unregisterSubscriptionProvider(Reference reference) throws AssetConnectionException;
@@ -121,8 +113,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
     /**
      * Unregisters a value provider for this asset connection.
      *
-     * @param reference Reference to the AAS element that this provider should
-     *            be unregistered for
+     * @param reference Reference to the AAS element that this provider should be unregistered for
      * @throws AssetConnectionException if unregistering provider fails
      */
     public void unregisterValueProvider(Reference reference) throws AssetConnectionException;

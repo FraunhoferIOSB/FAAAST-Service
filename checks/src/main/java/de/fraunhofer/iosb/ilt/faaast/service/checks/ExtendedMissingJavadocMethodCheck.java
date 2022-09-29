@@ -30,18 +30,13 @@ import java.util.regex.Pattern;
 
 
 /**
- * Extension of
- * {@link com.puppycrawl.tools.checkstyle.checks.javadoc.MissingJavadocMethodCheck}
- * providing additional functionality to ignore builder-related methods. By
- * default, this check uses the regex
- * <i>(Abstract)?(${classname})?Builder</i> to decide whether a class is a
- * builder class or not. The string
- * <i>${classname}</i> is replaced with the name of the enclosing class if
- * present, otherwise with an empty string. Static builder methods are
- * identified using the regex <i>builder</i> and are required to take no
- * parameters and return a type that itself can be identified as builder class.
- * By default, all methods within builder classes as well as static builder
- * methods are ignored.
+ * Extension of {@link com.puppycrawl.tools.checkstyle.checks.javadoc.MissingJavadocMethodCheck} providing additional
+ * functionality to ignore builder-related methods. By default, this check uses the regex
+ * <i>(Abstract)?(${classname})?Builder</i> to decide whether a class is a builder class or not. The string
+ * <i>${classname}</i> is replaced with the name of the enclosing class if present, otherwise with an empty string.
+ * Static builder methods are identified using the regex <i>builder</i> and are required to take no parameters and
+ * return a type that itself can be identified as builder class. By default, all methods within builder classes as well
+ * as static builder methods are ignored.
  */
 @FileStatefulCheck
 public class ExtendedMissingJavadocMethodCheck extends BuilderAwareCheck {

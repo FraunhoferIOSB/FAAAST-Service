@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Configuration class for {@link HttpEndpoint}
+ * Configuration class for {@link HttpEndpoint}.
  */
 public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 

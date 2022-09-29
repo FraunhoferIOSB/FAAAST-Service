@@ -41,7 +41,7 @@ public class ObjectData {
 
     /**
      * Creates a new instance of ObjectData.
-     * 
+     *
      * @param referable The Referable
      * @param node The OPC UA Node
      */
@@ -54,7 +54,7 @@ public class ObjectData {
 
     /**
      * Creates a new instance of ObjectData.
-     * 
+     *
      * @param referable The Referable
      * @param node The OPC UA Node
      * @param submodel The corresponding Submodel
@@ -68,7 +68,7 @@ public class ObjectData {
 
     /**
      * Gets the Referable,
-     * 
+     *
      * @return The Referable
      */
     public Referable getReferable() {
@@ -78,7 +78,7 @@ public class ObjectData {
 
     /**
      * Gets the OPC UA Node
-     * 
+     *
      * @return
      */
     public BaseObjectType getNode() {
@@ -88,7 +88,7 @@ public class ObjectData {
 
     /**
      * Gets the corresponding Submodel
-     * 
+     *
      * @return The corresponding Submodel, null if not available
      */
     public Submodel getSubmodel() {

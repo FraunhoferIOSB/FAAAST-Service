@@ -67,6 +67,7 @@ import org.slf4j.LoggerFactory;
  * @author Tino Bischoff
  */
 public class OpcUaEndpoint2Test {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint2Test.class);
 
     private static final int OPC_TCP_PORT = 18123;
@@ -78,7 +79,7 @@ public class OpcUaEndpoint2Test {
 
     /**
      * Initialize and start the test.
-     * 
+     *
      * @throws ConfigurationException If the operation fails
      * @throws Exception If the operation fails
      */
@@ -109,7 +110,7 @@ public class OpcUaEndpoint2Test {
 
     /**
      * Test method for deleting a complete submodel (Technical Data).
-     * 
+     *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
      * @throws ServiceException If the operation fails
@@ -166,7 +167,7 @@ public class OpcUaEndpoint2Test {
 
     /**
      * Test method for updating a complete submodel (Operational Data).
-     * 
+     *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
      * @throws ServiceException If the operation fails
@@ -305,7 +306,7 @@ public class OpcUaEndpoint2Test {
 
     /**
      * Test method for updating a SubmodelElement.
-     * 
+     *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
      * @throws ServiceException If the operation fails

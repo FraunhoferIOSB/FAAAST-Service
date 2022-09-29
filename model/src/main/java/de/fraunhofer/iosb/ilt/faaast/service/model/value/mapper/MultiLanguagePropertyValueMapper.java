@@ -21,9 +21,8 @@ import java.util.HashSet;
 
 
 /**
- * Converts between
- * {@link io.adminshell.aas.v3.model.MultiLanguageProperty} and
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue}
+ * Converts between {@link io.adminshell.aas.v3.model.MultiLanguageProperty} and
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue}.
  */
 public class MultiLanguagePropertyValueMapper implements DataValueMapper<MultiLanguageProperty, MultiLanguagePropertyValue> {
 

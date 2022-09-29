@@ -20,9 +20,8 @@ import io.adminshell.aas.v3.model.impl.DefaultReference;
 
 
 /**
- * Converts between
- * {@link io.adminshell.aas.v3.model.ReferenceElement} and
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue}
+ * Converts between {@link io.adminshell.aas.v3.model.ReferenceElement} and
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue}.
  */
 public class ReferenceElementValueMapper implements DataValueMapper<ReferenceElement, ReferenceElementValue> {
 

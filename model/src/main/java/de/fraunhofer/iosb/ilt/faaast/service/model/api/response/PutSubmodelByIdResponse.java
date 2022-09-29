@@ -19,7 +19,7 @@ import io.adminshell.aas.v3.model.Submodel;
 
 
 /**
- * Chapter 6.3.7
+ * Response class for PutSubmodelById requests.
  */
 public class PutSubmodelByIdResponse extends AbstractResponseWithPayload<Submodel> {
 

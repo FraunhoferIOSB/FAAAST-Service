@@ -23,8 +23,8 @@ import java.util.stream.Stream;
 
 
 /**
- * Enum describing supported serialization formats, their corresponding content
- * type, well-known file extensions and priority.
+ * Enum describing supported serialization formats, their corresponding content type, well-known file extensions and
+ * priority.
  */
 public enum DataFormat {
 
@@ -41,13 +41,11 @@ public enum DataFormat {
     private final int priority;
 
     /**
-     * Find potential data formats for given file extension. Returned list is
-     * sorted by number of supported file extensions, i.e. data types which only
-     * support given file extension should appear first in list.
+     * Find potential data formats for given file extension. Returned list is sorted by number of supported file
+     * extensions, i.e. data types which only support given file extension should appear first in list.
      *
      * @param fileExtension file extension
-     * @return list of potential data formats that support the given file
-     *         extension
+     * @return list of potential data formats that support the given file extension
      */
     public static List<DataFormat> forFileExtension(String fileExtension) {
         return Stream.of(DataFormat.values())

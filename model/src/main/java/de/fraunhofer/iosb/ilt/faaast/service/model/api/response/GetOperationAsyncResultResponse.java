@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult
 
 
 /**
- * Chapter 4.3.13
+ * Response class for GetOperationAsyncResult requests.
  */
 public class GetOperationAsyncResultResponse extends AbstractResponseWithPayload<OperationResult> {
 

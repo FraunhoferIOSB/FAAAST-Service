@@ -19,9 +19,8 @@ import io.adminshell.aas.v3.model.File;
 
 
 /**
- * Converts between
- * {@link io.adminshell.aas.v3.model.File} and
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue}
+ * Converts between {@link io.adminshell.aas.v3.model.File} and
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue}.
  */
 public class FileValueMapper implements DataValueMapper<File, FileValue> {
 

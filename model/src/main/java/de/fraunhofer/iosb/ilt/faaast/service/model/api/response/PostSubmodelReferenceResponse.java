@@ -19,7 +19,7 @@ import io.adminshell.aas.v3.model.Reference;
 
 
 /**
- * Chapter 4.2.5
+ * Response class for PostSubmodelReference requests.
  */
 public class PostSubmodelReferenceResponse extends AbstractResponseWithPayload<Reference> {
 

@@ -20,8 +20,7 @@ import java.util.regex.Pattern;
 
 
 /**
- * Utility class providing common operations for handling interface classes
- * within checkstyle checks.
+ * Utility class providing common operations for handling interface classes within checkstyle checks.
  */
 public class InterfaceHelper {
 
@@ -44,9 +43,8 @@ public class InterfaceHelper {
 
 
     /**
-     * Checks if given AST element represents a getter method. To be classified
-     * as getter method, a method must match the naming conventions, have a
-     * non-void return type, take no parameters and not have a body/default
+     * Checks if given AST element represents a getter method. To be classified as getter method, a method must match
+     * the naming conventions, have a non-void return type, take no parameters and not have a body/default
      * implementation.
      *
      * @param ast AST element to check
@@ -72,9 +70,8 @@ public class InterfaceHelper {
 
 
     /**
-     * Checks if given AST element represents a setter method. To be classified
-     * as setter method, a method must match the naming conventions, have void
-     * return type, take a single parameter and not have a body/default
+     * Checks if given AST element represents a setter method. To be classified as setter method, a method must match
+     * the naming conventions, have void return type, take a single parameter and not have a body/default
      * implementation.
      *
      * @param ast AST element to check

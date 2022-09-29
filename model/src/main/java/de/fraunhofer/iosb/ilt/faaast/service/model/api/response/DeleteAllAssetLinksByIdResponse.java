@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 7.2.5
+ * Response class for DeleteAllAssetLinksById requests.
  */
 public class DeleteAllAssetLinksByIdResponse extends AbstractResponse {
 

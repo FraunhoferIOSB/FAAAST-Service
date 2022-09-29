@@ -19,7 +19,7 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
 
 
 /**
- * Chapter 6.2.7
+ * Response class for PutAssetAdministrationShellById requests.
  */
 public class PutAssetAdministrationShellByIdResponse extends AbstractResponseWithPayload<AssetAdministrationShell> {
 

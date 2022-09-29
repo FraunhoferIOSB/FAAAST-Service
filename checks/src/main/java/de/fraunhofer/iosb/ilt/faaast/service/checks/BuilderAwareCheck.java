@@ -21,8 +21,7 @@ import java.util.Stack;
 
 
 /**
- * Abstract base class for checkstyle checks that are aware if an element is
- * inside a builder class or not.
+ * Abstract base class for checkstyle checks that are aware if an element is inside a builder class or not.
  */
 public abstract class BuilderAwareCheck extends AbstractCheck {
 
@@ -93,8 +92,7 @@ public abstract class BuilderAwareCheck extends AbstractCheck {
     /**
      * Checks if current AST element is defined inside an interface
      *
-     * @return true if current AST element is inside an interface, false
-     *         otherwise
+     * @return true if current AST element is inside an interface, false otherwise
      */
     protected boolean currentlyInInterface() {
         return !classHierarchy.isEmpty() && classHierarchy.peek().getType() == TokenTypes.INTERFACE_DEF;

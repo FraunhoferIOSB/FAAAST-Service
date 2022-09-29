@@ -20,7 +20,7 @@ import java.util.List;
 
 
 /**
- * Chapter 6.3.5
+ * Response class for GetAllSubmodelsByIdShort requests.
  */
 public class GetAllSubmodelsByIdShortResponse extends AbstractResponseWithPayload<List<Submodel>> {
 

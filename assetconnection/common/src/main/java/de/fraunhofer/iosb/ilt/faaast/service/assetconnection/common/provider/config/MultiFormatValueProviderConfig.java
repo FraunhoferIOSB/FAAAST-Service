@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderC
 
 
 /**
- * AssetOperationProviderConfig supporting multiple data formats
+ * AssetOperationProviderConfig supporting multiple data formats.
  */
 public interface MultiFormatValueProviderConfig extends AssetValueProviderConfig, MultiFormatReadWriteProviderConfig {
 

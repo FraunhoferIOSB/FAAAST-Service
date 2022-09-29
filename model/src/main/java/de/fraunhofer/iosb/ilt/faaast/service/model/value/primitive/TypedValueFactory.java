@@ -21,13 +21,13 @@ import java.lang.reflect.InvocationTargetException;
 
 
 /**
- * Utility class to create new instances of {@link TypedValue}
+ * Utility class to create new instances of {@link TypedValue}.
  */
 public class TypedValueFactory {
 
     /**
-     * Creates a new {@link TypedValue} instance based on datatype and
-     * string-based value. If datatypeName is unknown, type default to string.
+     * Creates a new {@link TypedValue} instance based on datatype and string-based value. If datatypeName is unknown,
+     * type default to string.
      *
      * @param datatypeName name of the datatype
      * @param value value in string representation
@@ -40,8 +40,7 @@ public class TypedValueFactory {
 
 
     /**
-     * Creates a new {@link TypedValue} instance based on datatype and
-     * string-based value.
+     * Creates a new {@link TypedValue} instance based on datatype and string-based value.
      *
      * @param datatype datatype to use
      * @param value value in string representation

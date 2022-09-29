@@ -75,8 +75,7 @@ public class Result {
 
 
     /**
-     * Creates a new instance with given values and sets success flag according
-     * to the messageType.
+     * Creates a new instance with given values and sets success flag according to the messageType.
      *
      * @param messageType the messageType to set
      * @param message the message to set
@@ -127,8 +126,7 @@ public class Result {
 
 
     /**
-     * Creates a new instance with given message type EXCEPTION and given
-     * message.
+     * Creates a new instance with given message type EXCEPTION and given message.
      *
      * @param message the message to set
      * @return new instance with given values

@@ -27,18 +27,14 @@ import java.util.List;
 
 
 /**
- * Serializer that writes a
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and
- * related files.
+ * Serializer that writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
  */
 public interface EnvironmentSerializer {
 
     public Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
      *
      * @param charset the charset to use
      * @param environment the environment to serialize
@@ -50,9 +46,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
      *
      * @param context the context to serialize
      * @return serialized versin of input
@@ -64,9 +58,8 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files to an {@link OutputStream}
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to an
+     * {@link OutputStream}.
      *
      * @param out the {@link OutputStream} to write to
      * @param context the context to serialize
@@ -79,9 +72,8 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files to an {@link OutputStream}
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to an
+     * {@link OutputStream}.
      *
      * @param file the {@link File} to write to
      * @param context the context to serialize
@@ -94,9 +86,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Serializes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files as byte[]
+     * Serializes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files as byte[].
      *
      * @param environment the environment to serialize
      * @param files related files to serialize
@@ -109,13 +99,11 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files to an {@link OutputStream}
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to an
+     * {@link OutputStream}.
      *
      * @param out the {@link OutputStream} to write to
-     * @param environment the {@link AssetAdministrationShellEnvironment} to
-     *            serialize
+     * @param environment the {@link AssetAdministrationShellEnvironment} to serialize
      * @param files related files to serialize
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
@@ -126,13 +114,11 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files to a {@link File}
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to a
+     * {@link File}.
      *
      * @param file the {@link File} to write to
-     * @param environment the {@link AssetAdministrationShellEnvironment} to
-     *            serialize
+     * @param environment the {@link AssetAdministrationShellEnvironment} to serialize
      * @param files related files to serialize
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
@@ -145,9 +131,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Serializes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} as
-     * byte[]
+     * Serializes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} as byte[].
      *
      * @param environment the environment to serialize
      * @return input serialized as byte[]
@@ -159,12 +143,10 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}.
      *
      * @param out the {@link OutputStream} to write to
-     * @param environment {@link AssetAdministrationShellEnvironment} to write
-     *            to
+     * @param environment {@link AssetAdministrationShellEnvironment} to write to
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
      */
@@ -174,13 +156,10 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} to
-     * a {@link File}
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} to a {@link File}.
      *
      * @param file the {@link File} to write to
-     * @param environment the {@link AssetAdministrationShellEnvironment} to
-     *            serialize
+     * @param environment the {@link AssetAdministrationShellEnvironment} to serialize
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
      */
@@ -190,9 +169,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Serializes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files as byte[]
+     * Serializes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files as byte[].
      *
      * @param context the context to serialize
      * @param charset the charset to use
@@ -205,9 +182,8 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files to an {@link OutputStream}
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to an
+     * {@link OutputStream}.
      *
      * @param out the {@link OutputStream} to write to
      * @param charset the charset to use
@@ -221,9 +197,8 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files to an {@link OutputStream}
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to an
+     * {@link OutputStream}.
      *
      * @param file the {@link File} to write to
      * @param charset the charset to use
@@ -237,14 +212,12 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files to an {@link OutputStream}
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to an
+     * {@link OutputStream}.
      *
      * @param out the {@link OutputStream} to write to
      * @param charset the charset to use
-     * @param environment the {@link AssetAdministrationShellEnvironment} to
-     *            serialize
+     * @param environment the {@link AssetAdministrationShellEnvironment} to serialize
      * @param files related files to serialize
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
@@ -256,14 +229,12 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files to a {@link File}
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files to a
+     * {@link File}.
      *
      * @param file the {@link File} to write to
      * @param charset the charset to use
-     * @param environment the {@link AssetAdministrationShellEnvironment} to
-     *            serialize
+     * @param environment the {@link AssetAdministrationShellEnvironment} to serialize
      * @param files related files to serialize
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
@@ -277,9 +248,7 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Serializes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} as
-     * byte[]
+     * Serializes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} as byte[].
      *
      * @param charset the charset to use
      * @param environment the environment to serialize
@@ -292,13 +261,11 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}.
      *
      * @param out the {@link OutputStream} to write to
      * @param charset the charset to use
-     * @param environment {@link AssetAdministrationShellEnvironment} to write
-     *            to
+     * @param environment {@link AssetAdministrationShellEnvironment} to write to
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
      */
@@ -308,14 +275,11 @@ public interface EnvironmentSerializer {
 
 
     /**
-     * Writes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} to
-     * a {@link File}
+     * Writes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} to a {@link File}.
      *
      * @param file the {@link File} to write to
      * @param charset the charset to use
-     * @param environment the {@link AssetAdministrationShellEnvironment} to
-     *            serialize
+     * @param environment the {@link AssetAdministrationShellEnvironment} to serialize
      * @throws SerializationException if serialization fails
      * @throws java.io.IOException if writing on the stream fails
      */

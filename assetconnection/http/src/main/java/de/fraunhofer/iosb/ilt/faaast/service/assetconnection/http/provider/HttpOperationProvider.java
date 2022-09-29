@@ -34,7 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Provides the capability to execute operation via HTTP
+ * Provides the capability to execute operation via HTTP.
  */
 public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOperationProviderConfig> {
 

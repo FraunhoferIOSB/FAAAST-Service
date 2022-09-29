@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult
 
 
 /**
- * Chapter 4.3.11
+ * Response class for InvokeOperationSync requests.
  */
 public class InvokeOperationSyncResponse extends AbstractResponseWithPayload<OperationResult> {
 

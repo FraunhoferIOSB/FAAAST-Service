@@ -29,7 +29,7 @@ public class CoreConfig {
 
     /**
      * Returns a new builder for this class.
-     * 
+     *
      * @return a new builder for this class
      */
     public static Builder builder() {
@@ -39,7 +39,7 @@ public class CoreConfig {
 
     /**
      * Gets the number of threads used for executing async requests.
-     * 
+     *
      * @return the the number of threads used for executing async requests
      */
     public int getRequestHandlerThreadPoolSize() {
@@ -49,7 +49,7 @@ public class CoreConfig {
 
     /**
      * Sets the number of threads used for executing async requests.
-     * 
+     *
      * @param requestHandlerThreadPoolSize the number of threads used for executing async requests
      */
     public void setRequestHandlerThreadPoolSize(int requestHandlerThreadPoolSize) {
@@ -89,7 +89,7 @@ public class CoreConfig {
 
         /**
          * Sets the number of threads used for executing async requests.
-         * 
+         *
          * @param value the number of threads used for executing async requests
          * @return the builder
          */

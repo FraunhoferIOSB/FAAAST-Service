@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.3.3
+ * Request class for GetSubmodelById requests.
  */
 public class GetSubmodelByIdRequest extends AbstractRequestWithModifier<GetSubmodelByIdResponse> {
 

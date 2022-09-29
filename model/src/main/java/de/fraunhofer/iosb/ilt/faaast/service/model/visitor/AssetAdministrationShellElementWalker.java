@@ -86,8 +86,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Special kind of visitor that recursively walks the whole element structure
- * and applies given visitors to each element.
+ * Special kind of visitor that recursively walks the whole element structure and applies given visitors to each
+ * element.
  */
 public class AssetAdministrationShellElementWalker implements DefaultAssetAdministrationShellElementSubtypeResolvingVisitor {
 
@@ -823,7 +823,7 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
 
 
     /**
-     * Visitor after-visitor
+     * Visitor after-visitor.
      *
      * @param obj the object to visit
      */
@@ -836,7 +836,7 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
 
 
     /**
-     * Visitor before-visitor
+     * Visitor before-visitor.
      *
      * @param obj the object to visit
      */
@@ -880,15 +880,15 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     }
 
     /**
-     * Enum of supported walking modes
+     * Enum of supported walking modes.
      */
     public enum WalkingMode {
         /**
-         * Visit an element after visiting all of its subelements
+         * Visit an element after visiting all of its subelements.
          */
         VISIT_AFTER_DESCENT,
         /**
-         * Visit an element before visiting all of its subelements
+         * Visit an element before visiting all of its subelements.
          */
         VISIT_BEFORE_DESCENT;
 

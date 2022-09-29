@@ -51,7 +51,7 @@ public class HttpHelper {
 
 
     /**
-     * Convert protocol-agnostic status code to HTTP-specific status code
+     * Convert protocol-agnostic status code to HTTP-specific status code.
      *
      * @param statusCode protocol-agnostic status code
      * @return HTTP-specific status code
@@ -84,8 +84,8 @@ public class HttpHelper {
 
 
     /**
-     * Finds all methods of the url for which there is an implemented request
-     * mapper registered to the given mapping manager
+     * Finds all methods of the url for which there is an implemented request mapper registered to the given mapping
+     * manager.
      *
      * @param mappingManager where the request mappers are registered
      * @param url which should be checked
@@ -124,8 +124,7 @@ public class HttpHelper {
 
 
     /**
-     * Converts a
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode} to a
+     * Converts a {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode} to a
      * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType}.
      *
      * @param statusCode the input {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode}
@@ -143,8 +142,7 @@ public class HttpHelper {
 
 
     /**
-     * Sends a HTTP response with given statusCode and corresponding HTTP status
-     * code as message.
+     * Sends a HTTP response with given statusCode and corresponding HTTP status code as message.
      *
      * @param response HTTP response object
      * @param statusCode the statusCode to send

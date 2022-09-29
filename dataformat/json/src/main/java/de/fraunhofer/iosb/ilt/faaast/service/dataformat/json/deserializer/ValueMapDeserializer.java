@@ -31,8 +31,7 @@ import java.util.Map;
 
 
 /**
- * Deserializer for map with value type
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue}
+ * Deserializer for map with value type {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue}.
  */
 public class ValueMapDeserializer extends MapDeserializer {
 

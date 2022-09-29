@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPaylo
 
 
 /**
- * Chapter 4.5.4
+ * Response class for PostAASXPackage requests.
  */
 public class PostAASXPackageResponse extends AbstractResponseWithPayload<String> {
 

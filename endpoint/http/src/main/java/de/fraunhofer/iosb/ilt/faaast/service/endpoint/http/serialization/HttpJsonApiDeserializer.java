@@ -21,7 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationReques
 
 
 /**
- * JSON deserializer including HTTP specific functionality
+ * JSON deserializer including HTTP specific functionality.
  */
 public class HttpJsonApiDeserializer extends JsonApiDeserializer {
 

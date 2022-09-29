@@ -28,9 +28,7 @@ import org.apache.jena.riot.Lang;
 
 
 /**
- * JSON-LD deserializer for
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
- * related files.
+ * JSON-LD deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
  */
 @SupportedDataformat(DataFormat.JSONLD)
 public class JsonLDEnvironmentDeserializer implements EnvironmentDeserializer {

@@ -30,15 +30,13 @@ public class PropertyValue extends DataElementValue {
     private TypedValue value;
 
     /**
-     * Creates a new instance given datatype and string-representation of value.
-     * If datatype cannot be parsed it defaults to
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DEFAULT}
+     * Creates a new instance given datatype and string-representation of value. If datatype cannot be parsed it
+     * defaults to {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype#DEFAULT}
      *
      * @param datatype string-representation of datatype
      * @param value string-representation of value
      * @return new instance
-     * @throws ValueFormatException if string-representation of value cannot be
-     *             parsed into provided datatype
+     * @throws ValueFormatException if string-representation of value cannot be parsed into provided datatype
      */
     public static PropertyValue of(String datatype, String value) throws ValueFormatException {
         return new PropertyValue(TypedValueFactory.create(datatype, value));
@@ -51,8 +49,7 @@ public class PropertyValue extends DataElementValue {
      * @param datatype the datatype
      * @param value string-representation of value
      * @return new instance
-     * @throws ValueFormatException if string-representation of value cannot be
-     *             parsed into provided datatype
+     * @throws ValueFormatException if string-representation of value cannot be parsed into provided datatype
      */
     public static PropertyValue of(Datatype datatype, String value) throws ValueFormatException {
         return new PropertyValue(TypedValueFactory.create(datatype, value));

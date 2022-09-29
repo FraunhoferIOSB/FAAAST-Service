@@ -19,8 +19,7 @@ import java.util.Objects;
 
 
 /**
- * * Config file for HTTP-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
+ * * Config file for HTTP-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
  */
 public class HttpOperationProviderConfig extends AbstractMultiFormatOperationProviderConfig {
 

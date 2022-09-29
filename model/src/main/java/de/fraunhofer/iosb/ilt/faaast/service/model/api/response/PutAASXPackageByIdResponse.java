@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 4.5.5
+ * Response class for PutAASXPackageById requests.
  */
 public class PutAASXPackageByIdResponse extends AbstractResponse {
 

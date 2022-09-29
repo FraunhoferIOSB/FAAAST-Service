@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Helper to convert data for reading/writing
+ * Helper to convert data for reading/writing.
  */
 public class MultiFormatReadWriteHelper {
 
@@ -36,12 +36,10 @@ public class MultiFormatReadWriteHelper {
 
 
     /**
-     * Converts byte[] value with additional configuration to AAS data model
-     * according to selected data format.
+     * Converts byte[] value with additional configuration to AAS data model according to selected data format.
      *
      * @param config the configuration
-     * @param value the value, typically raw payload received by transport
-     *            protocol
+     * @param value the value, typically raw payload received by transport protocol
      * @param typeinfo type information about target AAS type
      * @return value converted to AAS value
      * @throws AssetConnectionException if conversion fails
@@ -54,12 +52,10 @@ public class MultiFormatReadWriteHelper {
 
 
     /**
-     * Converts AAS value to byte[] to be forwarded to transport protocol of an
-     * asset connection.
+     * Converts AAS value to byte[] to be forwarded to transport protocol of an asset connection.
      *
      * @param config the configuration
-     * @param value the value, typically raw payload received by transport
-     *            protocol
+     * @param value the value, typically raw payload received by transport protocol
      * @return value as byte[]
      * @throws AssetConnectionException if conversion fails
      */

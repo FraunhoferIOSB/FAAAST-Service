@@ -19,8 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 
 
 /**
- * Mixin for
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}
+ * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
  */
 public abstract class PropertyValueMixin {
 

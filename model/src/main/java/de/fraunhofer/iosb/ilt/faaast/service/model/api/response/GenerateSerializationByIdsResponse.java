@@ -21,7 +21,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.4.2
+ * Response class for GenerateSerializationByIds requests.
  */
 public class GenerateSerializationByIdsResponse extends AbstractResponseWithPayload<AssetAdministrationShellEnvironment> {
 

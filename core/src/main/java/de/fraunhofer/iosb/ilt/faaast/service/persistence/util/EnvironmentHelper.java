@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Helper class for the persistence to handle with an AAS Environment
+ * Helper class for the persistence to handle with an AAS Environment.
  */
 public class EnvironmentHelper {
 
@@ -34,11 +34,9 @@ public class EnvironmentHelper {
 
 
     /**
-     * Get a list of deep copied asset administration shell objects which
-     * matches a filter
+     * Get a list of deep copied asset administration shell objects which matches a filter.
      *
-     * @param filter which should applied to the search of asset administration
-     *            shells
+     * @param filter which should applied to the search of asset administration shells
      * @param aasEnvironment which contains the asset administration shells
      * @return a filtered list of deep copied asset administration shells
      */
@@ -56,8 +54,7 @@ public class EnvironmentHelper {
     /**
      * Adds or updates an identifiable to a list.
      *
-     * @param list to which the given identifiable should be
-     *            added/updated
+     * @param list to which the given identifiable should be added/updated
      * @param identifiable which should be added or updated
      * @param <T> type of the identifiable
      */

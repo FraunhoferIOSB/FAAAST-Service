@@ -15,8 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.exception;
 
 /**
- * This class represents exceptions related to
- * {@link de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint}.
+ * This class represents exceptions related to {@link de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint}.
  */
 public class EndpointException extends Exception {
 

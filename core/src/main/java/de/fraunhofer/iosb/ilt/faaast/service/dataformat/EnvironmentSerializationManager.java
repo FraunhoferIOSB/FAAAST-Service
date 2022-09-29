@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Provides access to {@link EnvironmentSerializer}s and
- * {@link EnvironmentDeserializer}s based on desired {@link DataFormat}.
+ * Provides access to {@link EnvironmentSerializer}s and {@link EnvironmentDeserializer}s based on desired
+ * {@link DataFormat}.
  */
 public class EnvironmentSerializationManager {
 
@@ -90,8 +90,8 @@ public class EnvironmentSerializationManager {
      *
      * @param dataFormat the dataFormat
      * @return suitable {@link EnvironmentSerializer} for the dataFormat
-     * @throws IllegalArgumentException if no {@link EnvironmentSerializer}
-     *             exists for given dataType or instantiation fails
+     * @throws IllegalArgumentException if no {@link EnvironmentSerializer} exists for given dataType or instantiation
+     *             fails
      */
     public static EnvironmentSerializer serializerFor(DataFormat dataFormat) {
         Ensure.requireNonNull(dataFormat, MSG_DATA_FORMAT_MUST_BE_NON_NULL);
@@ -114,8 +114,8 @@ public class EnvironmentSerializationManager {
      *
      * @param dataFormat the dataFormat
      * @return suitable {@link EnvironmentDeserializer} for the dataFormat
-     * @throws IllegalArgumentException if no {@link EnvironmentDeserializer}
-     *             exists for given dataType or instantiation fails
+     * @throws IllegalArgumentException if no {@link EnvironmentDeserializer} exists for given dataType or instantiation
+     *             fails
      */
     public static EnvironmentDeserializer deserializerFor(DataFormat dataFormat) {
         Ensure.requireNonNull(dataFormat, MSG_DATA_FORMAT_MUST_BE_NON_NULL);
@@ -134,8 +134,8 @@ public class EnvironmentSerializationManager {
 
 
     /**
-     * Reads an {@link AssetAdministrationShellEnvironment} from given file
-     * while automatically determining used data format based on file extension.
+     * Reads an {@link AssetAdministrationShellEnvironment} from given file while automatically determining used data
+     * format based on file extension.
      *
      * @param file the file to read
      * @return the deserialized environment context
@@ -164,10 +164,8 @@ public class EnvironmentSerializationManager {
 
 
     /**
-     * Gets the
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat}
-     * for a given file. This is based on the file extension and in a second
-     * step the content of the file.
+     * Gets the {@link de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat} for a given file. This is
+     * based on the file extension and in a second step the content of the file.
      *
      * @param file the input file
      * @return the data format of the file

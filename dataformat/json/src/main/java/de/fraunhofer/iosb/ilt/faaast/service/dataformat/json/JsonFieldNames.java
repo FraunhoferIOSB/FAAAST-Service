@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json;
 
 /**
- * Utility class defining JSON properties names
+ * Utility class defining JSON properties names.
  */
 public class JsonFieldNames {
 

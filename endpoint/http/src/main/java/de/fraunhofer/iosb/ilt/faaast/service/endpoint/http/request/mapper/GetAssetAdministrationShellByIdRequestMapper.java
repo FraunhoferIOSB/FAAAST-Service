@@ -27,7 +27,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-GET-Request path: shells
+ * class to map HTTP-GET-Request path: shells.
  */
 public class GetAssetAdministrationShellByIdRequestMapper
         extends AbstractRequestMapperWithOutputModifier<GetAssetAdministrationShellByIdRequest, GetAssetAdministrationShellByIdResponse> {

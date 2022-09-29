@@ -27,7 +27,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 
 /**
- * ValueProvider for MQTT
+ * ValueProvider for MQTT.
  */
 public class MqttValueProvider extends MultiFormatValueProvider<MqttValueProviderConfig> {
 

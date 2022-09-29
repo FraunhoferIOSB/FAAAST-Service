@@ -15,9 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
 /**
- * Default config for AssetValueProvider implementations. Implement this interface to create specialized
- * configuration class for concrete AssetValueProvider implementations, e.g. containing connection-specific
- * properties.
+ * Default config for AssetValueProvider implementations. Implement this interface to create specialized configuration
+ * class for concrete AssetValueProvider implementations, e.g. containing connection-specific properties.
  */
 public interface AssetValueProviderConfig extends AssetProviderConfig {
 

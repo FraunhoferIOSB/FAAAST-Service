@@ -46,8 +46,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Central class of the FA³ST Service accumulating and connecting all different
- * components.
+ * Central class of the FA³ST Service accumulating and connecting all different components.
  */
 public class Service implements ServiceContext {
 
@@ -60,7 +59,7 @@ public class Service implements ServiceContext {
     private RequestHandlerManager requestHandler;
 
     /**
-     * Creates a new instance of {@link Service}
+     * Creates a new instance of {@link Service}.
      *
      * @param coreConfig core configuration
      * @param persistence persistence implementation
@@ -71,10 +70,8 @@ public class Service implements ServiceContext {
      * @throws IllegalArgumentException if persistence is null
      * @throws IllegalArgumentException if messageBus is null
      * @throws RuntimeException if creating a deep copy of aasEnvironment fails
-     * @throws ConfigurationException the configuration the
-     *             {@link AssetConnectionManager} fails
-     * @throws AssetConnectionException when initializing asset connections
-     *             fails
+     * @throws ConfigurationException the configuration the {@link AssetConnectionManager} fails
+     * @throws AssetConnectionException when initializing asset connections fails
      */
     public Service(CoreConfig coreConfig,
             Persistence persistence,
@@ -102,13 +99,12 @@ public class Service implements ServiceContext {
 
 
     /**
-     * Creates a new instance of {@link Service}
+     * Creates a new instance of {@link Service}.
      *
      * @param config service configuration
      * @throws IllegalArgumentException if config is null
      * @throws ConfigurationException if invalid configuration is provided
-     * @throws AssetConnectionException when initializing asset connections
-     *             fails
+     * @throws AssetConnectionException when initializing asset connections fails
      */
     public Service(ServiceConfig config)
             throws ConfigurationException, AssetConnectionException {
@@ -148,11 +144,10 @@ public class Service implements ServiceContext {
 
 
     /**
-     * Executes a request asynchroniously
+     * Executes a request asynchroniously.
      *
      * @param request request to execute
-     * @param callback callback handler that is called when execution if
-     *            finished
+     * @param callback callback handler that is called when execution if finished
      * @throws IllegalArgumentException if request is null
      * @throws IllegalArgumentException if callback is null
      */
@@ -174,8 +169,7 @@ public class Service implements ServiceContext {
      *
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if starting message bus fails
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException if starting endpoints fails
-     * @throws IllegalArgumentException if AAS environment is null/has not been
-     *             properly initialized
+     * @throws IllegalArgumentException if AAS environment is null/has not been properly initialized
      */
     public void start() throws MessageBusException, EndpointException {
         LOGGER.info("Get command for starting FA³ST Service");
@@ -189,8 +183,7 @@ public class Service implements ServiceContext {
 
 
     /**
-     * Stop the service. This includes stopping the message bus and all
-     * endpoints
+     * Stop the service. This includes stopping the message bus and all endpoints.
      */
     public void stop() {
         LOGGER.info("Get command for stopping FA³ST Service");

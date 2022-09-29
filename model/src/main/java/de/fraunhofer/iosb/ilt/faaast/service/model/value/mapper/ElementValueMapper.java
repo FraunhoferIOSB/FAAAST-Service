@@ -33,10 +33,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Central class for bringing together submodel elements and their corresponding
- * value representation, e.g. supports converting submodel elements to their
- * value representation and updating the value of a submodel element by
- * providing a value representation.
+ * Central class for bringing together submodel elements and their corresponding value representation, e.g. supports
+ * converting submodel elements to their value representation and updating the value of a submodel element by providing
+ * a value representation.
  */
 public class ElementValueMapper {
 
@@ -76,17 +75,15 @@ public class ElementValueMapper {
 
 
     /**
-     * Extracts the value of a
-     * {@link io.adminshell.aas.v3.model.SubmodelElement} into a corresponding
-     * {@link ElementValue} instance
+     * Extracts the value of a {@link io.adminshell.aas.v3.model.SubmodelElement} into a corresponding
+     * {@link ElementValue} instance.
      *
      * @param submodelElement for which a ElementValue should be created
      * @param <I> type of the input SubmodelElement
      * @param <O> type of the output ElementValue
      * @return a value representation of the submodel element
      * @throws IllegalArgumentException if submodelElement is null
-     * @throws ValueMappingException is no mapper for type of submodelElement
-     *             can be found
+     * @throws ValueMappingException is no mapper for type of submodelElement can be found
      * @throws ValueMappingException if mapping fails
      */
     public static <I extends SubmodelElement, O extends ElementValue> O toValue(SubmodelElement submodelElement) throws ValueMappingException {
@@ -101,13 +98,12 @@ public class ElementValueMapper {
 
 
     /**
-     * Find the correspondig value type for a given submodel element type
+     * Find the correspondig value type for a given submodel element type.
      *
      * @param elementType submodel element type
      * @return corresponding value type
      * @throws IllegalArgumentException if submodelElement is null
-     * @throws IllegalArgumentException is no corresppnding value type can be
-     *             found
+     * @throws IllegalArgumentException is no corresppnding value type can be found
      */
     public static Class<? extends ElementValue> getValueClass(Class<? extends SubmodelElement> elementType) {
         init();
@@ -122,13 +118,12 @@ public class ElementValueMapper {
 
 
     /**
-     * Find the correspondig submodel element type for a given value type
+     * Find the correspondig submodel element type for a given value type.
      *
      * @param valueType value type
      * @return corresponding submodel element type
      * @throws IllegalArgumentException if valueType is null
-     * @throws IllegalArgumentException is no corresppnding value type can be
-     *             found
+     * @throws IllegalArgumentException is no corresppnding value type can be found
      */
     public static Class<? extends SubmodelElement> getElementClass(Class<? extends ElementValue> valueType) {
         init();
@@ -149,8 +144,7 @@ public class ElementValueMapper {
 
 
     /**
-     * Sets the value of a submodel element to value provided as value
-     * representation
+     * Sets the value of a submodel element to value provided as value representation.
      *
      * @param submodelElement for which the values will be set
      * @param elementValue which contains the values for the SubmodelElement

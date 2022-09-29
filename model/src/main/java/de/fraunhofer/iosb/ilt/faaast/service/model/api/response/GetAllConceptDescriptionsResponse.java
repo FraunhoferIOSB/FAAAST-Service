@@ -20,7 +20,7 @@ import java.util.List;
 
 
 /**
- * Chapter 6.4.2
+ * Response class for GetAllConceptDescriptions requests.
  */
 public class GetAllConceptDescriptionsResponse extends AbstractResponseWithPayload<List<ConceptDescription>> {
 

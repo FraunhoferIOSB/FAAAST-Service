@@ -23,8 +23,8 @@ import java.util.Objects;
 
 
 /**
- * Generic persistence configuration. When implementing a custom persistence
- * inherit from this class to create a custom configuration.
+ * Generic persistence configuration. When implementing a custom persistence inherit from this class to create a custom
+ * configuration.
  *
  * @param <T> type of the persistence
  */
@@ -52,8 +52,7 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
 
 
     /**
-     * Sets model file containing initial model. Initial model is the model that
-     * is loaded on first start.
+     * Sets model file containing initial model. Initial model is the model that is loaded on first start.
      *
      * @param initialModel the model file
      * @throws RuntimeException
@@ -74,7 +73,7 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
 
 
     /**
-     * Overwrites the AASEnvironment from model path
+     * Overwrites the AASEnvironment from model path.
      *
      * @param environment the environment to set
      */
@@ -89,7 +88,7 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
 
 
     /**
-     * If true then a copied version of the environment is used
+     * If true then a copied version of the environment is used.
      *
      * @param decoupleEnvironment flag indicating whether to decouple the environment
      */
@@ -122,8 +121,7 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
     }
 
     /**
-     * Abstract builder class that should be used for builders of inheriting
-     * classes.
+     * Abstract builder class that should be used for builders of inheriting classes.
      *
      * @param <T> type of the persistence of the config to build
      * @param <C> type of the config to build

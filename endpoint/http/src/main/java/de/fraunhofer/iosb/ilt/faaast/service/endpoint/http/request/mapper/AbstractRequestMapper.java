@@ -53,12 +53,11 @@ public abstract class AbstractRequestMapper {
 
 
     /**
-     * Utility method to create named regex groups used to represent URL path
-     * elements that are variable, e.g. <i>/shells/[id]/aas/</i>.
+     * Utility method to create named regex groups used to represent URL path elements that are variable, e.g.
+     * <i>/shells/[id]/aas/</i>.
      *
      * @param name the name of the regex group
-     * @return a string representation of a named regex group with given
-     *         {@code name}
+     * @return a string representation of a named regex group with given {@code name}
      */
     protected static final String pathElement(String name) {
         return String.format("(?<%s>[^/]*)", name);
@@ -76,8 +75,7 @@ public abstract class AbstractRequestMapper {
 
 
     /**
-     * Decides if a given HTTP request matches this concrete protocl-agnostic
-     * request.
+     * Decides if a given HTTP request matches this concrete protocl-agnostic request.
      *
      * @param httpRequest the HTTP request to check
      * @return true if matches, otherwise false
@@ -90,7 +88,7 @@ public abstract class AbstractRequestMapper {
 
 
     /**
-     * Converts the HTTP request to protocol-agnostic request
+     * Converts the HTTP request to protocol-agnostic request.
      *
      * @param httpRequest the HTTP request to convert
      * @return the protocol-agnostic request
@@ -108,11 +106,11 @@ public abstract class AbstractRequestMapper {
 
 
     /**
-     * Converts the HTTP request to protocol-agnostic request
+     * Converts the HTTP request to protocol-agnostic request.
      *
      * @param httpRequest the HTTP request to convert
      * @param urlParameters map of named regex groups and their values
-     * @return
+     * @return parsed request
      * @throws InvalidRequestException if conversion fails
      * @throws IllegalArgumentException if httpRequest is null
      */
@@ -120,7 +118,7 @@ public abstract class AbstractRequestMapper {
 
 
     /**
-     * Deserializes HTTP body to given type
+     * Deserializes HTTP body to given type.
      *
      * @param <T> expected type
      * @param httpRequest HTTP request
@@ -141,7 +139,7 @@ public abstract class AbstractRequestMapper {
 
 
     /**
-     * Deserializes HTTP body to a list of given type
+     * Deserializes HTTP body to a list of given type.
      *
      * @param <T> expected type
      * @param httpRequest HTTP request

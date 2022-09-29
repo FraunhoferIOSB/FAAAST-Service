@@ -20,7 +20,7 @@ import java.util.List;
 
 
 /**
- * Chapter 6.3.4
+ * Response class for GetAllSubmodelsBySemanticId requests.
  */
 public class GetAllSubmodelsBySemanticIdResponse extends AbstractResponseWithPayload<List<Submodel>> {
 

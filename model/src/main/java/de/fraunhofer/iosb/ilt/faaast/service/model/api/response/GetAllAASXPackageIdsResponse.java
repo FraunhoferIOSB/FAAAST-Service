@@ -20,7 +20,7 @@ import java.util.List;
 
 
 /**
- * Chapter 4.5.2
+ * Response class for GetAllAASXPackageIds requests.
  */
 public class GetAllAASXPackageIdsResponse extends AbstractResponseWithPayload<List<PackageDescription>> {
 

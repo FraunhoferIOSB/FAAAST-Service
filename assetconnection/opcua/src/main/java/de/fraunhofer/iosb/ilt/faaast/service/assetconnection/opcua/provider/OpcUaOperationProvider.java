@@ -59,8 +59,7 @@ import org.eclipse.milo.opcua.stack.core.types.structured.CallMethodResult;
 
 
 /**
- * Implementation of OperationProvider for OPC UA asset connections. Supports
- * executing AAS operations via OPC UA.
+ * Implementation of OperationProvider for OPC UA asset connections. Supports executing AAS operations via OPC UA.
  */
 public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperationProviderConfig> implements AssetOperationProvider {
 

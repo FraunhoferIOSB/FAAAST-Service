@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
+
 /**
  * Exception indicating that serialization failed.
  */

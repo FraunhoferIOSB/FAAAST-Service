@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 4.3.9
+ * Response class for SetSubmodelElementValueByPath requests.
  */
 public class SetSubmodelElementValueByPathResponse extends AbstractResponse {
 

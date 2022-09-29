@@ -19,7 +19,7 @@ import io.adminshell.aas.v3.model.Submodel;
 
 
 /**
- * * Chapter 6.3.3
+ * Response class for GetSubmodelById requests.
  */
 public class GetSubmodelByIdResponse extends AbstractResponseWithPayload<Submodel> {
 

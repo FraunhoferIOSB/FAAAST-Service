@@ -19,7 +19,7 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 
 
 /**
- * Chapter 4.3.7
+ * Response class for PostSubmodelElementByPath requests.
  */
 public class PostSubmodelElementByPathResponse extends AbstractResponseWithPayload<SubmodelElement> {
 

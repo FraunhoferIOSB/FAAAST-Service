@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 4.3.10
+ * Response class for DeleteSubmodelElementByPath requests.
  */
 public class DeleteSubmodelElementByPathResponse extends AbstractResponse {
 

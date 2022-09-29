@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.4.3
+ * Request class for GetConceptDescriptionById requests.
  */
 public class GetConceptDescriptionByIdRequest extends AbstractRequestWithModifier<GetConceptDescriptionByIdResponse> {
 

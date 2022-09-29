@@ -32,6 +32,7 @@ public class PersistenceInMemoryConfig extends PersistenceConfig<PersistenceInMe
     }
 
     public static class Builder extends AbstractBuilder<PersistenceInMemoryConfig, Builder> {
+
         @Override
         protected Builder getSelf() {
             return this;

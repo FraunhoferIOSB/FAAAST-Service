@@ -84,8 +84,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
 
     /**
-     * Initializes the OPC UA Endpoint with the given Configurations.
-     * This is the first call.
+     * Initializes the OPC UA Endpoint with the given Configurations. This is the first call.
      *
      * @param core The desired Core Configuration
      * @param config The desired OPC UA Configuration
@@ -103,8 +102,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
 
     /**
-     * Starts the Endpoint.
-     * This is the third call.
+     * Starts the Endpoint. This is the third call.
      */
     @Override
     public void start() throws EndpointException {
@@ -282,7 +280,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
     /**
      * Returns a value indicating whether the given StatusCode is a success
-     * 
+     *
      * @param code The desired StatusCode
      * @return True if the StatusCode is a success, false otherweise
      */

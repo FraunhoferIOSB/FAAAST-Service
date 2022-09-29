@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Helper for tasks related to reflection
+ * Helper for tasks related to reflection.
  */
 public class ReflectionHelper {
 

@@ -36,10 +36,9 @@ import java.util.List;
 
 
 /**
- * JSON API serializer for FA³ST supporting different output modifier as defined
- * by specification.
- * <p>
- * Currently supports only content=value.
+ * JSON API serializer for FA³ST supporting different output modifier as defined by specification.
+ *
+ * <p>Currently supports only content=value.
  */
 public class JsonApiSerializer implements ApiSerializer {
 
@@ -55,7 +54,7 @@ public class JsonApiSerializer implements ApiSerializer {
 
 
     /**
-     * Modifies Jackson JsonMapper
+     * Modifies Jackson JsonMapper.
      *
      * @param mapper mapper to modify
      */

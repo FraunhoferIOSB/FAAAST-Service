@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Helper to replace variables of type ${...} in strings
+ * Helper to replace variables of type ${...} in strings.
  */
 public class TemplateHelper {
 
@@ -29,9 +29,8 @@ public class TemplateHelper {
 
 
     /**
-     * Replaces as set of {@code values} within a given string. The keys of
-     * {@code values} are wrapped in <i>${...}</i> and those occurances in the
-     * {@code template} are replaced by the corresponding values.
+     * Replaces as set of {@code values} within a given string. The keys of {@code values} are wrapped in <i>${...}</i>
+     * and those occurances in the {@code template} are replaced by the corresponding values.
      *
      * @param template the template to replace values in
      * @param values the values to replace

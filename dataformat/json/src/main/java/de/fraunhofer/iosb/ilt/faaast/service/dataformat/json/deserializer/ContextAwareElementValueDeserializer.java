@@ -28,7 +28,7 @@ import java.util.Map;
 
 
 /**
- * Abstract base deserializer providing context information while deserializing
+ * Abstract base deserializer providing context information while deserializing.
  *
  * @param <T> type of ElementValue that should be deserialized
  */
@@ -37,8 +37,7 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
     public static final String VALUE_TYPE_CONTEXT = "typeInfoContext";
 
     /**
-     * Fetches type information from
-     * {@link com.fasterxml.jackson.databind.DeserializationContext}. If no type
+     * Fetches type information from {@link com.fasterxml.jackson.databind.DeserializationContext}. If no type
      * information is present, null is returned.
      *
      * @param context deserialization context holding the type information
@@ -72,7 +71,7 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
 
 
     /**
-     * Check if node is a wrapper node for a value
+     * Check if node is a wrapper node for a value.
      *
      * @param node node to check
      * @return true if the node is a wrapper {@code (defined as node.isObject() && node.size() == 1)}, otherwise false
@@ -96,7 +95,7 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
 
 
     /**
-     * Deserializes a value from node given current context
+     * Deserializes a value from node given current context.
      *
      * @param node node to deserialize
      * @param context deserialization context
@@ -108,8 +107,7 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
 
 
     /**
-     * Deserialize children as a map of element values with their idShort as
-     * key.
+     * Deserialize children as a map of element values with their idShort as key.
      *
      * @param <T> element value type
      * @param node node to deserialize

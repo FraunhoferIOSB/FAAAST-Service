@@ -23,7 +23,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.2.7
+ * Request class for PutAssetAdministrationShellById requests.
  */
 public class PutAssetAdministrationShellByIdRequest implements Request<PutAssetAdministrationShellByIdResponse> {
 

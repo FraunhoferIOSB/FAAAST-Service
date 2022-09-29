@@ -18,8 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 
 
 /**
- * Abstract base class for all access event messages that are sent via message
- * bus
+ * Abstract base class for all access event messages that are sent via message bus.
  */
 public abstract class AccessEventMessage extends EventMessage {
 

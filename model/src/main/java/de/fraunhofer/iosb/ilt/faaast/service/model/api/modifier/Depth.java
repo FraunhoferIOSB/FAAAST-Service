@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier;
 
 /**
- * Enum of different depth options
+ * Enum of different depth options.
  */
 public enum Depth {
     RECURSIVE,

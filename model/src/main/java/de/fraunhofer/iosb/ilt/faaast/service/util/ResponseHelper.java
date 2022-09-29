@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Helper class for working with AAS responses
+ * Helper class for working with AAS responses.
  */
 public class ResponseHelper {
 
@@ -28,13 +28,11 @@ public class ResponseHelper {
 
 
     /**
-     * Compares if two responses are equal when ignoring the timestamps of the
-     * included messages.
+     * Compares if two responses are equal when ignoring the timestamps of the included messages.
      *
      * @param r1 the first response
      * @param r2 the second response
-     * @return true if inputs are equal ignoring the message timestamps, false
-     *         otherweise
+     * @return true if inputs are equal ignoring the message timestamps, false otherweise
      */
     public static boolean equalsIgnoringTime(Response r1, Response r2) {
         removeTimeFromMessages(r1);
@@ -44,14 +42,12 @@ public class ResponseHelper {
 
 
     /**
-     * Compares if two
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.Result} objects
-     * are equal when ignoring the timestamps of the included messages.
+     * Compares if two {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.Result} objects are equal when ignoring
+     * the timestamps of the included messages.
      *
      * @param r1 the first result
      * @param r2 the second result
-     * @return true if inputs are equal ignoring the message timestamps, false
-     *         otherweise
+     * @return true if inputs are equal ignoring the message timestamps, false otherweise
      */
     public static boolean equalsIgnoringTime(Result r1, Result r2) {
         removeTimeFromMessages(r1);

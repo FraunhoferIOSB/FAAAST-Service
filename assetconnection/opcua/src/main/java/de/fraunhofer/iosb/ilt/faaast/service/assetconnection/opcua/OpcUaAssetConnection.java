@@ -50,17 +50,15 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Implementation of
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection}
- * for the OPC UA protocol.
- * <p>
- * All asset connection operations are supported.
- * <p>
- * This implementation currently only supports submodel elements of type
- * {@link io.adminshell.aas.v3.model.Property} resp.
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
- * <p>
- * This class uses a single underlying OPC UA connection.
+ * Implementation of {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection} for the OPC UA
+ * protocol.
+ *
+ * <p>All asset connection operations are supported.
+ *
+ * <p>This implementation currently only supports submodel elements of type {@link io.adminshell.aas.v3.model.Property}
+ * resp. {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
+ *
+ * <p>This class uses a single underlying OPC UA connection.
  */
 public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectionConfig, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig> {
 
@@ -87,8 +85,7 @@ public class OpcUaAssetConnection implements AssetConnection<OpcUaAssetConnectio
      *
      * @param coreConfig core configuration
      * @param config asset connection configuration
-     * @param serviceContext service context which this asset connection is
-     *            running in
+     * @param serviceContext service context which this asset connection is running in
      * @throws ConfigurationInitializationException if initialization fails
      */
     protected OpcUaAssetConnection(CoreConfig coreConfig, OpcUaAssetConnectionConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {

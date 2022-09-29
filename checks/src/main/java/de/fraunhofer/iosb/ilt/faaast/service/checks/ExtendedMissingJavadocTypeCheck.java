@@ -27,15 +27,11 @@ import java.util.Set;
 
 
 /**
- * Extension of
- * {@link com.puppycrawl.tools.checkstyle.checks.javadoc.MissingJavadocTypeCheck}
- * providing additional functionality to ignore builder classes.
- * By default, this check uses the regex
- * <i>(Abstract)?(${classname})?Builder</i> to decide whether a class is a
- * builder class or not. The string
- * <i>${classname}</i> is replaced with the name of the enclosing class if
- * present, otherwise with an empty string.
- * By default, all builder classes are ignored.
+ * Extension of {@link com.puppycrawl.tools.checkstyle.checks.javadoc.MissingJavadocTypeCheck} providing additional
+ * functionality to ignore builder classes. By default, this check uses the regex
+ * <i>(Abstract)?(${classname})?Builder</i> to decide whether a class is a builder class or not. The string
+ * <i>${classname}</i> is replaced with the name of the enclosing class if present, otherwise with an empty string. By
+ * default, all builder classes are ignored.
  */
 @FileStatefulCheck
 public class ExtendedMissingJavadocTypeCheck extends BuilderAwareCheck {

@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.3.4
+ * Request class for GetSubmodelElementByPath requests.
  */
 public class GetSubmodelElementByPathRequest extends AbstractSubmodelInterfaceRequest<GetSubmodelElementByPathResponse> {
 

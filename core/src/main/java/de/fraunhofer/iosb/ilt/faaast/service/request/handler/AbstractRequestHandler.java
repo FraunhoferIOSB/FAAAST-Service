@@ -62,13 +62,10 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
      * Creates a empty response object.
      *
      * @return new empty response object
-     * @throws NoSuchMethodException if response type does not implement a
-     *             parameterless constructor
+     * @throws NoSuchMethodException if response type does not implement a parameterless constructor
      * @throws InstantiationException if response type is abstract
-     * @throws InvocationTargetException if parameterless constructor of
-     *             response type throws an exception
-     * @throws IllegalAccessException if parameterless constructor of response
-     *             type is inaccessible
+     * @throws InvocationTargetException if parameterless constructor of response type throws an exception
+     * @throws IllegalAccessException if parameterless constructor of response type is inaccessible
      */
     public O newResponse() throws NoSuchMethodException, InstantiationException, InvocationTargetException, IllegalAccessException {
         return (O) ConstructorUtils.invokeConstructor(
@@ -79,7 +76,7 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
 
 
     /**
-     * Processes a request and returns the resulting response
+     * Processes a request and returns the resulting response.
      *
      * @param request the request
      * @return the response
@@ -89,24 +86,17 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
 
 
     /**
-     * Check for each SubmodelElement if there is an AssetConnection.If yes read
-     * the value from it and compare it to the current value.If they differ from
-     * each other update the submodelelement with the value from the
+     * Check for each SubmodelElement if there is an AssetConnection. If yes read the value from it and compare it to
+     * the current value.If they differ from each other update the submodelelement with the value from the
      * AssetConnection.
      *
      * @param parent of the SubmodelElement List
-     * @param submodelElements List of SubmodelElements which should be
-     *            considered and updated
-     * @throws ResourceNotFoundException if reference does not point to valid
-     *             element
-     * @throws AssetConnectionException if reading value from asset connection
-     *             fails
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException
-     *             if mapping value read from asset connection fails
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if
-     *             publishing fails
+     * @param submodelElements List of SubmodelElements which should be considered and updated
+     * @throws ResourceNotFoundException if reference does not point to valid element
+     * @throws AssetConnectionException if reading value from asset connection fails
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException if mapping value read from
+     *             asset connection fails
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing fails
      */
     protected void syncWithAsset(Reference parent, Collection<SubmodelElement> submodelElements)
             throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {

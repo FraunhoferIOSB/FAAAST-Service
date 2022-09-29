@@ -19,16 +19,15 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 
 
 /**
- * Generic message bus configuration. When implementing a custom message bus inherit
- * from this class to create a custom configuration.
+ * Generic message bus configuration. When implementing a custom message bus inherit from this class to create a custom
+ * configuration.
  *
  * @param <T> type of the message bus
  */
 public class MessageBusConfig<T extends MessageBus> extends Config<T> {
 
     /**
-     * Abstract builder class that should be used for builders of inheriting
-     * classes.
+     * Abstract builder class that should be used for builders of inheriting classes.
      *
      * @param <T> type of the message bus of the config to build
      * @param <C> type of the config to build

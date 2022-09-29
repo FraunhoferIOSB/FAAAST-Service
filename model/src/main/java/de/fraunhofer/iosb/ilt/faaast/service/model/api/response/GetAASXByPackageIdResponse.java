@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.5.3
+ * Response class for GetAASXByPackageId requests.
  */
 public class GetAASXByPackageIdResponse extends AbstractResponseWithPayload<AASXPackageBase> {
 

@@ -19,7 +19,7 @@ import io.adminshell.aas.v3.model.AssetInformation;
 
 
 /**
- * Chapter 4.2.7
+ * Response class for GetAssetInformation requests.
  */
 public class GetAssetInformationResponse extends AbstractResponseWithPayload<AssetInformation> {
 

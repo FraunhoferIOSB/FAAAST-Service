@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.exception;
 
 /**
- * Indicates that validating an object failed
+ * Indicates that validating an object failed.
  */
 public class ValidationException extends Exception {
 

@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config;
 
 /**
- * Configuration for writing values using multiple data formats
+ * Configuration for writing values using multiple data formats.
  */
 public interface MultiFormatWriteProviderConfig extends MultiFormatProviderConfig {
 

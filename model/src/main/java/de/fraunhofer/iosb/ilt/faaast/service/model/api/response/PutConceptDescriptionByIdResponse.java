@@ -19,7 +19,7 @@ import io.adminshell.aas.v3.model.ConceptDescription;
 
 
 /**
- * Chapter 6.4.8
+ * Response class for PutConceptDescriptionById requests.
  */
 public class PutConceptDescriptionByIdResponse extends AbstractResponseWithPayload<ConceptDescription> {
 

@@ -23,8 +23,7 @@ import java.io.IOException;
 
 
 /**
- * Deserializer for
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue}
+ * Deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue}.
  */
 public class SubmodelElementCollectionValueDeserializer extends ContextAwareElementValueDeserializer<SubmodelElementCollectionValue> {
 

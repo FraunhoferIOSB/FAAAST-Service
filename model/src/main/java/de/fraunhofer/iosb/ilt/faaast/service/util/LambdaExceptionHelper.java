@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 
 /**
- * Helper class for handling exceptions in lambda expressions
+ * Helper class for handling exceptions in lambda expressions.
  */
 public class LambdaExceptionHelper {
 
@@ -36,7 +36,7 @@ public class LambdaExceptionHelper {
 
         /**
          * Wrapper for {@link java.util.function.Consumer#accept(java.lang.Object)
-         * }
+         * }.
          *
          * @param t the input argument
          * @throws E if operation fails
@@ -45,8 +45,7 @@ public class LambdaExceptionHelper {
     }
 
     /**
-     * Wrapper for {@link java.util.function.BiConsumer} with expected
-     * exception.
+     * Wrapper for {@link java.util.function.BiConsumer} with expected exception.
      *
      * @param <T> type of first input argument
      * @param <U> type of second input argument
@@ -57,7 +56,7 @@ public class LambdaExceptionHelper {
 
         /**
          * Wrapper for {@link java.util.function.BiConsumer#accept(java.lang.Object, java.lang.Object)
-         * }
+         * }.
          *
          * @param t the first input argument
          * @param u the second input argument
@@ -78,7 +77,7 @@ public class LambdaExceptionHelper {
 
         /**
          * Wrapper for {@link java.util.function.Function#apply(java.lang.Object)
-         * }
+         * }.
          *
          * @param t the function argument
          * @return the function result
@@ -98,7 +97,7 @@ public class LambdaExceptionHelper {
 
         /**
          * Wrapper for {@link java.util.function.Supplier#get()
-         * }
+         * }.
          *
          * @return the result
          * @throws E if operation fails
@@ -116,7 +115,7 @@ public class LambdaExceptionHelper {
 
         /**
          * Wrapper for {@link java.lang.Runnable#run()
-         * }
+         * }.
          *
          * @throws E if operation fails
          */
@@ -124,8 +123,7 @@ public class LambdaExceptionHelper {
     }
 
     /**
-     * Wraps a {@link Consumer} throwing an Exception to be conveniently used in
-     * functional expressions.
+     * Wraps a {@link Consumer} throwing an Exception to be conveniently used in functional expressions.
      *
      * @param <T> type of the consumer
      * @param <E> type of the potentially thrown exception
@@ -146,8 +144,7 @@ public class LambdaExceptionHelper {
 
 
     /**
-     * Wraps a {@link BiConsumer} throwing an Exception to be conveniently used
-     * in functional expressions.
+     * Wraps a {@link BiConsumer} throwing an Exception to be conveniently used in functional expressions.
      *
      * @param <T> first type of the biconsumer
      * @param <U> second type of the biconsumer
@@ -169,8 +166,7 @@ public class LambdaExceptionHelper {
 
 
     /**
-     * Wraps a {@link Function} throwing an Exception to be conveniently used in
-     * functional expressions.
+     * Wraps a {@link Function} throwing an Exception to be conveniently used in functional expressions.
      *
      * @param <T> input type of the function
      * @param <R> result type of the function
@@ -193,8 +189,7 @@ public class LambdaExceptionHelper {
 
 
     /**
-     * Wraps a {@link Supplier} throwing an Exception to be conveniently used in
-     * functional expressions.
+     * Wraps a {@link Supplier} throwing an Exception to be conveniently used in functional expressions.
      *
      * @param <T> type of the supplier
      * @param <E> type of the potentially thrown exception
@@ -216,8 +211,7 @@ public class LambdaExceptionHelper {
 
 
     /**
-     * Wraps a Supplier interface and rethrows all exceptions as
-     * RuntimeException.
+     * Wraps a Supplier interface and rethrows all exceptions as RuntimeException.
      *
      * @param <T> result type of the supplier
      * @param supplier the supplier to wrap
@@ -237,8 +231,7 @@ public class LambdaExceptionHelper {
 
 
     /**
-     * Wraps a Consumer interface and rethrows all exceptions as
-     * RuntimeException.
+     * Wraps a Consumer interface and rethrows all exceptions as RuntimeException.
      *
      * @param <T> input type of the consumer
      * @param consumer the consumer to wrap
@@ -258,8 +251,7 @@ public class LambdaExceptionHelper {
 
 
     /**
-     * Wraps a Runnable interface and rethrows all exceptions as
-     * RuntimeException.
+     * Wraps a Runnable interface and rethrows all exceptions as RuntimeException.
      *
      * @param runnable the runnable to wrap
      * @return wrapped runnable

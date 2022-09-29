@@ -58,7 +58,7 @@ import java.util.List;
 
 
 /**
- * Serializer for content=value
+ * Serializer for content=value.
  */
 public class ValueOnlyJsonSerializer {
 
@@ -85,9 +85,8 @@ public class ValueOnlyJsonSerializer {
 
     /**
      * Serializes a given object as string using
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level#DEFAULT}
-     * and
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent#DEFAULT}
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level#DEFAULT} and
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent#DEFAULT}.
      *
      * @param obj the object to serialize
      * @return the serialized object
@@ -100,7 +99,7 @@ public class ValueOnlyJsonSerializer {
 
     /**
      * Serializes a given object as string using provided level and
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent#DEFAULT}
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent#DEFAULT}.
      *
      * @param obj the object to serialize
      * @param level the level to use for serialization
@@ -114,8 +113,7 @@ public class ValueOnlyJsonSerializer {
 
     /**
      * Serializes a given object as string using
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level#DEFAULT}
-     * and provided extent
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level#DEFAULT} and provided extent.
      *
      * @param obj the object to serialize
      * @param extent the extent to use for serialization
@@ -128,7 +126,7 @@ public class ValueOnlyJsonSerializer {
 
 
     /**
-     * Serializes a given object as string using provided level and extent
+     * Serializes a given object as string using provided level and extent.
      *
      * @param obj the object to serialize
      * @param level the level to use for serialization
@@ -154,7 +152,7 @@ public class ValueOnlyJsonSerializer {
 
 
     /**
-     * Modifies the mapper by adding required mixins and De-/serializers
+     * Modifies the mapper by adding required mixins and De-/serializers.
      *
      * @param mapper the mapper to modify
      * @return the updated mapper

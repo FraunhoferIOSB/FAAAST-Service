@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.3.5
+ * Request class for PutSubmodel requests.
  */
 public class PutSubmodelRequest extends AbstractSubmodelInterfaceRequest<PutSubmodelResponse> {
 

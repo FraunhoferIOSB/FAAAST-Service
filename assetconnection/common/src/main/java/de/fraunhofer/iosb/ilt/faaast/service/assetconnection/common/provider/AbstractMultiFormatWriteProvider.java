@@ -22,8 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 
 
 /**
- * Abstract base class for providers that support writing values using multiple
- * formats.
+ * Abstract base class for providers that support writing values using multiple formats.
  *
  * @param <T> type of matching configuration
  */

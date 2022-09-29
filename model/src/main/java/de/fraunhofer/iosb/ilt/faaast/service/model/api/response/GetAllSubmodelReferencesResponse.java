@@ -20,7 +20,7 @@ import java.util.List;
 
 
 /**
- * Chapter 4.2.4
+ * Response class for GetAllSubmodelReferences requests.
  */
 public class GetAllSubmodelReferencesResponse extends AbstractResponseWithPayload<List<Reference>> {
 

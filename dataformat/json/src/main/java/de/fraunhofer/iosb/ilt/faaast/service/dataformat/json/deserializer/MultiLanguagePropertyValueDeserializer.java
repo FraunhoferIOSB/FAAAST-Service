@@ -25,8 +25,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Deserializer for
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue}
+ * Deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue}.
  */
 public class MultiLanguagePropertyValueDeserializer extends ContextAwareElementValueDeserializer<MultiLanguagePropertyValue> {
 

@@ -20,7 +20,7 @@ import java.util.List;
 
 
 /**
- * Chapter 7.2.3
+ * Response class for GetAllAssetLinksById requests.
  */
 public class GetAllAssetLinksByIdResponse extends AbstractResponseWithPayload<List<IdentifierKeyValuePair>> {
 

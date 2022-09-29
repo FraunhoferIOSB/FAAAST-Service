@@ -108,8 +108,7 @@ public class ServiceConfigHelper {
 
 
     /**
-     * Tries to auto-complete a configuration by adding default values for
-     * missing mandatory parts.
+     * Tries to auto-complete a configuration by adding default values for missing mandatory parts.
      *
      * @param serviceConfig the config to auto-complete
      */
@@ -138,8 +137,7 @@ public class ServiceConfigHelper {
      * Builds a new config with updated values from {@code properties}.
      *
      * @param config the input config
-     * @param properties properties to update, keys are JSONPath expressions,
-     *            values the new values for that JSONPath
+     * @param properties properties to update, keys are JSONPath expressions, values the new values for that JSONPath
      * @return a new config with updated properties
      * @throws JsonProcessingException if deserializing updated config fails
      */
@@ -190,13 +188,12 @@ public class ServiceConfigHelper {
 
 
     /**
-     * Updates {
+     * Updates {@code config} with data from other configs.
      *
-     * @cod config} with data from other configs.
      * @param config target config
      * @param configs configs that should be merged into target config
-     * @throws InvalidConfigurationException if configs to be merged contain
-     *             multiple elements of a type that the target config can only have one
+     * @throws InvalidConfigurationException if configs to be merged contain multiple elements of a type that the target
+     *             config can only have one
      */
     public static void apply(ServiceConfig config, List<Config<? extends Configurable>> configs) throws InvalidConfigurationException {
         if (config != null && configs != null) {

@@ -44,27 +44,25 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Implementation of
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection}
- * for the MQTT protocol.
- * <p>
- * Following asset connection operations are supported:
+ * Implementation of {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection} for the MQTT
+ * protocol.
+ *
+ * <p>Following asset connection operations are supported:
  * <ul>
  * <li>setting values (via MQTT publish)
  * <li>subscribing to values (via MQTT subscribe)
  * </ul>
- * <p>
- * Following asset connection operations are not supported:
+ *
+ * <p>Following asset connection operations are not supported:
  * <ul>
  * <li>reading values
  * <li>executing operations
  * </ul>
- * <p>
- * This implementation currently only supports submodel elements of type
- * {@link io.adminshell.aas.v3.model.Property} resp.
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
- * <p>
- * This class uses a single underlying MQTT connection.
+ *
+ * <p>This implementation currently only supports submodel elements of type {@link io.adminshell.aas.v3.model.Property}
+ * resp. {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
+ *
+ * <p>This class uses a single underlying MQTT connection.
  */
 public class MqttAssetConnection
         implements AssetConnection<MqttAssetConnectionConfig, MqttValueProviderConfig, MqttOperationProviderConfig, MqttSubscriptionProviderConfig> {

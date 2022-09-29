@@ -19,7 +19,7 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
 
 
 /**
- * Chapter 6.2.6
+ * Response class for PostAssetAdministrationShell requests.
  */
 public class PostAssetAdministrationShellResponse extends AbstractResponseWithPayload<AssetAdministrationShell> {
 

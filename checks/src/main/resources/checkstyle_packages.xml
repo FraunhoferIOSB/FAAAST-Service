@@ -5,5 +5,5 @@
   "https://checkstyle.org/dtds/packages_1_0.dtd">
 
 <checkstyle-packages>
-  <package name="de.fraunhofer.iosb.ilt.faaast.service.checks"/>
+    <package name="de.fraunhofer.iosb.ilt.faaast.service.checks"/>
 </checkstyle-packages>

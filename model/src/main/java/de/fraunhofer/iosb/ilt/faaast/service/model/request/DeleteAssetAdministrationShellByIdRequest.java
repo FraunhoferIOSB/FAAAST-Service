@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.2.8
+ * Request class for DeleteAssetAdministrationShellById requests.
  */
 public class DeleteAssetAdministrationShellByIdRequest implements Request<DeleteAssetAdministrationShellByIdResponse> {
 

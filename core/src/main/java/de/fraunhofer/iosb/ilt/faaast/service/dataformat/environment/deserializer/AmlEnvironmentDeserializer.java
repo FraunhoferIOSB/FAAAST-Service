@@ -25,9 +25,7 @@ import java.nio.charset.Charset;
 
 
 /**
- * AML deserializer for
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
- * related files.
+ * AML deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
  */
 @SupportedDataformat(DataFormat.AML)
 public class AmlEnvironmentDeserializer implements EnvironmentDeserializer {

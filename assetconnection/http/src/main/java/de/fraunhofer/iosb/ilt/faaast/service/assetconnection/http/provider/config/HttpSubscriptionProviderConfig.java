@@ -19,8 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Config file for HTTP-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider}.
+ * Config file for HTTP-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider}.
  */
 public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscriptionProviderConfig {
 

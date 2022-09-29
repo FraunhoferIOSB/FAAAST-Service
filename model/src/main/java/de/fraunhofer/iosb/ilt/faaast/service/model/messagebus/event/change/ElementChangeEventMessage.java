@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Event message indicating that an element has been changed
+ * Event message indicating that an element has been changed.
  */
 public abstract class ElementChangeEventMessage extends ChangeEventMessage {
 

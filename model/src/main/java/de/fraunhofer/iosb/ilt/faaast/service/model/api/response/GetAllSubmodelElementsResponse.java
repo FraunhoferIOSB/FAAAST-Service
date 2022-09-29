@@ -20,7 +20,7 @@ import java.util.List;
 
 
 /**
- * Chapter 4.3.3
+ * Response class for GetAllSubmodelElements requests.
  */
 public class GetAllSubmodelElementsResponse extends AbstractResponseWithPayload<List<SubmodelElement>> {
 

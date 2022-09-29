@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle
 
 
 /**
- * Chahpter 4.3.12
+ * Response class for InvokeOperationAsync requests.
  */
 public class InvokeOperationAsyncResponse extends AbstractResponseWithPayload<OperationHandle> {
 

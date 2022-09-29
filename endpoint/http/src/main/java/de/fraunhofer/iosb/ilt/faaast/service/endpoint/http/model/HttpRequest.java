@@ -76,7 +76,7 @@ public class HttpRequest extends HttpMessage {
 
 
     /**
-     * Checks if query parameter is present
+     * Checks if query parameter is present.
      *
      * @param parameter the parameter name
      * @return true if query parameter if given name is present, false otherwise
@@ -87,8 +87,7 @@ public class HttpRequest extends HttpMessage {
 
 
     /**
-     * Gets the value of a query parameter or null if the the parameter is not
-     * present.
+     * Gets the value of a query parameter or null if the the parameter is not present.
      *
      * @param parameter the parameter name
      * @return the value of the query parameter if present, otherwise null
@@ -99,11 +98,10 @@ public class HttpRequest extends HttpMessage {
 
 
     /**
-     * Checks if a header with given {@code name} is present
+     * Checks if a header with given {@code name} is present.
      *
      * @param name the name of the header
-     * @return true if header with given {@code name} is present, false
-     *         otherwise
+     * @return true if header with given {@code name} is present, false otherwise
      */
     public boolean hasHeader(String name) {
         return headers.containsKey(name);
@@ -111,8 +109,7 @@ public class HttpRequest extends HttpMessage {
 
 
     /**
-     * Gets the value of a header or null if the the header is not
-     * present.
+     * Gets the value of a header or null if the the header is not present.
      *
      * @param name the header name
      * @return the value of the header if present, otherwise null
@@ -123,13 +120,11 @@ public class HttpRequest extends HttpMessage {
 
 
     /**
-     * Gets the value of a query parameter by name or a default value if query
-     * parameter is not present.
+     * Gets the value of a query parameter by name or a default value if query parameter is not present.
      *
      * @param parameter the parameter name
      * @param defaultValue the default value
-     * @return the value of the query parameter if present, otherweise
-     *         {@code defaultValue}
+     * @return the value of the query parameter if present, otherweise {@code defaultValue}
      */
     public String getQueryParameterOrDefault(String parameter, String defaultValue) {
         return queryParameters.getOrDefault(parameter, defaultValue);

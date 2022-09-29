@@ -36,10 +36,9 @@ public class AasCertificateValidationListener implements DefaultCertificateValid
     private static final Logger LOGGER = LoggerFactory.getLogger(AasCertificateValidationListener.class);
 
     /**
-     * Handle certificate validation. The method is called once the actual
-     * validator has already checked the certificate and provides the results of
-     * the checks in the parameters. If isTrusted, isSignVerified, isValid are
-     * all false, you should normally accept the certificate.
+     * Handle certificate validation. The method is called once the actual validator has already checked the certificate
+     * and provides the results of the checks in the parameters. If isTrusted, isSignVerified, isValid are all false,
+     * you should normally accept the certificate.
      *
      * @param cert the certificate that is being validated
      * @param ad The Application Description

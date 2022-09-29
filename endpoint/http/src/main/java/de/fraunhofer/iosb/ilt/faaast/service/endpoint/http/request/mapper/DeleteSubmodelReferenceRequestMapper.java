@@ -29,8 +29,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-DELETE-Request path:
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}
+ * class to map HTTP-DELETE-Request path: shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}.
  */
 public class DeleteSubmodelReferenceRequestMapper extends AbstractRequestMapper {
 

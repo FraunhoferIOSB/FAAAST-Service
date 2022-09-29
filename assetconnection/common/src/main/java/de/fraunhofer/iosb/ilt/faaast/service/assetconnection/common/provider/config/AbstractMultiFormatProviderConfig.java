@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Base class for all multi format provider configs
+ * Base class for all multi format provider configs.
  */
 public class AbstractMultiFormatProviderConfig {
 

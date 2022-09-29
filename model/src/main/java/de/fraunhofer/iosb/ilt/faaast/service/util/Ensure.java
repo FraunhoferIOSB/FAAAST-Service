@@ -26,17 +26,16 @@ public class Ensure {
 
 
     /**
-     * Checks that the specified object reference is not {@code null}. This
-     * method is designed primarily for doing parameter validation in methods
-     * and constructors, as demonstrated below:
+     * Checks that the specified object reference is not {@code null}. This method is designed primarily for doing
+     * parameter validation in methods and constructors, as demonstrated below:
      * <blockquote>
-     * 
+     *
      * <pre>
      * public Foo(Bar bar) {
      *     this.bar = Ensure.requireNonNull(bar);
      * }
      * </pre>
-     * 
+     *
      * </blockquote>
      *
      * @param obj the object reference to check for nullity
@@ -54,19 +53,18 @@ public class Ensure {
 
 
     /**
-     * Checks that the specified object reference is not {@code null} and throws
-     * a customized {@link IllegalArgumentException} if it is. This method is
-     * designed primarily for doing parameter validation in methods and
-     * constructors with multiple parameters, as demonstrated below:
+     * Checks that the specified object reference is not {@code null} and throws a customized
+     * {@link IllegalArgumentException} if it is. This method is designed primarily for doing parameter validation in
+     * methods and constructors with multiple parameters, as demonstrated below:
      * <blockquote>
-     * 
+     *
      * <pre>
      * public Foo(Bar bar, Baz baz) {
      *     this.bar = Ensure.requireNonNull(bar, "bar must not be null");
      *     this.baz = Ensure.requireNonNull(baz, "baz must not be null");
      * }
      * </pre>
-     * 
+     *
      * </blockquote>
      *
      * @param obj the object reference to check for nullity
@@ -86,8 +84,8 @@ public class Ensure {
 
 
     /**
-     * Validates that a given condition is met, otherwise throws custom {@code IllegalArgumentException}
-     * 
+     * Validates that a given condition is met, otherwise throws custom {@code IllegalArgumentException}.
+     *
      * @param condition condition to check
      * @param message message for exception
      */
@@ -99,8 +97,8 @@ public class Ensure {
 
 
     /**
-     * Checks that the specified object reference is not {@code null} and throws
-     * a customized {@link IllegalArgumentException} if it is.
+     * Checks that the specified object reference is not {@code null} and throws a customized
+     * {@link IllegalArgumentException} if it is.
      *
      * @param <T> the type of the reference
      * @param obj the object to check
@@ -120,8 +118,8 @@ public class Ensure {
 
 
     /**
-     * Checks that the specified object reference is not {@code null} and throws
-     * a customized {@link RuntimeException} if it is.
+     * Checks that the specified object reference is not {@code null} and throws a customized {@link RuntimeException}
+     * if it is.
      *
      * @param <T> the type of the reference
      * @param obj the object to check

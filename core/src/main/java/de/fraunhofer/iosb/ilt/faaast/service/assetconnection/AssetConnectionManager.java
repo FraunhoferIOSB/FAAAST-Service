@@ -38,8 +38,7 @@ import java.util.stream.Stream;
 
 
 /**
- * Manages all asset connections and provides convenient functions to
- * find/access providers.
+ * Manages all asset connections and provides convenient functions to find/access providers.
  */
 public class AssetConnectionManager {
 
@@ -71,16 +70,13 @@ public class AssetConnectionManager {
 
 
     /**
-     * Adds a new AssetConnection created from an AssetConnectionConfig
+     * Adds a new AssetConnection created from an AssetConnectionConfig.
      *
-     * @param connectionConfig the AssetConnectionConfig describing the
-     *            AssetConnection to add
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException if
-     *             provided connectionConfig is invalid
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException
-     *             if initializing asset connection fails
+     * @param connectionConfig the AssetConnectionConfig describing the AssetConnection to add
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException if provided connectionConfig is
+     *             invalid
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException if initializing asset
+     *             connection fails
      */
     public void add(AssetConnectionConfig<? extends AssetConnection, ? extends AssetValueProviderConfig, ? extends AssetOperationProviderConfig, ? extends AssetSubscriptionProviderConfig> connectionConfig)
             throws ConfigurationException, AssetConnectionException {
@@ -113,11 +109,10 @@ public class AssetConnectionManager {
 
 
     /**
-     * Gets the operation provider for the AAS element defined by reference
+     * Gets the operation provider for the AAS element defined by reference.
      *
      * @param reference AAS element
-     * @return operation provider for the AAS element defined by reference or
-     *         null if there is none defined
+     * @return operation provider for the AAS element defined by reference or null if there is none defined
      */
     public AssetOperationProvider getOperationProvider(Reference reference) {
         return connections.stream().filter(x -> x.getOperationProviders().containsKey(reference)).map(x -> (AssetOperationProvider) x.getOperationProviders().get(reference))
@@ -126,11 +121,10 @@ public class AssetConnectionManager {
 
 
     /**
-     * Gets the subscription provider for the AAS element defined by reference
+     * Gets the subscription provider for the AAS element defined by reference.
      *
      * @param reference AAS element
-     * @return subscription provider for the AAS element defined by reference or
-     *         null if there is none defined
+     * @return subscription provider for the AAS element defined by reference or null if there is none defined
      */
     public AssetSubscriptionProvider getSubscriptionProvider(Reference reference) {
         return connections.stream().filter(x -> x.getSubscriptionProviders().containsKey(reference))
@@ -139,11 +133,10 @@ public class AssetConnectionManager {
 
 
     /**
-     * Gets the value provider for the AAS element defined by reference
+     * Gets the value provider for the AAS element defined by reference.
      *
      * @param reference AAS element
-     * @return value provider for the AAS element defined by reference or null
-     *         if there is none defined
+     * @return value provider for the AAS element defined by reference or null if there is none defined
      */
     public AssetValueProvider getValueProvider(Reference reference) {
         return connections.stream().filter(x -> x.getValueProviders().containsKey(reference)).map(x -> (AssetValueProvider) x.getValueProviders().get(reference)).findFirst()
@@ -152,13 +145,12 @@ public class AssetConnectionManager {
 
 
     /**
-     * If a {@link AssetValueProvider} exists for given reference, the provided
-     * will be written; otherwise nothing happens
+     * If a {@link AssetValueProvider} exists for given reference, the provided will be written; otherwise nothing
+     * happens.
      *
      * @param reference reference to element to check for asset connection
      * @param value the value to write
-     * @throws AssetConnectionException if writing value to asset connection
-     *             fails
+     * @throws AssetConnectionException if writing value to asset connection fails
      */
     public void setValue(Reference reference, ElementValue value) throws AssetConnectionException {
         if (hasValueProvider(reference) && ElementValueHelper.isValidDataElementValue(value)) {
@@ -173,14 +165,11 @@ public class AssetConnectionManager {
 
 
     /**
-     * Reads value from asset connection if available, otherwise empty optional
-     * is returned.
+     * Reads value from asset connection if available, otherwise empty optional is returned.
      *
      * @param reference reference to element to check for asset connection
-     * @return value read from the asset connection if available, empty optional
-     *         otherwise
-     * @throws AssetConnectionException if there is an asset connection but
-     *             reading fails
+     * @return value read from the asset connection if available, empty optional otherwise
+     * @throws AssetConnectionException if there is an asset connection but reading fails
      */
     public Optional<DataElementValue> readValue(Reference reference) throws AssetConnectionException {
         if (hasValueProvider(reference)) {
@@ -196,12 +185,10 @@ public class AssetConnectionManager {
 
 
     /**
-     * Returns whether there is a operation provider defined for the provided
-     * AAS element or not.
+     * Returns whether there is a operation provider defined for the provided AAS element or not.
      *
      * @param reference AAS element
-     * @return true if there is a operation provider defined for the provided
-     *         AAS element, otherwise false
+     * @return true if there is a operation provider defined for the provided AAS element, otherwise false
      */
     public boolean hasOperationProvider(Reference reference) {
         Reference temp = reference;
@@ -216,12 +203,10 @@ public class AssetConnectionManager {
 
 
     /**
-     * Returns whether there is a subscription provider defined for the provided
-     * AAS element or not.
+     * Returns whether there is a subscription provider defined for the provided AAS element or not.
      *
      * @param reference AAS element
-     * @return true if there is a subscription provider defined for the provided
-     *         AAS element, otherwise false
+     * @return true if there is a subscription provider defined for the provided AAS element, otherwise false
      */
     public boolean hasSubscriptionProvider(Reference reference) {
         return connections.stream().anyMatch(x -> x.getSubscriptionProviders().containsKey(reference));
@@ -229,12 +214,10 @@ public class AssetConnectionManager {
 
 
     /**
-     * Returns whether there is a value provider defined for the provided AAS
-     * element or not.
+     * Returns whether there is a value provider defined for the provided AAS element or not.
      *
      * @param reference AAS element
-     * @return true if there is a value provider defined for the provided AAS
-     *         element, otherwise false
+     * @return true if there is a value provider defined for the provided AAS element, otherwise false
      */
     public boolean hasValueProvider(Reference reference) {
         return connections.stream().anyMatch(x -> x.getValueProviders().containsKey(reference));

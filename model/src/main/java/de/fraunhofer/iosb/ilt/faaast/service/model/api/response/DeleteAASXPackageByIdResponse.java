@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 4.5.6
+ * Response class for DeleteAASXPackageById requests.
  */
 public class DeleteAASXPackageByIdResponse extends AbstractResponse {
 

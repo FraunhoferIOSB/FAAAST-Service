@@ -20,7 +20,7 @@ import java.util.List;
 
 
 /**
- * Chapter 6.2.5
+ * Response class for GetAllAssetAdministrationShellsByIdShort requests.
  */
 public class GetAllAssetAdministrationShellsByIdShortResponse extends AbstractResponseWithPayload<List<AssetAdministrationShell>> {
 

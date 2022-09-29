@@ -25,8 +25,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Factory to resolve implementations of Format interface based on key (given by
- * Dataformat annotation)
+ * Factory to resolve implementations of Format interface based on key (given by Dataformat annotation).
  */
 public class FormatFactory {
 
@@ -67,8 +66,7 @@ public class FormatFactory {
      *
      * @param key the key to identify the format
      * @return new format representation
-     * @throws IllegalArgumentException if no matching format can be found for
-     *             {@code key}
+     * @throws IllegalArgumentException if no matching format can be found for {@code key}
      * @throws RuntimeException is instantiation of format fails
      */
     public static Format create(String key) {

@@ -76,13 +76,11 @@ public class RequestMappingManager extends AbstractMappingManager<AbstractReques
 
 
     /**
-     * Finds corresponding protocol-agnostic request for given HTTP request and
-     * converts it.
+     * Finds corresponding protocol-agnostic request for given HTTP request and converts it.
      *
      * @param httpRequest HTTP-based request to convert
      * @return protocol-agnostic request
-     * @throws InvalidRequestException if no mapper is found for request or
-     *             mapping fails
+     * @throws InvalidRequestException if no mapper is found for request or mapping fails
      */
     public Request map(HttpRequest httpRequest) throws InvalidRequestException {
         return findRequestMapper(httpRequest).parse(httpRequest);

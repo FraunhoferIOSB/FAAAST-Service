@@ -21,7 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 
 
 /**
- * Utility enum for available endpoint types
+ * Utility enum for available endpoint types.
  */
 public enum EndpointType {
     HTTP(HttpEndpointConfig.class.getName()),

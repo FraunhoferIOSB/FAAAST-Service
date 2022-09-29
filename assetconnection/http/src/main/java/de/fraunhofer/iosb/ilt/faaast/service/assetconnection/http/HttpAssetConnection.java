@@ -39,27 +39,25 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Implementation of
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection}
- * for the HTTP protocol.
- * <p>
- * Following asset connection operations are supported:
+ * Implementation of {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection} for the HTTP
+ * protocol.
+ *
+ * <p>Following asset connection operations are supported:
  * <ul>
  * <li>setting values (via HTTP PUT)
  * <li>reading values (via HTTP GET)
  * </ul>
- * <p>
- * Following asset connection operations are not supported:
+ *
+ * <p>Following asset connection operations are not supported:
  * <ul>
  * <li>subscribing to values
  * <li>executing operations
  * </ul>
- * <p>
- * This implementation currently only supports submodel elements of type
- * {@link io.adminshell.aas.v3.model.Property} resp.
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
- * <p>
- * This class uses a single underlying HTTP connection.
+ *
+ * <p>This implementation currently only supports submodel elements of type {@link io.adminshell.aas.v3.model.Property}
+ * resp. {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
+ *
+ * <p>This class uses a single underlying HTTP connection.
  */
 public class HttpAssetConnection
         implements AssetConnection<HttpAssetConnectionConfig, HttpValueProviderConfig, HttpOperationProviderConfig, HttpSubscriptionProviderConfig> {

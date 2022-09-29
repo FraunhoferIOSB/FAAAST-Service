@@ -21,8 +21,7 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 
 
 /**
- * Base class for mappers between submodel elements and their corresponding
- * value class.
+ * Base class for mappers between submodel elements and their corresponding value class.
  *
  * @param <I> type of submodel element
  * @param <O> type if element value
@@ -30,8 +29,7 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 public interface DataValueMapper<I extends SubmodelElement, O extends ElementValue> {
 
     /**
-     * Provides the value representation of a submodel element. Returns null
-     * when input is null.
+     * Provides the value representation of a submodel element. Returns null when input is null.
      *
      * @param submodelElement the submodel element
      * @return the value representation
@@ -41,7 +39,7 @@ public interface DataValueMapper<I extends SubmodelElement, O extends ElementVal
 
 
     /**
-     * Sets the value on a submodel element
+     * Sets the value on a submodel element.
      *
      * @param submodelElement the submodel element to set the value on
      * @param value the value to set

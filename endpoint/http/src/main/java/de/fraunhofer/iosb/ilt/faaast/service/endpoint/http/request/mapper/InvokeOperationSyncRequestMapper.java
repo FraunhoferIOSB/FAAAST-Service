@@ -21,10 +21,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRe
 
 
 /**
- * class to map HTTP-POST-Request paths:
- * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
- * <br>
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
+ * class to map HTTP-POST-Request paths: submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke,
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke.
  */
 public class InvokeOperationSyncRequestMapper extends AbstractInvokeOperationRequestMapper<InvokeOperationSyncRequest, InvokeOperationSyncResponse> {
 

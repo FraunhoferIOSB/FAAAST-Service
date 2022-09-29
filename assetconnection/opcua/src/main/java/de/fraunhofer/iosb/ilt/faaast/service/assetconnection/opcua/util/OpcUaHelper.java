@@ -45,11 +45,9 @@ public class OpcUaHelper {
 
 
     /**
-     * Checks an OPC UA
-     * {@link org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode} and
-     * throws meaningfull
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException}
-     * if status indicates an error.
+     * Checks an OPC UA {@link org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode} and throws meaningfull
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException} if status indicates an
+     * error.
      *
      * @param statusCode the OPC UA status code received
      * @param errorMessage the message to use as prefix in the
@@ -111,12 +109,11 @@ public class OpcUaHelper {
 
 
     /**
-     * Creates a new OPC UA client
+     * Creates a new OPC UA client.
      *
      * @param opcUrl the URL of the OPC UA server to connect to
      * @param identityProvider the identity provider
-     * @param applicationName the name of the application used for
-     *            identification purposes
+     * @param applicationName the name of the application used for identification purposes
      * @return new OPC UA client
      * @throws UaException if creating connection fails
      */
@@ -139,7 +136,7 @@ public class OpcUaHelper {
 
 
     /**
-     * Creates a new OPC UA client
+     * Creates a new OPC UA client.
      *
      * @param opcUrl the URL of the OPC UA server to connect to
      * @param identityProvider the identity provider
@@ -152,7 +149,7 @@ public class OpcUaHelper {
 
 
     /**
-     * Creates a new OPC UA client
+     * Creates a new OPC UA client.
      *
      * @param opcUrl the URL of the OPC UA server to connect to
      * @param identityProvider the identity provider

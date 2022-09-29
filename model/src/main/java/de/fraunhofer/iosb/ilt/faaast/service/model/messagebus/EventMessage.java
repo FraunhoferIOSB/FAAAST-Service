@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Abstract base class for all messages that are sent via message bus
+ * Abstract base class for all messages that are sent via message bus.
  */
 public abstract class EventMessage {
 

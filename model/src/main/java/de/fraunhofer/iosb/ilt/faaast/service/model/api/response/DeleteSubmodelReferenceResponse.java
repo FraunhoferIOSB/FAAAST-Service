@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 4.2.6
+ * Response class for DeleteSubmodelReference requests.
  */
 public class DeleteSubmodelReferenceResponse extends AbstractResponse {
 

@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 4.2.8
+ * Response class for PutAssetInformation requests.
  */
 public class PutAssetInformationResponse extends AbstractResponse {
 

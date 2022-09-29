@@ -28,8 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 
 /**
- * Generic response mapper for any responses that contain a payload. It is used
- * when no more specific mapper is present.
+ * Generic response mapper for any responses that contain a payload. It is used when no more specific mapper is present.
  *
  * @param <T> type of the payload
  */

@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 /**
  * Default configuration for all AssetProvider implementations. Should be extended (i.e. implemented) when custom
  * configuration is needed.
- * 
+ *
  * @param <T> corresponding type of AssetProvider
  */
 public interface AssetProviderConfig<T extends AssetProvider> {}
