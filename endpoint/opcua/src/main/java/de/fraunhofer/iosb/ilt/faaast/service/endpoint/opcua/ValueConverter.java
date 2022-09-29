@@ -55,6 +55,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Optional;
 import opc.i4aas.AASAssetKindDataType;
 import opc.i4aas.AASEntityTypeDataType;
 import opc.i4aas.AASIdentifierTypeDataType;
@@ -73,6 +74,43 @@ import org.slf4j.LoggerFactory;
 public class ValueConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueConverter.class);
+    private static final ArrayList<DatatypeMapper> typeList;
+
+    private static class DatatypeMapper {
+        private final String typeString;
+        private final NodeId typeNode;
+        private final AASValueTypeDataType valueType;
+        private final Datatype datatype;
+
+        public DatatypeMapper(String typeString, NodeId typeNode, AASValueTypeDataType valueType, Datatype datatype) {
+            this.typeString = typeString;
+            this.typeNode = typeNode;
+            this.valueType = valueType;
+            this.datatype = datatype;
+        }
+    }
+
+    static {
+        typeList = new ArrayList<>();
+        typeList.add(new DatatypeMapper("bytestring", Identifiers.ByteString, AASValueTypeDataType.ByteString, null));
+        typeList.add(new DatatypeMapper("boolean", Identifiers.Boolean, AASValueTypeDataType.Boolean, Datatype.BOOLEAN));
+        typeList.add(new DatatypeMapper("datetime", Identifiers.DateTime, AASValueTypeDataType.DateTime, Datatype.DATE_TIME));
+        typeList.add(new DatatypeMapper("decimal", Identifiers.Decimal, AASValueTypeDataType.Int64, Datatype.DECIMAL));
+        typeList.add(new DatatypeMapper("integer", Identifiers.Integer, AASValueTypeDataType.Int64, Datatype.INTEGER));
+        typeList.add(new DatatypeMapper("int", Identifiers.Int32, AASValueTypeDataType.Int32, Datatype.INT));
+        typeList.add(new DatatypeMapper("unsignedint", Identifiers.UInt32, AASValueTypeDataType.UInt32, null));
+        typeList.add(new DatatypeMapper("long", Identifiers.Int64, AASValueTypeDataType.Int64, Datatype.LONG));
+        typeList.add(new DatatypeMapper("unsignedlong", Identifiers.UInt64, AASValueTypeDataType.UInt64, null));
+        typeList.add(new DatatypeMapper("short", Identifiers.Int16, AASValueTypeDataType.Int16, Datatype.SHORT));
+        typeList.add(new DatatypeMapper("unsignedshort", Identifiers.UInt16, AASValueTypeDataType.UInt16, null));
+        typeList.add(new DatatypeMapper("byte", Identifiers.SByte, AASValueTypeDataType.SByte, Datatype.BYTE));
+        typeList.add(new DatatypeMapper("unsignedbyte", Identifiers.Byte, AASValueTypeDataType.Byte, null));
+        typeList.add(new DatatypeMapper("double", Identifiers.Double, AASValueTypeDataType.Double, Datatype.DOUBLE));
+        typeList.add(new DatatypeMapper("float", Identifiers.Float, AASValueTypeDataType.Float, Datatype.FLOAT));
+        typeList.add(new DatatypeMapper("langstring", Identifiers.LocalizedText, AASValueTypeDataType.LocalizedText, null));
+        typeList.add(new DatatypeMapper("string", Identifiers.String, AASValueTypeDataType.String, Datatype.STRING));
+        typeList.add(new DatatypeMapper("time", Identifiers.UtcTime, AASValueTypeDataType.UtcTime, null));
+    }
 
     /**
      * Private constructor to prevent class from being instantiated.
@@ -92,82 +130,13 @@ public class ValueConverter {
         NodeId retval = null;
 
         try {
-            switch (valueType.toLowerCase()) {
-                case "bytestring":
-                    retval = Identifiers.ByteString;
-                    break;
-
-                case "boolean":
-                    retval = Identifiers.Boolean;
-                    break;
-
-                case "datetime":
-                    retval = Identifiers.DateTime;
-                    break;
-
-                case "decimal":
-                    retval = Identifiers.Decimal;
-                    break;
-
-                case "integer":
-                    retval = Identifiers.Integer;
-                    break;
-
-                case "int":
-                    retval = Identifiers.Int32;
-                    break;
-
-                case "unsignedint":
-                    retval = Identifiers.UInt32;
-                    break;
-
-                case "long":
-                    retval = Identifiers.Int64;
-                    break;
-
-                case "unsignedlong":
-                    retval = Identifiers.Int64;
-                    break;
-
-                case "short":
-                    retval = Identifiers.Int16;
-                    break;
-
-                case "unsignedshort":
-                    retval = Identifiers.UInt16;
-                    break;
-
-                case "byte":
-                    retval = Identifiers.SByte;
-                    break;
-
-                case "unsignedbyte":
-                    retval = Identifiers.Byte;
-                    break;
-
-                case "double":
-                    retval = Identifiers.Double;
-                    break;
-
-                case "float":
-                    retval = Identifiers.Float;
-                    break;
-
-                case "langstring":
-                    retval = Identifiers.LocalizedText;
-                    break;
-
-                case "string":
-                    retval = Identifiers.String;
-                    break;
-
-                case "time":
-                    retval = Identifiers.UtcTime;
-                    break;
-                default:
-                    LOGGER.warn("convertValueTypeStringToNodeId: Unknown type: {}", valueType);
-                    retval = NodeId.NULL;
-                    break;
+            Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.typeString.equalsIgnoreCase(valueType)).findAny();
+            if (rv.isEmpty()) {
+                LOGGER.warn("convertValueTypeStringToNodeId: Unknown type: {}", valueType);
+                retval = NodeId.NULL;
+            }
+            else {
+                retval = rv.get().typeNode;
             }
         }
         catch (Exception ex) {
@@ -189,84 +158,13 @@ public class ValueConverter {
         AASValueTypeDataType retval = null;
 
         try {
-            switch (value.toLowerCase()) {
-                case "boolean":
-                    retval = AASValueTypeDataType.Boolean;
-                    break;
-
-                case "unsignedbyte":
-                    retval = AASValueTypeDataType.Byte;
-                    break;
-
-                case "byte":
-                    retval = AASValueTypeDataType.SByte;
-                    break;
-
-                case "short":
-                    retval = AASValueTypeDataType.UInt16;
-                    break;
-
-                case "unsignedshort":
-                    retval = AASValueTypeDataType.Int16;
-                    break;
-
-                case "int":
-                    retval = AASValueTypeDataType.Int32;
-                    break;
-
-                case "integer":
-                    LOGGER.warn("stringToValueType: Integer not supported");
-                    retval = AASValueTypeDataType.Int64;
-                    break;
-
-                case "unsignedint":
-                    retval = AASValueTypeDataType.UInt32;
-                    break;
-
-                case "long":
-                    retval = AASValueTypeDataType.Int64;
-                    break;
-
-                case "unsignedlong":
-                    retval = AASValueTypeDataType.UInt64;
-                    break;
-
-                case "float":
-                    retval = AASValueTypeDataType.Float;
-                    break;
-
-                case "double":
-                    retval = AASValueTypeDataType.Double;
-                    break;
-
-                case "string":
-                    retval = AASValueTypeDataType.String;
-                    break;
-
-                case "datetime":
-                    retval = AASValueTypeDataType.DateTime;
-                    break;
-
-                case "bytestring":
-                    retval = AASValueTypeDataType.ByteString;
-                    break;
-
-                case "langstring":
-                    retval = AASValueTypeDataType.LocalizedText;
-                    break;
-
-                case "time":
-                    retval = AASValueTypeDataType.UtcTime;
-                    break;
-
-                case "decimal":
-                    LOGGER.warn("stringToValueType: Decimal not supported!");
-                    retval = AASValueTypeDataType.Int64;
-                    break;
-
-                default:
-                    LOGGER.warn("stringToValueType: unknown value: {}", value);
-                    throw new IllegalArgumentException("unknown value: " + value);
+            Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.typeString.equalsIgnoreCase(value)).findAny();
+            if (rv.isEmpty()) {
+                LOGGER.warn("stringToValueType: unknown value: {}", value);
+                throw new IllegalArgumentException("unknown value: " + value);
+            }
+            else {
+                retval = rv.get().valueType;
             }
         }
         catch (Exception ex) {
@@ -287,57 +185,18 @@ public class ValueConverter {
     public static AASValueTypeDataType datatypeToValueType(Datatype type) {
         AASValueTypeDataType retval;
 
-        switch (type) {
-            case DOUBLE:
-                retval = AASValueTypeDataType.Double;
-                break;
-
-            case INT:
-                retval = AASValueTypeDataType.Int32;
-                break;
-
-            case STRING:
-                retval = AASValueTypeDataType.String;
-                break;
-
-            case BOOLEAN:
-                retval = AASValueTypeDataType.Boolean;
-                break;
-
-            case BYTE:
-                retval = AASValueTypeDataType.SByte;
-                break;
-
-            case DECIMAL:
-                LOGGER.warn("datatypeToValueType: Decimal not supported!");
-                retval = AASValueTypeDataType.Int64;
-                break;
-
-            case FLOAT:
-                retval = AASValueTypeDataType.Float;
-                break;
-
-            case INTEGER:
-                LOGGER.warn("datatypeToValueType: Integer not supported - map to Long!");
-                retval = AASValueTypeDataType.Int64;
-                break;
-
-            case LONG:
-                retval = AASValueTypeDataType.Int64;
-                break;
-
-            case SHORT:
-                retval = AASValueTypeDataType.Int16;
-                break;
-
-            case DATE_TIME:
-                retval = AASValueTypeDataType.DateTime;
-                break;
-
-            default:
-                LOGGER.warn("datatypeToValueType: unknown type: {}", type);
-                throw new IllegalArgumentException("unknown type: " + type);
+        if (type == null) {
+            throw new IllegalArgumentException("type must not be null");
         }
+        Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.datatype == type).findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("datatypeToValueType: unknown type: {}", type);
+            throw new IllegalArgumentException("unknown type: " + type);
+        }
+        else {
+            retval = rv.get().valueType;
+        }
+        LOGGER.trace("datatypeToValueType: {} mapped to {}", type, retval);
 
         return retval;
     }
