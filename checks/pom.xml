@@ -7,6 +7,7 @@
         <version>0.2.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+    <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
     <artifactId>checks</artifactId>
     <name>checks</name>
     <description>Checkstyle Checks for the FA³ST Service.</description>

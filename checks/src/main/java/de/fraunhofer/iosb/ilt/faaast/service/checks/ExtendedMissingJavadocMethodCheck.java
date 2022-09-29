@@ -148,6 +148,7 @@ public class ExtendedMissingJavadocMethodCheck extends BuilderAwareCheck {
                     }
                 }
             }
+            default:
         }
     }
 
