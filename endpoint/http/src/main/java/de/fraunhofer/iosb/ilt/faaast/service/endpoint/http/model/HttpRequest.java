@@ -59,6 +59,11 @@ public class HttpRequest extends HttpMessage {
     }
 
 
+    /**
+     * Sets the path.
+     *
+     * @param path the path
+     */
     public void setPath(String path) {
         if (path.startsWith("/")) {
             this.path = path.substring(1);
@@ -70,26 +75,62 @@ public class HttpRequest extends HttpMessage {
     }
 
 
+    /**
+     * Checks if query parameter is present
+     *
+     * @param parameter the parameter name
+     * @return true if query parameter if given name is present, false otherwise
+     */
     public boolean hasQueryParameter(String parameter) {
         return queryParameters.containsKey(parameter);
     }
 
 
+    /**
+     * Gets the value of a query parameter or null if the the parameter is not
+     * present.
+     *
+     * @param parameter the parameter name
+     * @return the value of the query parameter if present, otherwise null
+     */
     public String getQueryParameter(String parameter) {
         return queryParameters.get(parameter);
     }
 
 
+    /**
+     * Checks if a header with given {@code name} is present
+     *
+     * @param name the name of the header
+     * @return true if header with given {@code name} is present, false
+     *         otherwise
+     */
     public boolean hasHeader(String name) {
         return headers.containsKey(name);
     }
 
 
+    /**
+     * Gets the value of a header or null if the the header is not
+     * present.
+     *
+     * @param name the header name
+     * @return the value of the header if present, otherwise null
+     */
     public String getHeader(String name) {
         return headers.get(name);
     }
 
 
+    /**
+     * Gets the value of a query parameter by name or a default value if query
+     * parameter is not present.
+     *
+     * @param parameter the parameter name
+     * @param defaultValue the default value
+     * @return the value of the query parameter if present, otherweise
+     *         {@code defaultValue}
+     */
     public String getQueryParameterOrDefault(String parameter, String defaultValue) {
         return queryParameters.getOrDefault(parameter, defaultValue);
     }

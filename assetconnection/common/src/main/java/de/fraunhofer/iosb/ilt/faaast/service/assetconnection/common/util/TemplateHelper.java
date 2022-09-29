@@ -28,6 +28,15 @@ public class TemplateHelper {
     private TemplateHelper() {}
 
 
+    /**
+     * Replaces as set of {@code values} within a given string. The keys of
+     * {@code values} are wrapped in <i>${...}</i> and those occurances in the
+     * {@code template} are replaced by the corresponding values.
+     *
+     * @param template the template to replace values in
+     * @param values the values to replace
+     * @return {@code template} with replaced values
+     */
     public static String replace(String template, Map<String, Object> values) {
         return values.entrySet().stream()
                 .reduce(template,

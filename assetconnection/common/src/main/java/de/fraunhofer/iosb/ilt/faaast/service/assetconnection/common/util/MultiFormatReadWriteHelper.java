@@ -35,6 +35,17 @@ public class MultiFormatReadWriteHelper {
     private MultiFormatReadWriteHelper() {}
 
 
+    /**
+     * Converts byte[] value with additional configuration to AAS data model
+     * according to selected data format.
+     *
+     * @param config the configuration
+     * @param value the value, typically raw payload received by transport
+     *            protocol
+     * @param typeinfo type information about target AAS type
+     * @return value converted to AAS value
+     * @throws AssetConnectionException if conversion fails
+     */
     public static DataElementValue convertForRead(MultiFormatReadProviderConfig config, byte[] value, TypeInfo<?> typeinfo) throws AssetConnectionException {
         return FormatFactory
                 .create(config.getFormat())
@@ -42,6 +53,16 @@ public class MultiFormatReadWriteHelper {
     }
 
 
+    /**
+     * Converts AAS value to byte[] to be forwarded to transport protocol of an
+     * asset connection.
+     *
+     * @param config the configuration
+     * @param value the value, typically raw payload received by transport
+     *            protocol
+     * @return value as byte[]
+     * @throws AssetConnectionException if conversion fails
+     */
     public static byte[] convertForWrite(MultiFormatWriteProviderConfig config, DataElementValue value) throws AssetConnectionException {
         if (!(value instanceof PropertyValue)) {
             throw new AssetConnectionException(String.format("unsupported value (%s)", value.getClass().getSimpleName()));

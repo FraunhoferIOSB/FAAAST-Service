@@ -123,6 +123,14 @@ public class HttpHelper {
     }
 
 
+    /**
+     * Converts a
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode} to a
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType}.
+     *
+     * @param statusCode the input {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode}
+     * @return the resulting {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType}
+     */
     public static MessageType messageTypeFromstatusCode(StatusCode statusCode) {
         if (statusCode.isError()) {
             return MessageType.ERROR;

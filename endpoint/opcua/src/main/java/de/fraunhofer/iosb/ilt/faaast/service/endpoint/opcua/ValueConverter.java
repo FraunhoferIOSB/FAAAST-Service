@@ -1074,11 +1074,23 @@ public class ValueConverter {
     }
 
 
+    /**
+     * Creates an OPC UA date time from Java date time
+     *
+     * @param value The input Java date time
+     * @return The OPC UA date time
+     */
     public static DateTime createDateTime(ZonedDateTime value) {
         return new DateTime(GregorianCalendar.from(value));
     }
 
 
+    /**
+     * Creates an OPC UA date time from Java date time
+     *
+     * @param value The input Java date time
+     * @return The OPC UA date time
+     */
     public static DateTime createDateTime(LocalDateTime value) {
         return new DateTime(GregorianCalendar.from(value.atZone(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE))));
     }

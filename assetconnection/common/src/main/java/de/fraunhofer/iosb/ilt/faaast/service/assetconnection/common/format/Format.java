@@ -21,6 +21,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import java.util.Map;
 
 
+/**
+ * Interface for data formats to be used for data de-/encoding across different
+ * asset connection independently of underlying transport protocol.
+ */
 public interface Format {
 
     public String getMimeType();
@@ -67,7 +71,7 @@ public interface Format {
 
     /**
      * Deserializes a set of values from String
-     * 
+     *
      * @param value input string
      * @param elements details about elements to deserialize
      * @return the deserialized values

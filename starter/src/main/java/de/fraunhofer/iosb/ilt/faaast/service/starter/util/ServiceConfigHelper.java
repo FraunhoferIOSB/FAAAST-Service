@@ -48,6 +48,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Utility class for working with configuration files.
+ */
 public class ServiceConfigHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceConfigHelper.class);
@@ -65,6 +68,11 @@ public class ServiceConfigHelper {
     private ServiceConfigHelper() {}
 
 
+    /**
+     * Gets a default configuration.
+     *
+     * @return a default configuration
+     */
     public static ServiceConfig getDefaultServiceConfig() {
         return new ServiceConfig.Builder()
                 .core(new CoreConfig.Builder().requestHandlerThreadPoolSize(2).build())
@@ -75,16 +83,36 @@ public class ServiceConfigHelper {
     }
 
 
+    /**
+     * Loads config from a file.
+     *
+     * @param configFile config file
+     * @return loaded config
+     * @throws IOException if accessing file fails
+     */
     public static ServiceConfig load(File configFile) throws IOException {
         return mapper.readValue(configFile, ServiceConfig.class);
     }
 
 
+    /**
+     * Loads config from a stream.
+     *
+     * @param configFile input stream
+     * @return loaded config
+     * @throws IOException if accessing stream fails
+     */
     public static ServiceConfig load(InputStream configFile) throws IOException {
         return mapper.readValue(configFile, ServiceConfig.class);
     }
 
 
+    /**
+     * Tries to auto-complete a configuration by adding default values for
+     * missing mandatory parts.
+     *
+     * @param serviceConfig the config to auto-complete
+     */
     public static void autoComplete(ServiceConfig serviceConfig) {
         ServiceConfig defaultConfig = getDefaultServiceConfig();
         if (serviceConfig.getCore() == null) {
@@ -106,6 +134,15 @@ public class ServiceConfigHelper {
     }
 
 
+    /**
+     * Builds a new config with updated values from {@code properties}.
+     *
+     * @param config the input config
+     * @param properties properties to update, keys are JSONPath expressions,
+     *            values the new values for that JSONPath
+     * @return a new config with updated properties
+     * @throws JsonProcessingException if deserializing updated config fails
+     */
     public static ServiceConfig withProperties(ServiceConfig config, Map<String, ?> properties) throws JsonProcessingException {
         if (properties == null || properties.isEmpty()) {
             return config;
@@ -141,8 +178,7 @@ public class ServiceConfigHelper {
     }
 
 
-    private static <T extends Config> void applyMultiple(List<Config<? extends Configurable>> configs, Class<T> configType, Consumer<List<T>> updater)
-            throws InvalidConfigurationException {
+    private static <T extends Config> void applyMultiple(List<Config<? extends Configurable>> configs, Class<T> configType, Consumer<List<T>> updater) {
         List<T> configsForType = configs.stream()
                 .filter(x -> configType.isAssignableFrom(x.getClass()))
                 .map(x -> (T) x)
@@ -153,6 +189,15 @@ public class ServiceConfigHelper {
     }
 
 
+    /**
+     * Updates {
+     *
+     * @cod config} with data from other configs.
+     * @param config target config
+     * @param configs configs that should be merged into target config
+     * @throws InvalidConfigurationException if configs to be merged contain
+     *             multiple elements of a type that the target config can only have one
+     */
     public static void apply(ServiceConfig config, List<Config<? extends Configurable>> configs) throws InvalidConfigurationException {
         if (config != null && configs != null) {
             applyMultiple(configs, EndpointConfig.class, config::setEndpoints);

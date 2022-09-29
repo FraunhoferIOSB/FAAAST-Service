@@ -28,5 +28,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Dataformat {
 
-    String key();
+    /**
+     * Gets the key
+     *
+     * @return the key
+     */
+    public String key();
 }
