@@ -79,7 +79,7 @@ public class ObjectData {
     /**
      * Gets the OPC UA Node
      *
-     * @return
+     * @return The Node
      */
     public BaseObjectType getNode() {
         return node;

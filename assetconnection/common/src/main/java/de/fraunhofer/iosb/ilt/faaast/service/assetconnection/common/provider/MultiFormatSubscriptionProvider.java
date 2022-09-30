@@ -95,7 +95,7 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
     /**
      * Gets type information about the underlying element.
      *
-     * @return
+     * @return the type info
      */
     protected abstract TypeInfo getTypeInfo();
 

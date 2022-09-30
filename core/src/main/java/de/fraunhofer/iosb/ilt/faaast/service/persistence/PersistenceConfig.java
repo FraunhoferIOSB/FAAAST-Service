@@ -55,7 +55,7 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
      * Sets model file containing initial model. Initial model is the model that is loaded on first start.
      *
      * @param initialModel the model file
-     * @throws RuntimeException
+     * @throws NoSuchElementException if file is not found
      */
     public void setInitialModel(File initialModel) {
         if (initialModel.exists() && initialModel.isFile()) {
