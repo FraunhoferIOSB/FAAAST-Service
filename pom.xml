@@ -35,7 +35,6 @@
         </developer>
     </developers>
     <modules>
-        <module>checks</module>
         <module>core</module>
         <module>model</module>
         <module>endpoint/http</module>
@@ -361,6 +360,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>checks</module>
                 <module>test</module>
             </modules>
         </profile>
@@ -385,6 +385,7 @@
         <profile>
             <id>test</id>
             <modules>
+                <module>checks</module>
                 <module>endpoint/opcua</module>
                 <module>test</module>
             </modules>
@@ -423,6 +424,7 @@
         <profile>
             <id>build-ci</id>
             <modules>
+                <module>checks</module>
                 <module>endpoint/opcua</module>
                 <module>test</module>
             </modules>
