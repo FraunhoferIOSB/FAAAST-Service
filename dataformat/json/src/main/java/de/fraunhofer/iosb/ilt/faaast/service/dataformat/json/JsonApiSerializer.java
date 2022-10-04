@@ -70,10 +70,10 @@ public class JsonApiSerializer implements ApiSerializer {
     @Override
     public String write(Object obj, OutputModifier modifier) throws SerializationException {
         Ensure.requireNonNull(modifier, "modifier must be non-null");
-        if (modifier != null && modifier.getContent() == Content.VALUE) {
+        if (modifier.getContent() == Content.VALUE) {
             return valueOnlySerializer.write(obj, modifier.getLevel(), modifier.getExtent());
         }
-        if (modifier != null && modifier.getContent() == Content.PATH) {
+        if (modifier.getContent() == Content.PATH) {
             return pathSerializer.write(obj, modifier.getLevel());
         }
         if (obj != null && ElementValue.class.isAssignableFrom(obj.getClass())) {

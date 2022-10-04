@@ -123,6 +123,9 @@ public abstract class ContextAwareElementValueDeserializer<T extends ElementValu
             return result;
         }
         TypeInfo typeInfo = getTypeInfo(context);
+        if (typeInfo == null) {
+            throw new IllegalArgumentException("no type information given in deserialization context");
+        }
         Map<String, JsonNode> childNodes = new HashMap<>();
         if (node.isObject()) {
             node.fields().forEachRemaining(x -> childNodes.put(x.getKey(), x.getValue()));
