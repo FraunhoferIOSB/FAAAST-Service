@@ -33,13 +33,6 @@ jobs:
         distribution: 'adopt'
         java-version: 11
 
-    - name: Dependency Vulnerability Check with OWASP
-      env:
-        OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
-        OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
-      run: |
-        mvn org.owasp:dependency-check-maven:aggregate -P owasp --settings maven-ci-settings.xml -B
-
     - name: Build with Maven
       env:
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
@@ -55,6 +48,13 @@ jobs:
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: |
         mvn install -P test --settings maven-ci-settings.xml -B
+
+    - name: Dependency Vulnerability Check with OWASP
+      env:
+        OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
+        OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
+      run: |
+        mvn org.owasp:dependency-check-maven:aggregate -P owasp --settings maven-ci-settings.xml -B
 
     - name: Test Coverage
       env:
