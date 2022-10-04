@@ -47,7 +47,6 @@
         <module>assetconnection/http</module>
         <module>dataformat/json</module>
         <module>starter</module>
-        <module>test</module>
     </modules>
     <scm>
         <connection>scm:git:git://github.com/FraunhoferIOSB/FAAAST-Service.git</connection>
@@ -328,6 +327,22 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${maven.plugin.javadoc.version}</version>
+                    <configuration>
+                        <quiet>true</quiet>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -458,6 +473,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>${maven.plugin.javadoc.version}</version>
+                        <inherited>false</inherited>
                         <configuration>
                             <quiet>true</quiet>
                         </configuration>
@@ -465,7 +481,7 @@
                             <execution>
                                 <id>attach-javadocs</id>
                                 <goals>
-                                    <goal>jar</goal>
+                                    <goal>aggregate-jar</goal>
                                 </goals>
                             </execution>
                         </executions>
