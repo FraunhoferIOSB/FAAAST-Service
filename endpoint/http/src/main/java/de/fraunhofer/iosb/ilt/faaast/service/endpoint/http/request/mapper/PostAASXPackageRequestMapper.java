@@ -23,7 +23,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-POST-Request path: packages
+ * class to map HTTP-POST-Request path: packages.
  */
 public class PostAASXPackageRequestMapper extends AbstractRequestMapper {
 

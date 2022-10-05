@@ -27,9 +27,8 @@ import org.apache.commons.io.IOUtils;
 
 
 /**
- * OPC UA Nodeset deserializer for
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
- * related files.
+ * OPC UA Nodeset deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related
+ * files.
  */
 @SupportedDataformat(DataFormat.UANODESET)
 public class OpcUaNodesetEnvironmentDeserializer implements EnvironmentDeserializer {

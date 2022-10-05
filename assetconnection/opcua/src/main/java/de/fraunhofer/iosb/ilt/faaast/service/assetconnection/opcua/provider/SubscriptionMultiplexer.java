@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Maps multiple FA³ST subscriptions to a single OPC UA subscription
+ * Maps multiple FA³ST subscriptions to a single OPC UA subscription.
  */
 public class SubscriptionMultiplexer {
 
@@ -142,7 +142,7 @@ public class SubscriptionMultiplexer {
 
 
     /**
-     * Adds a listener
+     * Adds a listener.
      *
      * @param listener The listener to add
      */
@@ -152,8 +152,7 @@ public class SubscriptionMultiplexer {
 
 
     /**
-     * Checks if the multiplexer is active, i.e. there is an active OPC UA
-     * subscription that has not been closed.
+     * Checks if the multiplexer is active, i.e. there is an active OPC UA subscription that has not been closed.
      *
      * @return true if active, otherwise false
      */
@@ -163,8 +162,8 @@ public class SubscriptionMultiplexer {
 
 
     /**
-     * Removes a listener. If the last listener is removed, the OPC UA
-     * subscription is closed and the multiplexer becomes inactive
+     * Removes a listener. If the last listener is removed, the OPC UA subscription is closed and the multiplexer
+     * becomes inactive
      *
      * @param listener The listener to remove
      * @throws AssetConnectionException if closing the OPC UA subscription fails

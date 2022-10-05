@@ -49,7 +49,7 @@
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>dataformat-core</artifactId>
-            <version>${aas.version}</version>
+            <version>${aas.dataformat.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -60,12 +60,18 @@
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>dataformat-json</artifactId>
-            <version>${aas.version}</version>
+            <version>${aas.dataformat.version}</version>
         </dependency>
         <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>model</artifactId>
-            <version>${aas.version}</version>
+            <version>${aas.model.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.skyscreamer</groupId>
@@ -93,6 +99,10 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

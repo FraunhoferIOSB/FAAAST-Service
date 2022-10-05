@@ -27,18 +27,16 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Seriliazer for API calls. Serializes not only whole
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} but
- * also other elements like
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShell}, {@link io.adminshell.aas.v3.model.Submodel}
- * or {@link io.adminshell.aas.v3.model.SubmodelElement} supporting
- * {@link OutputModifier}.
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} but also other elements like
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShell}, {@link io.adminshell.aas.v3.model.Submodel} or
+ * {@link io.adminshell.aas.v3.model.SubmodelElement} supporting {@link OutputModifier}.
  */
 public interface ApiSerializer {
 
     public Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     /**
-     * Serializes given obj as string
+     * Serializes given obj as string.
      *
      * @param obj object to serialize
      * @param modifier output modifier defining how to serialize
@@ -50,7 +48,7 @@ public interface ApiSerializer {
 
     /**
      * Serializes given obj as string using
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}.
      *
      * @param obj object to serialize
      * @return string serialization of obj
@@ -62,7 +60,7 @@ public interface ApiSerializer {
 
 
     /**
-     * Serializes given obj to stream
+     * Serializes given obj to stream.
      *
      * @param out stream to serialize to
      * @param obj object to serialize
@@ -77,7 +75,7 @@ public interface ApiSerializer {
 
     /**
      * Serializes given obj to stream using
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}.
      *
      * @param out stream to serialize to
      * @param obj object to serialize
@@ -90,7 +88,7 @@ public interface ApiSerializer {
 
 
     /**
-     * Serializes given obj to stream
+     * Serializes given obj to stream.
      *
      * @param out stream to serialize to
      * @param charset charset to use for serialization
@@ -108,7 +106,7 @@ public interface ApiSerializer {
 
     /**
      * Serializes given obj to stream using
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}.
      *
      * @param out stream to serialize to
      * @param charset charset to use for serialization
@@ -122,7 +120,7 @@ public interface ApiSerializer {
 
 
     /**
-     * Serializes given obj to file
+     * Serializes given obj to file.
      *
      * @param file fileto serialize to
      * @param charset charset to use for serialization
@@ -141,7 +139,7 @@ public interface ApiSerializer {
 
     /**
      * Serializes given obj to file using
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}.
      *
      * @param file fileto serialize to
      * @param charset charset to use for serialization
@@ -156,7 +154,7 @@ public interface ApiSerializer {
 
 
     /**
-     * Serializes given obj to file
+     * Serializes given obj to file.
      *
      * @param file fileto serialize to
      * @param obj object to serialize
@@ -172,7 +170,7 @@ public interface ApiSerializer {
 
     /**
      * Serializes given obj to file using
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier#DEFAULT}.
      *
      * @param file fileto serialize to
      * @param obj object to serialize

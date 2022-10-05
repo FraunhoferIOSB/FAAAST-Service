@@ -18,7 +18,7 @@ import java.util.Objects;
 
 
 /**
- * Model class for search options
+ * Model class for search options.
  */
 public class SearchOptions {
 

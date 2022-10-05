@@ -25,7 +25,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 7.2.4
+ * Request class for PostAllAssetLinksById requests.
  */
 public class PostAllAssetLinksByIdRequest implements Request<PostAllAssetLinksByIdResponse> {
 

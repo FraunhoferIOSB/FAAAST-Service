@@ -27,7 +27,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 
 
 /**
- * SubscriptionProvider for MQTT protocol
+ * SubscriptionProvider for MQTT protocol.
  */
 public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<MqttSubscriptionProviderConfig> {
 

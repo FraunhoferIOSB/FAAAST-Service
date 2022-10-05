@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 7.2.3
+ * Request class for GetAllAssetLinksById requests.
  */
 public class GetAllAssetLinksByIdRequest implements Request<GetAllAssetLinksByIdResponse> {
 

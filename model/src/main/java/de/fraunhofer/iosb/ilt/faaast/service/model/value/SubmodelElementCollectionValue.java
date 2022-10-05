@@ -20,6 +20,9 @@ import java.util.Map;
 import java.util.Objects;
 
 
+/**
+ * Value class for SubmodelElementCollection.
+ */
 public class SubmodelElementCollectionValue extends DataElementValue {
 
     private Map<String, ElementValue> values;

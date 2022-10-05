@@ -20,19 +20,19 @@ import java.util.List;
 
 
 /**
- * Chapter 6.2.5
+ * Response class for GetAllAssetAdministrationShellsByIdShort requests.
  */
 public class GetAllAssetAdministrationShellsByIdShortResponse extends AbstractResponseWithPayload<List<AssetAdministrationShell>> {
 
-    public static GetAllAssetAdministrationShellsByIdShortResponse.Builder builder() {
-        return new GetAllAssetAdministrationShellsByIdShortResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder
-            extends AbstractBuilder<List<AssetAdministrationShell>, GetAllAssetAdministrationShellsByIdShortResponse, GetAllAssetAdministrationShellsByIdShortResponse.Builder> {
+            extends AbstractBuilder<List<AssetAdministrationShell>, GetAllAssetAdministrationShellsByIdShortResponse, Builder> {
 
         @Override
-        protected GetAllAssetAdministrationShellsByIdShortResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

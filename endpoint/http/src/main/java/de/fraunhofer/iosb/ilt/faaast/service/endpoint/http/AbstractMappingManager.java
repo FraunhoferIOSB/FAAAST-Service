@@ -28,8 +28,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Base class for mapping managers finding implementation classes via
- * reflection.
+ * Base class for mapping managers finding implementation classes via reflection.
  *
  * @param <T> type of mapping class to search for
  */

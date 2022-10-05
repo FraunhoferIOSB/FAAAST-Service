@@ -22,63 +22,53 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 
 
 /**
- * An implementation of an internal message bus inherits from this interface.
- * This message bus is used for internal events
+ * An implementation of an internal message bus inherits from this interface. This message bus is used for internal
+ * events.
  *
  * @param <T> type of the corresponding configuration class
  */
 public interface MessageBus<T extends MessageBusConfig> extends Configurable<T> {
 
     /**
-     * Publish a new EventMessage to the message bus<br>
+     * Publish a new EventMessage to the message bus.
      *
-     * @param message which should be published<br>
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if
-     *             publish fails
+     * @param message which should be published
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publish fails
      */
     public void publish(EventMessage message) throws MessageBusException;
 
 
     /**
-     * Subscribe to event messages published in the message bus.<br>
-     * The Subscription Info determines which event messages are considered in
-     * detail.<br>
+     * Subscribe to event messages published in the message bus. The Subscription Info determines which event messages
+     * are considered in detail.
      *
-     * @param subscriptionInfo to determine which event messages should be
-     *            considered<br>
-     * @return the id of the created subscription in the message bus.<br>
-     *         The id can be used to update/unsubscribe this subscription.
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if
-     *             subscribing fails
+     * @param subscriptionInfo to determine which event messages should be considered
+     * @return the id of the created subscription in the message bus. The id can be used to update/unsubscribe this
+     *         subscription.
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if subscribing fails
      */
     public SubscriptionId subscribe(SubscriptionInfo subscriptionInfo) throws MessageBusException;
 
 
     /**
-     * Unsubscribe from a specific subscription by id<br>
+     * Unsubscribe from a specific subscription by id.
      *
      * @param id of the subscription which should be deleted
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if
-     *             unsubscribing fails
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if unsubscribing fails
      */
     public void unsubscribe(SubscriptionId id) throws MessageBusException;
 
 
     /**
-     * Starts the MessageBus
+     * Starts the MessageBus.
      *
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if
-     *             starting fails
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if starting fails
      */
     public void start() throws MessageBusException;
 
 
     /**
-     * Stops the MessageBus
+     * Stops the MessageBus.
      */
     public void stop();
 

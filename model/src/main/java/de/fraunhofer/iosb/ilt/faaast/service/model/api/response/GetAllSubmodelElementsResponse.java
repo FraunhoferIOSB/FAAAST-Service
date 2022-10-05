@@ -20,18 +20,18 @@ import java.util.List;
 
 
 /**
- * Chapter 4.3.3
+ * Response class for GetAllSubmodelElements requests.
  */
 public class GetAllSubmodelElementsResponse extends AbstractResponseWithPayload<List<SubmodelElement>> {
 
-    public static GetAllSubmodelElementsResponse.Builder builder() {
-        return new GetAllSubmodelElementsResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<SubmodelElement>, GetAllSubmodelElementsResponse, GetAllSubmodelElementsResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<SubmodelElement>, GetAllSubmodelElementsResponse, Builder> {
 
         @Override
-        protected GetAllSubmodelElementsResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

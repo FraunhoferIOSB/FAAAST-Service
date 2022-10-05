@@ -26,6 +26,7 @@ import org.junit.Test;
 
 
 public class RangeValueTest {
+
     @Test
     public void testSetValueMapping() {
         SubmodelElement actual = new DefaultRange.Builder()

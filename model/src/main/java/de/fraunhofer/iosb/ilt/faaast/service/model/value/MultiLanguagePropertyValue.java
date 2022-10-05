@@ -23,6 +23,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
+/**
+ * Value class for MultiLanguageProperty.
+ */
 public class MultiLanguagePropertyValue extends DataElementValue {
 
     private Set<LangString> langStringSet;

@@ -18,18 +18,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 4.2.8
+ * Response class for PutAssetInformation requests.
  */
 public class PutAssetInformationResponse extends AbstractResponse {
 
-    public static PutAssetInformationResponse.Builder builder() {
-        return new PutAssetInformationResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractResponse.AbstractBuilder<PutAssetInformationResponse, Builder> {
+    public static class Builder extends AbstractBuilder<PutAssetInformationResponse, Builder> {
 
         @Override
-        protected PutAssetInformationResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

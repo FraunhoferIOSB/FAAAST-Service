@@ -30,11 +30,10 @@ import java.util.stream.Collectors;
 
 /**
  * Not supported yet! Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellIdsByAssetLinkRequest}
- * in the service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellIdsByAssetLinkRequest} in
+ * the service and to send the corresponding response
  * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellIdsByAssetLinkResponse}.
- * Is responsible for communication with the persistence and sends the
- * corresponding events to the message bus.
+ * Is responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetAllAssetAdministrationShellIdsByAssetLinkRequestHandler
         extends AbstractRequestHandler<GetAllAssetAdministrationShellIdsByAssetLinkRequest, GetAllAssetAdministrationShellIdsByAssetLinkResponse> {

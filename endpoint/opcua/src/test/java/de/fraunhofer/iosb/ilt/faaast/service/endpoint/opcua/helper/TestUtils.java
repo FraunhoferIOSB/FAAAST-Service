@@ -71,10 +71,9 @@ public class TestUtils {
     private static final long WRITE_TIMEOUT = 200;
 
     /**
-     * Define a minimal ApplicationIdentity.If you use secure connections, you
-     * will also need to define the application instance certificate and manage
-     * server certificates.See the SampleConsoleClient.initialize() for a full
-     * example of that.
+     * Define a minimal ApplicationIdentity.If you use secure connections, you will also need to define the application
+     * instance certificate and manage server certificates.See the SampleConsoleClient.initialize() for a full example
+     * of that.
      *
      * @param client The desired OPC UA Client
      * @throws com.prosysopc.ua.SecureIdentityException
@@ -144,8 +143,7 @@ public class TestUtils {
 
 
     /**
-     * Searches for the Identification Node in the given Node and checks the
-     * corresponding values.
+     * Searches for the Identification Node in the given Node and checks the corresponding values.
      *
      * @param client The OPC UA Client
      * @param baseNode The base node where the Identification Node is searched.
@@ -177,8 +175,7 @@ public class TestUtils {
 
 
     /**
-     * Searches for the ModelingKind Node in the given Node and checks the
-     * ModelingKind value.
+     * Searches for the ModelingKind Node in the given Node and checks the ModelingKind value.
      *
      * @param client The OPC UA Client
      * @param baseNode The base node where the ModelingKind Node is searched.
@@ -209,8 +206,7 @@ public class TestUtils {
 
 
     /**
-     * Searches for the Category Node in the given Node and checks the Category
-     * value.
+     * Searches for the Category Node in the given Node and checks the Category value.
      *
      * @param client The OPC UA client
      * @param node The desired node
@@ -364,8 +360,7 @@ public class TestUtils {
 
 
     /**
-     * Searches for the Administration Node in the given Node and checks the
-     * corresponding values.
+     * Searches for the Administration Node in the given Node and checks the corresponding values.
      *
      * @param client The OPC UA Client
      * @param baseNode The base node where the Administration Node is searched.
@@ -450,8 +445,7 @@ public class TestUtils {
      * Searches for the AssetInformation Node and checks the values
      *
      * @param client The OPC UA client
-     * @param baseNode The base node where the AssetInformation Node is
-     *            searched.
+     * @param baseNode The base node where the AssetInformation Node is searched.
      * @param aasns The namespace index of the AAS namespace.
      * @throws ServiceException If the operation fails
      * @throws ServiceResultException If the operation fails
@@ -495,8 +489,7 @@ public class TestUtils {
 
 
     /**
-     * Searches for a Variable (as Property) with the given Name and checks the
-     * boolean Value
+     * Searches for a Variable (as Property) with the given Name and checks the boolean Value
      *
      * @param client The OPC UA client
      * @param node The desired node
@@ -800,8 +793,7 @@ public class TestUtils {
      * Searches for the Submodel reference Node with the given name
      *
      * @param client The OPC UA Client
-     * @param baseNode The base node where the AssetInformation Node is
-     *            searched.
+     * @param baseNode The base node where the AssetInformation Node is searched.
      * @param aasns The namespace index of the AAS namespace.
      * @param name The name of the desired Node
      * @param submodelNode The Submodel Node
@@ -844,7 +836,7 @@ public class TestUtils {
 
     /**
      * Writes the new value into the given node and checks whether the value was written correctly.
-     * 
+     *
      * @param client The OPC UA Client.
      * @param writeNode The node which should be written.
      * @param oldValue The old value.
@@ -877,7 +869,7 @@ public class TestUtils {
 
     /**
      * Writes the new value (array) into the given node and checks whether the value was written correctly.
-     * 
+     *
      * @param client The OPC UA Client.
      * @param writeNode The node which should be written.
      * @param oldValue The old value.
@@ -906,7 +898,7 @@ public class TestUtils {
 
     /**
      * Writes the new value (array) into the given node and checks whether the value was written correctly.
-     * 
+     *
      * @param client The OPC UA Client.
      * @param writeNode The node which should be written.
      * @param oldValue The old value.
@@ -979,8 +971,7 @@ public class TestUtils {
 
 
     /**
-     * Checks the ModelingKind value in the given Node. The Node must already be
-     * the ModelingKind Node.
+     * Checks the ModelingKind value in the given Node. The Node must already be the ModelingKind Node.
      *
      * @param client The OPC UA Client
      * @param kindNode The ModelingKind Node
@@ -1001,8 +992,7 @@ public class TestUtils {
 
 
     /**
-     * Searches for the AssetKind Node in the given Node and checks the
-     * AssetKind value.
+     * Searches for the AssetKind Node in the given Node and checks the AssetKind value.
      *
      * @param client The OPC UA Client
      * @param baseNode The base node where the AssetKind Node is searched.
@@ -1033,8 +1023,7 @@ public class TestUtils {
 
 
     /**
-     * Checks the AssetKind value in the given Node. The Node must already be
-     * the AssetKind Node.
+     * Checks the AssetKind value in the given Node. The Node must already be the AssetKind Node.
      *
      * @param client The OPC UA Client
      * @param kindNode The Asset Node
@@ -1055,8 +1044,7 @@ public class TestUtils {
 
 
     /**
-     * Searches for a Reference Node with the given Name and checks the
-     * corresponding values.
+     * Searches for a Reference Node with the given Name and checks the corresponding values.
      *
      * @param client The OPC UA Client
      * @param baseNode The base node where the Reference Node is searched.
@@ -1132,8 +1120,7 @@ public class TestUtils {
 
 
     /**
-     * Searches for an IdentifierKeyValuePairList Node with the given Name and
-     * checks the corresponding values.
+     * Searches for an IdentifierKeyValuePairList Node with the given Name and checks the corresponding values.
      *
      * @param client The OPC UA Client
      * @param baseNode The base node where the desired Node is searched.

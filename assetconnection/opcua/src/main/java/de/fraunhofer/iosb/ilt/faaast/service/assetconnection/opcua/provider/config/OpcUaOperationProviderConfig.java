@@ -21,8 +21,7 @@ import java.util.Objects;
 
 
 /**
- * * Config file for OPC UA-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
+ * * Config file for OPC UA-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
  */
 public class OpcUaOperationProviderConfig extends AbstractOpcUaProviderConfig implements AssetOperationProviderConfig {
 

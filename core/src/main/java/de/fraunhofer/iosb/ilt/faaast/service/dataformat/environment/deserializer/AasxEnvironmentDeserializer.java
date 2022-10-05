@@ -27,9 +27,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 
 /**
- * AASX deserializer for
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
- * related files.
+ * AASX deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
  */
 @SupportedDataformat(DataFormat.AASX)
 public class AasxEnvironmentDeserializer implements EnvironmentDeserializer {

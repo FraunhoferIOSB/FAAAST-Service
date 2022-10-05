@@ -28,8 +28,7 @@ import java.util.Collection;
 
 
 /**
- * Deserializer for collection of
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue}
+ * Deserializer for collection of {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue}.
  */
 public class ValueCollectionDeserializer extends CollectionDeserializer {
 

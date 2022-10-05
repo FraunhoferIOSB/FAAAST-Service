@@ -19,16 +19,15 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 
 
 /**
- * Generic endpoint configuration. When implementing a custom endpoint inherit
- * from this class to create a custom configuration.
+ * Generic endpoint configuration. When implementing a custom endpoint inherit from this class to create a custom
+ * configuration.
  *
  * @param <T> type of the endpoint
  */
 public class EndpointConfig<T extends Endpoint> extends Config<T> {
 
     /**
-     * Abstract builder class that should be used for builders of inheriting
-     * classes.
+     * Abstract builder class that should be used for builders of inheriting classes.
      *
      * @param <T> type of the endpoint of the config to build
      * @param <C> type of the config to build

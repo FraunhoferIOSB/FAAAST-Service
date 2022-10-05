@@ -24,7 +24,7 @@ import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 
 
 /**
- * Superclass for all OPC UA provider classes
+ * Superclass for all OPC UA provider classes.
  *
  * @param <T> type of the asset provider config
  */

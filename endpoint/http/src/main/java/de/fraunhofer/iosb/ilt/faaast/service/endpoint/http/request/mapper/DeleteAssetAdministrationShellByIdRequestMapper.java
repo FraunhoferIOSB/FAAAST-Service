@@ -26,7 +26,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-DELETE-Request path: shells/{aasIdentifier}
+ * class to map HTTP-DELETE-Request path: shells/{aasIdentifier}.
  */
 public class DeleteAssetAdministrationShellByIdRequestMapper extends AbstractRequestMapper {
 

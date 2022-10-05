@@ -18,18 +18,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 6.4.9
+ * Response class for DeleteConceptDescriptionById requests.
  */
 public class DeleteConceptDescriptionByIdResponse extends AbstractResponse {
 
-    public static DeleteConceptDescriptionByIdResponse.Builder builder() {
-        return new DeleteConceptDescriptionByIdResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractResponse.AbstractBuilder<DeleteConceptDescriptionByIdResponse, Builder> {
+    public static class Builder extends AbstractBuilder<DeleteConceptDescriptionByIdResponse, Builder> {
 
         @Override
-        protected DeleteConceptDescriptionByIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

@@ -30,8 +30,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Abstract base class for custom implementations of AssetSubscriptionProvider
- * supporting multiple data formats.
+ * Abstract base class for custom implementations of AssetSubscriptionProvider supporting multiple data formats.
  *
  * @param <T> concrete type of matching configuration
  */
@@ -58,7 +57,7 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
 
 
     /**
-     * Notifies all listeners about new event
+     * Notifies all listeners about new event.
      *
      * @param value new data to notify about
      */
@@ -94,15 +93,15 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
 
 
     /**
-     * Gets type information about the underlying element
+     * Gets type information about the underlying element.
      *
-     * @return
+     * @return the type info
      */
     protected abstract TypeInfo getTypeInfo();
 
 
     /**
-     * Subscribe via underlying protocol
+     * Subscribe via underlying protocol.
      *
      * @throws AssetConnectionException if subscription fails
      */
@@ -110,7 +109,7 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
 
 
     /**
-     * Unsubscribe via underlying protocol
+     * Unsubscribe via underlying protocol.
      *
      * @throws AssetConnectionException if unsubscribe fails
      */

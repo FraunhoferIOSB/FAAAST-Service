@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.3.6
+ * Request class for PostSubmodelElement requests.
  */
 public class PostSubmodelElementRequest extends AbstractSubmodelInterfaceRequest<PostSubmodelElementResponse> {
 

@@ -60,6 +60,12 @@ public abstract class AbstractResponse implements Response {
     }
 
 
+    /**
+     * Sets statusCode and message with type error.
+     *
+     * @param statusCode the status code to set
+     * @param message the message to set
+     */
     public void setError(StatusCode statusCode, String message) {
         setStatusCode(statusCode);
         setResult(Result.error(message));

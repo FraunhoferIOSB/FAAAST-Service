@@ -18,7 +18,7 @@ import io.adminshell.aas.v3.model.Referable;
 
 
 /**
- * Event message indicating that an element has been read
+ * Event message indicating that an element has been read.
  */
 public class ElementReadEventMessage extends ReadEventMessage<Referable> {
 

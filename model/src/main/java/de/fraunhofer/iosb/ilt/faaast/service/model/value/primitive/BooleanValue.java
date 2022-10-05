@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+/**
+ * A boolean value.
+ */
 public class BooleanValue extends TypedValue<Boolean> {
 
     public BooleanValue() {

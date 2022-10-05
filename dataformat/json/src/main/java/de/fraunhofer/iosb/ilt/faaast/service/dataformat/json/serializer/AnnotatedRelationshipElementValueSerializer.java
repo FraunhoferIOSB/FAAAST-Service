@@ -27,8 +27,7 @@ import java.util.Map;
 
 
 /**
- * Serializer for
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue}
+ * Serializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue}.
  */
 public class AnnotatedRelationshipElementValueSerializer extends StdSerializer<AnnotatedRelationshipElementValue> {
 

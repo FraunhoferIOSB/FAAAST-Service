@@ -69,16 +69,12 @@ public class AasServiceMethodManagerListener implements CallableListener {
      * @param methodId the ID of the method being called
      * @param method the method node being called, if available
      * @param inputArguments input argument values
-     * @param inputArgumentResults argument errors. If errors in the values are
-     *            encountered.
+     * @param inputArgumentResults argument errors. If errors in the values are encountered.
      * @param inputArgumentDiagnosticInfos diagnostic info, in case of errors.
-     * @param outputs output values. The array is pre-created, just fill in the
-     *            values.
-     * @return true if you handle the call, which prevents any other handler
-     *         being called.
-     * @throws StatusException if there are errors in the method handling. For
-     *             example, if you set inputArgumentResults, you should throw a
-     *             StatusException with StatusCodes.Bad_InvalidArgument
+     * @param outputs output values. The array is pre-created, just fill in the values.
+     * @return true if you handle the call, which prevents any other handler being called.
+     * @throws StatusException if there are errors in the method handling. For example, if you set inputArgumentResults,
+     *             you should throw a StatusException with StatusCodes.Bad_InvalidArgument
      */
     @Override
     public boolean onCall(ServiceContext serviceContext, NodeId objectId, UaNode object, NodeId methodId, UaMethod method, Variant[] inputArguments,

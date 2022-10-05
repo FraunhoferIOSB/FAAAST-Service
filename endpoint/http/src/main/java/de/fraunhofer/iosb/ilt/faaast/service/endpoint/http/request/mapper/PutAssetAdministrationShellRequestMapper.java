@@ -28,7 +28,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-PUT-Request path: shells/{aasIdentifier}/aas
+ * class to map HTTP-PUT-Request path: shells/{aasIdentifier}/aas.
  */
 public class PutAssetAdministrationShellRequestMapper extends AbstractRequestMapper {
 

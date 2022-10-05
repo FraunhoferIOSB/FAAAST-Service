@@ -26,7 +26,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-DELETE-Request path: submodels/{submodelIdentifier}
+ * class to map HTTP-DELETE-Request path: submodels/{submodelIdentifier}.
  */
 public class DeleteSubmodelByIdRequestMapper extends AbstractRequestMapper {
 

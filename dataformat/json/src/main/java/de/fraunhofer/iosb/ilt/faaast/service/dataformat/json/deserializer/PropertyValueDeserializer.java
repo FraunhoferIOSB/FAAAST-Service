@@ -23,8 +23,7 @@ import java.io.IOException;
 
 
 /**
- * Deserializer for
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}
+ * Deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
  */
 public class PropertyValueDeserializer extends ContextAwareElementValueDeserializer<PropertyValue> {
 

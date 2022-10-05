@@ -33,10 +33,8 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Base class for requests that are part of the Submodel Interface API. This
- * class exposes the URL both as the stand-alone URL (e.g.
- * submodels/{submodelIdentifier}/submodel/...) as well as the AAS-contextualied
- * version (e.g.
+ * Base class for requests that are part of the Submodel Interface API. This class exposes the URL both as the
+ * stand-alone URL (e.g. submodels/{submodelIdentifier}/submodel/...) as well as the AAS-contextualied version (e.g.
  * /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/...).
  *
  * @param <T> actual type of the request
@@ -52,13 +50,12 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
     protected String contextualizedUrlPattern;
 
     /**
-     * urlPattern must not contain initial part of URL up to ".../submodel/" as
-     * this is automatically added within this constructor
+     * urlPattern must not contain initial part of URL up to ".../submodel/" as this is automatically added within this
+     * constructor.
      *
      * @param serviceContext the service context
      * @param method the HTTP method for this request
-     * @param urlPattern the URL pattern, but only the part after
-     *            ".../submodel/"
+     * @param urlPattern the URL pattern, but only the part after ".../submodel/"
      */
     protected AbstractSubmodelInterfaceRequestMapper(ServiceContext serviceContext, HttpMethod method, String urlPattern) {
         super(serviceContext, method, addSubmodelPath(urlPattern));
@@ -107,7 +104,7 @@ public abstract class AbstractSubmodelInterfaceRequestMapper<T extends AbstractS
 
 
     /**
-     * Converts the HTTP request to protocol-agnostic request
+     * Converts the HTTP request to protocol-agnostic request.
      *
      * @param httpRequest the HTTP request to convert
      * @return the protocol-agnostic request

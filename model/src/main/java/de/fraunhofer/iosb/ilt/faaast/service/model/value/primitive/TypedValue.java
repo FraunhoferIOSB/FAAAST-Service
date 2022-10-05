@@ -61,8 +61,7 @@ public abstract class TypedValue<T> {
 
 
     /**
-     * Sets the value of current instance by parsing the given string to
-     * matching type.
+     * Sets the value of current instance by parsing the given string to matching type.
      *
      * @param value the string representation of the value to set
      * @throws ValueFormatException if value can not be converted to datatype
@@ -70,6 +69,11 @@ public abstract class TypedValue<T> {
     public abstract void fromString(String value) throws ValueFormatException;
 
 
+    /**
+     * Returns the dataType.
+     *
+     * @return the dataType
+     */
     public abstract Datatype getDataType();
 
 

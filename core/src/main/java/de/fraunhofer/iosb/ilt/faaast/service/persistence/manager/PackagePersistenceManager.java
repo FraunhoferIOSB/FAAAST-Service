@@ -15,10 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.manager;
 
 /**
- * Class to handle
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.aasx.AASXPackage}
- * and
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.aasx.PackageDescription}
- * Currently not supported
+ * Class to handle {@link de.fraunhofer.iosb.ilt.faaast.service.model.aasx.AASXPackage} and
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.aasx.PackageDescription}.
+ *
+ * <p>Currently not supported.
  */
 public class PackagePersistenceManager extends PersistenceManager {}

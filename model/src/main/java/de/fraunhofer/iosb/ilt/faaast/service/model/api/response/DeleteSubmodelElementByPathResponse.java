@@ -18,18 +18,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 4.3.10
+ * Response class for DeleteSubmodelElementByPath requests.
  */
 public class DeleteSubmodelElementByPathResponse extends AbstractResponse {
 
-    public static DeleteSubmodelElementByPathResponse.Builder builder() {
-        return new DeleteSubmodelElementByPathResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractResponse.AbstractBuilder<DeleteSubmodelElementByPathResponse, Builder> {
+    public static class Builder extends AbstractBuilder<DeleteSubmodelElementByPathResponse, Builder> {
 
         @Override
-        protected DeleteSubmodelElementByPathResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

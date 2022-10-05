@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Represents a global asset identification
+ * Represents a global asset identification.
  */
 public class GlobalAssetIdentification implements AssetIdentification {
 

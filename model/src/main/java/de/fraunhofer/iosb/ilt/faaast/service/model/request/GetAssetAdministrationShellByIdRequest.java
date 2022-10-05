@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.3.2
+ * Request class for GetAssetAdministrationShellById requests.
  */
 public class GetAssetAdministrationShellByIdRequest extends AbstractRequestWithModifier<GetAssetAdministrationShellByIdResponse> {
 

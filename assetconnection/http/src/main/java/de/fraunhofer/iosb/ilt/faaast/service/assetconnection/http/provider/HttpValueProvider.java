@@ -34,7 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Provides the capability to read and write values via HTTP
+ * Provides the capability to read and write values via HTTP.
  */
 public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProviderConfig> {
 

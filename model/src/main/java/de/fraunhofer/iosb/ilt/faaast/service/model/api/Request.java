@@ -15,8 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api;
 
 /**
- * A request represents a protocol-agnostic operation as defined in the AAS
- * specification Part 2.
+ * A request represents a protocol-agnostic operation as defined in the AAS specification Part 2.
  *
  * @param <T> type of the corresponding response
  */

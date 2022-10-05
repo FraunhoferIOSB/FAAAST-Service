@@ -24,6 +24,9 @@ import java.util.Map;
 import java.util.Objects;
 
 
+/**
+ * Value class for Entity.
+ */
 public class EntityValue extends ElementValue {
 
     private EntityType entityType;

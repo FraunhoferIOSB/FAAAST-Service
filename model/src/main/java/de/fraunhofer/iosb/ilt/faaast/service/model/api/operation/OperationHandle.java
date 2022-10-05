@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * An operation handle is used to identify async operations after invocation
+ * An operation handle is used to identify async operations after invocation.
  */
 public class OperationHandle {
 

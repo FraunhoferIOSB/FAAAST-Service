@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 
 
 /**
- * class to map HTTP-GET-Request path: /serialization
+ * class to map HTTP-GET-Request path: /serialization.
  */
 public class GenerateSerializationByIdsRequestMapper extends AbstractRequestMapper {
 

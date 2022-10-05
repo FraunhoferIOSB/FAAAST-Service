@@ -28,8 +28,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 
 /**
- * Maps a given API response to HTTP by finding the best suited (most specific)
- * response mapper.
+ * Maps a given API response to HTTP by finding the best suited (most specific) response mapper.
  */
 public class ResponseMappingManager extends AbstractMappingManager<AbstractResponseMapper> {
 
@@ -39,8 +38,7 @@ public class ResponseMappingManager extends AbstractMappingManager<AbstractRespo
 
 
     /**
-     * Maps a given API response to HTTP by finding the best suited (most
-     * specific) response mapper.
+     * Maps a given API response to HTTP by finding the best suited (most specific) response mapper.
      *
      * @param apiRequest the original API request received
      * @param apiResponse the API response to process

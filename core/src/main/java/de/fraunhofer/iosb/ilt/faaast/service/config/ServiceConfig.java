@@ -130,7 +130,7 @@ public class ServiceConfig {
 
 
     /**
-     * Gets the persistence configuration
+     * Gets the persistence configuration.
      *
      * @return the persistence configuration
      */

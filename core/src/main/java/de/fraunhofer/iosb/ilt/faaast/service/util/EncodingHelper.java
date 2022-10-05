@@ -21,7 +21,7 @@ import java.util.Base64;
 
 
 /**
- * Helper class for base64 and base64URL encoding and decoding
+ * Helper class for base64 and base64URL encoding and decoding.
  */
 public class EncodingHelper {
 
@@ -31,7 +31,7 @@ public class EncodingHelper {
 
 
     /**
-     * Encode url decoded string with charset UTF-8
+     * Encode url decoded string with charset UTF-8.
      *
      * @param value string to encode
      * @return encoded string
@@ -42,7 +42,7 @@ public class EncodingHelper {
 
 
     /**
-     * Url decode string with charset UTF-8
+     * Url decode string with charset UTF-8.
      *
      * @param value url encoded string
      * @return decoded string
@@ -53,7 +53,7 @@ public class EncodingHelper {
 
 
     /**
-     * Base64 encode string
+     * Base64 encode string.
      *
      * @param value string to encode
      * @return encoded string
@@ -64,7 +64,7 @@ public class EncodingHelper {
 
 
     /**
-     * Base64 encode
+     * Base64 encode.
      *
      * @param value value to encode
      * @return encoded value
@@ -75,7 +75,7 @@ public class EncodingHelper {
 
 
     /**
-     * Decode a base64 encoded string
+     * Decode a base64 encoded string.
      *
      * @param value base64 encoded string
      * @return decoded string
@@ -87,7 +87,7 @@ public class EncodingHelper {
 
 
     /**
-     * Base64URL encode string
+     * Base64URL encode string.
      *
      * @param value string to encode
      * @return encoded string
@@ -98,7 +98,7 @@ public class EncodingHelper {
 
 
     /**
-     * Decode a base64Url encoded string
+     * Decode a base64Url encoded string.
      *
      * @param value base64Url encoded string
      * @return decoded string

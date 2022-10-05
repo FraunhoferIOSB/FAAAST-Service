@@ -44,8 +44,7 @@ public abstract class AbstractRequestMapperWithOutputModifier<T extends Abstract
 
 
     /**
-     * Converts the HTTP request to protocol-agnostic request including output
-     * modifier information
+     * Converts the HTTP request to protocol-agnostic request including output modifier information.
      *
      * @param httpRequest the HTTP request to convert
      * @param urlParameters map of named regex groups and their values

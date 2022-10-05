@@ -24,7 +24,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 7.2.2
+ * Request class for GetAllAssetAdministrationShellIdsByAssetLink requests.
  */
 public class GetAllAssetAdministrationShellIdsByAssetLinkRequest implements Request<GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
 

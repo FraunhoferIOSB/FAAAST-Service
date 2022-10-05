@@ -111,8 +111,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
      * {@inheritDoc}
      *
      * @throws IllegalArgumentException if typeInfo is null
-     * @throws DeserializationException if typeInfo does not contain type
-     *             information
+     * @throws DeserializationException if typeInfo does not contain type information
      */
     @Override
     public <T extends ElementValue> T readValue(String json, TypeInfo typeInfo) throws DeserializationException {
@@ -148,8 +147,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
      * @throws IllegalArgumentException if typeInfo is null
      * @throws IllegalArgumentException if typeInfo is not a
      *             {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo}
-     * @throws DeserializationException if typeInfo does not contain type
-     *             information
+     * @throws DeserializationException if typeInfo does not contain type information
      */
     @Override
     public ElementValue[] readValueArray(String json, TypeInfo typeInfo) throws DeserializationException {
@@ -182,10 +180,8 @@ public class JsonApiDeserializer implements ApiDeserializer {
      * @throws IllegalArgumentException if typeInfo is null
      * @throws IllegalArgumentException if typeInfo is not a
      *             {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo}
-     * @throws DeserializationException if typeInfo does not contain type
-     *             information
-     * @throws DeserializationException if typeInfo does contain content type
-     *             information
+     * @throws DeserializationException if typeInfo does not contain type information
+     * @throws DeserializationException if typeInfo does contain content type information
      */
     @Override
     public <T extends ElementValue> List<T> readValueList(String json, TypeInfo typeInfo) throws DeserializationException {
@@ -218,10 +214,8 @@ public class JsonApiDeserializer implements ApiDeserializer {
      * @throws IllegalArgumentException if typeInfo is null
      * @throws IllegalArgumentException if typeInfo is not a
      *             {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo}
-     * @throws DeserializationException if typeInfo does not contain type
-     *             information
-     * @throws DeserializationException if typeInfo does contain content type
-     *             information
+     * @throws DeserializationException if typeInfo does not contain type information
+     * @throws DeserializationException if typeInfo does contain content type information
      */
     @Override
     public <K, V extends ElementValue> Map<K, V> readValueMap(String json, TypeInfo typeInfo) throws DeserializationException {
@@ -255,7 +249,7 @@ public class JsonApiDeserializer implements ApiDeserializer {
 
 
     /**
-     * Modifies Jackson JsonMapper
+     * Modifies Jackson JsonMapper.
      *
      * @param mapper mapper to modify
      */

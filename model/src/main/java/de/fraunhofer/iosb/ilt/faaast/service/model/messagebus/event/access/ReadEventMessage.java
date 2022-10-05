@@ -18,7 +18,7 @@ import java.util.Objects;
 
 
 /**
- * Abstract base class for all read event messages that are sent via message bus
+ * Abstract base class for all read event messages that are sent via message bus.
  *
  * @param <T> value type
  */

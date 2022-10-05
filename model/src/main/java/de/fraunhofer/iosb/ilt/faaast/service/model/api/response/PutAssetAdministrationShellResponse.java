@@ -19,18 +19,18 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
 
 
 /**
- * Chapter 4.2.3
+ * Response class for PutAssetAdministrationShell requests.
  */
 public class PutAssetAdministrationShellResponse extends AbstractResponseWithPayload<AssetAdministrationShell> {
 
-    public static PutAssetAdministrationShellResponse.Builder builder() {
-        return new PutAssetAdministrationShellResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<AssetAdministrationShell, PutAssetAdministrationShellResponse, PutAssetAdministrationShellResponse.Builder> {
+    public static class Builder extends AbstractBuilder<AssetAdministrationShell, PutAssetAdministrationShellResponse, Builder> {
 
         @Override
-        protected PutAssetAdministrationShellResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

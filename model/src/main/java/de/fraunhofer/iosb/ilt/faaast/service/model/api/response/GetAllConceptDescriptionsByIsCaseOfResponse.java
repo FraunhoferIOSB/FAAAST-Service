@@ -20,19 +20,19 @@ import java.util.List;
 
 
 /**
- * Chapter 6.4.5
+ * Response class for GetAllConceptDescriptionsByIsCaseOf requests.
  */
 public class GetAllConceptDescriptionsByIsCaseOfResponse extends AbstractResponseWithPayload<List<ConceptDescription>> {
 
-    public static GetAllConceptDescriptionsByIsCaseOfResponse.Builder builder() {
-        return new GetAllConceptDescriptionsByIsCaseOfResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder
-            extends AbstractBuilder<List<ConceptDescription>, GetAllConceptDescriptionsByIsCaseOfResponse, GetAllConceptDescriptionsByIsCaseOfResponse.Builder> {
+            extends AbstractBuilder<List<ConceptDescription>, GetAllConceptDescriptionsByIsCaseOfResponse, Builder> {
 
         @Override
-        protected GetAllConceptDescriptionsByIsCaseOfResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

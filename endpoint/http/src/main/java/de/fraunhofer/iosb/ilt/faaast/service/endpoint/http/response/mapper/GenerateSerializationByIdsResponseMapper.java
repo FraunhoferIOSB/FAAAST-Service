@@ -26,8 +26,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 
 /**
- * HTTP response mapper for {@link GenerateSerializationByIdsResponse},
- * serializing the requested content according to the desired data format.
+ * HTTP response mapper for {@link GenerateSerializationByIdsResponse}, serializing the requested content according to
+ * the desired data format.
  */
 public class GenerateSerializationByIdsResponseMapper extends AbstractResponseMapper<GenerateSerializationByIdsResponse> {
 

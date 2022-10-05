@@ -20,8 +20,8 @@ import java.util.Objects;
 
 
 /**
- * Base class for requests that are part of the Submodel Interface and therefore
- * can be executed as stand-alone or within the context of an AAS.
+ * Base class for requests that are part of the Submodel Interface and therefore can be executed as stand-alone or
+ * within the context of an AAS.
  *
  * @param <T> actual type of the request
  */

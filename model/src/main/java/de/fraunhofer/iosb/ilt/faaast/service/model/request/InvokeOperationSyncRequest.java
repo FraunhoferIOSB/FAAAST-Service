@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationS
 
 
 /**
- * Chapter 4.3.11
+ * Request class for InvokeOperationSync requests.
  */
 public class InvokeOperationSyncRequest extends InvokeOperationRequest<InvokeOperationSyncResponse> {
 

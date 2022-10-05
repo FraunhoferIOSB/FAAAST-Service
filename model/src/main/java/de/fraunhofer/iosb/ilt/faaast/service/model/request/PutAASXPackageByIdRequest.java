@@ -25,7 +25,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.5.5
+ * Request class for PutAASXPackageById requests.
  */
 public class PutAASXPackageByIdRequest implements Request<PutAASXPackageByIdResponse> {
 

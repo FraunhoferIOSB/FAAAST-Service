@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Helper class with methods to create deep copies of
+ * Helper class with methods to create deep copies. Following types are supported:
  * <ul>
  * <li>{@link io.adminshell.aas.v3.model.Identifiable}
  * <li>{@link io.adminshell.aas.v3.model.Referable}
@@ -39,14 +39,10 @@ public class DeepCopyHelper {
 
 
     /**
-     * Create a deep copy of a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * object
+     * Create a deep copy of a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} object.
      *
-     * @param env the asset administration shell environment which should be
-     *            deep copied
-     * @return a deep copied instance of the asset administration shell
-     *         environment
+     * @param env the asset administration shell environment which should be deep copied
+     * @return a deep copied instance of the asset administration shell environment
      * @throws RuntimeException when operation fails
      */
     public static AssetAdministrationShellEnvironment deepCopy(AssetAdministrationShellEnvironment env) {
@@ -60,16 +56,14 @@ public class DeepCopyHelper {
 
 
     /**
-     * Create a deep copy of a {@link io.adminshell.aas.v3.model.Referable}
-     * object
+     * Create a deep copy of a {@link io.adminshell.aas.v3.model.Referable} object.
      *
      * @param referable which should be deep copied
      * @param outputClass of the referable
      * @param <T> type of the referable
      * @return the deep copied referable
      * @throws IllegalArgumentException if outputClass is null
-     * @throws IllegalArgumentException if type of referable if not a subclass
-     *             of outputClass
+     * @throws IllegalArgumentException if type of referable if not a subclass of outputClass
      * @throws RuntimeException when operation fails
      */
     public static <T extends Referable> T deepCopy(Referable referable, Class<T> outputClass) {
@@ -90,8 +84,7 @@ public class DeepCopyHelper {
 
 
     /**
-     * Create a deep copy of a list of
-     * {@link io.adminshell.aas.v3.model.Referable} objects
+     * Create a deep copy of a list of {@link io.adminshell.aas.v3.model.Referable} objects.
      *
      * @param referables list with referables which should be deep copied
      * @param outputClass of the referables

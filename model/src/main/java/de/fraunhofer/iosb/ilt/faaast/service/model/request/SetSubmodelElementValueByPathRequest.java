@@ -23,7 +23,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.3.9
+ * Request class for SetSubmodelElementValueByPath requests.
  */
 public class SetSubmodelElementValueByPathRequest<T> extends AbstractSubmodelInterfaceRequest<SetSubmodelElementValueByPathResponse> {
 

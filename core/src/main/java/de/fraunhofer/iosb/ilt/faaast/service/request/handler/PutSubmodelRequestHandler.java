@@ -31,12 +31,10 @@ import io.adminshell.aas.v3.model.Submodel;
 
 
 /**
- * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelRequest}
- * in the service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelResponse}.
- * Is responsible for communication with the persistence and sends the
- * corresponding events to the message bus.
+ * Class to handle a {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelRequest} in the service and
+ * to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelResponse}. Is responsible for
+ * communication with the persistence and sends the corresponding events to the message bus.
  */
 public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmodelRequest, PutSubmodelResponse> {
 

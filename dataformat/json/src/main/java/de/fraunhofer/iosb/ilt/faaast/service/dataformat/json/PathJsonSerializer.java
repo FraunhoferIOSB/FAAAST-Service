@@ -22,7 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level;
 
 
 /**
- * Serializer for content=path
+ * Serializer for content=path.
  */
 public class PathJsonSerializer {
 
@@ -38,19 +38,25 @@ public class PathJsonSerializer {
     }
 
 
+    /**
+     * Serializes an object as string.
+     *
+     * @param obj the object to serialize
+     * @return the string serialization of the object
+     * @throws SerializationException if serialization fails
+     */
     public String write(Object obj) throws SerializationException {
         return write(obj, Level.DEFAULT);
     }
 
 
     /**
-     * Serializes a given object with given level. If obj if not a AAS element
-     * subject to serialization, result will be empty JSON array.
+     * Serializes a given object with given level. If obj if not a AAS element subject to serialization, result will be
+     * empty JSON array.
      *
      * @param obj object to serialize
      * @param level level of serialization
-     * @return JSON array of all idShort paths subject to serialization
-     *         according to specification.
+     * @return JSON array of all idShort paths subject to serialization according to specification.
      * @throws SerializationException if serialization fails
      */
     public String write(Object obj, Level level) throws SerializationException {

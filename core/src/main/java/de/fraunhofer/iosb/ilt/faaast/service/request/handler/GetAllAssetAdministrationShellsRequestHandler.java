@@ -28,12 +28,10 @@ import java.util.List;
 
 
 /**
- * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsRequest}
+ * Class to handle a {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellsRequest}
  * in the service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse}.
- * Is responsible for communication with the persistence and sends the
- * corresponding events to the message bus.
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsResponse}. Is
+ * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetAllAssetAdministrationShellsRequestHandler extends AbstractRequestHandler<GetAllAssetAdministrationShellsRequest, GetAllAssetAdministrationShellsResponse> {
 

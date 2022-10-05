@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.2.7
+ * Request class for GetAssetInformation requests.
  */
 public class GetAssetInformationRequest implements Request<GetAssetInformationResponse> {
 

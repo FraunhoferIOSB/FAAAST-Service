@@ -19,12 +19,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 
 
 /**
- * Provider to write a value supporting multiple data formats
+ * Provider to write a value supporting multiple data formats.
  */
 public interface MultiFormatWriteProvider {
 
     /**
-     * Write a value
+     * Write a value.
      *
      * @param value the value to write
      * @throws AssetConnectionException if operation fails
@@ -33,7 +33,7 @@ public interface MultiFormatWriteProvider {
 
 
     /**
-     * Write raw value to underlying connection
+     * Write raw value to underlying connection.
      *
      * @param value raw value to write
      * @throws AssetConnectionException if operation fails

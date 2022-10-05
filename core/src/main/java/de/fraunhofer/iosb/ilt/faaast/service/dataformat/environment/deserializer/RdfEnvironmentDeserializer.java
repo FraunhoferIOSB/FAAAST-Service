@@ -30,9 +30,7 @@ import org.apache.jena.riot.Lang;
 
 
 /**
- * RDF deserializer for
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
- * related files.
+ * RDF deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
  */
 @SupportedDataformat(DataFormat.RDF)
 public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
@@ -58,9 +56,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
 
 
     /**
-     * reads a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files
+     * reads a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
      *
      * @param in the InputStream to read
      * @param charset the charset to use
@@ -81,9 +77,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
 
 
     /**
-     * reads a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files
+     * reads a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
      *
      * @param file the file to read
      * @param charset the charset to use
@@ -102,9 +96,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
 
 
     /**
-     * reads a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files
+     * reads a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
      *
      * @param in the Inputstream to read
      * @param rdfLanguage the RDF language to use
@@ -117,9 +109,7 @@ public class RdfEnvironmentDeserializer implements EnvironmentDeserializer {
 
 
     /**
-     * reads a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files
+     * reads a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files.
      *
      * @param file the File to read
      * @param rdfLanguage the RDF language to use

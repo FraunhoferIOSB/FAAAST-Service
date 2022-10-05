@@ -30,11 +30,12 @@ import java.util.Map;
 
 
 /**
- * Abstract base class for invoke operation requests mapping to the following
- * HTTP-POST-Request paths:
- * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
- * <br>
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke
+ * Abstract base class for invoke operation requests mappings. Supports the following HTTP-POST-Request paths
+ * 
+ * <p><ul>
+ * <li>submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke</li>
+ * <li>shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke</li>
+ * </ul>
  *
  * @param <T> actual request type
  * @param <U> actual response type
@@ -50,8 +51,7 @@ public abstract class AbstractInvokeOperationRequestMapper<T extends InvokeOpera
 
 
     /**
-     * Checks if a request indicates that the operation should be executed
-     * asynchronously
+     * Checks if a request indicates that the operation should be executed asynchronously.
      *
      * @param httpRequest the HTTP request
      * @return true if is async, false otherwise

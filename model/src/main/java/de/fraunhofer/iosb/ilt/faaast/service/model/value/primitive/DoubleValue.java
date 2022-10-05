@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 import org.apache.commons.lang3.StringUtils;
 
 
+/**
+ * A double value.
+ */
 public class DoubleValue extends TypedValue<Double> {
 
     public DoubleValue() {

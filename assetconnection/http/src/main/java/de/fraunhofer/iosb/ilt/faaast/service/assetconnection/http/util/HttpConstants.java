@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util;
 
 /**
- * Constants used by HTTP
+ * Constants used by HTTP.
  */
 public class HttpConstants {
 

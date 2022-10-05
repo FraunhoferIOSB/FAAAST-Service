@@ -31,12 +31,10 @@ import java.util.List;
 
 
 /**
- * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsRequest}
- * in the service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsResponse}.
- * Is responsible for communication with the persistence and sends the
- * corresponding events to the message bus.
+ * Class to handle a {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllSubmodelsRequest} in the service
+ * and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllSubmodelsResponse}. Is responsible for
+ * communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetAllSubmodelsRequestHandler extends AbstractRequestHandler<GetAllSubmodelsRequest, GetAllSubmodelsResponse> {
 

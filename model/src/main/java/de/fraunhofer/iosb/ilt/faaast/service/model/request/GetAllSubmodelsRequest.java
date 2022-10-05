@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.3.2
+ * Request class for GetAllSubmodels requests.
  */
 public class GetAllSubmodelsRequest extends AbstractRequestWithModifier<GetAllSubmodelsResponse> {
 

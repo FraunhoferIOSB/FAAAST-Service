@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Base class for AssetSubscriptionProviderConfig supporting multiple data formats
+ * Base class for AssetSubscriptionProviderConfig supporting multiple data formats.
  */
 public abstract class AbstractMultiFormatSubscriptionProviderConfig implements MultiFormatSubscriptionProviderConfig {
 

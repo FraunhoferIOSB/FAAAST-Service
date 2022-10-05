@@ -25,6 +25,11 @@ import java.util.Objects;
 import java.util.UUID;
 
 
+/**
+ * Base class for invoke operation requests.
+ *
+ * @param <T> type of the corresponding response
+ */
 public abstract class InvokeOperationRequest<T extends Response> extends AbstractSubmodelInterfaceRequest<T> {
 
     private static final long DEFAULT_TIMEOUT = 1000;

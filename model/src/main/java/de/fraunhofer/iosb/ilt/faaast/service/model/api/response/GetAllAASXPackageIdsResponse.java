@@ -20,18 +20,18 @@ import java.util.List;
 
 
 /**
- * Chapter 4.5.2
+ * Response class for GetAllAASXPackageIds requests.
  */
 public class GetAllAASXPackageIdsResponse extends AbstractResponseWithPayload<List<PackageDescription>> {
 
-    public static GetAllAASXPackageIdsResponse.Builder builder() {
-        return new GetAllAASXPackageIdsResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<PackageDescription>, GetAllAASXPackageIdsResponse, GetAllAASXPackageIdsResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<PackageDescription>, GetAllAASXPackageIdsResponse, Builder> {
 
         @Override
-        protected GetAllAASXPackageIdsResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

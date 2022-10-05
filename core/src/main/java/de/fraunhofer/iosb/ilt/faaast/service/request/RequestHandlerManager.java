@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Finds available RequestHandlers and handles execution (sync or async)
+ * Finds available RequestHandlers and handles execution (sync or async).
  */
 public class RequestHandlerManager {
 
@@ -113,8 +113,8 @@ public class RequestHandlerManager {
 
 
     /**
-     * Properly shuts down this instance and releases all resources. Do not call
-     * any methods on this instance after calling this method.
+     * Properly shuts down this instance and releases all resources. Do not call any methods on this instance after
+     * calling this method.
      */
     public void shutdown() {
         requestHandlerExecutorService.shutdown();
@@ -139,8 +139,7 @@ public class RequestHandlerManager {
      * @param <O> type of response/output
      * @param request the request to execute
      * @return the reponse to this request
-     * @throws TypeInstantiationException if response class could not be
-     *             instantiated
+     * @throws TypeInstantiationException if response class could not be instantiated
      * @throws IllegalArgumentException if request is null
      */
     public <I extends Request<O>, O extends Response> O execute(I request) {
@@ -192,8 +191,7 @@ public class RequestHandlerManager {
      * @param <I> type of request/input
      * @param <O> type of response/output
      * @param request the request to execute
-     * @param callback callback handler which is called with the response once
-     *            the request has been executed
+     * @param callback callback handler which is called with the response once the request has been executed
      */
     public <I extends Request<O>, O extends Response> void executeAsync(I request, Consumer<O> callback) {
         if (request == null) {

@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 import org.apache.commons.lang3.StringUtils;
 
 
+/**
+ * An int value. 32-bit, -2147483648…2147483647
+ */
 public class IntValue extends TypedValue<Integer> {
 
     public IntValue() {

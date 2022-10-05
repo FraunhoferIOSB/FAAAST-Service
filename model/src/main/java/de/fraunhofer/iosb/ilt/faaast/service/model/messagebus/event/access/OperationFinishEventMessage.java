@@ -21,7 +21,7 @@ import java.util.Objects;
 
 
 /**
- * Event message indicating that an operation has finished execution
+ * Event message indicating that an operation has finished execution.
  */
 public class OperationFinishEventMessage extends ExecuteEventMessage {
 

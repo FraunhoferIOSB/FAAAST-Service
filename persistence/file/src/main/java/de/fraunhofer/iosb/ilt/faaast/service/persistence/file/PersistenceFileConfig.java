@@ -52,7 +52,7 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
 
 
     /**
-     * Sets the file name according to the configuration parameters
+     * Sets the file name according to the configuration parameters.
      *
      * @throws DeserializationException if parsing of aas environment fails
      */
@@ -79,7 +79,7 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
 
 
     /**
-     * Get the current file path of the model file used by the file persistence
+     * Get the current file path of the model file used by the file persistence.
      *
      * @return file path of the model file
      */
@@ -131,9 +131,9 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
         }
         final PersistenceFileConfig other = (PersistenceFileConfig) obj;
 
-        return Objects.equals(this.dataDir, other.dataDir) &&
-                Objects.equals(this.keepInitial, other.keepInitial) &&
-                Objects.equals(this.dataformat, other.dataformat);
+        return Objects.equals(this.dataDir, other.dataDir)
+                && Objects.equals(this.keepInitial, other.keepInitial)
+                && Objects.equals(this.dataformat, other.dataformat);
     }
 
 

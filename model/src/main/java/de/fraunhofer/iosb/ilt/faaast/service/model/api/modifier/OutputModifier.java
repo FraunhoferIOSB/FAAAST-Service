@@ -18,7 +18,7 @@ import java.util.Objects;
 
 
 /**
- * Model class for output modifier
+ * Model class for output modifier.
  */
 public class OutputModifier extends QueryModifier {
 

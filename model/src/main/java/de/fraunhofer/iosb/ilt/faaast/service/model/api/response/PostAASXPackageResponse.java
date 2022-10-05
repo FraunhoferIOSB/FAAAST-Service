@@ -18,18 +18,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPaylo
 
 
 /**
- * Chapter 4.5.4
+ * Response class for PostAASXPackage requests.
  */
 public class PostAASXPackageResponse extends AbstractResponseWithPayload<String> {
 
-    public static PostAASXPackageResponse.Builder builder() {
-        return new PostAASXPackageResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<String, PostAASXPackageResponse, PostAASXPackageResponse.Builder> {
+    public static class Builder extends AbstractBuilder<String, PostAASXPackageResponse, Builder> {
 
         @Override
-        protected PostAASXPackageResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

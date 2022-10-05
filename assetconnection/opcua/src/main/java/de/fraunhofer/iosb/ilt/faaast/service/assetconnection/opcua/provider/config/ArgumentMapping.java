@@ -18,9 +18,10 @@ import java.util.Objects;
 
 
 /**
- * Helper class for mapping IdShort to argument names
+ * Helper class for mapping IdShort to argument names.
  */
 public class ArgumentMapping {
+
     private String idShort;
     private String argumentName;
 

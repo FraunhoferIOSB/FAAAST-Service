@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 import org.apache.commons.lang3.StringUtils;
 
 
+/**
+ * A long value. 64-bit, -9223372036854775808…9223372036854775807
+ */
 public class LongValue extends TypedValue<Long> {
 
     public LongValue() {

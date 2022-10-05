@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 
 
 /**
- * Helper class for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+ * Helper class for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}.
  */
 public class ElementValueHelper {
 
@@ -59,7 +59,7 @@ public class ElementValueHelper {
 
 
     /**
-     * Checks if an object can be converted to an element value
+     * Checks if an object can be converted to an element value.
      *
      * @param obj which should be checked
      * @return true if the object can be converted to an element value, false otherwise
@@ -83,7 +83,7 @@ public class ElementValueHelper {
 
 
     /**
-     * Checks if an object of a specific class can be converted to an element value
+     * Checks if an object of a specific class can be converted to an element value.
      *
      * @param type which should be checked
      * @return true if an object of the type can be converted to an element value, false otherwise
@@ -106,7 +106,7 @@ public class ElementValueHelper {
 
 
     /**
-     * Checks if an object of a specific class can be converted to an element value
+     * Checks if an object of a specific class can be converted to an element value.
      *
      * @param type which should be checked
      * @return true if an object of the type can be converted to an element value, false otherwise
@@ -122,11 +122,10 @@ public class ElementValueHelper {
 
 
     /**
-     * Checks if given value is a valid {@link DataElementValue}
+     * Checks if given value is a valid {@link DataElementValue}.
      *
      * @param value the value to check
-     * @return true if value is valid value of type {@link DataElementValue},
-     *         false otherwise
+     * @return true if value is valid value of type {@link DataElementValue}, false otherwise
      */
     public static boolean isValidDataElementValue(Object value) {
         return value == null || DataElementValue.class.isAssignableFrom(value.getClass());
@@ -134,15 +133,13 @@ public class ElementValueHelper {
 
 
     /**
-     * Converts a list of {@link io.adminshell.aas.v3.model.OperationVariable}
-     * to a list of
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     * Converts a list of {@link io.adminshell.aas.v3.model.OperationVariable} to a list of
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}.
      *
      * @param variables list of operation variables
      * @return the corresponding list of element values
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException
-     *             if mapping of element values fails
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException if mapping of element values
+     *             fails
      */
     public static List<ElementValue> toValues(List<OperationVariable> variables) throws ValueMappingException {
         return variables.stream()

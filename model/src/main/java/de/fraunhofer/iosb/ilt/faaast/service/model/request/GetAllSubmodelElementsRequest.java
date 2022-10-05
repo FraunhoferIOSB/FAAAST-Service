@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.3.3
+ * Request class for GetAllSubmodelElements requests.
  */
 public class GetAllSubmodelElementsRequest extends AbstractSubmodelInterfaceRequest<GetAllSubmodelElementsResponse> {
 

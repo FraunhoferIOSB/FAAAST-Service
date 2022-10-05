@@ -14,6 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+/**
+ * A string value.
+ */
 public class StringValue extends TypedValue<String> {
 
     public StringValue() {

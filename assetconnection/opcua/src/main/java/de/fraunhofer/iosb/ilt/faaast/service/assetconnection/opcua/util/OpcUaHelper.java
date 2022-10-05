@@ -34,6 +34,9 @@ import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
 import org.eclipse.milo.opcua.stack.core.util.EndpointUtil;
 
 
+/**
+ * Utility class for working with OPC UA connections.
+ */
 public class OpcUaHelper {
 
     public static final String NODE_ID_SEPARATOR = ";";
@@ -41,6 +44,16 @@ public class OpcUaHelper {
     private OpcUaHelper() {}
 
 
+    /**
+     * Checks an OPC UA {@link org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode} and throws meaningfull
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException} if status indicates an
+     * error.
+     *
+     * @param statusCode the OPC UA status code received
+     * @param errorMessage the message to use as prefix in the
+     *            {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException}
+     * @throws AssetConnectionException if {@code statusCode} indicates an error
+     */
     public static void checkStatusCode(StatusCode statusCode, String errorMessage) throws AssetConnectionException {
         String message = errorMessage;
         if (statusCode.isBad()) {
@@ -58,6 +71,14 @@ public class OpcUaHelper {
     }
 
 
+    /**
+     * Parses a {@code nodeId}.
+     *
+     * @param client the underlying OPC UA client
+     * @param nodeId the string representation of the nodeId
+     * @return parsed nodeId
+     * @throws IllegalArgumentException if parsing fails
+     */
     public static NodeId parseNodeId(OpcUaClient client, String nodeId) {
         try {
             return ExpandedNodeId.parse(nodeId).toNodeIdOrThrow(client.getNamespaceTable());
@@ -68,6 +89,16 @@ public class OpcUaHelper {
     }
 
 
+    /**
+     * Reads a value via OPC UA.
+     *
+     * @param client the OPC UA client to use
+     * @param nodeId string representation of the node to read
+     * @return the value of given node
+     * @throws UaException if reading fails
+     * @throws InterruptedException if reading fails
+     * @throws ExecutionException if reading fails
+     */
     public static DataValue readValue(OpcUaClient client, String nodeId) throws UaException, InterruptedException, ExecutionException {
         return client.readValue(0,
                 TimestampsToReturn.Neither,
@@ -77,6 +108,15 @@ public class OpcUaHelper {
     }
 
 
+    /**
+     * Creates a new OPC UA client.
+     *
+     * @param opcUrl the URL of the OPC UA server to connect to
+     * @param identityProvider the identity provider
+     * @param applicationName the name of the application used for identification purposes
+     * @return new OPC UA client
+     * @throws UaException if creating connection fails
+     */
     public static OpcUaClient createClient(URI opcUrl, IdentityProvider identityProvider, String applicationName) throws UaException {
         return OpcUaClient.create(
                 opcUrl.toString(),
@@ -95,11 +135,27 @@ public class OpcUaHelper {
     }
 
 
+    /**
+     * Creates a new OPC UA client.
+     *
+     * @param opcUrl the URL of the OPC UA server to connect to
+     * @param identityProvider the identity provider
+     * @return new OPC UA client
+     * @throws UaException if creating connection fails
+     */
     public static OpcUaClient createClient(String opcUrl, IdentityProvider identityProvider) throws UaException {
         return createClient(URI.create(opcUrl), identityProvider);
     }
 
 
+    /**
+     * Creates a new OPC UA client.
+     *
+     * @param opcUrl the URL of the OPC UA server to connect to
+     * @param identityProvider the identity provider
+     * @return new OPC UA client
+     * @throws UaException if creating connection fails
+     */
     public static OpcUaClient createClient(URI opcUrl, IdentityProvider identityProvider) throws UaException {
         return createClient(opcUrl, identityProvider, UUID.randomUUID().toString());
     }

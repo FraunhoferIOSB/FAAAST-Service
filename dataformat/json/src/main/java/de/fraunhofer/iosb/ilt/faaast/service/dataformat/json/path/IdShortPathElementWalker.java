@@ -38,8 +38,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Walks an AAS element recursively finding all idShort paths for serialization
- * with content=path
+ * Walks an AAS element recursively finding all idShort paths for serialization with content=path.
  */
 public class IdShortPathElementWalker extends AssetAdministrationShellElementWalker {
 

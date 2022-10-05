@@ -19,18 +19,18 @@ import io.adminshell.aas.v3.model.ConceptDescription;
 
 
 /**
- * Chapter 6.4.3
+ * Response class for GetConceptDescriptionById requests.
  */
 public class GetConceptDescriptionByIdResponse extends AbstractResponseWithPayload<ConceptDescription> {
 
-    public static GetConceptDescriptionByIdResponse.Builder builder() {
-        return new GetConceptDescriptionByIdResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<ConceptDescription, GetConceptDescriptionByIdResponse, GetConceptDescriptionByIdResponse.Builder> {
+    public static class Builder extends AbstractBuilder<ConceptDescription, GetConceptDescriptionByIdResponse, Builder> {
 
         @Override
-        protected GetConceptDescriptionByIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

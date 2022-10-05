@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 
 
 /**
- * Utility class encapsulating information for mapping operation parameters
+ * Utility class encapsulating information for mapping operation parameters.
  */
 public class ElementInfo {
 
@@ -41,6 +41,13 @@ public class ElementInfo {
     }
 
 
+    /**
+     * Creates a new instance with given {@code query} and {@code typeInfo}.
+     *
+     * @param query the query
+     * @param typeInfo the typeInfo
+     * @return new {@link ElementInfo}
+     */
     public static ElementInfo of(String query, TypeInfo<?> typeInfo) {
         return new ElementInfo(query, typeInfo);
     }

@@ -25,8 +25,7 @@ import java.io.IOException;
 
 
 /**
- * Serializer for
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue}
+ * Serializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue}.
  */
 public class RelationshipElementValueSerializer extends StdSerializer<RelationshipElementValue> {
 

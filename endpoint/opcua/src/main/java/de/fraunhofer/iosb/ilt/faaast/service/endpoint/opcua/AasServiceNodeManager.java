@@ -200,8 +200,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     public static final String NAMESPACE_URI = "http://www.iosb.fraunhofer.de/ILT/AAS/OPCUA";
 
     /**
-     * Make certain variable values read-only, because writing would not make
-     * sense
+     * Make certain variable values read-only, because writing would not make sense
      */
     private static final boolean VALUES_READ_ONLY = true;
 
@@ -377,7 +376,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Creates the AAS nodes in the address space.
-     * 
+     *
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
@@ -420,7 +419,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Adds the AssetAdministrationShells of the current environment.
-     * 
+     *
      * @throws StatusException If the operation fails
      */
     private void addAssetAdministrationShells() throws StatusException {
@@ -438,7 +437,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Adds the given AssetAdministrationShell.
-     * 
+     *
      * @throws StatusException If the operation fails
      */
     private void addAssetAdministrationShell(AssetAdministrationShell aas) throws StatusException {
@@ -554,8 +553,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Adds AAS Identifiable information to the given node.
      *
-     * @param identifiableNode The desired node where the Identifiable
-     *            information should be added
+     * @param identifiableNode The desired node where the Identifiable information should be added
      * @param identifier The corresponding AAS Identifier
      * @param adminInfo The corresponding AAS Administrative Information
      * @param category The desired category
@@ -589,8 +587,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Adds AAS Identifiable information to the given node.
      *
-     * @param conceptDescriptionNode The desired node where the Identifiable
-     *            information should be added
+     * @param conceptDescriptionNode The desired node where the Identifiable information should be added
      * @param identifier The corresponding AAS Identifier
      * @param adminInfo The corresponding AAS Administrative Information
      * @param category The desired category
@@ -624,8 +621,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Adds AAS Identifiable information to the given node.
      *
-     * @param conceptDescriptionNode The desired node where the Identifiable
-     *            information should be added
+     * @param conceptDescriptionNode The desired node where the Identifiable information should be added
      * @param identifier The corresponding AAS Identifier
      * @param adminInfo The corresponding AAS Administrative Information
      * @param category The desired category
@@ -659,8 +655,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Adds AAS Identifiable information to the given node.
      *
-     * @param conceptDescriptionNode The desired node where the Identifiable
-     *            information should be added
+     * @param conceptDescriptionNode The desired node where the Identifiable information should be added
      * @param identifier The corresponding AAS Identifier
      * @param adminInfo The corresponding AAS Administrative Information
      * @param category The desired category
@@ -692,8 +687,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds the AdminInformation Properties to the given node (if they don't
-     * exist).
+     * Adds the AdminInformation Properties to the given node (if they don't exist).
      *
      * @param adminInfNode The desired AdminInformation node
      * @param info The corresponding AAS AdministrativeInformation object
@@ -1010,8 +1004,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent node
      * @param ordered Specifies whether the file should be added ordered (true) or unordered (false)
-     * @param nodeName The desired Name of the node. If this value is not set,
-     *            the IdShort of the file is used.
+     * @param nodeName The desired Name of the node. If this value is not set, the IdShort of the file is used.
      * @throws StatusException If the operation fails
      */
     private void addAasFile(UaNode node, File aasFile, Submodel submodel, Reference parentRef, boolean ordered, String nodeName)
@@ -1286,8 +1279,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Adds the references to the given Embedded Data Specifications.
      *
-     * @param submodelElementNode The desired object where the
-     *            DataSpecifications should be added
+     * @param submodelElementNode The desired object where the DataSpecifications should be added
      * @param list The list of the desired Data Specifications
      * @throws StatusException If the operation fails
      */
@@ -1502,8 +1494,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     /**
      * Adds a list of IdentifierKeyValuePairs to the given Node.
      *
-     * @param assetInfoNode The AssetInformation node in which the
-     *            IdentifierKeyValuePairs should be created or added
+     * @param assetInfoNode The AssetInformation node in which the IdentifierKeyValuePairs should be created or added
      * @param list The desired list of IdentifierKeyValuePairs
      * @param name The desired name of the Node
      * @throws StatusException If the operation fails
@@ -1594,7 +1585,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
-     * 
+     *
      * @param identifierPairNode The desired IdentifierKeyValuePair Node
      * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
      * @throws StatusException If the operation fails
@@ -1606,7 +1597,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
-     * 
+     *
      * @param identifierPairNode The desired IdentifierKeyValuePair Node
      * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
      * @param readOnly True if the value should be read-only
@@ -1842,8 +1833,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param elements The desired list of submodel elements
      * @param submodel The corresponding submodel
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies where the elements should de added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies where the elements should de added ordered (true) or unordered (false)
      */
     private void addSubmodelElements(UaNode node, Collection<SubmodelElement> elements, Submodel submodel, Reference parentRef, boolean ordered)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
@@ -1891,8 +1881,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param aasDataElement The corresponding AAS data element to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the element should be added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies whether the element should be added ordered (true) or unordered (false)
      * @throws StatusException If the operation fails
      */
     private void addAasDataElement(UaNode node, DataElement aasDataElement, Submodel submodel, Reference parentRef, boolean ordered)
@@ -1936,8 +1925,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param aasProperty The corresponding AAS property to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent node
-     * @param ordered Specifies whether the property should be added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies whether the property should be added ordered (true) or unordered (false)
      */
     private void addAasProperty(UaNode node, Property aasProperty, Submodel submodel, Reference parentRef, boolean ordered) {
         try {
@@ -2342,8 +2330,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param aasBlob The AAS blob to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef Tne reference to the parent object
-     * @param ordered Specifies whether the blob should be added ordered (true)
-     *            or unordered (false)
+     * @param ordered Specifies whether the blob should be added ordered (true) or unordered (false)
      * @throws StatusException If the operation fails
      */
     private void addAasBlob(UaNode node, Blob aasBlob, Submodel submodel, Reference parentRef, boolean ordered)
@@ -2421,8 +2408,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param aasRefElem The AAS reference element to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The reference to the parent object
-     * @param ordered Specifies whether the reference element should be added
-     *            ordered (true) or unordered (false)
+     * @param ordered Specifies whether the reference element should be added ordered (true) or unordered (false)
      * @throws StatusException If the operation fails
      */
     private void addAasReferenceElement(UaNode node, ReferenceElement aasRefElem, Submodel submodel, Reference parentRef, boolean ordered)
@@ -2470,8 +2456,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param aasRange The corresponding AAS range object to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The reference to the parent object
-     * @param ordered Specifies whether the range should be added ordered (true)
-     *            or unordered (false)
+     * @param ordered Specifies whether the range should be added ordered (true) or unordered (false)
      * @throws StatusException If the operation fails
      */
     private void addAasRange(UaNode node, Range aasRange, Submodel submodel, Reference parentRef, boolean ordered)
@@ -2662,7 +2647,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                        range.addProperty(myUIntProperty);
                 //                    }
                 //                    break;
-
                 case Int64:
                     if (minValue != null) {
                         PlainProperty<Long> myLongProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
@@ -2712,7 +2696,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                        range.addProperty(myULongProperty);
                 //                    }
                 //                    break;
-
                 case Int16:
                     if (minValue != null) {
                         PlainProperty<Short> myInt16Property = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
@@ -2754,7 +2737,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 //                        range.addProperty(myUInt16Property);
                 //                    }
                 //                    break;
-
                 case SByte:
                     if (minValue != null) {
                         PlainProperty<Byte> mySByteProperty = new PlainProperty<>(this, myPropertyIdMin, browseNameMin, displayNameMin);
@@ -2935,8 +2917,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param aasMultiLang The AAS Multi Language Property to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the multi language property should be
-     *            added ordered (true) or unordered (false)
+     * @param ordered Specifies whether the multi language property should be added ordered (true) or unordered (false)
      * @throws StatusException If the operation fails
      */
     private void addAasMultiLanguageProperty(UaNode node, MultiLanguageProperty aasMultiLang, Submodel submodel, Reference parentRef, boolean ordered)
@@ -3020,8 +3001,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param aasCapability The corresponding AAS Capability to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the capability should be added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies whether the capability should be added ordered (true) or unordered (false)
      * @throws StatusException If the operation fails
      */
     private void addAasCapability(UaNode node, Capability aasCapability, Submodel submodel, Reference parentRef, boolean ordered)
@@ -3060,8 +3040,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param aasEntity The AAS entity to add
      * @param submodel The corresponding Submodel
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the entity should be added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies whether the entity should be added ordered (true) or unordered (false)
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
@@ -3138,8 +3117,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param aasOperation The corresponding AAS operation to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The reference to the parent object
-     * @param ordered Specifies whether the operation should be added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies whether the operation should be added ordered (true) or unordered (false)
      */
     private void addAasOperation(UaNode node, Operation aasOperation, Submodel submodel, Reference parentRef, boolean ordered) {
         try {
@@ -3243,8 +3221,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param aasEvent The AAS Event to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the entity should be added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies whether the entity should be added ordered (true) or unordered (false)
      * @throws StatusException If the operation fails
      */
     private void addAasEvent(UaNode node, Event aasEvent, Submodel submodel, Reference parentRef, boolean ordered)
@@ -3306,8 +3283,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param aasRelElem The corresponding AAS Relationship Element
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the entity should be added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies whether the entity should be added ordered (true) or unordered (false)
      * @throws StatusException If the operation fails
      */
     private void addAasRelationshipElement(UaNode node, RelationshipElement aasRelElem, Submodel submodel, Reference parentRef, boolean ordered)
@@ -3401,8 +3377,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param aasColl The corresponding SubmodelElementCollection to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the entity should be added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies whether the entity should be added ordered (true) or unordered (false)
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
@@ -3557,7 +3532,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Subscribes to Events on the MessageBus (e.g. ValueChangeEvents).
-     * 
+     *
      * @throws MessageBusException if subscribing fails
      */
     private void subscribeMessageBus() throws MessageBusException {
@@ -3817,7 +3792,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Unsubscribes from the MessageBus.
-     * 
+     *
      * @throws MessageBusException if subscribing fails
      */
     private void unsubscribeMessageBus() throws MessageBusException {
@@ -4256,7 +4231,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Gets the next availabe default NodeId.
-     * 
+     *
      * @return The desired NodeId
      */
     private NodeId getDefaultNodeId() {
@@ -4267,7 +4242,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Removes the given node (and all sub-nodes) from the maps.
-     * 
+     *
      * @param node The desired node
      * @param reference The reference to the desired SubmodelElement
      * @param referable The corresponding referable
@@ -4296,7 +4271,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Removes the given SubmodelElement from the maps.
-     * 
+     *
      * @param element The desired SubmodelElement
      * @param reference The reference to the desired SubmodelElement
      * @param referable The corresponding referable
@@ -4413,7 +4388,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Removes the given SubmodelElement from the maps.
-     * 
+     *
      * @param parent The reference to the parent element.
      * @param de The desired SubmodelElement
      */
@@ -4445,7 +4420,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Removes the given SubmodelElement from the maps.
-     * 
+     *
      * @param reference The reference to the desired submodel.
      * @param submodel The desired submodel
      */

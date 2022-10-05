@@ -24,7 +24,7 @@ import java.util.Map.Entry;
 
 
 /**
- * Utility class for serializing Java Map instances as key-value pairs in JSON using Jackson framework
+ * Utility class for serializing Java Map instances as key-value pairs in JSON using Jackson framework.
  */
 public class MapToCoupleArraySerializer extends JsonSerializer<Map<?, ?>> {
 

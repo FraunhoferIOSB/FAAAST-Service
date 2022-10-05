@@ -25,7 +25,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-POST-Request path: submodel
+ * class to map HTTP-POST-Request path: submodel.
  */
 public class PostSubmodelRequestMapper extends AbstractRequestMapper {
 

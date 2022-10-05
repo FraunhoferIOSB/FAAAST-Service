@@ -24,12 +24,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiatio
 
 
 /**
- * Superclass of all config classes that are coupled with a concrete
- * implementation class (via generics). Each config class can be serialized
- * to/parsed from JSON in the form of { "@class": "[implemenation class],
- * [normal JSON serialization of properties] } where [implemenation class] is
- * the fully qualified class name of an implementation class (i.e. implementing
- * the interface Configurable) that can be configured with this configuration.
+ * Superclass of all config classes that are coupled with a concrete implementation class (via generics). Each config
+ * class can be serialized to/parsed from JSON in the form of { "@class": "[implemenation class], [normal JSON
+ * serialization of properties] } where [implemenation class] is the fully qualified class name of an implementation
+ * class (i.e. implementing the interface Configurable) that can be configured with this configuration.
  *
  * @param <T> type of the implementation class configured by this configuration
  */
@@ -38,8 +36,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiatio
 public abstract class Config<T extends Configurable> {
 
     /**
-     * Utility method to get the concrete type of the corresponding
-     * implementation.
+     * Utility method to get the concrete type of the corresponding implementation.
      *
      * @return the type of the corresponding implementation
      */
@@ -49,17 +46,13 @@ public abstract class Config<T extends Configurable> {
 
 
     /**
-     * Creates a new instance of the implementation class that is initialized
-     * with this configuration.
+     * Creates a new instance of the implementation class that is initialized with this configuration.
      *
-     * @param coreConfig the coreConfig to initialize the implementation class
-     *            with
+     * @param coreConfig the coreConfig to initialize the implementation class with
      * @param context context information about the service
-     * @return a new instance of the implementation class that is initialized
-     *         with this configuration
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiationException
-     *             when creating a new instance fails
+     * @return a new instance of the implementation class that is initialized with this configuration
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiationException when creating a new
+     *             instance fails
      */
     public T newInstance(CoreConfig coreConfig, ServiceContext context) throws ConfigurationException {
         try {

@@ -19,18 +19,18 @@ import io.adminshell.aas.v3.model.Submodel;
 
 
 /**
- * Chapter 6.3.6
+ * Response class for PostSubmodel requests.
  */
 public class PostSubmodelResponse extends AbstractResponseWithPayload<Submodel> {
 
-    public static PostSubmodelResponse.Builder builder() {
-        return new PostSubmodelResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<Submodel, PostSubmodelResponse, PostSubmodelResponse.Builder> {
+    public static class Builder extends AbstractBuilder<Submodel, PostSubmodelResponse, Builder> {
 
         @Override
-        protected PostSubmodelResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 
