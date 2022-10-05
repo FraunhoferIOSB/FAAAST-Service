@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ElementValueHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
@@ -232,8 +233,8 @@ public class AssetConnectionManager {
                 .findFirst();
         if (valueProviders.isPresent()) {
             throw new InvalidConfigurationException(String.format("found %d value providers for reference %s but maximum 1 allowed",
-                    valueProviders.get().getKey(),
-                    valueProviders.get().getValue().size()));
+                    valueProviders.get().getValue().size(),
+                    AasUtils.asString(valueProviders.get().getKey())));
         }
         Optional<Map.Entry<Reference, List<AssetOperationProvider>>> operationProviders = connections.stream()
                 .flatMap(x -> (Stream<Map.Entry<Reference, AssetOperationProvider>>) x.getOperationProviders().entrySet().stream())
@@ -242,8 +243,8 @@ public class AssetConnectionManager {
                 .findFirst();
         if (operationProviders.isPresent()) {
             throw new InvalidConfigurationException(String.format("found %d operation providers for reference %s but maximum 1 allowed",
-                    operationProviders.get().getKey(),
-                    operationProviders.get().getValue().size()));
+                    operationProviders.get().getValue().size(),
+                    AasUtils.asString(operationProviders.get().getKey())));
         }
         Optional<Map.Entry<Reference, List<AssetSubscriptionProvider>>> subscriptionProviders = connections.stream()
                 .flatMap(x -> (Stream<Map.Entry<Reference, AssetSubscriptionProvider>>) x.getSubscriptionProviders().entrySet().stream())
@@ -252,8 +253,8 @@ public class AssetConnectionManager {
                 .findFirst();
         if (subscriptionProviders.isPresent()) {
             throw new InvalidConfigurationException(String.format("found %d subscription providers for reference %s but maximum 1 allowed",
-                    subscriptionProviders.get().getKey(),
-                    subscriptionProviders.get().getValue().size()));
+                    subscriptionProviders.get().getValue().size(),
+                    AasUtils.asString(subscriptionProviders.get().getKey())));
         }
     }
 }
