@@ -74,7 +74,7 @@ jobs:
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-      run: mvn -B clean deploy -P release --settings maven-ci-settings.xml
+      run: mvn clean deploy -P release --settings maven-ci-settings.xml -B
 
     - name: Build and Push Docker Images
       env:
@@ -83,6 +83,6 @@ jobs:
       run: |
         export VERSION=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
         # push version x.y.z
-        mvn -B jib:build -pl starter -Dcontainer.image.tag=${VERSION}
+        mvn jib:build -pl starter -Dcontainer.image.tag=${VERSION} -B
         # push version x.y
-        mvn -B jib:build -pl starter -Dcontainer.image.tag=${VERSION%.*}
+        mvn jib:build -pl starter -Dcontainer.image.tag=${VERSION%.*} -B

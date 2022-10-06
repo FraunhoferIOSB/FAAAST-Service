@@ -408,6 +408,7 @@
         <profile>
             <id>coverage</id>
             <modules>
+                <module>checks</module>
                 <module>endpoint/opcua</module>
                 <module>test</module>
             </modules>
@@ -446,6 +447,10 @@
             <modules>
                 <module>endpoint/opcua</module>
             </modules>
+            <properties>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
