@@ -125,7 +125,7 @@
                                 <goals>
                                     <goal>report-aggregate</goal>
                                 </goals>
-                                <phase>prepare-package</phase>
+                                <phase>verify</phase>
                                 <configuration>
                                     <includes>
                                         <!-- Analyze class files only to exclude shaded agent JAR from report -->
