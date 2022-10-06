@@ -127,45 +127,14 @@
                                 </goals>
                                 <phase>prepare-package</phase>
                                 <configuration>
-                                    <title>JaCoCo</title>
-                                    <footer>Code Coverage Report for JaCoCo ${project.version}</footer>
                                     <includes>
                                         <!-- Analyze class files only to exclude shaded agent JAR from report -->
                                         <include>**/*.class</include>
                                         <includeCurrentProject>true</includeCurrentProject>
                                     </includes>
-                                    <excludes>
-                                        <exclude>**/HelpMojo.class</exclude>
-                                    </excludes>
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <configuration>
-                            <!--
-                                Can be set to true once https://issues.sonatype.org/browse/NEXUS-19853 is fixed.
-                                Then source and javadoc plugins can also be turned off.
-                            -->
-                            <skipNexusStagingDeployMojo>false</skipNexusStagingDeployMojo>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
