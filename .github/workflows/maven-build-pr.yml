@@ -39,7 +39,7 @@ jobs:
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: |
-        mvn compile -P build-ci --settings maven-ci-settings.xml -B
+        foo mvn compile -P build-ci --settings maven-ci-settings.xml -B
 
     - name: Test
       env:
