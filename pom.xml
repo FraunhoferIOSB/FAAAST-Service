@@ -408,6 +408,7 @@
         <profile>
             <id>coverage</id>
             <modules>
+                <module>checks</module>
                 <module>endpoint/opcua</module>
                 <module>test</module>
             </modules>
@@ -423,13 +424,6 @@
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
-                            </execution>
-                            <execution>
-                                <id>report-aggregate</id>
-                                <goals>
-                                    <goal>report-aggregate</goal>
-                                </goals>
-                                <phase>verify</phase>
                             </execution>
                         </executions>
                     </plugin>
@@ -453,6 +447,10 @@
             <modules>
                 <module>endpoint/opcua</module>
             </modules>
+            <properties>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
