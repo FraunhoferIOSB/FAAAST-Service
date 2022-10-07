@@ -18,6 +18,11 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>assetconnection-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>assetconnection-http</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -49,6 +54,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>endpoint-opcua</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>messagebus-internal</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -66,6 +76,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>persistence-memory</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>starter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
