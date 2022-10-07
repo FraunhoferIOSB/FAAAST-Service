@@ -13,6 +13,7 @@
     <description>Integration tests for FA³ST Service.</description>
     <properties>
         <root.basedir>${project.parent.basedir}</root.basedir>
+        <sonar.skip>true</sonar.skip>
     </properties>
     <dependencies>
         <dependency>
