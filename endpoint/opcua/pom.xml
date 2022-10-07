@@ -15,7 +15,6 @@
         <dir.generated-code>${project.build.directory}/generated-sources</dir.generated-code>
         <dir.generated-resources>${project.build.directory}/generated-resources</dir.generated-resources>
         <root.basedir>${project.parent.basedir}</root.basedir>
-        <sonar.skip>true</sonar.skip>
     </properties>
     <dependencies>
         <dependency>
