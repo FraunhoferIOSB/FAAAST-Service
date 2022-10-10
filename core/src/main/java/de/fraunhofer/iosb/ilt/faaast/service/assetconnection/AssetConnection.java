@@ -29,11 +29,14 @@ import java.util.Map;
  * </ul>
  *
  * @param <T> corresponding config type
- * @param <V> type of value provider config
- * @param <O> type of operation provider config
- * @param <S> type of subscription config
+ * @param <VC> type of value provider config
+ * @param <V> type of value provider
+ * @param <OC> type of operation provider config
+ * @param <O> type of operation provider
+ * @param <SC> type of subscription config
+ * @param <S> type of subscription
  */
-public interface AssetConnection<T extends AssetConnectionConfig, V extends AssetValueProviderConfig, O extends AssetOperationProviderConfig, S extends AssetSubscriptionProviderConfig>
+public interface AssetConnection<T extends AssetConnectionConfig, VC extends AssetValueProviderConfig, V extends AssetValueProvider, OC extends AssetOperationProviderConfig, O extends AssetOperationProvider, SC extends AssetSubscriptionProviderConfig, S extends AssetSubscriptionProvider>
         extends Configurable<T> {
 
     /**
@@ -44,13 +47,13 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
     public void close() throws AssetConnectionException;
 
 
-    public Map<Reference, AssetOperationProvider> getOperationProviders();
+    public Map<Reference, O> getOperationProviders();
 
 
-    public Map<Reference, AssetSubscriptionProvider> getSubscriptionProviders();
+    public Map<Reference, S> getSubscriptionProviders();
 
 
-    public Map<Reference, AssetValueProvider> getValueProviders();
+    public Map<Reference, V> getValueProviders();
 
 
     /**
@@ -60,7 +63,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      * @param providerConfig AssetOperationProvider instance to use
      * @throws AssetConnectionException if registering provider fails
      */
-    public void registerOperationProvider(Reference reference, O providerConfig) throws AssetConnectionException;
+    public void registerOperationProvider(Reference reference, OC providerConfig) throws AssetConnectionException;
 
 
     /**
@@ -70,7 +73,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      * @param providerConfig AssetSubscriptionProvider instance to use
      * @throws AssetConnectionException if registering provider fails
      */
-    public void registerSubscriptionProvider(Reference reference, S providerConfig) throws AssetConnectionException;
+    public void registerSubscriptionProvider(Reference reference, SC providerConfig) throws AssetConnectionException;
 
 
     /**
@@ -80,7 +83,7 @@ public interface AssetConnection<T extends AssetConnectionConfig, V extends Asse
      * @param providerConfig AssetValueProvider instance to use
      * @throws AssetConnectionException if registering provider fails
      */
-    public void registerValueProvider(Reference reference, V providerConfig) throws AssetConnectionException;
+    public void registerValueProvider(Reference reference, VC providerConfig) throws AssetConnectionException;
 
 
     /**

@@ -14,7 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttSubscriptionProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
@@ -109,7 +112,7 @@ public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetCo
 
     public abstract static class AbstractBuilder<T extends MqttAssetConnectionConfig, B extends AbstractBuilder<T, B>>
             extends
-            AssetConnectionConfig.AbstractBuilder<MqttAssetConnectionConfig, MqttValueProviderConfig, MqttOperationProviderConfig, MqttSubscriptionProviderConfig, MqttAssetConnection, B> {
+            AssetConnectionConfig.AbstractBuilder<MqttAssetConnectionConfig, MqttValueProviderConfig, MqttValueProvider, MqttOperationProviderConfig, AssetOperationProvider, MqttSubscriptionProviderConfig, MqttSubscriptionProvider, MqttAssetConnection, B> {
 
         public B clientId(String value) {
             getBuildingInstance().setClientId(value);

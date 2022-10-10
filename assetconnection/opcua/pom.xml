@@ -26,6 +26,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.github.valfirst</groupId>
+            <artifactId>slf4j-test</artifactId>
+            <version>${slf4j.test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.admin-shell.aas</groupId>
             <artifactId>dataformat-core</artifactId>
             <version>${aas.dataformat.version}</version>
@@ -51,6 +57,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons.lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>${awaitility.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.milo</groupId>

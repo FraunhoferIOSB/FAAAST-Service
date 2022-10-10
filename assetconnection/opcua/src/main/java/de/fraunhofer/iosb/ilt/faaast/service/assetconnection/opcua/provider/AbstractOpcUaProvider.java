@@ -31,10 +31,10 @@ import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 public abstract class AbstractOpcUaProvider<T extends AssetProviderConfig> {
 
     protected final ServiceContext serviceContext;
-    protected final OpcUaClient client;
     protected final Reference reference;
     protected final T providerConfig;
     protected final ValueConverter valueConverter;
+    protected OpcUaClient client;
 
     protected AbstractOpcUaProvider(ServiceContext serviceContext,
             OpcUaClient client,

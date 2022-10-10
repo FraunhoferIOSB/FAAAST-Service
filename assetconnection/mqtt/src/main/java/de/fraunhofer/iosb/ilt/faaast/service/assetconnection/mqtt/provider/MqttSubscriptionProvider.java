@@ -53,7 +53,7 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
 
 
     @Override
-    protected void subscribe() throws AssetConnectionException {
+    public void subscribe() throws AssetConnectionException {
         try {
             client.subscribe(config.getTopic(), (topic, message) -> fireNewDataReceived(message.getPayload()));
         }

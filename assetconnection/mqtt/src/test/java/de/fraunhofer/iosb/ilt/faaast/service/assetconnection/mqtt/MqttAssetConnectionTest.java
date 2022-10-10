@@ -41,6 +41,7 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import io.moquette.BrokerConstants;
 import io.moquette.broker.Server;
+import io.moquette.broker.config.IConfig;
 import io.moquette.broker.config.MemoryConfig;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.mqtt.MqttMessageBuilders;
@@ -133,11 +134,16 @@ public class MqttAssetConnectionTest {
 
     private static Server startMqttServer(int port) throws IOException {
         Server result = new Server();
-        MemoryConfig mqttConfig = new MemoryConfig(new Properties());
-        mqttConfig.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(port));
-        mqttConfig.setProperty(BrokerConstants.HOST_PROPERTY_NAME, LOCALHOST);
-        mqttConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(true));
-        result.startServer(mqttConfig, null);
+        result.startServer(getMqttServerConfig(port), null);
+        return result;
+    }
+
+
+    private static IConfig getMqttServerConfig(int port) {
+        MemoryConfig result = new MemoryConfig(new Properties());
+        result.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(port));
+        result.setProperty(BrokerConstants.HOST_PROPERTY_NAME, LOCALHOST);
+        result.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(true));
         return result;
     }
 
@@ -262,6 +268,41 @@ public class MqttAssetConnectionTest {
     public void testSubscriptionProviderJsonProperty() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
         assertSubscriptionProvider(FORMAT_JSON, "7", PropertyValue.of(Datatype.INT, "7"));
         assertSubscriptionProvider(FORMAT_JSON, "\"hello world\"", PropertyValue.of(Datatype.STRING, "hello world"));
+    }
+
+
+    @Test
+    public void testReconnect() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException {
+        String message = "7";
+        PropertyValue expected = PropertyValue.of(Datatype.INT, message);
+        MqttAssetConnection assetConnection = newConnection(
+                ElementValueTypeInfo.builder()
+                        .datatype(expected.getValue().getDataType())
+                        .type(expected.getClass())
+                        .build(),
+                MqttSubscriptionProviderConfig.builder()
+                        .format(FORMAT_JSON)
+                        .build());
+        NewDataListener listener = null;
+        try {
+            CountDownLatch received = new CountDownLatch(1);
+            final AtomicReference<DataElementValue> response = new AtomicReference<>();
+            listener = (DataElementValue data) -> {
+                response.set(data);
+                received.countDown();
+            };
+            assetConnection.getSubscriptionProviders().get(DEFAULT_REFERENCE).addNewDataListener(listener);
+            mqttServer.stopServer();
+            mqttServer.startServer(getMqttServerConfig(mqttPort));
+            await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS).until(() -> !mqttServer.listConnectedClients().isEmpty());
+            publishMqtt(DEFAULT_TOPIC, message);
+            received.await(DEFAULT_TIMEOUT, isDebugging() ? TimeUnit.SECONDS : TimeUnit.MILLISECONDS);
+            Assert.assertEquals(expected, response.get());
+        }
+        finally {
+            assetConnection.getSubscriptionProviders().get(DEFAULT_REFERENCE).removeNewDataListener(listener);
+            assetConnection.close();
+        }
     }
 
 
