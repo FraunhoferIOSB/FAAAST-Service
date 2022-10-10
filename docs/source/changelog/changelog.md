@@ -5,8 +5,11 @@
 **New Features**
 *   Asset Connection
 	*   OPC UA
+		*   Automatic reconnect upon connection loss
 		*   Add ParentNodeId to OpcUaOperationProviderConfig
 		*   Introduce mapping between IdShort and Argument Name in OpcUaOperationProviderConfig
+	*   MQTT
+		*   Automatic reconnect upon connection loss
 *   Improved JavaDoc documentation
 *   Improved security through automatic vulnerabilities check before release
 
