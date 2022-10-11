@@ -275,6 +275,8 @@ public class MqttAssetConnectionTest {
     public void testReconnect() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException {
         String message = "7";
         PropertyValue expected = PropertyValue.of(Datatype.INT, message);
+        TestLogger logger = TestLoggerFactory.getTestLogger(MqttAssetConnection.class);
+        final Predicate<LoggingEvent> logConnectionLost = x -> x.getLevel() == Level.WARN && x.getMessage().startsWith("MQTT asset connection lost");
         MqttAssetConnection assetConnection = newConnection(
                 ElementValueTypeInfo.builder()
                         .datatype(expected.getValue().getDataType())
@@ -293,6 +295,8 @@ public class MqttAssetConnectionTest {
             };
             assetConnection.getSubscriptionProviders().get(DEFAULT_REFERENCE).addNewDataListener(listener);
             mqttServer.stopServer();
+            await().atMost(5, TimeUnit.SECONDS)
+                .until(() -> logger.getAllLoggingEvents().stream().anyMatch(logConnectionLost));
             mqttServer.startServer(getMqttServerConfig(mqttPort));
             await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS).until(() -> !mqttServer.listConnectedClients().isEmpty());
             publishMqtt(DEFAULT_TOPIC, message);
