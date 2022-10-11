@@ -273,16 +273,18 @@ public class MqttAssetConnectionTest {
 
     @Test
     public void testReconnect() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException {
+        int localMqttPort = findFreePort();
+        Server localMqttServer = startMqttServer(localMqttPort);
+        String localMqttServerUri = "tcp://" + LOCALHOST + ":" + localMqttPort;
         String message = "7";
         PropertyValue expected = PropertyValue.of(Datatype.INT, message);
         TestLogger logger = TestLoggerFactory.getTestLogger(MqttAssetConnection.class);
         final Predicate<LoggingEvent> logConnectionLost = x -> x.getLevel() == Level.WARN && x.getMessage().startsWith("MQTT asset connection lost");
         final Predicate<LoggingEvent> logConnectionEstablished = x -> x.getLevel() == Level.INFO && x.getMessage().startsWith("MQTT asset connection established");
-        MqttAssetConnection assetConnection = newConnection(
-                ElementValueTypeInfo.builder()
-                        .datatype(expected.getValue().getDataType())
-                        .type(expected.getClass())
-                        .build(),
+        MqttAssetConnection assetConnection = newConnection(localMqttServerUri, DEFAULT_REFERENCE, ElementValueTypeInfo.builder()
+                .datatype(expected.getValue().getDataType())
+                .type(expected.getClass())
+                .build(), null, null,
                 MqttSubscriptionProviderConfig.builder()
                         .format(FORMAT_JSON)
                         .build());
@@ -295,19 +297,25 @@ public class MqttAssetConnectionTest {
                 received.countDown();
             };
             assetConnection.getSubscriptionProviders().get(DEFAULT_REFERENCE).addNewDataListener(listener);
-            mqttServer.stopServer();
+            localMqttServer.stopServer();
             await().atMost(5, TimeUnit.SECONDS)
                     .until(() -> logger.getAllLoggingEvents().stream().anyMatch(logConnectionLost));
-            mqttServer.startServer(getMqttServerConfig(mqttPort));
+            localMqttServer.startServer(getMqttServerConfig(localMqttPort));
             await().atMost(10, TimeUnit.SECONDS)
                     .until(() -> logger.getAllLoggingEvents().stream().anyMatch(logConnectionEstablished));
-            publishMqtt(DEFAULT_TOPIC, message);
+            localMqttServer.internalPublish(MqttMessageBuilders.publish()
+                    .topicName(DEFAULT_TOPIC)
+                    .retained(false)
+                    .qos(MqttQoS.EXACTLY_ONCE)
+                    .payload(Unpooled.copiedBuffer(message.getBytes(UTF_8))).build(),
+                    "unit test " + UUID.randomUUID().toString().replace("-", ""));
             received.await(DEFAULT_TIMEOUT, isDebugging() ? TimeUnit.SECONDS : TimeUnit.MILLISECONDS);
             Assert.assertEquals(expected, response.get());
         }
         finally {
             assetConnection.getSubscriptionProviders().get(DEFAULT_REFERENCE).removeNewDataListener(listener);
             assetConnection.close();
+            localMqttServer.stopServer();
         }
     }
 
