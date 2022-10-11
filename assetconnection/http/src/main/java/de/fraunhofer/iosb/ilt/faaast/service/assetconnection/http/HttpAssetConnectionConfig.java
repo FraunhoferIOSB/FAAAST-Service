@@ -14,7 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpSubscriptionProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
@@ -93,7 +96,7 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
 
     public abstract static class AbstractBuilder<T extends HttpAssetConnectionConfig, B extends AbstractBuilder<T, B>>
             extends
-            AssetConnectionConfig.AbstractBuilder<HttpAssetConnectionConfig, HttpValueProviderConfig, HttpOperationProviderConfig, HttpSubscriptionProviderConfig, HttpAssetConnection, B> {
+            AssetConnectionConfig.AbstractBuilder<HttpAssetConnectionConfig, HttpValueProviderConfig, HttpValueProvider, HttpOperationProviderConfig, HttpOperationProvider, HttpSubscriptionProviderConfig, HttpSubscriptionProvider, HttpAssetConnection, B> {
 
         public B baseUrl(URL value) {
             getBuildingInstance().setBaseUrl(value);

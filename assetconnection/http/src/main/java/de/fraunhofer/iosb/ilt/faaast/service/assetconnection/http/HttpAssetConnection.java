@@ -17,9 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpValueProvider;
@@ -59,15 +56,15 @@ import org.apache.commons.lang3.StringUtils;
  *
  * <p>This class uses a single underlying HTTP connection.
  */
-public class HttpAssetConnection
-        implements AssetConnection<HttpAssetConnectionConfig, HttpValueProviderConfig, HttpOperationProviderConfig, HttpSubscriptionProviderConfig> {
+public class HttpAssetConnection implements
+        AssetConnection<HttpAssetConnectionConfig, HttpValueProviderConfig, HttpValueProvider, HttpOperationProviderConfig, HttpOperationProvider, HttpSubscriptionProviderConfig, HttpSubscriptionProvider> {
 
     private HttpClient client;
     private HttpAssetConnectionConfig config;
-    private final Map<Reference, AssetOperationProvider> operationProviders;
+    private final Map<Reference, HttpOperationProvider> operationProviders;
     private ServiceContext serviceContext;
-    private final Map<Reference, AssetSubscriptionProvider> subscriptionProviders;
-    private final Map<Reference, AssetValueProvider> valueProviders;
+    private final Map<Reference, HttpSubscriptionProvider> subscriptionProviders;
+    private final Map<Reference, HttpValueProvider> valueProviders;
 
     public HttpAssetConnection() {
         valueProviders = new HashMap<>();
@@ -95,19 +92,19 @@ public class HttpAssetConnection
 
 
     @Override
-    public Map<Reference, AssetOperationProvider> getOperationProviders() {
+    public Map<Reference, HttpOperationProvider> getOperationProviders() {
         return this.operationProviders;
     }
 
 
     @Override
-    public Map<Reference, AssetSubscriptionProvider> getSubscriptionProviders() {
+    public Map<Reference, HttpSubscriptionProvider> getSubscriptionProviders() {
         return this.subscriptionProviders;
     }
 
 
     @Override
-    public Map<Reference, AssetValueProvider> getValueProviders() {
+    public Map<Reference, HttpValueProvider> getValueProviders() {
         return this.valueProviders;
     }
 

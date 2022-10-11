@@ -27,7 +27,8 @@ import java.util.TreeMap;
 
 
 public class DummyAssetConnection
-        implements AssetConnection<DummyAssetConnectionConfig, DummyNodeBasedProviderConfig, DummyNodeBasedProviderConfig, DummySubscriptionBasedProviderConfig> {
+        implements
+        AssetConnection<DummyAssetConnectionConfig, DummyNodeBasedProviderConfig, AssetValueProvider, DummyNodeBasedProviderConfig, AssetOperationProvider, DummySubscriptionBasedProviderConfig, AssetSubscriptionProvider> {
 
     private CoreConfig coreConfig;
     private final Map<Reference, AssetValueProvider> valueProviders = new TreeMap<>();

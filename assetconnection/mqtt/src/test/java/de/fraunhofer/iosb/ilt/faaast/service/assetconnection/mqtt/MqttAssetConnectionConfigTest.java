@@ -12,20 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.MultiFormatValueProviderConfig;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.Test;
 
 
-/**
- * Abstract base class for custom implementations of AssetValueProvider supporting multiple data formats.
- *
- * @param <T> concrete type of matching configuration
- */
-public abstract class MultiFormatValueProvider<T extends MultiFormatValueProviderConfig> extends AbstractMultiFormatReadWriteProvider<T> implements AssetValueProvider {
+public class MqttAssetConnectionConfigTest {
 
-    protected MultiFormatValueProvider(T config) {
-        super(config);
+    @Test
+    public void testEquals() {
+        EqualsVerifier.simple().forClass(MqttAssetConnectionConfig.class).verify();
     }
 }

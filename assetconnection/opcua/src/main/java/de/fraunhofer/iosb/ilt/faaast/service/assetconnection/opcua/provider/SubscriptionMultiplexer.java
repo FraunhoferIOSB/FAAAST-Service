@@ -51,10 +51,10 @@ public class SubscriptionMultiplexer {
     private final ServiceContext serviceContext;
     private final OpcUaSubscriptionProviderConfig providerConfig;
     private final Reference reference;
-    private final OpcUaClient client;
     private final Set<NewDataListener> listeners;
     private final ValueConverter valueConverter;
-    private final ManagedSubscription opcUaSubscription;
+    private OpcUaClient client;
+    private ManagedSubscription opcUaSubscription;
     private ManagedDataItem dataItem;
     private Datatype datatype;
 
@@ -116,6 +116,20 @@ public class SubscriptionMultiplexer {
                     providerConfig.getNodeId(),
                     e);
         }
+    }
+
+
+    /**
+     * Reconnects underlying subscriptions after connection loss.
+     *
+     * @param client the new client
+     * @param opcUaSubscription the new underlying OPC UA subscription
+     * @throws AssetConnectionException if reconnecting fails
+     */
+    public void reconnect(OpcUaClient client, ManagedSubscription opcUaSubscription) throws AssetConnectionException {
+        this.client = client;
+        this.opcUaSubscription = opcUaSubscription;
+        init();
     }
 
 

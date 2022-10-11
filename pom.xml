@@ -79,6 +79,7 @@
         <commons.lang3.version>3.12.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
+        <equalsverifier.version>3.10.1</equalsverifier.version>
         <guava.version>31.1-jre</guava.version>
         <jackson.databind.version>2.13.4</jackson.databind.version>
         <jackson.version>2.13.4</jackson.version>

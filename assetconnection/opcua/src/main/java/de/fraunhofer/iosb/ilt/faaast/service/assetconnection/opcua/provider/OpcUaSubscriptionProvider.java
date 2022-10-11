@@ -21,11 +21,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
@@ -36,8 +33,8 @@ import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
  */
 public class OpcUaSubscriptionProvider extends AbstractOpcUaProvider<OpcUaSubscriptionProviderConfig> implements AssetSubscriptionProvider {
 
-    private final ManagedSubscription opcUaSubscription;
-    private final Map<String, SubscriptionMultiplexer> subscriptions;
+    private ManagedSubscription opcUaSubscription;
+    private SubscriptionMultiplexer multiplexer = null;
 
     public OpcUaSubscriptionProvider(ServiceContext serviceContext,
             Reference reference,
@@ -48,22 +45,47 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProvider<OpcUaSubscr
         super(serviceContext, client, reference, providerConfig, valueConverter);
         Ensure.requireNonNull(opcUaSubscription, "opcUaSubscription must be non-null");
         this.opcUaSubscription = opcUaSubscription;
-        this.subscriptions = new HashMap<>();
+    }
+
+
+    public String getNodeId() {
+        return providerConfig.getNodeId();
+    }
+
+
+    public Reference getReference() {
+        return reference;
+    }
+
+
+    /**
+     * Reconnects underlying subscriptions after connection loss.
+     *
+     * @param client the new client
+     * @param opcUaSubscription the new underlying OPC UA subscription
+     * @throws AssetConnectionException if reconnecting fails
+     */
+    public void reconnect(OpcUaClient client, ManagedSubscription opcUaSubscription) throws AssetConnectionException {
+        this.client = client;
+        this.opcUaSubscription = opcUaSubscription;
+        if (multiplexer != null) {
+            multiplexer.reconnect(client, opcUaSubscription);
+        }
     }
 
 
     @Override
     public void addNewDataListener(NewDataListener listener) throws AssetConnectionException {
-        if (!subscriptions.containsKey(providerConfig.getNodeId())) {
-            subscriptions.put(providerConfig.getNodeId(), new SubscriptionMultiplexer(
+        if (multiplexer == null) {
+            multiplexer = new SubscriptionMultiplexer(
                     serviceContext,
                     reference,
                     providerConfig,
                     client,
                     opcUaSubscription,
-                    valueConverter));
+                    valueConverter);
         }
-        subscriptions.get(providerConfig.getNodeId()).addListener(listener);
+        multiplexer.addListener(listener);
     }
 
 
@@ -73,17 +95,19 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProvider<OpcUaSubscr
      * @throws AssetConnectionException if unsubscribing via OPC UA fails
      */
     public void close() throws AssetConnectionException {
-        subscriptions.values().forEach(LambdaExceptionHelper.rethrowConsumer(SubscriptionMultiplexer::close));
+        if (multiplexer != null) {
+            multiplexer.close();
+        }
     }
 
 
     @Override
     public void removeNewDataListener(NewDataListener listener) throws AssetConnectionException {
-        if (subscriptions.containsKey(providerConfig.getNodeId())) {
+        if (multiplexer != null) {
             try {
-                subscriptions.get(providerConfig.getNodeId()).removeListener(listener);
-                if (!subscriptions.get(providerConfig.getNodeId()).isActive()) {
-                    subscriptions.remove(providerConfig.getNodeId());
+                multiplexer.removeListener(listener);
+                if (!multiplexer.isActive()) {
+                    multiplexer = null;
                 }
             }
             catch (AssetConnectionException e) {
@@ -99,7 +123,7 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProvider<OpcUaSubscr
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), opcUaSubscription, subscriptions);
+        return Objects.hash(super.hashCode(), opcUaSubscription, multiplexer);
     }
 
 
@@ -117,7 +141,7 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProvider<OpcUaSubscr
         final OpcUaSubscriptionProvider that = (OpcUaSubscriptionProvider) obj;
         return super.equals(that)
                 && Objects.equals(opcUaSubscription, that.opcUaSubscription)
-                && Objects.equals(subscriptions, that.subscriptions);
+                && Objects.equals(multiplexer, that.multiplexer);
     }
 
 }
