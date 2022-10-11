@@ -35,10 +35,6 @@ import org.slf4j.LoggerFactory;
  * the OPC UA address space.
  */
 public class AasReferenceCreator {
-    /**
-     * Text if node is null
-     */
-    private static final String NODE_NULL = "node is null";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AasReferenceCreator.class);
 
@@ -53,7 +49,7 @@ public class AasReferenceCreator {
      */
     public static void addAasReferenceList(UaNode node, List<Reference> list, String name, AasServiceNodeManager nodeManager) throws StatusException {
         if (node == null) {
-            throw new IllegalArgumentException(NODE_NULL);
+            throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
         }
         else if (list == null) {
             throw new IllegalArgumentException("list = null");
