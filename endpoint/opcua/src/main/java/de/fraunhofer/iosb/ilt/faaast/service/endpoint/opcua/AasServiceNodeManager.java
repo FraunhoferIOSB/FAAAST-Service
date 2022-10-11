@@ -43,6 +43,8 @@ import com.prosysopc.ua.types.opcua.DictionaryEntryType;
 import com.prosysopc.ua.types.opcua.FolderType;
 import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import com.prosysopc.ua.types.opcua.server.FolderTypeNode;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AasReferenceCreator;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EmbeddedDataSpecificationCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
@@ -160,11 +162,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * Text for addIdentifiable Exception
      */
     private static final String ADD_IDENT_EXC = "addIdentifiable Exception";
-
-    /**
-     * Text for addEmbeddedDataSpecifications Exception
-     */
-    private static final String ADD_EMBED_DS_EXC = "addEmbeddedDataSpecifications Exception";
 
     /**
      * The namespace URI of this node manager
@@ -430,7 +427,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             addIdentifiable(aasShell, aas.getIdentification(), aas.getAdministration(), aas.getCategory());
 
             // DataSpecifications
-            addEmbeddedDataSpecifications(aasShell, aas.getEmbeddedDataSpecifications());
+            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(aasShell, aas.getEmbeddedDataSpecifications(), this);
 
             // AssetInformation
             AssetInformation assetInformation = aas.getAssetInformation();
@@ -796,7 +793,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 // GlobalAssetId
                 Reference globalAssetId = assetInformation.getGlobalAssetId();
                 if (globalAssetId != null) {
-                    addAasReferenceAasNS(assetInfoNode, globalAssetId, AASAssetInformationType.GLOBAL_ASSET_ID);
+                    AasReferenceCreator.addAasReferenceAasNS(assetInfoNode, globalAssetId, AASAssetInformationType.GLOBAL_ASSET_ID, this);
                 }
 
                 // SpecificAssetIds
@@ -833,89 +830,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         try {
-            addAasReferenceList(node, billOfMaterials, "BillOfMaterial");
+            AasReferenceCreator.addAasReferenceList(node, billOfMaterials, "BillOfMaterial", this);
         }
         catch (Exception ex) {
             LOG.error("addBillOfMaterials Exception", ex);
             throw ex;
         }
-    }
-
-
-    /**
-     * Adds an AAS Reference to the given node with the AAS namespace (read-only).
-     *
-     * @param node The node in which the object is created
-     * @param ref The desired AAS reference object to add
-     * @param name The desired name
-     * @return The created node
-     * @throws StatusException If the operation fails
-     */
-    private UaNode addAasReferenceAasNS(UaNode node, Reference ref, String name) throws StatusException {
-        return addAasReferenceAasNS(node, ref, name, true);
-    }
-
-
-    /**
-     * Adds an AAS Reference to the given node with the AAS namespace.
-     *
-     * @param node The node in which the object is created
-     * @param ref The desired AAS reference object to add
-     * @param name The desired name
-     * @param readOnly True if the value should be read-only
-     * @return The created node
-     * @throws StatusException If the operation fails
-     */
-    private UaNode addAasReferenceAasNS(UaNode node, Reference ref, String name, boolean readOnly) throws StatusException {
-        UaNode retval = null;
-
-        try {
-            retval = addAasReference(node, ref, name, opc.i4aas.ObjectTypeIds.AASReferenceType.getNamespaceUri(), readOnly);
-        }
-        catch (Exception ex) {
-            LOG.error("addAasReferenceAasNS Exception", ex);
-            throw ex;
-        }
-
-        return retval;
-    }
-
-
-    /**
-     * Adds an AAS Reference to the given node with the given namespace.
-     *
-     * @param node The node in which the object is created
-     * @param ref The desired AAS reference object to add
-     * @param name The desired name
-     * @param namespaceUri The desired namespace URI tu use
-     * @param readOnly True if the value should be read-only
-     * @return The created node
-     * @throws StatusException If the operation fails
-     */
-    private UaNode addAasReference(UaNode node, Reference ref, String name, String namespaceUri, boolean readOnly) throws StatusException {
-        UaNode retval = null;
-
-        try {
-            if (ref != null) {
-                QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(getNamespaceTable());
-                NodeId nid = getDefaultNodeId();
-                AASReferenceType nodeRef = createInstance(AASReferenceType.class, nid, browseName, LocalizedText.english(name));
-
-                LOG.debug("addAasReference: add Node {} to Node {}", nid, node.getNodeId());
-
-                AasSubmodelElementHelper.setAasReferenceData(ref, nodeRef, readOnly);
-
-                node.addComponent(nodeRef);
-
-                retval = nodeRef;
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("addAasReference Exception", ex);
-            throw ex;
-        }
-
-        return retval;
     }
 
 
@@ -1030,7 +950,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 node.setModelingKind(ValueConverter.convertModelingKind(element.getKind()));
 
                 // DataSpecifications
-                addEmbeddedDataSpecifications(node, element.getEmbeddedDataSpecifications());
+                EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(node, element.getEmbeddedDataSpecifications(), this);
 
                 // SemanticId
                 if (element.getSemanticId() != null) {
@@ -1078,164 +998,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Exception ex) {
             LOG.error("addSemanticId Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds the references to the given Embedded Data Specifications.
-     *
-     * @param aasNode The desired object where the DataSpecifications should be added
-     * @param list The list of the desired Data Specifications
-     * @throws StatusException If the operation fails
-     */
-    private void addEmbeddedDataSpecifications(AASAssetAdministrationShellType aasNode, List<EmbeddedDataSpecification> list) throws StatusException {
-        try {
-            if ((list != null) && (!list.isEmpty())) {
-                List<Reference> refList = new ArrayList<>();
-                for (EmbeddedDataSpecification eds: list) {
-                    refList.add(eds.getDataSpecification());
-                }
-
-                AASReferenceList listNode = aasNode.getDataSpecificationNode();
-
-                if (listNode == null) {
-                    addAasReferenceList(aasNode, refList, AASAssetAdministrationShellType.DATA_SPECIFICATION);
-                }
-                else {
-                    addEmbeddedDataSpecificationsReferences(listNode, refList);
-                }
-            }
-        }
-        catch (Exception ex) {
-            LOG.error(ADD_EMBED_DS_EXC, ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds the references to the given Embedded Data Specifications.
-     *
-     * @param assetNode The desired node where the DataSpecifications should be added
-     * @param list The list of the desired Data Specifications
-     * @throws StatusException If the operation fails
-     */
-    private void addEmbeddedDataSpecifications(AASAssetType assetNode, List<EmbeddedDataSpecification> list) throws StatusException {
-        try {
-            if ((list != null) && (!list.isEmpty())) {
-                List<Reference> refList = new ArrayList<>();
-                for (EmbeddedDataSpecification eds: list) {
-                    refList.add(eds.getDataSpecification());
-                }
-
-                AASReferenceList listNode = assetNode.getDataSpecificationNode();
-
-                if (listNode == null) {
-                    addAasReferenceList(assetNode, refList, AASAssetType.DATA_SPECIFICATION);
-                }
-                else {
-                    addEmbeddedDataSpecificationsReferences(listNode, refList);
-                }
-            }
-        }
-        catch (Exception ex) {
-            LOG.error(ADD_EMBED_DS_EXC, ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds the references to the given Embedded Data Specifications.
-     *
-     * @param submodelNode The desired object where the DataSpecifications should be added
-     * @param list The list of the desired Data Specifications
-     * @throws StatusException If the operation fails
-     */
-    private void addEmbeddedDataSpecifications(AASSubmodelType submodelNode, List<EmbeddedDataSpecification> list) throws StatusException {
-        try {
-            if ((list != null) && (!list.isEmpty())) {
-                List<Reference> refList = new ArrayList<>();
-                for (EmbeddedDataSpecification eds: list) {
-                    refList.add(eds.getDataSpecification());
-                }
-
-                AASReferenceList listNode = submodelNode.getDataSpecificationNode();
-
-                if (listNode == null) {
-                    addAasReferenceList(submodelNode, refList, AASSubmodelType.DATA_SPECIFICATION);
-                }
-                else {
-                    addEmbeddedDataSpecificationsReferences(listNode, refList);
-                }
-            }
-        }
-        catch (Exception ex) {
-            LOG.error(ADD_EMBED_DS_EXC, ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds the references to the given Embedded Data Specifications.
-     *
-     * @param submodelElementNode The desired object where the
-     *            DataSpecifications should be added
-     * @param list The list of the desired Data Specifications
-     * @throws StatusException If the operation fails
-     */
-    private void addEmbeddedDataSpecifications(AASSubmodelElementType submodelElementNode, List<EmbeddedDataSpecification> list) throws StatusException {
-        try {
-            if ((list != null) && (!list.isEmpty())) {
-                List<Reference> refList = new ArrayList<>();
-                for (EmbeddedDataSpecification eds: list) {
-                    refList.add(eds.getDataSpecification());
-                }
-
-                AASReferenceList listNode = submodelElementNode.getDataSpecificationNode();
-
-                if (listNode == null) {
-                    addAasReferenceList(submodelElementNode, refList, AASSubmodelElementType.DATA_SPECIFICATION);
-                }
-                else {
-                    addEmbeddedDataSpecificationsReferences(listNode, refList);
-                }
-            }
-        }
-        catch (Exception ex) {
-            LOG.error(ADD_EMBED_DS_EXC, ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds the references to the given Embedded Data Specification references.
-     *
-     * @param refListNode The desired object where the DataSpecifications should be added
-     * @param refList The list of the desired Data Specification references
-     * @throws StatusException If the operation fails
-     */
-    private void addEmbeddedDataSpecificationsReferences(AASReferenceList refListNode, List<Reference> refList) throws StatusException {
-        try {
-            if ((refListNode != null) && (!refList.isEmpty())) {
-                int count = 0;
-                for (Reference ref: refList) {
-                    count++;
-                    String name = AASAssetAdministrationShellType.DATA_SPECIFICATION;
-                    if (count > 1) {
-                        name += count;
-                    }
-
-                    addAasReferenceAasNS(refListNode, ref, name);
-                }
-            }
-        }
-        catch (Exception ex) {
-            LOG.error(ADD_EMBED_DS_EXC, ex);
             throw ex;
         }
     }
@@ -1371,7 +1133,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             // ValueId
             if (qualifier.getValueId() != null) {
-                addAasReferenceAasNS(qualifierNode, qualifier.getValueId(), AASQualifierType.VALUE_ID);
+                AasReferenceCreator.addAasReferenceAasNS(qualifierNode, qualifier.getValueId(), AASQualifierType.VALUE_ID, this);
             }
 
             if (VALUES_READ_ONLY) {
@@ -1516,7 +1278,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             if (externalSubjectId != null) {
                 AASReferenceType extSubjectNode = identifierPairNode.getExternalSubjectIdNode();
                 if (extSubjectNode == null) {
-                    addAasReferenceAasNS(identifierPairNode, externalSubjectId, AASIdentifierKeyValuePairType.EXTERNAL_SUBJECT_ID);
+                    AasReferenceCreator.addAasReferenceAasNS(identifierPairNode, externalSubjectId, AASIdentifierKeyValuePairType.EXTERNAL_SUBJECT_ID, this);
                 }
                 else {
                     AasSubmodelElementHelper.setAasReferenceData(externalSubjectId, extSubjectNode);
@@ -1536,42 +1298,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Exception ex) {
             LOG.error("setIdentifierKeyValuePairData Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Creates a node with the given name and adds the given list of references.
-     *
-     * @param node The UA node in which the list of references should be created
-     * @param list The desired list of references
-     * @param name The desired name of the Node
-     * @throws StatusException If the operation fails
-     */
-    private void addAasReferenceList(UaNode node, List<Reference> list, String name) throws StatusException {
-        if (node == null) {
-            throw new IllegalArgumentException(NODE_NULL);
-        }
-        else if (list == null) {
-            throw new IllegalArgumentException("list = null");
-        }
-
-        try {
-            LOG.debug("addAasReferenceList {}; to Node: {}", name, node);
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-            NodeId nid = getDefaultNodeId();
-            AASReferenceList referenceListNode = createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
-
-            int counter = 1;
-            for (Reference ref: list) {
-                addAasReferenceAasNS(referenceListNode, ref, name + counter++);
-            }
-
-            node.addComponent(referenceListNode);
-        }
-        catch (Exception ex) {
-            LOG.error("addAasReferenceList Exception", ex);
             throw ex;
         }
     }
@@ -1628,7 +1354,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             addIdentifiable(assetNode, asset.getIdentification(), asset.getAdministration(), asset.getCategory());
 
             // DataSpecifications
-            addEmbeddedDataSpecifications(assetNode, asset.getEmbeddedDataSpecifications());
+            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(assetNode, asset.getEmbeddedDataSpecifications(), this);
 
             node.addComponent(assetNode);
 
@@ -1671,7 +1397,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 addIdentifiable(smNode, submodel.getIdentification(), submodel.getAdministration(), submodel.getCategory());
 
                 // DataSpecifications
-                addEmbeddedDataSpecifications(smNode, submodel.getEmbeddedDataSpecifications());
+                EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(smNode, submodel.getEmbeddedDataSpecifications(), this);
 
                 // Qualifiers
                 List<Constraint> qualifiers = submodel.getQualifiers();
@@ -1849,7 +1575,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             // ValueId
             Reference ref = aasProperty.getValueId();
             if (ref != null) {
-                addAasReferenceAasNS(prop, ref, AASPropertyType.VALUE_ID);
+                AasReferenceCreator.addAasReferenceAasNS(prop, ref, AASPropertyType.VALUE_ID, this);
             }
 
             // here Value and ValueType are set
@@ -2132,7 +1858,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
 
                 if (aasMultiLang.getValueId() != null) {
-                    addAasReferenceAasNS(multiLangNode, aasMultiLang.getValueId(), AASMultiLanguagePropertyType.VALUE_ID);
+                    AasReferenceCreator.addAasReferenceAasNS(multiLangNode, aasMultiLang.getValueId(), AASMultiLanguagePropertyType.VALUE_ID, this);
                 }
 
                 Reference multiLangRef = AasUtils.toReference(parentRef, aasMultiLang);
@@ -2233,7 +1959,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 // GlobalAssetId
                 if (aasEntity.getGlobalAssetId() != null) {
                     if (entityNode.getGlobalAssetIdNode() == null) {
-                        addAasReferenceAasNS(entityNode, aasEntity.getGlobalAssetId(), AASEntityType.GLOBAL_ASSET_ID, false);
+                        AasReferenceCreator.addAasReferenceAasNS(entityNode, aasEntity.getGlobalAssetId(), AASEntityType.GLOBAL_ASSET_ID, false, this);
                     }
                     else {
                         AasSubmodelElementHelper.setAasReferenceData(aasEntity.getGlobalAssetId(), entityNode.getGlobalAssetIdNode(), false);
@@ -2676,7 +2402,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     submodelNode = submodelOpcUAMap.get(ref);
                 }
 
-                UaNode refNode = addAasReferenceAasNS(referenceListNode, ref, submodelName);
+                UaNode refNode = AasReferenceCreator.addAasReferenceAasNS(referenceListNode, ref, submodelName, this);
 
                 if (refNode != null) {
                     // add hasAddIn reference to the submodel
@@ -2829,16 +2555,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             else if (parent != null) {
                 if (value instanceof EmbeddedDataSpecification) {
                     if (parent.getNode() instanceof AASAssetAdministrationShellType) {
-                        addEmbeddedDataSpecifications((AASAssetAdministrationShellType) parent.getNode(), List.of((EmbeddedDataSpecification) value));
+                        EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASAssetAdministrationShellType) parent.getNode(),
+                                List.of((EmbeddedDataSpecification) value), this);
                     }
                     else if (parent.getNode() instanceof AASSubmodelType) {
-                        addEmbeddedDataSpecifications((AASSubmodelType) parent.getNode(), List.of((EmbeddedDataSpecification) value));
+                        EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASSubmodelType) parent.getNode(), List.of((EmbeddedDataSpecification) value), this);
                     }
                     else if (parent.getNode() instanceof AASSubmodelElementType) {
-                        addEmbeddedDataSpecifications((AASSubmodelElementType) parent.getNode(), List.of((EmbeddedDataSpecification) value));
+                        EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASSubmodelElementType) parent.getNode(), List.of((EmbeddedDataSpecification) value), this);
                     }
                     else if (parent.getNode() instanceof AASAssetType) {
-                        addEmbeddedDataSpecifications((AASAssetType) parent.getNode(), List.of((EmbeddedDataSpecification) value));
+                        EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASAssetType) parent.getNode(), List.of((EmbeddedDataSpecification) value), this);
                     }
                     else {
                         LOG.warn("elementCreated: EmbeddedDataSpecification parent class not found");
@@ -3057,7 +2784,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * 
      * @return The desired NodeId
      */
-    private NodeId getDefaultNodeId() {
+    public NodeId getDefaultNodeId() {
         int nr = ++nodeIdCounter;
         return new NodeId(getNamespaceIndex(), nr);
     }
