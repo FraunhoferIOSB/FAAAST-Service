@@ -170,7 +170,7 @@ public class MqttAssetConnection implements
                     if (reconnect) {
                         try {
                             // restore lost subscriptions
-                            subscriptionProviders.values().forEach(LambdaExceptionHelper.rethrowConsumer(x -> x.subscribe()));
+                            subscriptionProviders.values().forEach(LambdaExceptionHelper.rethrowConsumer(MqttSubscriptionProvider::subscribe));
                             LOGGER.info("MQTT asset connection established (host: {})", serverURI);
                         }
                         catch (AssetConnectionException e) {

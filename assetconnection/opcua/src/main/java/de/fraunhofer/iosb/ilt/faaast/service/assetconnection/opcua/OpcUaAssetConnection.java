@@ -106,8 +106,7 @@ public class OpcUaAssetConnection implements
     public void close() throws AssetConnectionException {
         if (client != null) {
             try {
-                subscriptionProviders.values().stream().forEach(
-                        LambdaExceptionHelper.rethrowConsumer(x -> ((OpcUaSubscriptionProvider) x).close()));
+                subscriptionProviders.values().stream().forEach(LambdaExceptionHelper.rethrowConsumer(OpcUaSubscriptionProvider::close));
             }
             catch (AssetConnectionException e) {
                 LOGGER.info("unsubscribing from OPC UA asset connection on connection closing failed", e);
@@ -142,11 +141,13 @@ public class OpcUaAssetConnection implements
                             .build());
             client.connect().get();
             client.addSessionActivityListener(new SessionActivityListener() {
+                @Override
                 public void onSessionActive(UaSession session) {
                     LOGGER.info("OPC UA asset connection established (host: {})", config.getHost());
                 }
 
 
+                @Override
                 public void onSessionInactive(UaSession session) {
                     LOGGER.warn("OPC UA asset connection lost (host: {})", config.getHost());
                 }
