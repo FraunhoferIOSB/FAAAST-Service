@@ -22,7 +22,6 @@ public class OpcUaSubscriptionProviderConfigTest {
 
     @Test
     public void testEquals() {
-        EqualsVerifier.simple().forClass(OpcUaSubscriptionProviderConfig.class)
-                .verify();
+        EqualsVerifier.simple().forClass(OpcUaSubscriptionProviderConfig.class).verify();
     }
 }

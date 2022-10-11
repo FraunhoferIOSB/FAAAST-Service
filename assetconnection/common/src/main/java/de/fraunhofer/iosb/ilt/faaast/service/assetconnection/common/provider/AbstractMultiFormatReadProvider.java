@@ -19,8 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.con
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.util.MultiFormatReadWriteHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.util.Objects;
 
 
 /**
@@ -28,13 +26,10 @@ import java.util.Objects;
  *
  * @param <T> type of matching configuration
  */
-public abstract class AbstractMultiFormatReadProvider<T extends MultiFormatReadProviderConfig> implements MultiFormatReadProvider {
-
-    protected final T config;
+public abstract class AbstractMultiFormatReadProvider<T extends MultiFormatReadProviderConfig> extends AbstractMultiFormatProvider<T> implements MultiFormatReadProvider {
 
     protected AbstractMultiFormatReadProvider(T config) {
-        Ensure.requireNonNull(config, "config must be non-null");
-        this.config = config;
+        super(config);
     }
 
 
@@ -50,26 +45,4 @@ public abstract class AbstractMultiFormatReadProvider<T extends MultiFormatReadP
      * @return the type information
      */
     protected abstract TypeInfo getTypeInfo();
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(config);
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof AbstractMultiFormatReadProvider)) {
-            return false;
-        }
-        final AbstractMultiFormatReadProvider<?> that = (AbstractMultiFormatReadProvider<?>) obj;
-        return Objects.equals(config, that.config);
-    }
 }

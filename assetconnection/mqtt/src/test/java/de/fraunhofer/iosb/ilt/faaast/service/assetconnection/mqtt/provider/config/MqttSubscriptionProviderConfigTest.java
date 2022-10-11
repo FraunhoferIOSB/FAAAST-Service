@@ -22,7 +22,6 @@ public class MqttSubscriptionProviderConfigTest {
 
     @Test
     public void testEquals() {
-        EqualsVerifier.simple().forClass(MqttSubscriptionProviderConfig.class)
-                .verify();
+        EqualsVerifier.simple().forClass(MqttSubscriptionProviderConfig.class).verify();
     }
 }

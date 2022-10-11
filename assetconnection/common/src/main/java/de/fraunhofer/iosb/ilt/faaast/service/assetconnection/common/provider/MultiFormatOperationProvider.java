@@ -26,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -45,13 +44,10 @@ import java.util.stream.Stream;
  *
  * @param <T> concrete type of matching configuration
  */
-public abstract class MultiFormatOperationProvider<T extends MultiFormatOperationProviderConfig> implements AssetOperationProvider {
-
-    protected T config;
+public abstract class MultiFormatOperationProvider<T extends MultiFormatOperationProviderConfig> extends AbstractMultiFormatProvider<T> implements AssetOperationProvider {
 
     protected MultiFormatOperationProvider(T config) {
-        Ensure.requireNonNull(config, "config must be non-null");
-        this.config = config;
+        super(config);
     }
 
 

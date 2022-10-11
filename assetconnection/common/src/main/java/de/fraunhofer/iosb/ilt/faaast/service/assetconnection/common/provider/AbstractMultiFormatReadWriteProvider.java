@@ -37,25 +37,4 @@ public abstract class AbstractMultiFormatReadWriteProvider<T extends MultiFormat
     public void setValue(DataElementValue value) throws AssetConnectionException {
         setRawValue(MultiFormatReadWriteHelper.convertForWrite(config, value));
     }
-
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof AbstractMultiFormatReadWriteProvider)) {
-            return false;
-        }
-        return super.equals(obj);
-    }
 }

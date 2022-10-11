@@ -22,7 +22,6 @@ public class OpcUaOperationProviderConfigTest {
 
     @Test
     public void testEquals() {
-        EqualsVerifier.simple().forClass(OpcUaOperationProviderConfig.class)
-                .verify();
+        EqualsVerifier.simple().forClass(OpcUaOperationProviderConfig.class).verify();
     }
 }

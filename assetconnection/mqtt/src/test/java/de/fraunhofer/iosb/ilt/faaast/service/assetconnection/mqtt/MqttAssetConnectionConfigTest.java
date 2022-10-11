@@ -22,7 +22,6 @@ public class MqttAssetConnectionConfigTest {
 
     @Test
     public void testEquals() {
-        EqualsVerifier.simple().forClass(MqttAssetConnectionConfig.class)
-                .verify();
+        EqualsVerifier.simple().forClass(MqttAssetConnectionConfig.class).verify();
     }
 }

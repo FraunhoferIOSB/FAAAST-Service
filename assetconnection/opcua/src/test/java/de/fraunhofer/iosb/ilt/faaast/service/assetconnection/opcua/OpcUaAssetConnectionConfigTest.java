@@ -22,7 +22,6 @@ public class OpcUaAssetConnectionConfigTest {
 
     @Test
     public void testEquals() {
-        EqualsVerifier.simple().forClass(OpcUaAssetConnectionConfig.class)
-                .verify();
+        EqualsVerifier.simple().forClass(OpcUaAssetConnectionConfig.class).verify();
     }
 }

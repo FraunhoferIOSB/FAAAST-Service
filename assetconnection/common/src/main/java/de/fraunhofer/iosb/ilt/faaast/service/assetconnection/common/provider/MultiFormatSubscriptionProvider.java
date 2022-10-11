@@ -21,7 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.con
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.util.MultiFormatReadWriteHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,15 +34,13 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> concrete type of matching configuration
  */
-public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubscriptionProviderConfig> implements AssetSubscriptionProvider {
+public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubscriptionProviderConfig> extends AbstractMultiFormatProvider<T> implements AssetSubscriptionProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiFormatSubscriptionProvider.class);
     protected final List<NewDataListener> listeners;
-    protected T config;
 
     protected MultiFormatSubscriptionProvider(T config) {
-        Ensure.requireNonNull(config, "config must be non-null");
-        this.config = config;
+        super(config);
         this.listeners = Collections.synchronizedList(new ArrayList<>());
     }
 
@@ -119,7 +116,7 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
 
     @Override
     public int hashCode() {
-        return Objects.hash(listeners, config);
+        return Objects.hash(super.hashCode(), listeners);
     }
 
 
@@ -135,7 +132,7 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
             return false;
         }
         final MultiFormatSubscriptionProvider<?> that = (MultiFormatSubscriptionProvider<?>) obj;
-        return Objects.equals(listeners, that.listeners)
-                && Objects.equals(config, that.config);
+        return super.equals(that)
+                && Objects.equals(listeners, that.listeners);
     }
 }

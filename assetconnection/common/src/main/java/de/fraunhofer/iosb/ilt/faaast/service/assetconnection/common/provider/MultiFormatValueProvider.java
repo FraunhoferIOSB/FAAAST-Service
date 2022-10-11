@@ -28,25 +28,4 @@ public abstract class MultiFormatValueProvider<T extends MultiFormatValueProvide
     protected MultiFormatValueProvider(T config) {
         super(config);
     }
-
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof AbstractMultiFormatReadWriteProvider)) {
-            return false;
-        }
-        return super.equals(obj);
-    }
 }

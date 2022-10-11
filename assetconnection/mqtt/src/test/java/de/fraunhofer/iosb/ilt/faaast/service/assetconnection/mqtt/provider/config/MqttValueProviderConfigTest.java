@@ -22,7 +22,6 @@ public class MqttValueProviderConfigTest {
 
     @Test
     public void testEquals() {
-        EqualsVerifier.simple().forClass(MqttValueProviderConfig.class)
-                .verify();
+        EqualsVerifier.simple().forClass(MqttValueProviderConfig.class).verify();
     }
 }
