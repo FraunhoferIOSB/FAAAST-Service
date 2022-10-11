@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.util.MultiFo
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.util.Objects;
 
 
 /**
@@ -49,4 +50,26 @@ public abstract class AbstractMultiFormatReadProvider<T extends MultiFormatReadP
      * @return the type information
      */
     protected abstract TypeInfo getTypeInfo();
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(config);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof AbstractMultiFormatReadProvider)) {
+            return false;
+        }
+        final AbstractMultiFormatReadProvider<?> that = (AbstractMultiFormatReadProvider<?>) obj;
+        return Objects.equals(config, that.config);
+    }
 }

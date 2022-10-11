@@ -66,6 +66,8 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProvider<OpcUaSubscr
      * @throws AssetConnectionException if reconnecting fails
      */
     public void reconnect(OpcUaClient client, ManagedSubscription opcUaSubscription) throws AssetConnectionException {
+        this.client = client;
+        this.opcUaSubscription = opcUaSubscription;
         if (multiplexer != null) {
             multiplexer.reconnect(client, opcUaSubscription);
         }

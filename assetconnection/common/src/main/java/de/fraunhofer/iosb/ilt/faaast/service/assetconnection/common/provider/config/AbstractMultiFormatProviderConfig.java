@@ -55,8 +55,7 @@ public class AbstractMultiFormatProviderConfig {
             return false;
         }
         AbstractMultiFormatProviderConfig that = (AbstractMultiFormatProviderConfig) o;
-        return super.equals(that)
-                && Objects.equals(format, that.format)
+        return Objects.equals(format, that.format)
                 && Objects.equals(template, that.template);
     }
 

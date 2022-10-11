@@ -59,15 +59,14 @@ public abstract class AbstractMultiFormatSubscriptionProviderConfig implements M
             return false;
         }
         AbstractMultiFormatSubscriptionProviderConfig that = (AbstractMultiFormatSubscriptionProviderConfig) o;
-        return super.equals(that)
-                && Objects.equals(format, that.format)
+        return Objects.equals(format, that.format)
                 && Objects.equals(query, that.query);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), format, query);
+        return Objects.hash(format, query);
     }
 
     protected abstract static class AbstractBuilder<T extends AbstractMultiFormatSubscriptionProviderConfig, B extends AbstractBuilder<T, B>>

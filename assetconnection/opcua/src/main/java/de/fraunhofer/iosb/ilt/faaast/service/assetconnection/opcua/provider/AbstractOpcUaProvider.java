@@ -68,7 +68,7 @@ public abstract class AbstractOpcUaProvider<T extends AssetProviderConfig> {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof AbstractOpcUaProvider)) {
             return false;
         }
         final AbstractOpcUaProvider<?> that = (AbstractOpcUaProvider<?>) obj;

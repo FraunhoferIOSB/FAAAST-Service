@@ -44,7 +44,9 @@ public class OpcUaAssetConnectionConfig
         }
         OpcUaAssetConnectionConfig that = (OpcUaAssetConnectionConfig) o;
         return super.equals(that)
-                && Objects.equals(host, that.host);
+                && Objects.equals(host, that.host)
+                && Objects.equals(username, that.username)
+                && Objects.equals(password, that.password);
     }
 
 

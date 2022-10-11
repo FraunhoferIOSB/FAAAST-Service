@@ -44,8 +44,6 @@ import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -59,37 +57,11 @@ import org.eclipse.milo.opcua.sdk.server.identity.AnonymousIdentityValidator;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.org.lidalia.slf4jext.Level;
 
 
-public class OpcUaAssetConnectionTest {
-
-    private static final long DEFAULT_TIMEOUT = 1000;
-    private static EmbeddedOpcUaServer server;
-    private static String serverUrl;
-    private static int tcpPort;
-    private static int httpsPort;
-
-    @BeforeClass
-    public static void init() throws Exception {
-        tcpPort = findFreePort();
-        httpsPort = findFreePort();
-        server = new EmbeddedOpcUaServer(AnonymousIdentityValidator.INSTANCE, tcpPort, httpsPort);
-        server.startup().get();
-        serverUrl = "opc.tcp://localhost:" + tcpPort + "/milo";
-    }
-
-
-    private static int findFreePort() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            return serverSocket.getLocalPort();
-        }
-    }
-
+public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
 
     @Test
     public void testSubscriptionProvider()

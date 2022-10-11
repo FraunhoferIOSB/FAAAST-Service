@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,4 +116,26 @@ public abstract class MultiFormatSubscriptionProvider<T extends MultiFormatSubsc
      */
     protected abstract void unsubscribe() throws AssetConnectionException;
 
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(listeners, config);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof MultiFormatSubscriptionProvider)) {
+            return false;
+        }
+        final MultiFormatSubscriptionProvider<?> that = (MultiFormatSubscriptionProvider<?>) obj;
+        return Objects.equals(listeners, that.listeners)
+                && Objects.equals(config, that.config);
+    }
 }

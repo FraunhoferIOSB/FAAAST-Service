@@ -82,7 +82,7 @@ public class MqttAssetConnectionConfig extends AssetConnectionConfig<MqttAssetCo
 
     @Override
     public int hashCode() {
-        return Objects.hash(serverUri, clientId, username, password);
+        return Objects.hash(super.hashCode(), serverUri, clientId, username, password);
     }
 
 
