@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Helper class to create Description and integrate them into the
+ * Helper class to create Descriptions and integrate them into the
  * OPC UA address space.
  */
 public class DescriptionCreator {

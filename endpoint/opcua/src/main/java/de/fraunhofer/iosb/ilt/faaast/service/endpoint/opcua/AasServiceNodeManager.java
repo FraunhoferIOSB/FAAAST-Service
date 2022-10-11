@@ -39,11 +39,11 @@ import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Argument;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.types.opcua.BaseObjectType;
-import com.prosysopc.ua.types.opcua.DictionaryEntryType;
 import com.prosysopc.ua.types.opcua.FolderType;
 import com.prosysopc.ua.types.opcua.server.FileTypeNode;
-import com.prosysopc.ua.types.opcua.server.FolderTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AasReferenceCreator;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AdministrativeInformationCreator;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ConceptDescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.DescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EmbeddedDataSpecificationCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.QualifierCreator;
@@ -97,19 +97,16 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import opc.i4aas.AASAdministrativeInformationType;
 import opc.i4aas.AASAnnotatedRelationshipElementType;
 import opc.i4aas.AASAssetAdministrationShellType;
 import opc.i4aas.AASAssetInformationType;
 import opc.i4aas.AASAssetType;
 import opc.i4aas.AASBlobType;
 import opc.i4aas.AASCapabilityType;
-import opc.i4aas.AASCustomConceptDescriptionType;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASEnvironmentType;
 import opc.i4aas.AASEventType;
@@ -117,8 +114,6 @@ import opc.i4aas.AASFileType;
 import opc.i4aas.AASIdentifiableType;
 import opc.i4aas.AASIdentifierKeyValuePairList;
 import opc.i4aas.AASIdentifierKeyValuePairType;
-import opc.i4aas.AASIrdiConceptDescriptionType;
-import opc.i4aas.AASIriConceptDescriptionType;
 import opc.i4aas.AASMultiLanguagePropertyType;
 import opc.i4aas.AASOperationType;
 import opc.i4aas.AASOrderedSubmodelElementCollectionType;
@@ -132,7 +127,6 @@ import opc.i4aas.AASSubmodelElementCollectionType;
 import opc.i4aas.AASSubmodelElementType;
 import opc.i4aas.AASSubmodelType;
 import opc.i4aas.server.AASAssetAdministrationShellTypeNode;
-import opc.i4aas.server.AASReferenceTypeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,6 +148,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     public static final String NODE_NULL = "node is null";
 
     /**
+     * Text for addIdentifiable Exception
+     */
+    public static final String ADD_IDENT_EXC = "addIdentifiable Exception";
+
+    /**
      * Text if value is null
      */
     private static final String VALUE_NULL = "value is null";
@@ -162,11 +161,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * Text if element is null
      */
     private static final String ELEMENT_NULL = "element is null";
-
-    /**
-     * Text for addIdentifiable Exception
-     */
-    private static final String ADD_IDENT_EXC = "addIdentifiable Exception";
 
     /**
      * The namespace URI of this node manager
@@ -192,11 +186,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * The associated listener for method calls
      */
     private CallableListener aasMethodManagerListener;
-
-    /**
-     * Maps AAS references to dictionary entry types
-     */
-    private final Map<Reference, DictionaryEntryType> dictionaryMap;
 
     /**
      * The OPC UA Node for the AAS Environment
@@ -251,7 +240,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         aasEnvironment = aas;
 
         endpoint = ep;
-        dictionaryMap = new HashMap<>();
         submodelElementAasMap = new ConcurrentHashMap<>();
         submodelElementOpcUAMap = new ConcurrentHashMap<>();
         submodelOpcUAMap = new ConcurrentHashMap<>();
@@ -351,7 +339,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 addAasEnvironmentNode();
 
                 // ConceptDescriptions.
-                addConceptDescriptions(aasEnvironment.getConceptDescriptions());
+                ConceptDescriptionCreator.addConceptDescriptions(aasEnvironment.getConceptDescriptions(), this);
 
                 // Assets
                 List<Asset> assets = aasEnvironment.getAssets();
@@ -453,66 +441,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Adds the given list of AAS Concept Descriptions.
-     *
-     * @param descriptions The desired list of AAS Concept Descriptions
-     * @throws StatusException If the operation fails
-     */
-    private void addConceptDescriptions(List<ConceptDescription> descriptions) throws StatusException {
-        try {
-            // create folder DictionaryEntries
-            final UaNode dictionariesFolder = getServer().getNodeManagerRoot().getNodeOrExternal(Identifiers.Dictionaries);
-
-            // Folder for my objects
-            final NodeId dictionarieEntriesFolderId = new NodeId(getNamespaceIndex(), "Dictionaries.DictionaryEntries");
-            FolderTypeNode dictEntriesFolder = createInstance(FolderTypeNode.class, "DictionaryEntries", dictionarieEntriesFolderId);
-
-            this.addNodeAndReference(dictionariesFolder, dictEntriesFolder, Identifiers.Organizes);
-
-            for (ConceptDescription c: descriptions) {
-                String name = c.getIdShort();
-                NodeId nid = createNodeId(dictionariesFolder, name);
-                DictionaryEntryType dictNode;
-                switch (c.getIdentification().getIdType()) {
-                    case IRDI:
-                        AASIrdiConceptDescriptionType irdiNode = createInstance(AASIrdiConceptDescriptionType.class, name, nid);
-                        addIdentifiable(irdiNode, c.getIdentification(), c.getAdministration(), name);
-                        addConceptDescriptionReference(irdiNode, getReference(c));
-                        dictEntriesFolder.addComponent(irdiNode);
-                        dictionaryMap.put(getReference(c), irdiNode);
-                        dictNode = irdiNode;
-                        break;
-
-                    case IRI:
-                        AASIriConceptDescriptionType iriNode = createInstance(AASIriConceptDescriptionType.class, name, nid);
-                        addIdentifiable(iriNode, c.getIdentification(), c.getAdministration(), name);
-                        addConceptDescriptionReference(iriNode, getReference(c));
-                        dictEntriesFolder.addComponent(iriNode);
-                        dictionaryMap.put(getReference(c), iriNode);
-                        dictNode = iriNode;
-                        break;
-
-                    default:
-                        AASCustomConceptDescriptionType customNode = createInstance(AASCustomConceptDescriptionType.class, name, nid);
-                        addIdentifiable(customNode, c.getIdentification(), c.getAdministration(), name);
-                        addConceptDescriptionReference(customNode, getReference(c));
-                        dictEntriesFolder.addComponent(customNode);
-                        dictionaryMap.put(getReference(c), customNode);
-                        dictNode = customNode;
-                        break;
-                }
-
-                referableMap.put(AasUtils.toReference(c), new ObjectData(c, dictNode));
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("addConceptDescriptions Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
      * Adds AAS Identifiable information to the given node.
      *
      * @param identifiableNode The desired node where the Identifiable
@@ -528,7 +456,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 identifiableNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
             }
 
-            addAdminInformationProperties(identifiableNode.getAdministrationNode(), adminInfo);
+            AdministrativeInformationCreator.addAdminInformationProperties(identifiableNode.getAdministrationNode(), adminInfo, this);
 
             if (category == null) {
                 category = "";
@@ -543,202 +471,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Exception ex) {
             LOG.error(ADD_IDENT_EXC, ex);
-        }
-    }
-
-
-    /**
-     * Adds AAS Identifiable information to the given node.
-     *
-     * @param conceptDescriptionNode The desired node where the Identifiable
-     *            information should be added
-     * @param identifier The corresponding AAS Identifier
-     * @param adminInfo The corresponding AAS Administrative Information
-     * @param category The desired category
-     */
-    private void addIdentifiable(AASIrdiConceptDescriptionType conceptDescriptionNode, Identifier identifier, AdministrativeInformation adminInfo, String category) {
-        try {
-            if (identifier != null) {
-                conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
-                conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
-            }
-
-            addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo);
-
-            if (category == null) {
-                category = "";
-            }
-            conceptDescriptionNode.setCategory(category);
-
-            if (VALUES_READ_ONLY) {
-                conceptDescriptionNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-                conceptDescriptionNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
-            }
-        }
-        catch (Exception ex) {
-            LOG.error(ADD_IDENT_EXC, ex);
-        }
-    }
-
-
-    /**
-     * Adds AAS Identifiable information to the given node.
-     *
-     * @param conceptDescriptionNode The desired node where the Identifiable
-     *            information should be added
-     * @param identifier The corresponding AAS Identifier
-     * @param adminInfo The corresponding AAS Administrative Information
-     * @param category The desired category
-     */
-    private void addIdentifiable(AASIriConceptDescriptionType conceptDescriptionNode, Identifier identifier, AdministrativeInformation adminInfo, String category) {
-        try {
-            if (identifier != null) {
-                conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
-                conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
-            }
-
-            addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo);
-
-            if (category == null) {
-                category = "";
-            }
-            conceptDescriptionNode.setCategory(category);
-
-            if (VALUES_READ_ONLY) {
-                conceptDescriptionNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-                conceptDescriptionNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
-            }
-        }
-        catch (Exception ex) {
-            LOG.error(ADD_IDENT_EXC, ex);
-        }
-    }
-
-
-    /**
-     * Adds AAS Identifiable information to the given node.
-     *
-     * @param conceptDescriptionNode The desired node where the Identifiable
-     *            information should be added
-     * @param identifier The corresponding AAS Identifier
-     * @param adminInfo The corresponding AAS Administrative Information
-     * @param category The desired category
-     */
-    private void addIdentifiable(AASCustomConceptDescriptionType conceptDescriptionNode, Identifier identifier, AdministrativeInformation adminInfo, String category) {
-        try {
-            if (identifier != null) {
-                conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
-                conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
-            }
-
-            addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo);
-
-            if (category == null) {
-                category = "";
-            }
-            conceptDescriptionNode.setCategory(category);
-
-            if (VALUES_READ_ONLY) {
-                conceptDescriptionNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-                conceptDescriptionNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
-            }
-        }
-        catch (Exception ex) {
-            LOG.error(ADD_IDENT_EXC, ex);
-        }
-    }
-
-
-    /**
-     * Adds the AdminInformation Properties to the given node (if they don't
-     * exist).
-     *
-     * @param adminInfNode The desired AdminInformation node
-     * @param info The corresponding AAS AdministrativeInformation object
-     */
-    private void addAdminInformationProperties(AASAdministrativeInformationType adminInfNode, AdministrativeInformation info) {
-        try {
-            if ((adminInfNode != null) && (info != null)) {
-                if (info.getVersion() != null) {
-                    if (adminInfNode.getVersionNode() == null) {
-                        NodeId myPropertyId = new NodeId(getNamespaceIndex(), adminInfNode.getNodeId().getValue().toString() + "." + AASAdministrativeInformationType.VERSION);
-                        PlainProperty<String> myProperty = new PlainProperty<>(this, myPropertyId,
-                                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAdministrativeInformationType.VERSION)
-                                        .toQualifiedName(getNamespaceTable()),
-                                LocalizedText.english(AASAdministrativeInformationType.VERSION));
-                        myProperty.setDataTypeId(Identifiers.String);
-                        if (VALUES_READ_ONLY) {
-                            myProperty.setAccessLevel(AccessLevelType.CurrentRead);
-                        }
-                        myProperty.setDescription(new LocalizedText("", ""));
-                        adminInfNode.addProperty(myProperty);
-                    }
-
-                    adminInfNode.setVersion(info.getVersion());
-                }
-
-                if (info.getRevision() != null) {
-                    if (adminInfNode.getRevisionNode() == null) {
-                        NodeId myPropertyId = new NodeId(getNamespaceIndex(), adminInfNode.getNodeId().getValue().toString() + "." + AASAdministrativeInformationType.REVISION);
-                        PlainProperty<String> myProperty = new PlainProperty<>(this, myPropertyId,
-                                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAdministrativeInformationType.REVISION)
-                                        .toQualifiedName(getNamespaceTable()),
-                                LocalizedText.english(AASAdministrativeInformationType.REVISION));
-                        myProperty.setDataTypeId(Identifiers.String);
-                        if (VALUES_READ_ONLY) {
-                            myProperty.setAccessLevel(AccessLevelType.CurrentRead);
-                        }
-                        myProperty.setDescription(new LocalizedText("", ""));
-                        adminInfNode.addProperty(myProperty);
-                    }
-
-                    adminInfNode.setRevision(info.getRevision());
-                }
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("addAdminInfProperties Exception", ex);
-        }
-    }
-
-
-    /**
-     * Creates a reference for the given ConceptDescription.
-     *
-     * @param cd The desired ConceptDescription
-     * @return The created reference
-     */
-    private Reference getReference(ConceptDescription cd) {
-        return AasUtils.toReference(cd);
-    }
-
-
-    /**
-     * Adds a reference to a ConceptDescription.
-     *
-     * @param node The desired UA node
-     * @param ref The reference to create
-     * @throws StatusException If the operation fails
-     */
-    private void addConceptDescriptionReference(UaNode node, Reference ref) throws StatusException {
-        try {
-            if (ref != null) {
-                String name = "ConceptDescription";
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = createNodeId(node, browseName);
-                AASReferenceType nodeRef = createInstance(AASReferenceTypeNode.class, nid, browseName, LocalizedText.english(name));
-
-                AasSubmodelElementHelper.setAasReferenceData(ref, nodeRef);
-                node.addComponent(nodeRef);
-                node.addReference(nodeRef, Identifiers.HasDictionaryEntry, false);
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("addConceptDescriptionReference Exception", ex);
-            throw ex;
         }
     }
 
@@ -953,7 +685,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
                 // SemanticId
                 if (element.getSemanticId() != null) {
-                    addSemanticId(node, element.getSemanticId());
+                    ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
                 }
 
                 // Qualifiers
@@ -977,26 +709,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Exception ex) {
             LOG.error("addSubmodelElementBaseData Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds a SemanticId to the given node.
-     *
-     * @param node The UA node in which the SemanticId should be created
-     * @param semanticId The reference of the desired SemanticId
-     */
-    private void addSemanticId(UaNode node, Reference semanticId) {
-        try {
-            if (dictionaryMap.containsKey(semanticId)) {
-                node.addReference(dictionaryMap.get(semanticId), Identifiers.HasDictionaryEntry, false);
-            }
-            // if entry not found: perhaps create a new one?
-        }
-        catch (Exception ex) {
-            LOG.error("addSemanticId Exception", ex);
             throw ex;
         }
     }
@@ -1256,7 +968,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
                 // SemanticId
                 if (submodel.getSemanticId() != null) {
-                    addSemanticId(smNode, submodel.getSemanticId());
+                    ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticId());
                 }
 
                 // Description
@@ -2386,7 +2098,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
 
             if (value instanceof ConceptDescription) {
-                addConceptDescriptions(List.of((ConceptDescription) value));
+                ConceptDescriptionCreator.addConceptDescriptions(List.of((ConceptDescription) value), this);
             }
             else if (value instanceof Asset) {
                 addAsset(aasEnvironmentNode, (Asset) value);
@@ -2607,6 +2319,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     public NodeId getDefaultNodeId() {
         int nr = ++nodeIdCounter;
         return new NodeId(getNamespaceIndex(), nr);
+    }
+
+
+    /**
+     * Adds an entry to the Referable map.
+     * 
+     * @param reference The reference to the desired referable.
+     * @param referableData The data of the desired referable.
+     */
+    public void addReferable(Reference reference, ObjectData referableData) {
+        referableMap.put(reference, referableData);
     }
 
 
