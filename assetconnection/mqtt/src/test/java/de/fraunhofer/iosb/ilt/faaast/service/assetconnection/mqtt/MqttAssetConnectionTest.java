@@ -277,6 +277,7 @@ public class MqttAssetConnectionTest {
         PropertyValue expected = PropertyValue.of(Datatype.INT, message);
         TestLogger logger = TestLoggerFactory.getTestLogger(MqttAssetConnection.class);
         final Predicate<LoggingEvent> logConnectionLost = x -> x.getLevel() == Level.WARN && x.getMessage().startsWith("MQTT asset connection lost");
+        final Predicate<LoggingEvent> logConnectionEstablished = x -> x.getLevel() == Level.WARN && x.getMessage().startsWith("MQTT asset connection established");
         MqttAssetConnection assetConnection = newConnection(
                 ElementValueTypeInfo.builder()
                         .datatype(expected.getValue().getDataType())
@@ -298,7 +299,8 @@ public class MqttAssetConnectionTest {
             await().atMost(5, TimeUnit.SECONDS)
                     .until(() -> logger.getAllLoggingEvents().stream().anyMatch(logConnectionLost));
             mqttServer.startServer(getMqttServerConfig(mqttPort));
-            await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS).until(() -> !mqttServer.listConnectedClients().isEmpty());
+            await().atMost(10, TimeUnit.SECONDS)
+                    .until(() -> logger.getAllLoggingEvents().stream().anyMatch(logConnectionEstablished));
             publishMqtt(DEFAULT_TOPIC, message);
             received.await(DEFAULT_TIMEOUT, isDebugging() ? TimeUnit.SECONDS : TimeUnit.MILLISECONDS);
             Assert.assertEquals(expected, response.get());
