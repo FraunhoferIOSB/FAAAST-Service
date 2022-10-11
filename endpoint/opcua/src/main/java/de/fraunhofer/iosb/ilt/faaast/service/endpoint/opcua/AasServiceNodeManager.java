@@ -44,6 +44,7 @@ import com.prosysopc.ua.types.opcua.FolderType;
 import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import com.prosysopc.ua.types.opcua.server.FolderTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AasReferenceCreator;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.DescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EmbeddedDataSpecificationCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.QualifierCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
@@ -966,7 +967,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
 
                 // Description
-                addDescriptions(node, element.getDescriptions());
+                DescriptionCreator.addDescriptions(node, element.getDescriptions());
 
                 if (VALUES_READ_ONLY) {
                     node.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
@@ -997,45 +998,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         catch (Exception ex) {
             LOG.error("addSemanticId Exception", ex);
             throw ex;
-        }
-    }
-
-
-    /**
-     * Adds the list of Descriptions to the given node.
-     *
-     * @param node The desired UA node in which the Descriptions should be created
-     * @param descriptions The list of AAS descriptions
-     */
-    private void addDescriptions(UaNode node, List<LangString> descriptions) {
-        try {
-            if ((node != null) && (descriptions != null) && (!descriptions.isEmpty())) {
-                LangString desc = descriptions.get(0);
-                node.setDescription(new LocalizedText(desc.getValue(), desc.getLanguage()));
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("addDescriptions Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds the descriptions to the given argument.
-     *
-     * @param arg The desired UA argument
-     * @param descriptions The list of AAS descriptions
-     */
-    private void addDescriptions(Argument arg, List<LangString> descriptions) {
-        try {
-            if ((arg != null) && (descriptions != null) && (!descriptions.isEmpty())) {
-                LangString desc = descriptions.get(0);
-                arg.setDescription(new LocalizedText(desc.getValue(), desc.getLanguage()));
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("addDescriptions Exception", ex);
         }
     }
 
@@ -1298,7 +1260,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 }
 
                 // Description
-                addDescriptions(smNode, submodel.getDescriptions());
+                DescriptionCreator.addDescriptions(smNode, submodel.getDescriptions());
 
                 Reference refSubmodel = AasUtils.toReference(submodel);
 
@@ -1966,7 +1928,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 arg.setArrayDimensions(null);
 
                 // Description
-                addDescriptions(arg, prop.getDescriptions());
+                DescriptionCreator.addDescriptions(arg, prop.getDescriptions());
 
                 NodeId type = ValueConverter.convertValueTypeStringToNodeId(prop.getValueType());
                 if (type.isNullNodeId()) {
