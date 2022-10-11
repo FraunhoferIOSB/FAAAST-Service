@@ -46,6 +46,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.Administrati
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ConceptDescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.DescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EmbeddedDataSpecificationCreator;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.IdentifierKeyValuePairCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.QualifierCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
@@ -113,7 +114,6 @@ import opc.i4aas.AASEventType;
 import opc.i4aas.AASFileType;
 import opc.i4aas.AASIdentifiableType;
 import opc.i4aas.AASIdentifierKeyValuePairList;
-import opc.i4aas.AASIdentifierKeyValuePairType;
 import opc.i4aas.AASMultiLanguagePropertyType;
 import opc.i4aas.AASOperationType;
 import opc.i4aas.AASOrderedSubmodelElementCollectionType;
@@ -121,7 +121,6 @@ import opc.i4aas.AASPropertyType;
 import opc.i4aas.AASRangeType;
 import opc.i4aas.AASReferenceElementType;
 import opc.i4aas.AASReferenceList;
-import opc.i4aas.AASReferenceType;
 import opc.i4aas.AASRelationshipElementType;
 import opc.i4aas.AASSubmodelElementCollectionType;
 import opc.i4aas.AASSubmodelElementType;
@@ -745,7 +744,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             for (IdentifierKeyValuePair ikv: list) {
                 if (ikv != null) {
-                    addIdentifierKeyValuePair(listNode, ikv, ikv.getKey());
+                    IdentifierKeyValuePairCreator.addIdentifierKeyValuePair(listNode, ikv, ikv.getKey(), this);
                 }
             }
 
@@ -755,106 +754,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Exception ex) {
             LOG.error("addSpecificAssetIds Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds an IdentifierKeyValuePair to the given Node.
-     *
-     * @param node The UA node in which the IdentifierKeyValuePair should be created
-     * @param identifierPair The desired IdentifierKeyValuePair
-     * @param name The desired name of the IdentifierKeyValuePair node
-     * @throws StatusException If the operation fails
-     */
-    private void addIdentifierKeyValuePair(UaNode node, IdentifierKeyValuePair identifierPair, String name) throws StatusException {
-        addIdentifierKeyValuePair(node, identifierPair, name, VALUES_READ_ONLY);
-    }
-
-
-    /**
-     * Adds an IdentifierKeyValuePair to the given Node.
-     *
-     * @param node The UA node in which the IdentifierKeyValuePair should be created
-     * @param identifierPair The desired IdentifierKeyValuePair
-     * @param name The desired name of the IdentifierKeyValuePair node
-     * @param readOnly True if the value should be read-only
-     * @throws StatusException If the operation fails
-     */
-    private void addIdentifierKeyValuePair(UaNode node, IdentifierKeyValuePair identifierPair, String name, boolean readOnly) throws StatusException {
-        if (node == null) {
-            throw new IllegalArgumentException(NODE_NULL);
-        }
-        else if (identifierPair == null) {
-            throw new IllegalArgumentException("identifierPair = null");
-        }
-
-        try {
-            LOG.debug("addIdentifierKeyValuePair {}; to Node: {}", name, node);
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASIdentifierKeyValuePairType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-            NodeId nid = createNodeId(node, browseName);
-            AASIdentifierKeyValuePairType identifierPairNode = createInstance(AASIdentifierKeyValuePairType.class, nid, browseName, LocalizedText.english(name));
-
-            setIdentifierKeyValuePairData(identifierPairNode, identifierPair, readOnly);
-
-            node.addComponent(identifierPairNode);
-        }
-        catch (Exception ex) {
-            LOG.error("addIdentifierKeyValuePair Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
-     * 
-     * @param identifierPairNode The desired IdentifierKeyValuePair Node
-     * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
-     * @throws StatusException If the operation fails
-     */
-    private void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, IdentifierKeyValuePair aasIdentifierPair) throws StatusException {
-        setIdentifierKeyValuePairData(identifierPairNode, aasIdentifierPair, VALUES_READ_ONLY);
-    }
-
-
-    /**
-     * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
-     * 
-     * @param identifierPairNode The desired IdentifierKeyValuePair Node
-     * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
-     * @param readOnly True if the value should be read-only
-     * @throws StatusException If the operation fails
-     */
-    private void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, IdentifierKeyValuePair aasIdentifierPair, boolean readOnly)
-            throws StatusException {
-        try {
-            // ExternalSubjectId
-            Reference externalSubjectId = aasIdentifierPair.getExternalSubjectId();
-            if (externalSubjectId != null) {
-                AASReferenceType extSubjectNode = identifierPairNode.getExternalSubjectIdNode();
-                if (extSubjectNode == null) {
-                    AasReferenceCreator.addAasReferenceAasNS(identifierPairNode, externalSubjectId, AASIdentifierKeyValuePairType.EXTERNAL_SUBJECT_ID, this);
-                }
-                else {
-                    AasSubmodelElementHelper.setAasReferenceData(externalSubjectId, extSubjectNode);
-                }
-            }
-
-            // Key
-            identifierPairNode.setKey(aasIdentifierPair.getKey());
-
-            // Value
-            identifierPairNode.setValue(aasIdentifierPair.getValue());
-
-            if (readOnly) {
-                identifierPairNode.getKeyNode().setAccessLevel(AccessLevelType.CurrentRead);
-                identifierPairNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("setIdentifierKeyValuePairData Exception", ex);
             throw ex;
         }
     }
@@ -1530,10 +1429,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 IdentifierKeyValuePair specificAssetId = aasEntity.getSpecificAssetId();
                 if (specificAssetId != null) {
                     if (entityNode.getSpecificAssetIdNode() == null) {
-                        addIdentifierKeyValuePair(entityNode, specificAssetId, AASEntityType.SPECIFIC_ASSET_ID);
+                        IdentifierKeyValuePairCreator.addIdentifierKeyValuePair(entityNode, specificAssetId, AASEntityType.SPECIFIC_ASSET_ID, this);
                     }
                     else {
-                        setIdentifierKeyValuePairData(entityNode.getSpecificAssetIdNode(), specificAssetId);
+                        IdentifierKeyValuePairCreator.setIdentifierKeyValuePairData(entityNode.getSpecificAssetIdNode(), specificAssetId, this);
                     }
                 }
 
