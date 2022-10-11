@@ -296,7 +296,7 @@ public class MqttAssetConnectionTest {
             assetConnection.getSubscriptionProviders().get(DEFAULT_REFERENCE).addNewDataListener(listener);
             mqttServer.stopServer();
             await().atMost(5, TimeUnit.SECONDS)
-                .until(() -> logger.getAllLoggingEvents().stream().anyMatch(logConnectionLost));
+                    .until(() -> logger.getAllLoggingEvents().stream().anyMatch(logConnectionLost));
             mqttServer.startServer(getMqttServerConfig(mqttPort));
             await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS).until(() -> !mqttServer.listConnectedClients().isEmpty());
             publishMqtt(DEFAULT_TOPIC, message);
