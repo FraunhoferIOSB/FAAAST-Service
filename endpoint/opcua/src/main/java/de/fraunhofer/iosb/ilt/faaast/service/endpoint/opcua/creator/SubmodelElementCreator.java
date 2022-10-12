@@ -16,12 +16,26 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.VALUES_READ_ONLY;
 
+import com.prosysopc.ua.ServiceException;
 import com.prosysopc.ua.StatusException;
+import com.prosysopc.ua.client.AddressSpaceException;
+import com.prosysopc.ua.nodes.UaNode;
+import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
+import io.adminshell.aas.v3.model.Capability;
 import io.adminshell.aas.v3.model.Constraint;
+import io.adminshell.aas.v3.model.DataElement;
+import io.adminshell.aas.v3.model.Entity;
+import io.adminshell.aas.v3.model.Event;
+import io.adminshell.aas.v3.model.Operation;
+import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.RelationshipElement;
+import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
+import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import java.util.Collection;
 import java.util.List;
 import opc.i4aas.AASSubmodelElementType;
 import org.slf4j.Logger;
@@ -34,6 +48,80 @@ import org.slf4j.LoggerFactory;
  */
 public class SubmodelElementCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelElementCreator.class);
+
+    /**
+     * Adds a list of submodel elements to the given node.
+     *
+     * @param node The desired node in which the objects should be created
+     * @param elements The desired list of submodel elements
+     * @param submodel The corresponding submodel
+     * @param parentRef The AAS reference to the parent object
+     * @param nodeManager The corresponding Node Manager
+     * @throws StatusException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws AddressSpaceException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     */
+    public static void addSubmodelElements(UaNode node, List<SubmodelElement> elements, Submodel submodel, Reference parentRef, AasServiceNodeManager nodeManager)
+            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
+        addSubmodelElements(node, elements, submodel, parentRef, false, nodeManager);
+    }
+
+
+    /**
+     * Adds a list of submodel elements to the given node (ordered, if requested).
+     *
+     * @param node The desired node in which the objects should be created
+     * @param elements The desired list of submodel elements
+     * @param submodel The corresponding submodel
+     * @param parentRef The AAS reference to the parent object
+     * @param ordered Specifies where the elements should de added ordered
+     *            (true) or unordered (false)
+     * @param nodeManager The corresponding Node Manager
+     * @throws StatusException If the operation fails
+     * @throws ServiceException If the operation fails
+     * @throws AddressSpaceException If the operation fails
+     * @throws ServiceResultException If the operation fails
+     */
+    public static void addSubmodelElements(UaNode node, Collection<SubmodelElement> elements, Submodel submodel, Reference parentRef, boolean ordered,
+                                           AasServiceNodeManager nodeManager)
+            throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
+        try {
+            if ((elements != null) && (!elements.isEmpty())) {
+                for (SubmodelElement elem: elements) {
+                    if (elem instanceof DataElement) {
+                        DataElementCreator.addAasDataElement(node, (DataElement) elem, submodel, parentRef, ordered, nodeManager);
+                    }
+                    else if (elem instanceof Capability) {
+                        CapabilityCreator.addAasCapability(node, (Capability) elem, submodel, parentRef, ordered, nodeManager);
+                    }
+                    else if (elem instanceof Entity) {
+                        EntityCreator.addAasEntity(node, (Entity) elem, submodel, parentRef, ordered, nodeManager);
+                    }
+                    else if (elem instanceof Operation) {
+                        OperationCreator.addAasOperation(node, (Operation) elem, submodel, parentRef, ordered, nodeManager);
+                    }
+                    else if (elem instanceof Event) {
+                        EventCreator.addAasEvent(node, (Event) elem, submodel, parentRef, ordered, nodeManager);
+                    }
+                    else if (elem instanceof RelationshipElement) {
+                        RelationshipElementCreator.addAasRelationshipElement(node, (RelationshipElement) elem, submodel, parentRef, ordered, nodeManager);
+                    }
+                    else if (elem instanceof SubmodelElementCollection) {
+                        SubmodelElementCollectionCreator.addAasSubmodelElementCollection(node, (SubmodelElementCollection) elem, submodel, parentRef, ordered, nodeManager);
+                    }
+                    else if (elem != null) {
+                        LOGGER.warn("addSubmodelElements: unknown SubmodelElement: {}; Class {}", elem.getIdShort(), elem.getClass());
+                    }
+                }
+            }
+        }
+        catch (Exception ex) {
+            LOGGER.error("addSubmodelElements Exception", ex);
+            throw ex;
+        }
+    }
+
 
     /**
      * Adds base data to the given submodel element.
