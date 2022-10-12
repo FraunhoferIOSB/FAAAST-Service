@@ -28,7 +28,6 @@ import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.server.UaServer;
 import com.prosysopc.ua.server.nodes.PlainMethod;
 import com.prosysopc.ua.server.nodes.PlainProperty;
-import com.prosysopc.ua.stack.builtintypes.ByteString;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
@@ -41,16 +40,15 @@ import com.prosysopc.ua.types.opcua.FolderType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AasReferenceCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetAdministrationShellCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ConceptDescriptionCreator;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.DataElementCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.DescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EmbeddedDataSpecificationCreator;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.FileCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.IdentifiableCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.IdentifierKeyValuePairCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.QualifierCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelElementCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceMethodManagerListener;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
@@ -68,7 +66,6 @@ import io.adminshell.aas.v3.model.Asset;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.BasicEvent;
-import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.Capability;
 import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.Constraint;
@@ -76,18 +73,13 @@ import io.adminshell.aas.v3.model.DataElement;
 import io.adminshell.aas.v3.model.EmbeddedDataSpecification;
 import io.adminshell.aas.v3.model.Entity;
 import io.adminshell.aas.v3.model.Event;
-import io.adminshell.aas.v3.model.File;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Range;
 import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.ReferenceElement;
 import io.adminshell.aas.v3.model.RelationshipElement;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -544,7 +536,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             if ((elements != null) && (!elements.isEmpty())) {
                 for (SubmodelElement elem: elements) {
                     if (elem instanceof DataElement) {
-                        addAasDataElement(node, (DataElement) elem, submodel, parentRef, ordered);
+                        DataElementCreator.addAasDataElement(node, (DataElement) elem, submodel, parentRef, ordered, this);
                     }
                     else if (elem instanceof Capability) {
                         addAasCapability(node, (Capability) elem, submodel, parentRef, ordered);
@@ -572,384 +564,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Exception ex) {
             LOG.error("addSubmodelElements Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds an AAS data element the given node.
-     *
-     * @param node The desired node
-     * @param aasDataElement The corresponding AAS data element to add
-     * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the element should be added ordered
-     *            (true) or unordered (false)
-     * @throws StatusException If the operation fails
-     */
-    private void addAasDataElement(UaNode node, DataElement aasDataElement, Submodel submodel, Reference parentRef, boolean ordered)
-            throws StatusException {
-        try {
-            if ((node != null) && (aasDataElement != null)) {
-                if (aasDataElement instanceof Property) {
-                    addAasProperty(node, (Property) aasDataElement, submodel, parentRef, ordered);
-                }
-                else if (aasDataElement instanceof File) {
-                    FileCreator.addAasFile(node, (File) aasDataElement, submodel, parentRef, ordered, null, this);
-                }
-                else if (aasDataElement instanceof Blob) {
-                    addAasBlob(node, (Blob) aasDataElement, submodel, parentRef, ordered);
-                }
-                else if (aasDataElement instanceof ReferenceElement) {
-                    addAasReferenceElement(node, (ReferenceElement) aasDataElement, submodel, parentRef, ordered);
-                }
-                else if (aasDataElement instanceof Range) {
-                    addAasRange(node, (Range) aasDataElement, submodel, parentRef, ordered);
-                }
-                else if (aasDataElement instanceof MultiLanguageProperty) {
-                    addAasMultiLanguageProperty(node, (MultiLanguageProperty) aasDataElement, submodel, parentRef, ordered);
-                }
-                else {
-                    LOG.warn("addAasDataElement: unknown DataElement: {}; Class {}", aasDataElement.getIdShort(), aasDataElement.getClass());
-                }
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("addAasDataElement Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds an AAS property the given node.
-     *
-     * @param node The desired node
-     * @param aasProperty The corresponding AAS property to add
-     * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The AAS reference to the parent node
-     * @param ordered Specifies whether the property should be added ordered
-     *            (true) or unordered (false)
-     */
-    private void addAasProperty(UaNode node, Property aasProperty, Submodel submodel, Reference parentRef, boolean ordered) {
-        try {
-            String name = aasProperty.getIdShort();
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASPropertyType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-            NodeId nid = getDefaultNodeId();
-
-            AASPropertyType prop = createInstance(AASPropertyType.class, nid, browseName, LocalizedText.english(name));
-            SubmodelElementCreator.addSubmodelElementBaseData(prop, aasProperty, this);
-
-            Reference propRef = AasUtils.toReference(parentRef, aasProperty);
-
-            // ValueId
-            Reference ref = aasProperty.getValueId();
-            if (ref != null) {
-                AasReferenceCreator.addAasReferenceAasNS(prop, ref, AASPropertyType.VALUE_ID, this);
-            }
-
-            // here Value and ValueType are set
-            addOpcUaProperty(aasProperty, submodel, prop, propRef);
-
-            if (submodel != null) {
-                submodelElementOpcUAMap.put(propRef, prop);
-            }
-
-            if (VALUES_READ_ONLY) {
-                // ValueType read-only
-                prop.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-
-                // if the Submodel is null, we also make the value read-only
-                if ((submodel == null) && (prop.getValueNode() != null)) {
-                    prop.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
-                }
-            }
-
-            LOG.debug("addAasProperty: add Property {}", nid);
-
-            if (ordered) {
-                node.addReference(prop, Identifiers.HasOrderedComponent, false);
-            }
-            else {
-                node.addComponent(prop);
-            }
-
-            referableMap.put(propRef, new ObjectData(aasProperty, prop, submodel));
-        }
-        catch (Exception ex) {
-            LOG.error("addAasProperty Exception", ex);
-        }
-    }
-
-
-    /**
-     * Adds the OPC UA property itself to the given Property object and sets the value.
-     *
-     * @param aasProperty The AAS property
-     * @param submodel The corresponding Submodel as parent object of the data element
-     * @param prop The UA Property object
-     * @param propRef The AAS reference to the property
-     */
-    private void addOpcUaProperty(Property aasProperty, Submodel submodel, AASPropertyType prop, Reference propRef) {
-        try {
-            NodeId myPropertyId = new NodeId(getNamespaceIndex(), prop.getNodeId().getValue().toString() + "." + AASPropertyType.VALUE);
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASPropertyType.getNamespaceUri(), AASPropertyType.VALUE).toQualifiedName(getNamespaceTable());
-            LocalizedText displayName = LocalizedText.english(AASPropertyType.VALUE);
-
-            submodelElementAasMap.put(myPropertyId, new SubmodelElementData(aasProperty, submodel, SubmodelElementData.Type.PROPERTY_VALUE, propRef));
-            LOG.debug("setPropertyValueAndType: NodeId {}; Property: {}", myPropertyId, aasProperty);
-
-            AasSubmodelElementHelper.setPropertyValueAndType(aasProperty, prop, new ValueData(myPropertyId, browseName, displayName));
-        }
-        catch (Exception ex) {
-            LOG.error("addOpcUaProperty Exception", ex);
-        }
-    }
-
-
-    /**
-     * Adds an AAS Blob to the given UA node.
-     *
-     * @param node The desired UA node
-     * @param aasBlob The AAS blob to add
-     * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef Tne reference to the parent object
-     * @param ordered Specifies whether the blob should be added ordered (true)
-     *            or unordered (false)
-     * @throws StatusException If the operation fails
-     */
-    private void addAasBlob(UaNode node, Blob aasBlob, Submodel submodel, Reference parentRef, boolean ordered)
-            throws StatusException {
-        try {
-            if ((node != null) && (aasBlob != null)) {
-                String name = aasBlob.getIdShort();
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = getDefaultNodeId();
-                AASBlobType blobNode = createInstance(AASBlobType.class, nid, browseName, LocalizedText.english(name));
-                SubmodelElementCreator.addSubmodelElementBaseData(blobNode, aasBlob, this);
-
-                // MimeType
-                blobNode.setMimeType(aasBlob.getMimeType());
-
-                Reference blobRef = AasUtils.toReference(parentRef, aasBlob);
-
-                // Value
-                if (aasBlob.getValue() != null) {
-                    if (blobNode.getValueNode() == null) {
-                        AasSubmodelElementHelper.addBlobValueNode(blobNode);
-                    }
-
-                    submodelElementAasMap.put(blobNode.getValueNode().getNodeId(), new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE, blobRef));
-                    LOG.debug("addAasBlob: NodeId {}; Blob: {}", blobNode.getValueNode().getNodeId(), aasBlob);
-
-                    submodelElementOpcUAMap.put(blobRef, blobNode);
-
-                    blobNode.setValue(ByteString.valueOf(aasBlob.getValue()));
-                }
-
-                if (VALUES_READ_ONLY) {
-                    blobNode.getMimeTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                }
-
-                if (ordered) {
-                    node.addReference(blobNode, Identifiers.HasOrderedComponent, false);
-                }
-                else {
-                    node.addComponent(blobNode);
-                }
-
-                referableMap.put(blobRef, new ObjectData(aasBlob, blobNode, submodel));
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("addAasBlob Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds an AAS reference element to the given node.
-     *
-     * @param node The desired UA node
-     * @param aasRefElem The AAS reference element to add
-     * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The reference to the parent object
-     * @param ordered Specifies whether the reference element should be added
-     *            ordered (true) or unordered (false)
-     * @throws StatusException If the operation fails
-     */
-    private void addAasReferenceElement(UaNode node, ReferenceElement aasRefElem, Submodel submodel, Reference parentRef, boolean ordered)
-            throws StatusException {
-        try {
-            if ((node != null) && (aasRefElem != null)) {
-                String name = aasRefElem.getIdShort();
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceElementType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = getDefaultNodeId();
-                AASReferenceElementType refElemNode = createInstance(AASReferenceElementType.class, nid, browseName, LocalizedText.english(name));
-                SubmodelElementCreator.addSubmodelElementBaseData(refElemNode, aasRefElem, this);
-
-                if (aasRefElem.getValue() != null) {
-                    AasSubmodelElementHelper.setAasReferenceData(aasRefElem.getValue(), refElemNode.getValueNode(), false);
-                }
-
-                Reference refElemRef = AasUtils.toReference(parentRef, aasRefElem);
-
-                submodelElementAasMap.put(refElemNode.getValueNode().getKeysNode().getNodeId(),
-                        new SubmodelElementData(aasRefElem, submodel, SubmodelElementData.Type.REFERENCE_ELEMENT_VALUE, refElemRef));
-
-                submodelElementOpcUAMap.put(refElemRef, refElemNode);
-
-                if (ordered) {
-                    node.addReference(refElemNode, Identifiers.HasOrderedComponent, false);
-                }
-                else {
-                    node.addComponent(refElemNode);
-                }
-
-                referableMap.put(refElemRef, new ObjectData(aasRefElem, refElemNode, submodel));
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("addAasReferenceElement Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds an AAS range object to the given node.
-     *
-     * @param node The desired UA node
-     * @param aasRange The corresponding AAS range object to add
-     * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The reference to the parent object
-     * @param ordered Specifies whether the range should be added ordered (true)
-     *            or unordered (false)
-     * @throws StatusException If the operation fails
-     */
-    private void addAasRange(UaNode node, Range aasRange, Submodel submodel, Reference parentRef, boolean ordered)
-            throws StatusException {
-        try {
-            if ((node != null) && (aasRange != null)) {
-                String name = aasRange.getIdShort();
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = getDefaultNodeId();
-                AASRangeType rangeNode = createInstance(AASRangeType.class, nid, browseName, LocalizedText.english(name));
-                SubmodelElementCreator.addSubmodelElementBaseData(rangeNode, aasRange, this);
-
-                Reference rangeRef = AasUtils.toReference(parentRef, aasRange);
-                addOpcUaRange(aasRange, rangeNode, submodel, rangeRef);
-
-                if (VALUES_READ_ONLY) {
-                    // ValueType read-only
-                    rangeNode.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                }
-
-                if (ordered) {
-                    node.addReference(rangeNode, Identifiers.HasOrderedComponent, false);
-                }
-                else {
-                    node.addComponent(rangeNode);
-                }
-
-                referableMap.put(rangeRef, new ObjectData(aasRange, rangeNode, submodel));
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("addAasRange Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds the min and max properties to the UA range object and sets the values
-     *
-     * @param aasRange The AAS range object
-     * @param range The corresponding UA range object
-     * @param submodel The corresponding submodel
-     * @param rangeRef The AAS reference to the Range
-     */
-    private void addOpcUaRange(Range aasRange, AASRangeType range, Submodel submodel, Reference rangeRef) {
-        try {
-            String minValue = aasRange.getMin();
-            String maxValue = aasRange.getMax();
-            NodeId myPropertyIdMin = new NodeId(getNamespaceIndex(), range.getNodeId().getValue().toString() + "." + AASRangeType.MIN);
-            NodeId myPropertyIdMax = new NodeId(getNamespaceIndex(), range.getNodeId().getValue().toString() + "." + AASRangeType.MAX);
-            String valueType = aasRange.getValueType();
-            QualifiedName browseNameMin = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MIN).toQualifiedName(getNamespaceTable());
-            LocalizedText displayNameMin = LocalizedText.english(AASRangeType.MIN);
-            QualifiedName browseNameMax = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MAX).toQualifiedName(getNamespaceTable());
-            LocalizedText displayNameMax = LocalizedText.english(AASRangeType.MAX);
-
-            submodelElementAasMap.put(myPropertyIdMin, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MIN, rangeRef));
-            submodelElementAasMap.put(myPropertyIdMax, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MAX, rangeRef));
-
-            submodelElementOpcUAMap.put(rangeRef, range);
-
-            AasSubmodelElementHelper.setRangeValueAndType(valueType, minValue, maxValue, range, new ValueData(myPropertyIdMin, browseNameMin, displayNameMin),
-                    new ValueData(myPropertyIdMax, browseNameMax, displayNameMax));
-        }
-        catch (Exception ex) {
-            LOG.error("setRangeValueAndType Exception", ex);
-        }
-    }
-
-
-    /**
-     * Adds an AAS Multi Language Property to the given node.
-     *
-     * @param node The desired UA node
-     * @param aasMultiLang The AAS Multi Language Property to add
-     * @param submodel The corresponding Submodel as parent object of the data element
-     * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the multi language property should be
-     *            added ordered (true) or unordered (false)
-     * @throws StatusException If the operation fails
-     */
-    private void addAasMultiLanguageProperty(UaNode node, MultiLanguageProperty aasMultiLang, Submodel submodel, Reference parentRef, boolean ordered)
-            throws StatusException {
-        try {
-            if ((node != null) && (aasMultiLang != null)) {
-                String name = aasMultiLang.getIdShort();
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-                NodeId nid = getDefaultNodeId();
-                AASMultiLanguagePropertyType multiLangNode = createInstance(AASMultiLanguagePropertyType.class, nid, browseName, LocalizedText.english(name));
-                SubmodelElementCreator.addSubmodelElementBaseData(multiLangNode, aasMultiLang, this);
-
-                List<LangString> values = aasMultiLang.getValues();
-                if (values != null) {
-                    if (multiLangNode.getValueNode() == null) {
-                        AasSubmodelElementHelper.addMultiLanguageValueNode(multiLangNode, values.size());
-                    }
-
-                    multiLangNode.getValueNode().setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
-                }
-
-                if (aasMultiLang.getValueId() != null) {
-                    AasReferenceCreator.addAasReferenceAasNS(multiLangNode, aasMultiLang.getValueId(), AASMultiLanguagePropertyType.VALUE_ID, this);
-                }
-
-                Reference multiLangRef = AasUtils.toReference(parentRef, aasMultiLang);
-                submodelElementAasMap.put(multiLangNode.getValueNode().getNodeId(),
-                        new SubmodelElementData(aasMultiLang, submodel, SubmodelElementData.Type.MULTI_LANGUAGE_VALUE, multiLangRef));
-
-                submodelElementOpcUAMap.put(multiLangRef, multiLangNode);
-
-                if (ordered) {
-                    node.addReference(multiLangNode, Identifiers.HasOrderedComponent, false);
-                }
-                else {
-                    node.addComponent(multiLangNode);
-                }
-
-                referableMap.put(multiLangRef, new ObjectData(aasMultiLang, multiLangNode, submodel));
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("addAasMultiLanguageProperty Exception", ex);
             throw ex;
         }
     }
@@ -1322,7 +936,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             // Annotations 
             for (DataElement de: aasRelElem.getAnnotations()) {
-                addAasDataElement(relElemNode.getAnnotationNode(), de, submodel, relElemRef, false);
+                DataElementCreator.addAasDataElement(relElemNode.getAnnotationNode(), de, submodel, relElemRef, false, this);
             }
 
             retval = relElemNode;
@@ -1780,6 +1394,28 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
 
         return retval;
+    }
+
+
+    /**
+     * Adds a SubmodelElement to the submodelElementOpcUAMap.
+     * 
+     * @param reference The reference to the desired SubmodelElement.
+     * @param submodelElement The corresponding SubmodelElement node.
+     */
+    public void addSubmodelElementOpcUA(Reference reference, AASSubmodelElementType submodelElement) {
+        submodelElementOpcUAMap.put(reference, submodelElement);
+    }
+
+
+    /**
+     * Adds a SubmodelElement to the submodelElementAasMap.
+     * 
+     * @param nodeId The Nodeid of the desired SubmodelElement.
+     * @param data The corresponding SubmodelElement data.
+     */
+    public void addSubmodelElementAasMap(NodeId nodeId, SubmodelElementData data) {
+        submodelElementAasMap.put(nodeId, data);
     }
 
 
