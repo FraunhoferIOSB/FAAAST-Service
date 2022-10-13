@@ -29,16 +29,14 @@ import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.common.ServiceResultException;
-import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.types.opcua.BaseObjectType;
 import com.prosysopc.ua.types.opcua.FolderType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetAdministrationShellCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ConceptDescriptionCreator;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.DescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EmbeddedDataSpecificationCreator;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.IdentifiableCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.QualifierCreator;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelElementCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
@@ -314,7 +312,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 List<Submodel> submodels = aasEnvironment.getSubmodels();
                 if ((submodels != null) && (!submodels.isEmpty())) {
                     for (Submodel submodel: submodels) {
-                        addSubmodel(aasEnvironmentNode, submodel);
+                        SubmodelCreator.addSubmodel(aasEnvironmentNode, submodel, this);
                     }
                 }
 
@@ -366,82 +364,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Exception ex) {
             LOG.error("addAasEnvironmentNode Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds a submodel to a given Node
-     *
-     * @param node The desired Node where the submodel should be added
-     * @param submodel The desired AAS submodel
-     */
-    private void addSubmodel(UaNode node, Submodel submodel) throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
-        if (submodel == null) {
-            throw new IllegalArgumentException("submodel is null");
-        }
-
-        try {
-            String shortId = submodel.getIdShort();
-            if (!shortId.isEmpty()) {
-                String displayName = "Submodel:" + shortId;
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri(), shortId).toQualifiedName(getNamespaceTable());
-                NodeId nid = createNodeId(node, browseName);
-                if (findNode(nid) != null) {
-                    // The NodeId already exists
-                    nid = getDefaultNodeId();
-                }
-
-                LOG.trace("addSubmodel: create Submodel {}; NodeId: {}", submodel.getIdShort(), nid);
-                AASSubmodelType smNode = createInstance(AASSubmodelType.class, nid, browseName, LocalizedText.english(displayName));
-
-                // ModelingKind
-                smNode.setModelingKind(ValueConverter.convertModelingKind(submodel.getKind()));
-                IdentifiableCreator.addIdentifiable(smNode, submodel.getIdentification(), submodel.getAdministration(), submodel.getCategory(), this);
-
-                // DataSpecifications
-                EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(smNode, submodel.getEmbeddedDataSpecifications(), this);
-
-                // Qualifiers
-                List<Constraint> qualifiers = submodel.getQualifiers();
-                if ((qualifiers != null) && (!qualifiers.isEmpty())) {
-                    if (smNode.getQualifierNode() == null) {
-                        QualifierCreator.addQualifierNode(smNode, this);
-                    }
-
-                    QualifierCreator.addQualifiers(smNode.getQualifierNode(), qualifiers, this);
-                }
-
-                // SemanticId
-                if (submodel.getSemanticId() != null) {
-                    ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticId());
-                }
-
-                // Description
-                DescriptionCreator.addDescriptions(smNode, submodel.getDescriptions());
-
-                Reference refSubmodel = AasUtils.toReference(submodel);
-
-                // SubmodelElements
-                SubmodelElementCreator.addSubmodelElements(smNode, submodel.getSubmodelElements(), submodel, refSubmodel, this);
-
-                if (VALUES_READ_ONLY) {
-                    smNode.getModelingKindNode().setAccessLevel(AccessLevelType.CurrentRead);
-                }
-
-                submodelOpcUAMap.put(AasUtils.toReference(submodel), smNode);
-
-                node.addComponent(smNode);
-
-                referableMap.put(AasUtils.toReference(submodel), new ObjectData(submodel, smNode));
-            }
-            else {
-                LOG.warn("addSubmodel: IdShort is empty!");
-            }
-        }
-        catch (Exception ex) {
-            LOG.error("addSubmodel Exception", ex);
             throw ex;
         }
     }
@@ -568,7 +490,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 AssetCreator.addAsset(aasEnvironmentNode, (Asset) value, this);
             }
             else if (value instanceof Submodel) {
-                addSubmodel(aasEnvironmentNode, (Submodel) value);
+                SubmodelCreator.addSubmodel(aasEnvironmentNode, (Submodel) value, this);
             }
             else if (value instanceof AssetAdministrationShell) {
                 AssetAdministrationShellCreator.addAssetAdministrationShell(aasEnvironmentNode, (AssetAdministrationShell) value, this);
@@ -805,6 +727,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     public void addSubmodelElementOpcUA(Reference reference, AASSubmodelElementType submodelElement) {
         submodelElementOpcUAMap.put(reference, submodelElement);
+    }
+
+
+    /**
+     * Adds a Submodel to the submodelOpcUAMap.
+     * 
+     * @param reference The reference to the desired Submodel.
+     * @param node The corresponding Submodel node.
+     */
+    public void addSubmodelOpcUA(Reference reference, UaNode node) {
+        submodelOpcUAMap.put(reference, node);
     }
 
 
