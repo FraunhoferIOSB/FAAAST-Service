@@ -33,6 +33,7 @@ import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.types.opcua.BaseObjectType;
 import com.prosysopc.ua.types.opcua.FolderType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetAdministrationShellCreator;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ConceptDescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.DescriptionCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.EmbeddedDataSpecificationCreator;
@@ -305,7 +306,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 List<Asset> assets = aasEnvironment.getAssets();
                 if ((assets != null) && (!assets.isEmpty())) {
                     for (Asset asset: assets) {
-                        addAsset(aasEnvironmentNode, asset);
+                        AssetCreator.addAsset(aasEnvironmentNode, asset, this);
                     }
                 }
 
@@ -365,45 +366,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (Exception ex) {
             LOG.error("addAasEnvironmentNode Exception", ex);
-            throw ex;
-        }
-    }
-
-
-    /**
-     * Adds an Asset to the given Node.
-     *
-     * @param node The UA node in which the Asset should be created
-     * @param asset The desired Asset
-     * @throws StatusException If the operation fails
-     */
-    private void addAsset(UaNode node, Asset asset) throws StatusException {
-        if (node == null) {
-            throw new IllegalArgumentException(NODE_NULL);
-        }
-        else if (asset == null) {
-            throw new IllegalArgumentException("asset = null");
-        }
-
-        try {
-            String name = asset.getIdShort();
-            String displayName = "Asset:" + name;
-            LOG.debug("addAsset {}; to Node: {}", name, node);
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-            NodeId nid = createNodeId(node, browseName);
-            AASAssetType assetNode = createInstance(AASAssetType.class, nid, browseName, LocalizedText.english(displayName));
-
-            IdentifiableCreator.addIdentifiable(assetNode, asset.getIdentification(), asset.getAdministration(), asset.getCategory(), this);
-
-            // DataSpecifications
-            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(assetNode, asset.getEmbeddedDataSpecifications(), this);
-
-            node.addComponent(assetNode);
-
-            referableMap.put(AasUtils.toReference(asset), new ObjectData(asset, assetNode));
-        }
-        catch (Exception ex) {
-            LOG.error("addAsset Exception", ex);
             throw ex;
         }
     }
@@ -603,7 +565,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                 ConceptDescriptionCreator.addConceptDescriptions(List.of((ConceptDescription) value), this);
             }
             else if (value instanceof Asset) {
-                addAsset(aasEnvironmentNode, (Asset) value);
+                AssetCreator.addAsset(aasEnvironmentNode, (Asset) value, this);
             }
             else if (value instanceof Submodel) {
                 addSubmodel(aasEnvironmentNode, (Submodel) value);
