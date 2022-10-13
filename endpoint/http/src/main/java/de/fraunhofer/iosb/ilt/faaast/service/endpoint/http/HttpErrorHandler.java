@@ -22,7 +22,7 @@ import org.eclipse.jetty.server.Request;
 
 
 /**
- * HTTP handler that is called to render error pages
+ * HTTP handler that is called to render error pages.
  */
 public class HttpErrorHandler extends org.eclipse.jetty.server.handler.ErrorHandler {
 

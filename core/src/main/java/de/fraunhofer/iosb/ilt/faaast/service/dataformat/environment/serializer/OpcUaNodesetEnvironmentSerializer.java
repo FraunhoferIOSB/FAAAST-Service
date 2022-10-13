@@ -26,9 +26,8 @@ import java.util.Collection;
 
 
 /**
- * OPC UA Nodeset serializer for
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
- * related files.
+ * OPC UA Nodeset serializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related
+ * files.
  */
 @SupportedDataformat(DataFormat.UANODESET)
 public class OpcUaNodesetEnvironmentSerializer implements EnvironmentSerializer {

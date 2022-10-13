@@ -26,9 +26,7 @@ import java.util.Collection;
 
 
 /**
- * JSON serializer for
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
- * related files.
+ * JSON serializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
  */
 @SupportedDataformat(DataFormat.JSON)
 public class JsonEnvironmentSerializer implements EnvironmentSerializer {

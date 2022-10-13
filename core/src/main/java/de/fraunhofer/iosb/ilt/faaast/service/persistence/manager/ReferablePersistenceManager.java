@@ -37,12 +37,12 @@ import java.util.Objects;
 
 
 /**
- * Class to handle {@link Referable}
+ * Class to handle {@link Referable}.
  */
 public class ReferablePersistenceManager extends PersistenceManager {
 
     /**
-     * Get a submodel element by reference
+     * Get a submodel element by reference.
      *
      * @param reference of the submodel element
      * @param modifier of the return value
@@ -69,8 +69,9 @@ public class ReferablePersistenceManager extends PersistenceManager {
 
 
     /**
-     * Get the submodel elements associated to the reference.Supported are two
-     * possible parents of submodel elements:
+     * Get the submodel elements associated to the reference.
+     *
+     * <p>Supported are two possible parents of submodel elements:
      * <ul>
      * <li>{@link Submodel}
      * <li>{@link SubmodelElementCollection}
@@ -105,10 +106,10 @@ public class ReferablePersistenceManager extends PersistenceManager {
 
 
     /**
-     * Create or update a submodel element. Parent reference and reference of
-     * the submodel element must not both be null. Otherwise the location of the
-     * submodel element cannot be determined. Supported parent references could
-     * be references to a
+     * Create or update a submodel element. Parent reference and reference of the submodel element must not both be
+     * null. Otherwise the location of the submodel element cannot be determined.
+     * 
+     * <p>Supported parent references could be references to a
      * <ul>
      * <li>{@link Submodel} or to a
      * <li>{@link SubmodelElementCollection}
@@ -156,7 +157,7 @@ public class ReferablePersistenceManager extends PersistenceManager {
 
 
     /**
-     * Remove a {@link Referable}
+     * Remove a {@link Referable}.
      *
      * @param reference of the referable which should be removed
      * @throws ResourceNotFoundException if resource is not found

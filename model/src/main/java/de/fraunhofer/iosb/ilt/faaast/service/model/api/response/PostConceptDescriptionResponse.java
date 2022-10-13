@@ -19,18 +19,18 @@ import io.adminshell.aas.v3.model.ConceptDescription;
 
 
 /**
- * Chapter 6.4.7
+ * Response class for PostConceptDescription requests.
  */
 public class PostConceptDescriptionResponse extends AbstractResponseWithPayload<ConceptDescription> {
 
-    public static PostConceptDescriptionResponse.Builder builder() {
-        return new PostConceptDescriptionResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<ConceptDescription, PostConceptDescriptionResponse, PostConceptDescriptionResponse.Builder> {
+    public static class Builder extends AbstractBuilder<ConceptDescription, PostConceptDescriptionResponse, Builder> {
 
         @Override
-        protected PostConceptDescriptionResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

@@ -23,7 +23,7 @@ import java.io.IOException;
 
 
 /**
- * Abstract base serializer providing context information while serializing
+ * Abstract base serializer providing context information while serializing.
  *
  * @param <T> type that should be serialized
  */
@@ -56,8 +56,7 @@ public abstract class ModifierAwareSerializer<T> extends StdSerializer<T> {
 
 
     /**
-     * Serializes given value using provided context information level and
-     * extent
+     * Serializes given value using provided context information level and extent.
      *
      * @param value value to serialize
      * @param generator generator used to generate JSON output

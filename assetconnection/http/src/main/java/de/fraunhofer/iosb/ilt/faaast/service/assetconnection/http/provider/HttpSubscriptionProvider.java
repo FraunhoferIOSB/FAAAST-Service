@@ -40,8 +40,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Provides the capability to "subscribe" to en element via HTTP. This is done
- * via periodic polling.
+ * Provides the capability to "subscribe" to en element via HTTP. This is done via periodic polling.
  */
 public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<HttpSubscriptionProviderConfig> {
 

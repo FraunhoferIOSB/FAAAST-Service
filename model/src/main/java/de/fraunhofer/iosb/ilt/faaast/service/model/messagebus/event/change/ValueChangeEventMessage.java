@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Event message indicating that the value of an element has been changed
+ * Event message indicating that the value of an element has been changed.
  */
 public class ValueChangeEventMessage extends ChangeEventMessage {
 

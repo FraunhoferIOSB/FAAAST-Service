@@ -21,6 +21,7 @@ import java.util.List;
 
 
 public class TestOperationProviderConfig implements AssetOperationProviderConfig {
+
     private final List<OperationVariable> outputArgs;
 
     public TestOperationProviderConfig(List<OperationVariable> outputArgs) {

@@ -21,6 +21,6 @@
     "persistence":
             {
                 "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence",
-                "decoupleEnvironment" : true
+                "decoupleEnvironment": true
             }
 }

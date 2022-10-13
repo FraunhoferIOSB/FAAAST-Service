@@ -285,7 +285,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Creates the AAS nodes in the address space.
-     * 
+     *
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails
      * @throws AddressSpaceException If the operation fails
@@ -328,7 +328,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Adds the AssetAdministrationShells of the current environment.
-     * 
+     *
      * @throws StatusException If the operation fails
      */
     private void addAssetAdministrationShells() throws StatusException {
@@ -371,7 +371,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Subscribes to Events on the MessageBus (e.g. ValueChangeEvents).
-     * 
+     *
      * @throws MessageBusException if subscribing fails
      */
     private void subscribeMessageBus() throws MessageBusException {
@@ -632,7 +632,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Unsubscribes from the MessageBus.
-     * 
+     *
      * @throws MessageBusException if subscribing fails
      */
     private void unsubscribeMessageBus() throws MessageBusException {
@@ -743,7 +743,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Adds a SubmodelElement to the submodelElementAasMap.
-     * 
+     *
      * @param nodeId The Nodeid of the desired SubmodelElement.
      * @param data The corresponding SubmodelElement data.
      */
@@ -754,7 +754,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Removes the given node (and all sub-nodes) from the maps.
-     * 
+     *
      * @param node The desired node
      * @param reference The reference to the desired SubmodelElement
      * @param referable The corresponding referable
@@ -783,7 +783,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Removes the given SubmodelElement from the maps.
-     * 
+     *
      * @param element The desired SubmodelElement
      * @param reference The reference to the desired SubmodelElement
      * @param referable The corresponding referable
@@ -902,7 +902,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Removes the given SubmodelElement from the maps.
-     * 
+     *
      * @param parent The reference to the parent element.
      * @param de The desired SubmodelElement
      */
@@ -933,7 +933,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Removes the given SubmodelElement from the maps.
-     * 
+     *
      * @param reference The reference to the desired submodel.
      * @param submodel The desired submodel
      */

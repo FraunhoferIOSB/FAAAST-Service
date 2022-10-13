@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Objects;
 
 
+/**
+ * Value class for RelationShipElement.
+ */
 public class RelationshipElementValue extends ElementValue {
 
     private List<Key> first;

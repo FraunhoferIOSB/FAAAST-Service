@@ -22,13 +22,17 @@ import java.lang.annotation.Target;
 
 
 /**
- * Annotation required for implementations of {@link EnvironmentSerializer} and
- * {@link EnvironmentDeserializer} to indicate which {@link DataFormat} they
- * serve.
+ * Annotation required for implementations of {@link EnvironmentSerializer} and {@link EnvironmentDeserializer} to
+ * indicate which {@link DataFormat} they serve.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface SupportedDataformat {
 
-    DataFormat value();
+    /**
+     * Get the value.
+     *
+     * @return the value
+     */
+    public DataFormat value();
 }

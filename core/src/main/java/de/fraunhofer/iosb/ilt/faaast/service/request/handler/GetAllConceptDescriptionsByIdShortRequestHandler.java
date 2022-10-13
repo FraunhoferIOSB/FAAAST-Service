@@ -28,11 +28,10 @@ import java.util.List;
 
 /**
  * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIdShortRequest}
- * in the service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIdShortResponse}.
- * Is responsible for communication with the persistence and sends the
- * corresponding events to the message bus.
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllConceptDescriptionsByIdShortRequest} in the service
+ * and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllConceptDescriptionsByIdShortResponse}. Is
+ * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class GetAllConceptDescriptionsByIdShortRequestHandler
         extends AbstractRequestHandler<GetAllConceptDescriptionsByIdShortRequest, GetAllConceptDescriptionsByIdShortResponse> {

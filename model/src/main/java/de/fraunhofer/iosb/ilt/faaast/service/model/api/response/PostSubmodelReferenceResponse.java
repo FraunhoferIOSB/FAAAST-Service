@@ -19,18 +19,18 @@ import io.adminshell.aas.v3.model.Reference;
 
 
 /**
- * Chapter 4.2.5
+ * Response class for PostSubmodelReference requests.
  */
 public class PostSubmodelReferenceResponse extends AbstractResponseWithPayload<Reference> {
 
-    public static PostSubmodelReferenceResponse.Builder builder() {
-        return new PostSubmodelReferenceResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<Reference, PostSubmodelReferenceResponse, PostSubmodelReferenceResponse.Builder> {
+    public static class Builder extends AbstractBuilder<Reference, PostSubmodelReferenceResponse, Builder> {
 
         @Override
-        protected PostSubmodelReferenceResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

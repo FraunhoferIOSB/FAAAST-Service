@@ -18,22 +18,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.MultiFormatWriteProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.util.MultiFormatReadWriteHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 
 
 /**
- * Abstract base class for providers that support writing values using multiple
- * formats.
+ * Abstract base class for providers that support writing values using multiple formats.
  *
  * @param <T> type of matching configuration
  */
-public abstract class AbstractMultiFormatWriteProvider<T extends MultiFormatWriteProviderConfig> implements MultiFormatWriteProvider {
-
-    protected final T config;
+public abstract class AbstractMultiFormatWriteProvider<T extends MultiFormatWriteProviderConfig> extends AbstractMultiFormatProvider<T> implements MultiFormatWriteProvider {
 
     protected AbstractMultiFormatWriteProvider(T config) {
-        Ensure.requireNonNull(config, "config must be non-null");
-        this.config = config;
+        super(config);
     }
 
 

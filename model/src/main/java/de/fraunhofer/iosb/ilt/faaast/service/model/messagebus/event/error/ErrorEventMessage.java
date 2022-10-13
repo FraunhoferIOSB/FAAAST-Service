@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Event message indicating that an error has occured
+ * Event message indicating that an error has occured.
  */
 public class ErrorEventMessage extends EventMessage {
 
@@ -30,7 +30,7 @@ public class ErrorEventMessage extends EventMessage {
     private ErrorLevel errorLevel;
 
     /**
-     * Default Constructor creating ErrorEventMessage with errorLevel = Info
+     * Default Constructor creating ErrorEventMessage with errorLevel = Info.
      */
     public ErrorEventMessage() {
         this.errorLevel = ErrorLevel.INFO;

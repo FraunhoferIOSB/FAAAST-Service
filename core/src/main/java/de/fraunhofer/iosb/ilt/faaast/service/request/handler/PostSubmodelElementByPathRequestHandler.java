@@ -32,12 +32,10 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 
 
 /**
- * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementByPathRequest}
- * in the service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementByPathResponse}.
- * Is responsible for communication with the persistence and sends the
- * corresponding events to the message bus.
+ * Class to handle a {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PostSubmodelElementByPathRequest} in the
+ * service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementByPathResponse}. Is responsible
+ * for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class PostSubmodelElementByPathRequestHandler extends AbstractSubmodelInterfaceRequestHandler<PostSubmodelElementByPathRequest, PostSubmodelElementByPathResponse> {
 

@@ -28,7 +28,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-POST-Request path: lookup/shells/{aasIdentifier}
+ * class to map HTTP-POST-Request path: lookup/shells/{aasIdentifier}.
  */
 public class PostAllAssetLinksByIdRequestMapper extends AbstractRequestMapper {
 

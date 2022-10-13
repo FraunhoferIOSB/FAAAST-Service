@@ -43,12 +43,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationAsyncRequest}
- * in the service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationAsyncResponse}.
- * Is responsible for communication with the persistence and sends the
- * corresponding events to the message bus.
+ * Class to handle a {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationAsyncRequest} in the
+ * service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationAsyncResponse}. Is responsible for
+ * communication with the persistence and sends the corresponding events to the message bus.
  */
 public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfaceRequestHandler<InvokeOperationAsyncRequest, InvokeOperationAsyncResponse> {
 
@@ -75,6 +73,15 @@ public class InvokeOperationAsyncRequestHandler extends AbstractSubmodelInterfac
     }
 
 
+    /**
+     * Executes and operation asynchroniously.
+     *
+     * @param reference the reference to the AAS operation element
+     * @param request the request
+     * @return an handle that can be used to query the current state of the operation
+     * @throws MessageBusException if publishing on the message bus failed
+     * @throws Exception if executing the operation itself failed
+     */
     public OperationHandle executeOperationAsync(Reference reference, InvokeOperationAsyncRequest request) throws MessageBusException, Exception {
         if (!assetConnectionManager.hasOperationProvider(reference)) {
             throw new IllegalArgumentException(String.format(

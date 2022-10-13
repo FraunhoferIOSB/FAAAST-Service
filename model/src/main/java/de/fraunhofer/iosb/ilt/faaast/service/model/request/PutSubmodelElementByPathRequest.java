@@ -23,7 +23,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.3.8
+ * Request class for PutSubmodelElementByPath requests.
  */
 public class PutSubmodelElementByPathRequest extends AbstractSubmodelInterfaceRequest<PutSubmodelElementByPathResponse> {
 

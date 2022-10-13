@@ -25,7 +25,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.5.4
+ * Request class for PostAASXPackage requests.
  */
 public class PostAASXPackageRequest implements Request<PostAASXPackageResponse> {
 

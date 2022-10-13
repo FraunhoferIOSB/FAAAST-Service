@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Superclass for all OPC UA provider config classes
+ * Superclass for all OPC UA provider config classes.
  */
 public abstract class AbstractOpcUaProviderConfig {
 

@@ -24,7 +24,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-GET-Request path: concept-descriptions
+ * class to map HTTP-GET-Request path: concept-descriptions.
  */
 public class GetAllConceptDescriptionsByIdShortRequestMapper
         extends AbstractRequestMapperWithOutputModifier<GetAllConceptDescriptionsByIdShortRequest, GetAllConceptDescriptionsByIdShortResponse> {

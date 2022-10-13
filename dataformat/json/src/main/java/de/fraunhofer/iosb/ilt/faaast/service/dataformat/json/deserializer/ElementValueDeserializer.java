@@ -24,10 +24,8 @@ import java.io.IOException;
 
 
 /**
- * Generic deserializer for
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}. It
- * only determines target type from current typeInfo context and forwards
- * deserialization.
+ * Generic deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}. It only determines
+ * target type from current typeInfo context and forwards deserialization.
  */
 public class ElementValueDeserializer extends StdDeserializer<ElementValue> {
 

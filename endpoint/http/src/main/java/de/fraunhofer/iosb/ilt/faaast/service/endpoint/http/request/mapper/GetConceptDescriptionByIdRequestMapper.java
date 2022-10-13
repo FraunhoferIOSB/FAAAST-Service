@@ -26,7 +26,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-PUT-Request path: concept-descriptions/{cdIdentifier}
+ * class to map HTTP-PUT-Request path: concept-descriptions/{cdIdentifier}.
  */
 public class GetConceptDescriptionByIdRequestMapper extends AbstractRequestMapper {
 

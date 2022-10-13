@@ -28,23 +28,56 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Utility class for HTTP communication
+ * Utility class for HTTP communication.
  */
 public class HttpHelper {
 
     private HttpHelper() {}
 
 
+    /**
+     * Checks if a response has a 2xx return code indicating success.
+     *
+     * @param response the response to check
+     * @return true if response is not null and has a return code 2xx.
+     */
     public static boolean is2xxSuccessful(HttpResponse<?> response) {
         return response != null && is2xxSuccessful(response.statusCode());
     }
 
 
+    /**
+     * Checks if a statuc code is 2xx, i.e.successfull.
+     *
+     * @param statusCode the status code
+     * @return true is in 2xx, otherweise false
+     */
     public static boolean is2xxSuccessful(int statusCode) {
         return statusCode >= 200 && statusCode <= 299;
     }
 
 
+    /**
+     * Executes an HTTP request.
+     *
+     * @param <T> type of the payload
+     * @param client the HTTP client
+     * @param baseUrl the base URL
+     * @param path the path
+     * @param format the format key
+     * @param method the HTTP method to use
+     * @param bodyPublisher the body publisher
+     * @param bodyHandler the body handler
+     * @return an HTTP response
+     * @throws URISyntaxException if the URL is invalid
+     * @throws IOException if URL is invalid or HTTP communication fails
+     * @throws InterruptedException if HTTP communication fails
+     * @throws IllegalArgumentException if client is null
+     * @throws IllegalArgumentException if baseUrl is null
+     * @throws IllegalArgumentException if path is null
+     * @throws IllegalArgumentException if method is null
+     * @throws IllegalArgumentException if format is null or invalid
+     */
     public static <T> HttpResponse<T> execute(
                                               HttpClient client,
                                               URL baseUrl,

@@ -30,7 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class TestAssetConnection implements AssetConnection<TestAssetConnectionConfig, TestValueProviderConfig, TestOperationProviderConfig, TestSubscriptionProviderConfig> {
+public class TestAssetConnection implements
+        AssetConnection<TestAssetConnectionConfig, TestValueProviderConfig, AssetValueProvider, TestOperationProviderConfig, AssetOperationProvider, TestSubscriptionProviderConfig, AssetSubscriptionProvider> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestAssetConnection.class);
 

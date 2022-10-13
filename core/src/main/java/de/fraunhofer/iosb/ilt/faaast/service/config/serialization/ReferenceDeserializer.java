@@ -21,6 +21,9 @@ import io.adminshell.aas.v3.model.Reference;
 import java.io.IOException;
 
 
+/**
+ * Deserializer for keys of type {@link io.adminshell.aas.v3.model.Reference}.
+ */
 public class ReferenceDeserializer extends KeyDeserializer {
 
     @Override

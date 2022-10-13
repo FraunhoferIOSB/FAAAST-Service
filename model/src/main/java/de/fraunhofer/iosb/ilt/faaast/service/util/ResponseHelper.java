@@ -19,11 +19,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
 import java.util.Objects;
 
 
+/**
+ * Helper class for working with AAS responses.
+ */
 public class ResponseHelper {
 
     private ResponseHelper() {}
 
 
+    /**
+     * Compares if two responses are equal when ignoring the timestamps of the included messages.
+     *
+     * @param r1 the first response
+     * @param r2 the second response
+     * @return true if inputs are equal ignoring the message timestamps, false otherweise
+     */
     public static boolean equalsIgnoringTime(Response r1, Response r2) {
         removeTimeFromMessages(r1);
         removeTimeFromMessages(r2);
@@ -31,6 +41,14 @@ public class ResponseHelper {
     }
 
 
+    /**
+     * Compares if two {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.Result} objects are equal when ignoring
+     * the timestamps of the included messages.
+     *
+     * @param r1 the first result
+     * @param r2 the second result
+     * @return true if inputs are equal ignoring the message timestamps, false otherweise
+     */
     public static boolean equalsIgnoringTime(Result r1, Result r2) {
         removeTimeFromMessages(r1);
         removeTimeFromMessages(r2);
@@ -38,6 +56,11 @@ public class ResponseHelper {
     }
 
 
+    /**
+     * Removes timestamps from messages (by setting the value to null).
+     *
+     * @param response the response to process
+     */
     public static void removeTimeFromMessages(Response response) {
         if (response != null) {
             removeTimeFromMessages(response.getResult());
@@ -45,6 +68,11 @@ public class ResponseHelper {
     }
 
 
+    /**
+     * Removes timestamps from messages (by setting the value to null).
+     *
+     * @param result the result to process
+     */
     public static void removeTimeFromMessages(Result result) {
         if (result != null && result.getMessages() != null) {
             result.getMessages().forEach(x -> x.setTimestamp(null));

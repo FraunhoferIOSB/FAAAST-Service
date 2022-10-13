@@ -19,6 +19,11 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
+/**
+ * Value class for Range.
+ *
+ * @param <T> concrete type of values
+ */
 public class RangeValue<T> extends DataElementValue {
 
     private TypedValue<T> max;

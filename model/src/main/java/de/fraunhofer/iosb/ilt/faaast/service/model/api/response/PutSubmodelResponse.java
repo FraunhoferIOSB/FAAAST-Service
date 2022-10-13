@@ -19,18 +19,18 @@ import io.adminshell.aas.v3.model.Submodel;
 
 
 /**
- * Chapter 4.3.5
+ * Response class for PutSubmodel requests.
  */
 public class PutSubmodelResponse extends AbstractResponseWithPayload<Submodel> {
 
-    public static PutSubmodelResponse.Builder builder() {
-        return new PutSubmodelResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<Submodel, PutSubmodelResponse, PutSubmodelResponse.Builder> {
+    public static class Builder extends AbstractBuilder<Submodel, PutSubmodelResponse, Builder> {
 
         @Override
-        protected PutSubmodelResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

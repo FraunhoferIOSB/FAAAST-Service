@@ -2,20 +2,31 @@
 
 ## Current development version (0.3.0-SNAPSHOT)
 
-**Internal changes & Bugfixes**
+**New Features**
+*   Asset Connection
+	*   OPC UA
+		*   Automatic reconnect upon connection loss
+		*   Add ParentNodeId to OpcUaOperationProviderConfig
+		*   Introduce mapping between IdShort and Argument Name in OpcUaOperationProviderConfig
+	*   MQTT
+		*   Automatic reconnect upon connection loss
+*   Improved JavaDoc documentation
+*   Improved security through automatic vulnerabilities check before release
+
+**Internal changes &  smaller bugfixes**
 *   Streamlining dependencies
 *   Improved console output for file paths
 *   Added checks to ensure model paths provided are valid
 *   Asset Connection
-	*   [OPC UA] operation - fix problem when InputArguments or OutputArguments node was not present
-	*   [OPC UA] - Use ExpandedNodeId to parse NodeId Strings
-	*   [HTTP] - fix problem when using HttpAssetConnection configuration
-
-**New Features**
-*   Asset Connection
-	*   [OPC UA] - Add ParentNodeId to OpcUaOperationProviderConfig
-	*   [OPC UA] - Introduce mapping between IdShort and Argument Name in OpcUaOperationProviderConfig
-
+	*   OPC UA
+		*   Fix problem when InputArguments or OutputArguments node was not present for Operations
+		*   Use ExpandedNodeId to parse NodeId Strings
+	*   HTTP
+		*   Fixed problem when using HttpAssetConnection configuration
+*   Development
+	*   Enforce JavaDoc present at compile-time (through checkstyle)
+	*   No longer release `test` module
+	*   Create javadoc jar for parent POM
 
 ## Release version 0.2.1
 
@@ -54,7 +65,7 @@
 
 *   Improved documentation
 
-**Internal changes & Bugfixes**
+**Internal changes & smaller bugfixes**
 *   Validation now checks for unsupported datatypes
 
 *   Version info correctly displayed when started as docker container or via local build/debug
@@ -63,13 +74,11 @@
 
 *   Asset Connection
 	*   Fixed error when using operation provider
-
-*   OPC UA
-	*   subscription provider now syncs value upon initial connect instead of waiting for first value change on server
-
-*   MQTT
-	*   print warning upon connection loss
-	*   properly handle invalid messages without crashing
+	*   OPC UA
+		*   subscription provider now syncs value upon initial connect instead of waiting for first value change on server
+	*   MQTT
+		*   print warning upon connection loss
+		*   properly handle invalid messages without crashing
 
 *   Added strict enforcement of valid output modifiers for each API call
 

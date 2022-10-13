@@ -18,18 +18,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 4.3.9
+ * Response class for SetSubmodelElementValueByPath requests.
  */
 public class SetSubmodelElementValueByPathResponse extends AbstractResponse {
 
-    public static SetSubmodelElementValueByPathResponse.Builder builder() {
-        return new SetSubmodelElementValueByPathResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractResponse.AbstractBuilder<SetSubmodelElementValueByPathResponse, Builder> {
+    public static class Builder extends AbstractBuilder<SetSubmodelElementValueByPathResponse, Builder> {
 
         @Override
-        protected SetSubmodelElementValueByPathResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

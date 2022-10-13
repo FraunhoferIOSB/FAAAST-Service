@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.2.4
+ * Request class for GetAllSubmodelReferences requests.
  */
 public class GetAllSubmodelReferencesRequest extends AbstractRequestWithModifier<GetAllSubmodelReferencesResponse> {
 

@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Model class for query modifier
+ * Model class for query modifier.
  */
 public class QueryModifier {
 

@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionPr
 
 
 /**
- * AssetSubscriptionProviderConfig supporting multiple data formats
+ * AssetSubscriptionProviderConfig supporting multiple data formats.
  */
 public interface MultiFormatSubscriptionProviderConfig extends AssetSubscriptionProviderConfig, MultiFormatReadProviderConfig {
 

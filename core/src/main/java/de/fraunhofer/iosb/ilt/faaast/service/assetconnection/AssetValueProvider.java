@@ -18,8 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 
 
 /**
- * An AssetValueProvider provides methods to reade/write data values from/to an
- * asset.
+ * An AssetValueProvider provides methods to reade/write data values from/to an asset.
  */
 public interface AssetValueProvider extends AssetProvider {
 
@@ -27,9 +26,8 @@ public interface AssetValueProvider extends AssetProvider {
      * Read a data value from the asset.
      *
      * @return the data value
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException
-     *             when fetching the value from the asset connection fails
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException when fetching the value
+     *             from the asset connection fails
      */
     public DataElementValue getValue() throws AssetConnectionException;
 
@@ -38,9 +36,8 @@ public interface AssetValueProvider extends AssetProvider {
      * Sets the data value on an asset.
      *
      * @param value the value to set
-     * @throws
-     * de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException
-     *             when writing the value to the asset connection fails
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException when writing the value to
+     *             the asset connection fails
      */
     public void setValue(DataElementValue value) throws AssetConnectionException;
 }

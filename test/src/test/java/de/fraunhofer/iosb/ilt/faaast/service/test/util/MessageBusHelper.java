@@ -34,8 +34,7 @@ import org.junit.Assert;
 public class MessageBusHelper {
 
     /**
-     * Default timeout used when waiting for messages on the message bus to
-     * arrive.
+     * Default timeout used when waiting for messages on the message bus to arrive.
      */
     public static final long DEFAULT_TIMEOUT = 5000;
 
@@ -43,20 +42,15 @@ public class MessageBusHelper {
 
 
     /**
-     * Executes a trigger, waits for matching event on message bus and
-     * optionally checks if the event contains expected content.
+     * Executes a trigger, waits for matching event on message bus and optionally checks if the event contains expected
+     * content.
      *
      * @param messageBus the message bus to use
-     * @param eventType the event type to wait for; can be a concrete type or an
-     *            abstract super type
-     * @param expected expected content of the received event message. If null
-     *            content is not checked
-     * @param trigger code that should be executed to trigger an event message
-     *            being sent on the message bus
-     * @throws InterruptedException if no matching event if received before
-     *             timeout
-     * @throws MessageBusException if un-/subscribing from/to the message bus
-     *             fails
+     * @param eventType the event type to wait for; can be a concrete type or an abstract super type
+     * @param expected expected content of the received event message. If null content is not checked
+     * @param trigger code that should be executed to trigger an event message being sent on the message bus
+     * @throws InterruptedException if no matching event if received before timeout
+     * @throws MessageBusException if un-/subscribing from/to the message bus fails
      */
     public static void assertEvent(MessageBus messageBus, Class<? extends EventMessage> eventType, Object expected, Consumer<Void> trigger)
             throws InterruptedException, MessageBusException {
@@ -65,21 +59,16 @@ public class MessageBusHelper {
 
 
     /**
-     * Executes a trigger, waits for matching event on message bus and
-     * optionally checks if the event contains expected content.
+     * Executes a trigger, waits for matching event on message bus and optionally checks if the event contains expected
+     * content.
      *
      * @param messageBus the message bus to use
-     * @param eventType the event type to wait for; can be a concrete type or an
-     *            abstract super type
-     * @param expected expected content of the received event message. If null
-     *            content is not checked
-     * @param trigger code that should be executed to trigger an event message
-     *            being sent on the message bus
+     * @param eventType the event type to wait for; can be a concrete type or an abstract super type
+     * @param expected expected content of the received event message. If null content is not checked
+     * @param trigger code that should be executed to trigger an event message being sent on the message bus
      * @param timeout timeout (in milliseconds)
-     * @throws InterruptedException if no matching event if received before
-     *             timeout
-     * @throws MessageBusException if un-/subscribing from/to the message bus
-     *             fails
+     * @throws InterruptedException if no matching event if received before timeout
+     * @throws MessageBusException if un-/subscribing from/to the message bus fails
      */
     public static void assertEvent(MessageBus messageBus, Class<? extends EventMessage> eventType, Object expected, Consumer<Void> trigger, long timeout)
             throws InterruptedException, MessageBusException {

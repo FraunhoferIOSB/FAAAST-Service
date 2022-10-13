@@ -19,18 +19,18 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 
 
 /**
- * Chapter 4.3.7
+ * Response class for PostSubmodelElementByPath requests.
  */
 public class PostSubmodelElementByPathResponse extends AbstractResponseWithPayload<SubmodelElement> {
 
-    public static PostSubmodelElementByPathResponse.Builder builder() {
-        return new PostSubmodelElementByPathResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<SubmodelElement, PostSubmodelElementByPathResponse, PostSubmodelElementByPathResponse.Builder> {
+    public static class Builder extends AbstractBuilder<SubmodelElement, PostSubmodelElementByPathResponse, Builder> {
 
         @Override
-        protected PostSubmodelElementByPathResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

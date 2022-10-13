@@ -24,7 +24,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.5.2
+ * Request class for GetAllAASXPackageIds requests.
  */
 public class GetAllAASXPackageIdsRequest implements Request<GetAllAASXPackageIdsResponse> {
 

@@ -43,6 +43,29 @@ jobs:
         distribution: 'adopt'
         java-version: 11
 
+    - name: Build with Maven
+      env:
+        ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+        ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+      run: |
+        mvn compile -P build-ci --settings maven-ci-settings.xml -B
+
+    - name: Test
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+        ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+      run: |
+        mvn install -P test --settings maven-ci-settings.xml -B
+
+    - name: Dependency Vulnerability Check with OWASP
+      env:
+        OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
+        OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
+      run: |
+        mvn org.owasp:dependency-check-maven:aggregate -P owasp --settings maven-ci-settings.xml -B
+
     - name: Build and Deploy with Maven
       env:
         GPG_EXECUTABLE: gpg
@@ -51,7 +74,7 @@ jobs:
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-      run: mvn -B clean deploy -P release --settings maven-ci-settings.xml
+      run: mvn clean deploy -P release --settings maven-ci-settings.xml -B
 
     - name: Build and Push Docker Images
       env:
@@ -60,6 +83,6 @@ jobs:
       run: |
         export VERSION=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
         # push version x.y.z
-        mvn -B jib:build -pl starter -Dcontainer.image.tag=${VERSION}
+        mvn jib:build -pl starter -Dcontainer.image.tag=${VERSION} -B
         # push version x.y
-        mvn -B jib:build -pl starter -Dcontainer.image.tag=${VERSION%.*}
+        mvn jib:build -pl starter -Dcontainer.image.tag=${VERSION%.*} -B

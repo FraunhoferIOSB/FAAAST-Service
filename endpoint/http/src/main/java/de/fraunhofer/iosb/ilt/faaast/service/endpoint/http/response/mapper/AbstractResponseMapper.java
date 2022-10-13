@@ -39,8 +39,7 @@ public abstract class AbstractResponseMapper<T extends Response> {
 
     /**
      * @param apiRequest the API request received
-     * @param apiResponse the API response that shall be sent as a response to
-     *            the apiRequest
+     * @param apiResponse the API response that shall be sent as a response to the apiRequest
      * @param httpResponse the HTTP response object to write to
      */
     public abstract void map(Request<T> apiRequest, T apiResponse, HttpServletResponse httpResponse);

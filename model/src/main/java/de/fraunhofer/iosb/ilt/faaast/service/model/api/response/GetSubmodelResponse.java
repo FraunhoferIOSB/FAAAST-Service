@@ -19,18 +19,18 @@ import io.adminshell.aas.v3.model.Submodel;
 
 
 /**
- * Chapter 4.3.2
+ * Response class for GetSubmodel requests.
  */
 public class GetSubmodelResponse extends AbstractResponseWithPayload<Submodel> {
 
-    public static GetSubmodelResponse.Builder builder() {
-        return new GetSubmodelResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<Submodel, GetSubmodelResponse, GetSubmodelResponse.Builder> {
+    public static class Builder extends AbstractBuilder<Submodel, GetSubmodelResponse, Builder> {
 
         @Override
-        protected GetSubmodelResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

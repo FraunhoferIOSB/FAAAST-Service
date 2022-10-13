@@ -51,7 +51,7 @@ public class ValueConverter {
 
 
     /**
-     * Registers an AAS to OPC UA mapping
+     * Registers an AAS to OPC UA mapping.
      *
      * @param aasDatatype AAS datatype to map
      * @param opcUaDatatype OPC UA target datatype
@@ -63,7 +63,7 @@ public class ValueConverter {
 
 
     /**
-     * Registers an OPC UA to AAS mapping
+     * Registers an OPC UA to AAS mapping.
      *
      * @param aasDatatype AAS target datatype
      * @param opcUaDatatype OPC UA datatype to map
@@ -75,7 +75,7 @@ public class ValueConverter {
 
 
     /**
-     * Converts AAS value to OPC UA target type
+     * Converts AAS value to OPC UA target type.
      *
      * @param value AAS value
      * @param targetType OPC UA target type
@@ -98,7 +98,7 @@ public class ValueConverter {
 
 
     /**
-     * Converts OPC UA value to AAS target type
+     * Converts OPC UA value to AAS target type.
      *
      * @param value OPC UAvalue
      * @param targetType AAS target type

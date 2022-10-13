@@ -22,6 +22,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatEx
 import io.adminshell.aas.v3.model.Property;
 
 
+/**
+ * Converts between {@link io.adminshell.aas.v3.model.Property} and
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue}.
+ */
 public class PropertyValueMapper implements DataValueMapper<Property, PropertyValue> {
 
     @Override

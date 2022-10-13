@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Model class for package description
+ * Model class for package description.
  */
 public class PackageDescription {
 

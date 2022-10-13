@@ -86,8 +86,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Special kind of visitor that recursively walks the whole element structure and
- * applies given visitors to each element.
+ * Special kind of visitor that recursively walks the whole element structure and applies given visitors to each
+ * element.
  */
 public class AssetAdministrationShellElementWalker implements DefaultAssetAdministrationShellElementSubtypeResolvingVisitor {
 
@@ -792,6 +792,11 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     }
 
 
+    /**
+     * Visit an object.
+     *
+     * @param obj the object to visit
+     */
     protected void visit(Object obj) {
         if (obj != null) {
             try {
@@ -817,6 +822,11 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     }
 
 
+    /**
+     * Visitor after-visitor.
+     *
+     * @param obj the object to visit
+     */
     protected void visitAfter(Object obj) {
         if (mode == WalkingMode.VISIT_AFTER_DESCENT) {
             walk(visitor, obj);
@@ -825,6 +835,11 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     }
 
 
+    /**
+     * Visitor before-visitor.
+     *
+     * @param obj the object to visit
+     */
     protected void visitBefore(Object obj) {
         walk(before, obj);
         if (mode == WalkingMode.VISIT_BEFORE_DESCENT) {
@@ -865,15 +880,15 @@ public class AssetAdministrationShellElementWalker implements DefaultAssetAdmini
     }
 
     /**
-     * Enum of supported walking modes
+     * Enum of supported walking modes.
      */
     public enum WalkingMode {
         /**
-         * Visit an element after visiting all of its subelements
+         * Visit an element after visiting all of its subelements.
          */
         VISIT_AFTER_DESCENT,
         /**
-         * Visit an element before visiting all of its subelements
+         * Visit an element before visiting all of its subelements.
          */
         VISIT_BEFORE_DESCENT;
 

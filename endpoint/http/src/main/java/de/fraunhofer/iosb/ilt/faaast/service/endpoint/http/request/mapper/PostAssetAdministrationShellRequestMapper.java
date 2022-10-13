@@ -25,7 +25,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-POST-Request path: shells
+ * class to map HTTP-POST-Request path: shells.
  */
 public class PostAssetAdministrationShellRequestMapper extends AbstractRequestMapper {
 

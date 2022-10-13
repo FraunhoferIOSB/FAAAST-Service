@@ -23,8 +23,7 @@ import java.io.IOException;
 
 
 /**
- * Generic deserializer determining target type from current typeInfo context
- * and forwarding deserialization.
+ * Generic deserializer determining target type from current typeInfo context and forwarding deserialization.
  */
 public class ObjectDeserializer extends StdDeserializer<Object> {
 

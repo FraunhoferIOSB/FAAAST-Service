@@ -39,12 +39,10 @@ import java.util.stream.Collectors;
 
 
 /**
- * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PostAllAssetLinksByIdRequest}
- * in the service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostAllAssetLinksByIdResponse}.
- * Is responsible for communication with the persistence and sends the
- * corresponding events to the message bus.
+ * Class to handle a {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PostAllAssetLinksByIdRequest} in the
+ * service and to send the corresponding response
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostAllAssetLinksByIdResponse}. Is responsible for
+ * communication with the persistence and sends the corresponding events to the message bus.
  */
 public class PostAllAssetLinksByIdRequestHandler extends AbstractRequestHandler<PostAllAssetLinksByIdRequest, PostAllAssetLinksByIdResponse> {
 

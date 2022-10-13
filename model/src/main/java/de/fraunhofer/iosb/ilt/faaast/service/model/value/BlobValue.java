@@ -19,6 +19,9 @@ import java.util.Arrays;
 import java.util.Objects;
 
 
+/**
+ * Value class for Blob.
+ */
 public class BlobValue extends DataElementValue {
 
     private String mimeType;

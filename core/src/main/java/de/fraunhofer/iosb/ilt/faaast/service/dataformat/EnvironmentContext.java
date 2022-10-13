@@ -24,8 +24,8 @@ import java.util.Objects;
 
 
 /**
- * Wrapper class representing an {@link AssetAdministrationShellEnvironment} and
- * the related files which make up an AASX file.
+ * Wrapper class representing an {@link AssetAdministrationShellEnvironment} and the related files which make up an AASX
+ * file.
  */
 public class EnvironmentContext {
 

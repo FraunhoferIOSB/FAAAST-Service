@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.3.10
+ * Request class for DeleteSubmodelElementByPath requests.
  */
 public class DeleteSubmodelElementByPathRequest extends AbstractSubmodelInterfaceRequest<DeleteSubmodelElementByPathResponse> {
 

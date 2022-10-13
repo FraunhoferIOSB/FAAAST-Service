@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.4.2
+ * Request class for GetAllConceptDescriptions requests.
  */
 public class GetAllConceptDescriptionsRequest extends AbstractRequestWithModifier<GetAllConceptDescriptionsResponse> {
 

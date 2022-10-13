@@ -20,18 +20,18 @@ import java.util.List;
 
 
 /**
- * Chapter 6.3.4
+ * Response class for GetAllSubmodelsBySemanticId requests.
  */
 public class GetAllSubmodelsBySemanticIdResponse extends AbstractResponseWithPayload<List<Submodel>> {
 
-    public static GetAllSubmodelsBySemanticIdResponse.Builder builder() {
-        return new GetAllSubmodelsBySemanticIdResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<Submodel>, GetAllSubmodelsBySemanticIdResponse, GetAllSubmodelsBySemanticIdResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<Submodel>, GetAllSubmodelsBySemanticIdResponse, Builder> {
 
         @Override
-        protected GetAllSubmodelsBySemanticIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

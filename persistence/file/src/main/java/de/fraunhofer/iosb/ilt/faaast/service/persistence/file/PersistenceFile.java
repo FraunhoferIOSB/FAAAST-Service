@@ -33,11 +33,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Implementation of
- * {@link de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence} for a
- * file storage.
- * <p>
- * Following types are not supported in the current version:
+ * Implementation of {@link de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence} for a file storage.
+ *
+ * <p>Following types are not supported in the current version:
  * <ul>
  * <li>AASX packages
  * <li>Package Descriptors

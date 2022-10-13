@@ -66,7 +66,7 @@ import picocli.CommandLine.Spec;
 
 
 /**
- * Class for configuring and starting a FA³ST Service
+ * Class for configuring and starting a FA³ST Service.
  */
 @Command(name = APP_NAME, mixinStandardHelpOptions = true, description = "Starts a FA³ST Service", versionProvider = App.PropertiesVersionProvider.class, usageHelpAutoWidth = true)
 public class App implements Runnable {
@@ -133,6 +133,11 @@ public class App implements Runnable {
     private CommandSpec spec;
     private static int exitCode = -1;
 
+    /**
+     * Main entry point.
+     *
+     * @param args CLI arguments
+     */
     public static void main(String[] args) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -459,6 +464,11 @@ public class App implements Runnable {
     }
 
 
+    /**
+     * Collects config overrides from environment and CLI parameters.
+     *
+     * @return map of config overrides
+     */
     protected Map<String, String> getConfigOverrides() {
         Map<String, String> envParameters = System.getenv().entrySet().stream()
                 .filter(x -> x.getKey().startsWith(ENV_CONFIG_EXTENSION_PREFIX))
@@ -492,6 +502,9 @@ public class App implements Runnable {
         return result;
     }
 
+    /**
+     * Provides version information from properies.
+     */
     protected static class PropertiesVersionProvider implements IVersionProvider {
 
         private static final String PATH_GIT_BUILD_VERSION = "git.build.version";

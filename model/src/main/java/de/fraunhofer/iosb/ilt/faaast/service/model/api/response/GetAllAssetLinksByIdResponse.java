@@ -20,18 +20,18 @@ import java.util.List;
 
 
 /**
- * Chapter 7.2.3
+ * Response class for GetAllAssetLinksById requests.
  */
 public class GetAllAssetLinksByIdResponse extends AbstractResponseWithPayload<List<IdentifierKeyValuePair>> {
 
-    public static GetAllAssetLinksByIdResponse.Builder builder() {
-        return new GetAllAssetLinksByIdResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<IdentifierKeyValuePair>, GetAllAssetLinksByIdResponse, GetAllAssetLinksByIdResponse.Builder> {
+    public static class Builder extends AbstractBuilder<List<IdentifierKeyValuePair>, GetAllAssetLinksByIdResponse, Builder> {
 
         @Override
-        protected GetAllAssetLinksByIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

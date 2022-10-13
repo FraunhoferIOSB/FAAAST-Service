@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
 
 /**
- * Enum describing supported HTTP methods
+ * Enum describing supported HTTP methods.
  */
 public enum HttpMethod {
     GET,

@@ -18,6 +18,9 @@ import java.math.BigDecimal;
 import org.apache.commons.lang3.StringUtils;
 
 
+/**
+ * A decimal value.
+ */
 public class DecimalValue extends TypedValue<BigDecimal> {
 
     public DecimalValue() {

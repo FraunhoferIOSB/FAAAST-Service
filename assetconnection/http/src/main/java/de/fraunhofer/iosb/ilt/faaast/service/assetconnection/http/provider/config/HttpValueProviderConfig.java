@@ -19,8 +19,7 @@ import java.util.Objects;
 
 
 /**
- * * Config file for HTTP-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
+ * * Config file for HTTP-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
  */
 public class HttpValueProviderConfig extends AbstractMultiFormatValueProviderConfig {
 

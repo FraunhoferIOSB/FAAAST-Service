@@ -26,7 +26,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-DELETE-Request path: concept-descriptions
+ * class to map HTTP-DELETE-Request path: concept-descriptions.
  */
 public class DeleteConceptDescriptionByIdRequestMapper extends AbstractRequestMapper {
 

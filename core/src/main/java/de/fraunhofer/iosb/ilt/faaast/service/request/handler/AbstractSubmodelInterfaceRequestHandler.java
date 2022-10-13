@@ -30,9 +30,8 @@ import io.adminshell.aas.v3.model.Submodel;
 
 
 /**
- * Abstract base class for handling request that are part of the Submodel
- * Interface. If request is made in the context of an AAS, this handler
- * validates that the AAS exists and the requested submodel is part of that AAS.
+ * Abstract base class for handling request that are part of the Submodel Interface. If request is made in the context
+ * of an AAS, this handler validates that the AAS exists and the requested submodel is part of that AAS.
  *
  * @param <T> actual type of the request
  * @param <U> actual type of the response
@@ -54,12 +53,11 @@ public abstract class AbstractSubmodelInterfaceRequestHandler<T extends Abstract
 
 
     /**
-     * Validates if the AAS exists and the submodel belongs to that AAS if this
-     * request was made in the context of an AAS-
+     * Validates if the AAS exists and the submodel belongs to that AAS if this request was made in the context of an
+     * AAS.
      *
      * @param request the request
-     * @throws ResourceNotFoundException if AAS does not exist or submodel does
-     *             not belong to AAS
+     * @throws ResourceNotFoundException if AAS does not exist or submodel does not belong to AAS
      */
     protected void validateSubmodelWithinAAS(T request) throws ResourceNotFoundException {
         if (request.getAasId() != null) {
@@ -81,7 +79,7 @@ public abstract class AbstractSubmodelInterfaceRequestHandler<T extends Abstract
 
 
     /**
-     * Processes a request and returns the resulting response
+     * Processes a request and returns the resulting response.
      *
      * @param request the request
      * @return the response

@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 
 
 /**
- * Wrapper class for {@link io.adminshell.aas.v3.dataformat.json.JsonSerializer}
+ * Wrapper class for {@link io.adminshell.aas.v3.dataformat.json.JsonSerializer}.
  */
 public class SerializerWrapper extends io.adminshell.aas.v3.dataformat.json.JsonSerializer {
 

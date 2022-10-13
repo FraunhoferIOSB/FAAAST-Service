@@ -43,8 +43,9 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Class to handle {@link Identifiable} Following
- * identifiables are supported:
+ * Class to handle {@link Identifiable}.
+ *
+ * <p>Following identifiables are supported:
  * <ul>
  * <li>{@link AssetAdministrationShell}
  * <li>{@link Submodel}
@@ -55,8 +56,9 @@ import org.apache.commons.lang3.StringUtils;
 public class IdentifiablePersistenceManager extends PersistenceManager {
 
     /**
-     * Get an identifiable by its identifier Following identifiables are
-     * supported:
+     * Get an identifiable by its identifier.
+     *
+     * <p>Following identifiables are supported:
      * <ul>
      * <li>{@link AssetAdministrationShell}
      * <li>{@link Submodel}
@@ -86,14 +88,13 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
 
 
     /**
-     * Get a list of asset administration shells by idShort and by a list of
-     * assetIds. The assetIds could contain two types
+     * Get a list of asset administration shells by idShort and by a list of assetIds. The assetIds could contain two
+     * types
      * <ul>
      * <li>{@link GlobalAssetIdentification}
      * <li>{@link SpecificAssetIdentification}
      * </ul>
-     * If both parameters are null all asset administration shells will be
-     * returned.
+     * If both parameters are null all asset administration shells will be returned.
      *
      * @param idShort of the searched asset administration shells
      * @param assetIds list of asset identifications
@@ -127,8 +128,8 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
 
 
     /**
-     * Get a list of submodels by idshort and by semantic id. If both parameters
-     * are null all submodels will be returned.
+     * Get a list of submodels by idshort and by semantic id. If both parameters are null all submodels will be
+     * returned.
      *
      * @param idShort of the searched submodels
      * @param semanticId of the searched submodels
@@ -147,15 +148,13 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
 
 
     /**
-     * Get a list of concept descriptions by idshort, isCaseOf and
-     * dataSpecification. Adds all matching concept descriptions for each
-     * parameter to the result list.
+     * Get a list of concept descriptions by idshort, isCaseOf and dataSpecification. Adds all matching concept
+     * descriptions for each parameter to the result list.
      *
      * @param idShort of the searched concept descriptions
      * @param isCaseOf of the searched concept descriptions
      * @param dataSpecification of the searched concept descriptions
-     * @return a list of all concept descriptions which matches at least one of
-     *         the criteria
+     * @return a list of all concept descriptions which matches at least one of the criteria
      */
     public List<ConceptDescription> getConceptDescriptions(String idShort, Reference isCaseOf, Reference dataSpecification) {
         ensureInitialized();
@@ -173,8 +172,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
 
 
     /**
-     * Remove an identifiable by its identifier. Following identifiables are
-     * supported:
+     * Remove an identifiable by its identifier. Following identifiables are supported:
      * <ul>
      * <li>{@link AssetAdministrationShell}
      * <li>{@link Submodel}
@@ -183,8 +181,7 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
      * </ul>
      *
      * @param id of the indetifiable which should be removed
-     * @throws ResourceNotFoundException if there is no identifiable with such
-     *             an identifer
+     * @throws ResourceNotFoundException if there is no identifiable with such an identifer
      */
     public void remove(Identifier id) throws ResourceNotFoundException {
         ensureInitialized();

@@ -28,9 +28,7 @@ import java.util.Collection;
 
 
 /**
- * AASX serializer for
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
- * related files.
+ * AASX serializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
  */
 @SupportedDataformat(DataFormat.AASX)
 public class AasxEnvironmentSerializer implements EnvironmentSerializer {

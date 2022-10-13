@@ -38,11 +38,11 @@ public class SubscriptionInfo {
     private Predicate<Reference> filter;
 
     /**
-     * Static method to create a Subscription Info<br>
+     * Static method to create a Subscription Info.
      *
-     * @param eventMessageClass which should be subscribed to<br>
-     * @param handler which should be accepted in the subscription<br>
-     * @param <T> concrete type of the EventMessage<br>
+     * @param eventMessageClass which should be subscribed to
+     * @param handler which should be accepted in the subscription
+     * @param <T> concrete type of the EventMessage
      * @return a Subscription Info
      */
     public static <T extends EventMessage> SubscriptionInfo create(Class<T> eventMessageClass, Consumer<T> handler) {
@@ -54,12 +54,12 @@ public class SubscriptionInfo {
 
 
     /**
-     * Static method to create a Subscription Info<br>
+     * Static method to create a Subscription Info.
      *
-     * @param eventMessageClass which should be subscribed to<br>
-     * @param handler which should be accepted in the subscription<br>
-     * @param keyElements of the references which should be subscribed to<br>
-     * @param <T> concrete type of the EventMessage<br>
+     * @param eventMessageClass which should be subscribed to
+     * @param handler which should be accepted in the subscription
+     * @param keyElements of the references which should be subscribed to
+     * @param <T> concrete type of the EventMessage
      * @return a Subscriptio nInfo
      */
     public static <T extends EventMessage> SubscriptionInfo create(Class<T> eventMessageClass, Consumer<T> handler, KeyElements keyElements) {
@@ -73,12 +73,12 @@ public class SubscriptionInfo {
 
 
     /**
-     * Static method to create a Subscription Info<br>
+     * Static method to create a Subscription Info.
      *
-     * @param eventMessageClass which should be subscribed to<br>
-     * @param handler which should be accepted in the subscription<br>
-     * @param reference which should be subscribed to<br>
-     * @param <T> concrete type of the EventMessage<br>
+     * @param eventMessageClass which should be subscribed to
+     * @param handler which should be accepted in the subscription
+     * @param reference which should be subscribed to
+     * @param <T> concrete type of the EventMessage
      * @return a Subscriptio nInfo
      */
     public static <T extends EventMessage> SubscriptionInfo create(Class<T> eventMessageClass, Consumer<T> handler, Reference reference) {
@@ -89,12 +89,12 @@ public class SubscriptionInfo {
 
 
     /**
-     * Static method to create a Subscription Info<br>
+     * Static method to create a Subscription Info.
      *
-     * @param eventMessageClass which should be subscribed to<br>
-     * @param handler which should be accepted in the subscription<br>
-     * @param filter of references which should be subscribed to<br>
-     * @param <T> concrete type of the EventMessage<br>
+     * @param eventMessageClass which should be subscribed to
+     * @param handler which should be accepted in the subscription
+     * @param filter of references which should be subscribed to
+     * @param <T> concrete type of the EventMessage
      * @return a Subscriptio nInfo
      */
     public static <T extends EventMessage> SubscriptionInfo create(Class<T> eventMessageClass, Consumer<T> handler, Predicate<Reference> filter) {
@@ -116,6 +116,11 @@ public class SubscriptionInfo {
     }
 
 
+    /**
+     * Sets subscribed events.
+     *
+     * @param subscribedEvents the subscribed events
+     */
     public void setSubscribedEvents(Set<Class<?>> subscribedEvents) {
         if (subscribedEvents != null) {
             this.subscribedEvents = subscribedEvents.stream()
@@ -133,6 +138,11 @@ public class SubscriptionInfo {
     }
 
 
+    /**
+     * Sets the handler.
+     *
+     * @param handler the handler to set
+     */
     public void setHandler(Consumer<EventMessage> handler) {
         Ensure.requireNonNull(handler, "handler must be non-null");
         this.handler = handler;
@@ -144,6 +154,11 @@ public class SubscriptionInfo {
     }
 
 
+    /**
+     * Sets the filter.
+     *
+     * @param filter the filter to set
+     */
     public void setFilter(Predicate<Reference> filter) {
         if (filter != null) {
             this.filter = filter;

@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config;
+
 /**
- * Configuration for reading and writing values using multiple data formats
+ * Configuration for reading and writing values using multiple data formats.
  */
 public interface MultiFormatReadWriteProviderConfig extends MultiFormatReadProviderConfig, MultiFormatWriteProviderConfig {
 

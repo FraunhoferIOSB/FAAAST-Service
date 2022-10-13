@@ -21,12 +21,16 @@ import java.lang.annotation.Target;
 
 
 /**
- * Used to annotation implementation of Format interface defining a key property
- * that will be used in config files.
+ * Used to annotation implementation of Format interface defining a key property that will be used in config files.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Dataformat {
 
-    String key();
+    /**
+     * Gets the key.
+     *
+     * @return the key
+     */
+    public String key();
 }

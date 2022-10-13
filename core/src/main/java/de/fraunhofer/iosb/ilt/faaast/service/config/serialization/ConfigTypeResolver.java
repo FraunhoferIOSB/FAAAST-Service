@@ -26,7 +26,7 @@ import java.io.IOException;
 
 
 /**
- * TypeResolver to de-/serialize config files
+ * TypeResolver to de-/serialize config files.
  */
 public class ConfigTypeResolver extends TypeIdResolverBase {
 

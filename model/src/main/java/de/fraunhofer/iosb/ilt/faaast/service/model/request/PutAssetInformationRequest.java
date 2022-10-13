@@ -23,7 +23,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.2.8
+ * Request class for PutAssetInformation requests.
  */
 public class PutAssetInformationRequest implements Request<PutAssetInformationResponse> {
 

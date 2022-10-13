@@ -18,7 +18,7 @@ import java.util.Objects;
 
 
 /**
- * Base class for AssetValueProviderConfig supporting multiple data formats
+ * Base class for AssetValueProviderConfig supporting multiple data formats.
  */
 public abstract class AbstractMultiFormatValueProviderConfig extends AbstractMultiFormatProviderConfig implements MultiFormatValueProviderConfig {
 

@@ -22,12 +22,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
+import java.util.Objects;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 
 /**
- * SubscriptionProvider for MQTT protocol
+ * SubscriptionProvider for MQTT protocol.
  */
 public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<MqttSubscriptionProviderConfig> {
 
@@ -53,7 +54,7 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
 
 
     @Override
-    protected void subscribe() throws AssetConnectionException {
+    public void subscribe() throws AssetConnectionException {
         try {
             client.subscribe(config.getTopic(), (topic, message) -> fireNewDataReceived(message.getPayload()));
         }
@@ -81,5 +82,30 @@ public class MqttSubscriptionProvider extends MultiFormatSubscriptionProvider<Mq
                         e);
             }
         }
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), serviceContext, client, reference);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof MqttSubscriptionProvider)) {
+            return false;
+        }
+        final MqttSubscriptionProvider that = (MqttSubscriptionProvider) obj;
+        return super.equals(obj)
+                && Objects.equals(serviceContext, that.serviceContext)
+                && Objects.equals(client, that.client)
+                && Objects.equals(reference, that.reference);
     }
 }

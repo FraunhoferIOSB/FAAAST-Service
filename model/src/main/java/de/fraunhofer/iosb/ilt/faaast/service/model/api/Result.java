@@ -74,6 +74,13 @@ public class Result {
     }
 
 
+    /**
+     * Creates a new instance with given values and sets success flag according to the messageType.
+     *
+     * @param messageType the messageType to set
+     * @param message the message to set
+     * @return new instance with given values
+     */
     public static Result of(MessageType messageType, String message) {
         return builder()
                 .success(messageType == MessageType.INFO || messageType == MessageType.WARNING)
@@ -85,21 +92,45 @@ public class Result {
     }
 
 
+    /**
+     * Creates a new instance with given message type INFO and given message.
+     *
+     * @param message the message to set
+     * @return new instance with given values
+     */
     public static Result info(String message) {
         return of(MessageType.INFO, message);
     }
 
 
+    /**
+     * Creates a new instance with given message type WARNING and given message.
+     *
+     * @param message the message to set
+     * @return new instance with given values
+     */
     public static Result warning(String message) {
         return of(MessageType.WARNING, message);
     }
 
 
+    /**
+     * Creates a new instance with given message type ERROR and given message.
+     *
+     * @param message the message to set
+     * @return new instance with given values
+     */
     public static Result error(String message) {
         return of(MessageType.ERROR, message);
     }
 
 
+    /**
+     * Creates a new instance with given message type EXCEPTION and given message.
+     *
+     * @param message the message to set
+     * @return new instance with given values
+     */
     public static Result exception(String message) {
         return of(MessageType.EXCEPTION, message);
     }

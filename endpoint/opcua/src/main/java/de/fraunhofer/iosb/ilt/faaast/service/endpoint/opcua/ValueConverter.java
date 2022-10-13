@@ -271,8 +271,7 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given ModelingKind to the corresponding
-     * AASModelingKindDataType.
+     * Converts the given ModelingKind to the corresponding AASModelingKindDataType.
      *
      * @param value the desired ModelingKind
      * @return The corresponding AASModelingKindDataType
@@ -297,8 +296,7 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given IdentifierType to the corresponding
-     * AASIdentifierTypeDataType.
+     * Converts the given IdentifierType to the corresponding AASIdentifierTypeDataType.
      *
      * @param value The desired IdentifierType
      * @return The corresponding AASIdentifierTypeDataType.
@@ -428,8 +426,7 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given KeyElements value to the corresponding
-     * AASKeyElementsDataType
+     * Converts the given KeyElements value to the corresponding AASKeyElementsDataType
      *
      * @param value The desired KeyElements value.
      * @return The converted AASKeyElementsDataType.
@@ -450,8 +447,7 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given AASKeyElementsDataType to the corresponding
-     * KeyElements
+     * Converts the given AASKeyElementsDataType to the corresponding KeyElements
      *
      * @param value The desired AASKeyElementsDataType
      * @return The corresponding KeyElements type
@@ -687,8 +683,7 @@ public class ValueConverter {
 
 
     /**
-     * Sets the output arguments for an operation from the given output
-     * variables.
+     * Sets the output arguments for an operation from the given output variables.
      *
      * @param outputVariables The desired output variables
      * @param outputArguments The desired output arguments
@@ -749,11 +744,23 @@ public class ValueConverter {
     }
 
 
+    /**
+     * Creates an OPC UA date time from Java date time
+     *
+     * @param value The input Java date time
+     * @return The OPC UA date time
+     */
     public static DateTime createDateTime(ZonedDateTime value) {
         return new DateTime(GregorianCalendar.from(value));
     }
 
 
+    /**
+     * Creates an OPC UA date time from Java date time
+     *
+     * @param value The input Java date time
+     * @return The OPC UA date time
+     */
     public static DateTime createDateTime(LocalDateTime value) {
         return new DateTime(GregorianCalendar.from(value.atZone(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE))));
     }

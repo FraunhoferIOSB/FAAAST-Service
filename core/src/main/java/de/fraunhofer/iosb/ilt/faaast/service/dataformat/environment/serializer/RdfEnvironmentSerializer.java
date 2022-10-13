@@ -32,9 +32,7 @@ import org.apache.jena.riot.RDFLanguages;
 
 
 /**
- * RDF serializer for
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
- * related files.
+ * RDF serializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
  */
 @SupportedDataformat(DataFormat.RDF)
 public class RdfEnvironmentSerializer implements EnvironmentSerializer {
@@ -48,9 +46,7 @@ public class RdfEnvironmentSerializer implements EnvironmentSerializer {
 
 
     /**
-     * Serializes a
-     * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}
-     * and related files as byte[]
+     * Serializes a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} and related files as byte[].
      *
      * @param charset the charset to use
      * @param environment the environment to serialize

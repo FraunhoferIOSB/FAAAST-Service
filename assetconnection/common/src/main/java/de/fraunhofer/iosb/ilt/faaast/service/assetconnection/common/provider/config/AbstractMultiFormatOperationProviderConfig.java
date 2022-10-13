@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Base class for AssetOperationProviderConfig supporting multiple data formats
+ * Base class for AssetOperationProviderConfig supporting multiple data formats.
  */
 public abstract class AbstractMultiFormatOperationProviderConfig extends AbstractMultiFormatProviderConfig implements MultiFormatOperationProviderConfig {
 

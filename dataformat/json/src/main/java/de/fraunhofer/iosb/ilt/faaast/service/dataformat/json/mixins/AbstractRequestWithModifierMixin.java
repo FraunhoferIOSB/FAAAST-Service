@@ -20,8 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.OutputModifierConstra
 
 
 /**
- * Mixin for
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractRequestWithModifier}
+ * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractRequestWithModifier}.
  */
 public abstract class AbstractRequestWithModifierMixin {
 

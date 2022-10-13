@@ -19,8 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.con
 
 
 /**
- * Abstract base class for custom implementations of AssetValueProvider
- * supporting multiple data formats.
+ * Abstract base class for custom implementations of AssetValueProvider supporting multiple data formats.
  *
  * @param <T> concrete type of matching configuration
  */
@@ -29,5 +28,4 @@ public abstract class MultiFormatValueProvider<T extends MultiFormatValueProvide
     protected MultiFormatValueProvider(T config) {
         super(config);
     }
-
 }
