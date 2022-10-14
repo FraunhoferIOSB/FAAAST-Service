@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.VALUES_READ_ONLY;
-
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
@@ -45,6 +43,11 @@ import org.slf4j.LoggerFactory;
 public class QualifierCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(QualifierCreator.class);
 
+    private QualifierCreator() {
+        throw new IllegalStateException("Class not instantiable");
+    }
+
+
     /**
      * Adds a QualifierNode to the given Node.
      *
@@ -52,18 +55,13 @@ public class QualifierCreator {
      * @param nodeManager The corresponding Node Manager
      */
     public static void addQualifierNode(UaNode node, AasServiceNodeManager nodeManager) {
-        try {
-            String name = AASSubmodelElementType.QUALIFIER;
-            LOGGER.debug("addQualifierNode {}; to Node: {}", name, node);
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASQualifierList.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.createNodeId(node, browseName);
-            AASQualifierList listNode = nodeManager.createInstance(AASQualifierList.class, nid, browseName, LocalizedText.english(name));
+        String name = AASSubmodelElementType.QUALIFIER;
+        LOGGER.debug("addQualifierNode {}; to Node: {}", name, node);
+        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASQualifierList.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+        NodeId nid = nodeManager.createNodeId(node, browseName);
+        AASQualifierList listNode = nodeManager.createInstance(AASQualifierList.class, nid, browseName, LocalizedText.english(name));
 
-            node.addComponent(listNode);
-        }
-        catch (Exception ex) {
-            LOGGER.error("addQualifierNode Exception", ex);
-        }
+        node.addComponent(listNode);
     }
 
 
@@ -83,20 +81,13 @@ public class QualifierCreator {
             throw new IllegalArgumentException("qualifiers = null");
         }
 
-        try {
-
-            int index = 1;
-            for (Constraint constraint: qualifiers) {
-                if ((constraint != null) && (Qualifier.class.isAssignableFrom(constraint.getClass()))) {
-                    addQualifier(listNode, (Qualifier) constraint, "Qualifier " + index, nodeManager);
-                }
-
-                index++;
+        int index = 1;
+        for (Constraint constraint: qualifiers) {
+            if ((constraint != null) && (Qualifier.class.isAssignableFrom(constraint.getClass()))) {
+                addQualifier(listNode, (Qualifier) constraint, "Qualifier " + index, nodeManager);
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addQualifiers Exception", ex);
-            throw ex;
+
+            index++;
         }
     }
 
@@ -118,50 +109,44 @@ public class QualifierCreator {
             throw new IllegalArgumentException("qualifier = null");
         }
 
-        try {
-            LOGGER.debug("addQualifier {}; to Node: {}", name, node);
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASQualifierType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.createNodeId(node, browseName);
-            AASQualifierType qualifierNode = nodeManager.createInstance(AASQualifierType.class, nid, browseName, LocalizedText.english(name));
+        LOGGER.debug("addQualifier {}; to Node: {}", name, node);
+        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASQualifierType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+        NodeId nid = nodeManager.createNodeId(node, browseName);
+        AASQualifierType qualifierNode = nodeManager.createInstance(AASQualifierType.class, nid, browseName, LocalizedText.english(name));
 
-            // Type
-            qualifierNode.setType(qualifier.getType());
+        // Type
+        qualifierNode.setType(qualifier.getType());
 
-            // ValueType
-            qualifierNode.setValueType(ValueConverter.stringToValueType(qualifier.getValueType()));
+        // ValueType
+        qualifierNode.setValueType(ValueConverter.stringToValueType(qualifier.getValueType()));
 
-            // Value
-            if (qualifier.getValue() != null) {
-                if (qualifierNode.getValueNode() == null) {
-                    addQualifierValueNode(qualifierNode, nodeManager);
-                }
-
-                qualifierNode.setValue(qualifier.getValue());
+        // Value
+        if (qualifier.getValue() != null) {
+            if (qualifierNode.getValueNode() == null) {
+                addQualifierValueNode(qualifierNode, nodeManager);
             }
 
-            // ValueId
-            if (qualifier.getValueId() != null) {
-                AasReferenceCreator.addAasReferenceAasNS(qualifierNode, qualifier.getValueId(), AASQualifierType.VALUE_ID, nodeManager);
-            }
-
-            if (AasServiceNodeManager.VALUES_READ_ONLY) {
-                if (qualifierNode.getValueNode() != null) {
-                    qualifierNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
-                }
-                if (qualifierNode.getValueTypeNode() != null) {
-                    qualifierNode.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                }
-                if (qualifierNode.getTypeNode() != null) {
-                    qualifierNode.getTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                }
-            }
-
-            node.addComponent(qualifierNode);
+            qualifierNode.setValue(qualifier.getValue());
         }
-        catch (Exception ex) {
-            LOGGER.error("addQualifier Exception", ex);
-            throw ex;
+
+        // ValueId
+        if (qualifier.getValueId() != null) {
+            AasReferenceCreator.addAasReferenceAasNS(qualifierNode, qualifier.getValueId(), AASQualifierType.VALUE_ID, nodeManager);
         }
+
+        if (AasServiceNodeManager.VALUES_READ_ONLY) {
+            if (qualifierNode.getValueNode() != null) {
+                qualifierNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
+            }
+            if (qualifierNode.getValueTypeNode() != null) {
+                qualifierNode.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+            }
+            if (qualifierNode.getTypeNode() != null) {
+                qualifierNode.getTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+            }
+        }
+
+        node.addComponent(qualifierNode);
     }
 
 
@@ -172,22 +157,16 @@ public class QualifierCreator {
      * @param nodeManager The corresponding Node Manager
      */
     private static void addQualifierValueNode(UaNode node, AasServiceNodeManager nodeManager) {
-        try {
-            NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASQualifierType.VALUE);
-            PlainProperty<ByteString> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
-                    UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASQualifierType.getNamespaceUri(), AASQualifierType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
-                    LocalizedText.english(AASQualifierType.VALUE));
-            myProperty.setDataTypeId(Identifiers.String);
-            if (VALUES_READ_ONLY) {
-                myProperty.setAccessLevel(AccessLevelType.CurrentRead);
-            }
-            myProperty.setDescription(new LocalizedText("", ""));
-            node.addProperty(myProperty);
+        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASQualifierType.VALUE);
+        PlainProperty<ByteString> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
+                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASQualifierType.getNamespaceUri(), AASQualifierType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
+                LocalizedText.english(AASQualifierType.VALUE));
+        myProperty.setDataTypeId(Identifiers.String);
+        if (AasServiceNodeManager.VALUES_READ_ONLY) {
+            myProperty.setAccessLevel(AccessLevelType.CurrentRead);
         }
-        catch (Exception ex) {
-            LOGGER.error("addQualifierValueNode Exception", ex);
-            throw ex;
-        }
+        myProperty.setDescription(new LocalizedText("", ""));
+        node.addProperty(myProperty);
     }
 
 }

@@ -53,29 +53,23 @@ public class CapabilityCreator extends SubmodelElementCreator {
      */
     public static void addAasCapability(UaNode node, Capability aasCapability, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
-        try {
-            if ((node != null) && (aasCapability != null)) {
-                String name = aasCapability.getIdShort();
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASCapabilityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId nid = nodeManager.getDefaultNodeId();
-                AASCapabilityType capabilityNode = nodeManager.createInstance(AASCapabilityType.class, nid, browseName, LocalizedText.english(name));
-                addSubmodelElementBaseData(capabilityNode, aasCapability, nodeManager);
+        if ((node != null) && (aasCapability != null)) {
+            String name = aasCapability.getIdShort();
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASCapabilityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.getDefaultNodeId();
+            AASCapabilityType capabilityNode = nodeManager.createInstance(AASCapabilityType.class, nid, browseName, LocalizedText.english(name));
+            addSubmodelElementBaseData(capabilityNode, aasCapability, nodeManager);
 
-                if (ordered) {
-                    node.addReference(capabilityNode, Identifiers.HasOrderedComponent, false);
-                }
-                else {
-                    node.addComponent(capabilityNode);
-                }
-
-                Reference capabilityRef = AasUtils.toReference(parentRef, aasCapability);
-
-                nodeManager.addReferable(capabilityRef, new ObjectData(aasCapability, capabilityNode, submodel));
+            if (ordered) {
+                node.addReference(capabilityNode, Identifiers.HasOrderedComponent, false);
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addAasCapability Exception", ex);
-            throw ex;
+            else {
+                node.addComponent(capabilityNode);
+            }
+
+            Reference capabilityRef = AasUtils.toReference(parentRef, aasCapability);
+
+            nodeManager.addReferable(capabilityRef, new ObjectData(aasCapability, capabilityNode, submodel));
         }
     }
 

@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.NODE_NULL;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.VALUES_READ_ONLY;
-
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
@@ -41,6 +38,11 @@ import org.slf4j.LoggerFactory;
 public class IdentifierKeyValuePairCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(IdentifierKeyValuePairCreator.class);
 
+    private IdentifierKeyValuePairCreator() {
+        throw new IllegalStateException("Class not instantiable");
+    }
+
+
     /**
      * Adds an IdentifierKeyValuePair to the given Node.
      *
@@ -51,7 +53,7 @@ public class IdentifierKeyValuePairCreator {
      * @throws StatusException If the operation fails
      */
     public static void addIdentifierKeyValuePair(UaNode node, IdentifierKeyValuePair identifierPair, String name, AasServiceNodeManager nodeManager) throws StatusException {
-        addIdentifierKeyValuePair(node, identifierPair, name, VALUES_READ_ONLY, nodeManager);
+        addIdentifierKeyValuePair(node, identifierPair, name, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
     }
 
 
@@ -65,7 +67,7 @@ public class IdentifierKeyValuePairCreator {
      */
     public static void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, IdentifierKeyValuePair aasIdentifierPair, AasServiceNodeManager nodeManager)
             throws StatusException {
-        setIdentifierKeyValuePairData(identifierPairNode, aasIdentifierPair, VALUES_READ_ONLY, nodeManager);
+        setIdentifierKeyValuePairData(identifierPairNode, aasIdentifierPair, AasServiceNodeManager.VALUES_READ_ONLY, nodeManager);
     }
 
 
@@ -82,27 +84,21 @@ public class IdentifierKeyValuePairCreator {
     private static void addIdentifierKeyValuePair(UaNode node, IdentifierKeyValuePair identifierPair, String name, boolean readOnly, AasServiceNodeManager nodeManager)
             throws StatusException {
         if (node == null) {
-            throw new IllegalArgumentException(NODE_NULL);
+            throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
         }
         else if (identifierPair == null) {
             throw new IllegalArgumentException("identifierPair = null");
         }
 
-        try {
-            LOGGER.debug("addIdentifierKeyValuePair {}; to Node: {}", name, node);
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASIdentifierKeyValuePairType.getNamespaceUri(), name)
-                    .toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.createNodeId(node, browseName);
-            AASIdentifierKeyValuePairType identifierPairNode = nodeManager.createInstance(AASIdentifierKeyValuePairType.class, nid, browseName, LocalizedText.english(name));
+        LOGGER.debug("addIdentifierKeyValuePair {}; to Node: {}", name, node);
+        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASIdentifierKeyValuePairType.getNamespaceUri(), name)
+                .toQualifiedName(nodeManager.getNamespaceTable());
+        NodeId nid = nodeManager.createNodeId(node, browseName);
+        AASIdentifierKeyValuePairType identifierPairNode = nodeManager.createInstance(AASIdentifierKeyValuePairType.class, nid, browseName, LocalizedText.english(name));
 
-            setIdentifierKeyValuePairData(identifierPairNode, identifierPair, readOnly, nodeManager);
+        setIdentifierKeyValuePairData(identifierPairNode, identifierPair, readOnly, nodeManager);
 
-            node.addComponent(identifierPairNode);
-        }
-        catch (Exception ex) {
-            LOGGER.error("addIdentifierKeyValuePair Exception", ex);
-            throw ex;
-        }
+        node.addComponent(identifierPairNode);
     }
 
 
@@ -118,33 +114,27 @@ public class IdentifierKeyValuePairCreator {
     private static void setIdentifierKeyValuePairData(AASIdentifierKeyValuePairType identifierPairNode, IdentifierKeyValuePair aasIdentifierPair, boolean readOnly,
                                                       AasServiceNodeManager nodeManager)
             throws StatusException {
-        try {
-            // ExternalSubjectId
-            Reference externalSubjectId = aasIdentifierPair.getExternalSubjectId();
-            if (externalSubjectId != null) {
-                AASReferenceType extSubjectNode = identifierPairNode.getExternalSubjectIdNode();
-                if (extSubjectNode == null) {
-                    AasReferenceCreator.addAasReferenceAasNS(identifierPairNode, externalSubjectId, AASIdentifierKeyValuePairType.EXTERNAL_SUBJECT_ID, nodeManager);
-                }
-                else {
-                    AasSubmodelElementHelper.setAasReferenceData(externalSubjectId, extSubjectNode);
-                }
+        // ExternalSubjectId
+        Reference externalSubjectId = aasIdentifierPair.getExternalSubjectId();
+        if (externalSubjectId != null) {
+            AASReferenceType extSubjectNode = identifierPairNode.getExternalSubjectIdNode();
+            if (extSubjectNode == null) {
+                AasReferenceCreator.addAasReferenceAasNS(identifierPairNode, externalSubjectId, AASIdentifierKeyValuePairType.EXTERNAL_SUBJECT_ID, nodeManager);
             }
-
-            // Key
-            identifierPairNode.setKey(aasIdentifierPair.getKey());
-
-            // Value
-            identifierPairNode.setValue(aasIdentifierPair.getValue());
-
-            if (readOnly) {
-                identifierPairNode.getKeyNode().setAccessLevel(AccessLevelType.CurrentRead);
-                identifierPairNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
+            else {
+                AasSubmodelElementHelper.setAasReferenceData(externalSubjectId, extSubjectNode);
             }
         }
-        catch (Exception ex) {
-            LOGGER.error("setIdentifierKeyValuePairData Exception", ex);
-            throw ex;
+
+        // Key
+        identifierPairNode.setKey(aasIdentifierPair.getKey());
+
+        // Value
+        identifierPairNode.setValue(aasIdentifierPair.getValue());
+
+        if (readOnly) {
+            identifierPairNode.getKeyNode().setAccessLevel(AccessLevelType.CurrentRead);
+            identifierPairNode.getValueNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
     }
 

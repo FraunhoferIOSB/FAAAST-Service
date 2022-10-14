@@ -25,8 +25,6 @@ import opc.i4aas.AASAssetType;
 import opc.i4aas.AASReferenceList;
 import opc.i4aas.AASSubmodelElementType;
 import opc.i4aas.AASSubmodelType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,12 +32,11 @@ import org.slf4j.LoggerFactory;
  * the OPC UA address space.
  */
 public class EmbeddedDataSpecificationCreator {
-    /**
-     * Text for addEmbeddedDataSpecifications Exception
-     */
-    private static final String ADD_EMBED_DS_EXC = "addEmbeddedDataSpecifications Exception";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedDataSpecificationCreator.class);
+    private EmbeddedDataSpecificationCreator() {
+        throw new IllegalStateException("Class not instantiable");
+    }
+
 
     /**
      * Adds the references to the given Embedded Data Specifications.
@@ -51,26 +48,20 @@ public class EmbeddedDataSpecificationCreator {
      */
     public static void addEmbeddedDataSpecifications(AASAssetAdministrationShellType aasNode, List<EmbeddedDataSpecification> list, AasServiceNodeManager nodeManager)
             throws StatusException {
-        try {
-            if ((list != null) && (!list.isEmpty())) {
-                List<Reference> refList = new ArrayList<>();
-                for (EmbeddedDataSpecification eds: list) {
-                    refList.add(eds.getDataSpecification());
-                }
-
-                AASReferenceList listNode = aasNode.getDataSpecificationNode();
-
-                if (listNode == null) {
-                    AasReferenceCreator.addAasReferenceList(aasNode, refList, AASAssetAdministrationShellType.DATA_SPECIFICATION, nodeManager);
-                }
-                else {
-                    addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
-                }
+        if ((list != null) && (!list.isEmpty())) {
+            List<Reference> refList = new ArrayList<>();
+            for (EmbeddedDataSpecification eds: list) {
+                refList.add(eds.getDataSpecification());
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error(ADD_EMBED_DS_EXC, ex);
-            throw ex;
+
+            AASReferenceList listNode = aasNode.getDataSpecificationNode();
+
+            if (listNode == null) {
+                AasReferenceCreator.addAasReferenceList(aasNode, refList, AASAssetAdministrationShellType.DATA_SPECIFICATION, nodeManager);
+            }
+            else {
+                addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
+            }
         }
     }
 
@@ -84,23 +75,17 @@ public class EmbeddedDataSpecificationCreator {
      * @throws StatusException If the operation fails
      */
     public static void addEmbeddedDataSpecificationsReferences(AASReferenceList refListNode, List<Reference> refList, AasServiceNodeManager nodeManager) throws StatusException {
-        try {
-            if ((refListNode != null) && (!refList.isEmpty())) {
-                int count = 0;
-                for (Reference ref: refList) {
-                    count++;
-                    String name = AASAssetAdministrationShellType.DATA_SPECIFICATION;
-                    if (count > 1) {
-                        name += count;
-                    }
-
-                    AasReferenceCreator.addAasReferenceAasNS(refListNode, ref, name, nodeManager);
+        if ((refListNode != null) && (!refList.isEmpty())) {
+            int count = 0;
+            for (Reference ref: refList) {
+                count++;
+                String name = AASAssetAdministrationShellType.DATA_SPECIFICATION;
+                if (count > 1) {
+                    name += count;
                 }
+
+                AasReferenceCreator.addAasReferenceAasNS(refListNode, ref, name, nodeManager);
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error(ADD_EMBED_DS_EXC, ex);
-            throw ex;
         }
     }
 
@@ -116,26 +101,20 @@ public class EmbeddedDataSpecificationCreator {
      */
     public static void addEmbeddedDataSpecifications(AASSubmodelElementType submodelElementNode, List<EmbeddedDataSpecification> list, AasServiceNodeManager nodeManager)
             throws StatusException {
-        try {
-            if ((list != null) && (!list.isEmpty())) {
-                List<Reference> refList = new ArrayList<>();
-                for (EmbeddedDataSpecification eds: list) {
-                    refList.add(eds.getDataSpecification());
-                }
-
-                AASReferenceList listNode = submodelElementNode.getDataSpecificationNode();
-
-                if (listNode == null) {
-                    AasReferenceCreator.addAasReferenceList(submodelElementNode, refList, AASSubmodelElementType.DATA_SPECIFICATION, nodeManager);
-                }
-                else {
-                    addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
-                }
+        if ((list != null) && (!list.isEmpty())) {
+            List<Reference> refList = new ArrayList<>();
+            for (EmbeddedDataSpecification eds: list) {
+                refList.add(eds.getDataSpecification());
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error(ADD_EMBED_DS_EXC, ex);
-            throw ex;
+
+            AASReferenceList listNode = submodelElementNode.getDataSpecificationNode();
+
+            if (listNode == null) {
+                AasReferenceCreator.addAasReferenceList(submodelElementNode, refList, AASSubmodelElementType.DATA_SPECIFICATION, nodeManager);
+            }
+            else {
+                addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
+            }
         }
     }
 
@@ -149,26 +128,20 @@ public class EmbeddedDataSpecificationCreator {
      * @throws StatusException If the operation fails
      */
     public static void addEmbeddedDataSpecifications(AASSubmodelType submodelNode, List<EmbeddedDataSpecification> list, AasServiceNodeManager nodeManager) throws StatusException {
-        try {
-            if ((list != null) && (!list.isEmpty())) {
-                List<Reference> refList = new ArrayList<>();
-                for (EmbeddedDataSpecification eds: list) {
-                    refList.add(eds.getDataSpecification());
-                }
-
-                AASReferenceList listNode = submodelNode.getDataSpecificationNode();
-
-                if (listNode == null) {
-                    AasReferenceCreator.addAasReferenceList(submodelNode, refList, AASSubmodelType.DATA_SPECIFICATION, nodeManager);
-                }
-                else {
-                    addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
-                }
+        if ((list != null) && (!list.isEmpty())) {
+            List<Reference> refList = new ArrayList<>();
+            for (EmbeddedDataSpecification eds: list) {
+                refList.add(eds.getDataSpecification());
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error(ADD_EMBED_DS_EXC, ex);
-            throw ex;
+
+            AASReferenceList listNode = submodelNode.getDataSpecificationNode();
+
+            if (listNode == null) {
+                AasReferenceCreator.addAasReferenceList(submodelNode, refList, AASSubmodelType.DATA_SPECIFICATION, nodeManager);
+            }
+            else {
+                addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
+            }
         }
     }
 
@@ -182,26 +155,20 @@ public class EmbeddedDataSpecificationCreator {
      * @throws StatusException If the operation fails
      */
     public static void addEmbeddedDataSpecifications(AASAssetType assetNode, List<EmbeddedDataSpecification> list, AasServiceNodeManager nodeManager) throws StatusException {
-        try {
-            if ((list != null) && (!list.isEmpty())) {
-                List<Reference> refList = new ArrayList<>();
-                for (EmbeddedDataSpecification eds: list) {
-                    refList.add(eds.getDataSpecification());
-                }
-
-                AASReferenceList listNode = assetNode.getDataSpecificationNode();
-
-                if (listNode == null) {
-                    AasReferenceCreator.addAasReferenceList(assetNode, refList, AASAssetType.DATA_SPECIFICATION, nodeManager);
-                }
-                else {
-                    addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
-                }
+        if ((list != null) && (!list.isEmpty())) {
+            List<Reference> refList = new ArrayList<>();
+            for (EmbeddedDataSpecification eds: list) {
+                refList.add(eds.getDataSpecification());
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error(ADD_EMBED_DS_EXC, ex);
-            throw ex;
+
+            AASReferenceList listNode = assetNode.getDataSpecificationNode();
+
+            if (listNode == null) {
+                AasReferenceCreator.addAasReferenceList(assetNode, refList, AASAssetType.DATA_SPECIFICATION, nodeManager);
+            }
+            else {
+                addEmbeddedDataSpecificationsReferences(listNode, refList, nodeManager);
+            }
         }
     }
 

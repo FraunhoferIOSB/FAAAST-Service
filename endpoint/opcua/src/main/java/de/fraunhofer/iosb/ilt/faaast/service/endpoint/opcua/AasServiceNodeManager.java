@@ -140,11 +140,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private final OpcUaEndpoint endpoint;
 
     /**
-     * The associated listener for method calls
-     */
-    private CallableListener aasMethodManagerListener;
-
-    /**
      * The OPC UA Node for the AAS Environment
      */
     private AASEnvironmentType aasEnvironmentNode;
@@ -269,7 +264,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             LOG.trace("createAddressSpace");
 
-            aasMethodManagerListener = new AasServiceMethodManagerListener(endpoint, this);
+            CallableListener aasMethodManagerListener = new AasServiceMethodManagerListener(endpoint, this);
             MethodManagerUaNode m = (MethodManagerUaNode) getMethodManager();
             m.addCallListener(aasMethodManagerListener);
 

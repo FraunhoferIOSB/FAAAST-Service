@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.VALUES_READ_ONLY;
-
 import com.prosysopc.ua.ServiceException;
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.client.AddressSpaceException;
@@ -165,7 +163,7 @@ public class SubmodelElementCreator {
                 // Description
                 DescriptionCreator.addDescriptions(node, element.getDescriptions());
 
-                if (VALUES_READ_ONLY) {
+                if (AasServiceNodeManager.VALUES_READ_ONLY) {
                     node.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
                     node.getModelingKindNode().setAccessLevel(AccessLevelType.CurrentRead);
                 }

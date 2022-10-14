@@ -19,8 +19,6 @@ import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.core.Argument;
 import io.adminshell.aas.v3.model.LangString;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -28,7 +26,11 @@ import org.slf4j.LoggerFactory;
  * OPC UA address space.
  */
 public class DescriptionCreator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DescriptionCreator.class);
+
+    private DescriptionCreator() {
+        throw new IllegalStateException("Class not instantiable");
+    }
+
 
     /**
      * Adds the list of Descriptions to the given node.
@@ -37,15 +39,9 @@ public class DescriptionCreator {
      * @param descriptions The list of AAS descriptions
      */
     public static void addDescriptions(UaNode node, List<LangString> descriptions) {
-        try {
-            if ((node != null) && (descriptions != null) && (!descriptions.isEmpty())) {
-                LangString desc = descriptions.get(0);
-                node.setDescription(new LocalizedText(desc.getValue(), desc.getLanguage()));
-            }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addDescriptions Exception", ex);
-            throw ex;
+        if ((node != null) && (descriptions != null) && (!descriptions.isEmpty())) {
+            LangString desc = descriptions.get(0);
+            node.setDescription(new LocalizedText(desc.getValue(), desc.getLanguage()));
         }
     }
 
@@ -57,14 +53,9 @@ public class DescriptionCreator {
      * @param descriptions The list of AAS descriptions
      */
     public static void addDescriptions(Argument arg, List<LangString> descriptions) {
-        try {
-            if ((arg != null) && (descriptions != null) && (!descriptions.isEmpty())) {
-                LangString desc = descriptions.get(0);
-                arg.setDescription(new LocalizedText(desc.getValue(), desc.getLanguage()));
-            }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addDescriptions Exception", ex);
+        if ((arg != null) && (descriptions != null) && (!descriptions.isEmpty())) {
+            LangString desc = descriptions.get(0);
+            arg.setDescription(new LocalizedText(desc.getValue(), desc.getLanguage()));
         }
     }
 

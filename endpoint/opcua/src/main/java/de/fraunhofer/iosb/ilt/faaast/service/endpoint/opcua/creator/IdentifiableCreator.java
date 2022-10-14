@@ -14,17 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.ADD_IDENT_EXC;
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.VALUES_READ_ONLY;
-
+import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import io.adminshell.aas.v3.model.AdministrativeInformation;
 import io.adminshell.aas.v3.model.Identifier;
 import opc.i4aas.AASIdentifiableType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -32,7 +28,11 @@ import org.slf4j.LoggerFactory;
  * OPC UA address space.
  */
 public class IdentifiableCreator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IdentifiableCreator.class);
+
+    private IdentifiableCreator() {
+        throw new IllegalStateException("Class not instantiable");
+    }
+
 
     /**
      * Adds AAS Identifiable information to the given node.
@@ -43,30 +43,27 @@ public class IdentifiableCreator {
      * @param adminInfo The corresponding AAS Administrative Information
      * @param category The desired category
      * @param nodeManager The corresponding Node Manager
+     * @throws StatusException if an error occurs
      */
     public static void addIdentifiable(AASIdentifiableType identifiableNode, Identifier identifier, AdministrativeInformation adminInfo, String category,
-                                       AasServiceNodeManager nodeManager) {
-        try {
-            if (identifier != null) {
-                identifiableNode.getIdentificationNode().setId(identifier.getIdentifier());
-                identifiableNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
-            }
-
-            AdministrativeInformationCreator.addAdminInformationProperties(identifiableNode.getAdministrationNode(), adminInfo, nodeManager);
-
-            if (category == null) {
-                category = "";
-            }
-            identifiableNode.setCategory(category);
-
-            if (VALUES_READ_ONLY) {
-                identifiableNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-                identifiableNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                identifiableNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
-            }
+                                       AasServiceNodeManager nodeManager)
+            throws StatusException {
+        if (identifier != null) {
+            identifiableNode.getIdentificationNode().setId(identifier.getIdentifier());
+            identifiableNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
         }
-        catch (Exception ex) {
-            LOGGER.error(ADD_IDENT_EXC, ex);
+
+        AdministrativeInformationCreator.addAdminInformationProperties(identifiableNode.getAdministrationNode(), adminInfo, nodeManager);
+
+        if (category == null) {
+            category = "";
+        }
+        identifiableNode.setCategory(category);
+
+        if (AasServiceNodeManager.VALUES_READ_ONLY) {
+            identifiableNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
+            identifiableNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+            identifiableNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
     }
 

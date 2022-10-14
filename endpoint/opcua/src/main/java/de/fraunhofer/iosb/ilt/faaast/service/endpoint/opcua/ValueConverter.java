@@ -75,6 +75,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ValueConverter {
 
+    private static final String UNKNOWN_KEY_TYPE = "unknown KeyType: ";
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueConverter.class);
     private static final ArrayList<DatatypeMapper> typeList;
     private static final Map<ModelingKind, AASModelingKindDataType> MODELING_KIND_MAP;
@@ -327,7 +328,7 @@ public class ValueConverter {
         }
         else {
             LOGGER.warn("convertAssetKind: unknown value {}", value);
-            throw new IllegalArgumentException("unknown KeyType: " + value);
+            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
         }
         return retval;
     }
@@ -478,7 +479,7 @@ public class ValueConverter {
         var rv = KEY_TYPE_LIST.stream().filter(m -> m.aasObject == value).findAny();
         if (rv.isEmpty()) {
             LOGGER.warn("getAasKeyType: unknown value {}", value);
-            throw new IllegalArgumentException("unknown KeyType: " + value);
+            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
         }
         else {
             retval = rv.get().opcuaObject;
@@ -498,7 +499,7 @@ public class ValueConverter {
         var rv = KEY_TYPE_LIST.stream().filter(m -> m.opcuaObject == value).findAny();
         if (rv.isEmpty()) {
             LOGGER.warn("getKeyType: unknown value {}", value);
-            throw new IllegalArgumentException("unknown KeyType: " + value);
+            throw new IllegalArgumentException(UNKNOWN_KEY_TYPE + value);
         }
         else {
             retval = rv.get().aasObject;

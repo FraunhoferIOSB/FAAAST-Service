@@ -51,34 +51,28 @@ public class DataElementCreator extends SubmodelElementCreator {
      */
     public static void addAasDataElement(UaNode node, DataElement aasDataElement, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
-        try {
-            if ((node != null) && (aasDataElement != null)) {
-                if (aasDataElement instanceof Property) {
-                    PropertyCreator.addAasProperty(node, (Property) aasDataElement, submodel, parentRef, ordered, nodeManager);
-                }
-                else if (aasDataElement instanceof File) {
-                    FileCreator.addAasFile(node, (File) aasDataElement, submodel, parentRef, ordered, null, nodeManager);
-                }
-                else if (aasDataElement instanceof Blob) {
-                    BlobCreator.addAasBlob(node, (Blob) aasDataElement, submodel, parentRef, ordered, nodeManager);
-                }
-                else if (aasDataElement instanceof ReferenceElement) {
-                    ReferenceElementCreator.addAasReferenceElement(node, (ReferenceElement) aasDataElement, submodel, parentRef, ordered, nodeManager);
-                }
-                else if (aasDataElement instanceof Range) {
-                    RangeCreator.addAasRange(node, (Range) aasDataElement, submodel, parentRef, ordered, nodeManager);
-                }
-                else if (aasDataElement instanceof MultiLanguageProperty) {
-                    MultiLanguagePropertyCreator.addAasMultiLanguageProperty(node, (MultiLanguageProperty) aasDataElement, submodel, parentRef, ordered, nodeManager);
-                }
-                else {
-                    LOGGER.warn("addAasDataElement: unknown DataElement: {}; Class {}", aasDataElement.getIdShort(), aasDataElement.getClass());
-                }
+        if ((node != null) && (aasDataElement != null)) {
+            if (aasDataElement instanceof Property) {
+                PropertyCreator.addAasProperty(node, (Property) aasDataElement, submodel, parentRef, ordered, nodeManager);
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addAasDataElement Exception", ex);
-            throw ex;
+            else if (aasDataElement instanceof File) {
+                FileCreator.addAasFile(node, (File) aasDataElement, submodel, parentRef, ordered, null, nodeManager);
+            }
+            else if (aasDataElement instanceof Blob) {
+                BlobCreator.addAasBlob(node, (Blob) aasDataElement, submodel, parentRef, ordered, nodeManager);
+            }
+            else if (aasDataElement instanceof ReferenceElement) {
+                ReferenceElementCreator.addAasReferenceElement(node, (ReferenceElement) aasDataElement, submodel, parentRef, ordered, nodeManager);
+            }
+            else if (aasDataElement instanceof Range) {
+                RangeCreator.addAasRange(node, (Range) aasDataElement, submodel, parentRef, ordered, nodeManager);
+            }
+            else if (aasDataElement instanceof MultiLanguageProperty) {
+                MultiLanguagePropertyCreator.addAasMultiLanguageProperty(node, (MultiLanguageProperty) aasDataElement, submodel, parentRef, ordered, nodeManager);
+            }
+            else {
+                LOGGER.warn("addAasDataElement: unknown DataElement: {}; Class {}", aasDataElement.getIdShort(), aasDataElement.getClass());
+            }
         }
     }
 

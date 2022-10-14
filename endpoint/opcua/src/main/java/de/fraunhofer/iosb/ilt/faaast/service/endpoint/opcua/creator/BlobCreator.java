@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.VALUES_READ_ONLY;
-
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
@@ -59,51 +57,45 @@ public class BlobCreator extends SubmodelElementCreator {
      */
     public static void addAasBlob(UaNode node, Blob aasBlob, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
-        try {
-            if ((node != null) && (aasBlob != null)) {
-                String name = aasBlob.getIdShort();
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId nid = nodeManager.getDefaultNodeId();
-                AASBlobType blobNode = nodeManager.createInstance(AASBlobType.class, nid, browseName, LocalizedText.english(name));
-                addSubmodelElementBaseData(blobNode, aasBlob, nodeManager);
+        if ((node != null) && (aasBlob != null)) {
+            String name = aasBlob.getIdShort();
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.getDefaultNodeId();
+            AASBlobType blobNode = nodeManager.createInstance(AASBlobType.class, nid, browseName, LocalizedText.english(name));
+            addSubmodelElementBaseData(blobNode, aasBlob, nodeManager);
 
-                // MimeType
-                blobNode.setMimeType(aasBlob.getMimeType());
+            // MimeType
+            blobNode.setMimeType(aasBlob.getMimeType());
 
-                Reference blobRef = AasUtils.toReference(parentRef, aasBlob);
+            Reference blobRef = AasUtils.toReference(parentRef, aasBlob);
 
-                // Value
-                if (aasBlob.getValue() != null) {
-                    if (blobNode.getValueNode() == null) {
-                        AasSubmodelElementHelper.addBlobValueNode(blobNode);
-                    }
-
-                    nodeManager.addSubmodelElementAasMap(blobNode.getValueNode().getNodeId(),
-                            new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE, blobRef));
-                    LOGGER.debug("addAasBlob: NodeId {}; Blob: {}", blobNode.getValueNode().getNodeId(), aasBlob);
-
-                    nodeManager.addSubmodelElementOpcUA(blobRef, blobNode);
-
-                    blobNode.setValue(ByteString.valueOf(aasBlob.getValue()));
+            // Value
+            if (aasBlob.getValue() != null) {
+                if (blobNode.getValueNode() == null) {
+                    AasSubmodelElementHelper.addBlobValueNode(blobNode);
                 }
 
-                if (VALUES_READ_ONLY) {
-                    blobNode.getMimeTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                }
+                nodeManager.addSubmodelElementAasMap(blobNode.getValueNode().getNodeId(),
+                        new SubmodelElementData(aasBlob, submodel, SubmodelElementData.Type.BLOB_VALUE, blobRef));
+                LOGGER.debug("addAasBlob: NodeId {}; Blob: {}", blobNode.getValueNode().getNodeId(), aasBlob);
 
-                if (ordered) {
-                    node.addReference(blobNode, Identifiers.HasOrderedComponent, false);
-                }
-                else {
-                    node.addComponent(blobNode);
-                }
+                nodeManager.addSubmodelElementOpcUA(blobRef, blobNode);
 
-                nodeManager.addReferable(blobRef, new ObjectData(aasBlob, blobNode, submodel));
+                blobNode.setValue(ByteString.valueOf(aasBlob.getValue()));
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addAasBlob Exception", ex);
-            throw ex;
+
+            if (AasServiceNodeManager.VALUES_READ_ONLY) {
+                blobNode.getMimeTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+            }
+
+            if (ordered) {
+                node.addReference(blobNode, Identifiers.HasOrderedComponent, false);
+            }
+            else {
+                node.addComponent(blobNode);
+            }
+
+            nodeManager.addReferable(blobRef, new ObjectData(aasBlob, blobNode, submodel));
         }
     }
 

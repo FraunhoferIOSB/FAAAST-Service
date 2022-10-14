@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.VALUES_READ_ONLY;
-
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
@@ -43,8 +41,6 @@ import opc.i4aas.AASIrdiConceptDescriptionType;
 import opc.i4aas.AASIriConceptDescriptionType;
 import opc.i4aas.AASReferenceType;
 import opc.i4aas.server.AASReferenceTypeNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -52,7 +48,10 @@ import org.slf4j.LoggerFactory;
  * OPC UA address space.
  */
 public class ConceptDescriptionCreator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConceptDescriptionCreator.class);
+
+    private ConceptDescriptionCreator() {
+        throw new IllegalStateException("Class not instantiable");
+    }
 
     /**
      * Maps AAS references to dictionary entry types
@@ -67,55 +66,49 @@ public class ConceptDescriptionCreator {
      * @throws StatusException If the operation fails
      */
     public static void addConceptDescriptions(List<ConceptDescription> descriptions, AasServiceNodeManager nodeManager) throws StatusException {
-        try {
-            // create folder DictionaryEntries
-            final UaNode dictionariesFolder = nodeManager.getServer().getNodeManagerRoot().getNodeOrExternal(Identifiers.Dictionaries);
+        // create folder DictionaryEntries
+        final UaNode dictionariesFolder = nodeManager.getServer().getNodeManagerRoot().getNodeOrExternal(Identifiers.Dictionaries);
 
-            // Folder for my objects
-            final NodeId dictionarieEntriesFolderId = new NodeId(nodeManager.getNamespaceIndex(), "Dictionaries.DictionaryEntries");
-            FolderTypeNode dictEntriesFolder = nodeManager.createInstance(FolderTypeNode.class, "DictionaryEntries", dictionarieEntriesFolderId);
+        // Folder for my objects
+        final NodeId dictionarieEntriesFolderId = new NodeId(nodeManager.getNamespaceIndex(), "Dictionaries.DictionaryEntries");
+        FolderTypeNode dictEntriesFolder = nodeManager.createInstance(FolderTypeNode.class, "DictionaryEntries", dictionarieEntriesFolderId);
 
-            nodeManager.addNodeAndReference(dictionariesFolder, dictEntriesFolder, Identifiers.Organizes);
+        nodeManager.addNodeAndReference(dictionariesFolder, dictEntriesFolder, Identifiers.Organizes);
 
-            for (ConceptDescription c: descriptions) {
-                String name = c.getIdShort();
-                NodeId nid = nodeManager.createNodeId(dictionariesFolder, name);
-                DictionaryEntryType dictNode;
-                switch (c.getIdentification().getIdType()) {
-                    case IRDI:
-                        AASIrdiConceptDescriptionType irdiNode = nodeManager.createInstance(AASIrdiConceptDescriptionType.class, name, nid);
-                        addIdentifiable(irdiNode, c.getIdentification(), c.getAdministration(), name, nodeManager);
-                        addConceptDescriptionReference(irdiNode, AasUtils.toReference(c), nodeManager);
-                        dictEntriesFolder.addComponent(irdiNode);
-                        dictionaryMap.put(AasUtils.toReference(c), irdiNode);
-                        dictNode = irdiNode;
-                        break;
+        for (ConceptDescription c: descriptions) {
+            String name = c.getIdShort();
+            NodeId nid = nodeManager.createNodeId(dictionariesFolder, name);
+            DictionaryEntryType dictNode;
+            switch (c.getIdentification().getIdType()) {
+                case IRDI:
+                    AASIrdiConceptDescriptionType irdiNode = nodeManager.createInstance(AASIrdiConceptDescriptionType.class, name, nid);
+                    addIdentifiable(irdiNode, c.getIdentification(), c.getAdministration(), name, nodeManager);
+                    addConceptDescriptionReference(irdiNode, AasUtils.toReference(c), nodeManager);
+                    dictEntriesFolder.addComponent(irdiNode);
+                    dictionaryMap.put(AasUtils.toReference(c), irdiNode);
+                    dictNode = irdiNode;
+                    break;
 
-                    case IRI:
-                        AASIriConceptDescriptionType iriNode = nodeManager.createInstance(AASIriConceptDescriptionType.class, name, nid);
-                        addIdentifiable(iriNode, c.getIdentification(), c.getAdministration(), name, nodeManager);
-                        addConceptDescriptionReference(iriNode, AasUtils.toReference(c), nodeManager);
-                        dictEntriesFolder.addComponent(iriNode);
-                        dictionaryMap.put(AasUtils.toReference(c), iriNode);
-                        dictNode = iriNode;
-                        break;
+                case IRI:
+                    AASIriConceptDescriptionType iriNode = nodeManager.createInstance(AASIriConceptDescriptionType.class, name, nid);
+                    addIdentifiable(iriNode, c.getIdentification(), c.getAdministration(), name, nodeManager);
+                    addConceptDescriptionReference(iriNode, AasUtils.toReference(c), nodeManager);
+                    dictEntriesFolder.addComponent(iriNode);
+                    dictionaryMap.put(AasUtils.toReference(c), iriNode);
+                    dictNode = iriNode;
+                    break;
 
-                    default:
-                        AASCustomConceptDescriptionType customNode = nodeManager.createInstance(AASCustomConceptDescriptionType.class, name, nid);
-                        addIdentifiable(customNode, c.getIdentification(), c.getAdministration(), name, nodeManager);
-                        addConceptDescriptionReference(customNode, AasUtils.toReference(c), nodeManager);
-                        dictEntriesFolder.addComponent(customNode);
-                        dictionaryMap.put(AasUtils.toReference(c), customNode);
-                        dictNode = customNode;
-                        break;
-                }
-
-                nodeManager.addReferable(AasUtils.toReference(c), new ObjectData(c, dictNode));
+                default:
+                    AASCustomConceptDescriptionType customNode = nodeManager.createInstance(AASCustomConceptDescriptionType.class, name, nid);
+                    addIdentifiable(customNode, c.getIdentification(), c.getAdministration(), name, nodeManager);
+                    addConceptDescriptionReference(customNode, AasUtils.toReference(c), nodeManager);
+                    dictEntriesFolder.addComponent(customNode);
+                    dictionaryMap.put(AasUtils.toReference(c), customNode);
+                    dictNode = customNode;
+                    break;
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addConceptDescriptions Exception", ex);
-            throw ex;
+
+            nodeManager.addReferable(AasUtils.toReference(c), new ObjectData(c, dictNode));
         }
     }
 
@@ -127,16 +120,10 @@ public class ConceptDescriptionCreator {
      * @param semanticId The reference of the desired SemanticId
      */
     public static void addSemanticId(UaNode node, Reference semanticId) {
-        try {
-            if (dictionaryMap.containsKey(semanticId)) {
-                node.addReference(dictionaryMap.get(semanticId), Identifiers.HasDictionaryEntry, false);
-            }
-            // if entry not found: perhaps create a new one?
+        if (dictionaryMap.containsKey(semanticId)) {
+            node.addReference(dictionaryMap.get(semanticId), Identifiers.HasDictionaryEntry, false);
         }
-        catch (Exception ex) {
-            LOGGER.error("addSemanticId Exception", ex);
-            throw ex;
-        }
+        // if entry not found: perhaps create a new one?
     }
 
 
@@ -149,22 +136,16 @@ public class ConceptDescriptionCreator {
      * @throws StatusException If the operation fails
      */
     private static void addConceptDescriptionReference(UaNode node, Reference ref, AasServiceNodeManager nodeManager) throws StatusException {
-        try {
-            if (ref != null) {
-                String name = "ConceptDescription";
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), name)
-                        .toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId nid = nodeManager.createNodeId(node, browseName);
-                AASReferenceType nodeRef = nodeManager.createInstance(AASReferenceTypeNode.class, nid, browseName, LocalizedText.english(name));
+        if (ref != null) {
+            String name = "ConceptDescription";
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), name)
+                    .toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.createNodeId(node, browseName);
+            AASReferenceType nodeRef = nodeManager.createInstance(AASReferenceTypeNode.class, nid, browseName, LocalizedText.english(name));
 
-                AasSubmodelElementHelper.setAasReferenceData(ref, nodeRef);
-                node.addComponent(nodeRef);
-                node.addReference(nodeRef, Identifiers.HasDictionaryEntry, false);
-            }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addConceptDescriptionReference Exception", ex);
-            throw ex;
+            AasSubmodelElementHelper.setAasReferenceData(ref, nodeRef);
+            node.addComponent(nodeRef);
+            node.addReference(nodeRef, Identifiers.HasDictionaryEntry, false);
         }
     }
 
@@ -180,28 +161,24 @@ public class ConceptDescriptionCreator {
      * @param nodeManager The corresponding Node Manager
      */
     private static void addIdentifiable(AASIrdiConceptDescriptionType conceptDescriptionNode, Identifier identifier, AdministrativeInformation adminInfo, String category,
-                                        AasServiceNodeManager nodeManager) {
-        try {
-            if (identifier != null) {
-                conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
-                conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
-            }
-
-            AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
-
-            if (category == null) {
-                category = "";
-            }
-            conceptDescriptionNode.setCategory(category);
-
-            if (VALUES_READ_ONLY) {
-                conceptDescriptionNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-                conceptDescriptionNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
-            }
+                                        AasServiceNodeManager nodeManager)
+            throws StatusException {
+        if (identifier != null) {
+            conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
+            conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
         }
-        catch (Exception ex) {
-            LOGGER.error(AasServiceNodeManager.ADD_IDENT_EXC, ex);
+
+        AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
+
+        if (category == null) {
+            category = "";
+        }
+        conceptDescriptionNode.setCategory(category);
+
+        if (AasServiceNodeManager.VALUES_READ_ONLY) {
+            conceptDescriptionNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
+            conceptDescriptionNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+            conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
     }
 
@@ -217,28 +194,24 @@ public class ConceptDescriptionCreator {
      * @param nodeManager The corresponding Node Manager
      */
     private static void addIdentifiable(AASIriConceptDescriptionType conceptDescriptionNode, Identifier identifier, AdministrativeInformation adminInfo, String category,
-                                        AasServiceNodeManager nodeManager) {
-        try {
-            if (identifier != null) {
-                conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
-                conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
-            }
-
-            AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
-
-            if (category == null) {
-                category = "";
-            }
-            conceptDescriptionNode.setCategory(category);
-
-            if (VALUES_READ_ONLY) {
-                conceptDescriptionNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-                conceptDescriptionNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
-            }
+                                        AasServiceNodeManager nodeManager)
+            throws StatusException {
+        if (identifier != null) {
+            conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
+            conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
         }
-        catch (Exception ex) {
-            LOGGER.error(AasServiceNodeManager.ADD_IDENT_EXC, ex);
+
+        AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
+
+        if (category == null) {
+            category = "";
+        }
+        conceptDescriptionNode.setCategory(category);
+
+        if (AasServiceNodeManager.VALUES_READ_ONLY) {
+            conceptDescriptionNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
+            conceptDescriptionNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+            conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
     }
 
@@ -254,28 +227,24 @@ public class ConceptDescriptionCreator {
      * @param nodeManager The corresponding Node Manager
      */
     private static void addIdentifiable(AASCustomConceptDescriptionType conceptDescriptionNode, Identifier identifier, AdministrativeInformation adminInfo, String category,
-                                        AasServiceNodeManager nodeManager) {
-        try {
-            if (identifier != null) {
-                conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
-                conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
-            }
-
-            AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
-
-            if (category == null) {
-                category = "";
-            }
-            conceptDescriptionNode.setCategory(category);
-
-            if (VALUES_READ_ONLY) {
-                conceptDescriptionNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-                conceptDescriptionNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
-            }
+                                        AasServiceNodeManager nodeManager)
+            throws StatusException {
+        if (identifier != null) {
+            conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
+            conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
         }
-        catch (Exception ex) {
-            LOGGER.error(AasServiceNodeManager.ADD_IDENT_EXC, ex);
+
+        AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
+
+        if (category == null) {
+            category = "";
+        }
+        conceptDescriptionNode.setCategory(category);
+
+        if (AasServiceNodeManager.VALUES_READ_ONLY) {
+            conceptDescriptionNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
+            conceptDescriptionNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+            conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
     }
 

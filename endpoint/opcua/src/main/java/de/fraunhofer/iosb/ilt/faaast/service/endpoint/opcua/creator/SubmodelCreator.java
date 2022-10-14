@@ -44,6 +44,11 @@ import org.slf4j.LoggerFactory;
 public class SubmodelCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelCreator.class);
 
+    private SubmodelCreator() {
+        throw new IllegalStateException("Class not instantiable");
+    }
+
+
     /**
      * Adds a submodel to a given Node
      *
@@ -61,68 +66,67 @@ public class SubmodelCreator {
             throw new IllegalArgumentException("submodel is null");
         }
 
-        try {
-            String shortId = submodel.getIdShort();
-            if (!shortId.isEmpty()) {
-                String displayName = "Submodel:" + shortId;
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri(), shortId)
-                        .toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId nid = nodeManager.createNodeId(node, browseName);
-                if (nodeManager.findNode(nid) != null) {
-                    // The NodeId already exists
-                    nid = nodeManager.getDefaultNodeId();
-                }
-
-                LOGGER.trace("addSubmodel: create Submodel {}; NodeId: {}", submodel.getIdShort(), nid);
-                AASSubmodelType smNode = nodeManager.createInstance(AASSubmodelType.class, nid, browseName, LocalizedText.english(displayName));
-
-                // ModelingKind
-                smNode.setModelingKind(ValueConverter.convertModelingKind(submodel.getKind()));
-                IdentifiableCreator.addIdentifiable(smNode, submodel.getIdentification(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
-
-                // DataSpecifications
-                EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(smNode, submodel.getEmbeddedDataSpecifications(), nodeManager);
-
-                // Qualifiers
-                List<Constraint> qualifiers = submodel.getQualifiers();
-                if ((qualifiers != null) && (!qualifiers.isEmpty())) {
-                    if (smNode.getQualifierNode() == null) {
-                        QualifierCreator.addQualifierNode(smNode, nodeManager);
-                    }
-
-                    QualifierCreator.addQualifiers(smNode.getQualifierNode(), qualifiers, nodeManager);
-                }
-
-                // SemanticId
-                if (submodel.getSemanticId() != null) {
-                    ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticId());
-                }
-
-                // Description
-                DescriptionCreator.addDescriptions(smNode, submodel.getDescriptions());
-
-                Reference refSubmodel = AasUtils.toReference(submodel);
-
-                // SubmodelElements
-                SubmodelElementCreator.addSubmodelElements(smNode, submodel.getSubmodelElements(), submodel, refSubmodel, nodeManager);
-
-                if (AasServiceNodeManager.VALUES_READ_ONLY) {
-                    smNode.getModelingKindNode().setAccessLevel(AccessLevelType.CurrentRead);
-                }
-
-                nodeManager.addSubmodelOpcUA(AasUtils.toReference(submodel), smNode);
-
-                node.addComponent(smNode);
-
-                nodeManager.addReferable(AasUtils.toReference(submodel), new ObjectData(submodel, smNode));
+        String shortId = submodel.getIdShort();
+        if (!shortId.isEmpty()) {
+            String displayName = "Submodel:" + shortId;
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASSubmodelType.getNamespaceUri(), shortId)
+                    .toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.createNodeId(node, browseName);
+            if (nodeManager.findNode(nid) != null) {
+                // The NodeId already exists
+                nid = nodeManager.getDefaultNodeId();
             }
-            else {
-                LOGGER.warn("addSubmodel: IdShort is empty!");
+
+            LOGGER.trace("addSubmodel: create Submodel {}; NodeId: {}", submodel.getIdShort(), nid);
+            AASSubmodelType smNode = nodeManager.createInstance(AASSubmodelType.class, nid, browseName, LocalizedText.english(displayName));
+
+            // ModelingKind
+            smNode.setModelingKind(ValueConverter.convertModelingKind(submodel.getKind()));
+            IdentifiableCreator.addIdentifiable(smNode, submodel.getIdentification(), submodel.getAdministration(), submodel.getCategory(), nodeManager);
+
+            // DataSpecifications
+            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(smNode, submodel.getEmbeddedDataSpecifications(), nodeManager);
+
+            // Qualifiers
+            List<Constraint> qualifiers = submodel.getQualifiers();
+            setQualifierData(qualifiers, smNode, nodeManager);
+
+            // SemanticId
+            if (submodel.getSemanticId() != null) {
+                ConceptDescriptionCreator.addSemanticId(smNode, submodel.getSemanticId());
             }
+
+            // Description
+            DescriptionCreator.addDescriptions(smNode, submodel.getDescriptions());
+
+            Reference refSubmodel = AasUtils.toReference(submodel);
+
+            // SubmodelElements
+            SubmodelElementCreator.addSubmodelElements(smNode, submodel.getSubmodelElements(), submodel, refSubmodel, nodeManager);
+
+            if (AasServiceNodeManager.VALUES_READ_ONLY) {
+                smNode.getModelingKindNode().setAccessLevel(AccessLevelType.CurrentRead);
+            }
+
+            nodeManager.addSubmodelOpcUA(AasUtils.toReference(submodel), smNode);
+
+            node.addComponent(smNode);
+
+            nodeManager.addReferable(AasUtils.toReference(submodel), new ObjectData(submodel, smNode));
         }
-        catch (Exception ex) {
-            LOGGER.error("addSubmodel Exception", ex);
-            throw ex;
+        else {
+            LOGGER.warn("addSubmodel: IdShort is empty!");
+        }
+    }
+
+
+    private static void setQualifierData(List<Constraint> qualifiers, AASSubmodelType smNode, AasServiceNodeManager nodeManager) throws StatusException {
+        if ((qualifiers != null) && (!qualifiers.isEmpty())) {
+            if (smNode.getQualifierNode() == null) {
+                QualifierCreator.addQualifierNode(smNode, nodeManager);
+            }
+
+            QualifierCreator.addQualifiers(smNode.getQualifierNode(), qualifiers, nodeManager);
         }
     }
 

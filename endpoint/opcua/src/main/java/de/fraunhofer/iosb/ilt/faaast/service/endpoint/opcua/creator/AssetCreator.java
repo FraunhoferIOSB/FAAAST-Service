@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.NODE_NULL;
-
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
@@ -38,6 +36,11 @@ import org.slf4j.LoggerFactory;
 public class AssetCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(AssetCreator.class);
 
+    private AssetCreator() {
+        throw new IllegalStateException("Class not instantiable");
+    }
+
+
     /**
      * Adds an Asset to the given Node.
      *
@@ -48,33 +51,27 @@ public class AssetCreator {
      */
     public static void addAsset(UaNode node, Asset asset, AasServiceNodeManager nodeManager) throws StatusException {
         if (node == null) {
-            throw new IllegalArgumentException(NODE_NULL);
+            throw new IllegalArgumentException(AasServiceNodeManager.NODE_NULL);
         }
         else if (asset == null) {
             throw new IllegalArgumentException("asset = null");
         }
 
-        try {
-            String name = asset.getIdShort();
-            String displayName = "Asset:" + name;
-            LOGGER.debug("addAsset {}; to Node: {}", name, node);
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.createNodeId(node, browseName);
-            AASAssetType assetNode = nodeManager.createInstance(AASAssetType.class, nid, browseName, LocalizedText.english(displayName));
+        String name = asset.getIdShort();
+        String displayName = "Asset:" + name;
+        LOGGER.debug("addAsset {}; to Node: {}", name, node);
+        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+        NodeId nid = nodeManager.createNodeId(node, browseName);
+        AASAssetType assetNode = nodeManager.createInstance(AASAssetType.class, nid, browseName, LocalizedText.english(displayName));
 
-            IdentifiableCreator.addIdentifiable(assetNode, asset.getIdentification(), asset.getAdministration(), asset.getCategory(), nodeManager);
+        IdentifiableCreator.addIdentifiable(assetNode, asset.getIdentification(), asset.getAdministration(), asset.getCategory(), nodeManager);
 
-            // DataSpecifications
-            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(assetNode, asset.getEmbeddedDataSpecifications(), nodeManager);
+        // DataSpecifications
+        EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(assetNode, asset.getEmbeddedDataSpecifications(), nodeManager);
 
-            node.addComponent(assetNode);
+        node.addComponent(assetNode);
 
-            nodeManager.addReferable(AasUtils.toReference(asset), new ObjectData(asset, assetNode));
-        }
-        catch (Exception ex) {
-            LOGGER.error("addAsset Exception", ex);
-            throw ex;
-        }
+        nodeManager.addReferable(AasUtils.toReference(asset), new ObjectData(asset, assetNode));
     }
 
 }

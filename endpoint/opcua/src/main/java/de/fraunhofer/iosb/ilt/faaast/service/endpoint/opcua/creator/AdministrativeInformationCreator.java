@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.VALUES_READ_ONLY;
 
+import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.server.nodes.PlainProperty;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
@@ -25,8 +26,6 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import io.adminshell.aas.v3.model.AdministrativeInformation;
 import opc.i4aas.AASAdministrativeInformationType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,7 +33,11 @@ import org.slf4j.LoggerFactory;
  * OPC UA address space.
  */
 public class AdministrativeInformationCreator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AdministrativeInformationCreator.class);
+
+    private AdministrativeInformationCreator() {
+        throw new IllegalStateException("Class not instantiable");
+    }
+
 
     /**
      * Adds the AdminInformation Properties to the given node (if they don't
@@ -43,52 +46,59 @@ public class AdministrativeInformationCreator {
      * @param adminInfNode The desired AdminInformation node
      * @param nodeManager The corresponding Node Manager
      * @param info The corresponding AAS AdministrativeInformation object
+     * @throws StatusException Ifd an error occurs
      */
-    public static void addAdminInformationProperties(AASAdministrativeInformationType adminInfNode, AdministrativeInformation info, AasServiceNodeManager nodeManager) {
-        try {
-            if ((adminInfNode != null) && (info != null)) {
-                if (info.getVersion() != null) {
-                    if (adminInfNode.getVersionNode() == null) {
-                        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(),
-                                adminInfNode.getNodeId().getValue().toString() + "." + AASAdministrativeInformationType.VERSION);
-                        PlainProperty<String> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
-                                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAdministrativeInformationType.VERSION)
-                                        .toQualifiedName(nodeManager.getNamespaceTable()),
-                                LocalizedText.english(AASAdministrativeInformationType.VERSION));
-                        myProperty.setDataTypeId(Identifiers.String);
-                        if (VALUES_READ_ONLY) {
-                            myProperty.setAccessLevel(AccessLevelType.CurrentRead);
-                        }
-                        myProperty.setDescription(new LocalizedText("", ""));
-                        adminInfNode.addProperty(myProperty);
-                    }
-
-                    adminInfNode.setVersion(info.getVersion());
+    public static void addAdminInformationProperties(AASAdministrativeInformationType adminInfNode, AdministrativeInformation info, AasServiceNodeManager nodeManager)
+            throws StatusException {
+        if ((adminInfNode != null) && (info != null)) {
+            if (info.getVersion() != null) {
+                if (adminInfNode.getVersionNode() == null) {
+                    createVersionNode(nodeManager, adminInfNode);
                 }
 
-                if (info.getRevision() != null) {
-                    if (adminInfNode.getRevisionNode() == null) {
-                        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(),
-                                adminInfNode.getNodeId().getValue().toString() + "." + AASAdministrativeInformationType.REVISION);
-                        PlainProperty<String> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
-                                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAdministrativeInformationType.REVISION)
-                                        .toQualifiedName(nodeManager.getNamespaceTable()),
-                                LocalizedText.english(AASAdministrativeInformationType.REVISION));
-                        myProperty.setDataTypeId(Identifiers.String);
-                        if (VALUES_READ_ONLY) {
-                            myProperty.setAccessLevel(AccessLevelType.CurrentRead);
-                        }
-                        myProperty.setDescription(new LocalizedText("", ""));
-                        adminInfNode.addProperty(myProperty);
-                    }
+                adminInfNode.setVersion(info.getVersion());
+            }
 
-                    adminInfNode.setRevision(info.getRevision());
+            if (info.getRevision() != null) {
+                if (adminInfNode.getRevisionNode() == null) {
+                    createRevisionNode(nodeManager, adminInfNode);
                 }
+
+                adminInfNode.setRevision(info.getRevision());
             }
         }
-        catch (Exception ex) {
-            LOGGER.error("addAdminInfProperties Exception", ex);
+    }
+
+
+    private static void createRevisionNode(AasServiceNodeManager nodeManager, AASAdministrativeInformationType adminInfNode) {
+        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(),
+                adminInfNode.getNodeId().getValue().toString() + "." + AASAdministrativeInformationType.REVISION);
+        PlainProperty<String> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
+                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAdministrativeInformationType.REVISION)
+                        .toQualifiedName(nodeManager.getNamespaceTable()),
+                LocalizedText.english(AASAdministrativeInformationType.REVISION));
+        myProperty.setDataTypeId(Identifiers.String);
+        if (VALUES_READ_ONLY) {
+            myProperty.setAccessLevel(AccessLevelType.CurrentRead);
         }
+        myProperty.setDescription(new LocalizedText("", ""));
+        adminInfNode.addProperty(myProperty);
+    }
+
+
+    private static void createVersionNode(AasServiceNodeManager nodeManager, AASAdministrativeInformationType adminInfNode) {
+        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(),
+                adminInfNode.getNodeId().getValue().toString() + "." + AASAdministrativeInformationType.VERSION);
+        PlainProperty<String> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
+                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASAssetAdministrationShellType.getNamespaceUri(), AASAdministrativeInformationType.VERSION)
+                        .toQualifiedName(nodeManager.getNamespaceTable()),
+                LocalizedText.english(AASAdministrativeInformationType.VERSION));
+        myProperty.setDataTypeId(Identifiers.String);
+        if (VALUES_READ_ONLY) {
+            myProperty.setAccessLevel(AccessLevelType.CurrentRead);
+        }
+        myProperty.setDescription(new LocalizedText("", ""));
+        adminInfNode.addProperty(myProperty);
     }
 
 }

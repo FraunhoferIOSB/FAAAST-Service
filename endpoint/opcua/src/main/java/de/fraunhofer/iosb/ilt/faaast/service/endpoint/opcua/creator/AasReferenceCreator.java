@@ -38,6 +38,11 @@ public class AasReferenceCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AasReferenceCreator.class);
 
+    private AasReferenceCreator() {
+        throw new IllegalStateException("Class not instantiable");
+    }
+
+
     /**
      * Creates a node with the given name and adds the given list of references.
      *
@@ -55,23 +60,17 @@ public class AasReferenceCreator {
             throw new IllegalArgumentException("list = null");
         }
 
-        try {
-            LOGGER.debug("addAasReferenceList {}; to Node: {}", name, node);
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-            NodeId nid = nodeManager.getDefaultNodeId();
-            AASReferenceList referenceListNode = nodeManager.createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
+        LOGGER.debug("addAasReferenceList {}; to Node: {}", name, node);
+        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+        NodeId nid = nodeManager.getDefaultNodeId();
+        AASReferenceList referenceListNode = nodeManager.createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
 
-            int counter = 1;
-            for (Reference ref: list) {
-                addAasReferenceAasNS(referenceListNode, ref, name + counter++, nodeManager);
-            }
+        int counter = 1;
+        for (Reference ref: list) {
+            addAasReferenceAasNS(referenceListNode, ref, name + counter++, nodeManager);
+        }
 
-            node.addComponent(referenceListNode);
-        }
-        catch (Exception ex) {
-            LOGGER.error("addAasReferenceList Exception", ex);
-            throw ex;
-        }
+        node.addComponent(referenceListNode);
     }
 
 
@@ -104,13 +103,7 @@ public class AasReferenceCreator {
     public static UaNode addAasReferenceAasNS(UaNode node, Reference ref, String name, boolean readOnly, AasServiceNodeManager nodeManager) throws StatusException {
         UaNode retval = null;
 
-        try {
-            retval = addAasReference(node, ref, name, opc.i4aas.ObjectTypeIds.AASReferenceType.getNamespaceUri(), readOnly, nodeManager);
-        }
-        catch (Exception ex) {
-            LOGGER.error("addAasReferenceAasNS Exception", ex);
-            throw ex;
-        }
+        retval = addAasReference(node, ref, name, opc.i4aas.ObjectTypeIds.AASReferenceType.getNamespaceUri(), readOnly, nodeManager);
 
         return retval;
     }
@@ -131,24 +124,18 @@ public class AasReferenceCreator {
     public static UaNode addAasReference(UaNode node, Reference ref, String name, String namespaceUri, boolean readOnly, AasServiceNodeManager nodeManager) throws StatusException {
         UaNode retval = null;
 
-        try {
-            if (ref != null) {
-                QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId nid = nodeManager.getDefaultNodeId();
-                AASReferenceType nodeRef = nodeManager.createInstance(AASReferenceType.class, nid, browseName, LocalizedText.english(name));
+        if (ref != null) {
+            QualifiedName browseName = UaQualifiedName.from(namespaceUri, name).toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.getDefaultNodeId();
+            AASReferenceType nodeRef = nodeManager.createInstance(AASReferenceType.class, nid, browseName, LocalizedText.english(name));
 
-                LOGGER.debug("addAasReference: add Node {} to Node {}", nid, node.getNodeId());
+            LOGGER.debug("addAasReference: add Node {} to Node {}", nid, node.getNodeId());
 
-                AasSubmodelElementHelper.setAasReferenceData(ref, nodeRef, readOnly);
+            AasSubmodelElementHelper.setAasReferenceData(ref, nodeRef, readOnly);
 
-                node.addComponent(nodeRef);
+            node.addComponent(nodeRef);
 
-                retval = nodeRef;
-            }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addAasReference Exception", ex);
-            throw ex;
+            retval = nodeRef;
         }
 
         return retval;
