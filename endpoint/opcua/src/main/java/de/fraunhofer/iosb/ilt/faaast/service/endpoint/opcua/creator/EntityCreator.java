@@ -63,51 +63,45 @@ public class EntityCreator extends SubmodelElementCreator {
      */
     public static void addAasEntity(UaNode node, Entity aasEntity, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
-        try {
-            if ((node != null) && (aasEntity != null)) {
-                String name = aasEntity.getIdShort();
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEntityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId nid = nodeManager.getDefaultNodeId();
-                AASEntityType entityNode = nodeManager.createInstance(AASEntityType.class, nid, browseName, LocalizedText.english(name));
-                addSubmodelElementBaseData(entityNode, aasEntity, nodeManager);
+        if ((node != null) && (aasEntity != null)) {
+            String name = aasEntity.getIdShort();
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEntityType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.getDefaultNodeId();
+            AASEntityType entityNode = nodeManager.createInstance(AASEntityType.class, nid, browseName, LocalizedText.english(name));
+            addSubmodelElementBaseData(entityNode, aasEntity, nodeManager);
 
-                Reference entityRef = AasUtils.toReference(parentRef, aasEntity);
+            Reference entityRef = AasUtils.toReference(parentRef, aasEntity);
 
-                // EntityType
-                entityNode.setEntityType(ValueConverter.getAasEntityType(aasEntity.getEntityType()));
+            // EntityType
+            entityNode.setEntityType(ValueConverter.getAasEntityType(aasEntity.getEntityType()));
 
-                nodeManager.addSubmodelElementAasMap(entityNode.getEntityTypeNode().getNodeId(),
-                        new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_TYPE, entityRef));
+            nodeManager.addSubmodelElementAasMap(entityNode.getEntityTypeNode().getNodeId(),
+                    new SubmodelElementData(aasEntity, submodel, SubmodelElementData.Type.ENTITY_TYPE, entityRef));
 
-                // GlobalAssetId
-                if (aasEntity.getGlobalAssetId() != null) {
-                    setGlobalAssetIdData(entityNode, aasEntity, nodeManager, submodel, entityRef);
-                }
-
-                // SpecificAssetIds
-                IdentifierKeyValuePair specificAssetId = aasEntity.getSpecificAssetId();
-                if (specificAssetId != null) {
-                    setSpecificAssetIdData(entityNode, specificAssetId, nodeManager);
-                }
-
-                // Statements
-                SubmodelElementCreator.addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, entityRef, nodeManager);
-
-                nodeManager.addSubmodelElementOpcUA(entityRef, entityNode);
-
-                if (ordered) {
-                    node.addReference(entityNode, Identifiers.HasOrderedComponent, false);
-                }
-                else {
-                    node.addComponent(entityNode);
-                }
-
-                nodeManager.addReferable(entityRef, new ObjectData(aasEntity, entityNode, submodel));
+            // GlobalAssetId
+            if (aasEntity.getGlobalAssetId() != null) {
+                setGlobalAssetIdData(entityNode, aasEntity, nodeManager, submodel, entityRef);
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addAasEntity Exception", ex);
-            throw ex;
+
+            // SpecificAssetIds
+            IdentifierKeyValuePair specificAssetId = aasEntity.getSpecificAssetId();
+            if (specificAssetId != null) {
+                setSpecificAssetIdData(entityNode, specificAssetId, nodeManager);
+            }
+
+            // Statements
+            SubmodelElementCreator.addSubmodelElements(entityNode.getStatementNode(), aasEntity.getStatements(), submodel, entityRef, nodeManager);
+
+            nodeManager.addSubmodelElementOpcUA(entityRef, entityNode);
+
+            if (ordered) {
+                node.addReference(entityNode, Identifiers.HasOrderedComponent, false);
+            }
+            else {
+                node.addComponent(entityNode);
+            }
+
+            nodeManager.addReferable(entityRef, new ObjectData(aasEntity, entityNode, submodel));
         }
     }
 

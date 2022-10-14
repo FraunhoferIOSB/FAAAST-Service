@@ -34,8 +34,6 @@ import io.adminshell.aas.v3.model.Range;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import opc.i4aas.AASRangeType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -43,7 +41,6 @@ import org.slf4j.LoggerFactory;
  * OPC UA address space.
  */
 public class RangeCreator extends SubmodelElementCreator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RangeCreator.class);
 
     /**
      * Adds an AAS range object to the given node.
@@ -59,35 +56,29 @@ public class RangeCreator extends SubmodelElementCreator {
      */
     public static void addAasRange(UaNode node, Range aasRange, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
-        try {
-            if ((node != null) && (aasRange != null)) {
-                String name = aasRange.getIdShort();
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId nid = nodeManager.getDefaultNodeId();
-                AASRangeType rangeNode = nodeManager.createInstance(AASRangeType.class, nid, browseName, LocalizedText.english(name));
-                addSubmodelElementBaseData(rangeNode, aasRange, nodeManager);
+        if ((node != null) && (aasRange != null)) {
+            String name = aasRange.getIdShort();
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.getDefaultNodeId();
+            AASRangeType rangeNode = nodeManager.createInstance(AASRangeType.class, nid, browseName, LocalizedText.english(name));
+            addSubmodelElementBaseData(rangeNode, aasRange, nodeManager);
 
-                Reference rangeRef = AasUtils.toReference(parentRef, aasRange);
-                addOpcUaRange(aasRange, rangeNode, submodel, rangeRef, nodeManager);
+            Reference rangeRef = AasUtils.toReference(parentRef, aasRange);
+            addOpcUaRange(aasRange, rangeNode, submodel, rangeRef, nodeManager);
 
-                if (VALUES_READ_ONLY) {
-                    // ValueType read-only
-                    rangeNode.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                }
-
-                if (ordered) {
-                    node.addReference(rangeNode, Identifiers.HasOrderedComponent, false);
-                }
-                else {
-                    node.addComponent(rangeNode);
-                }
-
-                nodeManager.addReferable(rangeRef, new ObjectData(aasRange, rangeNode, submodel));
+            if (VALUES_READ_ONLY) {
+                // ValueType read-only
+                rangeNode.getValueTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addAasRange Exception", ex);
-            throw ex;
+
+            if (ordered) {
+                node.addReference(rangeNode, Identifiers.HasOrderedComponent, false);
+            }
+            else {
+                node.addComponent(rangeNode);
+            }
+
+            nodeManager.addReferable(rangeRef, new ObjectData(aasRange, rangeNode, submodel));
         }
     }
 
@@ -101,31 +92,26 @@ public class RangeCreator extends SubmodelElementCreator {
      * @param rangeRef The AAS reference to the Range
      * @param nodeManager The corresponding Node Manager
      */
-    private static void addOpcUaRange(Range aasRange, AASRangeType range, Submodel submodel, Reference rangeRef, AasServiceNodeManager nodeManager) {
-        try {
-            String minValue = aasRange.getMin();
-            String maxValue = aasRange.getMax();
-            NodeId myPropertyIdMin = new NodeId(nodeManager.getNamespaceIndex(), range.getNodeId().getValue().toString() + "." + AASRangeType.MIN);
-            NodeId myPropertyIdMax = new NodeId(nodeManager.getNamespaceIndex(), range.getNodeId().getValue().toString() + "." + AASRangeType.MAX);
-            String valueType = aasRange.getValueType();
-            QualifiedName browseNameMin = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MIN)
-                    .toQualifiedName(nodeManager.getNamespaceTable());
-            LocalizedText displayNameMin = LocalizedText.english(AASRangeType.MIN);
-            QualifiedName browseNameMax = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MAX)
-                    .toQualifiedName(nodeManager.getNamespaceTable());
-            LocalizedText displayNameMax = LocalizedText.english(AASRangeType.MAX);
+    private static void addOpcUaRange(Range aasRange, AASRangeType range, Submodel submodel, Reference rangeRef, AasServiceNodeManager nodeManager) throws StatusException {
+        String minValue = aasRange.getMin();
+        String maxValue = aasRange.getMax();
+        NodeId myPropertyIdMin = new NodeId(nodeManager.getNamespaceIndex(), range.getNodeId().getValue().toString() + "." + AASRangeType.MIN);
+        NodeId myPropertyIdMax = new NodeId(nodeManager.getNamespaceIndex(), range.getNodeId().getValue().toString() + "." + AASRangeType.MAX);
+        String valueType = aasRange.getValueType();
+        QualifiedName browseNameMin = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MIN)
+                .toQualifiedName(nodeManager.getNamespaceTable());
+        LocalizedText displayNameMin = LocalizedText.english(AASRangeType.MIN);
+        QualifiedName browseNameMax = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASRangeType.getNamespaceUri(), AASRangeType.MAX)
+                .toQualifiedName(nodeManager.getNamespaceTable());
+        LocalizedText displayNameMax = LocalizedText.english(AASRangeType.MAX);
 
-            nodeManager.addSubmodelElementAasMap(myPropertyIdMin, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MIN, rangeRef));
-            nodeManager.addSubmodelElementAasMap(myPropertyIdMax, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MAX, rangeRef));
+        nodeManager.addSubmodelElementAasMap(myPropertyIdMin, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MIN, rangeRef));
+        nodeManager.addSubmodelElementAasMap(myPropertyIdMax, new SubmodelElementData(aasRange, submodel, SubmodelElementData.Type.RANGE_MAX, rangeRef));
 
-            nodeManager.addSubmodelElementOpcUA(rangeRef, range);
+        nodeManager.addSubmodelElementOpcUA(rangeRef, range);
 
-            AasSubmodelElementHelper.setRangeValueAndType(valueType, minValue, maxValue, range, new ValueData(myPropertyIdMin, browseNameMin, displayNameMin),
-                    new ValueData(myPropertyIdMax, browseNameMax, displayNameMax));
-        }
-        catch (Exception ex) {
-            LOGGER.error("setRangeValueAndType Exception", ex);
-        }
+        AasSubmodelElementHelper.setRangeValueAndType(valueType, minValue, maxValue, range, new ValueData(myPropertyIdMin, browseNameMin, displayNameMin),
+                new ValueData(myPropertyIdMax, browseNameMax, displayNameMax));
     }
 
 }

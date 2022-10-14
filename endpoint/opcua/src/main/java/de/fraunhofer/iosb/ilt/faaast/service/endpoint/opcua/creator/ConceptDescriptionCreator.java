@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import opc.i4aas.AASCustomConceptDescriptionType;
+import opc.i4aas.AASIdentifierType;
 import opc.i4aas.AASIrdiConceptDescriptionType;
 import opc.i4aas.AASIriConceptDescriptionType;
 import opc.i4aas.AASReferenceType;
@@ -164,8 +165,7 @@ public class ConceptDescriptionCreator {
                                         AasServiceNodeManager nodeManager)
             throws StatusException {
         if (identifier != null) {
-            conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
-            conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
+            setIdentifierData(conceptDescriptionNode.getIdentificationNode(), identifier, AasServiceNodeManager.VALUES_READ_ONLY);
         }
 
         AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
@@ -176,8 +176,6 @@ public class ConceptDescriptionCreator {
         conceptDescriptionNode.setCategory(category);
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
-            conceptDescriptionNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-            conceptDescriptionNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
             conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
     }
@@ -197,8 +195,7 @@ public class ConceptDescriptionCreator {
                                         AasServiceNodeManager nodeManager)
             throws StatusException {
         if (identifier != null) {
-            conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
-            conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
+            setIdentifierData(conceptDescriptionNode.getIdentificationNode(), identifier, AasServiceNodeManager.VALUES_READ_ONLY);
         }
 
         AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
@@ -209,8 +206,6 @@ public class ConceptDescriptionCreator {
         conceptDescriptionNode.setCategory(category);
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
-            conceptDescriptionNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-            conceptDescriptionNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
             conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
     }
@@ -230,8 +225,7 @@ public class ConceptDescriptionCreator {
                                         AasServiceNodeManager nodeManager)
             throws StatusException {
         if (identifier != null) {
-            conceptDescriptionNode.getIdentificationNode().setId(identifier.getIdentifier());
-            conceptDescriptionNode.getIdentificationNode().setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
+            setIdentifierData(conceptDescriptionNode.getIdentificationNode(), identifier, AasServiceNodeManager.VALUES_READ_ONLY);
         }
 
         AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
@@ -242,10 +236,18 @@ public class ConceptDescriptionCreator {
         conceptDescriptionNode.setCategory(category);
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
-            conceptDescriptionNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
-            conceptDescriptionNode.getIdentificationNode().getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
             conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
     }
 
+
+    private static void setIdentifierData(AASIdentifierType identifierNode, Identifier identifier, boolean readOnly) throws StatusException {
+        identifierNode.setId(identifier.getIdentifier());
+        identifierNode.setIdType(ValueConverter.convertIdentifierType(identifier.getIdType()));
+
+        if (readOnly) {
+            identifierNode.getIdNode().setAccessLevel(AccessLevelType.CurrentRead);
+            identifierNode.getIdTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
+        }
+    }
 }

@@ -59,49 +59,48 @@ public class FileCreator extends SubmodelElementCreator {
      */
     public static void addAasFile(UaNode node, File aasFile, Submodel submodel, Reference parentRef, boolean ordered, String nodeName, AasServiceNodeManager nodeManager)
             throws StatusException {
-        try {
-            if ((node != null) && (aasFile != null)) {
-                String name = aasFile.getIdShort();
-                if ((nodeName != null) && (!nodeName.isEmpty())) {
-                    name = nodeName;
-                }
+        if ((node != null) && (aasFile != null)) {
+            String name = aasFile.getIdShort();
+            if ((nodeName != null) && (!nodeName.isEmpty())) {
+                name = nodeName;
+            }
 
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId nid = nodeManager.getDefaultNodeId();
-                AASFileType fileNode = nodeManager.createInstance(AASFileType.class, nid, browseName, LocalizedText.english(name));
-                addSubmodelElementBaseData(fileNode, aasFile, nodeManager);
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.getDefaultNodeId();
+            AASFileType fileNode = nodeManager.createInstance(AASFileType.class, nid, browseName, LocalizedText.english(name));
+            addSubmodelElementBaseData(fileNode, aasFile, nodeManager);
 
-                // MimeType
-                if (!aasFile.getMimeType().isEmpty()) {
-                    fileNode.setMimeType(aasFile.getMimeType());
-                }
+            setFileData(aasFile, fileNode, nodeManager);
 
-                // Value
-                if (aasFile.getValue() != null) {
-                    setValueData(fileNode, aasFile, nodeManager);
-                }
+            if (ordered) {
+                node.addReference(fileNode, Identifiers.HasOrderedComponent, false);
+            }
+            else {
+                node.addComponent(fileNode);
+            }
 
-                if (VALUES_READ_ONLY) {
-                    fileNode.getMimeTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
-                }
+            if (parentRef != null) {
+                Reference fileRef = AasUtils.toReference(parentRef, aasFile);
 
-                if (ordered) {
-                    node.addReference(fileNode, Identifiers.HasOrderedComponent, false);
-                }
-                else {
-                    node.addComponent(fileNode);
-                }
-
-                if (parentRef != null) {
-                    Reference fileRef = AasUtils.toReference(parentRef, aasFile);
-
-                    nodeManager.addReferable(fileRef, new ObjectData(aasFile, fileNode, submodel));
-                }
+                nodeManager.addReferable(fileRef, new ObjectData(aasFile, fileNode, submodel));
             }
         }
-        catch (Exception ex) {
-            LOGGER.error("addAasFile Exception", ex);
-            throw ex;
+    }
+
+
+    private static void setFileData(File aasFile, AASFileType fileNode, AasServiceNodeManager nodeManager) throws StatusException {
+        // MimeType
+        if (!aasFile.getMimeType().isEmpty()) {
+            fileNode.setMimeType(aasFile.getMimeType());
+        }
+
+        // Value
+        if (aasFile.getValue() != null) {
+            setValueData(fileNode, aasFile, nodeManager);
+        }
+
+        if (VALUES_READ_ONLY) {
+            fileNode.getMimeTypeNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
     }
 

@@ -54,33 +54,27 @@ public class EventCreator extends SubmodelElementCreator {
      */
     public static void addAasEvent(UaNode node, Event aasEvent, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager)
             throws StatusException {
-        try {
-            if ((node != null) && (aasEvent != null)) {
-                String name = aasEvent.getIdShort();
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEventType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId nid = nodeManager.getDefaultNodeId();
-                AASEventType eventNode = nodeManager.createInstance(AASEventType.class, nid, browseName, LocalizedText.english(name));
-                addSubmodelElementBaseData(eventNode, aasEvent, nodeManager);
+        if ((node != null) && (aasEvent != null)) {
+            String name = aasEvent.getIdShort();
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEventType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.getDefaultNodeId();
+            AASEventType eventNode = nodeManager.createInstance(AASEventType.class, nid, browseName, LocalizedText.english(name));
+            addSubmodelElementBaseData(eventNode, aasEvent, nodeManager);
 
-                if (aasEvent instanceof BasicEvent) {
-                    setBasicEventData(eventNode, (BasicEvent) aasEvent);
-                }
-
-                Reference eventRef = AasUtils.toReference(parentRef, aasEvent);
-
-                if (ordered) {
-                    node.addReference(eventNode, Identifiers.HasOrderedComponent, false);
-                }
-                else {
-                    node.addComponent(eventNode);
-                }
-
-                nodeManager.addReferable(eventRef, new ObjectData(aasEvent, eventNode, submodel));
+            if (aasEvent instanceof BasicEvent) {
+                setBasicEventData(eventNode, (BasicEvent) aasEvent);
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addAasEvent Exception", ex);
-            throw ex;
+
+            Reference eventRef = AasUtils.toReference(parentRef, aasEvent);
+
+            if (ordered) {
+                node.addReference(eventNode, Identifiers.HasOrderedComponent, false);
+            }
+            else {
+                node.addComponent(eventNode);
+            }
+
+            nodeManager.addReferable(eventRef, new ObjectData(aasEvent, eventNode, submodel));
         }
     }
 
@@ -92,14 +86,8 @@ public class EventCreator extends SubmodelElementCreator {
      * @param aasEvent The corresponding AAS BasicEvent
      */
     private static void setBasicEventData(AASEventType eventNode, BasicEvent aasEvent) {
-        try {
-            if (aasEvent.getObserved() != null) {
-                LOGGER.warn("setBasicEventData: not implemented! Event: {}", eventNode.getBrowseName().getName());
-            }
-        }
-        catch (Exception ex) {
-            LOGGER.error("setBasicEventData Exception", ex);
-            throw ex;
+        if (aasEvent.getObserved() != null) {
+            LOGGER.warn("setBasicEventData: not implemented! Event: {}", eventNode.getBrowseName().getName());
         }
     }
 

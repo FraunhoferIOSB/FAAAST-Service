@@ -23,6 +23,7 @@ import com.prosysopc.ua.server.ServiceContext;
 import com.prosysopc.ua.server.io.IoManagerListener;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
+import com.prosysopc.ua.stack.builtintypes.DiagnosticInfo;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.UnsignedInteger;
 import com.prosysopc.ua.stack.core.AccessLevelType;
@@ -150,7 +151,9 @@ public class AasServiceIoManagerListener implements IoManagerListener {
         }
         catch (Exception ex) {
             LOGGER.error("onWriteValue Exception", ex);
-            throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError);
+            DiagnosticInfo di = new DiagnosticInfo();
+            di.setAdditionalInfo("error in onWriteValue");
+            throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError, di, ex);
         }
 
         // We return true here. So, the value is not written to the node here. 

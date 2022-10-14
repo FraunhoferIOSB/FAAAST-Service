@@ -136,37 +136,30 @@ public class AasSubmodelElementHelper {
             throw new IllegalArgumentException(VALUE_NULL);
         }
 
-        try {
-            Reference ref = new DefaultReference.Builder().keys(value.getFirst()).build();
-            setAasReferenceData(ref, aasElement.getFirstNode(), false);
-            ref = new DefaultReference.Builder().keys(value.getSecond()).build();
-            setAasReferenceData(ref, aasElement.getSecondNode(), false);
+        Reference ref = new DefaultReference.Builder().keys(value.getFirst()).build();
+        setAasReferenceData(ref, aasElement.getFirstNode(), false);
+        ref = new DefaultReference.Builder().keys(value.getSecond()).build();
+        setAasReferenceData(ref, aasElement.getSecondNode(), false);
 
-            if ((aasElement instanceof AASAnnotatedRelationshipElementType) && (value instanceof AnnotatedRelationshipElementValue)) {
-                AASAnnotatedRelationshipElementType annotatedElement = (AASAnnotatedRelationshipElementType) aasElement;
-                AnnotatedRelationshipElementValue annotatedValue = (AnnotatedRelationshipElementValue) value;
-                UaNode[] annotationNodes = annotatedElement.getAnnotationNode().getComponents();
-                Map<String, DataElementValue> valueMap = annotatedValue.getAnnotations();
-                if (annotationNodes.length != valueMap.size()) {
-                    LOG.warn("Size of Value ({}) doesn't match the number of AnnotationNodes ({})", valueMap.size(), annotationNodes.length);
-                    throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
-                }
-
-                // The Key of the Map is the IDShort of the DataElement (in our case the BrowseName)
-                for (UaNode annotationNode: annotationNodes) {
-                    if (valueMap.containsKey(annotationNode.getBrowseName().getName())) {
-                        setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()));
-                    }
-                }
-            }
-            else {
-                LOG.debug("setRelationshipValue: No AnnotatedRelationshipElement {}", aasElement.getBrowseName().getName());
+        if ((aasElement instanceof AASAnnotatedRelationshipElementType) && (value instanceof AnnotatedRelationshipElementValue)) {
+            AASAnnotatedRelationshipElementType annotatedElement = (AASAnnotatedRelationshipElementType) aasElement;
+            AnnotatedRelationshipElementValue annotatedValue = (AnnotatedRelationshipElementValue) value;
+            UaNode[] annotationNodes = annotatedElement.getAnnotationNode().getComponents();
+            Map<String, DataElementValue> valueMap = annotatedValue.getAnnotations();
+            if (annotationNodes.length != valueMap.size()) {
+                LOG.warn("Size of Value ({}) doesn't match the number of AnnotationNodes ({})", valueMap.size(), annotationNodes.length);
+                throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
             }
 
+            // The Key of the Map is the IDShort of the DataElement (in our case the BrowseName)
+            for (UaNode annotationNode: annotationNodes) {
+                if (valueMap.containsKey(annotationNode.getBrowseName().getName())) {
+                    setDataElementValue(annotationNode, valueMap.get(annotationNode.getBrowseName().getName()));
+                }
+            }
         }
-        catch (Exception ex) {
-            LOG.error("setAnnotatedRelationshipValue Exception", ex);
-            throw ex;
+        else {
+            LOG.debug("setRelationshipValue: No AnnotatedRelationshipElement {}", aasElement.getBrowseName().getName());
         }
     }
 
@@ -179,27 +172,21 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     public static void setSubmodelElementValue(AASSubmodelElementType subElem, ElementValue value) throws StatusException {
-        try {
-            LOG.debug("setSubmodelElementValue: {}", subElem.getBrowseName().getName());
+        LOG.debug("setSubmodelElementValue: {}", subElem.getBrowseName().getName());
 
-            // changed the order because of an error in the derivation hierarchy of ElementValue
-            // perhaps the order will be changed back to normal as soon as the error is fixed
-            if ((value instanceof RelationshipElementValue) && (subElem instanceof AASRelationshipElementType)) {
-                setRelationshipValue((AASRelationshipElementType) subElem, (RelationshipElementValue) value);
-            }
-            else if ((value instanceof EntityValue) && (subElem instanceof AASEntityType)) {
-                setEntityValue((AASEntityType) subElem, (EntityValue) value);
-            }
-            else if (value instanceof DataElementValue) {
-                setDataElementValue(subElem, (DataElementValue) value);
-            }
-            else {
-                LOG.warn("SubmodelElement {} type not supported", subElem.getBrowseName().getName());
-            }
+        // changed the order because of an error in the derivation hierarchy of ElementValue
+        // perhaps the order will be changed back to normal as soon as the error is fixed
+        if ((value instanceof RelationshipElementValue) && (subElem instanceof AASRelationshipElementType)) {
+            setRelationshipValue((AASRelationshipElementType) subElem, (RelationshipElementValue) value);
         }
-        catch (Exception ex) {
-            LOG.error("setSubmodelElementValue Exception", ex);
-            throw ex;
+        else if ((value instanceof EntityValue) && (subElem instanceof AASEntityType)) {
+            setEntityPropertyValue((AASEntityType) subElem, (EntityValue) value);
+        }
+        else if (value instanceof DataElementValue) {
+            setDataElementValue(subElem, (DataElementValue) value);
+        }
+        else {
+            LOG.warn("SubmodelElement {} type not supported", subElem.getBrowseName().getName());
         }
     }
 
@@ -210,19 +197,13 @@ public class AasSubmodelElementHelper {
      * @param node The desired Blob Node
      */
     public static void addBlobValueNode(UaNode node) {
-        try {
-            NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASBlobType.VALUE);
-            PlainProperty<ByteString> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
-                    UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), AASBlobType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
-                    LocalizedText.english(AASBlobType.VALUE));
-            myProperty.setDataTypeId(Identifiers.ByteString);
-            myProperty.setDescription(new LocalizedText("", ""));
-            node.addProperty(myProperty);
-        }
-        catch (Exception ex) {
-            LOG.error("addBlobValueNode Exception", ex);
-            throw ex;
-        }
+        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASBlobType.VALUE);
+        PlainProperty<ByteString> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
+                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), AASBlobType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
+                LocalizedText.english(AASBlobType.VALUE));
+        myProperty.setDataTypeId(Identifiers.ByteString);
+        myProperty.setDescription(new LocalizedText("", ""));
+        node.addProperty(myProperty);
     }
 
 
@@ -232,22 +213,16 @@ public class AasSubmodelElementHelper {
      * @param fileNode The desired File Node.
      */
     public static void addFileValueNode(UaNode fileNode) {
-        try {
-            NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.VALUE);
-            PlainProperty<String> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
-                    UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
-                    LocalizedText.english(AASFileType.VALUE));
-            myProperty.setDataTypeId(Identifiers.String);
-            if (VALUES_READ_ONLY) {
-                myProperty.setAccessLevel(AccessLevelType.CurrentRead);
-            }
-            myProperty.setDescription(new LocalizedText("", ""));
-            fileNode.addProperty(myProperty);
+        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.VALUE);
+        PlainProperty<String> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
+                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
+                LocalizedText.english(AASFileType.VALUE));
+        myProperty.setDataTypeId(Identifiers.String);
+        if (VALUES_READ_ONLY) {
+            myProperty.setAccessLevel(AccessLevelType.CurrentRead);
         }
-        catch (Exception ex) {
-            LOG.error("addFileFileNode Exception", ex);
-            throw ex;
-        }
+        myProperty.setDescription(new LocalizedText("", ""));
+        fileNode.addProperty(myProperty);
     }
 
 
@@ -258,24 +233,18 @@ public class AasSubmodelElementHelper {
      * @param arraySize The desired Array Size.
      */
     public static void addMultiLanguageValueNode(UaNode node, int arraySize) {
-        try {
-            NodeId propId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASMultiLanguagePropertyType.VALUE);
-            PlainProperty<LocalizedText[]> myLTProperty = new PlainProperty<>(nodeManager, propId,
-                    UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), AASMultiLanguagePropertyType.VALUE)
-                            .toQualifiedName(nodeManager.getNamespaceTable()),
-                    LocalizedText.english(AASMultiLanguagePropertyType.VALUE));
-            myLTProperty.setDataTypeId(Identifiers.LocalizedText);
-            myLTProperty.setValueRank(ValueRanks.OneDimension);
-            myLTProperty.setArrayDimensions(new UnsignedInteger[] {
-                    UnsignedInteger.valueOf(arraySize)
-            });
-            node.addProperty(myLTProperty);
-            myLTProperty.setDescription(new LocalizedText("", ""));
-        }
-        catch (Exception ex) {
-            LOG.error("addMultiLanguageValueNode Exception", ex);
-            throw ex;
-        }
+        NodeId propId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASMultiLanguagePropertyType.VALUE);
+        PlainProperty<LocalizedText[]> myLTProperty = new PlainProperty<>(nodeManager, propId,
+                UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), AASMultiLanguagePropertyType.VALUE)
+                        .toQualifiedName(nodeManager.getNamespaceTable()),
+                LocalizedText.english(AASMultiLanguagePropertyType.VALUE));
+        myLTProperty.setDataTypeId(Identifiers.LocalizedText);
+        myLTProperty.setValueRank(ValueRanks.OneDimension);
+        myLTProperty.setArrayDimensions(new UnsignedInteger[] {
+                UnsignedInteger.valueOf(arraySize)
+        });
+        node.addProperty(myLTProperty);
+        myLTProperty.setDescription(new LocalizedText("", ""));
     }
 
 
@@ -303,180 +272,44 @@ public class AasSubmodelElementHelper {
             prop.setValueType(valueDataType);
 
             switch (valueDataType) {
-                //                case ByteString:
-                //                    PlainProperty<ByteString> myBSProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                    myBSProperty.setDataTypeId(Identifiers.ByteString);
-                //                    // TO DO integrate Property value
-                //                    //if (val != null) {
-                //                    //    myBSProperty.setValue(((Base64Binary)val).getValue());
-                //                    //}
-                //                    prop.addProperty(myBSProperty);
-                //                    break;
-                //
                 case Boolean:
-                    PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-                    myBoolProperty.setDataTypeId(Identifiers.Boolean);
-                    if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-                        myBoolProperty.setValue(typedValue.getValue().getValue());
-                    }
-                    prop.addProperty(myBoolProperty);
+                    setBooleanPropertyValue(valueData, typedValue, prop);
                     break;
 
                 case DateTime:
-                    PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-                    myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
-                    if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-                        if (typedValue.getValue() instanceof DateTimeValue) {
-                            DateTimeValue dtval = (DateTimeValue) typedValue.getValue();
-                            DateTime dt = ValueConverter.createDateTime(dtval.getValue());
-                            myDateTimeProperty.setValue(dt);
-                        }
-                        else {
-                            myDateTimeProperty.setValue(typedValue.getValue().getValue());
-                        }
-                    }
-                    prop.addProperty(myDateTimeProperty);
+                    setDateTimePropertyValue(valueData, typedValue, prop);
                     break;
 
                 case Int32:
-                    PlainProperty<Integer> myIntProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-                    myIntProperty.setDataTypeId(Identifiers.Int32);
-                    if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-                        myIntProperty.setValue(typedValue.getValue().getValue());
-                    }
-                    prop.addProperty(myIntProperty);
+                    setInt32PropertyValue(valueData, typedValue, prop);
                     break;
-                //
-                //                case UInt32:
-                //                    PlainProperty<UnsignedInteger> myUIntProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                    myUIntProperty.setDataTypeId(Identifiers.UInt32);
-                //                    // TO DO integrate Property value
-                //                    //if (val != null) {
-                //                    //    myIntProperty.setValue(((IntValue)val).getValue());
-                //                    //}
-                //                    prop.addProperty(myUIntProperty);
-                //                    break;
-                //
+
                 case Int64:
-                    PlainProperty<Long> myLongProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-                    myLongProperty.setDataTypeId(Identifiers.Int64);
-                    if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-                        Object obj = typedValue.getValue().getValue();
-                        if ((obj != null) && (!(obj instanceof Long))) {
-                            obj = Long.parseLong(obj.toString());
-                        }
-                        myLongProperty.setValue(obj);
-                    }
-                    prop.addProperty(myLongProperty);
+                    setInt64PropertyValue(valueData, typedValue, prop);
                     break;
 
-                //                case UInt64:
-                //                    PlainProperty<UnsignedLong> myULongProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                    myULongProperty.setDataTypeId(Identifiers.UInt64);
-                //                    // TO DO integrate Property value
-                //                    //if (val != null) {
-                //                    //    myLongProperty.setValue(((LongValue)val).getValue());
-                //                    //}
-                //                    prop.addProperty(myULongProperty);
-                //                    break;
-                //
                 case Int16:
-                    PlainProperty<Short> myInt16Property = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-                    myInt16Property.setDataTypeId(Identifiers.Int16);
-                    if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-                        myInt16Property.setValue(typedValue.getValue().getValue());
-                    }
-                    prop.addProperty(myInt16Property);
+                    setInt16PropertyValue(valueData, typedValue, prop);
                     break;
 
-                //                case UInt16:
-                //                    PlainProperty<UnsignedShort> myUInt16Property = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                    myUInt16Property.setDataTypeId(Identifiers.UInt16);
-                //                    // TO DO integrate Property value
-                //                    //if (val != null) {
-                //                    //    myInt16Property.setValue(((ShortValue)val).getValue());
-                //                    //}
-                //                    prop.addProperty(myUInt16Property);
-                //                    break;
-                //
-                //                case Byte:
-                //                    PlainProperty<UnsignedByte> myByteProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                    myByteProperty.setDataTypeId(Identifiers.Byte);
-                //                    // TO DO integrate Property value
-                //                    //if (val != null) {
-                //                    //    myByteProperty.setValue(((ByteValue)val).getValue());
-                //                    //}
-                //                    prop.addProperty(myByteProperty);
-                //                    break;
-                //
                 case SByte:
-                    PlainProperty<Byte> mySByteProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-                    mySByteProperty.setDataTypeId(Identifiers.SByte);
-                    if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-                        mySByteProperty.setValue(typedValue.getValue().getValue());
-                    }
-                    prop.addProperty(mySByteProperty);
+                    setSByteValue(valueData, typedValue, prop);
                     break;
 
                 case Double:
-                    PlainProperty<Double> myDoubleProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-                    myDoubleProperty.setDataTypeId(Identifiers.Double);
-                    if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-                        myDoubleProperty.setValue(typedValue.getValue().getValue());
-                    }
-                    prop.addProperty(myDoubleProperty);
+                    setDoublePropertyValue(valueData, typedValue, prop);
                     break;
 
                 case Float:
-                    PlainProperty<Float> myFloatProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-                    myFloatProperty.setDataTypeId(Identifiers.Float);
-                    if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-                        myFloatProperty.setValue(typedValue.getValue().getValue());
-                    }
-                    prop.addProperty(myFloatProperty);
+                    setFloatPropertyValue(valueData, typedValue, prop);
                     break;
 
-                //                case LocalizedText:
-                //                    PlainProperty<LocalizedText> myLTProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                    myLTProperty.setDataTypeId(Identifiers.LocalizedText);
-                //                    // TO DO integrate Property value
-                //                    myLTProperty.setValue(LocalizedText.english(stringVal));
-                //                    //if (val != null) {
-                //                    //    myLTProperty.setValue(((QNameValue)val).getValue().toString());
-                //                    //}
-                //                    prop.addProperty(myLTProperty);
-                //                    break;
-                //
                 case String:
-                    PlainProperty<String> myStringProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-                    myStringProperty.setDataTypeId(Identifiers.String);
-                    if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-                        myStringProperty.setValue(typedValue.getValue().getValue());
-                    }
-                    prop.addProperty(myStringProperty);
+                    setStringValue(valueData, typedValue, prop);
                     break;
-                //
-                //                case UtcTime:
-                //                    PlainProperty<DateTime> myTimeProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                    myTimeProperty.setDataTypeId(Identifiers.UtcTime);
-                //                    // TO DO integrate Property value
-                //                    //if (val != null) {
-                //                    //    myTimeProperty.setValue(new DateTime(((TimeValue)val).getValue().toGregorianCalendar()));
-                //                    //}
-                //                    prop.addProperty(myTimeProperty);
-                //                    break;
-                //
-                //                //                case Duration:
-                //                //                    PlainProperty<String> myDurProperty = new PlainProperty<>(this, myPropertyId, browseName, displayName);
-                //                //                    myDurProperty.setDataTypeId(Identifiers.String);
-                //                //                    if (val != null) {
-                //                //                        myDurProperty.setValue(((DurationValue)val).getValue().toString());
-                //                //                    }
-                //                //                    prop.addProperty(myDurProperty);
-                //                //                    break;
-                //
+
                 default:
-                    LOG.warn("setValueAndType: Property {}: Unknown type: {}; use string as default", prop.getBrowseName().getName(), aasProperty.getValueType());
+                    LOG.warn("setPropertyValueAndType: Property {}: Unknown type: {}; use string as default", prop.getBrowseName().getName(), aasProperty.getValueType());
                     PlainProperty<String> myDefaultProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
                     myDefaultProperty.setDataTypeId(Identifiers.String);
                     myDefaultProperty.setValue(aasProperty.getValue());
@@ -490,6 +323,107 @@ public class AasSubmodelElementHelper {
         catch (Exception ex) {
             LOG.error("setPropertyValueAndType Exception", ex);
         }
+    }
+
+
+    private static void setStringValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        PlainProperty<String> myStringProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        myStringProperty.setDataTypeId(Identifiers.String);
+        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+            myStringProperty.setValue(typedValue.getValue().getValue());
+        }
+        prop.addProperty(myStringProperty);
+    }
+
+
+    private static void setFloatPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        PlainProperty<Float> myFloatProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        myFloatProperty.setDataTypeId(Identifiers.Float);
+        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+            myFloatProperty.setValue(typedValue.getValue().getValue());
+        }
+        prop.addProperty(myFloatProperty);
+    }
+
+
+    private static void setDoublePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        PlainProperty<Double> myDoubleProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        myDoubleProperty.setDataTypeId(Identifiers.Double);
+        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+            myDoubleProperty.setValue(typedValue.getValue().getValue());
+        }
+        prop.addProperty(myDoubleProperty);
+    }
+
+
+    private static void setSByteValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        mySByteProperty.setDataTypeId(Identifiers.SByte);
+        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+            mySByteProperty.setValue(typedValue.getValue().getValue());
+        }
+        prop.addProperty(mySByteProperty);
+    }
+
+
+    private static void setInt16PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        PlainProperty<Short> myInt16Property = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        myInt16Property.setDataTypeId(Identifiers.Int16);
+        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+            myInt16Property.setValue(typedValue.getValue().getValue());
+        }
+        prop.addProperty(myInt16Property);
+    }
+
+
+    private static void setInt64PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException, NumberFormatException {
+        PlainProperty<Long> myLongProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        myLongProperty.setDataTypeId(Identifiers.Int64);
+        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+            Object obj = typedValue.getValue().getValue();
+            if ((obj != null) && (!(obj instanceof Long))) {
+                obj = Long.valueOf(obj.toString());
+            }
+            myLongProperty.setValue(obj);
+        }
+        prop.addProperty(myLongProperty);
+    }
+
+
+    private static void setInt32PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        PlainProperty<Integer> myIntProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        myIntProperty.setDataTypeId(Identifiers.Int32);
+        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+            myIntProperty.setValue(typedValue.getValue().getValue());
+        }
+        prop.addProperty(myIntProperty);
+    }
+
+
+    private static void setDateTimePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
+        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+            if (typedValue.getValue() instanceof DateTimeValue) {
+                DateTimeValue dtval = (DateTimeValue) typedValue.getValue();
+                DateTime dt = ValueConverter.createDateTime(dtval.getValue());
+                myDateTimeProperty.setValue(dt);
+            }
+            else {
+                myDateTimeProperty.setValue(typedValue.getValue().getValue());
+            }
+        }
+        prop.addProperty(myDateTimeProperty);
+    }
+
+
+    private static void setBooleanPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(nodeManager, valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        myBoolProperty.setDataTypeId(Identifiers.Boolean);
+        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
+            myBoolProperty.setValue(typedValue.getValue().getValue());
+        }
+        prop.addProperty(myBoolProperty);
     }
 
 
@@ -510,365 +444,42 @@ public class AasSubmodelElementHelper {
             range.setValueType(valueDataType);
 
             switch (valueDataType) {
-                //                case ByteString:
-                //                    if (minValue != null) {
-                //                        PlainProperty<ByteString> myBSProperty = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                //                        myBSProperty.setDataTypeId(Identifiers.ByteString);
-                //                        // TO DO integrate Range value
-                //                        //myBSProperty.setValue(((Base64Binary)minVal).getValue());
-                //                        myBSProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myBSProperty);
-                //                    }
-                //
-                //                    if (maxValue != null) {
-                //                        PlainProperty<ByteString> myBSProperty = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                //                        myBSProperty.setDataTypeId(Identifiers.ByteString);
-                //                        // TO DO integrate Range value
-                //                        //myBSProperty.setValue(((Base64Binary)maxVal).getValue());
-                //                        myBSProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myBSProperty);
-                //                    }
-                //                    break;
-                //
                 case Boolean:
-                    if (minValue != null) {
-                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                        myBoolProperty.setDataTypeId(Identifiers.Boolean);
-                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                            myBoolProperty.setValue(minTypedValue.getValue());
-                        }
-                        myBoolProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myBoolProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                        myBoolProperty.setDataTypeId(Identifiers.Boolean);
-                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                            myBoolProperty.setValue(maxTypedValue.getValue());
-                        }
-                        myBoolProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myBoolProperty);
-                    }
+                    setBooleanRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
                 case DateTime:
-                    if (minValue != null) {
-                        PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                        myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
-                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                            if (minTypedValue instanceof DateTimeValue) {
-                                DateTimeValue dtval = (DateTimeValue) minTypedValue;
-                                DateTime dt = ValueConverter.createDateTime(dtval.getValue());
-                                myDateTimeProperty.setValue(dt);
-                            }
-                            else {
-                                myDateTimeProperty.setValue(minTypedValue.getValue());
-                            }
-                        }
-                        myDateTimeProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myDateTimeProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                        myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
-                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                            if (maxTypedValue instanceof DateTimeValue) {
-                                DateTimeValue dtval = (DateTimeValue) maxTypedValue;
-                                DateTime dt = ValueConverter.createDateTime(dtval.getValue());
-                                myDateTimeProperty.setValue(dt);
-                            }
-                            else {
-                                myDateTimeProperty.setValue(maxTypedValue.getValue());
-                            }
-                        }
-                        myDateTimeProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myDateTimeProperty);
-                    }
+                    setDateTimeRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
                 case Int32:
-                    if (minValue != null) {
-                        PlainProperty<Integer> myIntProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                        myIntProperty.setDataTypeId(Identifiers.Int32);
-                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                            myIntProperty.setValue(minTypedValue.getValue());
-                        }
-                        myIntProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myIntProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Integer> myIntProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                        myIntProperty.setDataTypeId(Identifiers.Int32);
-                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                            myIntProperty.setValue(maxTypedValue.getValue());
-                        }
-                        myIntProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myIntProperty);
-                    }
+                    setInt32RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
-
-                //                case UInt32:
-                //                    if (minValue != null) {
-                //                        PlainProperty<UnsignedInteger> myUIntProperty = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                //                        myUIntProperty.setDataTypeId(Identifiers.UInt32);
-                //                        // TO DO integrate Range value
-                //                        //myIntProperty.setValue(((IntValue)minVal).getValue());
-                //                        myUIntProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myUIntProperty);
-                //                    }
-                //
-                //                    if (maxValue != null) {
-                //                        PlainProperty<UnsignedInteger> myUIntProperty = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                //                        myUIntProperty.setDataTypeId(Identifiers.UInt32);
-                //                        // TO DO integrate Range value
-                //                        //myIntProperty.setValue(((IntValue)maxVal).getValue());
-                //                        myUIntProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myUIntProperty);
-                //                    }
-                //                    break;
 
                 case Int64:
-                    if (minValue != null) {
-                        PlainProperty<Long> myLongProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                        myLongProperty.setDataTypeId(Identifiers.Int64);
-                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                            Object obj = minTypedValue.getValue();
-                            if ((obj != null) && (!(obj instanceof Long))) {
-                                obj = Long.parseLong(obj.toString());
-                            }
-                            myLongProperty.setValue(obj);
-                        }
-                        myLongProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myLongProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Long> myLongProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                        myLongProperty.setDataTypeId(Identifiers.Int64);
-                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                            Object obj = maxTypedValue.getValue();
-                            if ((obj != null) && (!(obj instanceof Long))) {
-                                obj = Long.parseLong(obj.toString());
-                            }
-                            myLongProperty.setValue(obj);
-                        }
-                        myLongProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myLongProperty);
-                    }
+                    setInt64RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
-
-                //                case UInt64:
-                //                    if (minValue != null) {
-                //                        PlainProperty<UnsignedLong> myULongProperty = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                //                        myULongProperty.setDataTypeId(Identifiers.UInt64);
-                //                        // TO DO integrate Range value
-                //                        //myLongProperty.setValue(((LongValue)minVal).getValue());
-                //                        myULongProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myULongProperty);
-                //                    }
-                //
-                //                    if (maxValue != null) {
-                //                        PlainProperty<UnsignedLong> myULongProperty = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                //                        myULongProperty.setDataTypeId(Identifiers.UInt64);
-                //                        // TO DO integrate Range value
-                //                        //myLongProperty.setValue(((LongValue)maxVal).getValue());
-                //                        myULongProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myULongProperty);
-                //                    }
-                //                    break;
 
                 case Int16:
-                    if (minValue != null) {
-                        PlainProperty<Short> myInt16Property = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                        myInt16Property.setDataTypeId(Identifiers.Int16);
-                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                            myInt16Property.setValue(minTypedValue.getValue());
-                        }
-                        myInt16Property.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myInt16Property);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Short> myInt16Property = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                        myInt16Property.setDataTypeId(Identifiers.Int16);
-                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                            myInt16Property.setValue(maxTypedValue.getValue());
-                        }
-                        myInt16Property.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myInt16Property);
-                    }
+                    setInt16RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
-
-                //                case UInt16:
-                //                    if (minValue != null) {
-                //                        PlainProperty<UnsignedShort> myUInt16Property = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                //                        myUInt16Property.setDataTypeId(Identifiers.UInt16);
-                //                        // TO DO integrate Range value
-                //                        //myInt16Property.setValue(((ShortValue)minVal).getValue());
-                //                        myUInt16Property.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myUInt16Property);
-                //                    }
-                //
-                //                    if (maxValue != null) {
-                //                        PlainProperty<UnsignedShort> myUInt16Property = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                //                        myUInt16Property.setDataTypeId(Identifiers.UInt16);
-                //                        // TO DO integrate Range value
-                //                        //myInt16Property.setValue(((ShortValue)maxVal).getValue());
-                //                        myUInt16Property.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myUInt16Property);
-                //                    }
-                //                    break;
 
                 case SByte:
-                    if (minValue != null) {
-                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                        mySByteProperty.setDataTypeId(Identifiers.SByte);
-                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                            mySByteProperty.setValue(minTypedValue.getValue());
-                        }
-                        mySByteProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(mySByteProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                        mySByteProperty.setDataTypeId(Identifiers.SByte);
-                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                            mySByteProperty.setValue(maxTypedValue.getValue());
-                        }
-                        mySByteProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(mySByteProperty);
-                    }
+                    setSByteRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                //                case Byte:
-                //                    if (minValue != null) {
-                //                        PlainProperty<UnsignedByte> myByteProperty = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                //                        myByteProperty.setDataTypeId(Identifiers.Byte);
-                //                        // TO DO integrate Range value
-                //                        //myByteProperty.setValue(((ByteValue)minVal).getValue());
-                //                        myByteProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myByteProperty);
-                //                    }
-                //
-                //                    if (maxValue != null) {
-                //                        PlainProperty<UnsignedByte> myByteProperty = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                //                        myByteProperty.setDataTypeId(Identifiers.Byte);
-                //                        // TO DO integrate Range value
-                //                        //myByteProperty.setValue(((ByteValue)maxVal).getValue());
-                //                        myByteProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myByteProperty);
-                //                    }
-                //                    break;
-                //
                 case Double:
-                    if (minValue != null) {
-                        PlainProperty<Double> myDoubleProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                        myDoubleProperty.setDataTypeId(Identifiers.Double);
-                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                            myDoubleProperty.setValue(minTypedValue.getValue());
-                        }
-                        myDoubleProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myDoubleProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Double> myDoubleProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                        myDoubleProperty.setDataTypeId(Identifiers.Double);
-                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                            myDoubleProperty.setValue(maxTypedValue.getValue());
-                        }
-                        myDoubleProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myDoubleProperty);
-                    }
+                    setDoubleRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
                 case Float:
-                    if (minValue != null) {
-                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                        myFloatProperty.setDataTypeId(Identifiers.Float);
-                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                            myFloatProperty.setValue(minTypedValue.getValue());
-                        }
-                        myFloatProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myFloatProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<Float> myFloatProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                        myFloatProperty.setDataTypeId(Identifiers.Float);
-                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                            myFloatProperty.setValue(maxTypedValue.getValue());
-                        }
-                        myFloatProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myFloatProperty);
-                    }
+                    setFloatRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                //                case LocalizedText:
-                //                    if (minValue != null) {
-                //                        PlainProperty<LocalizedText> myLTProperty = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                //                        myLTProperty.setDataTypeId(Identifiers.String);
-                //                        // TO DO integrate Range value
-                //                        //myLTProperty.setValue(((QNameValue)minVal).getValue().toString());
-                //                        myLTProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myLTProperty);
-                //                    }
-                //
-                //                    if (maxValue != null) {
-                //                        PlainProperty<LocalizedText> myLTProperty = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                //                        myLTProperty.setDataTypeId(Identifiers.LocalizedText);
-                //                        // TO DO integrate Range value
-                //                        //myQNameProperty.setValue(((QNameValue)maxVal).getValue().toString());
-                //                        myLTProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myLTProperty);
-                //                    }
-                //                    break;
-                //
                 case String:
-                    if (minValue != null) {
-                        PlainProperty<String> myStringProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                        myStringProperty.setDataTypeId(Identifiers.String);
-                        if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                            myStringProperty.setValue(minTypedValue.getValue());
-                        }
-                        myStringProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myStringProperty);
-                    }
-
-                    if (maxValue != null) {
-                        PlainProperty<String> myStringProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                        myStringProperty.setDataTypeId(Identifiers.String);
-                        if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                            myStringProperty.setValue(maxTypedValue.getValue());
-                        }
-                        myStringProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myStringProperty);
-                    }
+                    setStringRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
                     break;
 
-                //                case UtcTime:
-                //                    if (minValue != null) {
-                //                        PlainProperty<DateTime> myTimeProperty = new PlainProperty<>(this, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-                //                        myTimeProperty.setDataTypeId(Identifiers.DateTime);
-                //                        // TO DO integrate Range value
-                //                        //myTimeProperty.setValue(new DateTime(((TimeValue)minVal).getValue().toGregorianCalendar()));
-                //                        myTimeProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myTimeProperty);
-                //                    }
-                //
-                //                    if (maxValue != null) {
-                //                        PlainProperty<DateTime> myTimeProperty = new PlainProperty<>(this, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-                //                        myTimeProperty.setDataTypeId(Identifiers.DateTime);
-                //                        // TO DO integrate Range value
-                //                        //myTimeProperty.setValue(new DateTime(((TimeValue)maxVal).getValue().toGregorianCalendar()));
-                //                        myTimeProperty.setDescription(new LocalizedText("", ""));
-                //                        range.addProperty(myTimeProperty);
-                //                    }
-                //                    break;
                 default:
                     LOG.warn("setRangeValueAndType: Range {}: Unknown type: {}; use string as default", range.getBrowseName().getName(), valueType);
                     if (minValue != null) {
@@ -891,6 +502,253 @@ public class AasSubmodelElementHelper {
         }
         catch (Exception ex) {
             LOG.error("setPropertyValueAndType Exception", ex);
+        }
+    }
+
+
+    private static void setStringRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+                                             TypedValue<?> maxTypedValue)
+            throws StatusException {
+        if (minValue != null) {
+            PlainProperty<String> myStringProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
+            myStringProperty.setDataTypeId(Identifiers.String);
+            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                myStringProperty.setValue(minTypedValue.getValue());
+            }
+            myStringProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myStringProperty);
+        }
+
+        if (maxValue != null) {
+            PlainProperty<String> myStringProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
+            myStringProperty.setDataTypeId(Identifiers.String);
+            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                myStringProperty.setValue(maxTypedValue.getValue());
+            }
+            myStringProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myStringProperty);
+        }
+    }
+
+
+    private static void setFloatRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+                                            TypedValue<?> maxTypedValue)
+            throws StatusException {
+        if (minValue != null) {
+            PlainProperty<Float> myFloatProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
+            myFloatProperty.setDataTypeId(Identifiers.Float);
+            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                myFloatProperty.setValue(minTypedValue.getValue());
+            }
+            myFloatProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myFloatProperty);
+        }
+
+        if (maxValue != null) {
+            PlainProperty<Float> myFloatProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
+            myFloatProperty.setDataTypeId(Identifiers.Float);
+            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                myFloatProperty.setValue(maxTypedValue.getValue());
+            }
+            myFloatProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myFloatProperty);
+        }
+    }
+
+
+    private static void setDoubleRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+                                             TypedValue<?> maxTypedValue)
+            throws StatusException {
+        if (minValue != null) {
+            PlainProperty<Double> myDoubleProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
+            myDoubleProperty.setDataTypeId(Identifiers.Double);
+            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                myDoubleProperty.setValue(minTypedValue.getValue());
+            }
+            myDoubleProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myDoubleProperty);
+        }
+
+        if (maxValue != null) {
+            PlainProperty<Double> myDoubleProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
+            myDoubleProperty.setDataTypeId(Identifiers.Double);
+            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                myDoubleProperty.setValue(maxTypedValue.getValue());
+            }
+            myDoubleProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myDoubleProperty);
+        }
+    }
+
+
+    private static void setSByteRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+                                            TypedValue<?> maxTypedValue)
+            throws StatusException {
+        if (minValue != null) {
+            PlainProperty<Byte> mySByteProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
+            mySByteProperty.setDataTypeId(Identifiers.SByte);
+            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                mySByteProperty.setValue(minTypedValue.getValue());
+            }
+            mySByteProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(mySByteProperty);
+        }
+
+        if (maxValue != null) {
+            PlainProperty<Byte> mySByteProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
+            mySByteProperty.setDataTypeId(Identifiers.SByte);
+            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                mySByteProperty.setValue(maxTypedValue.getValue());
+            }
+            mySByteProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(mySByteProperty);
+        }
+    }
+
+
+    private static void setInt16RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+                                            TypedValue<?> maxTypedValue)
+            throws StatusException {
+        if (minValue != null) {
+            PlainProperty<Short> myInt16Property = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
+            myInt16Property.setDataTypeId(Identifiers.Int16);
+            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                myInt16Property.setValue(minTypedValue.getValue());
+            }
+            myInt16Property.setDescription(new LocalizedText("", ""));
+            range.addProperty(myInt16Property);
+        }
+
+        if (maxValue != null) {
+            PlainProperty<Short> myInt16Property = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
+            myInt16Property.setDataTypeId(Identifiers.Int16);
+            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                myInt16Property.setValue(maxTypedValue.getValue());
+            }
+            myInt16Property.setDescription(new LocalizedText("", ""));
+            range.addProperty(myInt16Property);
+        }
+    }
+
+
+    private static void setInt64RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+                                            TypedValue<?> maxTypedValue)
+            throws NumberFormatException, StatusException {
+        if (minValue != null) {
+            PlainProperty<Long> myLongProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
+            myLongProperty.setDataTypeId(Identifiers.Int64);
+            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                Object obj = minTypedValue.getValue();
+                if ((obj != null) && (!(obj instanceof Long))) {
+                    obj = Long.valueOf(obj.toString());
+                }
+                myLongProperty.setValue(obj);
+            }
+            myLongProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myLongProperty);
+        }
+
+        if (maxValue != null) {
+            PlainProperty<Long> myLongProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
+            myLongProperty.setDataTypeId(Identifiers.Int64);
+            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                Object obj = maxTypedValue.getValue();
+                if ((obj != null) && (!(obj instanceof Long))) {
+                    obj = Long.valueOf(obj.toString());
+                }
+                myLongProperty.setValue(obj);
+            }
+            myLongProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myLongProperty);
+        }
+    }
+
+
+    private static void setInt32RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+                                            TypedValue<?> maxTypedValue)
+            throws StatusException {
+        if (minValue != null) {
+            PlainProperty<Integer> myIntProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
+            myIntProperty.setDataTypeId(Identifiers.Int32);
+            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                myIntProperty.setValue(minTypedValue.getValue());
+            }
+            myIntProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myIntProperty);
+        }
+
+        if (maxValue != null) {
+            PlainProperty<Integer> myIntProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
+            myIntProperty.setDataTypeId(Identifiers.Int32);
+            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                myIntProperty.setValue(maxTypedValue.getValue());
+            }
+            myIntProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myIntProperty);
+        }
+    }
+
+
+    private static void setDateTimeRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+                                               TypedValue<?> maxTypedValue)
+            throws StatusException {
+        if (minValue != null) {
+            PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
+            myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
+            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                if (minTypedValue instanceof DateTimeValue) {
+                    DateTimeValue dtval = (DateTimeValue) minTypedValue;
+                    DateTime dt = ValueConverter.createDateTime(dtval.getValue());
+                    myDateTimeProperty.setValue(dt);
+                }
+                else {
+                    myDateTimeProperty.setValue(minTypedValue.getValue());
+                }
+            }
+            myDateTimeProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myDateTimeProperty);
+        }
+
+        if (maxValue != null) {
+            PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
+            myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
+            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                if (maxTypedValue instanceof DateTimeValue) {
+                    DateTimeValue dtval = (DateTimeValue) maxTypedValue;
+                    DateTime dt = ValueConverter.createDateTime(dtval.getValue());
+                    myDateTimeProperty.setValue(dt);
+                }
+                else {
+                    myDateTimeProperty.setValue(maxTypedValue.getValue());
+                }
+            }
+            myDateTimeProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myDateTimeProperty);
+        }
+    }
+
+
+    private static void setBooleanRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
+                                              TypedValue<?> maxTypedValue)
+            throws StatusException {
+        if (minValue != null) {
+            PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
+            myBoolProperty.setDataTypeId(Identifiers.Boolean);
+            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                myBoolProperty.setValue(minTypedValue.getValue());
+            }
+            myBoolProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myBoolProperty);
+        }
+
+        if (maxValue != null) {
+            PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
+            myBoolProperty.setDataTypeId(Identifiers.Boolean);
+            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                myBoolProperty.setValue(maxTypedValue.getValue());
+            }
+            myBoolProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myBoolProperty);
         }
     }
 
@@ -919,28 +777,22 @@ public class AasSubmodelElementHelper {
         Ensure.requireNonNull(refNode, "refNode must be non-null");
         Ensure.requireNonNull(ref, "ref must be non-null");
 
-        try {
-            List<AASKeyDataType> keyList = new ArrayList<>();
-            ref.getKeys().stream().map(k -> {
-                AASKeyDataType keyValue = new AASKeyDataType();
-                keyValue.setIdType(ValueConverter.getAasKeyType(k.getIdType()));
-                keyValue.setType(ValueConverter.getAasKeyElementsDataType(k.getType()));
-                keyValue.setValue(k.getValue());
-                return keyValue;
-            }).forEachOrdered(keyList::add);
+        List<AASKeyDataType> keyList = new ArrayList<>();
+        ref.getKeys().stream().map(k -> {
+            AASKeyDataType keyValue = new AASKeyDataType();
+            keyValue.setIdType(ValueConverter.getAasKeyType(k.getIdType()));
+            keyValue.setType(ValueConverter.getAasKeyElementsDataType(k.getType()));
+            keyValue.setValue(k.getValue());
+            return keyValue;
+        }).forEachOrdered(keyList::add);
 
-            refNode.getKeysNode().setArrayDimensions(new UnsignedInteger[] {
-                    UnsignedInteger.valueOf(keyList.size())
-            });
-            if (readOnly) {
-                refNode.getKeysNode().setAccessLevel(AccessLevelType.CurrentRead);
-            }
-            refNode.setKeys(keyList.toArray(AASKeyDataType[]::new));
+        refNode.getKeysNode().setArrayDimensions(new UnsignedInteger[] {
+                UnsignedInteger.valueOf(keyList.size())
+        });
+        if (readOnly) {
+            refNode.getKeysNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
-        catch (Exception ex) {
-            LOG.error("setAasReferenceData Exception", ex);
-            throw ex;
-        }
+        refNode.setKeys(keyList.toArray(AASKeyDataType[]::new));
     }
 
 
@@ -959,33 +811,27 @@ public class AasSubmodelElementHelper {
             throw new IllegalArgumentException(VALUE_NULL);
         }
 
-        try {
-            if ((node instanceof AASPropertyType) && (value instanceof PropertyValue)) {
-                setPropertyValue((AASPropertyType) node, (PropertyValue) value);
-            }
-            else if ((node instanceof AASFileType) && (value instanceof FileValue)) {
-                setFileValue((AASFileType) node, (FileValue) value);
-            }
-            else if ((node instanceof AASBlobType) && (value instanceof BlobValue)) {
-                setBlobValue((AASBlobType) node, (BlobValue) value);
-            }
-            else if ((node instanceof AASReferenceElementType) && (value instanceof ReferenceElementValue)) {
-                setReferenceElementValue((AASReferenceElementType) node, (ReferenceElementValue) value);
-            }
-            else if ((node instanceof AASRangeType) && (value instanceof RangeValue)) {
-                setRangeValue((AASRangeType) node, (RangeValue<?>) value);
-            }
-            else if ((node instanceof AASMultiLanguagePropertyType) && (value instanceof MultiLanguagePropertyValue)) {
-                setMultiLanguagePropertyValue((AASMultiLanguagePropertyType) node, (MultiLanguagePropertyValue) value);
-            }
-            else {
-                LOG.warn("setDataElementValue: unknown or invalid DataElement or value: {}; Class: {}; Value Class: {}", node.getBrowseName().getName(), node.getClass(),
-                        value.getClass());
-            }
+        if ((node instanceof AASPropertyType) && (value instanceof PropertyValue)) {
+            setPropertyValue((AASPropertyType) node, (PropertyValue) value);
         }
-        catch (Exception ex) {
-            LOG.error("setDataElementValue Exception", ex);
-            throw ex;
+        else if ((node instanceof AASFileType) && (value instanceof FileValue)) {
+            setFilePropertyValue((AASFileType) node, (FileValue) value);
+        }
+        else if ((node instanceof AASBlobType) && (value instanceof BlobValue)) {
+            setBlobValue((AASBlobType) node, (BlobValue) value);
+        }
+        else if ((node instanceof AASReferenceElementType) && (value instanceof ReferenceElementValue)) {
+            setReferenceElementValue((AASReferenceElementType) node, (ReferenceElementValue) value);
+        }
+        else if ((node instanceof AASRangeType) && (value instanceof RangeValue)) {
+            setRangeValue((AASRangeType) node, (RangeValue<?>) value);
+        }
+        else if ((node instanceof AASMultiLanguagePropertyType) && (value instanceof MultiLanguagePropertyValue)) {
+            setMultiLanguagePropertyValue((AASMultiLanguagePropertyType) node, (MultiLanguagePropertyValue) value);
+        }
+        else {
+            LOG.warn("setDataElementValue: unknown or invalid DataElement or value: {}; Class: {}; Value Class: {}", node.getBrowseName().getName(), node.getClass(),
+                    value.getClass());
         }
     }
 
@@ -1007,109 +853,17 @@ public class AasSubmodelElementHelper {
 
         LOG.debug("setPropertyValue: {} to {}", property.getBrowseName().getName(), value.getValue());
 
-        try {
-            // special treatment for some not directly supported types
-            TypedValue<?> tv = value.getValue();
-            Object obj = tv.getValue();
-            if ((tv instanceof DecimalValue) || (tv instanceof IntegerValue)) {
-                obj = Long.parseLong(obj.toString());
-            }
-            else if (tv instanceof DateTimeValue) {
-                ZonedDateTime zdt = (ZonedDateTime) obj;
-                obj = new DateTime(GregorianCalendar.from(zdt));
-            }
-            property.setValue(obj);
-
-            //            switch (property.getValueType()) {
-            //                case ByteString:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Boolean:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case DateTime:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Int32:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case UInt32:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Int64:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case UInt64:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Int16:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case UInt16:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Byte:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case SByte:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Double:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case Float:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case LocalizedText:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case String:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                case UtcTime:
-            //                    // TO DO integrate Property value
-            //                    property.setValue(value.getValue());
-            //                    break;
-            //
-            //                default:
-            //                    logger.warn("setPropertyValue: Property " + property.getBrowseName().getName() + ": Unknown type: " + property.getValueType());
-            //                    break;
-            //            }
+        // special treatment for some not directly supported types
+        TypedValue<?> tv = value.getValue();
+        Object obj = tv.getValue();
+        if ((tv instanceof DecimalValue) || (tv instanceof IntegerValue)) {
+            obj = Long.valueOf(obj.toString());
         }
-        catch (Exception ex) {
-            LOG.error("setPropertyValue Exception", ex);
-            throw ex;
+        else if (tv instanceof DateTimeValue) {
+            ZonedDateTime zdt = (ZonedDateTime) obj;
+            obj = new DateTime(GregorianCalendar.from(zdt));
         }
+        property.setValue(obj);
     }
 
 
@@ -1120,7 +874,7 @@ public class AasSubmodelElementHelper {
      * @param value The new value.
      * @throws StatusException If the operation fails
      */
-    private static void setEntityValue(AASEntityType entity, EntityValue value) throws StatusException {
+    private static void setEntityPropertyValue(AASEntityType entity, EntityValue value) throws StatusException {
         if (entity == null) {
             throw new IllegalArgumentException("entity is null");
         }
@@ -1128,36 +882,30 @@ public class AasSubmodelElementHelper {
             throw new IllegalArgumentException(VALUE_NULL);
         }
 
-        try {
-            // EntityType
-            entity.setEntityType(ValueConverter.getAasEntityType(value.getEntityType()));
+        // EntityType
+        entity.setEntityType(ValueConverter.getAasEntityType(value.getEntityType()));
 
-            // GlobalAssetId
-            if ((value.getGlobalAssetId() != null) && (!value.getGlobalAssetId().isEmpty())) {
-                DefaultReference ref = new DefaultReference.Builder().keys(value.getGlobalAssetId()).build();
-                setAasReferenceData(ref, entity.getGlobalAssetIdNode());
-            }
-
-            // Statements
-            Map<String, ElementValue> valueMap = value.getStatements();
-            AASSubmodelElementList statementNode = entity.getStatementNode();
-            if (statementNode != null) {
-                UaNode[] statementNodes = statementNode.getComponents();
-                if (statementNodes.length != valueMap.size()) {
-                    LOG.warn("Size of Value ({}) doesn't match the number of StatementNodes ({})", valueMap.size(), statementNodes.length);
-                    throw new IllegalArgumentException("Size of Value doesn't match the number of StatementNodes");
-                }
-
-                for (UaNode statementNode1: statementNodes) {
-                    if ((statementNode1 instanceof AASSubmodelElementType) && value.getStatements().containsKey(statementNode1.getBrowseName().getName())) {
-                        setSubmodelElementValue((AASSubmodelElementType) statementNode1, value.getStatements().get(statementNode1.getBrowseName().getName()));
-                    }
-                }
-            }
+        // GlobalAssetId
+        if ((value.getGlobalAssetId() != null) && (!value.getGlobalAssetId().isEmpty())) {
+            DefaultReference ref = new DefaultReference.Builder().keys(value.getGlobalAssetId()).build();
+            setAasReferenceData(ref, entity.getGlobalAssetIdNode());
         }
-        catch (Exception ex) {
-            LOG.error("setEntityValue Exception", ex);
-            throw ex;
+
+        // Statements
+        Map<String, ElementValue> valueMap = value.getStatements();
+        AASSubmodelElementList statementNode = entity.getStatementNode();
+        if (statementNode != null) {
+            UaNode[] statementNodes = statementNode.getComponents();
+            if (statementNodes.length != valueMap.size()) {
+                LOG.warn("Size of Value ({}) doesn't match the number of StatementNodes ({})", valueMap.size(), statementNodes.length);
+                throw new IllegalArgumentException("Size of Value doesn't match the number of StatementNodes");
+            }
+
+            for (UaNode statementNode1: statementNodes) {
+                if ((statementNode1 instanceof AASSubmodelElementType) && value.getStatements().containsKey(statementNode1.getBrowseName().getName())) {
+                    setSubmodelElementValue((AASSubmodelElementType) statementNode1, value.getStatements().get(statementNode1.getBrowseName().getName()));
+                }
+            }
         }
     }
 
@@ -1169,7 +917,7 @@ public class AasSubmodelElementHelper {
      * @param value The new value
      * @throws StatusException If the operation fails
      */
-    private static void setFileValue(AASFileType file, FileValue value) throws StatusException {
+    private static void setFilePropertyValue(AASFileType file, FileValue value) throws StatusException {
         if (file == null) {
             throw new IllegalArgumentException("file is null");
         }
@@ -1177,19 +925,13 @@ public class AasSubmodelElementHelper {
             throw new IllegalArgumentException(VALUE_NULL);
         }
 
-        try {
-            file.setMimeType(value.getMimeType());
-            if (value.getValue() != null) {
-                if (file.getValueNode() == null) {
-                    addFileValueNode(file);
-                }
-
-                file.setValue(value.getValue());
+        file.setMimeType(value.getMimeType());
+        if (value.getValue() != null) {
+            if (file.getValueNode() == null) {
+                addFileValueNode(file);
             }
-        }
-        catch (Exception ex) {
-            LOG.error("setFileValue Exception", ex);
-            throw ex;
+
+            file.setValue(value.getValue());
         }
     }
 
@@ -1209,22 +951,16 @@ public class AasSubmodelElementHelper {
             throw new IllegalArgumentException(VALUE_NULL);
         }
 
-        try {
-            // MimeType
-            blob.setMimeType(value.getMimeType());
+        // MimeType
+        blob.setMimeType(value.getMimeType());
 
-            // Value
-            if (value.getValue() != null) {
-                if (blob.getValueNode() == null) {
-                    addBlobValueNode(blob);
-                }
-
-                blob.setValue(ByteString.valueOf(value.getValue()));
+        // Value
+        if (value.getValue() != null) {
+            if (blob.getValueNode() == null) {
+                addBlobValueNode(blob);
             }
-        }
-        catch (Exception ex) {
-            LOG.error("setBlobValue Exception", ex);
-            throw ex;
+
+            blob.setValue(ByteString.valueOf(value.getValue()));
         }
     }
 
@@ -1244,14 +980,8 @@ public class AasSubmodelElementHelper {
             throw new IllegalArgumentException(VALUE_NULL);
         }
 
-        try {
-            DefaultReference ref = new DefaultReference.Builder().keys(value.getKeys()).build();
-            setAasReferenceData(ref, refElement.getValueNode());
-        }
-        catch (Exception ex) {
-            LOG.error("setReferenceElementValue Exception", ex);
-            throw ex;
-        }
+        DefaultReference ref = new DefaultReference.Builder().keys(value.getKeys()).build();
+        setAasReferenceData(ref, refElement.getValueNode());
     }
 
 
@@ -1270,36 +1000,30 @@ public class AasSubmodelElementHelper {
             throw new IllegalArgumentException(VALUE_NULL);
         }
 
-        try {
-            // special treatment for some not directly supported types
-            TypedValue<?> tvmin = value.getMin();
-            Object objmin = tvmin.getValue();
-            if ((tvmin instanceof DecimalValue) || (tvmin instanceof IntegerValue)) {
-                objmin = Long.parseLong(objmin.toString());
-            }
-            else if (tvmin instanceof DateTimeValue) {
-                objmin = ValueConverter.createDateTime((ZonedDateTime) objmin);
-            }
-
-            TypedValue<?> tvmax = value.getMax();
-            Object objmax = tvmax.getValue();
-            if ((tvmax instanceof DecimalValue) || (tvmax instanceof IntegerValue)) {
-                objmax = Long.parseLong(objmax.toString());
-            }
-            else if (tvmax instanceof DateTimeValue) {
-                objmax = ValueConverter.createDateTime((ZonedDateTime) objmax);
-            }
-
-            if (range.getMinNode() != null) {
-                range.setMin(objmin);
-            }
-            if (range.getMaxNode() != null) {
-                range.setMax(objmax);
-            }
+        // special treatment for some not directly supported types
+        TypedValue<?> tvmin = value.getMin();
+        Object objmin = tvmin.getValue();
+        if ((tvmin instanceof DecimalValue) || (tvmin instanceof IntegerValue)) {
+            objmin = Long.valueOf(objmin.toString());
         }
-        catch (Exception ex) {
-            LOG.error("setRangeValue Exception", ex);
-            throw ex;
+        else if (tvmin instanceof DateTimeValue) {
+            objmin = ValueConverter.createDateTime((ZonedDateTime) objmin);
+        }
+
+        TypedValue<?> tvmax = value.getMax();
+        Object objmax = tvmax.getValue();
+        if ((tvmax instanceof DecimalValue) || (tvmax instanceof IntegerValue)) {
+            objmax = Long.valueOf(objmax.toString());
+        }
+        else if (tvmax instanceof DateTimeValue) {
+            objmax = ValueConverter.createDateTime((ZonedDateTime) objmax);
+        }
+
+        if (range.getMinNode() != null) {
+            range.setMin(objmin);
+        }
+        if (range.getMaxNode() != null) {
+            range.setMax(objmax);
         }
     }
 
@@ -1319,18 +1043,12 @@ public class AasSubmodelElementHelper {
             throw new IllegalArgumentException(VALUE_NULL);
         }
 
-        try {
-            List<LangString> values = new ArrayList<>(value.getLangStringSet());
-            if (multiLangProp.getValueNode() == null) {
-                addMultiLanguageValueNode(multiLangProp, values.size());
-            }
+        List<LangString> values = new ArrayList<>(value.getLangStringSet());
+        if (multiLangProp.getValueNode() == null) {
+            addMultiLanguageValueNode(multiLangProp, values.size());
+        }
 
-            multiLangProp.getValueNode().setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
-        }
-        catch (Exception ex) {
-            LOG.error("setMultiLanguagePropertyValue Exception", ex);
-            throw ex;
-        }
+        multiLangProp.getValueNode().setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));
     }
 
 }

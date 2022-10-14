@@ -117,34 +117,28 @@ public class OperationCreator extends SubmodelElementCreator {
      * @param var The corresponding Operation Variable
      */
     private static void setOperationArgument(Argument arg, OperationVariable operVar) {
-        try {
-            if (operVar.getValue() instanceof Property) {
-                Property prop = (Property) operVar.getValue();
-                arg.setName(prop.getIdShort());
-                arg.setValueRank(ValueRanks.Scalar);
-                arg.setArrayDimensions(null);
+        if (operVar.getValue() instanceof Property) {
+            Property prop = (Property) operVar.getValue();
+            arg.setName(prop.getIdShort());
+            arg.setValueRank(ValueRanks.Scalar);
+            arg.setArrayDimensions(null);
 
-                // Description
-                DescriptionCreator.addDescriptions(arg, prop.getDescriptions());
+            // Description
+            DescriptionCreator.addDescriptions(arg, prop.getDescriptions());
 
-                NodeId type = ValueConverter.convertValueTypeStringToNodeId(prop.getValueType());
-                if (type.isNullNodeId()) {
-                    LOGGER.warn("setOperationArgument: Property {}: Unknown type: {}", prop.getIdShort(), prop.getValueType());
+            NodeId type = ValueConverter.convertValueTypeStringToNodeId(prop.getValueType());
+            if (type.isNullNodeId()) {
+                LOGGER.warn("setOperationArgument: Property {}: Unknown type: {}", prop.getIdShort(), prop.getValueType());
 
-                    // Default type is String. That's what we receive from the AAS Service
-                    arg.setDataType(Identifiers.String);
-                }
-                else {
-                    arg.setDataType(type);
-                }
+                // Default type is String. That's what we receive from the AAS Service
+                arg.setDataType(Identifiers.String);
             }
             else {
-                LOGGER.warn("setOperationArgument: unknown Argument type");
+                arg.setDataType(type);
             }
         }
-        catch (Exception ex) {
-            LOGGER.error("setOperationArgument Exception", ex);
-            throw ex;
+        else {
+            LOGGER.warn("setOperationArgument: unknown Argument type");
         }
     }
 

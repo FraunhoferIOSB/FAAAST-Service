@@ -47,6 +47,11 @@ import org.slf4j.LoggerFactory;
 public class SubmodelElementCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelElementCreator.class);
 
+    protected SubmodelElementCreator() {
+        throw new IllegalStateException("Class not instantiable");
+    }
+
+
     /**
      * Adds a list of submodel elements to the given node.
      *
@@ -84,39 +89,33 @@ public class SubmodelElementCreator {
     public static void addSubmodelElements(UaNode node, Collection<SubmodelElement> elements, Submodel submodel, Reference parentRef, boolean ordered,
                                            AasServiceNodeManager nodeManager)
             throws StatusException, ServiceException, AddressSpaceException, ServiceResultException {
-        try {
-            if ((elements != null) && (!elements.isEmpty())) {
-                for (SubmodelElement elem: elements) {
-                    if (elem instanceof DataElement) {
-                        DataElementCreator.addAasDataElement(node, (DataElement) elem, submodel, parentRef, ordered, nodeManager);
-                    }
-                    else if (elem instanceof Capability) {
-                        CapabilityCreator.addAasCapability(node, (Capability) elem, submodel, parentRef, ordered, nodeManager);
-                    }
-                    else if (elem instanceof Entity) {
-                        EntityCreator.addAasEntity(node, (Entity) elem, submodel, parentRef, ordered, nodeManager);
-                    }
-                    else if (elem instanceof Operation) {
-                        OperationCreator.addAasOperation(node, (Operation) elem, submodel, parentRef, ordered, nodeManager);
-                    }
-                    else if (elem instanceof Event) {
-                        EventCreator.addAasEvent(node, (Event) elem, submodel, parentRef, ordered, nodeManager);
-                    }
-                    else if (elem instanceof RelationshipElement) {
-                        RelationshipElementCreator.addAasRelationshipElement(node, (RelationshipElement) elem, submodel, parentRef, ordered, nodeManager);
-                    }
-                    else if (elem instanceof SubmodelElementCollection) {
-                        SubmodelElementCollectionCreator.addAasSubmodelElementCollection(node, (SubmodelElementCollection) elem, submodel, parentRef, ordered, nodeManager);
-                    }
-                    else if (elem != null) {
-                        LOGGER.warn("addSubmodelElements: unknown SubmodelElement: {}; Class {}", elem.getIdShort(), elem.getClass());
-                    }
+        if ((elements != null) && (!elements.isEmpty())) {
+            for (SubmodelElement elem: elements) {
+                if (elem instanceof DataElement) {
+                    DataElementCreator.addAasDataElement(node, (DataElement) elem, submodel, parentRef, ordered, nodeManager);
+                }
+                else if (elem instanceof Capability) {
+                    CapabilityCreator.addAasCapability(node, (Capability) elem, submodel, parentRef, ordered, nodeManager);
+                }
+                else if (elem instanceof Entity) {
+                    EntityCreator.addAasEntity(node, (Entity) elem, submodel, parentRef, ordered, nodeManager);
+                }
+                else if (elem instanceof Operation) {
+                    OperationCreator.addAasOperation(node, (Operation) elem, submodel, parentRef, ordered, nodeManager);
+                }
+                else if (elem instanceof Event) {
+                    EventCreator.addAasEvent(node, (Event) elem, submodel, parentRef, ordered, nodeManager);
+                }
+                else if (elem instanceof RelationshipElement) {
+                    RelationshipElementCreator.addAasRelationshipElement(node, (RelationshipElement) elem, submodel, parentRef, ordered, nodeManager);
+                }
+                else if (elem instanceof SubmodelElementCollection) {
+                    SubmodelElementCollectionCreator.addAasSubmodelElementCollection(node, (SubmodelElementCollection) elem, submodel, parentRef, ordered, nodeManager);
+                }
+                else if (elem != null) {
+                    LOGGER.warn("addSubmodelElements: unknown SubmodelElement: {}; Class {}", elem.getIdShort(), elem.getClass());
                 }
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addSubmodelElements Exception", ex);
-            throw ex;
         }
     }
 
@@ -131,47 +130,41 @@ public class SubmodelElementCreator {
      */
     public static void addSubmodelElementBaseData(AASSubmodelElementType node, SubmodelElement element, AasServiceNodeManager nodeManager)
             throws StatusException {
-        try {
-            if ((node != null) && (element != null)) {
-                // Category
-                String category = element.getCategory();
-                if (category == null) {
-                    category = "";
-                }
-                node.setCategory(category);
-
-                node.setModelingKind(ValueConverter.convertModelingKind(element.getKind()));
-
-                // DataSpecifications
-                EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(node, element.getEmbeddedDataSpecifications(), nodeManager);
-
-                // SemanticId
-                if (element.getSemanticId() != null) {
-                    ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
-                }
-
-                // Qualifiers
-                List<Constraint> qualifiers = element.getQualifiers();
-                if ((qualifiers != null) && (!qualifiers.isEmpty())) {
-                    if (node.getQualifierNode() == null) {
-                        QualifierCreator.addQualifierNode(node, nodeManager);
-                    }
-
-                    QualifierCreator.addQualifiers(node.getQualifierNode(), qualifiers, nodeManager);
-                }
-
-                // Description
-                DescriptionCreator.addDescriptions(node, element.getDescriptions());
-
-                if (AasServiceNodeManager.VALUES_READ_ONLY) {
-                    node.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
-                    node.getModelingKindNode().setAccessLevel(AccessLevelType.CurrentRead);
-                }
+        if ((node != null) && (element != null)) {
+            // Category
+            String category = element.getCategory();
+            if (category == null) {
+                category = "";
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error("addSubmodelElementBaseData Exception", ex);
-            throw ex;
+            node.setCategory(category);
+
+            node.setModelingKind(ValueConverter.convertModelingKind(element.getKind()));
+
+            // DataSpecifications
+            EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications(node, element.getEmbeddedDataSpecifications(), nodeManager);
+
+            // SemanticId
+            if (element.getSemanticId() != null) {
+                ConceptDescriptionCreator.addSemanticId(node, element.getSemanticId());
+            }
+
+            // Qualifiers
+            List<Constraint> qualifiers = element.getQualifiers();
+            if ((qualifiers != null) && (!qualifiers.isEmpty())) {
+                if (node.getQualifierNode() == null) {
+                    QualifierCreator.addQualifierNode(node, nodeManager);
+                }
+
+                QualifierCreator.addQualifiers(node.getQualifierNode(), qualifiers, nodeManager);
+            }
+
+            // Description
+            DescriptionCreator.addDescriptions(node, element.getDescriptions());
+
+            if (AasServiceNodeManager.VALUES_READ_ONLY) {
+                node.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
+                node.getModelingKindNode().setAccessLevel(AccessLevelType.CurrentRead);
+            }
         }
     }
 

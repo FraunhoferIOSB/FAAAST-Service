@@ -195,13 +195,7 @@ public class AssetAdministrationShellCreator {
             throw new IllegalArgumentException("billOfMaterials = null");
         }
 
-        try {
-            AasReferenceCreator.addAasReferenceList(node, billOfMaterials, "BillOfMaterial", nodeManager);
-        }
-        catch (Exception ex) {
-            LOGGER.error("addBillOfMaterials Exception", ex);
-            throw ex;
-        }
+        AasReferenceCreator.addAasReferenceList(node, billOfMaterials, "BillOfMaterial", nodeManager);
     }
 
 
@@ -224,32 +218,26 @@ public class AssetAdministrationShellCreator {
             throw new IllegalArgumentException("list = null");
         }
 
-        try {
-            LOGGER.debug("addSpecificAssetIds {}; to Node: {}", name, assetInfoNode);
-            AASIdentifierKeyValuePairList listNode = assetInfoNode.getSpecificAssetIdNode();
-            boolean created = false;
+        LOGGER.debug("addSpecificAssetIds {}; to Node: {}", name, assetInfoNode);
+        AASIdentifierKeyValuePairList listNode = assetInfoNode.getSpecificAssetIdNode();
+        boolean created = false;
 
-            if (listNode == null) {
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASIdentifierKeyValuePairList.getNamespaceUri(), name)
-                        .toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId nid = nodeManager.createNodeId(assetInfoNode, browseName);
-                listNode = nodeManager.createInstance(AASIdentifierKeyValuePairList.class, nid, browseName, LocalizedText.english(name));
-                created = true;
-            }
+        if (listNode == null) {
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASIdentifierKeyValuePairList.getNamespaceUri(), name)
+                    .toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.createNodeId(assetInfoNode, browseName);
+            listNode = nodeManager.createInstance(AASIdentifierKeyValuePairList.class, nid, browseName, LocalizedText.english(name));
+            created = true;
+        }
 
-            for (IdentifierKeyValuePair ikv: list) {
-                if (ikv != null) {
-                    IdentifierKeyValuePairCreator.addIdentifierKeyValuePair(listNode, ikv, ikv.getKey(), nodeManager);
-                }
-            }
-
-            if (created) {
-                assetInfoNode.addComponent(listNode);
+        for (IdentifierKeyValuePair ikv: list) {
+            if (ikv != null) {
+                IdentifierKeyValuePairCreator.addIdentifierKeyValuePair(listNode, ikv, ikv.getKey(), nodeManager);
             }
         }
-        catch (Exception ex) {
-            LOGGER.error("addSpecificAssetIds Exception", ex);
-            throw ex;
+
+        if (created) {
+            assetInfoNode.addComponent(listNode);
         }
     }
 
@@ -270,49 +258,43 @@ public class AssetAdministrationShellCreator {
             throw new IllegalArgumentException("sumodelRefs = null");
         }
 
-        try {
-            String name = "Submodel";
-            AASReferenceList referenceListNode = node.getSubmodelNode();
-            LOGGER.debug("addSubmodelReferences: add {} Submodels to Node: {}", submodelRefs.size(), node);
-            boolean added = false;
-            if (referenceListNode == null) {
-                QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
-                NodeId nid = nodeManager.createNodeId(node, browseName);
-                referenceListNode = nodeManager.createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
-                LOGGER.debug("addSubmodelReferences: add Node {} to Node {}", referenceListNode.getNodeId(), node.getNodeId());
-                added = true;
+        String name = "Submodel";
+        AASReferenceList referenceListNode = node.getSubmodelNode();
+        LOGGER.debug("addSubmodelReferences: add {} Submodels to Node: {}", submodelRefs.size(), node);
+        boolean added = false;
+        if (referenceListNode == null) {
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASReferenceList.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            NodeId nid = nodeManager.createNodeId(node, browseName);
+            referenceListNode = nodeManager.createInstance(AASReferenceList.class, nid, browseName, LocalizedText.english(name));
+            LOGGER.debug("addSubmodelReferences: add Node {} to Node {}", referenceListNode.getNodeId(), node.getNodeId());
+            added = true;
+        }
+
+        int counter = 1;
+        for (Reference ref: submodelRefs) {
+            UaNode submodelNode = null;
+            String submodelName = getSubmodelName(ref);
+            if (submodelName.isEmpty()) {
+                submodelName = name + counter++;
             }
 
-            int counter = 1;
-            for (Reference ref: submodelRefs) {
-                UaNode submodelNode = null;
-                String submodelName = getSubmodelName(ref);
-                if (submodelName.isEmpty()) {
-                    submodelName = name + counter++;
+            submodelNode = nodeManager.getSubmodelNode(ref);
+
+            UaNode refNode = AasReferenceCreator.addAasReferenceAasNS(referenceListNode, ref, submodelName, nodeManager);
+
+            if (refNode != null) {
+                // add hasAddIn reference to the submodel
+                if (submodelNode != null) {
+                    refNode.addReference(submodelNode, Identifiers.HasAddIn, false);
                 }
-
-                submodelNode = nodeManager.getSubmodelNode(ref);
-
-                UaNode refNode = AasReferenceCreator.addAasReferenceAasNS(referenceListNode, ref, submodelName, nodeManager);
-
-                if (refNode != null) {
-                    // add hasAddIn reference to the submodel
-                    if (submodelNode != null) {
-                        refNode.addReference(submodelNode, Identifiers.HasAddIn, false);
-                    }
-                    else {
-                        LOGGER.warn("addSubmodelReferences: Submodel {} not found in submodelRefMap", ref);
-                    }
+                else {
+                    LOGGER.warn("addSubmodelReferences: Submodel {} not found in submodelRefMap", ref);
                 }
-            }
-
-            if (added) {
-                node.addComponent(referenceListNode);
             }
         }
-        catch (Exception ex) {
-            LOGGER.error("addSubmodelReferences Exception", ex);
-            throw ex;
+
+        if (added) {
+            node.addComponent(referenceListNode);
         }
     }
 

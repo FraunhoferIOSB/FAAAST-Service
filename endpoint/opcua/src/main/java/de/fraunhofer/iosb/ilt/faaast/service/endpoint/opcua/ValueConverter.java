@@ -53,8 +53,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -99,11 +99,11 @@ public class ValueConverter {
         }
     }
 
-    private static class TypeMapper<aasType, opcuaType> {
-        private final aasType aasObject;
-        private final opcuaType opcuaObject;
+    private static class TypeMapper<AAS_TYPE, OPC_UA_TYPE> {
+        private final AAS_TYPE aasObject;
+        private final OPC_UA_TYPE opcuaObject;
 
-        public TypeMapper(aasType aasObject, opcuaType opcuaObject) {
+        public TypeMapper(AAS_TYPE aasObject, OPC_UA_TYPE opcuaObject) {
             this.aasObject = aasObject;
             this.opcuaObject = opcuaObject;
         }
@@ -130,16 +130,16 @@ public class ValueConverter {
         typeList.add(new DatatypeMapper("string", Identifiers.String, AASValueTypeDataType.String, Datatype.STRING));
         typeList.add(new DatatypeMapper("time", Identifiers.UtcTime, AASValueTypeDataType.UtcTime, null));
 
-        MODELING_KIND_MAP = new HashMap<>();
+        MODELING_KIND_MAP = new EnumMap<>(ModelingKind.class);
         MODELING_KIND_MAP.put(ModelingKind.INSTANCE, AASModelingKindDataType.Instance);
         MODELING_KIND_MAP.put(ModelingKind.TEMPLATE, AASModelingKindDataType.Template);
 
-        IDENTIFIER_TYPE_MAP = new HashMap<>();
+        IDENTIFIER_TYPE_MAP = new EnumMap<>(IdentifierType.class);
         IDENTIFIER_TYPE_MAP.put(IdentifierType.IRDI, AASIdentifierTypeDataType.IRDI);
         IDENTIFIER_TYPE_MAP.put(IdentifierType.IRI, AASIdentifierTypeDataType.IRI);
         IDENTIFIER_TYPE_MAP.put(IdentifierType.CUSTOM, AASIdentifierTypeDataType.Custom);
 
-        ASSET_KIND_MAP = new HashMap<>();
+        ASSET_KIND_MAP = new EnumMap<>(AssetKind.class);
         ASSET_KIND_MAP.put(AssetKind.TYPE, AASAssetKindDataType.Type);
         ASSET_KIND_MAP.put(AssetKind.INSTANCE, AASAssetKindDataType.Instance);
 
@@ -199,19 +199,13 @@ public class ValueConverter {
     public static NodeId convertValueTypeStringToNodeId(String valueType) {
         NodeId retval = null;
 
-        try {
-            Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.typeString.equalsIgnoreCase(valueType)).findAny();
-            if (rv.isEmpty()) {
-                LOGGER.warn("convertValueTypeStringToNodeId: Unknown type: {}", valueType);
-                retval = NodeId.NULL;
-            }
-            else {
-                retval = rv.get().typeNode;
-            }
+        Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.typeString.equalsIgnoreCase(valueType)).findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("convertValueTypeStringToNodeId: Unknown type: {}", valueType);
+            retval = NodeId.NULL;
         }
-        catch (Exception ex) {
-            LOGGER.error("convertValueTypeStringToNodeId Exception", ex);
-            throw ex;
+        else {
+            retval = rv.get().typeNode;
         }
 
         return retval;
@@ -227,19 +221,13 @@ public class ValueConverter {
     public static AASValueTypeDataType stringToValueType(String value) {
         AASValueTypeDataType retval = null;
 
-        try {
-            Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.typeString.equalsIgnoreCase(value)).findAny();
-            if (rv.isEmpty()) {
-                LOGGER.warn("stringToValueType: unknown value: {}", value);
-                throw new IllegalArgumentException("unknown value: " + value);
-            }
-            else {
-                retval = rv.get().valueType;
-            }
+        Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.typeString.equalsIgnoreCase(value)).findAny();
+        if (rv.isEmpty()) {
+            LOGGER.warn("stringToValueType: unknown value: {}", value);
+            throw new IllegalArgumentException("unknown value: " + value);
         }
-        catch (Exception ex) {
-            LOGGER.error("stringToValueType Exception", ex);
-            throw ex;
+        else {
+            retval = rv.get().valueType;
         }
 
         return retval;
@@ -384,16 +372,10 @@ public class ValueConverter {
     public static LocalizedText[] getLocalizedTextFromLangStringSet(List<LangString> value) {
         LocalizedText[] retval = null;
 
-        try {
-            ArrayList<LocalizedText> arr = new ArrayList<>();
-            value.forEach(ls -> arr.add(new LocalizedText(ls.getValue(), ls.getLanguage())));
+        ArrayList<LocalizedText> arr = new ArrayList<>();
+        value.forEach(ls -> arr.add(new LocalizedText(ls.getValue(), ls.getLanguage())));
 
-            retval = arr.toArray(LocalizedText[]::new);
-        }
-        catch (Exception ex) {
-            LOGGER.error("getLocalizedTextFromLangStringSet Exception", ex);
-            throw ex;
-        }
+        retval = arr.toArray(LocalizedText[]::new);
 
         return retval;
     }
@@ -412,14 +394,8 @@ public class ValueConverter {
 
         List<LangString> retval = new ArrayList<>();
 
-        try {
-            for (LocalizedText lt: value) {
-                retval.add(new LangString(lt.getText(), lt.getLocaleId()));
-            }
-        }
-        catch (Exception ex) {
-            LOGGER.error("getLangStringSetFromLocalizedText Exception", ex);
-            throw ex;
+        for (LocalizedText lt: value) {
+            retval.add(new LangString(lt.getText(), lt.getLocaleId()));
         }
 
         return retval;
@@ -521,17 +497,11 @@ public class ValueConverter {
 
         Reference retval = null;
 
-        try {
-            List<Key> keys = new ArrayList<>();
-            for (AASKeyDataType key: value) {
-                keys.add(new DefaultKey.Builder().type(getKeyElements(key.getType())).idType(getKeyType(key.getIdType())).value(key.getValue()).build());
-            }
-            retval = new DefaultReference.Builder().keys(keys).build();
+        List<Key> keys = new ArrayList<>();
+        for (AASKeyDataType key: value) {
+            keys.add(new DefaultKey.Builder().type(getKeyElements(key.getType())).idType(getKeyType(key.getIdType())).value(key.getValue()).build());
         }
-        catch (Exception ex) {
-            LOGGER.error("getReferenceFromKeys Exception", ex);
-            throw ex;
-        }
+        retval = new DefaultReference.Builder().keys(keys).build();
 
         return retval;
     }
@@ -556,98 +526,92 @@ public class ValueConverter {
      * @param variant The desired Value.
      */
     public static void setSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type, Variant variant) {
-        try {
-            switch (type) {
-                case PROPERTY_VALUE: {
-                    Property aasProp = (Property) submodelElement;
-                    String newValue = convertVariantValueToString(variant);
-                    aasProp.setValue(newValue);
-                    break;
-                }
-                case RANGE_MIN: {
-                    Range aasRange = (Range) submodelElement;
-                    String newValue = convertVariantValueToString(variant);
-                    aasRange.setMin(newValue);
-                    break;
-                }
-                case RANGE_MAX: {
-                    Range aasRange = (Range) submodelElement;
-                    String newValue = convertVariantValueToString(variant);
-                    aasRange.setMax(newValue);
-                    break;
-                }
-                case BLOB_VALUE: {
-                    Blob aasBlob = (Blob) submodelElement;
-                    ByteString bs = null;
-                    if (variant.getValue() != null) {
-                        bs = (ByteString) variant.getValue();
-                    }
-                    aasBlob.setValue(ByteString.asByteArray(bs));
-                    break;
-                }
-                case MULTI_LANGUAGE_VALUE: {
-                    MultiLanguageProperty aasMultiProp = (MultiLanguageProperty) submodelElement;
-                    if (variant.isArray() && (variant.getValue() instanceof LocalizedText[])) {
-                        aasMultiProp.setValues(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
-                    }
-                    else if (variant.isEmpty()) {
-                        aasMultiProp.setValues(new ArrayList<>());
-                    }
-                    break;
-                }
-                case REFERENCE_ELEMENT_VALUE: {
-                    ReferenceElement aasRefElem = (ReferenceElement) submodelElement;
-                    if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
-                        aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
-                    }
-                    else if (variant.isEmpty()) {
-                        aasRefElem.setValue(null);
-                    }
-                    break;
-                }
-                case RELATIONSHIP_ELEMENT_FIRST: {
-                    RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
-                    if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
-                        aasRelElem.setFirst(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
-                    }
-                    else if (variant.isEmpty()) {
-                        aasRelElem.setFirst(null);
-                    }
-                    break;
-                }
-                case RELATIONSHIP_ELEMENT_SECOND: {
-                    RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
-                    if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
-                        aasRelElem.setSecond(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
-                    }
-                    else if (variant.isEmpty()) {
-                        aasRelElem.setSecond(null);
-                    }
-                    break;
-                }
-                case ENTITY_GLOBAL_ASSET_ID: {
-                    Entity aasEntity = (Entity) submodelElement;
-                    aasEntity.setGlobalAssetId(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
-                    break;
-                }
-                case ENTITY_TYPE: {
-                    Entity aasEntity = (Entity) submodelElement;
-                    if (variant.isEmpty()) {
-                        aasEntity.setEntityType(null);
-                    }
-                    else {
-                        aasEntity.setEntityType(ValueConverter.getEntityType(AASEntityTypeDataType.valueOf((int) variant.getValue())));
-                    }
-                    break;
-                }
-                default:
-                    LOGGER.warn("setSubmodelElementValue: SubmodelElement {}: unkown type {}", submodelElement.getIdShort(), type);
-                    throw new IllegalArgumentException("unkown type " + type);
+        switch (type) {
+            case PROPERTY_VALUE: {
+                Property aasProp = (Property) submodelElement;
+                String newValue = convertVariantValueToString(variant);
+                aasProp.setValue(newValue);
+                break;
             }
-        }
-        catch (Exception ex) {
-            LOGGER.error("setSubmodelElementValue Exception", ex);
-            throw ex;
+            case RANGE_MIN: {
+                Range aasRange = (Range) submodelElement;
+                String newValue = convertVariantValueToString(variant);
+                aasRange.setMin(newValue);
+                break;
+            }
+            case RANGE_MAX: {
+                Range aasRange = (Range) submodelElement;
+                String newValue = convertVariantValueToString(variant);
+                aasRange.setMax(newValue);
+                break;
+            }
+            case BLOB_VALUE: {
+                Blob aasBlob = (Blob) submodelElement;
+                ByteString bs = null;
+                if (variant.getValue() != null) {
+                    bs = (ByteString) variant.getValue();
+                }
+                aasBlob.setValue(ByteString.asByteArray(bs));
+                break;
+            }
+            case MULTI_LANGUAGE_VALUE: {
+                MultiLanguageProperty aasMultiProp = (MultiLanguageProperty) submodelElement;
+                if (variant.isArray() && (variant.getValue() instanceof LocalizedText[])) {
+                    aasMultiProp.setValues(ValueConverter.getLangStringSetFromLocalizedText((LocalizedText[]) variant.getValue()));
+                }
+                else if (variant.isEmpty()) {
+                    aasMultiProp.setValues(new ArrayList<>());
+                }
+                break;
+            }
+            case REFERENCE_ELEMENT_VALUE: {
+                ReferenceElement aasRefElem = (ReferenceElement) submodelElement;
+                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+                    aasRefElem.setValue(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                }
+                else if (variant.isEmpty()) {
+                    aasRefElem.setValue(null);
+                }
+                break;
+            }
+            case RELATIONSHIP_ELEMENT_FIRST: {
+                RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
+                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+                    aasRelElem.setFirst(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                }
+                else if (variant.isEmpty()) {
+                    aasRelElem.setFirst(null);
+                }
+                break;
+            }
+            case RELATIONSHIP_ELEMENT_SECOND: {
+                RelationshipElement aasRelElem = (RelationshipElement) submodelElement;
+                if (variant.isArray() && (variant.getValue() instanceof AASKeyDataType[])) {
+                    aasRelElem.setSecond(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                }
+                else if (variant.isEmpty()) {
+                    aasRelElem.setSecond(null);
+                }
+                break;
+            }
+            case ENTITY_GLOBAL_ASSET_ID: {
+                Entity aasEntity = (Entity) submodelElement;
+                aasEntity.setGlobalAssetId(ValueConverter.getReferenceFromKeys((AASKeyDataType[]) variant.getValue()));
+                break;
+            }
+            case ENTITY_TYPE: {
+                Entity aasEntity = (Entity) submodelElement;
+                if (variant.isEmpty()) {
+                    aasEntity.setEntityType(null);
+                }
+                else {
+                    aasEntity.setEntityType(ValueConverter.getEntityType(AASEntityTypeDataType.valueOf((int) variant.getValue())));
+                }
+                break;
+            }
+            default:
+                LOGGER.warn("setSubmodelElementValue: SubmodelElement {}: unkown type {}", submodelElement.getIdShort(), type);
+                throw new IllegalArgumentException("unkown type " + type);
         }
     }
 
@@ -724,21 +688,12 @@ public class ValueConverter {
     public static Variant getSubmodelElementValue(SubmodelElement submodelElement, SubmodelElementData.Type type) throws ValueMappingException {
         Variant retval;
 
-        try {
-            switch (type) {
-                case PROPERTY_VALUE: {
-                    retval = createVariant(ElementValueMapper.<Property, PropertyValue> toValue(submodelElement).getValue().getValue());
-                    break;
-                }
-
-                default:
-                    LOGGER.warn("getSubmodelElementValue: SubmodelElement {}: unkown or invalid type {}", submodelElement.getIdShort(), type);
-                    throw new IllegalArgumentException("unkown type " + type);
-            }
+        if (type == SubmodelElementData.Type.PROPERTY_VALUE) {
+            retval = createVariant(ElementValueMapper.<Property, PropertyValue> toValue(submodelElement).getValue().getValue());
         }
-        catch (Exception ex) {
-            LOGGER.error("getSubmodelElementValue Exception", ex);
-            throw ex;
+        else {
+            LOGGER.warn("getSubmodelElementValue: SubmodelElement {}: unkown or invalid type {}", submodelElement.getIdShort(), type);
+            throw new IllegalArgumentException("unkown type " + type);
         }
 
         return retval;

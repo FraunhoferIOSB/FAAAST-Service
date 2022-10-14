@@ -112,7 +112,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             LOGGER.info("server started");
         }
         catch (Exception e) {
-            LOGGER.error("Error starting OPC UA Server", e);
             throw new EndpointException("OPC UA server could not be started", e);
         }
     }
@@ -214,45 +213,39 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      */
     public List<OperationVariable> callOperation(Operation operation, List<OperationVariable> inputVariables, Submodel submodel, Reference refElement) throws StatusException {
         List<OperationVariable> outputArguments;
-        try {
-            InvokeOperationSyncRequest request = new InvokeOperationSyncRequest();
+        InvokeOperationSyncRequest request = new InvokeOperationSyncRequest();
 
-            List<Key> path = new ArrayList<>();
-            path.addAll(refElement.getKeys());
+        List<Key> path = new ArrayList<>();
+        path.addAll(refElement.getKeys());
 
-            request.setSubmodelId(submodel.getIdentification());
-            request.setPath(path);
-            request.setInputArguments(inputVariables);
+        request.setSubmodelId(submodel.getIdentification());
+        request.setPath(path);
+        request.setInputArguments(inputVariables);
 
-            requestCounter++;
-            request.setRequestId(Integer.toString(requestCounter));
+        requestCounter++;
+        request.setRequestId(Integer.toString(requestCounter));
 
-            // execute method
-            InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
-            if (response.getStatusCode().isSuccess()) {
-                if (response.getPayload().getExecutionState() == ExecutionState.COMPLETED) {
-                    LOGGER.info("callOperation: Operation {} executed successfully", operation.getIdShort());
-                }
-                else {
-                    LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getPayload().getExecutionState());
-                    throw new StatusException(StatusCodes.Bad_UnexpectedError);
-                }
-            }
-            else if (response.getStatusCode() == StatusCode.CLIENT_METHOD_NOT_ALLOWED) {
-                LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
-                throw new StatusException(StatusCodes.Bad_NotExecutable);
+        // execute method
+        InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
+        if (response.getStatusCode().isSuccess()) {
+            if (response.getPayload().getExecutionState() == ExecutionState.COMPLETED) {
+                LOGGER.info("callOperation: Operation {} executed successfully", operation.getIdShort());
             }
             else {
-                LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
+                LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getPayload().getExecutionState());
                 throw new StatusException(StatusCodes.Bad_UnexpectedError);
             }
+        }
+        else if (response.getStatusCode() == StatusCode.CLIENT_METHOD_NOT_ALLOWED) {
+            LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
+            throw new StatusException(StatusCodes.Bad_NotExecutable);
+        }
+        else {
+            LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
+            throw new StatusException(StatusCodes.Bad_UnexpectedError);
+        }
 
-            outputArguments = response.getPayload().getOutputArguments();
-        }
-        catch (Exception e) {
-            LOGGER.error("callOperation error", e);
-            throw e;
-        }
+        outputArguments = response.getPayload().getOutputArguments();
 
         return outputArguments;
     }

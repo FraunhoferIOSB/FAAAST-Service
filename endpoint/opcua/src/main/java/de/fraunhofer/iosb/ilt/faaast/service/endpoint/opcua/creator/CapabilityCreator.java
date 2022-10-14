@@ -28,8 +28,6 @@ import io.adminshell.aas.v3.model.Capability;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import opc.i4aas.AASCapabilityType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,7 +35,6 @@ import org.slf4j.LoggerFactory;
  * OPC UA address space.
  */
 public class CapabilityCreator extends SubmodelElementCreator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CapabilityCreator.class);
 
     /**
      * Adds an AAS Capability to the given node.
