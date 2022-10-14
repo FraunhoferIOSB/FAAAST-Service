@@ -109,6 +109,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     public static final String ADD_IDENT_EXC = "addIdentifiable Exception";
 
+    private static String ERROR_ADDRESS_SPACE = "Error creating address space";
     /**
      * Text if value is null
      */
@@ -212,15 +213,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             createAddressSpace();
         }
         catch (ServiceResultException ex) {
-            LOG.error("Error creating address space");
+            LOG.error(ERROR_ADDRESS_SPACE);
             throw new StatusException(ex);
         }
         catch (ServiceException ex) {
-            LOG.error("Error creating address space");
+            LOG.error(ERROR_ADDRESS_SPACE);
             throw new StatusException(ex.getServiceResult(), ex);
         }
         catch (AddressSpaceException | MessageBusException ex) {
-            LOG.error("Error creating address space");
+            LOG.error(ERROR_ADDRESS_SPACE);
             throw new StatusException(ex.getMessage(), ex);
         }
     }

@@ -35,8 +35,6 @@ import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import opc.i4aas.AASEntityType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -44,7 +42,6 @@ import org.slf4j.LoggerFactory;
  * OPC UA address space.
  */
 public class EntityCreator extends SubmodelElementCreator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EntityCreator.class);
 
     /**
      * Adds an AAS entity to the given node.

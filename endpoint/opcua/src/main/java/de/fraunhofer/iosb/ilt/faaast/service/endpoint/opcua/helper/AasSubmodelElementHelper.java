@@ -449,7 +449,8 @@ public class AasSubmodelElementHelper {
                     break;
 
                 case DateTime:
-                    setDateTimeRangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+                    setDateTimeRangeMin(minValue, minData, minTypedValue, range);
+                    setDateTimeRangeMax(maxValue, maxData, maxTypedValue, range);
                     break;
 
                 case Int32:
@@ -457,7 +458,8 @@ public class AasSubmodelElementHelper {
                     break;
 
                 case Int64:
-                    setInt64RangeValues(minValue, minData, minTypedValue, range, maxValue, maxData, maxTypedValue);
+                    setInt64RangeMin(minValue, minData, minTypedValue, range);
+                    setInt64RangeMax(maxValue, maxData, maxTypedValue, range);
                     break;
 
                 case Int16:
@@ -631,14 +633,12 @@ public class AasSubmodelElementHelper {
     }
 
 
-    private static void setInt64RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-                                            TypedValue<?> maxTypedValue)
-            throws NumberFormatException, StatusException {
-        if (minValue != null) {
-            PlainProperty<Long> myLongProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
+    private static void setInt64RangeMax(String maxValue, ValueData maxData, TypedValue<?> maxTypedValue, AASRangeType range) throws NumberFormatException, StatusException {
+        if (maxValue != null) {
+            PlainProperty<Long> myLongProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
             myLongProperty.setDataTypeId(Identifiers.Int64);
-            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                Object obj = minTypedValue.getValue();
+            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
+                Object obj = maxTypedValue.getValue();
                 if ((obj != null) && (!(obj instanceof Long))) {
                     obj = Long.valueOf(obj.toString());
                 }
@@ -647,12 +647,15 @@ public class AasSubmodelElementHelper {
             myLongProperty.setDescription(new LocalizedText("", ""));
             range.addProperty(myLongProperty);
         }
+    }
 
-        if (maxValue != null) {
-            PlainProperty<Long> myLongProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
+
+    private static void setInt64RangeMin(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range) throws StatusException, NumberFormatException {
+        if (minValue != null) {
+            PlainProperty<Long> myLongProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
             myLongProperty.setDataTypeId(Identifiers.Int64);
-            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                Object obj = maxTypedValue.getValue();
+            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                Object obj = minTypedValue.getValue();
                 if ((obj != null) && (!(obj instanceof Long))) {
                     obj = Long.valueOf(obj.toString());
                 }
@@ -689,26 +692,7 @@ public class AasSubmodelElementHelper {
     }
 
 
-    private static void setDateTimeRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range, String maxValue, ValueData maxData,
-                                               TypedValue<?> maxTypedValue)
-            throws StatusException {
-        if (minValue != null) {
-            PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-            myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
-            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                if (minTypedValue instanceof DateTimeValue) {
-                    DateTimeValue dtval = (DateTimeValue) minTypedValue;
-                    DateTime dt = ValueConverter.createDateTime(dtval.getValue());
-                    myDateTimeProperty.setValue(dt);
-                }
-                else {
-                    myDateTimeProperty.setValue(minTypedValue.getValue());
-                }
-            }
-            myDateTimeProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myDateTimeProperty);
-        }
-
+    private static void setDateTimeRangeMax(String maxValue, ValueData maxData, TypedValue<?> maxTypedValue, AASRangeType range) throws StatusException {
         if (maxValue != null) {
             PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(nodeManager, maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
             myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
@@ -720,6 +704,26 @@ public class AasSubmodelElementHelper {
                 }
                 else {
                     myDateTimeProperty.setValue(maxTypedValue.getValue());
+                }
+            }
+            myDateTimeProperty.setDescription(new LocalizedText("", ""));
+            range.addProperty(myDateTimeProperty);
+        }
+    }
+
+
+    private static void setDateTimeRangeMin(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range) throws StatusException {
+        if (minValue != null) {
+            PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(nodeManager, minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
+            myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
+            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
+                if (minTypedValue instanceof DateTimeValue) {
+                    DateTimeValue dtval = (DateTimeValue) minTypedValue;
+                    DateTime dt = ValueConverter.createDateTime(dtval.getValue());
+                    myDateTimeProperty.setValue(dt);
+                }
+                else {
+                    myDateTimeProperty.setValue(minTypedValue.getValue());
                 }
             }
             myDateTimeProperty.setDescription(new LocalizedText("", ""));

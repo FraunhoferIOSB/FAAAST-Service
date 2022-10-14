@@ -33,8 +33,6 @@ import io.adminshell.aas.v3.model.RelationshipElement;
 import io.adminshell.aas.v3.model.Submodel;
 import opc.i4aas.AASAnnotatedRelationshipElementType;
 import opc.i4aas.AASRelationshipElementType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -42,7 +40,6 @@ import org.slf4j.LoggerFactory;
  * OPC UA address space.
  */
 public class RelationshipElementCreator extends SubmodelElementCreator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RelationshipElementCreator.class);
 
     /**
      * Adds an AAS Relationship Element to the given node.

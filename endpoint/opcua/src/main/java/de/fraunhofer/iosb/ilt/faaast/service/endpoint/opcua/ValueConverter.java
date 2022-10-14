@@ -99,11 +99,11 @@ public class ValueConverter {
         }
     }
 
-    private static class TypeMapper<AAS_TYPE, OPC_UA_TYPE> {
-        private final AAS_TYPE aasObject;
-        private final OPC_UA_TYPE opcuaObject;
+    private static class TypeMapper<AAS, OPC> {
+        private final AAS aasObject;
+        private final OPC opcuaObject;
 
-        public TypeMapper(AAS_TYPE aasObject, OPC_UA_TYPE opcuaObject) {
+        public TypeMapper(AAS aasObject, OPC opcuaObject) {
             this.aasObject = aasObject;
             this.opcuaObject = opcuaObject;
         }

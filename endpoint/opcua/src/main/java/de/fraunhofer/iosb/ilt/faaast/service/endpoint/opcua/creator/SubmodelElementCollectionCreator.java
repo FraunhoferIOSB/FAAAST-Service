@@ -36,8 +36,6 @@ import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import opc.i4aas.AASOrderedSubmodelElementCollectionType;
 import opc.i4aas.AASSubmodelElementCollectionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,7 +43,6 @@ import org.slf4j.LoggerFactory;
  * OPC UA address space.
  */
 public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelElementCollectionCreator.class);
 
     /**
      * Adds a SubmodelElementCollection to the given node.

@@ -30,8 +30,6 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.ReferenceElement;
 import io.adminshell.aas.v3.model.Submodel;
 import opc.i4aas.AASReferenceElementType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -39,7 +37,6 @@ import org.slf4j.LoggerFactory;
  * OPC UA address space.
  */
 public class ReferenceElementCreator extends SubmodelElementCreator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceElementCreator.class);
 
     /**
      * Adds an AAS reference element to the given node.
