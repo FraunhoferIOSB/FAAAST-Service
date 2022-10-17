@@ -99,11 +99,11 @@ public class ValueConverter {
         }
     }
 
-    private static class TypeMapper<AAS, OPC> {
-        private final AAS aasObject;
-        private final OPC opcuaObject;
+    private static class TypeMapper<A, O> {
+        private final A aasObject;
+        private final O opcuaObject;
 
-        public TypeMapper(AAS aasObject, OPC opcuaObject) {
+        public TypeMapper(A aasObject, O opcuaObject) {
             this.aasObject = aasObject;
             this.opcuaObject = opcuaObject;
         }
@@ -197,7 +197,7 @@ public class ValueConverter {
      * @return The corresponding OPC UA type (NodeId)
      */
     public static NodeId convertValueTypeStringToNodeId(String valueType) {
-        NodeId retval = null;
+        NodeId retval;
 
         Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.typeString.equalsIgnoreCase(valueType)).findAny();
         if (rv.isEmpty()) {
@@ -370,7 +370,7 @@ public class ValueConverter {
      * @return The corresponding LocalizedText array
      */
     public static LocalizedText[] getLocalizedTextFromLangStringSet(List<LangString> value) {
-        LocalizedText[] retval = null;
+        LocalizedText[] retval;
 
         ArrayList<LocalizedText> arr = new ArrayList<>();
         value.forEach(ls -> arr.add(new LocalizedText(ls.getValue(), ls.getLanguage())));
@@ -495,7 +495,7 @@ public class ValueConverter {
             throw new IllegalArgumentException("value is null");
         }
 
-        Reference retval = null;
+        Reference retval;
 
         List<Key> keys = new ArrayList<>();
         for (AASKeyDataType key: value) {
@@ -740,7 +740,7 @@ public class ValueConverter {
 
 
     private static Variant createVariant(Object value) {
-        Variant retval = null;
+        Variant retval;
 
         if (value == null) {
             retval = Variant.NULL;

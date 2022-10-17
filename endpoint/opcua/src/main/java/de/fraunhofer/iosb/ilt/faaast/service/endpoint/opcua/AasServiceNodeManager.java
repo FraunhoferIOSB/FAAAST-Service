@@ -109,7 +109,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     public static final String ADD_IDENT_EXC = "addIdentifiable Exception";
 
-    private static String ERROR_ADDRESS_SPACE = "Error creating address space";
+    /**
+     * Text for Address Space Exception
+     */
+    private static final String ERROR_ADDRESS_SPACE = "Error creating address space";
+
     /**
      * Text if value is null
      */

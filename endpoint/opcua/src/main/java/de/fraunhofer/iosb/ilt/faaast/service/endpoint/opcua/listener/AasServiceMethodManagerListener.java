@@ -87,11 +87,11 @@ public class AasServiceMethodManagerListener implements CallableListener {
                 }
             }
         }
+        catch (StatusException se) {
+            throw se;
+        }
         catch (Exception ex) {
-            LOGGER.error("onCall Exception", ex);
-            DiagnosticInfo di = new DiagnosticInfo();
-            di.setAdditionalInfo("error in onCall");
-            throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError, di, ex);
+            throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError);
         }
 
         return retval;
