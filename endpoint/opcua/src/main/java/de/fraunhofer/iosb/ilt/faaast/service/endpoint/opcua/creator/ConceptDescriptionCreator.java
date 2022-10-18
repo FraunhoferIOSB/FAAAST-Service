@@ -45,19 +45,19 @@ import opc.i4aas.server.AASReferenceTypeNode;
 
 
 /**
- * Helper class to create ConceptDescriptions and integrate them into the
- * OPC UA address space.
+ * Helper class to create ConceptDescriptions and integrate them into the OPC UA address space.
  */
 public class ConceptDescriptionCreator {
-
-    private ConceptDescriptionCreator() {
-        throw new IllegalStateException("Class not instantiable");
-    }
 
     /**
      * Maps AAS references to dictionary entry types
      */
     private static final Map<Reference, DictionaryEntryType> dictionaryMap = new HashMap<>();
+
+    private ConceptDescriptionCreator() {
+        throw new IllegalStateException("Class not instantiable");
+    }
+
 
     /**
      * Adds the given list of AAS Concept Descriptions.
@@ -154,8 +154,7 @@ public class ConceptDescriptionCreator {
     /**
      * Adds AAS Identifiable information to the given node.
      *
-     * @param conceptDescriptionNode The desired node where the Identifiable
-     *            information should be added
+     * @param conceptDescriptionNode The desired node where the Identifiable information should be added
      * @param identifier The corresponding AAS Identifier
      * @param adminInfo The corresponding AAS Administrative Information
      * @param category The desired category
@@ -169,11 +168,7 @@ public class ConceptDescriptionCreator {
         }
 
         AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
-
-        if (category == null) {
-            category = "";
-        }
-        conceptDescriptionNode.setCategory(category);
+        conceptDescriptionNode.setCategory(category != null ? category : "");
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
             conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
@@ -184,8 +179,7 @@ public class ConceptDescriptionCreator {
     /**
      * Adds AAS Identifiable information to the given node.
      *
-     * @param conceptDescriptionNode The desired node where the Identifiable
-     *            information should be added
+     * @param conceptDescriptionNode The desired node where the Identifiable information should be added
      * @param identifier The corresponding AAS Identifier
      * @param adminInfo The corresponding AAS Administrative Information
      * @param category The desired category
@@ -214,8 +208,7 @@ public class ConceptDescriptionCreator {
     /**
      * Adds AAS Identifiable information to the given node.
      *
-     * @param conceptDescriptionNode The desired node where the Identifiable
-     *            information should be added
+     * @param conceptDescriptionNode The desired node where the Identifiable information should be added
      * @param identifier The corresponding AAS Identifier
      * @param adminInfo The corresponding AAS Administrative Information
      * @param category The desired category

@@ -55,10 +55,7 @@ public class IdentifiableCreator {
 
         AdministrativeInformationCreator.addAdminInformationProperties(identifiableNode.getAdministrationNode(), adminInfo, nodeManager);
 
-        if (category == null) {
-            category = "";
-        }
-        identifiableNode.setCategory(category);
+        identifiableNode.setCategory(category != null ? category : "");
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
             identifiableNode.getIdentificationNode().getIdNode().setAccessLevel(AccessLevelType.CurrentRead);

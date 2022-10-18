@@ -48,13 +48,10 @@ public class AasUserValidator implements UserValidator {
      */
     public AasUserValidator(CertificateValidator validator, Map<String, String> userMap, boolean allowAnonymous) {
         this.validator = validator;
-        this.userMap = userMap;
+        this.userMap = userMap != null
+                ? userMap
+                : new HashMap<>();
         this.allowAnonymous = allowAnonymous;
-
-        // make sure that we don't have null a pointer for the userMap
-        if (userMap == null) {
-            userMap = new HashMap<>();
-        }
     }
 
 
