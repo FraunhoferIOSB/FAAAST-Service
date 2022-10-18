@@ -21,7 +21,6 @@ import com.prosysopc.ua.UaApplication.Protocol;
 import com.prosysopc.ua.UserTokenPolicies;
 import com.prosysopc.ua.server.UaServer;
 import com.prosysopc.ua.server.UaServerException;
-import com.prosysopc.ua.server.UserValidator;
 import com.prosysopc.ua.stack.builtintypes.DateTime;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.UnsignedShort;
@@ -73,9 +72,6 @@ public class Server {
     private UaServer uaServer;
     private boolean running;
 
-    protected UserValidator userValidator;
-    protected AasServiceNodeManager aasNodeManager;
-
     protected final DefaultCertificateValidatorListener validationListener = new AasCertificateValidationListener();
     protected final DefaultCertificateValidatorListener userCertificateValidationListener = new AasCertificateValidationListener();
 
@@ -123,8 +119,6 @@ public class Server {
         final PkiDirectoryCertificateStore userIssuerCertificateStore = new PkiDirectoryCertificateStore("USERS_PKI/CA/issuers");
 
         final DefaultCertificateValidator userCertificateValidator = new DefaultCertificateValidator(userCertificateStore, userIssuerCertificateStore);
-
-        userValidator = new AasUserValidator(userCertificateValidator, endpoint.asConfig().getUserMap(), endpoint.asConfig().getAllowAnonymous());
         userCertificateValidator.setValidationListener(userCertificateValidationListener);
 
         ApplicationDescription appDescription = new ApplicationDescription();
@@ -191,7 +185,10 @@ public class Server {
         uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_USERNAME_PASSWORD);
         uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_CERTIFICATE);
 
-        uaServer.setUserValidator(userValidator);
+        uaServer.setUserValidator(new AasUserValidator(
+                userCertificateValidator,
+                endpoint.asConfig().getUserMap(),
+                endpoint.asConfig().getAllowAnonymous()));
 
         registerDiscovery();
         uaServer.init();
@@ -289,8 +286,7 @@ public class Server {
     private void createAddressSpace() {
         try {
             loadI4AasNodes();
-
-            aasNodeManager = new AasServiceNodeManager(uaServer, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint);
+            AasServiceNodeManager aasNodeManager = new AasServiceNodeManager(uaServer, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint);
             aasNodeManager.getIoManager().addListeners(new AasServiceIoManagerListener(endpoint, aasNodeManager));
             LOGGER.debug("Address space created.");
         }
