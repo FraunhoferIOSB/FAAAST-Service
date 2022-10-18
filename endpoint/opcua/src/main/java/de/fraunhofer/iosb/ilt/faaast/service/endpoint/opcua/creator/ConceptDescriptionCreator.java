@@ -194,10 +194,7 @@ public class ConceptDescriptionCreator {
 
         AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
 
-        if (category == null) {
-            category = "";
-        }
-        conceptDescriptionNode.setCategory(category);
+        conceptDescriptionNode.setCategory(category != null ? category : "");
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
             conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);
@@ -223,10 +220,7 @@ public class ConceptDescriptionCreator {
 
         AdministrativeInformationCreator.addAdminInformationProperties(conceptDescriptionNode.getAdministrationNode(), adminInfo, nodeManager);
 
-        if (category == null) {
-            category = "";
-        }
-        conceptDescriptionNode.setCategory(category);
+        conceptDescriptionNode.setCategory(category != null ? category : "");
 
         if (AasServiceNodeManager.VALUES_READ_ONLY) {
             conceptDescriptionNode.getCategoryNode().setAccessLevel(AccessLevelType.CurrentRead);

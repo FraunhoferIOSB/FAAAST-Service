@@ -133,10 +133,7 @@ public class SubmodelElementCreator {
         if ((node != null) && (element != null)) {
             // Category
             String category = element.getCategory();
-            if (category == null) {
-                category = "";
-            }
-            node.setCategory(category);
+            node.setCategory(category != null ? category : "");
 
             node.setModelingKind(ValueConverter.convertModelingKind(element.getKind()));
 
