@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import java.io.IOException;
 
 
@@ -56,7 +57,7 @@ public class ConfigTypeResolver extends TypeIdResolverBase {
     @Override
     public JavaType typeFromId(DatabindContext context, String id) throws IOException {
         try {
-            Class<?> type = Class.forName(id);
+            Class<?> type = Class.forName(id, true, ImplementationManager.getClassLoader());
             if (!Configurable.class.isAssignableFrom(type)) {
                 throw new IOException(
                         String.format("class '%s' must implement interface '%s' to be used with the dynamic configuration feature", id, Configurable.class.getSimpleName()));
