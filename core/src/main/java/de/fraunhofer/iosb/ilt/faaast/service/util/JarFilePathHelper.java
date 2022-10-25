@@ -24,6 +24,9 @@ import java.nio.file.Paths;
  */
 public class JarFilePathHelper {
 
+    private JarFilePathHelper() {}
+
+
     /**
      * Find JAR file path for a given class.
      *
@@ -31,7 +34,7 @@ public class JarFilePathHelper {
      * @return the file path of the JAR containing the class if available
      * @throws RuntimeException if path could not be resolved or class is not starter from a JAR file
      */
-    public static String getJarFilePath(Class clazz) {
+    public static <T> String getJarFilePath(Class<T> clazz) {
         try {
             return byGetProtectionDomain(clazz);
         }
@@ -42,13 +45,13 @@ public class JarFilePathHelper {
     }
 
 
-    private static String byGetProtectionDomain(Class clazz) throws URISyntaxException {
+    private static <T> String byGetProtectionDomain(Class<T> clazz) throws URISyntaxException {
         URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
         return Paths.get(url.toURI()).toString();
     }
 
 
-    private static String byGetResource(Class clazz) {
+    private static <T> String byGetResource(Class<T> clazz) {
         URL classResource = clazz.getResource(clazz.getSimpleName() + ".class");
         if (classResource == null) {
             throw new RuntimeException("class resource is null");

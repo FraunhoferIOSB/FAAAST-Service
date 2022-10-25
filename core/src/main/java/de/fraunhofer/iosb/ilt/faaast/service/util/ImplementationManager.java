@@ -18,8 +18,8 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 import org.slf4j.LoggerFactory;
 
 
@@ -41,18 +41,11 @@ public class ImplementationManager {
         try {
             File[] files = dir.listFiles((File dir1, String name) -> name.toLowerCase().endsWith(".jar") && !name.equals(jar.getName()));
             if (files != null) {
-                List<URL> jars = new ArrayList<>();
-                for (File file: files) {
-                    try {
-                        jars.add(file.toURI().toURL());
-                        LOGGER.info("Loaded external jar: {}", file.getName());
-                    }
-                    catch (MalformedURLException e) {
-                        LOGGER.error("Failed to load external jar: {}", file.getName(), e);
-                    }
-                }
                 classLoader = new URLClassLoader(
-                        jars.toArray(new URL[0]),
+                        Stream.of(files)
+                                .map(ImplementationManager::fileToUrl)
+                                .filter(Objects::nonNull)
+                                .toArray(URL[]::new),
                         ImplementationManager.class.getClassLoader());
             }
         }
@@ -60,6 +53,20 @@ public class ImplementationManager {
             LOGGER.error("Scanning directory '{}' for jar files failed", dir, e);
         }
     }
+
+    private static URL fileToUrl(File file) {
+        URL result = null;
+        try {
+            result = file.toURI().toURL();
+            LOGGER.info("Loaded external jar: {}", file.getName());
+            return result;
+        }
+        catch (MalformedURLException e) {
+            LOGGER.error("Failed to load external jar: {}", file.getName(), e);
+        }
+        return null;
+    }
+
 
     /**
      * Returns the {@link java.lang.ClassLoader} that contains all the dynamically loaded JAR files.
