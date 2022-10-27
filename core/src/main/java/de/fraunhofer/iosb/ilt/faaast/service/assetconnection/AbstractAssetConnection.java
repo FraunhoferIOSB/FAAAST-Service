@@ -41,6 +41,8 @@ import java.util.Objects;
 public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V, OC, O, SC, S>, C extends AssetConnectionConfig<T, VC, OC, SC>, VC extends AssetValueProviderConfig, V extends AssetValueProvider, OC extends AssetOperationProviderConfig, O extends AssetOperationProvider, SC extends AssetSubscriptionProviderConfig, S extends AssetSubscriptionProvider>
         implements AssetConnection<C, VC, V, OC, O, SC, S> {
 
+    protected static final String ERROR_MSG_REFERENCE_NOT_NULL = "reference must be non-null";
+    protected static final String ERROR_MSG_PROVIDER_CONFIG_NOT_NULL = "providerConfig must be non-null";
     protected C config;
     protected final Map<Reference, O> operationProviders;
     protected ServiceContext serviceContext;
@@ -122,24 +124,24 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
 
     @Override
     public void registerValueProvider(Reference reference, VC providerConfig) throws AssetConnectionException {
-        Ensure.requireNonNull(reference, "reference must be non-null");
-        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
+        Ensure.requireNonNull(reference, ERROR_MSG_REFERENCE_NOT_NULL);
+        Ensure.requireNonNull(providerConfig, ERROR_MSG_PROVIDER_CONFIG_NOT_NULL);
         this.valueProviders.put(reference, createValueProvider(reference, providerConfig));
     }
 
 
     @Override
     public void registerOperationProvider(Reference reference, OC providerConfig) throws AssetConnectionException {
-        Ensure.requireNonNull(reference, "reference must be non-null");
-        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
+        Ensure.requireNonNull(reference, ERROR_MSG_REFERENCE_NOT_NULL);
+        Ensure.requireNonNull(providerConfig, ERROR_MSG_PROVIDER_CONFIG_NOT_NULL);
         this.operationProviders.put(reference, createOperationProvider(reference, providerConfig));
     }
 
 
     @Override
     public void registerSubscriptionProvider(Reference reference, SC providerConfig) throws AssetConnectionException {
-        Ensure.requireNonNull(reference, "reference must be non-null");
-        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
+        Ensure.requireNonNull(reference, ERROR_MSG_REFERENCE_NOT_NULL);
+        Ensure.requireNonNull(providerConfig, ERROR_MSG_PROVIDER_CONFIG_NOT_NULL);
         this.subscriptionProviders.put(reference, createSubscriptionProvider(reference, providerConfig));
     }
 

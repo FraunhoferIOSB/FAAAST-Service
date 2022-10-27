@@ -50,7 +50,7 @@ public class ImplementationManager {
 
 
     private static Class<?> getMainClass() throws ClassNotFoundException {
-        StackTraceElement trace[] = Thread.currentThread().getStackTrace();
+        StackTraceElement[] trace = Thread.currentThread().getStackTrace();
         if (trace.length > 0) {
             return Class.forName(trace[trace.length - 1].getClassName());
         }
