@@ -164,7 +164,7 @@ public class HttpAssetConnection implements
     public void registerOperationProvider(Reference reference, HttpOperationProviderConfig providerConfig) throws AssetConnectionException {
         Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
-        this.operationProviders.put(reference, new HttpOperationProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig));
+        this.operationProviders.put(reference, new HttpOperationProvider(serviceContext, reference, client, config, providerConfig));
     }
 
 
@@ -178,7 +178,7 @@ public class HttpAssetConnection implements
     public void registerSubscriptionProvider(Reference reference, HttpSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
         Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
-        this.subscriptionProviders.put(reference, new HttpSubscriptionProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig));
+        this.subscriptionProviders.put(reference, new HttpSubscriptionProvider(serviceContext, reference, client, config, providerConfig));
     }
 
 
@@ -196,7 +196,7 @@ public class HttpAssetConnection implements
         if (providerConfig == null) {
             throw new IllegalArgumentException("providerConfig must be non-null");
         }
-        this.valueProviders.put(reference, new HttpValueProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig));
+        this.valueProviders.put(reference, new HttpValueProvider(serviceContext, reference, client, config, providerConfig));
     }
 
 

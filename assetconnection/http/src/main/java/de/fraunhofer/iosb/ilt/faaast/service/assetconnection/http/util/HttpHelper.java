@@ -24,6 +24,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -68,6 +72,7 @@ public class HttpHelper {
      * @param method the HTTP method to use
      * @param bodyPublisher the body publisher
      * @param bodyHandler the body handler
+     * @param headers the headers to use for the request
      * @return an HTTP response
      * @throws URISyntaxException if the URL is invalid
      * @throws IOException if URL is invalid or HTTP communication fails
@@ -85,7 +90,8 @@ public class HttpHelper {
                                               String format,
                                               String method,
                                               BodyPublisher bodyPublisher,
-                                              BodyHandler<T> bodyHandler)
+                                              BodyHandler<T> bodyHandler,
+                                              Map<String, String> headers)
             throws URISyntaxException, IOException, InterruptedException {
         Ensure.requireNonNull(client, "client must be non-null");
         Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
@@ -97,6 +103,22 @@ public class HttpHelper {
         if (!StringUtils.isBlank(mimeType)) {
             builder = builder.header(HttpConstants.CONTENT_TYPE, mimeType);
         }
+        if (headers != null) {
+            for (var header: headers.entrySet()) {
+                builder = builder.header(header.getKey(), header.getValue());
+            }
+        }
         return client.send(builder.method(method, bodyPublisher).build(), bodyHandler);
+    }
+
+
+    public static Map<String, String> mergeHeaders(Map<String, String>... values) {
+        return Stream.of(values)
+                .filter(Objects::nonNull)
+                .flatMap(x -> x.entrySet().stream())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (x, y) -> y));
     }
 }
