@@ -10,6 +10,8 @@
 		*   Introduce mapping between IdShort and Argument Name in OpcUaOperationProviderConfig
 	*   MQTT
 		*   Automatic reconnect upon connection loss
+	*   HTTP
+		*   Now supports adding custom HTTP headers (on connection- & provier-level)
 *   Improved JavaDoc documentation
 *   Improved security through automatic vulnerabilities check before release
 *   Added example how to implement custom asset connection

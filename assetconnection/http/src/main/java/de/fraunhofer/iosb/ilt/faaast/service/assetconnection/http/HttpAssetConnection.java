@@ -75,19 +75,19 @@ public class HttpAssetConnection extends
 
     @Override
     protected HttpValueProvider createValueProvider(Reference reference, HttpValueProviderConfig providerConfig) {
-        return new HttpValueProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig);
+        return new HttpValueProvider(serviceContext, reference, client, config, providerConfig);
     }
 
 
     @Override
     protected HttpOperationProvider createOperationProvider(Reference reference, HttpOperationProviderConfig providerConfig) {
-        return new HttpOperationProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig);
+        return new HttpOperationProvider(serviceContext, reference, client, config, providerConfig);
     }
 
 
     @Override
     protected HttpSubscriptionProvider createSubscriptionProvider(Reference reference, HttpSubscriptionProviderConfig providerConfig) {
-        return new HttpSubscriptionProvider(serviceContext, reference, client, config.getBaseUrl(), providerConfig);
+        return new HttpSubscriptionProvider(serviceContext, reference, client, config, providerConfig);
     }
 
 
