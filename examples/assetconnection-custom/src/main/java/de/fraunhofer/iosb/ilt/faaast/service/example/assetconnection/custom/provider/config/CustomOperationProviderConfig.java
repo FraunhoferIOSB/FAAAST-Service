@@ -12,12 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config;
+package de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
 
 
-/**
- * * Config file for MQTT-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
- */
-public class MqttOperationProviderConfig extends AbstractMultiFormatOperationProviderConfig {}
+public class CustomOperationProviderConfig implements AssetOperationProviderConfig {
+
+}

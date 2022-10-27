@@ -35,6 +35,7 @@
     <logger name="de.fraunhofer.iosb.ilt.faaast.service" level="warn"/>
     <logger name="de.fraunhofer.iosb.ilt.faaast.service.starter" level="debug"/>
     <logger name="de.fraunhofer.iosb.ilt.faaast.service.persistence" level="info"/>
+    <logger name="de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager" level="info"/>
     <root level="error">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT_INFO"/>

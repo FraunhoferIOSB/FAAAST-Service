@@ -12,8 +12,10 @@
 		*   Automatic reconnect upon connection loss
 *   Improved JavaDoc documentation
 *   Improved security through automatic vulnerabilities check before release
+*   Added example how to implement custom asset connection
 
-**Internal changes &  smaller bugfixes**
+**Internal changes &  bugfixes**
+*   Dynamic loading of custom implementations (AssetConnection, Persistence, MessageBus, Endpoint and Dataformat) now works as expected. NOTE: This requires package your custom implementation as a fat jar and put it in the same location as the FA³ST starter jar.
 *   Streamlining dependencies
 *   Improved console output for file paths
 *   Added checks to ensure model paths provided are valid

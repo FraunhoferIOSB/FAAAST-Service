@@ -34,12 +34,29 @@ public class ImplementationManager {
 
     private ImplementationManager() {}
 
+
+    private static Class<?> getMainClass() throws ClassNotFoundException {
+        StackTraceElement trace[] = Thread.currentThread().getStackTrace();
+        if (trace.length > 0) {
+            return Class.forName(trace[trace.length - 1].getClassName());
+        }
+        throw new ClassNotFoundException();
+    }
+
     static {
-        File jar = new File(JarFilePathHelper.getJarFilePath(ImplementationManager.class));
+        Class<?> clazzToFind;
+        try {
+            clazzToFind = getMainClass();
+        }
+        catch (ClassNotFoundException e) {
+            clazzToFind = ImplementationManager.class;
+        }
+        File jar = new File(JarFilePathHelper.getJarFilePath(clazzToFind));
         File dir = jar.getParentFile();
         LOGGER.info("Scanning directory '{}' for jar files...", dir);
         try {
-            File[] files = dir.listFiles((File dir1, String name) -> name.toLowerCase().endsWith(".jar") && !name.equals(jar.getName()));
+            File[] files = dir.listFiles((File dir1, String name) -> name.toLowerCase().endsWith(".jar")
+                    && (!jar.isFile() || !name.equals(jar.getName())));
             if (files != null) {
                 classLoader = new URLClassLoader(
                         Stream.of(files)
