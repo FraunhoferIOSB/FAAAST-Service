@@ -441,26 +441,29 @@ public class App implements Runnable {
 
 
     private boolean validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
+        boolean result = true;
         LOGGER.debug("Validating model...");
         try {
             ValueTypeValidator.validate(aasEnv);
         }
         catch (ValidationException e) {
-            LOGGER.info("Model validation failed with the following error(s):{}{}", System.lineSeparator(), e.getMessage());
-            return false;
+            LOGGER.info("Model type validation failed with the following error(s):{}{}", System.lineSeparator(), e.getMessage());
+            result = false;
         }
         ShaclValidator shaclValidator = ShaclValidator.getInstance();
         ValidationReport report = shaclValidator.validateGetReport(aasEnv);
-        if (report.conforms()) {
+        if (!report.conforms()) {
+            ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
+            ShLib.printReport(validationResultStream, report);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Detailed model validation failed with the following error(s):{}{}", System.lineSeparator(), validationResultStream);
+            }
+            result = false;
+        }
+        if (result) {
             LOGGER.info("Model successfully validated");
-            return true;
         }
-        ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
-        ShLib.printReport(validationResultStream, report);
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Model validation failed with the following error(s):{}{}", System.lineSeparator(), validationResultStream);
-        }
-        return false;
+        return result;
     }
 
 
