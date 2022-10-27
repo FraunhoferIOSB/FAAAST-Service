@@ -18,8 +18,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +36,11 @@ public class FormatFactory {
     private FormatFactory() {}
 
 
-    private static void init() {
+    private static synchronized void init() {
         if (formats != null) {
             return;
         }
-        formats = new HashMap<>();
+        formats = new ConcurrentHashMap<>();
         try (ScanResult scanResult = new ClassGraph()
                 .enableClassInfo()
                 .enableAnnotationInfo()

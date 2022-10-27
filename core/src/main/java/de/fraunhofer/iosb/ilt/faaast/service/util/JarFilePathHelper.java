@@ -63,9 +63,9 @@ public class JarFilePathHelper {
                 return Paths.get(new URL(path).toURI()).toString();
             }
             catch (Exception e) {
-                throw new RuntimeException("Invalid Jar File URL String");
+                throw new RuntimeException(String.format("Invalid Jar File URL String (%s)", url));
             }
         }
-        throw new RuntimeException("Invalid Jar File URL String");
+        throw new RuntimeException(String.format("Invalid Jar File URL String (%s)", url));
     }
 }
