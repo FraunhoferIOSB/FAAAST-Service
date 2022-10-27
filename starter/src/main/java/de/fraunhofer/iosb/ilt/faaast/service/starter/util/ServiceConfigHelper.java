@@ -91,7 +91,7 @@ public class ServiceConfigHelper {
      * @throws IOException if accessing file fails
      */
     public static ServiceConfig load(File configFile) throws IOException {
-        return mapper.readValue(configFile, ServiceConfig.class);
+        return ServiceConfig.load(configFile);
     }
 
 
@@ -103,7 +103,7 @@ public class ServiceConfigHelper {
      * @throws IOException if accessing stream fails
      */
     public static ServiceConfig load(InputStream configFile) throws IOException {
-        return mapper.readValue(configFile, ServiceConfig.class);
+        return ServiceConfig.load(configFile);
     }
 
 

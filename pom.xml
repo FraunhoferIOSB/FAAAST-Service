@@ -378,6 +378,7 @@
             </activation>
             <modules>
                 <module>checks</module>
+                <module>examples/assetconnection-custom</module>
                 <module>test</module>
             </modules>
         </profile>
@@ -437,6 +438,7 @@
             <modules>
                 <module>checks</module>
                 <module>endpoint/opcua</module>
+                <module>examples/assetconnection-custom</module>
                 <module>test</module>
             </modules>
             <properties>
