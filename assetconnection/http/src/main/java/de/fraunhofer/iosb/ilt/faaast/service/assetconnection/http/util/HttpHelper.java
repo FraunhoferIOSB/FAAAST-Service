@@ -112,7 +112,16 @@ public class HttpHelper {
     }
 
 
+    /**
+     * Merges multiple header definitions into one. Redefinitions of the same header get overridden by later mentions.
+     *
+     * @param values header definitions to merge
+     * @return merged header definition
+     */
     public static Map<String, String> mergeHeaders(Map<String, String>... values) {
+        if (values == null) {
+            return Map.of();
+        }
         return Stream.of(values)
                 .filter(Objects::nonNull)
                 .flatMap(x -> x.entrySet().stream())

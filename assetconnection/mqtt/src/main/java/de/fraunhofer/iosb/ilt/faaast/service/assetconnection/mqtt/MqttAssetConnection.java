@@ -14,22 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt;
 
-import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.Reference;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
@@ -63,29 +58,11 @@ import org.slf4j.LoggerFactory;
  *
  * <p>This class uses a single underlying MQTT connection.
  */
-public class MqttAssetConnection implements
-        AssetConnection<MqttAssetConnectionConfig, MqttValueProviderConfig, MqttValueProvider, MqttOperationProviderConfig, AssetOperationProvider, MqttSubscriptionProviderConfig, MqttSubscriptionProvider> {
+public class MqttAssetConnection extends
+        AbstractAssetConnection<MqttAssetConnection, MqttAssetConnectionConfig, MqttValueProviderConfig, MqttValueProvider, MqttOperationProviderConfig, MqttOperationProvider, MqttSubscriptionProviderConfig, MqttSubscriptionProvider> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MqttAssetConnection.class);
     private MqttClient client;
-    private MqttAssetConnectionConfig config;
-    private final Map<Reference, AssetOperationProvider> operationProviders;
-    private ServiceContext serviceContext;
-    private final Map<Reference, MqttSubscriptionProvider> subscriptionProviders;
-    private final Map<Reference, MqttValueProvider> valueProviders;
-
-    public MqttAssetConnection() {
-        this.valueProviders = new HashMap<>();
-        this.operationProviders = new HashMap<>();
-        this.subscriptionProviders = new HashMap<>();
-    }
-
-
-    @Override
-    public MqttAssetConnectionConfig asConfig() {
-        return config;
-    }
-
 
     @Override
     public void close() {
@@ -109,37 +86,25 @@ public class MqttAssetConnection implements
 
 
     @Override
-    public Map<Reference, AssetOperationProvider> getOperationProviders() {
-        return operationProviders;
+    protected MqttOperationProvider createOperationProvider(Reference reference, MqttOperationProviderConfig providerConfig) {
+        throw new UnsupportedOperationException("executing operations via MQTT currently not supported.");
     }
 
 
     @Override
-    public Map<Reference, MqttSubscriptionProvider> getSubscriptionProviders() {
-        return subscriptionProviders;
+    protected MqttSubscriptionProvider createSubscriptionProvider(Reference reference, MqttSubscriptionProviderConfig providerConfig) {
+        return new MqttSubscriptionProvider(serviceContext, reference, client, providerConfig);
     }
 
 
     @Override
-    public Map<Reference, MqttValueProvider> getValueProviders() {
-        return valueProviders;
+    protected MqttValueProvider createValueProvider(Reference reference, MqttValueProviderConfig providerConfig) {
+        return new MqttValueProvider(serviceContext, reference, client, providerConfig);
     }
 
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalArgumentException if coreConfig is null
-     * @throws IllegalArgumentException if config is null
-     * @throws IllegalArgumentException if serviceContext if null
-     */
     @Override
-    public void init(CoreConfig coreConfig, MqttAssetConnectionConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
-        Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
-        Ensure.requireNonNull(config, "config must be non-null");
-        Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
-        this.config = config;
-        this.serviceContext = serviceContext;
+    protected void initConnection(MqttAssetConnectionConfig config) throws ConfigurationInitializationException {
         try {
             client = new MqttClient(config.getServerUri(), config.getClientId(), new MemoryPersistence());
             client.setCallback(new MqttCallbackExtended() {
@@ -190,83 +155,11 @@ public class MqttAssetConnection implements
             options.setCleanSession(true);
             options.setAutomaticReconnect(true);
             client.connect(options);
-            for (var providerConfig: config.getValueProviders().entrySet()) {
-                registerValueProvider(providerConfig.getKey(), providerConfig.getValue());
-            }
-            for (var providerConfig: config.getOperationProviders().entrySet()) {
-                registerOperationProvider(providerConfig.getKey(), providerConfig.getValue());
-            }
-            for (var providerConfig: config.getSubscriptionProviders().entrySet()) {
-                registerSubscriptionProvider(providerConfig.getKey(), providerConfig.getValue());
-            }
 
         }
-        catch (MqttException | AssetConnectionException e) {
+        catch (MqttException e) {
             throw new ConfigurationInitializationException("initializaing MQTT asset connection failed", e);
         }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws UnsupportedOperationException as this operation is not supported
-     */
-    @Override
-    public void registerOperationProvider(Reference reference, MqttOperationProviderConfig providerConfig) throws AssetConnectionException {
-        throw new UnsupportedOperationException("executing operations via MQTT not supported.");
-    }
-
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalArgumentException if reference is null
-     * @throws IllegalArgumentException if providerConfig is null
-     */
-    @Override
-    public void registerSubscriptionProvider(Reference reference, MqttSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
-        Ensure.requireNonNull(reference, "reference must be non-null");
-        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
-        this.subscriptionProviders.put(reference, new MqttSubscriptionProvider(serviceContext, reference, client, providerConfig));
-    }
-
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalArgumentException if reference is null
-     * @throws IllegalArgumentException if providerConfig is null
-     */
-    @Override
-    public void registerValueProvider(Reference reference, MqttValueProviderConfig providerConfig) throws AssetConnectionException {
-        Ensure.requireNonNull(reference, "reference must be non-null");
-        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
-        this.valueProviders.put(reference, new MqttValueProvider(serviceContext, reference, client, providerConfig));
-    }
-
-
-    @Override
-    public boolean sameAs(AssetConnection other) {
-        return false;
-    }
-
-
-    @Override
-    public void unregisterOperationProvider(Reference reference) {
-        this.operationProviders.remove(reference);
-    }
-
-
-    @Override
-    public void unregisterSubscriptionProvider(Reference reference) {
-        this.subscriptionProviders.remove(reference);
-    }
-
-
-    @Override
-    public void unregisterValueProvider(Reference reference) {
-        this.valueProviders.remove(reference);
     }
 
 }
