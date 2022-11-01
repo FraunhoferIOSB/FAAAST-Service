@@ -119,7 +119,7 @@
         <moquette.version>0.15.1</moquette.version>
         <netty.version>4.1.84.Final</netty.version>
         <paho.version>1.2.5</paho.version>
-        <picocli.version>4.6.3</picocli.version>
+        <picocli.version>4.7.0</picocli.version>
         <poi.ooxml.version>5.2.3</poi.ooxml.version>
         <proguard.core.version>9.0.5</proguard.core.version>
         <proguard.version>7.2.2</proguard.version>
