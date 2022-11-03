@@ -87,7 +87,7 @@ jobs:
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-      run: mvn clean deploy -P release --settings maven-ci-settings.xml -pl endpoint/opcua -B
+      run: mvn clean deploy -P release --settings maven-ci-settings.xml -B
 
     - name: Push Docker Image
       if: github.ref == 'refs/heads/main'
