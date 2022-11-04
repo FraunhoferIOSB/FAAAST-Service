@@ -1,5 +1,7 @@
 # Changelog
 
+## Current development version (0.4.0-SNAPSHOT)
+
 ## Release version 0.3.0
 
 **New Features**
