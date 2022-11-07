@@ -22,7 +22,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConf
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
+import io.adminshell.aas.v3.model.builder.AbstractBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +43,7 @@ public class ServiceConfig {
     private List<EndpointConfig> endpoints;
     private PersistenceConfig persistence;
     private MessageBusConfig messageBus;
+    private List<SubmodelTemplateProcessorConfig> submodelTemplateProcessors;
 
     private static ObjectMapper getMapper() {
         ObjectMapper mapper = new ObjectMapper()
@@ -76,11 +79,6 @@ public class ServiceConfig {
     }
 
 
-    /**
-     * Returns a new builder for this class.
-     *
-     * @return a new builder for this class
-     */
     public static Builder builder() {
         return new Builder();
     }
@@ -89,6 +87,67 @@ public class ServiceConfig {
     public ServiceConfig() {
         this.assetConnections = new ArrayList<>();
         this.endpoints = new ArrayList<>();
+        this.submodelTemplateProcessors = new ArrayList<>();
+    }
+
+
+    public List<AssetConnectionConfig> getAssetConnections() {
+        return assetConnections;
+    }
+
+
+    public void setAssetConnections(List<AssetConnectionConfig> assetConnections) {
+        this.assetConnections = assetConnections;
+    }
+
+
+    public CoreConfig getCore() {
+        return core;
+    }
+
+
+    public void setCore(CoreConfig core) {
+        this.core = core;
+    }
+
+
+    public List<EndpointConfig> getEndpoints() {
+        return endpoints;
+    }
+
+
+    public void setEndpoints(List<EndpointConfig> endpoints) {
+        this.endpoints = endpoints;
+    }
+
+
+    public PersistenceConfig getPersistence() {
+        return persistence;
+    }
+
+
+    public void setPersistence(PersistenceConfig persistence) {
+        this.persistence = persistence;
+    }
+
+
+    public MessageBusConfig getMessageBus() {
+        return messageBus;
+    }
+
+
+    public void setMessageBus(MessageBusConfig messageBus) {
+        this.messageBus = messageBus;
+    }
+
+
+    public List<SubmodelTemplateProcessorConfig> getSubmodelTemplateProcessors() {
+        return submodelTemplateProcessors;
+    }
+
+
+    public void setSubmodelTemplateProcessors(List<SubmodelTemplateProcessorConfig> submodelTemplateProcessors) {
+        this.submodelTemplateProcessors = submodelTemplateProcessors;
     }
 
 
@@ -107,221 +166,64 @@ public class ServiceConfig {
         return Objects.equals(this.core, other.core)
                 && Objects.equals(this.assetConnections, other.assetConnections)
                 && Objects.equals(this.endpoints, other.endpoints)
-                && Objects.equals(this.persistence, other.persistence);
-    }
-
-
-    /**
-     * Gets the configured asset connections.
-     *
-     * @return the configured asset connections
-     */
-    public List<AssetConnectionConfig> getAssetConnections() {
-        return assetConnections;
-    }
-
-
-    /**
-     * Sets the asset connections.
-     *
-     * @param assetConnections the asset connections to set
-     */
-    public void setAssetConnections(List<AssetConnectionConfig> assetConnections) {
-        this.assetConnections = assetConnections;
-    }
-
-
-    /**
-     * Gets the core configuration.
-     *
-     * @return the core configuration
-     */
-    public CoreConfig getCore() {
-        return core;
-    }
-
-
-    /**
-     * Sets the core configuration.
-     *
-     * @param core the core configuration to set
-     */
-    public void setCore(CoreConfig core) {
-        this.core = core;
-    }
-
-
-    /**
-     * Gets the configured endpoints.
-     *
-     * @return the configured endpoints
-     */
-    public List<EndpointConfig> getEndpoints() {
-        return endpoints;
-    }
-
-
-    /**
-     * Sets the endpoints.
-     *
-     * @param endpoints the endpoints to set
-     */
-    public void setEndpoints(List<EndpointConfig> endpoints) {
-        this.endpoints = endpoints;
-    }
-
-
-    /**
-     * Gets the persistence configuration.
-     *
-     * @return the persistence configuration
-     */
-    public PersistenceConfig getPersistence() {
-        return persistence;
-    }
-
-
-    /**
-     * Sets the persistence.
-     *
-     * @param persistence the persistence to set
-     */
-    public void setPersistence(PersistenceConfig persistence) {
-        this.persistence = persistence;
+                && Objects.equals(this.persistence, other.persistence)
+                && Objects.equals(this.submodelTemplateProcessors, other.submodelTemplateProcessors);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(core, assetConnections, persistence, endpoints);
+        return Objects.hash(core, assetConnections, persistence, endpoints, submodelTemplateProcessors);
     }
 
-    /**
-     * Builder class for ServiceConfig.
-     */
-    public static class Builder {
+    public static class Builder extends AbstractBuilder<ServiceConfig> {
 
-        private CoreConfig core;
-        private List<AssetConnectionConfig> assetConnections;
-        private List<EndpointConfig> endpoints;
-        private PersistenceConfig persistence;
-        private MessageBusConfig messageBus;
-
-        public Builder() {
-            this.core = new CoreConfig();
-            this.persistence = new PersistenceConfig();
-            this.assetConnections = new ArrayList<>();
-            this.endpoints = new ArrayList<>();
-        }
-
-
-        /**
-         * Sets the core config.
-         *
-         * @param value the core config
-         * @return the builder
-         */
         public Builder core(CoreConfig value) {
-            this.core = value;
+            getBuildingInstance().setCore(value);
             return this;
         }
 
 
-        /**
-         * Sets the persistence config.
-         *
-         * @param value the persistence config
-         * @return the builder
-         */
         public Builder persistence(PersistenceConfig value) {
-            this.persistence = value;
+            getBuildingInstance().setPersistence(value);
             return this;
         }
 
 
-        /**
-         * Sets the messageBus config.
-         *
-         * @param value the messageBus config
-         * @return the builder
-         */
         public Builder messageBus(MessageBusConfig value) {
-            this.messageBus = value;
+            getBuildingInstance().setMessageBus(value);
             return this;
         }
 
 
-        /**
-         * Sets the asset connections.
-         *
-         * @param value the asset connections
-         * @return the builder
-         */
         public Builder assetConnections(List<AssetConnectionConfig> value) {
-            this.assetConnections = value;
+            getBuildingInstance().setAssetConnections(value);
             return this;
         }
 
 
-        /**
-         * Adds an asset connection to the current list of asset connections.
-         *
-         * @param value the asset connection to add
-         * @return the builder
-         */
         public Builder assetConnection(AssetConnectionConfig value) {
-            this.assetConnections.add(value);
+            getBuildingInstance().getAssetConnections().add(value);
             return this;
         }
 
 
-        /**
-         * Sets the endpoints.
-         *
-         * @param value the endpoints
-         * @return the builder
-         */
         public Builder endpoints(List<EndpointConfig> value) {
-            this.endpoints = value;
+            getBuildingInstance().setEndpoints(value);
             return this;
         }
 
 
-        /**
-         * Adds an endpoint to the current list of endpoints.
-         *
-         * @param value the endpoint to add
-         * @return the builder
-         */
         public Builder endpoint(EndpointConfig value) {
-            this.endpoints.add(value);
+            getBuildingInstance().getEndpoints().add(value);
             return this;
         }
 
 
-        /**
-         * Builds a new instance of ServiceConfig as defined by the builder.
-         *
-         * @return a new instance of ServiceConfig as defined by the builder
-         */
-        public ServiceConfig build() {
-            ServiceConfig result = new ServiceConfig();
-            result.setAssetConnections(assetConnections);
-            result.setCore(core);
-            result.setEndpoints(endpoints);
-            result.setPersistence(persistence);
-            result.setMessageBus(messageBus);
-            return result;
+        @Override
+        protected ServiceConfig newBuildingInstance() {
+            return new ServiceConfig();
         }
 
-    }
-
-    public MessageBusConfig getMessageBus() {
-        return messageBus;
-    }
-
-
-    public void setMessageBus(MessageBusConfig messageBus) {
-        this.messageBus = messageBus;
     }
 }

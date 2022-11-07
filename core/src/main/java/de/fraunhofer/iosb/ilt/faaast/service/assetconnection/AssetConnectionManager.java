@@ -52,7 +52,7 @@ public class AssetConnectionManager {
         this.connections = connections != null ? connections : new ArrayList<>();
         this.serviceContext = context;
         validateConnections();
-        for (var assetConnection: connections) {
+        for (var assetConnection: this.connections) {
             final Map<Reference, AssetSubscriptionProvider> subscriptionProviders = assetConnection.getSubscriptionProviders();
             for (var subscriptionInfo: subscriptionProviders.entrySet()) {
                 subscriptionInfo.getValue().addNewDataListener((DataElementValue data) -> {

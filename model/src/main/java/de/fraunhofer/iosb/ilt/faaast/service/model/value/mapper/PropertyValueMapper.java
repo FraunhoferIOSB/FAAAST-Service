@@ -38,7 +38,11 @@ public class PropertyValueMapper implements DataValueMapper<Property, PropertyVa
             propertyValue.setValue(TypedValueFactory.create(submodelElement.getValueType(), submodelElement.getValue()));
         }
         catch (ValueFormatException e) {
-            throw new ValueMappingException("invalid data value", e);
+            throw new ValueMappingException(
+                    String.format("invalid data value (value: %s, valueType: %s)",
+                            submodelElement.getValue(),
+                            submodelElement.getValueType()),
+                    e);
         }
         return propertyValue;
     }

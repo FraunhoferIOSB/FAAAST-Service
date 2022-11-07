@@ -377,4 +377,23 @@ public class ReferenceHelper {
                 .keys(keyList)
                 .build();
     }
+
+
+    /**
+     * Builds a global reference.
+     *
+     * @param value the value
+     * @return a global reference
+     */
+    public static Reference globalReference(String value) {
+        List<Key> keyList = new ArrayList<>();
+        keyList.add(new DefaultKey.Builder()
+                .idType(KeyType.IRI)
+                .type(KeyElements.GLOBAL_REFERENCE)
+                .value(value)
+                .build());
+        return new DefaultReference.Builder()
+                .keys(keyList)
+                .build();
+    }
 }

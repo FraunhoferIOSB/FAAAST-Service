@@ -30,14 +30,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.InternalErrorResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.request.RequestHandlerManager;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.Submodel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -56,6 +59,7 @@ public class Service implements ServiceContext {
     private List<Endpoint> endpoints;
     private MessageBus messageBus;
     private Persistence persistence;
+    private List<SubmodelTemplateProcessor> submodelTemplateProcessors;
     private RequestHandlerManager requestHandler;
 
     /**
@@ -66,6 +70,7 @@ public class Service implements ServiceContext {
      * @param messageBus message bus implementation
      * @param endpoints endpoints
      * @param assetConnections asset connections
+     * @param submodelTemplateProcessors SMT processors
      * @throws IllegalArgumentException if coreConfig is null
      * @throws IllegalArgumentException if persistence is null
      * @throws IllegalArgumentException if messageBus is null
@@ -77,7 +82,8 @@ public class Service implements ServiceContext {
             Persistence persistence,
             MessageBus messageBus,
             List<Endpoint> endpoints,
-            List<AssetConnection> assetConnections) throws ConfigurationException, AssetConnectionException {
+            List<AssetConnection> assetConnections,
+            List<SubmodelTemplateProcessor> submodelTemplateProcessors) throws ConfigurationException, AssetConnectionException {
         Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
         Ensure.requireNonNull(persistence, "persistence must be non-null");
         Ensure.requireNonNull(messageBus, "messageBus must be non-null");
@@ -88,6 +94,7 @@ public class Service implements ServiceContext {
         else {
             this.endpoints = endpoints;
         }
+        this.submodelTemplateProcessors = submodelTemplateProcessors;
         this.config = ServiceConfig.builder()
                 .core(coreConfig)
                 .build();
@@ -95,6 +102,7 @@ public class Service implements ServiceContext {
         this.messageBus = messageBus;
         this.assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         this.requestHandler = new RequestHandlerManager(this.config.getCore(), this.persistence, this.messageBus, this.assetConnectionManager);
+        initSubmodelTemplateProcessors();
     }
 
 
@@ -192,6 +200,30 @@ public class Service implements ServiceContext {
     }
 
 
+    private void initSubmodelTemplateProcessors() throws ConfigurationException {
+        if (submodelTemplateProcessors == null) {
+            submodelTemplateProcessors = new ArrayList<>();
+        }
+        if (config.getSubmodelTemplateProcessors() != null) {
+            for (var submodelTemplateProcessorConfig: config.getSubmodelTemplateProcessors()) {
+                SubmodelTemplateProcessor submodelTemplateProcessor = (SubmodelTemplateProcessor) submodelTemplateProcessorConfig.newInstance(config.getCore(), this);
+                submodelTemplateProcessor.init(config.getCore(), submodelTemplateProcessorConfig, this);
+                submodelTemplateProcessors.add(submodelTemplateProcessor);
+            }
+        }
+        List<Submodel> submodels = persistence.get(null, (Reference) null, OutputModifier.DEFAULT);
+        for (var submodel: submodels) {
+            for (var submodelTemplateProcessor: submodelTemplateProcessors) {
+                if (submodelTemplateProcessor.accept(submodel)) {
+                    if (submodelTemplateProcessor.process(submodel, assetConnectionManager)) {
+                        persistence.put(submodel);
+                    }
+                }
+            }
+        }
+    }
+
+
     private void init() throws ConfigurationException, AssetConnectionException {
         if (config.getPersistence() == null) {
             throw new InvalidConfigurationException("config.persistence must be non-null");
@@ -221,5 +253,6 @@ public class Service implements ServiceContext {
             }
         }
         this.requestHandler = new RequestHandlerManager(this.config.getCore(), this.persistence, this.messageBus, this.assetConnectionManager);
+        initSubmodelTemplateProcessors();
     }
 }

@@ -112,7 +112,7 @@ public class HttpEndpointTest {
         deserializer = new HttpJsonApiDeserializer();
         persistence = mock(Persistence.class);
         endpoint = new HttpEndpoint();
-        service = spy(new Service(CoreConfig.DEFAULT, persistence, mock(MessageBus.class), List.of(endpoint), List.of()));
+        service = spy(new Service(CoreConfig.DEFAULT, persistence, mock(MessageBus.class), List.of(endpoint), List.of(), List.of()));
         endpoint.init(
                 CoreConfig.DEFAULT,
                 HttpEndpointConfig.builder()
