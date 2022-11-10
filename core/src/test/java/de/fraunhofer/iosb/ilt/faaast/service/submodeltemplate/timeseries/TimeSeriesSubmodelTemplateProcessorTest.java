@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service;
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
@@ -42,9 +43,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationS
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesSubmodelTemplateProcessor;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesSubmodelTemplateProcessorConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.IdentifierType;
@@ -102,6 +100,8 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
             .build();
 
     private static Submodel submodel = environment.getSubmodels().get(0);
+
+    private Service service;
 
     private static InvokeOperationSyncRequest getReadRecordsOperationRequest(Long start, Long end) {
         return InvokeOperationSyncRequest.builder()
@@ -246,7 +246,6 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
                 .build();
     }
 
-    private Service service;
 
     @After
     public void cleanup() {

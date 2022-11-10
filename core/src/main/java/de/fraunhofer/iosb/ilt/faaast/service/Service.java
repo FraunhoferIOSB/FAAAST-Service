@@ -214,10 +214,8 @@ public class Service implements ServiceContext {
         List<Submodel> submodels = persistence.get(null, (Reference) null, OutputModifier.DEFAULT);
         for (var submodel: submodels) {
             for (var submodelTemplateProcessor: submodelTemplateProcessors) {
-                if (submodelTemplateProcessor.accept(submodel)) {
-                    if (submodelTemplateProcessor.process(submodel, assetConnectionManager)) {
-                        persistence.put(submodel);
-                    }
+                if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.process(submodel, assetConnectionManager)) {
+                    persistence.put(submodel);
                 }
             }
         }
