@@ -95,11 +95,11 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
             internalSegment1,
             internalSegment2);
 
-    private static AssetAdministrationShellEnvironment environment = new DefaultAssetAdministrationShellEnvironment.Builder()
-            .submodels(timeSeriesToAas(timeSeries))
-            .build();
+    private static Submodel submodel = timeSeriesToAas(timeSeries);
 
-    private static Submodel submodel = environment.getSubmodels().get(0);
+    private static AssetAdministrationShellEnvironment environment = new DefaultAssetAdministrationShellEnvironment.Builder()
+            .submodels(submodel)
+            .build();
 
     private Service service;
 

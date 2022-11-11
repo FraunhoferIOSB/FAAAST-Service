@@ -15,7 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessorConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProviderConfig;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -23,7 +26,14 @@ import java.util.Objects;
  * Configuration for SMT TimeSeries Processor.
  */
 public class TimeSeriesSubmodelTemplateProcessorConfig extends SubmodelTemplateProcessorConfig<TimeSeriesSubmodelTemplateProcessor> {
+
     private boolean useSegmentTimestamps;
+    private List<LinkedSegmentProviderConfig> segmentProviders;
+
+    public TimeSeriesSubmodelTemplateProcessorConfig() {
+        this.segmentProviders = new ArrayList<>();
+    }
+
 
     public boolean isUseSegmentTimestamps() {
         return useSegmentTimestamps;
@@ -32,6 +42,16 @@ public class TimeSeriesSubmodelTemplateProcessorConfig extends SubmodelTemplateP
 
     public void setUseSegmentTimestamps(boolean useSegmentTimestamps) {
         this.useSegmentTimestamps = useSegmentTimestamps;
+    }
+
+
+    public List<LinkedSegmentProviderConfig> getSegmentProviders() {
+        return segmentProviders;
+    }
+
+
+    public void setSegmentProviders(List<LinkedSegmentProviderConfig> segmentProviders) {
+        this.segmentProviders = segmentProviders;
     }
 
 
@@ -44,13 +64,14 @@ public class TimeSeriesSubmodelTemplateProcessorConfig extends SubmodelTemplateP
             return false;
         }
         TimeSeriesSubmodelTemplateProcessorConfig that = (TimeSeriesSubmodelTemplateProcessorConfig) o;
-        return Objects.equals(useSegmentTimestamps, that.useSegmentTimestamps);
+        return Objects.equals(useSegmentTimestamps, that.useSegmentTimestamps)
+                && Objects.equals(segmentProviders, that.segmentProviders);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(useSegmentTimestamps);
+        return Objects.hash(useSegmentTimestamps, segmentProviders);
     }
 
     protected abstract static class AbstractBuilder<C extends TimeSeriesSubmodelTemplateProcessorConfig, B extends AbstractBuilder<C, B>>
@@ -58,6 +79,30 @@ public class TimeSeriesSubmodelTemplateProcessorConfig extends SubmodelTemplateP
 
         public B useSegmentTimestamps(boolean value) {
             getBuildingInstance().setUseSegmentTimestamps(value);
+            return getSelf();
+        }
+
+
+        public B withSegmentTimestamps() {
+            getBuildingInstance().setUseSegmentTimestamps(true);
+            return getSelf();
+        }
+
+
+        public B withoutSegmentTimestamps() {
+            getBuildingInstance().setUseSegmentTimestamps(false);
+            return getSelf();
+        }
+
+
+        public B segmentProvider(LinkedSegmentProviderConfig value) {
+            getBuildingInstance().getSegmentProviders().add(value);
+            return getSelf();
+        }
+
+
+        public B segmentProviders(List<LinkedSegmentProviderConfig> value) {
+            getBuildingInstance().setSegmentProviders(value);
             return getSelf();
         }
     }

@@ -216,6 +216,8 @@ public class Service implements ServiceContext {
             for (var submodelTemplateProcessor: submodelTemplateProcessors) {
                 if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.process(submodel, assetConnectionManager)) {
                     persistence.put(submodel);
+                    // TODO: notify messagebus!
+                    // potential solutions: use service requests or call before initializing endpoints
                 }
             }
         }

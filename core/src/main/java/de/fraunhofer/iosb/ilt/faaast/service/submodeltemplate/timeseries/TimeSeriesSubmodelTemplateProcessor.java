@@ -26,8 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplatePr
 import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.Reference;
@@ -36,6 +34,7 @@ import io.adminshell.aas.v3.model.impl.DefaultOperation;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import io.adminshell.aas.v3.model.impl.DefaultRange;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,13 +50,7 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
     @Override
     public boolean accept(Submodel submodel) {
         return submodel != null
-                && submodel.getSemanticId() != null
-                && submodel.getSemanticId().getKeys() != null
-                && submodel.getSemanticId().getKeys().size() == 1
-                && submodel.getSemanticId().getKeys().get(0) != null
-                && submodel.getSemanticId().getKeys().get(0).getIdType() == KeyType.IRI
-                && submodel.getSemanticId().getKeys().get(0).getType() == KeyElements.GLOBAL_REFERENCE
-                && Constants.TIMESERIES_SUBMODEL_SEMANTIC_ID.equals(submodel.getSemanticId().getKeys().get(0).getValue());
+                && Objects.equals(ReferenceHelper.globalReference(Constants.TIMESERIES_SUBMODEL_SEMANTIC_ID), submodel.getSemanticId());
     }
 
 
