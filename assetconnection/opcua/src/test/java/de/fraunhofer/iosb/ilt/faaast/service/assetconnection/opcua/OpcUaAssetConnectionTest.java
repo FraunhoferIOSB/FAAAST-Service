@@ -93,11 +93,12 @@ public class OpcUaAssetConnectionTest {
     @Test
     public void testSubscriptionProvider()
             throws AssetConnectionException, InterruptedException, ValueFormatException, ExecutionException, UaException, ConfigurationInitializationException, Exception {
-        assertSubscribe("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "0.1"));
+        assertSubscribe("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "0.1"), null);
+        assertSubscribe("ns=2;s=HelloWorld/MatrixTypes/DoubleArray", PropertyValue.of(Datatype.DOUBLE, "5.3"), "[3][2]");
     }
 
 
-    private void assertSubscribe(String nodeId, PropertyValue expected)
+    private void assertSubscribe(String nodeId, PropertyValue expected, String elementIndex)
             throws AssetConnectionException, InterruptedException, ExecutionException, UaException, ConfigurationInitializationException, Exception {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         long interval = 1000;
@@ -116,10 +117,12 @@ public class OpcUaAssetConnectionTest {
                         .subscriptionProvider(reference, OpcUaSubscriptionProviderConfig.builder()
                                 .nodeId(nodeId)
                                 .interval(interval)
+                                .arrayElementIndex(elementIndex)
                                 .build())
                         .valueProvider(reference,
                                 OpcUaValueProviderConfig.builder()
                                         .nodeId(nodeId)
+                                        .arrayElementIndex(elementIndex)
                                         .build())
                         .build(),
                 serviceContext);
@@ -141,9 +144,11 @@ public class OpcUaAssetConnectionTest {
         });
         Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", waitTime, waitTimeUnit),
                 conditionOriginalValue.await(waitTime, waitTimeUnit));
-        Assert.assertEquals(
-                PropertyValue.of(expected.getValue().getDataType(), originalValue.getValue().getValue().toString()),
-                originalValueResponse.get());
+        if ((elementIndex == null) || elementIndex.equals("")) {
+            Assert.assertEquals(
+                    PropertyValue.of(expected.getValue().getDataType(), originalValue.getValue().getValue().toString()),
+                    originalValueResponse.get());
+        }
         // second value should be new value
         final AtomicReference<DataElementValue> newValueResponse = new AtomicReference<>();
         CountDownLatch conditionNewValue = new CountDownLatch(1);
