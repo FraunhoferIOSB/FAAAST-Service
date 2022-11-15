@@ -24,7 +24,18 @@ import java.util.Objects;
  */
 public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderConfig implements AssetSubscriptionProviderConfig {
 
+    private String arrayElementIndex;
     private long interval;
+
+    public String getArrayElementIndex() {
+        return arrayElementIndex;
+    }
+
+
+    public void setArrayElementIndex(String arrayElementIndex) {
+        this.arrayElementIndex = arrayElementIndex;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -36,7 +47,8 @@ public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderConfig
         }
         OpcUaSubscriptionProviderConfig that = (OpcUaSubscriptionProviderConfig) o;
         return super.equals(o)
-                && Objects.equals(interval, that.interval);
+                && Objects.equals(interval, that.interval)
+                && Objects.equals(arrayElementIndex, that.arrayElementIndex);
     }
 
 
@@ -52,7 +64,7 @@ public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderConfig
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), interval);
+        return Objects.hash(super.hashCode(), interval, arrayElementIndex);
     }
 
 
@@ -82,5 +94,10 @@ public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderConfig
             return getSelf();
         }
 
+
+        public B arrayElementIndex(String arrayElementIndex) {
+            getBuildingInstance().setArrayElementIndex(arrayElementIndex);
+            return getSelf();
+        }
     }
 }

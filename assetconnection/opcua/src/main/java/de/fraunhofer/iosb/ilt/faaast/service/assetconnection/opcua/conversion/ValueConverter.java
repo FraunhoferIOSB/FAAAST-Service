@@ -199,7 +199,7 @@ public class ValueConverter {
 
         Object obj = value.getValue();
         for (int ind: arrayIndizes) {
-            if (obj.getClass().isArray()) {
+            if ((obj.getClass().isArray()) && (Array.getLength(obj) > ind)) {
                 obj = Array.get(obj, ind);
             }
             else {
