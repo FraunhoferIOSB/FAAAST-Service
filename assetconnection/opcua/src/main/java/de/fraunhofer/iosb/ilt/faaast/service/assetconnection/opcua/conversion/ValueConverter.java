@@ -40,7 +40,7 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
  */
 public class ValueConverter {
 
-    private static String NOT_ENOUGH_DIMENSION_TXT = "value is not an array or not enough dimensions";
+    private static final String NOT_ENOUGH_DIMENSION_TXT = "value is not an array or not enough dimensions";
     private Map<ConversionTypeInfo, AasToOpcUaValueConverter> aasToOpcUaConverters;
     private Map<ConversionTypeInfo, OpcUaToAasValueConverter> opcUaToAasConverters;
     private Pattern arrayPattern;
