@@ -24,8 +24,7 @@ import io.adminshell.aas.v3.model.Reference;
 
 
 /**
- * Abstraction of Service to be used in other components to limit their access
- * to the service.
+ * Abstraction of Service to be used in other components to limit their access to the service.
  */
 public interface ServiceContext {
 
@@ -34,16 +33,15 @@ public interface ServiceContext {
      *
      * @param reference reference identifying the element
      * @return type information of the referenced element, empty
-     *         {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo} if
-     *         no matching type is found, null if reference is null
-     * @throws IllegalArgumentException if reference can not be resolved on AAS
-     *             environment of the service
+     *         {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo} if no matching type is found, null if
+     *         reference is null
+     * @throws IllegalArgumentException if reference can not be resolved on AAS environment of the service
      */
     public TypeInfo getTypeInfo(Reference reference);
 
 
     /**
-     * Executes a request
+     * Executes a request.
      *
      * @param request request to execute
      * @return result of executing the request
@@ -52,17 +50,15 @@ public interface ServiceContext {
 
 
     /**
-     * Get a copied version of the AssetAdministrationShellEnvironment instance
-     * of the service
+     * Get a copied version of the AssetAdministrationShellEnvironment instance of the service.
      *
-     * @return a deep copied AssetAdministrationShellEnvironment instance of the
-     *         service
+     * @return a deep copied AssetAdministrationShellEnvironment instance of the service
      */
     public AssetAdministrationShellEnvironment getAASEnvironment();
 
 
     /**
-     * Returns the message bus of the service
+     * Returns the message bus of the service.
      *
      * @return the message bus of the service
      */
@@ -70,14 +66,13 @@ public interface ServiceContext {
 
 
     /**
-     * Returns the output variables of an operation identified by a reference
+     * Returns the output variables of an operation identified by a reference.
      *
      * @param reference the reference identifying the operation
      * @return output variables of the operation identified by the reference
      * @throws IllegalArgumentException if reference is null
      * @throws IllegalArgumentException if reference cannot be resolved
-     * @throws IllegalArgumentException if reference does not point to an
-     *             operation
+     * @throws IllegalArgumentException if reference does not point to an operation
      */
     public OperationVariable[] getOperationOutputVariables(Reference reference);
 }

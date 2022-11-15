@@ -54,9 +54,8 @@ import io.adminshell.aas.v3.model.View;
 
 
 /**
- * Default implementation of {@link AssetAdministrationShellElementVisitor}
- * redirecting calls to abstract type to the concrete type. All others methods
- * are empty.
+ * Default implementation of {@link AssetAdministrationShellElementVisitor} redirecting calls to abstract type to the
+ * concrete type. All others methods are empty.
  */
 public interface DefaultAssetAdministrationShellElementSubtypeResolvingVisitor extends DefaultAssetAdministrationShellElementVisitor {
 

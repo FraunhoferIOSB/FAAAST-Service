@@ -24,7 +24,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-Request path: submodels
+ * class to map HTTP-Request path: submodels.
  */
 public class GetAllSubmodelsByIdShortRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllSubmodelsByIdShortRequest, GetAllSubmodelsByIdShortResponse> {
 

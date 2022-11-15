@@ -39,8 +39,7 @@ import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
 
 
 /**
- * Implementation of ValueProvider for OPC UA asset connections. Supports reading
- * and writing values from/to OPC UA.
+ * Implementation of ValueProvider for OPC UA asset connections. Supports reading and writing values from/to OPC UA.
  */
 public class OpcUaValueProvider extends AbstractOpcUaProvider<OpcUaValueProviderConfig> implements AssetValueProvider {
 

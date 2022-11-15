@@ -23,7 +23,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.4.8
+ * Request class for PutConceptDescriptionById requests.
  */
 public class PutConceptDescriptionByIdRequest implements Request<PutConceptDescriptionByIdResponse> {
 

@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 import org.apache.commons.lang3.StringUtils;
 
 
+/**
+ * A short value. 16-bit, -32768…32767
+ */
 public class ShortValue extends TypedValue<Short> {
 
     public ShortValue() {

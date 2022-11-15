@@ -29,9 +29,8 @@ public class OpcUaElementValueParser implements ElementValueParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaElementValueParser.class);
 
     /**
-     * Parse the given raw value.
-     * Here the raw value is already an ElementValue
-     * 
+     * Parse the given raw value. Here the raw value is already an ElementValue
+     *
      * @param raw The desire raw value
      * @param type The type of the old value.
      * @return The corresponding ElementValue

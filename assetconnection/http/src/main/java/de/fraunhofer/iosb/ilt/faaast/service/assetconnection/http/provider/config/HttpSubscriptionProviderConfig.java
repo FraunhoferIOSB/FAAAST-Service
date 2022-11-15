@@ -15,12 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatSubscriptionProviderConfig;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 
 /**
- * Config file for HTTP-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider}.
+ * Config file for HTTP-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider}.
  */
 public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscriptionProviderConfig {
 
@@ -28,6 +29,12 @@ public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscript
     private String method;
     private String payload;
     private long interval;
+    private Map<String, String> headers;
+
+    public HttpSubscriptionProviderConfig() {
+        this.headers = new HashMap<>();
+    }
+
 
     public String getPath() {
         return path;
@@ -69,6 +76,16 @@ public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscript
     }
 
 
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -82,13 +99,14 @@ public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscript
                 && Objects.equals(path, that.path)
                 && Objects.equals(method, that.method)
                 && Objects.equals(payload, that.payload)
-                && Objects.equals(interval, that.interval);
+                && Objects.equals(interval, that.interval)
+                && Objects.equals(headers, that.headers);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), path, method, payload, interval);
+        return Objects.hash(super.hashCode(), path, method, payload, interval, headers);
     }
 
 
@@ -119,6 +137,18 @@ public class HttpSubscriptionProviderConfig extends AbstractMultiFormatSubscript
 
         public B payload(String value) {
             getBuildingInstance().setPayload(value);
+            return getSelf();
+        }
+
+
+        public B headers(Map<String, String> value) {
+            getBuildingInstance().setHeaders(value);
+            return getSelf();
+        }
+
+
+        public B header(String name, String value) {
+            getBuildingInstance().getHeaders().put(name, value);
             return getSelf();
         }
 

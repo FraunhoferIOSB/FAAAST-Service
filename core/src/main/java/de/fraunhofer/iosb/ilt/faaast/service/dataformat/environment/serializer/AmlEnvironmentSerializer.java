@@ -26,9 +26,7 @@ import java.util.Collection;
 
 
 /**
- * AML serializer for
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
- * related files.
+ * AML serializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
  */
 @SupportedDataformat(DataFormat.AML)
 public class AmlEnvironmentSerializer implements EnvironmentSerializer {

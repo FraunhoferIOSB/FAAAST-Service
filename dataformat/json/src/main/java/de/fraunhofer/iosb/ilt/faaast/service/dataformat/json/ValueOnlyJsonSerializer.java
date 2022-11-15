@@ -58,13 +58,13 @@ import java.util.List;
 
 
 /**
- * Serializer for content=value
+ * Serializer for content=value.
  */
 public class ValueOnlyJsonSerializer {
 
     private final SerializerWrapper wrapper;
 
-    public static boolean isJreType(Class<?> type) {
+    private static boolean isJreType(Class<?> type) {
         if (type.getClassLoader() == null || type.getClassLoader().getParent() == null) {
             return true;
         }
@@ -83,21 +83,57 @@ public class ValueOnlyJsonSerializer {
     }
 
 
+    /**
+     * Serializes a given object as string using
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level#DEFAULT} and
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent#DEFAULT}.
+     *
+     * @param obj the object to serialize
+     * @return the serialized object
+     * @throws SerializationException if serialization fails
+     */
     public String write(Object obj) throws SerializationException {
         return write(obj, Level.DEFAULT, Extent.DEFAULT);
     }
 
 
+    /**
+     * Serializes a given object as string using provided level and
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent#DEFAULT}.
+     *
+     * @param obj the object to serialize
+     * @param level the level to use for serialization
+     * @return the serialized object
+     * @throws SerializationException if serialization fails
+     */
     public String write(Object obj, Level level) throws SerializationException {
         return write(obj, level, Extent.DEFAULT);
     }
 
 
-    public String write(Object obj, Extent extend) throws SerializationException {
-        return write(obj, Level.DEFAULT, extend);
+    /**
+     * Serializes a given object as string using
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Level#DEFAULT} and provided extent.
+     *
+     * @param obj the object to serialize
+     * @param extent the extent to use for serialization
+     * @return the serialized object
+     * @throws SerializationException if serialization fails
+     */
+    public String write(Object obj, Extent extent) throws SerializationException {
+        return write(obj, Level.DEFAULT, extent);
     }
 
 
+    /**
+     * Serializes a given object as string using provided level and extent.
+     *
+     * @param obj the object to serialize
+     * @param level the level to use for serialization
+     * @param extend the extent to use for serialization
+     * @return the serialized object
+     * @throws SerializationException if serialization fails
+     */
     public String write(Object obj, Level level, Extent extend) throws SerializationException {
         if (!ElementValueHelper.isValueOnlySupported(obj)) {
             throw new SerializationException(
@@ -115,6 +151,12 @@ public class ValueOnlyJsonSerializer {
     }
 
 
+    /**
+     * Modifies the mapper by adding required mixins and De-/serializers.
+     *
+     * @param mapper the mapper to modify
+     * @return the updated mapper
+     */
     protected JsonMapper modifyMapper(JsonMapper mapper) {
         mapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector());
         mapper.addMixIn(PropertyValue.class, PropertyValueMixin.class);

@@ -14,12 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.*;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpSubscriptionProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -31,6 +36,12 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
     private URL baseUrl;
     private String username;
     private String password;
+    private Map<String, String> headers;
+
+    public HttpAssetConnectionConfig() {
+        this.headers = new HashMap<>();
+    }
+
 
     public URL getBaseUrl() {
         return baseUrl;
@@ -62,9 +73,19 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
     }
 
 
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(baseUrl, username, password);
+        return Objects.hash(baseUrl, username, password, headers);
     }
 
 
@@ -83,7 +104,8 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
         return super.equals(other)
                 && Objects.equals(this.baseUrl, other.baseUrl)
                 && Objects.equals(this.username, other.username)
-                && Objects.equals(this.password, other.password);
+                && Objects.equals(this.password, other.password)
+                && Objects.equals(this.headers, other.headers);
     }
 
 
@@ -93,7 +115,7 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
 
     public abstract static class AbstractBuilder<T extends HttpAssetConnectionConfig, B extends AbstractBuilder<T, B>>
             extends
-            AssetConnectionConfig.AbstractBuilder<HttpAssetConnectionConfig, HttpValueProviderConfig, HttpOperationProviderConfig, HttpSubscriptionProviderConfig, HttpAssetConnection, B> {
+            AssetConnectionConfig.AbstractBuilder<HttpAssetConnectionConfig, HttpValueProviderConfig, HttpValueProvider, HttpOperationProviderConfig, HttpOperationProvider, HttpSubscriptionProviderConfig, HttpSubscriptionProvider, HttpAssetConnection, B> {
 
         public B baseUrl(URL value) {
             getBuildingInstance().setBaseUrl(value);
@@ -118,6 +140,18 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
             return getSelf();
         }
 
+
+        public B headers(Map<String, String> value) {
+            getBuildingInstance().setHeaders(value);
+            return getSelf();
+        }
+
+
+        public B header(String name, String value) {
+            getBuildingInstance().getHeaders().put(name, value);
+            return getSelf();
+        }
+
     }
 
     public static class Builder extends AbstractBuilder<HttpAssetConnectionConfig, Builder> {
@@ -133,4 +167,5 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
             return new HttpAssetConnectionConfig();
         }
     }
+
 }

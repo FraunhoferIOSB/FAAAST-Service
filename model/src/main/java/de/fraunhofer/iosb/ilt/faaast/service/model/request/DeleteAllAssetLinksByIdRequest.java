@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 7.2.5
+ * Request class for DeleteAllAssetLinksById requests.
  */
 public class DeleteAllAssetLinksByIdRequest implements Request<DeleteAllAssetLinksByIdResponse> {
 

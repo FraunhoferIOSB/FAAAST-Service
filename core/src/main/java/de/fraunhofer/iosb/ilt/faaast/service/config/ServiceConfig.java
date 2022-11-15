@@ -14,10 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +41,40 @@ public class ServiceConfig {
     private List<EndpointConfig> endpoints;
     private PersistenceConfig persistence;
     private MessageBusConfig messageBus;
+
+    private static ObjectMapper getMapper() {
+        ObjectMapper mapper = new ObjectMapper()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(ImplementationManager.getClassLoader()));
+        return mapper;
+    }
+
+
+    /**
+     * Load the config from a given file.
+     *
+     * @param file the file to parse
+     * @return the parsed config
+     * @throws IOException if loading fails
+     */
+    public static ServiceConfig load(File file) throws IOException {
+        return getMapper().readValue(file, ServiceConfig.class);
+    }
+
+
+    /**
+     * Load the config from a given input stream.
+     *
+     * @param in the stream to parse
+     * @return the parsed config
+     * @throws IOException if loading fails
+     */
+    public static ServiceConfig load(InputStream in) throws IOException {
+        return getMapper().readValue(in, ServiceConfig.class);
+    }
+
 
     /**
      * Returns a new builder for this class.
@@ -130,7 +172,7 @@ public class ServiceConfig {
 
 
     /**
-     * Gets the persistence configuration
+     * Gets the persistence configuration.
      *
      * @return the persistence configuration
      */

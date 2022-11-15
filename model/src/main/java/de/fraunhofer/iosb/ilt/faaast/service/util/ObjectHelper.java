@@ -28,12 +28,10 @@ public class ObjectHelper {
 
 
     /**
-     * Checks if an object is a collection-like type
-     * ({@link Collection}, {@link Map} or array).
+     * Checks if an object is a collection-like type ({@link Collection}, {@link Map} or array).
      *
      * @param obj The object to check
-     * @return true if object is collection-like type, false otherwise. If input
-     *         is null, false is returned.
+     * @return true if object is collection-like type, false otherwise. If input is null, false is returned.
      */
     public static boolean isCollectionLikeType(Object obj) {
         if (obj == null) {
@@ -46,8 +44,8 @@ public class ObjectHelper {
 
 
     /**
-     * If {@code obj} is a collection-like type, {@code consumer} is applied to
-     * each element, otherwise only to {@code obj} itself.
+     * If {@code obj} is a collection-like type, {@code consumer} is applied to each element, otherwise only to
+     * {@code obj} itself.
      *
      * @param obj The object to apply the {@code consumer} to
      * @param consumer The consumer to apply

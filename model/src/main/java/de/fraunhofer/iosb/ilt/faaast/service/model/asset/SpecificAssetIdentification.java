@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Represents specific asset identification information
+ * Represents specific asset identification information.
  */
 public class SpecificAssetIdentification implements AssetIdentification {
 
@@ -67,8 +67,8 @@ public class SpecificAssetIdentification implements AssetIdentification {
     }
 
 
-    public static GlobalAssetIdentification.Builder builder() {
-        return new GlobalAssetIdentification.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     public abstract static class AbstractBuilder<T extends SpecificAssetIdentification, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {

@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.2.4
+ * Request class for GetAllAssetAdministrationShellsByAssetId requests.
  */
 public class GetAllAssetAdministrationShellsByAssetIdRequest extends AbstractRequestWithModifier<GetAllAssetAdministrationShellsByAssetIdResponse> {
 

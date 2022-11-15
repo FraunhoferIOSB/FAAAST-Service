@@ -26,8 +26,7 @@ import java.io.IOException;
 
 
 /**
- * Serializer for
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue}
+ * Serializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue}.
  */
 public class BlobValueSerializer extends ModifierAwareSerializer<BlobValue> {
 

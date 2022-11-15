@@ -23,6 +23,9 @@ import io.adminshell.aas.v3.model.Reference;
 import java.io.IOException;
 
 
+/**
+ * Serializer for type {@link io.adminshell.aas.v3.model.Reference}.
+ */
 public class ReferenceSerializer extends JsonSerializer<Reference> {
 
     @Override

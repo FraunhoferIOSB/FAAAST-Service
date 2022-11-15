@@ -24,7 +24,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-PUT-Request path: packages/{packageId}
+ * class to map HTTP-PUT-Request path: packages/{packageId}.
  */
 public class PutAASXPackageByIdRequestMapper extends AbstractRequestMapper {
 

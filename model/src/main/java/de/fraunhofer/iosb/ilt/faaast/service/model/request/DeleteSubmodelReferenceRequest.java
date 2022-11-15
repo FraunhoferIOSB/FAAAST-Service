@@ -23,7 +23,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.2.5
+ * Request class for DeleteSubmodelReference requests.
  */
 public class DeleteSubmodelReferenceRequest implements Request<DeleteSubmodelReferenceResponse> {
 

@@ -26,8 +26,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-GET-Request path:
- * shells/{aasIdentifier}/aas/asset-information
+ * class to map HTTP-GET-Request path: shells/{aasIdentifier}/aas/asset-information.
  */
 public class GetAssetInformationRequestMapper extends AbstractRequestMapper {
 

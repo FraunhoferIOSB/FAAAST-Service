@@ -28,7 +28,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-PUT-Request path: submodels/{submodelIdentifier}
+ * class to map HTTP-PUT-Request path: submodels/{submodelIdentifier}.
  */
 public class PutSubmodelByIdRequestMapper extends AbstractRequestMapper {
 

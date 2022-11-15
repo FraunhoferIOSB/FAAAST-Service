@@ -21,8 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 
 
 /**
- * Abstract base class for providers that support reading and writing values
- * using multiple formats.
+ * Abstract base class for providers that support reading and writing values using multiple formats.
  *
  * @param <T> type of matching configuration
  */

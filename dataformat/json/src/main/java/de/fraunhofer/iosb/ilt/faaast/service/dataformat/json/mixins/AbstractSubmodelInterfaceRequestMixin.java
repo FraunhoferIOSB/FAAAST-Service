@@ -19,8 +19,7 @@ import io.adminshell.aas.v3.model.Identifier;
 
 
 /**
- * Mixin for
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest}
+ * Mixin for {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInterfaceRequest}.
  */
 public abstract class AbstractSubmodelInterfaceRequestMixin {
 

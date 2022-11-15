@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.2.6
+ * Request class for PostAssetAdministrationShell requests.
  */
 public class PostAssetAdministrationShellRequest implements Request<PostAssetAdministrationShellResponse> {
 

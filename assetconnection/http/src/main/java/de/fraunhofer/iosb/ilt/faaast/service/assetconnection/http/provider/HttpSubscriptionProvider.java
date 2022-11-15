@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatSubscriptionProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
@@ -25,7 +26,6 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
@@ -40,8 +40,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Provides the capability to "subscribe" to en element via HTTP. This is done
- * via periodic polling.
+ * Provides the capability to "subscribe" to en element via HTTP. This is done via periodic polling.
  */
 public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<HttpSubscriptionProviderConfig> {
 
@@ -51,20 +50,25 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
     private final ServiceContext serviceContext;
     private final Reference reference;
     private final HttpClient client;
-    private final URL baseUrl;
+    private final HttpAssetConnectionConfig connectionConfig;
     private ScheduledExecutorService executor;
     private ScheduledFuture<?> executorHandler;
 
-    public HttpSubscriptionProvider(ServiceContext serviceContext, Reference reference, HttpClient client, URL baseUrl, HttpSubscriptionProviderConfig config) {
+    public HttpSubscriptionProvider(
+            ServiceContext serviceContext,
+            Reference reference,
+            HttpClient client,
+            HttpAssetConnectionConfig connectionConfig,
+            HttpSubscriptionProviderConfig config) {
         super(config);
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.requireNonNull(client, "client must be non-null");
-        Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
+        Ensure.requireNonNull(connectionConfig, "connectionConfig must be non-null");
         this.serviceContext = serviceContext;
         this.reference = reference;
         this.client = client;
-        this.baseUrl = baseUrl;
+        this.connectionConfig = connectionConfig;
     }
 
 
@@ -72,14 +76,15 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
         try {
             HttpResponse<byte[]> response = HttpHelper.execute(
                     client,
-                    baseUrl,
+                    connectionConfig.getBaseUrl(),
                     config.getPath(),
                     config.getFormat(),
                     DEFAULT_METHOD,
                     StringUtils.isBlank(config.getPayload())
                             ? BodyPublishers.noBody()
                             : BodyPublishers.ofString(config.getPayload()),
-                    BodyHandlers.ofByteArray());
+                    BodyHandlers.ofByteArray(),
+                    HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
             if (!HttpHelper.is2xxSuccessful(response)) {
                 throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)));
             }

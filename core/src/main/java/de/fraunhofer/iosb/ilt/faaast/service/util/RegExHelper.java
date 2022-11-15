@@ -25,7 +25,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 
 /**
- * Utility class helping with regular expressions
+ * Utility class helping with regular expressions.
  */
 public class RegExHelper {
 
@@ -38,8 +38,7 @@ public class RegExHelper {
 
 
     /**
-     * Generate a random unique group name based on UUID without special
-     * characters.
+     * Generate a random unique group name based on UUID without special characters.
      *
      * @return random unique group name.
      */
@@ -54,8 +53,7 @@ public class RegExHelper {
 
 
     /**
-     * Checks if the pattern is doing an exact line match, i.e. starts with '^'
-     * and ends with '$'
+     * Checks if the pattern is doing an exact line match, i.e. starts with '^' and ends with '$'.
      *
      * @param pattern the pattern to check
      * @return true if pattern does exact line match, false otherwise
@@ -66,7 +64,7 @@ public class RegExHelper {
 
 
     /**
-     * Ensures that the pattern does start with '^' and end with '$'
+     * Ensures that the pattern does start with '^' and end with '$'.
      *
      * @param pattern the pattern
      * @return the updated pattern
@@ -84,8 +82,8 @@ public class RegExHelper {
 
 
     /**
-     * Removes exact line match, i.e. if the pattern starts with '^' and ends
-     * with '$' these are removed, otherwise input is return unmodified;
+     * Removes exact line match, i.e. if the pattern starts with '^' and ends with '$' these are removed, otherwise
+     * input is return unmodified.
      *
      * @param pattern the pattern to process
      * @return the modified pattern
@@ -98,9 +96,8 @@ public class RegExHelper {
 
 
     /**
-     * Finds a named groups (in the form of {@literal '(?<[group name]>)')} in
-     * the pattern and extracts the corresponding values from the input. If
-     * pattern does not contain named groups or input does not match pattern and
+     * Finds a named groups (in the form of {@literal '(?<[group name]>)')} in the pattern and extracts the
+     * corresponding values from the input. If pattern does not contain named groups or input does not match pattern and
      * empty list is return.
      *
      * @param pattern the pattern to evaluate

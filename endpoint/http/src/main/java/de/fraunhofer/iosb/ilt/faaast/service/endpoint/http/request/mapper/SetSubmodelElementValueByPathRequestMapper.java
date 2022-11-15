@@ -42,10 +42,8 @@ import java.util.Objects;
 
 
 /**
- * class to map HTTP-PUT-Request path:
- * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
- * <br>
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+ * class to map HTTP-PUT-Request path: submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath},
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}.
  */
 public class SetSubmodelElementValueByPathRequestMapper
         extends AbstractSubmodelInterfaceRequestMapper<SetSubmodelElementValueByPathRequest<?>, SetSubmodelElementValueByPathResponse> {

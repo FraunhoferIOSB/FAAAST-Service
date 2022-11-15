@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.3.6
+ * Request class for PostSubmodel requests.
  */
 public class PostSubmodelRequest implements Request<PostSubmodelResponse> {
 

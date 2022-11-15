@@ -1,0 +1,54 @@
+
+{
+	"core":
+	{
+		"requestHandlerThreadPoolSize": 2
+	},
+	"endpoints": [
+		{
+			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint",
+			"port": 8080,
+			"corsEnabled": true
+		},
+		{
+			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint",
+			"tcpPort": 8081
+		}
+	],
+	"persistence":
+	{
+		"@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory"
+	},
+	"messageBus":
+	{
+		"@class": "de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternal"
+	},
+	"assetConnections": [
+		{
+			"@class": "de.fraunhofer.iosb.ilt.faaast.service.example.assetconnection.custom.CustomAssetConnection",
+			"valueProviders":
+			{
+				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Property)[ID_SHORT]PropertyStringRead":
+				{},
+				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Property)[ID_SHORT]PropertyDoubleRead":
+				{},
+				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Property)[ID_SHORT]PropertyIntRead":
+				{}
+			},
+			"operationProviders":
+			{
+				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Operation)[ID_SHORT]randomValues":
+				{}
+			},
+			"subscriptionProviders":
+			{
+				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Property)[ID_SHORT]PropertyStringSubscribe":
+				{},
+				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Property)[ID_SHORT]PropertyDoubleSubscribe":
+				{},
+				"(Submodel)[IRI]urn:aas:id:cognitwin:demo:submodel:1,(Property)[ID_SHORT]PropertyIntSubscribe":
+				{}
+			}
+		}
+	]
+}

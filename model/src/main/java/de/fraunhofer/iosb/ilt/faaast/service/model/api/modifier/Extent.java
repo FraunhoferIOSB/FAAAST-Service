@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 
 /**
- * Enum of different extent options
+ * Enum of different extent options.
  */
 public enum Extent {
     WITHOUT_BLOB_VALUE,
@@ -26,6 +26,13 @@ public enum Extent {
 
     public static final Extent DEFAULT = Extent.WITHOUT_BLOB_VALUE;
 
+    /**
+     * Returns matching enum value from given string value. The names are matched case-insensitive, i.e. ignoring case.
+     * If the provided value does not match any enum value then {@link Extent#DEFAULT} is returned.
+     *
+     * @param value the string value
+     * @return matching enum value or default ({@link Extent#DEFAULT}) if there is no match
+     */
     public static Extent fromString(String value) {
         return Stream.of(Extent.values())
                 .filter(x -> x.name().equalsIgnoreCase(value))

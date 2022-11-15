@@ -26,9 +26,8 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-PUT-Request paths: submodels/{submodelIdentifier}/submodel
- * <br>
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel
+ * class to map HTTP-PUT-Request paths: submodels/{submodelIdentifier}/submodel,
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel.
  */
 public class PutSubmodelRequestMapper extends AbstractSubmodelInterfaceRequestMapper<PutSubmodelRequest, PutSubmodelResponse> {
 

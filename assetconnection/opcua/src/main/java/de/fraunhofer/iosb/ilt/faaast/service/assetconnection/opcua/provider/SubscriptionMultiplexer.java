@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Maps multiple FA³ST subscriptions to a single OPC UA subscription
+ * Maps multiple FA³ST subscriptions to a single OPC UA subscription.
  */
 public class SubscriptionMultiplexer {
 
@@ -51,10 +51,10 @@ public class SubscriptionMultiplexer {
     private final ServiceContext serviceContext;
     private final OpcUaSubscriptionProviderConfig providerConfig;
     private final Reference reference;
-    private final OpcUaClient client;
     private final Set<NewDataListener> listeners;
     private final ValueConverter valueConverter;
-    private final ManagedSubscription opcUaSubscription;
+    private OpcUaClient client;
+    private ManagedSubscription opcUaSubscription;
     private ManagedDataItem dataItem;
     private Datatype datatype;
 
@@ -119,6 +119,20 @@ public class SubscriptionMultiplexer {
     }
 
 
+    /**
+     * Reconnects underlying subscriptions after connection loss.
+     *
+     * @param client the new client
+     * @param opcUaSubscription the new underlying OPC UA subscription
+     * @throws AssetConnectionException if reconnecting fails
+     */
+    public void reconnect(OpcUaClient client, ManagedSubscription opcUaSubscription) throws AssetConnectionException {
+        this.client = client;
+        this.opcUaSubscription = opcUaSubscription;
+        init();
+    }
+
+
     private void notify(DataValue value) {
         try {
             DataElementValue newValue;
@@ -148,7 +162,7 @@ public class SubscriptionMultiplexer {
 
 
     /**
-     * Adds a listener
+     * Adds a listener.
      *
      * @param listener The listener to add
      */
@@ -158,8 +172,7 @@ public class SubscriptionMultiplexer {
 
 
     /**
-     * Checks if the multiplexer is active, i.e. there is an active OPC UA
-     * subscription that has not been closed.
+     * Checks if the multiplexer is active, i.e. there is an active OPC UA subscription that has not been closed.
      *
      * @return true if active, otherwise false
      */
@@ -169,8 +182,8 @@ public class SubscriptionMultiplexer {
 
 
     /**
-     * Removes a listener. If the last listener is removed, the OPC UA
-     * subscription is closed and the multiplexer becomes inactive
+     * Removes a listener. If the last listener is removed, the OPC UA subscription is closed and the multiplexer
+     * becomes inactive
      *
      * @param listener The listener to remove
      * @throws AssetConnectionException if closing the OPC UA subscription fails

@@ -29,9 +29,8 @@ import java.util.Map;
 
 /**
  * class to map HTTP-GET-Request paths:
- * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/(.*)
- * <br>
- * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/(.*)
+ * submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/(.*),
+ * shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/(.*).
  */
 public class GetOperationAsyncResultRequestMapper extends AbstractSubmodelInterfaceRequestMapper<GetOperationAsyncResultRequest, GetOperationAsyncResultResponse> {
 

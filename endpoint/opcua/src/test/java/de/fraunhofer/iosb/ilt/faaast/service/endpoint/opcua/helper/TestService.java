@@ -40,8 +40,7 @@ public class TestService extends Service {
      * Creates a new instance of TestService
      *
      * @param assetConnectionConfig The desired AssetConnection
-     * @param full True if the full example is requested, otherwise the simple
-     *            is used
+     * @param full True if the full example is requested, otherwise the simple is used
      * @throws ConfigurationException If the operation fails
      */
     @SuppressWarnings("rawtypes")

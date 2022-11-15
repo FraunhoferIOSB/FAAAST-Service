@@ -18,6 +18,9 @@ import java.math.BigInteger;
 import org.apache.commons.lang3.StringUtils;
 
 
+/**
+ * An arbitrary size integer value.
+ */
 public class IntegerValue extends TypedValue<BigInteger> {
 
     public IntegerValue() {

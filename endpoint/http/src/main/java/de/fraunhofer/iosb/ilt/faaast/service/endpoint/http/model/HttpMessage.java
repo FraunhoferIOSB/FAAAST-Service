@@ -20,8 +20,7 @@ import java.util.Map;
 
 
 /**
- * High-level representation of an HTTP message. This class provides abstraction
- * of concrete HTTP library used.
+ * High-level representation of an HTTP message. This class provides abstraction of concrete HTTP library used.
  */
 public abstract class HttpMessage {
 

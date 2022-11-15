@@ -36,8 +36,7 @@ public abstract class PersistenceManager {
     /**
      * Helper method to ensure persistence manager is property initialized.
      *
-     * @throws IllegalStateException if not properly initialized (aasEnvironment
-     *             == null)
+     * @throws IllegalStateException if not properly initialized (aasEnvironment == null)
      */
     protected void ensureInitialized() {
         Ensure.requireNonNull(aasEnvironment, "aasEnvironment not properly initialized (must be non-null)");

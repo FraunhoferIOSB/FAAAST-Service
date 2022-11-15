@@ -29,11 +29,7 @@ import org.apache.commons.lang3.reflect.ConstructorUtils;
 
 
 /**
- * Helper class with methods to read/write element paths from/to
- * <ul>
- * <li>{@link io.adminshell.aas.v3.model.Reference}
- * <li>{@link io.adminshell.aas.v3.model.Key}
- * </ul>
+ * Helper class with methods to read/write element paths.
  */
 public class ElementPathHelper {
 
@@ -43,8 +39,7 @@ public class ElementPathHelper {
 
 
     /**
-     * Create an element path out of a
-     * {@link io.adminshell.aas.v3.model.Reference} to a
+     * Create an element path out of a {@link io.adminshell.aas.v3.model.Reference} to a
      * {@link io.adminshell.aas.v3.model.SubmodelElement}.
      *
      * @param submodelElementRef reference to the submodel element
@@ -62,7 +57,7 @@ public class ElementPathHelper {
 
 
     /**
-     * Combines a reference and an element path to one reference
+     * Combines a reference and an element path to one reference.
      *
      * @param parent reference of the parent
      * @param elementPath which should be added to the parent reference
@@ -83,8 +78,7 @@ public class ElementPathHelper {
 
 
     /**
-     * Converts an element path to a list of keys. Each key in the list have the
-     * general key element "SUBMODEL_ELEMENT"
+     * Converts an element path to a list of keys. Each key in the list have the general key element "SUBMODEL_ELEMENT"
      *
      * @param elementPath a string with identifier values seperated by a "."
      * @return the list of keys

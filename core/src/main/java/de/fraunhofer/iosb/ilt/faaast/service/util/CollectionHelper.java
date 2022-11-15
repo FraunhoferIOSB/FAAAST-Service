@@ -19,7 +19,7 @@ import java.util.List;
 
 
 /**
- * Helper class for actions on collections
+ * Helper class for actions on collections.
  */
 public class CollectionHelper {
 
@@ -27,9 +27,8 @@ public class CollectionHelper {
 
 
     /**
-     * Adds the element to the collection. If the concrete collection supports adding an element at a specific index
-     * the element will be added at the given index.
-     * If not, the element is added at the end of the collection.
+     * Adds the element to the collection. If the concrete collection supports adding an element at a specific index the
+     * element will be added at the given index. If not, the element is added at the end of the collection.
      *
      * @param collection to add the element
      * @param index where to add the element in the list. Ignored when negative.
@@ -40,8 +39,7 @@ public class CollectionHelper {
         Ensure.requireNonNull(element, "Element must be non-null");
         if (List.class.isAssignableFrom(collection.getClass())) {
             ((List<T>) collection).add(index >= 0 ? index : collection.size(), element);
-        }
-        //TODO: expand with other implementations
+        } //TODO: expand with other implementations
         else {
             collection.add(element);
         }
@@ -49,16 +47,16 @@ public class CollectionHelper {
 
 
     /**
-     * Replaces or adds the element in the collection. If the concrete collection supports indexes
-     * the element will be replaced at the same index.
-     * If not, the element is added at the end of the collection and the old element is deleted.
+     * Replaces or adds the element in the collection. If the concrete collection supports indexes the element will be
+     * replaced at the same index. If not, the element is added at the end of the collection and the old element is
+     * deleted.
      *
      * @param newElement to replace the old element
      * @param collection which contains the elements
      * @param oldElement the element to replace can be null
      * @param <T> type of the objects
      */
-    public static <T> void put(Collection<T> collection, T oldElement, T newElement) {
+    public static synchronized <T> void put(Collection<T> collection, T oldElement, T newElement) {
         Ensure.requireNonNull(newElement, "Element must be non-null");
         int idx = List.class.isAssignableFrom(collection.getClass()) ? ((List<T>) collection)
                 .indexOf(oldElement)

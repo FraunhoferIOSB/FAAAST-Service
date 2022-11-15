@@ -19,6 +19,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import java.util.Objects;
 
 
+/**
+ * Holds type information for an element value.
+ */
 public class ElementValueTypeInfo extends TypeInfo<String> {
 
     private Datatype datatype;

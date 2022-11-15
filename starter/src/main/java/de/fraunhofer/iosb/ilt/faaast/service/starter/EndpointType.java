@@ -20,6 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 
 
+/**
+ * Utility enum for available endpoint types.
+ */
 public enum EndpointType {
     HTTP(HttpEndpointConfig.class.getName()),
     OPCUA(OpcUaEndpointConfig.class.getName());
@@ -31,6 +34,12 @@ public enum EndpointType {
     }
 
 
+    /**
+     * Gets the corresponding implementation class.
+     *
+     * @return the corresponding implementation class
+     * @throws ClassNotFoundException if class is not present
+     */
     public Class<? extends EndpointConfig<? extends Endpoint>> getImplementation() throws ClassNotFoundException {
         return (Class<? extends EndpointConfig<? extends Endpoint>>) Class.forName(implementationClass);
     }

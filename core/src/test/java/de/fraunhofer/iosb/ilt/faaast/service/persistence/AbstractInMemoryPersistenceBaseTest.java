@@ -60,9 +60,8 @@ import org.mockito.Mockito;
 
 
 /**
- * A test class for a persistence implementation should inherit from this
- * abstract class. This class provides basic tests for all methods defined in
- * {@link de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence}.
+ * A test class for a persistence implementation should inherit from this abstract class. This class provides basic
+ * tests for all methods defined in {@link de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence}.
  */
 public abstract class AbstractInMemoryPersistenceBaseTest {
 

@@ -66,7 +66,7 @@ import picocli.CommandLine.Spec;
 
 
 /**
- * Class for configuring and starting a FA³ST Service
+ * Class for configuring and starting a FA³ST Service.
  */
 @Command(name = APP_NAME, mixinStandardHelpOptions = true, description = "Starts a FA³ST Service", versionProvider = App.PropertiesVersionProvider.class, usageHelpAutoWidth = true)
 public class App implements Runnable {
@@ -133,6 +133,11 @@ public class App implements Runnable {
     private CommandSpec spec;
     private static int exitCode = -1;
 
+    /**
+     * Main entry point.
+     *
+     * @param args CLI arguments
+     */
     public static void main(String[] args) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -436,29 +441,37 @@ public class App implements Runnable {
 
 
     private boolean validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
+        boolean result = true;
         LOGGER.debug("Validating model...");
         try {
             ValueTypeValidator.validate(aasEnv);
         }
         catch (ValidationException e) {
-            LOGGER.info("Model validation failed with the following error(s):{}{}", System.lineSeparator(), e.getMessage());
-            return false;
+            LOGGER.info("Model type validation failed with the following error(s):{}{}", System.lineSeparator(), e.getMessage());
+            result = false;
         }
         ShaclValidator shaclValidator = ShaclValidator.getInstance();
         ValidationReport report = shaclValidator.validateGetReport(aasEnv);
-        if (report.conforms()) {
+        if (!report.conforms()) {
+            ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
+            ShLib.printReport(validationResultStream, report);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Detailed model validation failed with the following error(s):{}{}", System.lineSeparator(), validationResultStream);
+            }
+            result = false;
+        }
+        if (result) {
             LOGGER.info("Model successfully validated");
-            return true;
         }
-        ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
-        ShLib.printReport(validationResultStream, report);
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Model validation failed with the following error(s):{}{}", System.lineSeparator(), validationResultStream);
-        }
-        return false;
+        return result;
     }
 
 
+    /**
+     * Collects config overrides from environment and CLI parameters.
+     *
+     * @return map of config overrides
+     */
     protected Map<String, String> getConfigOverrides() {
         Map<String, String> envParameters = System.getenv().entrySet().stream()
                 .filter(x -> x.getKey().startsWith(ENV_CONFIG_EXTENSION_PREFIX))
@@ -492,6 +505,9 @@ public class App implements Runnable {
         return result;
     }
 
+    /**
+     * Provides version information from properies.
+     */
     protected static class PropertiesVersionProvider implements IVersionProvider {
 
         private static final String PATH_GIT_BUILD_VERSION = "git.build.version";

@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
 
 /**
- * Utility class for HTTP-related constants
+ * Utility class for HTTP-related constants.
  */
 public class HttpConstants {
 

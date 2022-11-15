@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.4.5
+ * Request class for GetAllConceptDescriptionsByIsCaseOf requests.
  */
 public class GetAllConceptDescriptionsByIsCaseOfRequest extends AbstractRequestWithModifier<GetAllConceptDescriptionsByIsCaseOfResponse> {
 

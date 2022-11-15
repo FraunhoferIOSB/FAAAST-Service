@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.3.13
+ * Request class for GetOperationAsyncResult requests.
  */
 public class GetOperationAsyncResultRequest extends AbstractSubmodelInterfaceRequest<GetOperationAsyncResultResponse> {
 

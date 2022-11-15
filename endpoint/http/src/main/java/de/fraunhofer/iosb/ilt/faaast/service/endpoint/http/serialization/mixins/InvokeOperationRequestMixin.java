@@ -23,7 +23,7 @@ import java.util.List;
 
 
 /**
- * Mixing for {@link InvokeOperationRequest}
+ * Mixing for {@link InvokeOperationRequest}.
  */
 public abstract class InvokeOperationRequestMixin {
 

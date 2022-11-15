@@ -37,35 +37,34 @@ import java.util.Set;
 
 
 /**
- * An implementation of a persistence inherits from this interface.
- * The persistence manages create, read, update and delete actions with the element in the corresponding
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}.
- * Each persistence instance needs one instance of an Asset Administration Shell Environment.
- * There can only be one running instance of a persistence implementation.
+ * An implementation of a persistence inherits from this interface. The persistence manages create, read, update and
+ * delete actions with the element in the corresponding
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}. Each persistence instance needs one instance
+ * of an Asset Administration Shell Environment. There can only be one running instance of a persistence implementation.
  *
  * @param <C> type of the corresponding configuration class
  */
 public interface Persistence<C extends PersistenceConfig> extends Configurable<C> {
 
     /**
-     * Get an Identifiable by an Identifier
+     * Get an Identifiable by an Identifier.
      *
-     * @param id the Identifier of the requested Identifiable<br>
-     * @param modifier QueryModifier to define Level and Extent of the query<br>
-     * @param <T> defines the type of the requested Identifiable<br>
+     * @param id the Identifier of the requested Identifiable
+     * @param modifier QueryModifier to define Level and Extent of the query
+     * @param <T> defines the type of the requested Identifiable
      * @return the Identifiable with the given Identifier
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if no resource addressed by id can
-     *             be found
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if no resource addressed by id
+     *             can be found
      * @throws IllegalArgumentException if modifier is null
      */
     public <T extends Identifiable> T get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException;
 
 
     /**
-     * Get a Submodel Element by a Reference
+     * Get a Submodel Element by a Reference.
      *
-     * @param reference of the requested Submodel Element<br>
-     * @param modifier QueryModifier to define Level and Extent of the query<br>
+     * @param reference of the requested Submodel Element
+     * @param modifier QueryModifier to define Level and Extent of the query
      * @return the Submodel Element with the given Reference
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if reference does not point to
      *             valid resource
@@ -75,20 +74,20 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * All Asset Administration Shell that are linked to a globally unique asset identifier, to specific asset ids
-     * or with a specific idShort.<br>
-     * If idShort and assetId are null, all AssetAdministrationShells will be returned.
+     * All Asset Administration Shell that are linked to a globally unique asset identifier, to specific asset ids or
+     * with a specific idShort.
+     * 
+     * <p>If idShort and assetId are null, all AssetAdministrationShells will be returned.
      *
      * @param idShort of the AssetAdministrationShells which should be considered. This parameter is optional and may be
-     *            null<br>
+     *            null
      * @param assetIds A List of Global asset ids (use GlobalAssetIdentification.class) which refers to
-     *            AssetInformation/globalAssetId
-     *            of a shell
-     *            and specific asset ids (use SpecificAssetIdentification.class) which refers to IdentifierKeyValuePair/key
-     *            of a shell.
-     *            The given asset ids are combined with a logical "or".
-     *            This parameter is optional and may be null<br>
-     * @param modifier QueryModifier to define Level and Extent of the query<br>
+     *            AssetInformation/globalAssetId of a shell and specific asset ids (use SpecificAssetIdentification.class)
+     *            which
+     *            refers to IdentifierKeyValuePair/key of a shell. The given asset ids are combined with a logical "or".
+     *            This
+     *            parameter is optional and may be null
+     * @param modifier QueryModifier to define Level and Extent of the query
      * @return List of AssetAdministrationShells
      * @throws IllegalArgumentException if modifier is null
      */
@@ -96,12 +95,12 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * All Submodels with a specific semanticId or a specific idShort.
-     * If semanticId and idShort are null, all Submodels will be returned.<br>
+     * All Submodels with a specific semanticId or a specific idShort. If semanticId and idShort are null, all Submodels
+     * will be returned.
      *
-     * @param idShort of the Submodels which should be considered. This parameter is optional and may be null<br>
-     * @param semanticId of the Submodels which should be considered. This parameter is optional and may be null<br>
-     * @param modifier QueryModifier to define Level and Extent of the query<br>
+     * @param idShort of the Submodels which should be considered. This parameter is optional and may be null
+     * @param semanticId of the Submodels which should be considered. This parameter is optional and may be null
+     * @param modifier QueryModifier to define Level and Extent of the query
      * @return List of Submodels
      * @throws IllegalArgumentException if modifier is null
      */
@@ -109,11 +108,11 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * All Submodel Elements including their hierarchy<br>
+     * All Submodel Elements including their hierarchy.
      *
-     * @param reference of the Submodel or of the parent Submodel Element<br>
-     * @param semanticId of the Submodel Elements which should be considered. This parameter is optional and may be null<br>
-     * @param modifier QueryModifier to define Level and Extent of the query<br>
+     * @param reference of the Submodel or of the parent Submodel Element
+     * @param semanticId of the Submodel Elements which should be considered. This parameter is optional and may be null
+     * @param modifier QueryModifier to define Level and Extent of the query
      * @return List of Submodel Elements
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if reference does not point to
      *             valid resource
@@ -123,14 +122,14 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * All Concept Descriptions with a specific idShort, isCaseOf-reference or dataSpecification-reference.
-     * If idShort, isCaseOf and dataSpecification are null, all Concept Descriptions will be returned<br>
+     * All Concept Descriptions with a specific idShort, isCaseOf-reference or dataSpecification-reference. If idShort,
+     * isCaseOf and dataSpecification are null, all Concept Descriptions will be returned.
      *
-     * @param idShort of the Concept Description which should considered. This parameter is optional and may be null<br>
-     * @param isCaseOf of the Concept Description which should considered. This parameter is optional and may be null<br>
-     * @param dataSpecification of the Concept Description which should considered. This parameter is optional and may be
-     *            null<br>
-     * @param modifier QueryModifier to define Level and Extent of the query<br>
+     * @param idShort of the Concept Description which should considered. This parameter is optional and may be null
+     * @param isCaseOf of the Concept Description which should considered. This parameter is optional and may be null
+     * @param dataSpecification of the Concept Description which should considered. This parameter is optional and may
+     *            be null
+     * @param modifier QueryModifier to define Level and Extent of the query
      * @return List of Concept Descriptions
      * @throws IllegalArgumentException if modifier is null
      */
@@ -138,16 +137,16 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * Get a specific AASX package by its packageId<br>
+     * Get a specific AASX package by its packageId.
      *
-     * @param packageId of the desired AASX package<br>
+     * @param packageId of the desired AASX package
      * @return a AASX package
      */
     public AASXPackage get(String packageId);
 
 
     /**
-     * Get the AssetAdministrationShellEnvironment<br>
+     * Get the AssetAdministrationShellEnvironment.
      *
      * @return AssetAdministrationShellEnvironment
      */
@@ -155,42 +154,42 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * Create or Update an Identifiable<br>
+     * Create or Update an Identifiable.
      *
-     * @param identifiable to save<br>
-     * @param <T> the type of the Identifiable<br>
+     * @param identifiable to save
+     * @param <T> the type of the Identifiable
      * @return the saved Identifiable as confirmation
      */
     public <T extends Identifiable> T put(T identifiable);
 
 
     /**
-     * Create or Update the Submodel Element on the given reference<br>
+     * Create or Update the Submodel Element on the given reference.
      *
      * @param parent of the new Submodel Element. Could be null if a direct reference to the submodelelement is set.
      * @param referenceToSubmodelElement reference to the submodelelement which should be updated
      * @param submodelElement which should be added to the parent
      * @return the created Submodel Element
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if parent and reference does not
-     *             point to valid resource
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if parent and reference does
+     *             not point to valid resource
      */
     public SubmodelElement put(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException;
 
 
     /**
-     * Create or Update an AASX package<br>
+     * Create or Update an AASX package.
      *
-     * @param packageId of the existing AASX package<br>
-     * @param aasIds the included AAS Ids<br>
-     * @param file the AASX package<br>
-     * @param fileName of the AASX package<br>
+     * @param packageId of the existing AASX package
+     * @param aasIds the included AAS Ids
+     * @param file the AASX package
+     * @param fileName of the AASX package
      * @return the updated AASX package
      */
     public AASXPackage put(String packageId, Set<Identifier> aasIds, AASXPackage file, String fileName);
 
 
     /**
-     * Remove an Identifiable<br>
+     * Remove an Identifiable.
      *
      * @param id of the Identifiable
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if resource is not found
@@ -199,7 +198,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * Remove a Referable<br>
+     * Remove a Referable.
      *
      * @param reference to the Referable
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if resource is not found
@@ -208,7 +207,7 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * Remove an AASX package<br>
+     * Remove an AASX package.
      *
      * @param packageId of the AASX package to be removed
      */
@@ -216,21 +215,21 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * Get a list of available AASX package descriptions<br>
-     * If aasId is null, all AASX package descriptions will be returned<br>
+     * Get a list of available AASX package descriptions. If aasId is null, all AASX package descriptions will be
+     * returned
      *
-     * @param aasId of AASX packages which should be considered. This parameter is optional and may be null<br>
+     * @param aasId of AASX packages which should be considered. This parameter is optional and may be null
      * @return List of package descriptions
      */
     public List<PackageDescription> get(Identifier aasId);
 
 
     /**
-     * Save an AASX package<br>
+     * Save an AASX package.
      *
-     * @param aasIds the included AAS Ids<br>
-     * @param file the AASX package<br>
-     * @param fileName of the AASX package<br>
+     * @param aasIds the included AAS Ids
+     * @param file the AASX package
+     * @param fileName of the AASX package
      * @return the package id of the created AASX package
      */
     public String put(Set<Identifier> aasIds, AASXPackage file, String fileName);
@@ -246,8 +245,8 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
 
 
     /**
-     * Creates a new OperationHandle instance with a unique id if handleId is empty or null
-     * Otherwise updates the existing OperationHandle / OperationResult combination
+     * Creates a new OperationHandle instance with a unique id. If handleId is empty or null Otherwise updates the
+     * existing OperationHandle / OperationResult combination
      *
      * @param handleId of the OperationRequest - could be null if the OperationHandle still not exists
      * @param requestId of the client
@@ -262,23 +261,21 @@ public interface Persistence<C extends PersistenceConfig> extends Configurable<C
      *
      * @param reference reference identifying the element
      * @return type information of the referenced element, empty
-     *         {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo} if
-     *         no matching type is found, null if reference is null
-     * @throws IllegalArgumentException if reference can not be resolved on AAS
-     *             environment of the service
+     *         {@link de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo} if no matching type is found, null if
+     *         reference is null
+     * @throws IllegalArgumentException if reference can not be resolved on AAS environment of the service
      */
     public TypeInfo<?> getTypeInfo(Reference reference);
 
 
     /**
-     * Returns the output variables of an operation identified by a reference
+     * Returns the output variables of an operation identified by a reference.
      *
      * @param reference the reference identifying the operation
      * @return output variables of the operation identified by the reference
      * @throws IllegalArgumentException if reference is null
      * @throws IllegalArgumentException if reference cannot be resolved
-     * @throws IllegalArgumentException if reference does not point to an
-     *             operation
+     * @throws IllegalArgumentException if reference does not point to an operation
      */
     public OperationVariable[] getOperationOutputVariables(Reference reference);
 

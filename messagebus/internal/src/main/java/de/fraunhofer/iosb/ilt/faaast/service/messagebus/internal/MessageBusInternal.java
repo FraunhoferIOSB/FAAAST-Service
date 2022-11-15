@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * MessageBusInternal: Implements the internal MessageBus interface
- * subscribe/unsubscribe and publishes/dispatches EventMessages to subscribers
+ * MessageBusInternal: Implements the internal MessageBus interface subscribe/unsubscribe and publishes/dispatches
+ * EventMessages to subscribers.
  */
 public class MessageBusInternal implements MessageBus<MessageBusInternalConfig> {
 

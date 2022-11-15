@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.4.9
+ * Request class for DeleteConceptDescriptionById requests.
  */
 public class DeleteConceptDescriptionByIdRequest implements Request<DeleteConceptDescriptionByIdResponse> {
 

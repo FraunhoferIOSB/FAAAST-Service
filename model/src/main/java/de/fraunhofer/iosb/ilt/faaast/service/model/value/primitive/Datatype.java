@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 
 /**
- * Datatypes defined in AAS specification
+ * Datatypes defined in AAS specification.
  */
 public enum Datatype {
     STRING("string", StringValue.class),
@@ -61,8 +61,8 @@ public enum Datatype {
     private final String name;
 
     /**
-     * Finds datatype from string. Matching is case-sensitive. If no match is
-     * found, {@link Datatype#DEFAULT} is returned.
+     * Finds datatype from string. Matching is case-sensitive. If no match is found, {@link Datatype#DEFAULT} is
+     * returned.
      *
      * @param name name of datatype as defined in AAS specification
      * @return matching datatype if found, else {@link Datatype#DEFAULT}

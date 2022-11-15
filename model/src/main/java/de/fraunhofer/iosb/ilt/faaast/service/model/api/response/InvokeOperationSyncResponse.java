@@ -19,18 +19,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult
 
 
 /**
- * Chapter 4.3.11
+ * Response class for InvokeOperationSync requests.
  */
 public class InvokeOperationSyncResponse extends AbstractResponseWithPayload<OperationResult> {
 
-    public static InvokeOperationSyncResponse.Builder builder() {
-        return new InvokeOperationSyncResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<OperationResult, InvokeOperationSyncResponse, InvokeOperationSyncResponse.Builder> {
+    public static class Builder extends AbstractBuilder<OperationResult, InvokeOperationSyncResponse, Builder> {
 
         @Override
-        protected InvokeOperationSyncResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

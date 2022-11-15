@@ -32,7 +32,7 @@ import java.util.List;
 
 
 /**
- * Helper class to apply query modifier
+ * Helper class to apply query modifier.
  */
 public class QueryModifierHelper {
 
@@ -40,17 +40,10 @@ public class QueryModifierHelper {
 
 
     /**
-     * Apply the
-     * {@link QueryModifier}
-     * to a list of referables Consider the
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent}
-     * and
-     * {@link Level} of
-     * a query modifier If the extend of the query modifier is
-     * "WithoutBlobValue" all submodel elements of type
-     * {@link Blob} are removed.If the level of the
-     * query modifier is "Core" all underlying submodel element collection
-     * values are removed.
+     * Apply the {@link QueryModifier} to a list of referables Consider the
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent} and {@link Level} of a query modifier If
+     * the extend of the query modifier is "WithoutBlobValue" all submodel elements of type {@link Blob} are removed.If
+     * the level of the query modifier is "Core" all underlying submodel element collection values are removed.
      *
      * @param list which should be adapted by the query modifier
      * @param modifier which should be applied
@@ -66,17 +59,10 @@ public class QueryModifierHelper {
 
 
     /**
-     * Apply the
-     * {@link QueryModifier}
-     * to a referable Consider the
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent}
-     * and
-     * {@link Level} of
-     * a query modifier If the extend of the query modifier is
-     * "WithoutBlobValue" all submodel elements of type
-     * {@link Blob} are removed.If the level of the
-     * query modifier is "Core" all underlying submodel element collection
-     * values are removed.
+     * Apply the {@link QueryModifier} to a referable Consider the
+     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Extent} and {@link Level} of a query modifier If
+     * the extend of the query modifier is "WithoutBlobValue" all submodel elements of type {@link Blob} are removed.If
+     * the level of the query modifier is "Core" all underlying submodel element collection values are removed.
      *
      * @param <T> type of the referable
      * @param referable which should be adapted by the query modifier

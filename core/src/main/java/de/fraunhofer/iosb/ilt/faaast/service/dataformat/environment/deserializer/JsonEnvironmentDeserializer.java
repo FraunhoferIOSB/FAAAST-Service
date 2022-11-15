@@ -25,9 +25,7 @@ import java.nio.charset.Charset;
 
 
 /**
- * JSON deserializer for
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
- * related files.
+ * JSON deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
  */
 @SupportedDataformat(DataFormat.JSON)
 public class JsonEnvironmentDeserializer implements EnvironmentDeserializer {

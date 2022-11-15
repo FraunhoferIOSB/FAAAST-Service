@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -25,7 +26,6 @@ import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -34,7 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Provides the capability to execute operation via HTTP
+ * Provides the capability to execute operation via HTTP.
  */
 public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOperationProviderConfig> {
 
@@ -42,18 +42,22 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
     private final ServiceContext serviceContext;
     private final Reference reference;
     private final HttpClient client;
-    private final URL baseUrl;
+    private final HttpAssetConnectionConfig connectionConfig;
 
-    public HttpOperationProvider(ServiceContext serviceContext, Reference reference, HttpClient client, URL baseUrl, HttpOperationProviderConfig config) {
+    public HttpOperationProvider(ServiceContext serviceContext,
+            Reference reference,
+            HttpClient client,
+            HttpAssetConnectionConfig connectionConfig,
+            HttpOperationProviderConfig config) {
         super(config);
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.requireNonNull(client, "client must be non-null");
-        Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
+        Ensure.requireNonNull(connectionConfig, "connectionConfig must be non-null");
         this.client = client;
         this.serviceContext = serviceContext;
         this.reference = reference;
-        this.baseUrl = baseUrl;
+        this.connectionConfig = connectionConfig;
     }
 
 
@@ -68,14 +72,15 @@ public class HttpOperationProvider extends MultiFormatOperationProvider<HttpOper
         try {
             HttpResponse<byte[]> response = HttpHelper.execute(
                     client,
-                    baseUrl,
+                    connectionConfig.getBaseUrl(),
                     variableReplacer.apply(config.getPath()),
                     config.getFormat(),
                     StringUtils.isBlank(config.getMethod())
                             ? DEFAULT_EXECUTE_METHOD
                             : config.getMethod(),
                     HttpRequest.BodyPublishers.ofByteArray(input),
-                    HttpResponse.BodyHandlers.ofByteArray());
+                    HttpResponse.BodyHandlers.ofByteArray(),
+                    HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
             if (!HttpHelper.is2xxSuccessful(response)) {
                 throw new AssetConnectionException(String.format("executing operation via HTTP asset connection failed (reference: %s)", AasUtils.asString(reference)));
             }

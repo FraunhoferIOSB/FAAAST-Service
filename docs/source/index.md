@@ -64,6 +64,13 @@ In-Memory <persistences/inmemory_persistence.md>
 File-based <persistences/file_persistence.md>
 ```
 
+```{toctree}
+:hidden:
+:caption: Examples
+:maxdepth: 3
+Custom Asset Connection <examples/assetconnection-custom.md>
+```
+
 ```{toctree} 
 :hidden:
 :caption: About

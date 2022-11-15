@@ -25,9 +25,7 @@ import java.nio.charset.Charset;
 
 
 /**
- * XML deserializer for
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and
- * related files.
+ * XML deserializer for {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}s and related files.
  */
 @SupportedDataformat(DataFormat.XML)
 public class XmlEnvironmentDeserializer implements EnvironmentDeserializer {

@@ -25,7 +25,7 @@ import java.io.IOException;
 
 
 /**
- * Deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue}
+ * Deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue}.
  */
 public class AnnotatedRelationshipElementValueDeserializer extends ContextAwareElementValueDeserializer<AnnotatedRelationshipElementValue> {
 

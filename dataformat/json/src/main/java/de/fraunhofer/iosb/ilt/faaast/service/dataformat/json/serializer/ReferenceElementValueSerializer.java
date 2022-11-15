@@ -28,8 +28,7 @@ import java.io.IOException;
 
 
 /**
- * Serializer for
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue}
+ * Serializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue}.
  */
 public class ReferenceElementValueSerializer extends StdSerializer<ReferenceElementValue> {
 

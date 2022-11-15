@@ -18,6 +18,9 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
+/**
+ * Value class for File.
+ */
 public class FileValue extends DataElementValue {
 
     private String mimeType;

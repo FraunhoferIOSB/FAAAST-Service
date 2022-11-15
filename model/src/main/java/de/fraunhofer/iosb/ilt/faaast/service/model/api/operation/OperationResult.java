@@ -23,7 +23,7 @@ import java.util.Objects;
 
 
 /**
- * The result of invoking an {@link io.adminshell.aas.v3.model.Operation}
+ * The result of invoking an {@link io.adminshell.aas.v3.model.Operation}.
  */
 public class OperationResult {
 

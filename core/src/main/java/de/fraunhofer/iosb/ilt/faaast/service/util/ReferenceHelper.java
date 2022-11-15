@@ -37,11 +37,7 @@ import java.util.stream.Stream;
 
 
 /**
- * Helper class with methods to handle with
- * <ul>
- * <li>{@link io.adminshell.aas.v3.model.Reference}
- * <li>{@link io.adminshell.aas.v3.model.Key}
- * </ul>
+ * Helper class to work with AAS references.
  */
 public class ReferenceHelper {
 
@@ -49,13 +45,11 @@ public class ReferenceHelper {
 
 
     /**
-     * Compares a reference and a list of keys to equality. Ignores the key
-     * types of the keys of both parameters.
+     * Compares a reference and a list of keys to equality. Ignores the key types of the keys of both parameters.
      *
      * @param reference parameter 1
      * @param keys parameter 2
-     * @return true if the reference contains the same keys as in the specified
-     *         list and vice versa. Otherwise, false.
+     * @return true if the reference contains the same keys as in the specified list and vice versa. Otherwise, false.
      */
     public static boolean isEqualsIgnoringKeyType(Reference reference, List<Key> keys) {
         if (reference == null || reference.getKeys() == null || keys == null) {
@@ -76,8 +70,7 @@ public class ReferenceHelper {
 
 
     /**
-     * Compares two references to equality. Ignores the key types of the keys of
-     * both parameters.
+     * Compares two references to equality. Ignores the key types of the keys of both parameters.
      *
      * @param reference parameter 1
      * @param reference1 parameter 2
@@ -97,16 +90,13 @@ public class ReferenceHelper {
 
 
     /**
-     * Browse the keys of a reference and try to find the referenced element in
-     * the asset administration shell environment to set the right
-     * {@link io.adminshell.aas.v3.model.KeyElements} of the key. All key types
-     * must be null or SUBMODEL_ELEMENT.
+     * Browse the keys of a reference and try to find the referenced element in the asset administration shell
+     * environment to set the right {@link io.adminshell.aas.v3.model.KeyElements} of the key. All key types must be
+     * null or SUBMODEL_ELEMENT.
      *
      * @param reference with keys which should be completed
-     * @param env the asset administration shell environment which contains the
-     *            referenced elements
-     * @throws ResourceNotFoundException if an element referenced by a key could
-     *             not be found
+     * @param env the asset administration shell environment which contains the referenced elements
+     * @throws ResourceNotFoundException if an element referenced by a key could not be found
      */
     public static void completeReferenceWithProperKeyElements(Reference reference, AssetAdministrationShellEnvironment env) throws ResourceNotFoundException {
         if (reference == null) {
@@ -184,8 +174,8 @@ public class ReferenceHelper {
 
 
     /**
-     * Converts a submodel element reference to a list of keys. Each key in the
-     * list have the general key element "SUBMODEL_ELEMENT"
+     * Converts a submodel element reference to a list of keys. Each key in the list have the general key element
+     * "SUBMODEL_ELEMENT"
      *
      * @param submodelElementRef reference of the submodel element
      * @return the list of keys
@@ -202,7 +192,7 @@ public class ReferenceHelper {
 
 
     /**
-     * Converst a list of key to a reference
+     * Converst a list of key to a reference.
      *
      * @param keys which are converted to a reference
      * @return the reference with the keys
@@ -215,7 +205,7 @@ public class ReferenceHelper {
 
 
     /**
-     * Combines a list of keys of a child element with a parent to a reference
+     * Combines a list of keys of a child element with a parent to a reference.
      *
      * @param keys of the child
      * @param parentId of the parent
@@ -232,7 +222,7 @@ public class ReferenceHelper {
 
 
     /**
-     * Combine a parent reference and a child reference to one reference
+     * Combine a parent reference and a child reference to one reference.
      *
      * @param parentReference reference of the parent
      * @param childReference reference of the child
@@ -252,8 +242,7 @@ public class ReferenceHelper {
 
 
     /**
-     * Create a reference for an {@link io.adminshell.aas.v3.model.Identifiable}
-     * with KeyType IRI
+     * Create a reference for an {@link io.adminshell.aas.v3.model.Identifiable} with KeyType IRI.
      *
      * @param id of the identifiable
      * @param clazz of the identifiable
@@ -271,7 +260,7 @@ public class ReferenceHelper {
 
 
     /**
-     * Create a reference for an {@link io.adminshell.aas.v3.model.Identifiable}
+     * Create a reference for an {@link io.adminshell.aas.v3.model.Identifiable}.
      *
      * @param id of the identifiable
      * @param keyType type of the id
@@ -290,7 +279,7 @@ public class ReferenceHelper {
 
 
     /**
-     * Get the corresponding {@link KeyElements} to the given class
+     * Get the corresponding {@link KeyElements} to the given class.
      *
      * @param clazz to convert to a KeyElement
      * @return the corresponding KeyElement of the class
@@ -302,7 +291,7 @@ public class ReferenceHelper {
 
 
     /**
-     * Checks if a given reference is null or empty
+     * Checks if a given reference is null or empty.
      *
      * @param reference the reference to check
      * @return true if reference is null or empty, otherwise false
@@ -313,12 +302,11 @@ public class ReferenceHelper {
 
 
     /**
-     * Gets the reference to the parent element of the element addressed by
-     * given reference.
+     * Gets the reference to the parent element of the element addressed by given reference.
      *
      * @param reference the reference to the element to find the parent for
-     * @return The reference to the parent element of the element addressed by
-     *         given reference. If no parent exists null is returned.
+     * @return The reference to the parent element of the element addressed by given reference. If no parent exists null
+     *         is returned.
      * @throws IllegalArgumentException if reference is null
      */
     public static Reference getParent(Reference reference) {
@@ -335,7 +323,7 @@ public class ReferenceHelper {
 
 
     /**
-     * Builds a reference identifying a submodel element
+     * Builds a reference identifying a submodel element.
      *
      * @param aasIdentifier the AAS identifier
      * @param submodelIdentifier the submodel identifier
@@ -367,7 +355,7 @@ public class ReferenceHelper {
 
 
     /**
-     * Builds a reference identifying a submodel
+     * Builds a reference identifying a submodel.
      *
      * @param aasIdentifier the AAS identifier
      * @param submodelIdentifier the submodel identifier

@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Objects;
 
 
+/**
+ * Value class for ReferenceElement.
+ */
 public class ReferenceElementValue extends DataElementValue {
 
     private List<Key> keys;

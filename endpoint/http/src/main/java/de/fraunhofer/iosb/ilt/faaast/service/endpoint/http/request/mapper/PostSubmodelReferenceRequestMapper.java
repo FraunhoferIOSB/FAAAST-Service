@@ -28,7 +28,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-POST-Request path: /shells/{aasIdentifier}/aas/submodels
+ * class to map HTTP-POST-Request path: /shells/{aasIdentifier}/aas/submodels.
  */
 public class PostSubmodelReferenceRequestMapper extends AbstractRequestMapper {
 

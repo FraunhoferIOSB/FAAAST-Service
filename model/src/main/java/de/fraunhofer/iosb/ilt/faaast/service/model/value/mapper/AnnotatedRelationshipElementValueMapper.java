@@ -24,6 +24,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 
+/**
+ * Converts between {@link io.adminshell.aas.v3.model.AnnotatedRelationshipElement} and
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue}.
+ */
 public class AnnotatedRelationshipElementValueMapper implements DataValueMapper<AnnotatedRelationshipElement, AnnotatedRelationshipElementValue> {
 
     @Override

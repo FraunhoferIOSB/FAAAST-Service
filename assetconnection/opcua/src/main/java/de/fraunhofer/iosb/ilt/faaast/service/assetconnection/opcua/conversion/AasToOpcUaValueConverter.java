@@ -20,7 +20,7 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 
 
 /**
- * Converts values from AAS types to OPC UA types
+ * Converts values from AAS types to OPC UA types.
  */
 public interface AasToOpcUaValueConverter {
 

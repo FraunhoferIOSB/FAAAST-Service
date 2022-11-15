@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.3.2
+ * Request class for GetSubmodel requests.
  */
 public class GetSubmodelRequest extends AbstractSubmodelInterfaceRequest<GetSubmodelResponse> {
 

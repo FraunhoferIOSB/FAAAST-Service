@@ -18,18 +18,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponse;
 
 
 /**
- * Chapter 6.3.8
+ * Response class for DeleteSubmodelById requests.
  */
 public class DeleteSubmodelByIdResponse extends AbstractResponse {
 
-    public static DeleteSubmodelByIdResponse.Builder builder() {
-        return new DeleteSubmodelByIdResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractResponse.AbstractBuilder<DeleteSubmodelByIdResponse, Builder> {
+    public static class Builder extends AbstractBuilder<DeleteSubmodelByIdResponse, Builder> {
 
         @Override
-        protected DeleteSubmodelByIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 

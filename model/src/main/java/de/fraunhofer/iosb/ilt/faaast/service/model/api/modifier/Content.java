@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 
 /**
- * Enum of different content options
+ * Enum of different content options.
  */
 public enum Content {
     NORMAL,
@@ -29,10 +29,17 @@ public enum Content {
 
     public static final Content DEFAULT = Content.NORMAL;
 
+    /**
+     * Returns matching enum value from given string value. The names are matched case-insensitive, i.e. ignoring case.
+     * If the provided value does not match any enum value then {@link Content#DEFAULT} is returned.
+     *
+     * @param value the string value
+     * @return matching enum value or default ({@link Content#DEFAULT}) if there is no match
+     */
     public static Content fromString(String value) {
         return Stream.of(Content.values())
                 .filter(x -> x.name().equalsIgnoreCase(value))
                 .findAny()
-                .orElse(Content.NORMAL);
+                .orElse(DEFAULT);
     }
 }

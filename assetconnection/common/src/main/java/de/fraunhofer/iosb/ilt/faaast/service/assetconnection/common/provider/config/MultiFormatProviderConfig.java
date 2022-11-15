@@ -15,8 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config;
 
 /**
- * Base interface each config used for reading/writing multiple data formats
- * must implement
+ * Base interface each config used for reading/writing multiple data formats must implement.
  */
 public interface MultiFormatProviderConfig {
 

@@ -38,20 +38,19 @@ import java.util.stream.Collectors;
 
 /**
  * Deseriliazer for API calls. Deserializes not only whole
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} but
- * also other elements like
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShell}, {@link io.adminshell.aas.v3.model.Submodel}
- * or {@link io.adminshell.aas.v3.model.SubmodelElement}.
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} but also other elements like
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShell}, {@link io.adminshell.aas.v3.model.Submodel} or
+ * {@link io.adminshell.aas.v3.model.SubmodelElement}.
  */
 public interface ApiDeserializer {
 
     /**
-     * Default charset that will be used when no charset is specified
+     * Default charset that will be used when no charset is specified.
      */
     public Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     /**
-     * Deserializes a JSON string as provided type
+     * Deserializes a JSON string as provided type.
      *
      * @param <T> expected type
      * @param json JSON input string to deserialize
@@ -63,8 +62,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from input stream as provided type using UTF-8
-     * as charset.
+     * Deserializes a JSON string from input stream as provided type using UTF-8 as charset.
      *
      * @param <T> expected type
      * @param src input stream containing JSON string
@@ -78,8 +76,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from input stream as provided type using
-     * provided charset.
+     * Deserializes a JSON string from input stream as provided type using provided charset.
      *
      * @param <T> expected type
      * @param src input stream containing JSON string
@@ -94,8 +91,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from file as provided type using provided
-     * charset.
+     * Deserializes a JSON string from file as provided type using provided charset.
      *
      * @param <T> expected type
      * @param file file containing JSON string
@@ -112,8 +108,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from file as provided type using UTF-8
-     * charset.
+     * Deserializes a JSON string from file as provided type using UTF-8 charset.
      *
      * @param <T> expected type
      * @param file file containing JSON string
@@ -128,7 +123,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string as list of provided type
+     * Deserializes a JSON string as list of provided type.
      *
      * @param <T> expected type
      * @param json JSON input string to deserialize
@@ -140,8 +135,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from input stream as list of provided type
-     * using UTF-8 charset
+     * Deserializes a JSON string from input stream as list of provided type using UTF-8 charset.
      *
      * @param <T> expected type
      * @param src input stream containing JSON string
@@ -155,8 +149,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from input stream as list of provided type
-     * using provided charset
+     * Deserializes a JSON string from input stream as list of provided type using provided charset.
      *
      * @param <T> expected type
      * @param src input stream containing JSON string
@@ -171,8 +164,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from file as list of provided type using
-     * provided charset
+     * Deserializes a JSON string from file as list of provided type using provided charset.
      *
      * @param <T> expected type
      * @param file file containing JSON string
@@ -189,8 +181,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from file as list of provided type using UTF-8
-     * charset
+     * Deserializes a JSON string from file as list of provided type using UTF-8 charset.
      *
      * @param <T> expected type
      * @param file file containing JSON string
@@ -205,8 +196,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string as provided value type according to provided
-     * typeInfo
+     * Deserializes a JSON string as provided value type according to provided typeInfo.
      *
      * @param <T> expected value type
      * @param json JSON input string to deserialize
@@ -218,16 +208,15 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string representing a {@link SubmodelElement} as
-     * provided value type according to provided typeInfo
+     * Deserializes a JSON string representing a {@link SubmodelElement} as provided value type according to provided
+     * typeInfo.
      *
      * @param <T> expected value type
      * @param json JSON input string to deserialize
      * @param type type of the submodel element contained in JSON
      * @param typeInfo detailed type information for deserialization
      * @return deserialized JSON object
-     * @throws DeserializationException if type does not have a value
-     *             representation in AAS model
+     * @throws DeserializationException if type does not have a value representation in AAS model
      *             * @throws DeserializationException if deserialization fails
      */
     public default <T extends ElementValue> T readValue(String json, Class<? extends SubmodelElement> type, TypeInfo typeInfo) throws DeserializationException {
@@ -247,13 +236,11 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string as provided value type according to provided
-     * typeInfo
+     * Deserializes a JSON string as provided value type according to provided typeInfo.
      *
      * @param <T> expected value type
      * @param json JSON input string to deserialize
-     * @param submodelElement submodel element class to extract type information
-     *            from
+     * @param submodelElement submodel element class to extract type information from
      * @return deserialized JSON object
      * @throws DeserializationException if deserialization fails
      */
@@ -263,7 +250,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string as provided value type with given datatype
+     * Deserializes a JSON string as provided value type with given datatype.
      *
      * @param <T> expected value type
      * @param json JSON input string to deserialize
@@ -287,8 +274,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string as provided value type with default datatype
-     * (string)
+     * Deserializes a JSON string as provided value type with default datatype (string).
      *
      * @param <T> expected value type
      * @param json JSON input string to deserialize
@@ -302,8 +288,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from input stream as provided value type
-     * according to provided typeInfo
+     * Deserializes a JSON string from input stream as provided value type according to provided typeInfo.
      *
      * @param <T> expected value type
      * @param src input stream containing JSON string
@@ -318,14 +303,12 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from input stream as provided value type
-     * according to provided typeInfo
+     * Deserializes a JSON string from input stream as provided value type according to provided typeInfo.
      *
      * @param <T> expected value type
      * @param src input stream containing JSON string
      * @param charset charset used in input stream
-     * @param submodelElement submodel element class to extract type information
-     *            from
+     * @param submodelElement submodel element class to extract type information from
      * @return deserialized JSON object
      * @throws DeserializationException if deserialization fails
      */
@@ -335,8 +318,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from input stream as provided value type
-     * according to provided typeInfo
+     * Deserializes a JSON string from input stream as provided value type according to provided typeInfo.
      *
      * @param <T> expected value type
      * @param src input stream containing JSON string
@@ -350,12 +332,11 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from input stream as provided value type
+     * Deserializes a JSON string from input stream as provided value type.
      *
      * @param <T> expected value type
      * @param src input stream containing JSON string
-     * @param submodelElement submodel element class to extract type information
-     *            from
+     * @param submodelElement submodel element class to extract type information from
      * @return deserialized JSON object
      * @throws DeserializationException if deserialization fails
      */
@@ -365,8 +346,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from input stream as provided value type with
-     * default datatype (string)
+     * Deserializes a JSON string from input stream as provided value type with default datatype (string).
      *
      * @param <T> expected value type
      * @param src input stream containing JSON string
@@ -381,8 +361,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from input stream as provided value type with
-     * given datatype
+     * Deserializes a JSON string from input stream as provided value type with given datatype.
      *
      * @param <T> expected value type
      * @param src input stream containing JSON string
@@ -398,8 +377,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from input stream as provided value type with
-     * default datatype (string)
+     * Deserializes a JSON string from input stream as provided value type with default datatype (string).
      *
      * @param <T> expected value type
      * @param src input stream containing JSON string
@@ -413,8 +391,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from input stream as provided value type with
-     * given datatype using UTF-8 charset
+     * Deserializes a JSON string from input stream as provided value type with given datatype using UTF-8 charset.
      *
      * @param <T> expected value type
      * @param src input stream containing JSON string
@@ -429,8 +406,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from file as provided value type with default
-     * datatype (string)
+     * Deserializes a JSON string from file as provided value type with default datatype (string).
      *
      * @param <T> expected value type
      * @param file file containing JSON string
@@ -446,8 +422,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from file as provided value type with given
-     * datatype
+     * Deserializes a JSON string from file as provided value type with given datatype.
      *
      * @param <T> expected value type
      * @param file file containing JSON string
@@ -464,8 +439,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from file as provided value type with default
-     * datatype (string)
+     * Deserializes a JSON string from file as provided value type with default datatype (string).
      *
      * @param <T> expected value type
      * @param file file containing JSON string
@@ -480,8 +454,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from file as provided value type according to
-     * provided typeInfo
+     * Deserializes a JSON string from file as provided value type according to provided typeInfo.
      *
      * @param <T> expected value type
      * @param file file containing JSON string
@@ -496,12 +469,11 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from file as provided value type
+     * Deserializes a JSON string from file as provided value type.
      *
      * @param <T> expected value type
      * @param file file containing JSON string
-     * @param submodelElement submodel element class to extract type information
-     *            from
+     * @param submodelElement submodel element class to extract type information from
      * @return deserialized JSON object
      * @throws FileNotFoundException if file is not found
      * @throws DeserializationException if deserialization fails
@@ -512,8 +484,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON string from file as provided value type with given
-     * datatype using UTF-8 charset
+     * Deserializes a JSON string from file as provided value type with given datatype using UTF-8 charset.
      *
      * @param <T> expected value type
      * @param file file containing JSON string
@@ -529,8 +500,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON containg an array of
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     * Deserializes a JSON containg an array of {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}.
      *
      * @param <T> expected value type
      * @param json JSON input string to deserialize
@@ -542,13 +512,11 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON containg a list of
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     * Deserializes a JSON containg a list of {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}.
      *
      * @param <T> expected value type
      * @param json JSON input string to deserialize
-     * @param submodelElement submodel element class to extract type information
-     *            from
+     * @param submodelElement submodel element class to extract type information from
      * @return a list of element values
      * @throws DeserializationException if deserialization fails
      */
@@ -558,8 +526,7 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON containg a list of
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     * Deserializes a JSON containg a list of {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}.
      *
      * @param <T> expected value type
      * @param json JSON input string to deserialize
@@ -570,14 +537,22 @@ public interface ApiDeserializer {
     public <T extends ElementValue> List<T> readValueList(String json, TypeInfo typeInfo) throws DeserializationException;
 
 
+    /**
+     * Deserializes a JSON containg a list of {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}.
+     *
+     * @param <T> expected value type
+     * @param json JSON input string to deserialize
+     * @param submodelElement the submodel element to extract the type information from
+     * @return a list of element values
+     * @throws DeserializationException if deserialization fails
+     */
     public default <T extends ElementValue> List<T> readValueList(String json, SubmodelElement submodelElement) throws DeserializationException {
         return readValueList(json, TypeExtractor.extractTypeInfo(submodelElement));
     }
 
 
     /**
-     * Deserializes a JSON containg a map of
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     * Deserializes a JSON containg a map of {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}.
      *
      * @param <K> expected key type of returned map
      * @param <V> expected value type of returned map
@@ -590,14 +565,12 @@ public interface ApiDeserializer {
 
 
     /**
-     * Deserializes a JSON containg a map of
-     * {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}
+     * Deserializes a JSON containg a map of {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue}.
      *
      * @param <K> expected key type of returned map
      * @param <V> expected value type of returned map
      * @param json JSON input string to deserialize
-     * @param submodelElement submodel element class to extract type information
-     *            from
+     * @param submodelElement submodel element class to extract type information from
      * @return a map of element values
      * @throws DeserializationException if deserialization fails
      */
@@ -607,13 +580,11 @@ public interface ApiDeserializer {
 
 
     /**
-     * Register custom implementation of AAS model classes to be used for
-     * deserialization
+     * Register custom implementation of AAS model classes to be used for deserialization.
      *
      * @param <T> type of AAS interface
      * @param interfaceType type of AAS interface
-     * @param implementationType concrete implementation of AAS interface to use
-     *            upon deserialization
+     * @param implementationType concrete implementation of AAS interface to use upon deserialization
      */
     public <T> void useImplementation(Class<T> interfaceType, Class<? extends T> implementationType);
 

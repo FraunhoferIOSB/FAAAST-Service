@@ -1,21 +1,38 @@
 # Changelog
 
-## Current development version (0.3.0-SNAPSHOT)
+## Current development version (0.4.0-SNAPSHOT)
 
-**Internal changes & Bugfixes**
+## Release version 0.3.0
+
+**New Features**
+*   Asset Connection
+	*   OPC UA
+		*   Automatic reconnect upon connection loss
+		*   Add ParentNodeId to OpcUaOperationProviderConfig
+		*   Introduce mapping between IdShort and Argument Name in OpcUaOperationProviderConfig
+	*   MQTT
+		*   Automatic reconnect upon connection loss
+	*   HTTP
+		*   Now supports adding custom HTTP headers (on connection- & provier-level)
+*   Improved JavaDoc documentation
+*   Improved security through automatic vulnerabilities check before release
+*   Added example how to implement custom asset connection
+
+**Internal changes &  bugfixes**
+*   Dynamic loading of custom implementations (AssetConnection, Persistence, MessageBus, Endpoint and Dataformat) now works as expected. NOTE: This requires package your custom implementation as a fat jar and put it in the same location as the FA³ST starter jar.
 *   Streamlining dependencies
 *   Improved console output for file paths
 *   Added checks to ensure model paths provided are valid
 *   Asset Connection
-	*   [OPC UA] operation - fix problem when InputArguments or OutputArguments node was not present
-	*   [OPC UA] - Use ExpandedNodeId to parse NodeId Strings
-	*   [HTTP] - fix problem when using HttpAssetConnection configuration
-
-**New Features**
-*   Asset Connection
-	*   [OPC UA] - Add ParentNodeId to OpcUaOperationProviderConfig
-	*   [OPC UA] - Introduce mapping between IdShort and Argument Name in OpcUaOperationProviderConfig
-
+	*   OPC UA
+		*   Fix problem when InputArguments or OutputArguments node was not present for Operations
+		*   Use ExpandedNodeId to parse NodeId Strings
+	*   HTTP
+		*   Fixed problem when using HttpAssetConnection configuration
+*   Development
+	*   Enforce JavaDoc present at compile-time (through checkstyle)
+	*   No longer release `test` module
+	*   Create javadoc jar for parent POM
 
 ## Release version 0.2.1
 
@@ -54,7 +71,7 @@
 
 *   Improved documentation
 
-**Internal changes & Bugfixes**
+**Internal changes & smaller bugfixes**
 *   Validation now checks for unsupported datatypes
 
 *   Version info correctly displayed when started as docker container or via local build/debug
@@ -63,13 +80,11 @@
 
 *   Asset Connection
 	*   Fixed error when using operation provider
-
-*   OPC UA
-	*   subscription provider now syncs value upon initial connect instead of waiting for first value change on server
-
-*   MQTT
-	*   print warning upon connection loss
-	*   properly handle invalid messages without crashing
+	*   OPC UA
+		*   subscription provider now syncs value upon initial connect instead of waiting for first value change on server
+	*   MQTT
+		*   print warning upon connection loss
+		*   properly handle invalid messages without crashing
 
 *   Added strict enforcement of valid output modifiers for each API call
 

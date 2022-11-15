@@ -36,7 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- * Implementation of JSON format for asset connection
+ * Implementation of JSON format for asset connection.
  */
 @Dataformat(key = JsonFormat.KEY)
 public class JsonFormat implements Format {

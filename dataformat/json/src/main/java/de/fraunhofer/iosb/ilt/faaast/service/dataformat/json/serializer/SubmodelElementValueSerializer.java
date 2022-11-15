@@ -25,8 +25,8 @@ import java.io.IOException;
 
 
 /**
- * Serializer for {@link io.adminshell.aas.v3.model.SubmodelElement}. Converts
- * the submodel element zo value before serializing.
+ * Serializer for {@link io.adminshell.aas.v3.model.SubmodelElement}. Converts the submodel element zo value before
+ * serializing.
  */
 public class SubmodelElementValueSerializer extends StdSerializer<SubmodelElement> {
 

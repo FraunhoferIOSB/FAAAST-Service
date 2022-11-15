@@ -28,7 +28,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-GET-Request path: submodels
+ * class to map HTTP-GET-Request path: submodels.
  */
 public class GetAllSubmodelsBySemanticIdRequestMapper extends AbstractRequestMapperWithOutputModifier<GetAllSubmodelsBySemanticIdRequest, GetAllSubmodelsBySemanticIdResponse> {
 

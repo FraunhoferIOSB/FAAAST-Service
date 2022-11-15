@@ -23,7 +23,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.3.7
+ * Request class for PostSubmodelElementByPath requests.
  */
 public class PostSubmodelElementByPathRequest extends AbstractSubmodelInterfaceRequest<PostSubmodelElementByPathResponse> {
 

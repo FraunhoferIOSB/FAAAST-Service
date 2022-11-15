@@ -19,8 +19,7 @@ import java.util.Objects;
 
 
 /**
- * * Config file for OPC UA-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
+ * * Config file for OPC UA-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
  */
 public class OpcUaValueProviderConfig extends AbstractOpcUaProviderConfig implements AssetValueProviderConfig {
 

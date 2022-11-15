@@ -66,13 +66,10 @@ public class AasServiceIoManagerListener implements IoManagerListener {
     /**
      * Notification of a read request for user access level attribute of a node.
      *
-     * @param sc The serviceContext of the client connection used to call this
-     *            service.
+     * @param sc The serviceContext of the client connection used to call this service.
      * @param nodeid The NodeId of node to read.
-     * @param uv The node object to read. If the node is not available this may
-     *            be null.
-     * @return the user access level of the node, or null if the event is not
-     *         handled by the listener.
+     * @param uv The node object to read. If the node is not available this may be null.
+     * @return the user access level of the node, or null if the event is not handled by the listener.
      */
     @Override
     public AccessLevelType onGetUserAccessLevel(ServiceContext sc, NodeId nodeid, UaVariable uv) {
@@ -87,13 +84,10 @@ public class AasServiceIoManagerListener implements IoManagerListener {
     /**
      * Notification of a read request for user executable attribute of a node.
      *
-     * @param sc The serviceContext of the client connection used to call this
-     *            service.
+     * @param sc The serviceContext of the client connection used to call this service.
      * @param nodeid The NodeId of node to read.
-     * @param um The node object to read. If the node is not available this may
-     *            be null.
-     * @return The user executable attribute of the node, or null if the event
-     *         is not handled by the listener
+     * @param um The node object to read. If the node is not available this may be null.
+     * @return The user executable attribute of the node, or null if the event is not handled by the listener
      */
     @Override
     public Boolean onGetUserExecutable(ServiceContext sc, NodeId nodeid, UaMethod um) {
@@ -105,13 +99,10 @@ public class AasServiceIoManagerListener implements IoManagerListener {
     /**
      * Notification of a read request for user write mask attribute of a node.
      *
-     * @param sc The serviceContext of the client connection used to call this
-     *            service.
+     * @param sc The serviceContext of the client connection used to call this service.
      * @param nodeid The NodeId of node to read.
-     * @param uanode The node object to read. If the node is not available this
-     *            may be null.
-     * @return the user write mask of the node, or null if the event is not
-     *         handled by the listener.
+     * @param uanode The node object to read. If the node is not available this may be null.
+     * @return the user write mask of the node, or null if the event is not handled by the listener.
      */
     @Override
     public AttributeWriteMask onGetUserWriteMask(ServiceContext sc, NodeId nodeid, UaNode uanode) {
@@ -124,23 +115,19 @@ public class AasServiceIoManagerListener implements IoManagerListener {
 
 
     /**
-     * Notification of a read request for a node attribute, except for the Value
-     * attribute of a variable node (which goes to onReadValue). The
-     * notification is sent after the value is read from the node or other data
-     * source, depending on the actual IoManager.
+     * Notification of a read request for a node attribute, except for the Value attribute of a variable node (which
+     * goes to onReadValue). The notification is sent after the value is read from the node or other data source,
+     * depending on the actual IoManager.
      *
-     * @param sc The serviceContext of the client connection used to call this
-     *            service.
+     * @param sc The serviceContext of the client connection used to call this service.
      * @param nodeid The NodeId of node to read.
-     * @param uanode The node object to read. If the node is not available this
-     *            may be null.
+     * @param uanode The node object to read. If the node is not available this may be null.
      * @param ui The attribute to read.
      * @param dv The data value being returned.
      * @return true if the request was handled by the listener.
-     * @throws StatusException Throw the exception to cancel the request, for
-     *             example due to insufficient user rights. Possible result codes:
-     *             Bad_NodeIdInvalid, Bad_NodeIdUnknown, Bad_AttributeIdInvalid,
-     *             Bad_NotReadable, Bad_UserAccessDenied
+     * @throws StatusException Throw the exception to cancel the request, for example due to insufficient user rights.
+     *             Possible result codes: Bad_NodeIdInvalid, Bad_NodeIdUnknown, Bad_AttributeIdInvalid, Bad_NotReadable,
+     *             Bad_UserAccessDenied
      */
     @Override
     public boolean onReadNonValue(ServiceContext sc, NodeId nodeid, UaNode uanode, UnsignedInteger ui, DataValue dv) throws StatusException {
@@ -149,29 +136,23 @@ public class AasServiceIoManagerListener implements IoManagerListener {
 
 
     /**
-     * Notification of a read request for the Value attribute of a Variable
-     * node.
+     * Notification of a read request for the Value attribute of a Variable node.
      *
-     * @param sc The serviceContext of the client connection used to call this
-     *            service.
+     * @param sc The serviceContext of the client connection used to call this service.
      * @param nodeId The NodeId of node to read.
-     * @param uvn The node object to read. If the node is not available this may
-     *            be null.
+     * @param uvn The node object to read. If the node is not available this may be null.
      * @param nr The requested index range for an array value. May be null.
      * @param ttr Which timestamps were requested by the client.
-     * @param dt Minimum value of the ServerTimestamp of the value to be read.
-     *            If there is no value available that is new enough already available (in
-     *            the server cache), the server should attempt to read a new value from the
-     *            actual data source, instead of using the cached value. If a new value
-     *            cannot be read, the best value available is returned. If minTimestamp ==
-     *            DateTime.MAX_VALUE a new value should be read from the source.
-     * @param dv The data value to return. Set Value, and for Value attribute
-     *            also StatusCode and the Timestamps.
+     * @param dt Minimum value of the ServerTimestamp of the value to be read. If there is no value available that is
+     *            new enough already available (in the server cache), the server should attempt to read a new value from the
+     *            actual
+     *            data source, instead of using the cached value. If a new value cannot be read, the best value available is
+     *            returned. If minTimestamp == DateTime.MAX_VALUE a new value should be read from the source.
+     * @param dv The data value to return. Set Value, and for Value attribute also StatusCode and the Timestamps.
      * @return true if the request was handled by the listener.
-     * @throws StatusException Throw the exception to cancel the request, for
-     *             example due to insufficient user rights. Possible result codes:
-     *             Bad_NodeIdInvalid, Bad_NodeIdUnknown, Bad_IndexRangeInvalid,
-     *             Bad_IndexRangeNoData, Bad_NotReadable, Bad_UserAccessDenied
+     * @throws StatusException Throw the exception to cancel the request, for example due to insufficient user rights.
+     *             Possible result codes: Bad_NodeIdInvalid, Bad_NodeIdUnknown, Bad_IndexRangeInvalid, Bad_IndexRangeNoData,
+     *             Bad_NotReadable, Bad_UserAccessDenied
      */
     @Override
     public boolean onReadValue(ServiceContext sc, NodeId nodeId, UaValueNode uvn, NumericRange nr, TimestampsToReturn ttr, DateTime dt, DataValue dv) throws StatusException {
@@ -180,27 +161,21 @@ public class AasServiceIoManagerListener implements IoManagerListener {
 
 
     /**
-     * Notification of a write request for the value of a single node attribute,
-     * except for the Value of a variable node. The method is called before
-     * write actually takes place. So you can cancel the write, for example, if
-     * the user is not allowed to write to the attribute.
+     * Notification of a write request for the value of a single node attribute, except for the Value of a variable
+     * node. The method is called before write actually takes place. So you can cancel the write, for example, if the
+     * user is not allowed to write to the attribute.
      *
-     * @param sc The serviceContext of the client connection used to call this
-     *            service.
+     * @param sc The serviceContext of the client connection used to call this service.
      * @param nodeid The NodeId of node to write.
-     * @param uanode The node object to write. If the node is not available this
-     *            may be null.
+     * @param uanode The node object to write. If the node is not available this may be null.
      * @param ui The attribute to write.
      * @param dv The data value to write.
-     * @return rue if the value was written to the source and you do not want
-     *         any other operations to continue writing it - including it being written
-     *         to the node (if you are using an IoManagerUaNode). If you return false,
-     *         other listeners and the IoManager will get called with the write request.
-     * @throws StatusException If the write fails. Expected result codes:
-     *             Bad_NodeIdInvalid, Bad_NodeIdUnknown, Bad_AttributeIdInvalid,
-     *             Bad_IndexRangeInvalid, Bad_IndexRangeNoData, Bad_DataEncodingInvalid,
-     *             Bad_DataEncodingUnsupported, Bad_NotWriteable, Bad_UserAccessDenied,
-     *             Bad_TypeMismatch
+     * @return rue if the value was written to the source and you do not want any other operations to continue writing
+     *         it - including it being written to the node (if you are using an IoManagerUaNode). If you return false, other
+     *         listeners and the IoManager will get called with the write request.
+     * @throws StatusException If the write fails. Expected result codes: Bad_NodeIdInvalid, Bad_NodeIdUnknown,
+     *             Bad_AttributeIdInvalid, Bad_IndexRangeInvalid, Bad_IndexRangeNoData, Bad_DataEncodingInvalid,
+     *             Bad_DataEncodingUnsupported, Bad_NotWriteable, Bad_UserAccessDenied, Bad_TypeMismatch
      */
     @Override
     public boolean onWriteNonValue(ServiceContext sc, NodeId nodeid, UaNode uanode, UnsignedInteger ui, DataValue dv) throws StatusException {
@@ -212,27 +187,21 @@ public class AasServiceIoManagerListener implements IoManagerListener {
 
 
     /**
-     * Notification of a write request for the Value attribute of a Variable
-     * node. The method is called before write actually takes place. So you can
-     * cancel the write, for example, if the user is not allowed to write to the
-     * value.
+     * Notification of a write request for the Value attribute of a Variable node. The method is called before write
+     * actually takes place. So you can cancel the write, for example, if the user is not allowed to write to the value.
      *
-     * @param sc The serviceContext of the client connection used to call this
-     *            service.
+     * @param sc The serviceContext of the client connection used to call this service.
      * @param nodeId The NodeId of node to write.
-     * @param uvn The node object to write. If the node is not available this
-     *            may be null.
+     * @param uvn The node object to write. If the node is not available this may be null.
      * @param indexRange The index range to set for an array value. May be null.
      * @param dv The data value to write.
-     * @return true if the value was written to the source and you do not want
-     *         any other operations to continue writing it - including it being written
-     *         to the node (if you are using an IoManagerUaNode). If you return false,
-     *         other listeners and the IoManager will get called with the write request.
-     * @throws StatusException If the write fails. Expected result codes:
-     *             Bad_NodeIdInvalid, Bad_NodeIdUnknown, Bad_AttributeIdInvalid,
-     *             Bad_IndexRangeInvalid, Bad_IndexRangeNoData, Bad_DataEncodingInvalid,
-     *             Bad_DataEncodingUnsupported, Bad_NotWriteable, Bad_UserAccessDenied,
-     *             Bad_OutOfRange, Bad_TypeMismatch, Bad_WriteNotSupported
+     * @return true if the value was written to the source and you do not want any other operations to continue writing
+     *         it - including it being written to the node (if you are using an IoManagerUaNode). If you return false, other
+     *         listeners and the IoManager will get called with the write request.
+     * @throws StatusException If the write fails. Expected result codes: Bad_NodeIdInvalid, Bad_NodeIdUnknown,
+     *             Bad_AttributeIdInvalid, Bad_IndexRangeInvalid, Bad_IndexRangeNoData, Bad_DataEncodingInvalid,
+     *             Bad_DataEncodingUnsupported, Bad_NotWriteable, Bad_UserAccessDenied, Bad_OutOfRange, Bad_TypeMismatch,
+     *             Bad_WriteNotSupported
      */
     @Override
     public boolean onWriteValue(ServiceContext sc, NodeId nodeId, UaValueNode uvn, NumericRange indexRange, DataValue dv) throws StatusException {

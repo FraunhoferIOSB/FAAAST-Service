@@ -23,7 +23,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.3.7
+ * Request class for PutSubmodelById requests.
  */
 public class PutSubmodelByIdRequest implements Request<PutSubmodelByIdResponse> {
 

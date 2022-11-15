@@ -27,8 +27,7 @@ import java.util.List;
 
 
 /**
- * Validator to check if an AAS-model object contains valid datatype/value type
- * definitions.
+ * Validator to check if an AAS-model object contains valid datatype/value type definitions.
  */
 public class ValueTypeValidator {
 

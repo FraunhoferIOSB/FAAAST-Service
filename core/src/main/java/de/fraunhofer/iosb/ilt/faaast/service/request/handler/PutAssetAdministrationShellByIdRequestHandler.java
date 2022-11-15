@@ -27,12 +27,10 @@ import io.adminshell.aas.v3.model.AssetAdministrationShell;
 
 
 /**
- * Class to handle a
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetAdministrationShellByIdRequest}
+ * Class to handle a {@link de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetAdministrationShellByIdRequest}
  * in the service and to send the corresponding response
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetAdministrationShellByIdResponse}.
- * Is responsible for communication with the persistence and sends the
- * corresponding events to the message bus.
+ * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetAdministrationShellByIdResponse}. Is
+ * responsible for communication with the persistence and sends the corresponding events to the message bus.
  */
 public class PutAssetAdministrationShellByIdRequestHandler extends AbstractRequestHandler<PutAssetAdministrationShellByIdRequest, PutAssetAdministrationShellByIdResponse> {
 

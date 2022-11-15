@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
     <artifactId>service</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>service</name>
     <description>An implementation of the Asset Administration Shell</description>
@@ -47,7 +47,6 @@
         <module>assetconnection/http</module>
         <module>dataformat/json</module>
         <module>starter</module>
-        <module>test</module>
     </modules>
     <scm>
         <connection>scm:git:git://github.com/FraunhoferIOSB/FAAAST-Service.git</connection>
@@ -70,26 +69,32 @@
         </snapshotRepository>
     </distributionManagement>
     <properties>
-        <aas.version>1.2.0</aas.version>
+        <aas.dataformat.version>1.2.0</aas.dataformat.version>
+        <aas.model.version>1.2.0</aas.model.version>
         <awaitility.version>4.2.0</awaitility.version>
+        <checkstyle.version>10.4</checkstyle.version>
         <classgraph.version>4.8.149</classgraph.version>
+        <commons.codec.version>1.15</commons.codec.version>
         <commons.io.version>2.11.0</commons.io.version>
         <commons.lang3.version>3.12.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
+        <equalsverifier.version>3.11</equalsverifier.version>
         <guava.version>31.1-jre</guava.version>
-        <jackson.databind.version>2.13.4</jackson.databind.version>
-        <jackson.version>2.13.4</jackson.version>
+        <jackson.databind.version>2.14.0</jackson.databind.version>
+        <jackson.version>2.14.0</jackson.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <jena.version>4.6.1</jena.version>
         <jetty.version>11.0.12</jetty.version>
         <jsonassert.version>1.5.1</jsonassert.version>
         <jsonpath.version>2.7.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
-        <logback.version>1.4.1</logback.version>
+        <logback.version>1.4.4</logback.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <maven.plugin.assembly.version>3.4.2</maven.plugin.assembly.version>
         <maven.plugin.buildhelper.version>3.3.0</maven.plugin.buildhelper.version>
+        <maven.plugin.checkstyle.version>3.2.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.10.1</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.3.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.0.0-M7</maven.plugin.failsafe.version>
@@ -98,39 +103,41 @@
         <maven.plugin.jacoco.version>0.8.8</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.4.1</maven.plugin.javadoc.version>
-        <maven.plugin.jib.version>3.3.0</maven.plugin.jib.version>
+        <maven.plugin.jib.version>3.3.1</maven.plugin.jib.version>
+        <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>7.2.1</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>7.3.0</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.6.3</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>4.9.0-28</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
-        <maven.plugin.shade.version>3.4.0</maven.plugin.shade.version>
+        <maven.plugin.shade.version>3.4.1</maven.plugin.shade.version>
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
+        <maven.plugin.spotless.version>2.27.2</maven.plugin.spotless.version>
         <milo.version>0.6.8</milo.version>
-        <mockito.version>4.8.0</mockito.version>
+        <mockito.version>4.8.1</mockito.version>
         <moquette.version>0.15.1</moquette.version>
-        <netty.version>4.1.82.Final</netty.version>
+        <netty.version>4.1.85.Final</netty.version>
         <paho.version>1.2.5</paho.version>
-        <picocli.version>4.6.3</picocli.version>
+        <picocli.version>4.7.0</picocli.version>
         <poi.ooxml.version>5.2.3</poi.ooxml.version>
-        <proguard.core.version>9.0.3</proguard.core.version>
+        <proguard.core.version>9.0.5</proguard.core.version>
         <proguard.version>7.2.2</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>4.9.0-43</prosys.sdk.version>
+        <protobuf.version>3.21.9</protobuf.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
         <slf4j.test.version>2.6.1</slf4j.test.version>
-        <slf4j.version>2.0.2</slf4j.version>
-        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <slf4j.version>2.0.3</slf4j.version>
+        <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <spotless.version>2.27.0</spotless.version>
         <systemstubs.version>2.0.1</systemstubs.version>
-        <wiremock.version>2.34.0</wiremock.version>
+        <wiremock.version>2.35.0</wiremock.version>
     </properties>
     <dependencies>
         <dependency>
@@ -150,6 +157,42 @@
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven.plugin.checkstyle.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>checks</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>${checkstyle.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <executions>
+                        <execution>
+                            <id>checkstyle</id>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <phase>validate</phase>
+                            <configuration>
+                                <configLocation>${root.basedir}/checkstyle.xml</configLocation>
+                                <consoleOutput>true</consoleOutput>
+                                <failsOnError>true</failsOnError>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${maven.plugin.assembly.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>${maven.plugin.dependency.version}</version>
                 </plugin>
@@ -163,6 +206,7 @@
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${maven.plugin.owasp.version}</version>
                     <configuration>
+                        <failBuildOnCVSS>6</failBuildOnCVSS>
                         <suppressionFiles>
                             <suppressionFile>owaspSuppressions.xml</suppressionFile>
                         </suppressionFiles>
@@ -171,6 +215,132 @@
                         <execution>
                             <goals>
                                 <goal>aggregate</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>com.diffplug.spotless</groupId>
+                    <artifactId>spotless-maven-plugin</artifactId>
+                    <version>${maven.plugin.spotless.version}</version>
+                    <configuration>
+                        <formats>
+                            <format>
+                                <includes>
+                                    <include>misc/codestyle/*.xml</include>
+                                </includes>
+                                <eclipseWtp>
+                                    <type>XML</type>
+                                    <files>
+                                        <file>${root.basedir}/misc/codestyle/xml.prefs</file>
+                                    </files>
+                                </eclipseWtp>
+                            </format>
+                            <format>
+                                <includes>
+                                    <include>*.md</include>
+                                    <include>.gitignore</include>
+                                </includes>
+                                <trimTrailingWhitespace></trimTrailingWhitespace>
+                                <endWithNewline></endWithNewline>
+                                <indent>
+                                    <tabs>true</tabs>
+                                    <spacesPerTab>4</spacesPerTab>
+                                </indent>
+                            </format>
+                        </formats>
+                        <pom>
+                            <includes>
+                                <include>**/pom.xml</include>
+                            </includes>
+                            <sortPom>
+                                <keepBlankLines>false</keepBlankLines>
+                                <nrOfIndentSpace>4</nrOfIndentSpace>
+                                <sortDependencies>groupId,artifactId</sortDependencies>
+                                <sortProperties>true</sortProperties>
+                            </sortPom>
+                        </pom>
+                        <java>
+                            <includes>
+                                <include>src/main/java/**/*.java</include>
+                                <include>src/test/java/**/*.java</include>
+                            </includes>
+                            <importOrder></importOrder>
+                            <removeUnusedImports></removeUnusedImports>
+                            <licenseHeader>
+                                <file>${root.basedir}/license-header</file>
+                            </licenseHeader>
+                            <eclipse>
+                                <version>4.13.0</version>
+                                <file>${root.basedir}/misc/codestyle/formatter.xml</file>
+                            </eclipse>
+                        </java>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <phase>compile</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>2.0.0</version>
+                    <configuration>
+                        <outputDirectory>${root.basedir}/docs/third_party_licenses_report</outputDirectory>
+                        <licenseMerges>
+                            <licenseMerge>Apache Software License, Version 2.0|The Apache Software License, Version 2.0|Apache License, Version 2.0|Apache Public License 2.0|Apache License Version 2.0</licenseMerge>
+                            <licenseMerge>Apache Software License, Version 2.0|Apache 2.0|Apache2.0|Apache License 2.0|Apache Software License - Version 2.0|The Apache License, Version 2.0</licenseMerge>
+                            <licenseMerge>The MIT License (MIT)|The MIT License|MIT License|MIT license|MIT</licenseMerge>
+                            <licenseMerge>Eclipse Public License - Version 2.0|EPL 2.0</licenseMerge>
+                            <licenseMerge>Eclipse Distribution License - v 1.0|EDL 1.0</licenseMerge>
+                            <licenseMerge>GPL2 w/ CPE|GNU General Public License, version 2 (GPL2), with the classpath exception</licenseMerge>
+                            <licenseMerge>BSD License 2.0|New BSD License</licenseMerge>
+                            <licenseMerge>BSD 3-Clause|BSD License 3.0</licenseMerge>
+                        </licenseMerges>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>aggregate-third-party-report</id>
+                            <goals>
+                                <goal>aggregate-third-party-report</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${maven.plugin.failsafe.version}</version>
+                    <configuration>
+                        <includes>
+                            <include>**/*IT</include>
+                        </includes>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${maven.plugin.javadoc.version}</version>
+                    <configuration>
+                        <quiet>true</quiet>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
                             </goals>
                         </execution>
                     </executions>
@@ -185,125 +355,42 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>${maven.plugin.release.version}</version>
             </plugin>
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
-                <version>${spotless.version}</version>
-                <configuration>
-                    <formats>
-                        <format>
-                            <includes>
-                                <include>misc/codestyle/*.xml</include>
-                            </includes>
-                            <eclipseWtp>
-                                <type>XML</type>
-                                <files>
-                                    <file>${root.basedir}/misc/codestyle/xml.prefs</file>
-                                </files>
-                            </eclipseWtp>
-                        </format>
-                        <format>
-                            <includes>
-                                <include>*.md</include>
-                                <include>.gitignore</include>
-                            </includes>
-                            <trimTrailingWhitespace></trimTrailingWhitespace>
-                            <endWithNewline></endWithNewline>
-                            <indent>
-                                <tabs>true</tabs>
-                                <spacesPerTab>4</spacesPerTab>
-                            </indent>
-                        </format>
-                    </formats>
-                    <pom>
-                        <includes>
-                            <include>**/pom.xml</include>
-                        </includes>
-                        <sortPom>
-                            <keepBlankLines>false</keepBlankLines>
-                            <nrOfIndentSpace>4</nrOfIndentSpace>
-                            <sortDependencies>groupId,artifactId</sortDependencies>
-                            <sortProperties>true</sortProperties>
-                        </sortPom>
-                    </pom>
-                    <java>
-                        <includes>
-                            <include>src/main/java/**/*.java</include>
-                            <include>src/test/java/**/*.java</include>
-                        </includes>
-                        <importOrder></importOrder>
-                        <removeUnusedImports></removeUnusedImports>
-                        <licenseHeader>
-                            <file>${root.basedir}/license-header</file>
-                        </licenseHeader>
-                        <eclipse>
-                            <version>4.13.0</version>
-                            <file>${root.basedir}/misc/codestyle/formatter.xml</file>
-                        </eclipse>
-                    </java>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <phase>compile</phase>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>2.0.0</version>
-                <configuration>
-                    <outputDirectory>${root.basedir}/docs/third_party_licenses_report</outputDirectory>
-                    <licenseMerges>
-                        <licenseMerge>Apache Software License, Version 2.0|The Apache Software License, Version 2.0|Apache License, Version 2.0|Apache Public License 2.0|Apache License Version 2.0</licenseMerge>
-                        <licenseMerge>Apache Software License, Version 2.0|Apache 2.0|Apache2.0|Apache License 2.0|Apache Software License - Version 2.0|The Apache License, Version 2.0</licenseMerge>
-                        <licenseMerge>The MIT License (MIT)|The MIT License|MIT License|MIT license|MIT</licenseMerge>
-                        <licenseMerge>Eclipse Public License - Version 2.0|EPL 2.0</licenseMerge>
-                        <licenseMerge>Eclipse Distribution License - v 1.0|EDL 1.0</licenseMerge>
-                        <licenseMerge>GPL2 w/ CPE|GNU General Public License, version 2 (GPL2), with the classpath exception</licenseMerge>
-                        <licenseMerge>BSD License 2.0|New BSD License</licenseMerge>
-                        <licenseMerge>BSD 3-Clause|BSD License 3.0</licenseMerge>
-                    </licenseMerges>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>aggregate-third-party-report</id>
-                        <goals>
-                            <goal>aggregate-third-party-report</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven.plugin.failsafe.version}</version>
-                <configuration>
-                    <includes>
-                        <include>**/*IT</include>
-                    </includes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
     <profiles>
         <profile>
-            <id>owasp</id>
+            <id>build-local</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
+            <modules>
+                <module>checks</module>
+                <module>examples/assetconnection-custom</module>
+                <module>test</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>owasp</id>
+            <modules>
+                <module>endpoint/opcua</module>
+            </modules>
+            <properties>
+                <maven.javadoc.skip>true</maven.javadoc.skip>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -314,9 +401,19 @@
             </build>
         </profile>
         <profile>
+            <id>test</id>
+            <modules>
+                <module>checks</module>
+                <module>endpoint/opcua</module>
+                <module>test</module>
+            </modules>
+        </profile>
+        <profile>
             <id>coverage</id>
             <modules>
+                <module>checks</module>
                 <module>endpoint/opcua</module>
+                <module>test</module>
             </modules>
             <build>
                 <plugins>
@@ -331,29 +428,33 @@
                                     <goal>prepare-agent</goal>
                                 </goals>
                             </execution>
-                            <execution>
-                                <id>report-aggregate</id>
-                                <goals>
-                                    <goal>report-aggregate</goal>
-                                </goals>
-                                <phase>verify</phase>
-                            </execution>
                         </executions>
                     </plugin>
                 </plugins>
             </build>
         </profile>
         <profile>
-            <id>ci-build</id>
+            <id>build-ci</id>
             <modules>
+                <module>checks</module>
                 <module>endpoint/opcua</module>
+                <module>examples/assetconnection-custom</module>
+                <module>test</module>
             </modules>
+            <properties>
+                <maven.javadoc.skip>true</maven.javadoc.skip>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
         </profile>
         <profile>
             <id>release</id>
             <modules>
                 <module>endpoint/opcua</module>
             </modules>
+            <properties>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -374,6 +475,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>${maven.plugin.javadoc.version}</version>
+                        <inherited>false</inherited>
                         <configuration>
                             <quiet>true</quiet>
                         </configuration>
@@ -381,7 +483,7 @@
                             <execution>
                                 <id>attach-javadocs</id>
                                 <goals>
-                                    <goal>jar</goal>
+                                    <goal>aggregate-jar</goal>
                                 </goals>
                             </execution>
                         </executions>

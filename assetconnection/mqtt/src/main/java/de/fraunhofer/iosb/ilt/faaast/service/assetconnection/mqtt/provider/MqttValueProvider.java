@@ -21,13 +21,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.confi
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.Reference;
+import java.util.Objects;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 
 /**
- * ValueProvider for MQTT
+ * ValueProvider for MQTT.
  */
 public class MqttValueProvider extends MultiFormatValueProvider<MqttValueProviderConfig> {
 
@@ -66,5 +67,30 @@ public class MqttValueProvider extends MultiFormatValueProvider<MqttValueProvide
     @Override
     protected TypeInfo getTypeInfo() {
         return serviceContext.getTypeInfo(reference);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), serviceContext, client, reference);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof MqttValueProvider)) {
+            return false;
+        }
+        final MqttValueProvider that = (MqttValueProvider) obj;
+        return super.equals(obj)
+                && Objects.equals(serviceContext, that.serviceContext)
+                && Objects.equals(client, that.client)
+                && Objects.equals(reference, that.reference);
     }
 }

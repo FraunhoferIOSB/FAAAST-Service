@@ -98,7 +98,7 @@ public class Server {
 
     /**
      * Starts the server
-     * 
+     *
      * @throws UaServerException If an error occurs
      * @throws IOException If an error occurs
      * @throws SecureIdentityException If an error occurs
@@ -345,7 +345,7 @@ public class Server {
 
     /**
      * Stops the OPC UA server
-     * 
+     *
      * @param secondsTillShutdown The number of seconds until the server stops
      */
     public void shutdown(int secondsTillShutdown) {

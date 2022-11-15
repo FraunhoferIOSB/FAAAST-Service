@@ -240,9 +240,8 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method for changing a property based on an event from the
-     * MessageBus. Sets an event on the MessageBus and checks the new value in
-     * the server.
+     * Test method for changing a property based on an event from the MessageBus. Sets an event on the MessageBus and
+     * checks the new value in the server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws ServiceException If the operation fails
@@ -319,8 +318,8 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method for writing a property. Writes the property in the OPC UA
-     * Server and checks the new value in the server.
+     * Test method for writing a property. Writes the property in the OPC UA Server and checks the new value in the
+     * server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
@@ -366,8 +365,7 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method to check whether the new value message from the MessageBus is
-     * processed correctly
+     * Test method to check whether the new value message from the MessageBus is processed correctly
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
@@ -426,8 +424,7 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method for writing a range. Writes the property in the OPC UA Server
-     * and checks the new value in the server.
+     * Test method for writing a range. Writes the property in the OPC UA Server and checks the new value in the server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
@@ -473,8 +470,7 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method for writing a range. Writes the property in the OPC UA Server
-     * and checks the new value in the server.
+     * Test method for writing a range. Writes the property in the OPC UA Server and checks the new value in the server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
@@ -523,8 +519,8 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method for writing a property. Writes the property in the OPC UA
-     * Server and checks the new value in the server.
+     * Test method for writing a property. Writes the property in the OPC UA Server and checks the new value in the
+     * server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
@@ -579,8 +575,8 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method for writing a property. Writes the property in the OPC UA
-     * Server and checks the new value in the server.
+     * Test method for writing a property. Writes the property in the OPC UA Server and checks the new value in the
+     * server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
@@ -636,8 +632,8 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method for writing a property of an entity. Writes the property in
-     * the OPC UA Server and checks the new value in the server.
+     * Test method for writing a property of an entity. Writes the property in the OPC UA Server and checks the new
+     * value in the server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
@@ -685,8 +681,8 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Test method for writing the type of an entity. Writes the property in the
-     * OPC UA Server and checks the new value in the server.
+     * Test method for writing the type of an entity. Writes the property in the OPC UA Server and checks the new value
+     * in the server.
      *
      * @throws SecureIdentityException If the operation fails
      * @throws IOException If the operation fails
@@ -1076,8 +1072,7 @@ public class OpcUaEndpointTest {
 
 
     /**
-     * Searches for the Submodel reference node and checks the corresponding
-     * values
+     * Searches for the Submodel reference node and checks the corresponding values
      *
      * @param client The OPC UA Client.
      * @param baseNode The base node where the Node is searched.

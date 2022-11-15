@@ -29,8 +29,7 @@ public class ExtendHelper {
 
 
     /**
-     * Applies given extend to object structure. This directly modifies the
-     * {@code obj}.
+     * Applies given extend to object structure. This directly modifies the {@code obj}.
      *
      * @param obj the object to apply given extend
      * @param extend the extend to apply
@@ -43,8 +42,7 @@ public class ExtendHelper {
 
 
     /**
-     * Applies {@link Extent#WITHOUT_BLOB_VALUE} to object structure. This
-     * directly modifies the {@code obj}.
+     * Applies {@link Extent#WITHOUT_BLOB_VALUE} to object structure. This directly modifies the {@code obj}.
      *
      * @param obj the object to apply given extend
      */

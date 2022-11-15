@@ -19,9 +19,10 @@ import java.util.Map;
 
 
 /**
- * AssetOperationProviderConfig supporting multiple data formats
+ * AssetOperationProviderConfig supporting multiple data formats.
  */
 public interface MultiFormatOperationProviderConfig extends AssetOperationProviderConfig, MultiFormatWriteProviderConfig {
+
     public Map<String, String> getQueries();
 
 

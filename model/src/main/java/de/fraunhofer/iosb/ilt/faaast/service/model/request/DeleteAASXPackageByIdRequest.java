@@ -21,7 +21,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.5.6
+ * Request class for DeleteAASXPackageById requests.
  */
 public class DeleteAASXPackageByIdRequest implements Request<DeleteAASXPackageByIdResponse> {
 

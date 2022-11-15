@@ -38,20 +38,27 @@ jobs:
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: |
-        mvn -B install --settings maven-ci-settings.xml -P ci-build -DskipTests=true -Dmaven.javadoc.skip=true
+        mvn test-compile -P build-ci --settings maven-ci-settings.xml -B
 
-    - name: Test with Sonar
+    - name: Test with Coverage
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: |
-        mvn -B verify --settings maven-ci-settings.xml -P coverage sonar:sonar -Dsonar.projectKey=FraunhoferIOSB_FAAAST-Service -Dmaven.javadoc.skip=true
+        mvn install sonar:sonar -P coverage -Dsonar.projectKey=FraunhoferIOSB_FAAAST-Service --settings maven-ci-settings.xml -B
+
+    - name: Dependency Vulnerability Check with OWASP
+      env:
+        OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
+        OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
+      run: |
+        mvn org.owasp:dependency-check-maven:aggregate -P owasp --settings maven-ci-settings.xml -B
 
     - name: Build Docker Image
       run: |
-        mvn -B jib:dockerBuild -pl starter -Dcontainer.image.tag=${GITHUB_REF_NAME//\//-}
+        mvn jib:dockerBuild -pl starter -Dcontainer.image.tag=${GITHUB_REF_NAME//\//-} -B
 
     - name: Extract Project version
       id: project
@@ -80,7 +87,7 @@ jobs:
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-      run: mvn -B clean deploy -P release --settings maven-ci-settings.xml -pl endpoint/opcua -DskipTests=true
+      run: mvn clean deploy -P release --settings maven-ci-settings.xml -B
 
     - name: Push Docker Image
       if: github.ref == 'refs/heads/main'
@@ -88,4 +95,4 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
       run: |
-        mvn -B jib:build -pl starter -Dcontainer.image.tag=latest
+        mvn jib:build -pl starter -Dcontainer.image.tag=latest -B

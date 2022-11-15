@@ -25,7 +25,7 @@ import java.util.Map;
 
 
 /**
- * class to map HTTP-DELETE-Request path: packages/{packageId}
+ * class to map HTTP-DELETE-Request path: packages/{packageId}.
  */
 public class DeleteAASXPackageByIdRequestMapper extends AbstractRequestMapper {
 

@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.3.8
+ * Request class for DeleteSubmodelById requests.
  */
 public class DeleteSubmodelByIdRequest implements Request<DeleteSubmodelByIdResponse> {
 

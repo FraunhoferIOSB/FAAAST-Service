@@ -36,6 +36,7 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,8 +60,7 @@ import org.eclipse.milo.opcua.stack.core.types.structured.CallMethodResult;
 
 
 /**
- * Implementation of OperationProvider for OPC UA asset connections. Supports
- * executing AAS operations via OPC UA.
+ * Implementation of OperationProvider for OPC UA asset connections. Supports executing AAS operations via OPC UA.
  */
 public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperationProviderConfig> implements AssetOperationProvider {
 
@@ -332,7 +332,12 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), nodeId, parentNodeId, methodArguments, methodOutputArguments, outputVariables);
+        return Objects.hash(super.hashCode(),
+                nodeId,
+                parentNodeId,
+                Arrays.hashCode(methodArguments),
+                Arrays.hashCode(methodOutputArguments),
+                Arrays.hashCode(outputVariables));
     }
 
 
@@ -344,16 +349,16 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof OpcUaOperationProvider)) {
             return false;
         }
         final OpcUaOperationProvider that = (OpcUaOperationProvider) obj;
         return super.equals(that)
                 && Objects.equals(nodeId, that.nodeId)
                 && Objects.equals(parentNodeId, that.parentNodeId)
-                && Objects.equals(methodArguments, that.methodArguments)
-                && Objects.equals(methodOutputArguments, that.methodOutputArguments)
-                && Objects.equals(outputVariables, that.outputVariables);
+                && Arrays.equals(methodArguments, that.methodArguments)
+                && Arrays.equals(methodOutputArguments, that.methodOutputArguments)
+                && Arrays.equals(outputVariables, that.outputVariables);
     }
 
 

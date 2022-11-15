@@ -26,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -41,18 +40,14 @@ import java.util.stream.Stream;
 
 
 /**
- * Abstract base class for custom implementations of AssetOperationProvider
- * supporting multiple data formats.
+ * Abstract base class for custom implementations of AssetOperationProvider supporting multiple data formats.
  *
  * @param <T> concrete type of matching configuration
  */
-public abstract class MultiFormatOperationProvider<T extends MultiFormatOperationProviderConfig> implements AssetOperationProvider {
-
-    protected T config;
+public abstract class MultiFormatOperationProvider<T extends MultiFormatOperationProviderConfig> extends AbstractMultiFormatProvider<T> implements AssetOperationProvider {
 
     protected MultiFormatOperationProvider(T config) {
-        Ensure.requireNonNull(config, "config must be non-null");
-        this.config = config;
+        super(config);
     }
 
 
@@ -102,7 +97,7 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
 
 
     /**
-     * Parses OperationVariables to a easier to use format
+     * Parses OperationVariables to a easier to use format.
      *
      * @param parameters the parameters to parse
      * @return formatted parameters
@@ -124,7 +119,7 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
 
 
     /**
-     * Gets list of output parameters of underlying operation
+     * Gets list of output parameters of underlying operation.
      *
      * @return list of output parameters
      */
@@ -132,11 +127,10 @@ public abstract class MultiFormatOperationProvider<T extends MultiFormatOperatio
 
 
     /**
-     * Invokes the underlying operation
+     * Invokes the underlying operation.
      *
      * @param input the raw input for the operation
-     * @param variableReplacer functin to replace/subsctitute variables if
-     *            needed, e.g. in URLs
+     * @param variableReplacer functin to replace/subsctitute variables if needed, e.g. in URLs
      * @return result of executing the operation
      * @throws AssetConnectionException if operation fails
      */

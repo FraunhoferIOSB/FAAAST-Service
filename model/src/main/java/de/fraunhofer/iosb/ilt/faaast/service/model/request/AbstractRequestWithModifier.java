@@ -26,8 +26,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Base class for request that suppport
- * {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier}.
+ * Base class for request that suppport {@link de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier}.
  *
  * @param <T> actual type of the request
  */
@@ -70,11 +69,10 @@ public abstract class AbstractRequestWithModifier<T extends Response> implements
 
 
     /**
-     * Checks if a given content modifier is supported for this type
+     * Checks if a given content modifier is supported for this type.
      *
      * @param content the content modifier to check
-     * @throws IllegalArgumentException if provided content modifier is not
-     *             supported
+     * @throws IllegalArgumentException if provided content modifier is not supported
      */
     public void checkContenModifierValid(Content content) {
         if (content != null && !outputModifierConstraints.getSupportedContentModifiers().contains(content)) {
@@ -88,11 +86,10 @@ public abstract class AbstractRequestWithModifier<T extends Response> implements
 
 
     /**
-     * Checks if a given level modifier is supported for this type
+     * Checks if a given level modifier is supported for this type.
      *
      * @param level the level modifier to check
-     * @throws IllegalArgumentException if provided level modifier is not
-     *             supported
+     * @throws IllegalArgumentException if provided level modifier is not supported
      */
     public void checkLevelModifierValid(Level level) {
         if (!outputModifierConstraints.getSupportsLevel() && level != null) {
@@ -103,11 +100,10 @@ public abstract class AbstractRequestWithModifier<T extends Response> implements
 
 
     /**
-     * Checks if a given extent modifier is supported for this type
+     * Checks if a given extent modifier is supported for this type.
      *
      * @param extent the extent modifier to check
-     * @throws IllegalArgumentException if provided extent modifier is not
-     *             supported
+     * @throws IllegalArgumentException if provided extent modifier is not supported
      */
     public void checkExtentModifierValid(Extent extent) {
         if (!outputModifierConstraints.getSupportsExtent() && extent != null) {

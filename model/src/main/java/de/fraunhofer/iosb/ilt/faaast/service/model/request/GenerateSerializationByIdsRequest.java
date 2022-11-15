@@ -25,7 +25,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.4.2
+ * Request class for GenerateSerializationByIds requests.
  */
 public class GenerateSerializationByIdsRequest implements Request<GenerateSerializationByIdsResponse> {
 

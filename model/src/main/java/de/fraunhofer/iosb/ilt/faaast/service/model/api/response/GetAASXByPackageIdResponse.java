@@ -20,7 +20,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 4.5.3
+ * Response class for GetAASXByPackageId requests.
  */
 public class GetAASXByPackageIdResponse extends AbstractResponseWithPayload<AASXPackageBase> {
 
@@ -56,19 +56,19 @@ public class GetAASXByPackageIdResponse extends AbstractResponseWithPayload<AASX
     }
 
 
-    public static GetAASXByPackageIdResponse.Builder builder() {
-        return new GetAASXByPackageIdResponse.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<AASXPackageBase, GetAASXByPackageIdResponse, GetAASXByPackageIdResponse.Builder> {
+    public static class Builder extends AbstractBuilder<AASXPackageBase, GetAASXByPackageIdResponse, Builder> {
 
         @Override
-        protected GetAASXByPackageIdResponse.Builder getSelf() {
+        protected Builder getSelf() {
             return this;
         }
 
 
-        public GetAASXByPackageIdResponse.Builder filename(String value) {
+        public Builder filename(String value) {
             getBuildingInstance().setFilename(value);
             return getSelf();
         }

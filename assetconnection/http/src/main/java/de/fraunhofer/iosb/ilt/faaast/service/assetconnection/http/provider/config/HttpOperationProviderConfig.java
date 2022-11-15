@@ -15,17 +15,24 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatOperationProviderConfig;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 
 /**
- * * Config file for HTTP-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
+ * * Config file for HTTP-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
  */
 public class HttpOperationProviderConfig extends AbstractMultiFormatOperationProviderConfig {
 
     private String path;
     private String method;
+    private Map<String, String> headers;
+
+    public HttpOperationProviderConfig() {
+        this.headers = new HashMap<>();
+    }
+
 
     public String getPath() {
         return path;
@@ -47,6 +54,16 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
     }
 
 
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -58,13 +75,14 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
         HttpOperationProviderConfig that = (HttpOperationProviderConfig) o;
         return super.equals(that)
                 && Objects.equals(path, that.path)
-                && Objects.equals(method, that.method);
+                && Objects.equals(method, that.method)
+                && Objects.equals(headers, that.headers);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), path, method);
+        return Objects.hash(super.hashCode(), path, method, headers);
     }
 
 
@@ -83,6 +101,18 @@ public class HttpOperationProviderConfig extends AbstractMultiFormatOperationPro
 
         public B method(String value) {
             getBuildingInstance().setMethod(value);
+            return getSelf();
+        }
+
+
+        public B headers(Map<String, String> value) {
+            getBuildingInstance().setHeaders(value);
+            return getSelf();
+        }
+
+
+        public B header(String name, String value) {
+            getBuildingInstance().getHeaders().put(name, value);
             return getSelf();
         }
 

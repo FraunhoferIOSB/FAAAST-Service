@@ -19,8 +19,7 @@ import java.util.Objects;
 
 
 /**
- * * Config file for MQTT-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
+ * * Config file for MQTT-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
  */
 public class MqttValueProviderConfig extends AbstractMultiFormatValueProviderConfig {
 

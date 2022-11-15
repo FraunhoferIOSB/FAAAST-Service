@@ -22,7 +22,7 @@ import java.util.Objects;
 
 
 /**
- * Chapter 6.4.7
+ * Request class for PostConceptDescription requests.
  */
 public class PostConceptDescriptionRequest implements Request<PostConceptDescriptionResponse> {
 

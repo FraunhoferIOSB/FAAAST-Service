@@ -30,7 +30,7 @@ import java.io.IOException;
 public class EnumDeserializer<T extends Enum> extends JsonDeserializer<T> {
 
     /**
-     * Actual type of the enum to deserialize
+     * Actual type of the enum to deserialize.
      */
     protected final Class<T> type;
 

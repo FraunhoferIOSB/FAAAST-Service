@@ -15,17 +15,24 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatValueProviderConfig;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 
 /**
- * * Config file for HTTP-based
- * {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
+ * * Config file for HTTP-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
  */
 public class HttpValueProviderConfig extends AbstractMultiFormatValueProviderConfig {
 
     private String path;
     private String writeMethod;
+    private Map<String, String> headers;
+
+    public HttpValueProviderConfig() {
+        this.headers = new HashMap<>();
+    }
+
 
     public String getPath() {
         return path;
@@ -47,6 +54,16 @@ public class HttpValueProviderConfig extends AbstractMultiFormatValueProviderCon
     }
 
 
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -58,13 +75,14 @@ public class HttpValueProviderConfig extends AbstractMultiFormatValueProviderCon
         HttpValueProviderConfig that = (HttpValueProviderConfig) o;
         return super.equals(that)
                 && Objects.equals(path, that.path)
-                && Objects.equals(writeMethod, that.writeMethod);
+                && Objects.equals(writeMethod, that.writeMethod)
+                && Objects.equals(headers, that.headers);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), path, writeMethod);
+        return Objects.hash(super.hashCode(), path, writeMethod, headers);
     }
 
 
@@ -83,6 +101,18 @@ public class HttpValueProviderConfig extends AbstractMultiFormatValueProviderCon
 
         public B writeMethod(String value) {
             getBuildingInstance().setWriteMethod(value);
+            return getSelf();
+        }
+
+
+        public B headers(Map<String, String> value) {
+            getBuildingInstance().setHeaders(value);
+            return getSelf();
+        }
+
+
+        public B header(String name, String value) {
+            getBuildingInstance().getHeaders().put(name, value);
             return getSelf();
         }
 

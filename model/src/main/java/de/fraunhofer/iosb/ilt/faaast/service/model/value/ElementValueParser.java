@@ -15,16 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
 /**
- * Encapsulates functionality to parse an element value from any kind of user
- * input
+ * Encapsulates functionality to parse an element value from any kind of user input.
  *
  * @param <T> type of input
  */
 public interface ElementValueParser<T> {
 
     /**
-     * Default parser that is the identity function, i.e. input already matches
-     * expected output type
+     * Default parser that is the identity function, i.e. input already matches expected output type
      */
     public static ElementValueParser<ElementValue> DEFAULT = new ElementValueParser<ElementValue>() {
         @Override

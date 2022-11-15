@@ -31,7 +31,7 @@ public class SubmodelElementData {
 
     /**
      * Creates a new instance of SubmodelElementData
-     * 
+     *
      * @param submodelElement The desired SubmodelElement
      * @param submodel The desired Submodel
      * @param type The desired type
@@ -47,7 +47,7 @@ public class SubmodelElementData {
 
     /**
      * Gets the SubmodelElement
-     * 
+     *
      * @return The desired SubmodelElement
      */
     public SubmodelElement getSubmodelElement() {
@@ -57,7 +57,7 @@ public class SubmodelElementData {
 
     /**
      * Gets the Submodel
-     * 
+     *
      * @return The desired Submodel
      */
     public Submodel getSubmodel() {
@@ -67,7 +67,7 @@ public class SubmodelElementData {
 
     /**
      * Gets the type
-     * 
+     *
      * @return The type
      */
     public Type getType() {
@@ -77,7 +77,7 @@ public class SubmodelElementData {
 
     /**
      * Gets the reference.
-     * 
+     *
      * @return The reference
      */
     public Reference getReference() {
