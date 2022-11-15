@@ -28,6 +28,16 @@ public class LinkedSegment extends Segment {
     private String endpoint;
     private String query;
 
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+
     @Override
     public Collection<SubmodelElement> getValues() {
         Collection<SubmodelElement> result = super.getValues();

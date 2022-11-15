@@ -17,16 +17,21 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.CollectionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Range;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -112,6 +117,18 @@ public abstract class AbstractTimeSeriesOperationProvider implements AssetOperat
     }
 
 
+    protected Metadata getMetadata() {
+        SubmodelElementCollection metadata = AasHelper.getElementByIdShort(submodel.getSubmodelElements(), Constants.METADATA_ID_SHORT, SubmodelElementCollection.class);
+        Map<String, Datatype> records = new HashMap<>();
+        AasHelper.getElementByIdShort(metadata.getValues(), "Record", SubmodelElementCollection.class).getValues().stream()
+                .forEach(x -> records.put(x.getIdShort(), Datatype.fromName(((Property) x).getValueType())));
+        return Metadata.builder()
+                .name(AasHelper.getElementByIdShort(metadata.getValues(), "Name", MultiLanguageProperty.class))
+                .recordMetadata(records)
+                .build();
+    }
+
+
     /**
      * Gets the Segments collection of the SMT TimeSeries submodel.
      *
@@ -168,9 +185,24 @@ public abstract class AbstractTimeSeriesOperationProvider implements AssetOperat
      * @return filtered list of records
      */
     protected List<SubmodelElementCollection> filterRecords(List<SubmodelElementCollection> records, Timespan timespan) {
+        //Todo: What about other timeformats cannot be parsed to long? Using also ZonedTime here?
         return records.stream()
-                .filter(x -> timespan.includes(Long.parseLong(AasHelper.getElementByIdShort(x.getValues(), Constants.RECORD_TIME_ID_SHORT, Property.class).getValue())))
+                .filter(x -> timespan.includes(
+                        tryParseLong(findRecursive(x.getValues(), Constants.RECORD_TIME_ID_SHORT, Property.class).getValue()).get()))
                 .collect(Collectors.toList());
+    }
+
+
+    protected <T extends SubmodelElement> T findRecursive(Collection<SubmodelElement> collection, String idShort, Class<T> clazz) {
+        for (SubmodelElement submodelElement: collection) {
+            if (SubmodelElementCollection.class.isAssignableFrom(submodelElement.getClass())) {
+                return findRecursive(((SubmodelElementCollection) submodelElement).getValues(), idShort, clazz);
+            }
+            if (submodelElement.getIdShort().equalsIgnoreCase(idShort) && clazz.isAssignableFrom(submodelElement.getClass())) {
+                return (T) submodelElement;
+            }
+        }
+        return null;
     }
 
 

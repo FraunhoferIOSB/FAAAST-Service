@@ -21,6 +21,7 @@ import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,11 +35,14 @@ public class Record extends DefaultSubmodelElementCollection {
     private ZonedDateTime time;
     private Map<String, TypedValue> variables;
 
-    public Record() {}
+    public Record() {
+        this.variables = new HashMap<>();
+    }
 
 
     public Record(ZonedDateTime time) {
         this.time = time;
+        this.variables = new HashMap<>();
     }
 
 

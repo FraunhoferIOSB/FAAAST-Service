@@ -22,4 +22,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provid
 public abstract class LinkedSegmentProviderConfig<T extends LinkedSegmentProvider> extends SegmentProviderConfig<T> {
 
     protected String endpoint;
+
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
 }

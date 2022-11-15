@@ -20,9 +20,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionMana
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.LambdaAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplateProcessor;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -34,6 +36,8 @@ import io.adminshell.aas.v3.model.impl.DefaultOperation;
 import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import io.adminshell.aas.v3.model.impl.DefaultRange;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -46,6 +50,8 @@ import java.util.logging.Logger;
 public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProcessor<TimeSeriesSubmodelTemplateProcessorConfig> {
 
     private TimeSeriesSubmodelTemplateProcessorConfig config;
+
+    private Map<String, SegmentProvider> segmentProviders;
 
     @Override
     public boolean accept(Submodel submodel) {
@@ -63,6 +69,15 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
     @Override
     public void init(CoreConfig coreConfig, TimeSeriesSubmodelTemplateProcessorConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
+        segmentProviders = new HashMap<>();
+        config.getSegmentProviders().forEach(x -> {
+            try {
+                segmentProviders.put(x.getEndpoint(), (SegmentProvider) x.newInstance(coreConfig, serviceContext));
+            }
+            catch (ConfigurationException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
 
@@ -180,7 +195,7 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
             handleOperation(submodel, assetConnectionManager, assetConnection,
                     () -> getOrCreateReadRecordsOperation(submodel),
                     () -> LambdaOperationProviderConfig.builder()
-                            .implementation(new ReadRecordsOperationProvider(submodel))
+                            .implementation(new ReadRecordsOperationProvider(submodel, segmentProviders))
                             .build());
             return true;
         }

@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,27 @@ public abstract class Segment extends DefaultSubmodelElementCollection {
     protected TimeUnit samplingRateUnit;
     protected String kind;
     protected List<Record> records;
+    protected Optional<Long> start;
+    protected Optional<Long> end;
+
+    public Optional<Long> getStart() {
+        return start;
+    }
+
+
+    public Optional<Long> getEnd() {
+        return end;
+    }
+
+
+    public void setStart(Optional<Long> start) {
+        this.start = start;
+    }
+
+
+    public void setEnd(Optional<Long> end) {
+        this.end = end;
+    }
 
     private static final class ZonedDateTimeComparator implements Comparator<ZonedDateTime> {
 

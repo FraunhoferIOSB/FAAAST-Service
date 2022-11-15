@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provid
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import io.adminshell.aas.v3.model.SubmodelElement;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.util.ArrayList;
@@ -29,10 +30,30 @@ import java.util.stream.Collectors;
 /**
  * Represents metadata according to SMT TimeSeries.
  */
-public abstract class Metadata extends DefaultSubmodelElementCollection {
+public class Metadata extends DefaultSubmodelElementCollection {
 
     protected MultiLanguageProperty name;
     protected Map<String, Datatype> recordMetadata;
+
+    public MultiLanguageProperty getName() {
+        return name;
+    }
+
+
+    public void setName(MultiLanguageProperty name) {
+        this.name = name;
+    }
+
+
+    public Map<String, Datatype> getRecordMetadata() {
+        return recordMetadata;
+    }
+
+
+    public void setRecordMetadata(Map<String, Datatype> recordMetadata) {
+        this.recordMetadata = recordMetadata;
+    }
+
 
     @Override
     public Collection<SubmodelElement> getValues() {
@@ -46,5 +67,39 @@ public abstract class Metadata extends DefaultSubmodelElementCollection {
                                         .build())
                                 .collect(Collectors.toList()))
                         .build()));
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public abstract static class AbstractBuilder<T extends Metadata, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+
+        public B name(MultiLanguageProperty value) {
+            getBuildingInstance().setName(value);
+            return getSelf();
+        }
+
+
+        public B recordMetadata(Map<String, Datatype> value) {
+            getBuildingInstance().setRecordMetadata(value);
+            return getSelf();
+        }
+
+    }
+
+    public static class Builder extends AbstractBuilder<Metadata, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected Metadata newBuildingInstance() {
+            return new Metadata();
+        }
     }
 }

@@ -22,6 +22,7 @@ public class Constants {
     // SMT types & properties
     public static final String TIMESERIES_SUBMODEL_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/1/1/Submodel";
     public static final String SEGMENTS_ID_SHORT = "Segments";
+    public static final String METADATA_ID_SHORT = "Metadata";
     public static final String SEGMENT_START_TIME_ID_SHORT = "StartTime";
     public static final String SEGMENT_END_TIME_ID_SHORT = "EndTime";
     public static final String EXTERNAL_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Segments/ExternalSegment/1/1";
