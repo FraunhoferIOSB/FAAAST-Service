@@ -40,6 +40,7 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
  */
 public class ValueConverter {
 
+    private static String NOT_ENOUGH_DIMENSION_TXT = "value is not an array or not enough dimensions";
     private Map<ConversionTypeInfo, AasToOpcUaValueConverter> aasToOpcUaConverters;
     private Map<ConversionTypeInfo, OpcUaToAasValueConverter> opcUaToAasConverters;
     private Pattern arrayPattern;
@@ -189,7 +190,7 @@ public class ValueConverter {
                 obj = Array.get(obj, arrayIndizes.get(i));
             }
             else {
-                throw new ValueConversionException("value is not an array or not enough dimensions");
+                throw new ValueConversionException(NOT_ENOUGH_DIMENSION_TXT);
             }
         }
 
@@ -197,7 +198,7 @@ public class ValueConverter {
             Array.set(obj, arrayIndizes.get(arrayIndizes.size() - 1), indexValue);
         }
         else {
-            throw new ValueConversionException("value is not an array or not enough dimensions");
+            throw new ValueConversionException(NOT_ENOUGH_DIMENSION_TXT);
         }
     }
 
@@ -211,7 +212,7 @@ public class ValueConverter {
                 obj = Array.get(obj, ind);
             }
             else {
-                throw new ValueConversionException("value is not an array or not enough dimensions");
+                throw new ValueConversionException(NOT_ENOUGH_DIMENSION_TXT);
             }
         }
 
