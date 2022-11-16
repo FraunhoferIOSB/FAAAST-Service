@@ -152,7 +152,7 @@ public class ValueConverter {
         @Override
         public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
             try {
-                if ((targetType == Datatype.DATE_TIME) && (value != null) && (value.getValue() instanceof DateTime)) {
+                if ((targetType == Datatype.DATE_TIME) && (value.getValue() instanceof DateTime)) {
                     return TypedValueFactory.create(targetType,
                             ZonedDateTime.ofInstant(((DateTime) value.getValue()).getJavaInstant(), ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE)).toString());
                 }
