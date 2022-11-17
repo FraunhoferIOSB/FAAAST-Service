@@ -1,6 +1,8 @@
 # Changelog
 
 ## Current development version (0.4.0-SNAPSHOT)
+**Bugfixes**
+*   removed dependencies on checks module which is only needed for codestyle check while compiling and therefore not released on maven. This caused a missing dependency exception when using any FA³ST module within your code.
 
 ## Release version 0.3.0
 
