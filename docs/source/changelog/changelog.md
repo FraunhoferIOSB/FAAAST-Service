@@ -1,6 +1,8 @@
 # Changelog
 
 ## Current development version (0.4.0-SNAPSHOT)
+**Bugfixes**
+*   Fixed error related to JSONPath expressions that could occure in asset connections when using certain JSONPath expressions
 
 ## Release version 0.3.0
 
