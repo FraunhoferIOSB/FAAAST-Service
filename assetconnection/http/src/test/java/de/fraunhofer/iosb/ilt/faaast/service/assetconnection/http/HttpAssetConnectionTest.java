@@ -255,6 +255,24 @@ public class HttpAssetConnectionTest {
 
 
     @Test
+    public void testSubscriptionProviderPropertyJsonGET2() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
+        assertSubscriptionProviderPropertyJson(
+                Datatype.INT,
+                RequestMethod.GET,
+                List.of("{\n"
+                        + "	\"data\": [\n"
+                        + "		{\n"
+                        + "			\"value\": 42\n"
+                        + "		}\n"
+                        + "	]\n"
+                        + "}"),
+                "$.data[-1:].value",
+                null,
+                PropertyValue.of(Datatype.INT, "42"));
+    }
+
+
+    @Test
     public void testSubscriptionProviderPropertyJsonPOST() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertSubscriptionProviderPropertyJson(
                 Datatype.INT,
