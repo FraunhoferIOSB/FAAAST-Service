@@ -2,6 +2,11 @@
 
 ## Current development version (0.4.0-SNAPSHOT)
 
+**New Features**
+*   Asset Connection
+	*   OPC UA
+		*   Support mapping to specific element in (multi-dimensional) array/vector
+
 ## Release version 0.3.0
 
 **New Features**
