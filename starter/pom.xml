@@ -135,6 +135,11 @@
             <version>${jena.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>${janino.version}</version>
+        </dependency>
+        <dependency>
             <groupId>uk.org.webcompere</groupId>
             <artifactId>system-stubs-core</artifactId>
             <version>${systemstubs.version}</version>
