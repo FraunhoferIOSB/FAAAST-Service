@@ -1,6 +1,13 @@
 # Changelog
 
 ## Current development version (0.4.0-SNAPSHOT)
+**Bugfixes**
+*   Fixed error related to JSONPath expressions that could occure in asset connections when using certain JSONPath expressions
+
+**Internal changes & bugfixes**
+*   Asset Connection
+	*   OPC UA
+		*   Fixed problem converting DateTime values
 
 **New Features**
 *   Asset Connection

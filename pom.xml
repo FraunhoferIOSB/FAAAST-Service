@@ -73,7 +73,7 @@
         <aas.model.version>1.2.0</aas.model.version>
         <awaitility.version>4.2.0</awaitility.version>
         <checkstyle.version>10.4</checkstyle.version>
-        <classgraph.version>4.8.149</classgraph.version>
+        <classgraph.version>4.8.151</classgraph.version>
         <commons.codec.version>1.15</commons.codec.version>
         <commons.io.version>2.11.0</commons.io.version>
         <commons.lang3.version>3.12.0</commons.lang3.version>
@@ -106,7 +106,7 @@
         <maven.plugin.jib.version>3.3.1</maven.plugin.jib.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>7.3.0</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>7.3.1</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.6.3</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>4.9.0-28</maven.plugin.prosys.codegen.version>
@@ -115,14 +115,14 @@
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.27.2</maven.plugin.spotless.version>
         <milo.version>0.6.8</milo.version>
-        <mockito.version>4.8.1</mockito.version>
+        <mockito.version>4.9.0</mockito.version>
         <moquette.version>0.15.1</moquette.version>
         <netty.version>4.1.85.Final</netty.version>
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.7.0</picocli.version>
         <poi.ooxml.version>5.2.3</poi.ooxml.version>
-        <proguard.core.version>9.0.5</proguard.core.version>
-        <proguard.version>7.2.2</proguard.version>
+        <proguard.core.version>9.0.6</proguard.core.version>
+        <proguard.version>7.3.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>4.9.0-43</prosys.sdk.version>
         <protobuf.version>3.21.9</protobuf.version>
