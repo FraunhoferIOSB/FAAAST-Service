@@ -1,13 +1,16 @@
 # Changelog
 
 ## Current development version (0.4.0-SNAPSHOT)
-**Bugfixes**
-*   Fixed error related to JSONPath expressions that could occure in asset connections when using certain JSONPath expressions
+
+**New Features**
+
 
 **Internal changes & bugfixes**
 *   Asset Connection
 	*   OPC UA
 		*   Fixed problem converting DateTime values
+*   Fixed error related to JSONPath expressions that could occure in asset connections when using certain JSONPath expressions
+*   Fix error in reference helper with setting proper type of key elements when an identifiable and a independant referable have the same idshort
 
 ## Release version 0.3.0
 
