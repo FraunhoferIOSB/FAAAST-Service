@@ -1060,12 +1060,8 @@ public class RequestHandlerManagerTest {
                 .thenReturn(new DefaultProperty());
         doThrow(new MessageBusException("Invalid Messagbus Call")).when(messageBus).publish(any());
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
-        GetSubmodelElementByPathResponse actual = manager.execute(request);
-        GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
-                .result(Result.exception("Invalid Messagbus Call"))
-                .statusCode(StatusCode.SERVER_INTERNAL_ERROR)
-                .build();
-        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        MessageBusException exception = Assert.assertThrows(MessageBusException.class, () -> manager.execute(request));
+        Assert.assertEquals("Invalid Messagbus Call", exception.getMessage());
     }
 
 
@@ -1078,12 +1074,8 @@ public class RequestHandlerManagerTest {
         when(assetConnectionManager.getValueProvider(any())).thenReturn(assetValueProvider);
         when(assetValueProvider.getValue()).thenThrow(new AssetConnectionException("Invalid Assetconnection"));
         GetSubmodelElementByPathRequest request = getExampleGetSubmodelElementByPathRequest();
-        GetSubmodelElementByPathResponse actual = manager.execute(request);
-        GetSubmodelElementByPathResponse expected = new GetSubmodelElementByPathResponse.Builder()
-                .result(Result.exception("Invalid Assetconnection"))
-                .statusCode(StatusCode.SERVER_INTERNAL_ERROR)
-                .build();
-        Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
+        AssetConnectionException exception = Assert.assertThrows(AssetConnectionException.class, () -> manager.execute(request));
+        Assert.assertEquals("Invalid Assetconnection", exception.getMessage());
     }
 
 

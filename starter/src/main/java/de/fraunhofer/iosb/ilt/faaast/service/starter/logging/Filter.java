@@ -53,7 +53,7 @@ public class Filter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
 
     @Override
     public FilterReply decide(ILoggingEvent e) {
-        if (e.getLoggerName().startsWith(PACKAGE_STARTER) && e.getLevel() == Level.INFO) {
+        if (e.getLoggerName().startsWith(PACKAGE_STARTER) && e.getLevel().equals(Level.INFO)) {
             return FilterReply.DENY;
         }
         if (e.getLoggerName().startsWith(PACKAGE_FAAAST) && e.getLevel().isGreaterOrEqual(LEVEL_FAAAST)) {
