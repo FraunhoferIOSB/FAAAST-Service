@@ -20,13 +20,13 @@
         </encoder>
     </appender>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="de.fraunhofer.iosb.ilt.faaast.service.starter.logging.Filter"/>
+        <filter class="de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter"/>
         <encoder>
             <pattern>${PATTERN}</pattern>
         </encoder>
     </appender>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <filter class="de.fraunhofer.iosb.ilt.faaast.service.starter.logging.Filter"/>
+        <filter class="de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter"/>
         <file>${LOG_DIR}</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!-- daily rollover -->

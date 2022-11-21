@@ -24,30 +24,30 @@ import de.fraunhofer.iosb.ilt.faaast.service.starter.App;
 /**
  * Allows to set different log levels for FA³ST package and all other packages at run-time.
  */
-public class Filter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
+public class FaaastFilter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
 
     private static final String PACKAGE_FAAAST = Service.class.getPackageName();
     private static final String PACKAGE_STARTER = App.class.getPackageName();
-    private static Level LEVEL_FAAAST = Level.WARN;
-    private static Level LEVEL_EXTERNAL = Level.WARN;
+    private static Level levelFaaast = Level.WARN;
+    private static Level levelExternal = Level.WARN;
 
     public static Level getLevelFaaast() {
-        return LEVEL_FAAAST;
+        return levelFaaast;
     }
 
 
     public static void setLevelFaaast(Level level) {
-        LEVEL_FAAAST = level;
+        levelFaaast = level;
     }
 
 
     public static Level getLevelExternal() {
-        return LEVEL_EXTERNAL;
+        return levelExternal;
     }
 
 
     public static void setLevelExternal(Level level) {
-        LEVEL_EXTERNAL = level;
+        levelExternal = level;
     }
 
 
@@ -56,10 +56,10 @@ public class Filter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
         if (e.getLoggerName().startsWith(PACKAGE_STARTER) && e.getLevel().equals(Level.INFO)) {
             return FilterReply.DENY;
         }
-        if (e.getLoggerName().startsWith(PACKAGE_FAAAST) && e.getLevel().isGreaterOrEqual(LEVEL_FAAAST)) {
+        if (e.getLoggerName().startsWith(PACKAGE_FAAAST) && e.getLevel().isGreaterOrEqual(levelFaaast)) {
             return FilterReply.ACCEPT;
         }
-        if (!e.getLoggerName().startsWith(PACKAGE_FAAAST) && e.getLevel().isGreaterOrEqual(LEVEL_EXTERNAL)) {
+        if (!e.getLoggerName().startsWith(PACKAGE_FAAAST) && e.getLevel().isGreaterOrEqual(levelExternal)) {
             return FilterReply.ACCEPT;
         }
         return FilterReply.DENY;

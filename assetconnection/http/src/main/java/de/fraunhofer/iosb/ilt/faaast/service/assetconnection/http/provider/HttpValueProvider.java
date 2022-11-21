@@ -86,7 +86,7 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                     BodyPublishers.noBody(),
                     BodyHandlers.ofByteArray(),
                     headers);
-            LOGGER.trace("Response from asset (status code: {}, body{})",
+            LOGGER.trace("Response from asset (status code: {}, body{}, method: {}, headers: {})",
                     response.statusCode(),
                     response.body() != null ? new String(response.body()) : "[empty]",
                     DEFAULT_READ_METHOD,
@@ -123,7 +123,7 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                     BodyPublishers.ofByteArray(value),
                     BodyHandlers.ofString(),
                     headers);
-            LOGGER.trace("Response from asset (status code: {}, body{})",
+            LOGGER.trace("Response from asset (status code: {}, body{}, method: {}, headers: {})",
                     response.statusCode(),
                     response.body() != null ? response.body() : "[empty]",
                     DEFAULT_READ_METHOD,

@@ -33,7 +33,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationExcep
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
-import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.Filter;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -256,29 +256,29 @@ public class App implements Runnable {
 
     private void configureLogging() {
         if (veryVeryVerbose) {
-            Filter.setLevelFaaast(Level.TRACE);
-            Filter.setLevelExternal(Level.DEBUG);
+            FaaastFilter.setLevelFaaast(Level.TRACE);
+            FaaastFilter.setLevelExternal(Level.DEBUG);
         }
         else if (veryVerbose) {
-            Filter.setLevelFaaast(Level.DEBUG);
-            Filter.setLevelExternal(Level.INFO);
+            FaaastFilter.setLevelFaaast(Level.DEBUG);
+            FaaastFilter.setLevelExternal(Level.INFO);
         }
         else if (verbose) {
-            Filter.setLevelFaaast(Level.INFO);
-            Filter.setLevelExternal(Level.WARN);
+            FaaastFilter.setLevelFaaast(Level.INFO);
+            FaaastFilter.setLevelExternal(Level.WARN);
         }
         else if (quite) {
-            Filter.setLevelFaaast(Level.ERROR);
-            Filter.setLevelExternal(Level.ERROR);
+            FaaastFilter.setLevelFaaast(Level.ERROR);
+            FaaastFilter.setLevelExternal(Level.ERROR);
         }
         if (logLevelFaaast != null) {
-            Filter.setLevelFaaast(logLevelFaaast);
+            FaaastFilter.setLevelFaaast(logLevelFaaast);
         }
         if (logLevelExternal != null) {
-            Filter.setLevelExternal(logLevelExternal);
+            FaaastFilter.setLevelExternal(logLevelExternal);
         }
-        LOGGER.info("Using log level for FA³ST packages: {}", Filter.getLevelFaaast());
-        LOGGER.info("Using log level for external packages: {}", Filter.getLevelExternal());
+        LOGGER.info("Using log level for FA³ST packages: {}", FaaastFilter.getLevelFaaast());
+        LOGGER.info("Using log level for external packages: {}", FaaastFilter.getLevelExternal());
     }
 
 
