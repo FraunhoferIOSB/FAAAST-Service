@@ -142,7 +142,7 @@ public class RequestHandlerManager {
      * @throws TypeInstantiationException if response class could not be instantiated
      * @throws IllegalArgumentException if request is null
      */
-    public <I extends Request<O>, O extends Response> O execute(I request) {
+    public <I extends Request<O>, O extends Response> O execute(I request) throws Exception {
         if (request == null) {
             throw new IllegalArgumentException("request must be non-null");
         }
@@ -154,9 +154,6 @@ public class RequestHandlerManager {
         }
         catch (ResourceNotFoundException e) {
             return createResponse(request, StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND, MessageType.ERROR, e);
-        }
-        catch (Exception e) {
-            return createResponse(request, StatusCode.SERVER_INTERNAL_ERROR, MessageType.EXCEPTION, e);
         }
     }
 
@@ -200,6 +197,14 @@ public class RequestHandlerManager {
         if (callback == null) {
             throw new IllegalArgumentException("callback must be non-null");
         }
-        requestHandlerExecutorService.submit(() -> callback.accept(execute(request)));
+        requestHandlerExecutorService.submit(() -> {
+            try {
+                callback.accept(execute(request));
+            }
+            catch (Exception e) {
+                LOGGER.trace("Error while executing request", e);
+                callback.accept(createResponse(request, StatusCode.SERVER_INTERNAL_ERROR, MessageType.EXCEPTION, e));
+            }
+        });
     }
 }
