@@ -30,7 +30,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,6 +41,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProviderConfig> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpValueProvider.class);
     private static final String BASE_ERROR_MESSAGE = "error reading value from asset conenction (reference: %s)";
     public static final String DEFAULT_READ_METHOD = "GET";
     public static final String DEFAULT_WRITE_METHOD = "PUT";
@@ -67,6 +71,12 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
     @Override
     public byte[] getRawValue() throws AssetConnectionException {
         try {
+            Map<String, String> headers = HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders());
+            LOGGER.trace("Sending HTTP read request to asset (baseUrl: {}, path: {}, method: {}, headers: {})",
+                    connectionConfig.getBaseUrl(),
+                    config.getPath(),
+                    DEFAULT_READ_METHOD,
+                    headers);
             HttpResponse<byte[]> response = HttpHelper.execute(
                     client,
                     connectionConfig.getBaseUrl(),
@@ -75,7 +85,12 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                     DEFAULT_READ_METHOD,
                     BodyPublishers.noBody(),
                     BodyHandlers.ofByteArray(),
-                    HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
+                    headers);
+            LOGGER.trace("Response from asset (status code: {}, body{}, method: {}, headers: {})",
+                    response.statusCode(),
+                    response.body() != null ? new String(response.body()) : "[empty]",
+                    DEFAULT_READ_METHOD,
+                    headers);
             if (!HttpHelper.is2xxSuccessful(response)) {
                 throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)));
             }
@@ -91,6 +106,12 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
     @Override
     public void setRawValue(byte[] value) throws AssetConnectionException {
         try {
+            Map<String, String> headers = HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders());
+            LOGGER.trace("Sending HTTP write request to asset (baseUrl: {}, path: {}, method: {}, headers: {})",
+                    connectionConfig.getBaseUrl(),
+                    config.getPath(),
+                    DEFAULT_READ_METHOD,
+                    headers);
             HttpResponse<String> response = HttpHelper.execute(
                     client,
                     connectionConfig.getBaseUrl(),
@@ -101,7 +122,12 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
                             : config.getWriteMethod(),
                     BodyPublishers.ofByteArray(value),
                     BodyHandlers.ofString(),
-                    HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders()));
+                    headers);
+            LOGGER.trace("Response from asset (status code: {}, body{}, method: {}, headers: {})",
+                    response.statusCode(),
+                    response.body() != null ? response.body() : "[empty]",
+                    DEFAULT_READ_METHOD,
+                    headers);
             if (!HttpHelper.is2xxSuccessful(response)) {
                 throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)));
             }

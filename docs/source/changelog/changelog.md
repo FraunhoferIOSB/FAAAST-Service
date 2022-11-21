@@ -1,6 +1,9 @@
 # Changelog
 
 ## Current development version (0.4.0-SNAPSHOT)
+**New Features**
+*   Improved logging (new CLI arguments `-q`, `-v`, `-vv`, `-vvv`, `--loglevel-faaast`, `--loglevel-external`)
+
 **Bugfixes**
 *   Fixed error related to JSONPath expressions that could occure in asset connections when using certain JSONPath expressions
 
