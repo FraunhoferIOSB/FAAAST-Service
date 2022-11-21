@@ -81,7 +81,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
+//@Ignore
 public class InfluxLinkedSegmentProviderTest {
 
     private static final long OPERATION_TIMEOUT = 5000;

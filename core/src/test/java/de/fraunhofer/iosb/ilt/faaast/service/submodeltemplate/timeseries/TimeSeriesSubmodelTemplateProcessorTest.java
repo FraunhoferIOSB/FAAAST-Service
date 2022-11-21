@@ -42,7 +42,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.InternalSegment;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.IdentifierType;
@@ -60,8 +66,13 @@ import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultRange;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -75,7 +86,20 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
 
     private static final long OPERATION_TIMEOUT = 5000;
 
-    private static final Record record01 = new Record(1660000000, "0", "0.1");
+    private static final Record record01 = new Record(ZonedDateTime.of(2022, 11, 28, 14, 12, 35, 0,
+            ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE)),
+            new HashMap<>(){{
+                zonedDateTimeOf("1","0",Datatype.DOUBLE);
+                zonedDateTimeOf("2", "0.1", Datatype.DOUBLE);
+            }});
+
+    private static Map.Entry<String, TypedValue> zonedDateTimeOf(String key, String value, Datatype type) {
+        try {
+            return new java.util.AbstractMap.SimpleEntry<>(key, TypedValueFactory.create(type, value));
+        } catch (ValueFormatException e) {
+            throw new RuntimeException(e);
+        }
+    }
     private static final Record record02 = new Record(1660001000, "0", "0.2");
     // intentionally setting wrong timestamps on segment-level for internalSegment0
     private static final InternalSegment internalSegment0 = new InternalSegment(1668000000L, 1668001000L, record01, record02);
@@ -124,7 +148,7 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
     }
 
 
-    private static InvokeOperationSyncRequest getReadSegmentsOperationRequest(Long start, Long end) {
+    private static InvokeOperationSyncRequest getReadSegmentsOperationRequest(ZonedDateTime start, ZonedDateTime end) {
         return InvokeOperationSyncRequest.builder()
                 .submodelId(submodel.getIdentification())
                 .path(List.of(new DefaultKey.Builder()
@@ -135,10 +159,10 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
                 .timeout(OPERATION_TIMEOUT)
                 .inputArgument(new DefaultOperationVariable.Builder()
                         .value(new DefaultRange.Builder()
-                                .min(start != null ? Long.toString(start) : null)
-                                .max(end != null ? Long.toString(end) : null)
+                                .min(start != null ? start.toString() : null)
+                                .max(end != null ? end.toString()  : null)
                                 .idShort(Constants.READ_SEGMENTS_INPUT_TIMESPAN_ID_SHORT)
-                                .valueType(Datatype.LONG.getName())
+                                .valueType(Datatype.DATE_TIME.getName())
                                 .build())
                         .build())
                 .build();
@@ -156,8 +180,8 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
 
     private static long getTimeOfOldestRecord() {
         return timeSeries.internalSegments.stream()
-                .flatMap(x -> x.records.stream())
-                .mapToLong(x -> x.timestamp)
+                .flatMap(x -> x.getValues().stream())
+                .map(x -> ((Record)x).getTime())
                 .min()
                 .getAsLong();
     }
@@ -165,27 +189,27 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
 
     private static SubmodelElementCollection internalSegmentToAas(InternalSegment segment) {
         DefaultSubmodelElementCollection result = new DefaultSubmodelElementCollection.Builder()
-                .idShort(segment.idShort)
+                .idShort(segment.getIdShort())
                 .semanticId(ReferenceHelper.globalReference(Constants.INTERNAL_SEGMENT_SEMANTIC_ID))
                 .value(new DefaultSubmodelElementCollection.Builder()
                         .idShort("Records")
-                        .values(segment.records.stream()
-                                .map(record -> recordToAas(record))
+                        .values(segment.getValues().stream()
+                                .map(record -> recordToAas((Record) record))
                                 .collect(Collectors.toList()))
                         .build())
                 .build();
-        if (segment.start.isPresent()) {
+        if (segment.getStart().isPresent()) {
             result.getValues().add(new DefaultProperty.Builder()
                     .idShort(Constants.SEGMENT_START_TIME_ID_SHORT)
-                    .value(Long.toString(segment.start.get()))
-                    .valueType(Datatype.LONG.getName())
+                    .value(segment.getStart().get().toString())
+                    .valueType(Datatype.STRING.getName())
                     .build());
         }
-        if (segment.end.isPresent()) {
+        if (segment.getEnd().isPresent()) {
             result.getValues().add(new DefaultProperty.Builder()
                     .idShort(Constants.SEGMENT_END_TIME_ID_SHORT)
-                    .value(Long.toString(segment.end.get()))
-                    .valueType(Datatype.LONG.getName())
+                    .value(segment.getEnd().get().toString())
+                    .valueType(Datatype.STRING.getName())
                     .build());
         }
         return result;
@@ -199,11 +223,11 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
 
     private static SubmodelElementCollection recordToAas(Record record) {
         return new DefaultSubmodelElementCollection.Builder()
-                .idShort(record.idShort)
+                .idShort(record.getIdShort())
                 .semanticId(ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID))
-                .values(record.values.stream()
+                .values(record.getValues().stream()
                         .map(value -> new DefaultProperty.Builder()
-                                .idShort(timeSeries.properties.get(record.values.indexOf(value)).name)
+                                .idShort(timeSeries.properties.get(record.getValues().indexOf(value)).name)
                                 .valueType(timeSeries.properties.get(record.values.indexOf(value)).datatype.getName())
                                 .value(value)
                                 .build())
@@ -294,8 +318,8 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
         assertReturnedSegments(getTimeOfNewestRecord() + 1, getTimeOfNewestRecord() + 100);
         assertReturnedSegments(serviceNotUsingSegmentTimestamps, getTimeOfNewestRecord() + 1, getTimeOfNewestRecord() + 100);
         // fetch partial records
-        assertReturnedSegments(record11.timestamp, record11.timestamp, internalSegment0, internalSegment1, internalSegment2);
-        assertReturnedSegments(serviceNotUsingSegmentTimestamps, record11.timestamp, record11.timestamp, internalSegment1, internalSegment2);
+        assertReturnedSegments(record11.getTime(), record11.getTime(), internalSegment0, internalSegment1, internalSegment2);
+        assertReturnedSegments(serviceNotUsingSegmentTimestamps, record11.getTime(), record11.getTime(), internalSegment1, internalSegment2);
         serviceNotUsingSegmentTimestamps.stop();
     }
 
@@ -320,7 +344,7 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
     }
 
 
-    private void assertReturnedSegments(Service service, Long start, Long end, InternalSegment... segments) {
+    private void assertReturnedSegments(Service service, ZonedDateTime start, ZonedDateTime end, InternalSegment... segments) {
         Response response = service.execute(getReadSegmentsOperationRequest(start, end));
         SubmodelElement expected = new DefaultSubmodelElementCollection.Builder()
                 .idShort(Constants.READ_SEGMENTS_OUTPUT_SEGMENTS_ID_SHORT)
@@ -340,7 +364,7 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
     }
 
 
-    private void assertReturnedSegments(Long start, Long end, InternalSegment... segments) {
+    private void assertReturnedSegments(ZonedDateTime start, ZonedDateTime end, InternalSegment... segments) {
         assertReturnedSegments(service, start, end, segments);
     }
 
@@ -369,6 +393,7 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
         }
     }
 
+    /*
     private static class InternalSegment {
 
         private final String idShort;
@@ -392,6 +417,7 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
         }
     }
 
+
     private static class Record {
 
         private final String idShort;
@@ -410,6 +436,8 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
         }
     }
 
+
+*/
     private static class TimeSeries {
 
         private final List<Field> properties;
@@ -420,4 +448,6 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
             this.internalSegments = Arrays.asList(internalSegments);
         }
     }
+
+
 }

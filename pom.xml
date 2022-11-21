@@ -139,6 +139,7 @@
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <systemstubs.version>2.0.1</systemstubs.version>
         <wiremock.version>2.35.0</wiremock.version>
+        <protobuf.version>6.7.0</protobuf.version>
     </properties>
     <dependencies>
         <dependency>

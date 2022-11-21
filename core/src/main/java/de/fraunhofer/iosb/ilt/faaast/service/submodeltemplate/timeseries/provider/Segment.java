@@ -42,25 +42,25 @@ public abstract class Segment extends DefaultSubmodelElementCollection {
     protected TimeUnit samplingRateUnit;
     protected String kind;
     protected List<Record> records;
-    protected Optional<Long> start;
-    protected Optional<Long> end;
+    protected Optional<ZonedDateTime> start;
+    protected Optional<ZonedDateTime> end;
 
-    public Optional<Long> getStart() {
+    public Optional<ZonedDateTime> getStart() {
         return start;
     }
 
 
-    public Optional<Long> getEnd() {
+    public Optional<ZonedDateTime> getEnd() {
         return end;
     }
 
 
-    public void setStart(Optional<Long> start) {
+    public void setStart(Optional<ZonedDateTime> start) {
         this.start = start;
     }
 
 
-    public void setEnd(Optional<Long> end) {
+    public void setEnd(Optional<ZonedDateTime> end) {
         this.end = end;
     }
 

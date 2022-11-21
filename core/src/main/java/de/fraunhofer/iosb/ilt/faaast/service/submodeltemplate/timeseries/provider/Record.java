@@ -45,6 +45,10 @@ public class Record extends DefaultSubmodelElementCollection {
         this.variables = new HashMap<>();
     }
 
+    public Record(ZonedDateTime time, Map<String, TypedValue> variables) {
+        this.time = time;
+        this.variables = variables;
+    }
 
     @Override
     public Collection<SubmodelElement> getValues() {
@@ -71,5 +75,9 @@ public class Record extends DefaultSubmodelElementCollection {
 
     public Map<String, TypedValue> getVariables() {
         return variables;
+    }
+
+    public void setVariables(Map<String, TypedValue> variables) {
+        this.variables = variables;
     }
 }
