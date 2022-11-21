@@ -1,24 +1,32 @@
 <configuration scan="true">
-    <property name="LOG_DIR" value="logs/app.log"/>
-    <appender name="STDOUT_INFO" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%date{yyyy-MM-dd HH:mm:ss} %msg %n</pattern>
-        </encoder>
+    <variable name="LOG_DIR" value="logs/app.log"/>
+    <variable name="PATTERN" value="%date{yyyy-MM-dd HH:mm:ss} [%level] %msg \(%logger\)%n"/>
+    <define name="PACKAGE_STARTER" class="de.fraunhofer.iosb.ilt.faaast.service.starter.logging.StarterPackageNameProvider"/>
+    <appender name="SDTOUT_STARTER" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>INFO</level>
-            <onMatch>ACCEPT</onMatch>
+            <onMatch>NEUTRAL</onMatch>
             <onMismatch>DENY</onMismatch>
         </filter>
-    </appender>
-    <appender name="STDOUT_WARN_ERROR" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%date{yyyy-MM-dd HH:mm:ss} [%level] %msg \(%logger\)%n</pattern>
-        </encoder>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>WARN</level>
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression>logger.startsWith("${PACKAGE_STARTER}")</expression>
+            </evaluator>
+            <OnMismatch>DENY</OnMismatch>
+            <OnMatch>ACCEPT</OnMatch>
         </filter>
+        <encoder>
+            <pattern>%date{yyyy-MM-dd HH:mm:ss} %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter"/>
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+        </encoder>
     </appender>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter"/>
         <file>${LOG_DIR}</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!-- daily rollover -->
@@ -29,16 +37,12 @@
             <maxHistory>60</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%date %level %logger{1} [%t] %msg%n</pattern>
+            <pattern>${PATTERN}</pattern>
         </encoder>
     </appender>
-    <logger name="de.fraunhofer.iosb.ilt.faaast.service" level="warn"/>
-    <logger name="de.fraunhofer.iosb.ilt.faaast.service.starter" level="debug"/>
-    <logger name="de.fraunhofer.iosb.ilt.faaast.service.persistence" level="info"/>
-    <logger name="de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager" level="info"/>
-    <root level="error">
+    <root level="TRACE">
+        <appender-ref ref="SDTOUT_STARTER"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
-        <appender-ref ref="STDOUT_INFO"/>
-        <appender-ref ref="STDOUT_WARN_ERROR"/>        
     </root>
 </configuration>

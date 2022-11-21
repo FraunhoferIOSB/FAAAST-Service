@@ -120,6 +120,7 @@ public class Service implements ServiceContext {
             return this.requestHandler.execute(request);
         }
         catch (Exception e) {
+            LOGGER.trace("Error executing request", e);
             return new InternalErrorResponse(e.getMessage());
         }
     }

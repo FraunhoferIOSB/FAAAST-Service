@@ -73,23 +73,24 @@
         <aas.model.version>1.2.0</aas.model.version>
         <awaitility.version>4.2.0</awaitility.version>
         <checkstyle.version>10.4</checkstyle.version>
-        <classgraph.version>4.8.150</classgraph.version>
+        <classgraph.version>4.8.151</classgraph.version>
         <commons.codec.version>1.15</commons.codec.version>
         <commons.io.version>2.11.0</commons.io.version>
         <commons.lang3.version>3.12.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
-        <equalsverifier.version>3.11</equalsverifier.version>
+        <equalsverifier.version>3.11.1</equalsverifier.version>
         <guava.version>31.1-jre</guava.version>
         <jackson.databind.version>2.14.0</jackson.databind.version>
         <jackson.version>2.14.0</jackson.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
+        <janino.version>3.1.9</janino.version>
         <jena.version>4.6.1</jena.version>
         <jetty.version>11.0.12</jetty.version>
         <jsonassert.version>1.5.1</jsonassert.version>
         <jsonpath.version>2.7.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
-        <logback.version>1.4.4</logback.version>
+        <logback.version>1.4.5</logback.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.plugin.assembly.version>3.4.2</maven.plugin.assembly.version>
@@ -106,7 +107,7 @@
         <maven.plugin.jib.version>3.3.1</maven.plugin.jib.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>7.3.1</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>7.3.2</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.6.3</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>4.9.0-28</maven.plugin.prosys.codegen.version>
@@ -121,7 +122,7 @@
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.7.0</picocli.version>
         <poi.ooxml.version>5.2.3</poi.ooxml.version>
-        <proguard.core.version>9.0.5</proguard.core.version>
+        <proguard.core.version>9.0.6</proguard.core.version>
         <proguard.version>7.3.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>4.9.0-43</prosys.sdk.version>
@@ -129,7 +130,7 @@
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
         <slf4j.test.version>2.6.1</slf4j.test.version>
-        <slf4j.version>2.0.3</slf4j.version>
+        <slf4j.version>2.0.4</slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
