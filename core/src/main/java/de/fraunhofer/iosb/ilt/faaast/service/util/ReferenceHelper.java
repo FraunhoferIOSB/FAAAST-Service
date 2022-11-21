@@ -110,8 +110,8 @@ public class ReferenceHelper {
                 null
         };
         for (Key k: keys) {
-            if (env.getAssetAdministrationShells().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
-                    || x.getIdShort().equalsIgnoreCase(k.getValue()))) {
+            if (env.getAssetAdministrationShells().stream().anyMatch(x -> (x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
+                    || x.getIdShort().equalsIgnoreCase(k.getValue())) && parent[0] == null)) {
                 k.setType(KeyElements.ASSET_ADMINISTRATION_SHELL);
                 continue;
             }
@@ -127,13 +127,13 @@ public class ReferenceHelper {
                 continue;
             }
 
-            if (env.getConceptDescriptions().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
-                    || x.getIdShort().equalsIgnoreCase(k.getValue()))) {
+            if (env.getConceptDescriptions().stream().anyMatch(x -> (x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
+                    || x.getIdShort().equalsIgnoreCase(k.getValue())) && parent[0] == null)) {
                 k.setType(KeyElements.CONCEPT_DESCRIPTION);
                 continue;
             }
-            if (env.getAssets().stream().anyMatch(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
-                    || x.getIdShort().equalsIgnoreCase(k.getValue()))) {
+            if (env.getAssets().stream().anyMatch(x -> (x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
+                    || x.getIdShort().equalsIgnoreCase(k.getValue())) && parent[0] == null)) {
                 k.setType(KeyElements.ASSET);
                 continue;
             }
@@ -334,12 +334,38 @@ public class ReferenceHelper {
         List<Key> keyList = new ArrayList<>();
         keyList.add(new DefaultKey.Builder()
                 .idType(KeyType.IRI)
-                .type(null)
+                .type(KeyElements.ASSET_ADMINISTRATION_SHELL)
                 .value(aasIdentifier)
                 .build());
         keyList.add(new DefaultKey.Builder()
                 .idType(KeyType.IRI)
-                .type(null)
+                .type(KeyElements.SUBMODEL)
+                .value(submodelIdentifier)
+                .build());
+        Stream.of(submodelElementIdshorts).forEach(
+                x -> keyList.add(new DefaultKey.Builder()
+                        .idType(KeyType.ID_SHORT)
+                        .type(null)
+                        .value(x)
+                        .build()));
+        return new DefaultReference.Builder()
+                .keys(keyList)
+                .build();
+    }
+
+
+    /**
+     * Builds a reference identifying a submodel element.
+     *
+     * @param submodelIdentifier the submodel identifier
+     * @param submodelElementIdshorts the submodel element idShort path
+     * @return a reference to the submodel element
+     */
+    public static Reference buildReferenceToSubmodelElement(String submodelIdentifier, String... submodelElementIdshorts) {
+        List<Key> keyList = new ArrayList<>();
+        keyList.add(new DefaultKey.Builder()
+                .idType(KeyType.IRI)
+                .type(KeyElements.SUBMODEL)
                 .value(submodelIdentifier)
                 .build());
         Stream.of(submodelElementIdshorts).forEach(
@@ -365,12 +391,12 @@ public class ReferenceHelper {
         List<Key> keyList = new ArrayList<>();
         keyList.add(new DefaultKey.Builder()
                 .idType(KeyType.IRI)
-                .type(null)
+                .type(KeyElements.ASSET_ADMINISTRATION_SHELL)
                 .value(aasIdentifier)
                 .build());
         keyList.add(new DefaultKey.Builder()
                 .idType(KeyType.IRI)
-                .type(null)
+                .type(KeyElements.SUBMODEL)
                 .value(submodelIdentifier)
                 .build());
         return new DefaultReference.Builder()

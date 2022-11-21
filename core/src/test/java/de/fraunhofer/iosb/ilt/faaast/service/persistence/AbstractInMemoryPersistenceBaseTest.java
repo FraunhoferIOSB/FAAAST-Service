@@ -34,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.Asset;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Blob;
@@ -47,6 +48,9 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import io.adminshell.aas.v3.model.impl.DefaultAsset;
+import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
+import io.adminshell.aas.v3.model.impl.DefaultConceptDescription;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
@@ -103,6 +107,49 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
                 assId,
                 submodelId,
                 submodelElementIdShort);
+        SubmodelElement expected = environment.getSubmodels().stream()
+                .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(submodelId))
+                .findFirst().get()
+                .getSubmodelElements().stream()
+                .filter(x -> x.getIdShort().equalsIgnoreCase(submodelElementIdShort))
+                .findFirst().get();
+        SubmodelElement actual = persistence.get(reference, QueryModifier.DEFAULT);
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void getSubmodelElementWithSimilarIDShortTest() throws ResourceNotFoundException {
+        String submodelId = "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial";
+        String submodelElementIdShort = "ExampleEntity2";
+        Reference reference = ReferenceHelper.buildReferenceToSubmodelElement(
+                submodelId,
+                submodelElementIdShort);
+        ConceptDescription conceptDescription = new DefaultConceptDescription.Builder()
+                .idShort(submodelElementIdShort)
+                .identification(new DefaultIdentifier.Builder()
+                        .idType(IdentifierType.IRI)
+                        .identifier("http://example.org/CD")
+                        .build())
+                .category("Entity")
+                .build();
+        Asset asset = new DefaultAsset.Builder()
+                .idShort(submodelElementIdShort)
+                .identification(new DefaultIdentifier.Builder()
+                        .idType(IdentifierType.IRI)
+                        .identifier("http://example.org/Asset")
+                        .build())
+                .build();
+        AssetAdministrationShell shell = new DefaultAssetAdministrationShell.Builder()
+                .idShort(submodelElementIdShort)
+                .identification(new DefaultIdentifier.Builder()
+                        .idType(IdentifierType.IRI)
+                        .identifier("http://example.org/Shell")
+                        .build())
+                .build();
+        persistence.put(shell);
+        persistence.put(asset);
+        persistence.put(conceptDescription);
         SubmodelElement expected = environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().getIdentifier().equalsIgnoreCase(submodelId))
                 .findFirst().get()
