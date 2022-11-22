@@ -10,7 +10,8 @@
 	*   OPC UA
 		*   Fixed problem converting DateTime values
 *   Fixed error related to JSONPath expressions that could occure in asset connections when using certain JSONPath expressions
-*   Fix error in reference helper with setting proper type of key elements when an identifiable and a independant referable have the same idshort
+*   Fixed error in reference helper with setting proper type of key elements when an identifiable and a independant referable have the same idshort
+*   Removed dependencies on checks module which is only needed for codestyle check while compiling and therefore not released on maven. This caused a missing dependency exception when using any FA³ST module within your code.
 
 ## Release version 0.3.0
 
