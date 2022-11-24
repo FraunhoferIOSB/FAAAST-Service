@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.config.AbstractMultiFormatOperationProviderConfig;
 
 
 /**
  * * Config file for MQTT-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider}.
  */
-public class MqttOperationProviderConfig implements AssetOperationProviderConfig {}
+public class MqttOperationProviderConfig extends AbstractMultiFormatOperationProviderConfig {}

@@ -23,6 +23,7 @@ sed -r -z 's/(<artifactId>starter<\/artifactId>[\r\n]+\s*<version>)[^<]+(<\/vers
 sed -r -z 's/(\x27de.fraunhofer.iosb.ilt.faaast.service:starter:)[^\x27]*\x27/\1'"${VERSION}"'\x27/g' -i README.md
 sed -r -z 's/(<artifactId>starter<\/artifactId>[\r\n]+\s*<version>)[^<]+(<\/version>)/\1'"${VERSION}"'\2/g' -i ./docs/source/gettingstarted/gettingstarted.md
 sed -r -z 's/(\x27de.fraunhofer.iosb.ilt.faaast.service:starter:)[^\x27]*\x27/\1'"${VERSION}"'\x27/g' -i ./docs/source/gettingstarted/gettingstarted.md
+sed -i 's/## Current development version ('"${VERSION}"'-SNAPSHOT)/## Release version '"${VERSION}"'/g' ./docs/source/changelog/changelog.md
 mvn -B spotless:apply
 
 echo "Git add ."
@@ -37,6 +38,9 @@ echo "Next: replacing version nubmers [enter]"
 read -s
 mvn versions:set -DgenerateBackupPoms=false -DnewVersion="${NEXTVERSION}"-SNAPSHOT
 sed -i 's/<tag>v'"${VERSION}"'<\/tag>/<tag>'"${NEXTBRANCH}"'<\/tag>/g' pom.xml
+sed -i '3i ## Current development version ('"${NEXTVERSION}"'-SNAPSHOT)\
+' ./docs/source/changelog/changelog.md
+mvn -B spotless:apply
 
 echo "Git add ."
 git add .

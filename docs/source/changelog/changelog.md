@@ -1,6 +1,19 @@
 # Changelog
 
-## Current development version (0.3.0-SNAPSHOT)
+## Current development version (0.4.0-SNAPSHOT)
+
+**New Features**
+*   Improved logging (new CLI arguments `-q`, `-v`, `-vv`, `-vvv`, `--loglevel-faaast`, `--loglevel-external`)
+
+**Internal changes & bugfixes**
+*   Asset Connection
+	*   OPC UA
+		*   Fixed problem converting DateTime values
+*   Fixed error related to JSONPath expressions that could occure in asset connections when using certain JSONPath expressions
+*   Fixed error in reference helper with setting proper type of key elements when an identifiable and a independant referable have the same idshort
+*   Removed dependencies on checks module which is only needed for codestyle check while compiling and therefore not released on maven. This caused a missing dependency exception when using any FA³ST module within your code.
+
+## Release version 0.3.0
 
 **New Features**
 *   Asset Connection
@@ -10,10 +23,14 @@
 		*   Introduce mapping between IdShort and Argument Name in OpcUaOperationProviderConfig
 	*   MQTT
 		*   Automatic reconnect upon connection loss
+	*   HTTP
+		*   Now supports adding custom HTTP headers (on connection- & provier-level)
 *   Improved JavaDoc documentation
 *   Improved security through automatic vulnerabilities check before release
+*   Added example how to implement custom asset connection
 
-**Internal changes &  smaller bugfixes**
+**Internal changes &  bugfixes**
+*   Dynamic loading of custom implementations (AssetConnection, Persistence, MessageBus, Endpoint and Dataformat) now works as expected. NOTE: This requires package your custom implementation as a fat jar and put it in the same location as the FA³ST starter jar.
 *   Streamlining dependencies
 *   Improved console output for file paths
 *   Added checks to ensure model paths provided are valid

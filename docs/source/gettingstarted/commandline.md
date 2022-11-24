@@ -23,34 +23,25 @@ Currently we supporting following formats of the Asset Administration Shell Envi
 >json, json-ld, aml, xml, opcua nodeset, rdf
 
 
-Following command line parameters could be used:
+Following command line parameters are supported
 
-```text
-[<String=String>...]   		Additional properties to override values of configuration using
-				JSONPath notation without starting '$.' (see https://goessner.net/articles/JsonPath/)
-
--c, --config=<configFile>  	The config file path. Default Value = config.json
-
---emptyModel 			Starts the FA³ST service with an empty Asset Administration Shell Environment.
-				False by default
-
---endpoint=<endpoints>[,<endpoints>...]
-				Additional endpoints that should be started.
-
--h, --help                 	Show this help message and exit.
-
--m, --model=<modelFile>    	Asset Administration Shell Environment FilePath.
-				Default Value = aasenvironment.*
-
---[no-]autoCompleteConfig
-				Autocompletes the configuration with default
-				values for required configuration sections. True
-				by default
-
---[no-]modelValidation 		Validates the AAS Environment. True by default
-
--V, --version              	Print version information and exit.
-```
+| Name (short)  | Name (long)                 | Allowed Values                  | Default Value    | Description                                                                                                                                           |
+| ------------- | --------------------------- | ------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-c`          | `--config`                  | <file path>                     | config.json      | The config file to use.                                                                                                                               |
+|               | `--emptyModel`              | <boolean>                       | false            | Starts the FAST service with an empty Asset Administration Shell Environment.                                                                         |
+|               | `--endpoint`                | HTTP, OPCUA                     | <none>           | Additional endpoints that should be started.                                                                                                          |
+| `-h`          | `--help`                    |                                 |                  | Print help message and exit.                                                                                                                          |
+|               | `--loglevel-external`       | TRACE, DEBUG, INFO, WARN, ERROR | WARN             | Sets the log level for external packages. This overrides the log level defined by other commands such as `-q` or `-v`.                                |
+|               | `--loglevel-faaast`         | TRACE, DEBUG, INFO, WARN, ERROR | WARN             | Sets the log level for FA³ST packages. This overrides the log level defined by other commands such as `-q` or `-v`.                                   |
+| `-m`          | `--model`                   | <file path>                     | aasenvironment.* | The model file to load.                                                                                                                               |
+|               | `--[no-]autoCompleteConfig` | <boolean>                       | true             | Autocompletes the configuration with default values for required configuration sections.                                                              |
+|               | `--[no-]modelValidation`    | <boolean>                       | true             | Validates the AAS Environment.                                                                                                                        |
+| `-q`          | `--quite`                   |                                 |                  | Reduces log output (ERROR for FAST packages, ERROR for all other packages). Default information about the starting process will still be printed.     |
+| `-v`          | `--verbose`                 |                                 |                  | Enables verbose logging (`INFO` for FAST packages, `WARN` for all other packages).                                                                    |
+| `-V`          | `--version`                 |                                 |                  | Print version information and exit.                                                                                                                   |
+| `-vv`         |                             |                                 |                  | Enables very verbose logging (`DEBUG` for FAST packages, `INFO` for all other packages).                                                              |
+| `-vvv`        |                             |                                 |                  | Enables very very verbose logging (`TRACE` for FAST packages, `DEBUG` for all other packages).                                                        |
+|               | `<key=value>`               | any                             |                  | Additional properties to override values of configuration using JSONPath notation without starting '$.' (see https://goessner.net/articles/JsonPath/) | 
 
 ## Change the Configuration
 
@@ -98,13 +89,3 @@ You could also use properties to adjust configuration components. To change the 
 ```sh
 java -jar starter-{version}.jar -m {path/to/your/AASEnvironment} core.requestHandlerThreadPoolSize=42 endpoints[0].port=8081
 ```
-
-## Special Parameters
-
-The parameter `--endpoint` accepts a list of endpoints which should be started with the service. Currently supported is `http` and `opcua`. So a execution of
-
-```sh
-java -jar starter-{version}.jar -m {path/to/your/AASEnvironment} --endoint http
-```
-
-leads to a FA³ST Service with the HTTP endpoint implemented in class `de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint`.

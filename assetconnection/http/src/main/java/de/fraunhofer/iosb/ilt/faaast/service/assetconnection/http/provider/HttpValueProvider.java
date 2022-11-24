@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatValueProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
@@ -25,12 +26,14 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,38 +41,56 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProviderConfig> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpValueProvider.class);
     private static final String BASE_ERROR_MESSAGE = "error reading value from asset conenction (reference: %s)";
     public static final String DEFAULT_READ_METHOD = "GET";
     public static final String DEFAULT_WRITE_METHOD = "PUT";
     private final ServiceContext serviceContext;
     private final Reference reference;
     private final HttpClient client;
-    private final URL baseUrl;
+    private final HttpAssetConnectionConfig connectionConfig;
 
-    public HttpValueProvider(ServiceContext serviceContext, Reference reference, HttpClient client, URL baseUrl, HttpValueProviderConfig config) {
+    public HttpValueProvider(
+            ServiceContext serviceContext,
+            Reference reference,
+            HttpClient client,
+            HttpAssetConnectionConfig connectionConfig,
+            HttpValueProviderConfig config) {
         super(config);
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         Ensure.requireNonNull(reference, "reference must be non-null");
         Ensure.requireNonNull(client, "client must be non-null");
-        Ensure.requireNonNull(baseUrl, "baseUrl must be non-null");
+        Ensure.requireNonNull(connectionConfig, "connectionConfig must be non-null");
         this.serviceContext = serviceContext;
         this.reference = reference;
         this.client = client;
-        this.baseUrl = baseUrl;
+        this.connectionConfig = connectionConfig;
     }
 
 
     @Override
     public byte[] getRawValue() throws AssetConnectionException {
         try {
+            Map<String, String> headers = HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders());
+            LOGGER.trace("Sending HTTP read request to asset (baseUrl: {}, path: {}, method: {}, headers: {})",
+                    connectionConfig.getBaseUrl(),
+                    config.getPath(),
+                    DEFAULT_READ_METHOD,
+                    headers);
             HttpResponse<byte[]> response = HttpHelper.execute(
                     client,
-                    baseUrl,
+                    connectionConfig.getBaseUrl(),
                     config.getPath(),
                     config.getFormat(),
                     DEFAULT_READ_METHOD,
                     BodyPublishers.noBody(),
-                    BodyHandlers.ofByteArray());
+                    BodyHandlers.ofByteArray(),
+                    headers);
+            LOGGER.trace("Response from asset (status code: {}, body{}, method: {}, headers: {})",
+                    response.statusCode(),
+                    response.body() != null ? new String(response.body()) : "[empty]",
+                    DEFAULT_READ_METHOD,
+                    headers);
             if (!HttpHelper.is2xxSuccessful(response)) {
                 throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)));
             }
@@ -85,16 +106,28 @@ public class HttpValueProvider extends MultiFormatValueProvider<HttpValueProvide
     @Override
     public void setRawValue(byte[] value) throws AssetConnectionException {
         try {
+            Map<String, String> headers = HttpHelper.mergeHeaders(connectionConfig.getHeaders(), config.getHeaders());
+            LOGGER.trace("Sending HTTP write request to asset (baseUrl: {}, path: {}, method: {}, headers: {})",
+                    connectionConfig.getBaseUrl(),
+                    config.getPath(),
+                    DEFAULT_READ_METHOD,
+                    headers);
             HttpResponse<String> response = HttpHelper.execute(
                     client,
-                    baseUrl,
+                    connectionConfig.getBaseUrl(),
                     config.getPath(),
                     config.getFormat(),
                     StringUtils.isBlank(config.getWriteMethod())
                             ? DEFAULT_WRITE_METHOD
                             : config.getWriteMethod(),
                     BodyPublishers.ofByteArray(value),
-                    BodyHandlers.ofString());
+                    BodyHandlers.ofString(),
+                    headers);
+            LOGGER.trace("Response from asset (status code: {}, body{}, method: {}, headers: {})",
+                    response.statusCode(),
+                    response.body() != null ? response.body() : "[empty]",
+                    DEFAULT_READ_METHOD,
+                    headers);
             if (!HttpHelper.is2xxSuccessful(response)) {
                 throw new AssetConnectionException(String.format(BASE_ERROR_MESSAGE, AasUtils.asString(reference)));
             }

@@ -57,6 +57,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -88,6 +89,16 @@ public class HttpAssetConnectionTest {
                 PropertyValue.of(Datatype.INT, "5"),
                 "5",
                 null);
+    }
+
+
+    @Test
+    public void testValueProviderWithHeaders() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+        assertValueProviderHeaders(Map.of(), Map.of(), Map.of());
+        assertValueProviderHeaders(Map.of("foo", "bar"), Map.of(), Map.of("foo", "bar"));
+        assertValueProviderHeaders(Map.of("foo", "bar"), Map.of("foo", "bar"), Map.of("foo", "bar"));
+        assertValueProviderHeaders(Map.of("foo", "bar"), Map.of("foo", "bar2"), Map.of("foo", "bar2"));
+        assertValueProviderHeaders(Map.of("foo", "bar"), Map.of("bar", "foo"), Map.of("foo", "bar", "bar", "foo"));
     }
 
 
@@ -124,11 +135,38 @@ public class HttpAssetConnectionTest {
             throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
         assertValueProviderPropertyJson(
                 expected.getValue().getDataType(),
-                RequestMethod.GET, httpResponseBody,
+                RequestMethod.GET,
+                null,
+                null,
+                httpResponseBody,
                 query,
                 null,
                 x -> x.withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON)),
                 LambdaExceptionHelper.rethrowConsumer(x -> Assert.assertEquals(expected, x.getValue())));
+    }
+
+
+    private void assertValueProviderHeaders(Map<String, String> connectionHeaders, Map<String, String> providerHeaders, Map<String, String> expectedHeaders)
+            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+        PropertyValue value = PropertyValue.of(Datatype.INT, "5");
+        assertValueProviderPropertyJson(
+                value.getValue().getDataType(),
+                RequestMethod.GET,
+                connectionHeaders,
+                providerHeaders,
+                value.getValue().asString(),
+                null,
+                null,
+                x -> {
+                    RequestPatternBuilder result = x;
+                    if (expectedHeaders != null) {
+                        for (var expectedHeader: expectedHeaders.entrySet()) {
+                            result = result.withHeader(expectedHeader.getKey(), equalTo(expectedHeader.getValue()));
+                        }
+                    }
+                    return result;
+                },
+                LambdaExceptionHelper.rethrowConsumer(x -> Assert.assertEquals(value, x.getValue())));
     }
 
 
@@ -139,6 +177,8 @@ public class HttpAssetConnectionTest {
                 RequestMethod.PUT,
                 null,
                 null,
+                null,
+                null,
                 template,
                 x -> x.withRequestBody(equalToJson(expectedResponseBody)),
                 LambdaExceptionHelper.rethrowConsumer(x -> x.setValue(newValue)));
@@ -147,10 +187,12 @@ public class HttpAssetConnectionTest {
 
     private void assertValueProviderPropertyJson(Datatype datatype,
                                                  RequestMethod method,
+                                                 Map<String, String> connectionHeaders,
+                                                 Map<String, String> providerHeaders,
                                                  String httpResponseBody,
                                                  String query,
                                                  String template,
-                                                 Consumer<RequestPatternBuilder> verifierModifier,
+                                                 Function<RequestPatternBuilder, RequestPatternBuilder> verifierModifier,
                                                  Consumer<AssetValueProvider> customAssert)
             throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
         ServiceContext serviceContext = mock(ServiceContext.class);
@@ -170,9 +212,11 @@ public class HttpAssetConnectionTest {
                 CoreConfig.builder()
                         .build(),
                 HttpAssetConnectionConfig.builder()
+                        .headers(connectionHeaders != null ? connectionHeaders : Map.of())
                         .valueProvider(REFERENCE,
                                 HttpValueProviderConfig.builder()
                                         .path(path)
+                                        .headers(providerHeaders != null ? providerHeaders : Map.of())
                                         .format(JsonFormat.KEY)
                                         .query(query)
                                         .template(template)
@@ -186,7 +230,7 @@ public class HttpAssetConnectionTest {
             }
             RequestPatternBuilder verifier = new RequestPatternBuilder(method, urlEqualTo(path));
             if (verifierModifier != null) {
-                verifierModifier.accept(verifier);
+                verifier = verifierModifier.apply(verifier);
             }
             verify(exactly(1), verifier);
         }
@@ -207,6 +251,24 @@ public class HttpAssetConnectionTest {
                 null,
                 PropertyValue.of(Datatype.INT, "1"),
                 PropertyValue.of(Datatype.INT, "2"));
+    }
+
+
+    @Test
+    public void testSubscriptionProviderPropertyJsonGET2() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
+        assertSubscriptionProviderPropertyJson(
+                Datatype.INT,
+                RequestMethod.GET,
+                List.of("{\n"
+                        + "	\"data\": [\n"
+                        + "		{\n"
+                        + "			\"value\": 42\n"
+                        + "		}\n"
+                        + "	]\n"
+                        + "}"),
+                "$.data[-1:].value",
+                null,
+                PropertyValue.of(Datatype.INT, "42"));
     }
 
 

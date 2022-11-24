@@ -14,9 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.format;
 
+import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
+import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.PathNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.ElementInfo;
@@ -29,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -73,7 +76,17 @@ public class JsonFormat implements Format {
                     String actualValue = value;
                     if (!StringUtils.isBlank(query)) {
                         try {
-                            actualValue = JsonPath.read(value, query).toString();
+                            List<Object> jsonPathResult = JsonPath
+                                    .using(Configuration.defaultConfiguration().addOptions(Option.ALWAYS_RETURN_LIST))
+                                    .parse(value)
+                                    .read(query);
+                            if (jsonPathResult.isEmpty()) {
+                                throw new AssetConnectionException(String.format("JSONPath expression did not return any value (JSON path: %s, JSON: %s)", query, value));
+                            }
+                            if (jsonPathResult.size() > 1) {
+                                throw new AssetConnectionException(String.format("JSONPath expression returned more than one value (JSON path: %s, JSON: %s)", query, value));
+                            }
+                            actualValue = jsonPathResult.get(0).toString();
                         }
                         catch (PathNotFoundException e) {
                             throw new AssetConnectionException(String.format("value addressed by JSONPath not found (JSON path: %s, JSON: %s)", query, value), e);

@@ -56,7 +56,7 @@ public class CollectionHelper {
      * @param oldElement the element to replace can be null
      * @param <T> type of the objects
      */
-    public static <T> void put(Collection<T> collection, T oldElement, T newElement) {
+    public static synchronized <T> void put(Collection<T> collection, T oldElement, T newElement) {
         Ensure.requireNonNull(newElement, "Element must be non-null");
         int idx = List.class.isAssignableFrom(collection.getClass()) ? ((List<T>) collection)
                 .indexOf(oldElement)

@@ -38,14 +38,7 @@ jobs:
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: |
-        mvn compile -P build-ci --settings maven-ci-settings.xml -B
-
-    - name: Dependency Vulnerability Check with OWASP
-      env:
-        OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
-        OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
-      run: |
-        mvn org.owasp:dependency-check-maven:aggregate -P owasp --settings maven-ci-settings.xml -B
+        mvn test-compile -P build-ci --settings maven-ci-settings.xml -B
 
     - name: Test with Coverage
       env:
@@ -55,6 +48,13 @@ jobs:
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: |
         mvn install sonar:sonar -P coverage -Dsonar.projectKey=FraunhoferIOSB_FAAAST-Service --settings maven-ci-settings.xml -B
+
+    - name: Dependency Vulnerability Check with OWASP
+      env:
+        OWASP_OSS_INDEX_USERNAME: ${{ secrets.OWASP_OSS_INDEX_USERNAME }}
+        OWASP_OSS_INDEX_APIKEY: ${{ secrets.OWASP_OSS_INDEX_APIKEY }}
+      run: |
+        mvn org.owasp:dependency-check-maven:aggregate -P owasp --settings maven-ci-settings.xml -B
 
     - name: Build Docker Image
       run: |
@@ -87,7 +87,7 @@ jobs:
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-      run: mvn clean deploy -P release --settings maven-ci-settings.xml -pl endpoint/opcua -B
+      run: mvn clean deploy -P release --settings maven-ci-settings.xml -B
 
     - name: Push Docker Image
       if: github.ref == 'refs/heads/main'
