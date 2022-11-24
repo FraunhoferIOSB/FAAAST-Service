@@ -114,16 +114,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private static final String ERROR_ADDRESS_SPACE = "Error creating address space";
 
     /**
-     * Text if value is null
-     */
-    private static final String VALUE_NULL = "value is null";
-
-    /**
-     * Text if element is null
-     */
-    private static final String ELEMENT_NULL = "element is null";
-
-    /**
      * The namespace URI of this node manager
      */
     public static final String NAMESPACE_URI = "http://www.iosb.fraunhofer.de/ILT/AAS/OPCUA";
