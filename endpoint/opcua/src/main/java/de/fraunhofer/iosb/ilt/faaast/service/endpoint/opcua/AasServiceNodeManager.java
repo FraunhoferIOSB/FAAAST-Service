@@ -21,7 +21,6 @@ import com.prosysopc.ua.client.AddressSpaceException;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.nodes.UaNodeFactoryException;
 import com.prosysopc.ua.nodes.UaObject;
-import com.prosysopc.ua.server.CallableListener;
 import com.prosysopc.ua.server.MethodManagerUaNode;
 import com.prosysopc.ua.server.NodeManagerUaNode;
 import com.prosysopc.ua.server.UaServer;
@@ -269,9 +268,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private void createAddressSpace() throws StatusException, ServiceResultException, ServiceException, AddressSpaceException, MessageBusException {
         LOG.trace("createAddressSpace");
 
-        CallableListener aasMethodManagerListener = new AasServiceMethodManagerListener(endpoint, this);
-        MethodManagerUaNode m = (MethodManagerUaNode) getMethodManager();
-        m.addCallListener(aasMethodManagerListener);
+        MethodManagerUaNode methodManager = (MethodManagerUaNode) getMethodManager();
+        methodManager.addCallListener(new AasServiceMethodManagerListener(endpoint, this));
 
         createAasNodes();
         subscribeMessageBus();

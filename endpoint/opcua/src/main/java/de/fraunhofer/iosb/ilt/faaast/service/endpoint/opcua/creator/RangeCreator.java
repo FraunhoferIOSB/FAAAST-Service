@@ -110,8 +110,8 @@ public class RangeCreator extends SubmodelElementCreator {
 
         nodeManager.addSubmodelElementOpcUA(rangeRef, range);
 
-        AasSubmodelElementHelper.setRangeValueAndType(valueType, minValue, maxValue, range, new ValueData(myPropertyIdMin, browseNameMin, displayNameMin),
-                new ValueData(myPropertyIdMax, browseNameMax, displayNameMax), nodeManager);
+        AasSubmodelElementHelper.setRangeValueAndType(valueType, minValue, maxValue, range, new ValueData(myPropertyIdMin, browseNameMin, displayNameMin, nodeManager),
+                new ValueData(myPropertyIdMax, browseNameMax, displayNameMax, nodeManager));
     }
 
 }
