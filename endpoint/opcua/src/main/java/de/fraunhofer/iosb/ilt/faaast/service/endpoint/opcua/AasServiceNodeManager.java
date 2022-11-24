@@ -114,6 +114,16 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private static final String ERROR_ADDRESS_SPACE = "Error creating address space";
 
     /**
+     * Text if value is null
+     */
+    private static final String VALUE_NULL = "value must not be null";
+
+    /**
+     * Text if element is null
+     */
+    private static final String ELEMENT_NULL = "element must not be null";
+
+    /**
      * The namespace URI of this node manager
      */
     public static final String NAMESPACE_URI = "http://www.iosb.fraunhofer.de/ILT/AAS/OPCUA";
@@ -393,8 +403,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws AddressSpaceException If the operation fails
      */
     private void elementCreated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
-        Ensure.requireNonNull(element, "element must not be null");
-        Ensure.requireNonNull(value, "value must not be null");
+        Ensure.requireNonNull(element, ELEMENT_NULL);
+        Ensure.requireNonNull(value, VALUE_NULL);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("elementCreated called. Reference {}", AasUtils.asString(element));
@@ -474,7 +484,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws StatusException If the operation fails
      */
     private void elementDeleted(Reference element) throws StatusException {
-        Ensure.requireNonNull(element, "element must not be null");
+        Ensure.requireNonNull(element, ELEMENT_NULL);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("elementDeleted called. Reference {}", AasUtils.asString(element));
@@ -509,8 +519,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws AddressSpaceException If the operation fails
      */
     private void elementUpdated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
-        Ensure.requireNonNull(element, "element must not be null");
-        Ensure.requireNonNull(value, "value must not be null");
+        Ensure.requireNonNull(element, ELEMENT_NULL);
+        Ensure.requireNonNull(value, VALUE_NULL);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("elementUpdated called. Reference {}", AasUtils.asString(element));
