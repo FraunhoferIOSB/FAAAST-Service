@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.AssetKind;
 import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.Entity;
@@ -243,9 +244,7 @@ public class ValueConverter {
     public static AASValueTypeDataType datatypeToValueType(Datatype type) {
         AASValueTypeDataType retval;
 
-        if (type == null) {
-            throw new IllegalArgumentException("type must not be null");
-        }
+        Ensure.requireNonNull(type, "type must not be null");
         Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.datatype == type).findAny();
         if (rv.isEmpty()) {
             LOGGER.warn("datatypeToValueType: unknown type: {}", type);
@@ -388,9 +387,7 @@ public class ValueConverter {
      * @return The corresponding LocalizedText array
      */
     public static List<LangString> getLangStringSetFromLocalizedText(LocalizedText[] value) {
-        if (value == null) {
-            throw new IllegalArgumentException("value is null");
-        }
+        Ensure.requireNonNull(value, "value must not be null");
 
         List<LangString> retval = new ArrayList<>();
 
@@ -491,9 +488,7 @@ public class ValueConverter {
      * @return The created reference.
      */
     public static Reference getReferenceFromKeys(AASKeyDataType[] value) {
-        if (value == null) {
-            throw new IllegalArgumentException("value is null");
-        }
+        Ensure.requireNonNull(value, "value must not be null");
 
         Reference retval;
 

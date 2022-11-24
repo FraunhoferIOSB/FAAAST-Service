@@ -94,11 +94,6 @@ public class AasSubmodelElementHelper {
     private static final boolean VALUES_READ_ONLY = true;
 
     /**
-     * Text if node is null
-     */
-    private static final String NODE_NULL = "node is null";
-
-    /**
      * Sonar wants a private constructor.
      */
     private AasSubmodelElementHelper() {
@@ -115,12 +110,8 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     public static void setRelationshipValue(AASRelationshipElementType aasElement, RelationshipElementValue value, NodeManagerUaNode nodeManager) throws StatusException {
-        if (aasElement == null) {
-            throw new IllegalArgumentException("aasElement is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
+        Ensure.requireNonNull(aasElement, "aasElement must not be null");
+        Ensure.requireNonNull(value, "value must not be null");
 
         Reference ref = new DefaultReference.Builder().keys(value.getFirst()).build();
         setAasReferenceData(ref, aasElement.getFirstNode(), false);
@@ -807,12 +798,8 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setDataElementValue(UaNode node, DataElementValue value, NodeManagerUaNode nodeManager) throws StatusException {
-        if (node == null) {
-            throw new IllegalArgumentException(NODE_NULL);
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
+        Ensure.requireNonNull(node, "node must not be null");
+        Ensure.requireNonNull(value, "value must not be null");
 
         if ((node instanceof AASPropertyType) && (value instanceof PropertyValue)) {
             setPropertyValue((AASPropertyType) node, (PropertyValue) value);
@@ -847,12 +834,8 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails.
      */
     private static void setPropertyValue(AASPropertyType property, PropertyValue value) throws StatusException {
-        if (property == null) {
-            throw new IllegalArgumentException("property is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
+        Ensure.requireNonNull(property, "property must not be null");
+        Ensure.requireNonNull(value, "value must not be null");
 
         LOG.debug("setPropertyValue: {} to {}", property.getBrowseName().getName(), value.getValue());
 
@@ -879,12 +862,8 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setEntityPropertyValue(AASEntityType entity, EntityValue value, NodeManagerUaNode nodeManager) throws StatusException {
-        if (entity == null) {
-            throw new IllegalArgumentException("entity is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
+        Ensure.requireNonNull(entity, "entity must not be null");
+        Ensure.requireNonNull(value, "value must not be null");
 
         // EntityType
         entity.setEntityType(ValueConverter.getAasEntityType(value.getEntityType()));
@@ -923,12 +902,8 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setFilePropertyValue(AASFileType file, FileValue value, NodeManagerUaNode nodeManager) throws StatusException {
-        if (file == null) {
-            throw new IllegalArgumentException("file is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
+        Ensure.requireNonNull(file, "file must not be null");
+        Ensure.requireNonNull(value, "value must not be null");
 
         file.setMimeType(value.getMimeType());
         if (value.getValue() != null) {
@@ -950,12 +925,8 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setBlobValue(AASBlobType blob, BlobValue value, NodeManagerUaNode nodeManager) throws StatusException {
-        if (blob == null) {
-            throw new IllegalArgumentException("blob is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
+        Ensure.requireNonNull(blob, "blob must not be null");
+        Ensure.requireNonNull(value, "value must not be null");
 
         // MimeType
         blob.setMimeType(value.getMimeType());
@@ -979,12 +950,8 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setReferenceElementValue(AASReferenceElementType refElement, ReferenceElementValue value) throws StatusException {
-        if (refElement == null) {
-            throw new IllegalArgumentException("refElement is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
+        Ensure.requireNonNull(refElement, "refElement must not be null");
+        Ensure.requireNonNull(value, "value must not be null");
 
         DefaultReference ref = new DefaultReference.Builder().keys(value.getKeys()).build();
         setAasReferenceData(ref, refElement.getValueNode());
@@ -999,12 +966,8 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setRangeValue(AASRangeType range, RangeValue<?> value) throws StatusException {
-        if (range == null) {
-            throw new IllegalArgumentException("range is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
+        Ensure.requireNonNull(range, "range must not be null");
+        Ensure.requireNonNull(value, "value must not be null");
 
         // special treatment for some not directly supported types
         TypedValue<?> tvmin = value.getMin();
@@ -1044,12 +1007,8 @@ public class AasSubmodelElementHelper {
      */
     private static void setMultiLanguagePropertyValue(AASMultiLanguagePropertyType multiLangProp, MultiLanguagePropertyValue value, NodeManagerUaNode nodeManager)
             throws StatusException {
-        if (multiLangProp == null) {
-            throw new IllegalArgumentException("multiLangProp is null");
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
+        Ensure.requireNonNull(multiLangProp, "multiLangProp must not be null");
+        Ensure.requireNonNull(value, "value must not be null");
 
         List<LangString> values = new ArrayList<>(value.getLangStringSet());
         if (multiLangProp.getValueNode() == null) {

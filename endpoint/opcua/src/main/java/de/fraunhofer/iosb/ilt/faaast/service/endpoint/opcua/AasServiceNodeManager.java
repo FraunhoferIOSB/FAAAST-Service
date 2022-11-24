@@ -352,7 +352,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         LOG.debug("subscribeMessageBus: subscribe ValueChangeEvents");
         SubscriptionInfo info = SubscriptionInfo.create(ValueChangeEventMessage.class, x -> {
             try {
-                valueChanged(x.getElement(), x.getNewValue(), x.getOldValue());
+                updateSubmodelElementValue(x.getElement(), x.getNewValue(), x.getOldValue());
             }
             catch (StatusException e) {
                 LOG.error("valueChanged Exception", e);
@@ -393,19 +393,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
 
     /**
-     * Handles a ValueChanged event.
-     *
-     * @param element The Reference to the changed element
-     * @param newValue The new value
-     * @param oldValue The old value
-     * @throws StatusException If the operation fails
-     */
-    private void valueChanged(Reference element, ElementValue newValue, ElementValue oldValue) throws StatusException {
-        updateSubmodelElementValue(element, newValue, oldValue);
-    }
-
-
-    /**
      * Handles an elementCreated event.
      *
      * @param element Reference to the created element.
@@ -416,12 +403,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws AddressSpaceException If the operation fails
      */
     private void elementCreated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
-        if (element == null) {
-            throw new IllegalArgumentException(ELEMENT_NULL);
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
+        Ensure.requireNonNull(element, "element must not be null");
+        Ensure.requireNonNull(value, "value must not be null");
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("elementCreated called. Reference {}", AasUtils.asString(element));
@@ -430,9 +413,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         ObjectData parent = null;
         if (referableMap.containsKey(element)) {
             parent = referableMap.get(element);
-        }
-        else if (LOG.isInfoEnabled()) {
-            LOG.info("elementCreated: element not found in referableMap: {}", AasUtils.asString(element));
         }
 
         if (value instanceof ConceptDescription) {
@@ -463,7 +443,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     EmbeddedDataSpecificationCreator.addEmbeddedDataSpecifications((AASAssetType) parent.getNode(), List.of((EmbeddedDataSpecification) value), this);
                 }
                 else {
-                    LOG.warn("elementCreated: EmbeddedDataSpecification parent class not found");
+                    LOG.debug("elementCreated: EmbeddedDataSpecification parent class not found");
                 }
             }
             else if (value instanceof Constraint) {
@@ -474,7 +454,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     QualifierCreator.addQualifiers(((AASSubmodelElementType) parent.getNode()).getQualifierNode(), List.of((Constraint) value), this);
                 }
                 else {
-                    LOG.warn("elementCreated: Constraint parent class not found");
+                    LOG.debug("elementCreated: Constraint parent class not found");
                 }
             }
             else if (value instanceof SubmodelElement) {
@@ -487,12 +467,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
                     SubmodelElementCreator.addSubmodelElements(parent.getNode(), List.of((SubmodelElement) value), parent.getSubmodel(), element, this);
                 }
                 else {
-                    LOG.warn("elementCreated: SubmodelElement parent class not found: {}; {}", parent.getNode().getNodeId(), parent.getNode());
+                    LOG.debug("elementCreated: SubmodelElement parent class not found: {}; {}", parent.getNode().getNodeId(), parent.getNode());
                 }
             }
         }
         else if (LOG.isWarnEnabled()) {
-            LOG.warn("elementCreated: element not found: {}", AasUtils.asString(element));
+            LOG.debug("elementCreated: element not found: {}", AasUtils.asString(element));
         }
     }
 
@@ -504,9 +484,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws StatusException If the operation fails
      */
     private void elementDeleted(Reference element) throws StatusException {
-        if (element == null) {
-            throw new IllegalArgumentException(ELEMENT_NULL);
-        }
+        Ensure.requireNonNull(element, "element must not be null");
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("elementDeleted called. Reference {}", AasUtils.asString(element));
@@ -541,12 +519,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws AddressSpaceException If the operation fails
      */
     private void elementUpdated(Reference element, Referable value) throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
-        if (element == null) {
-            throw new IllegalArgumentException(ELEMENT_NULL);
-        }
-        else if (value == null) {
-            throw new IllegalArgumentException(VALUE_NULL);
-        }
+        Ensure.requireNonNull(element, "element must not be null");
+        Ensure.requireNonNull(value, "value must not be null");
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("elementUpdated called. Reference {}", AasUtils.asString(element));
@@ -593,12 +567,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws StatusException If the operation fails
      */
     public void updateSubmodelElementValue(Reference reference, ElementValue newValue, ElementValue oldValue) throws StatusException {
-        if (reference == null) {
-            throw new IllegalArgumentException("reference is null");
-        }
-        else if (newValue == null) {
-            throw new IllegalArgumentException("newValue is null");
-        }
+        Ensure.requireNonNull(reference, "reference must not be null");
+        Ensure.requireNonNull(newValue, "newValue must not be null");
 
         LOG.debug("updateSubmodelElementValue");
         if (submodelElementOpcUAMap.containsKey(reference)) {
@@ -690,9 +660,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param referable The corresponding referable
      */
     private void removeFromMaps(BaseObjectType node, Reference reference, Referable referable) {
-        if (node == null) {
-            throw new IllegalArgumentException(NODE_NULL);
-        }
+        Ensure.requireNonNull(node, "node must not be null");
 
         try {
             if (node instanceof AASSubmodelElementType) {

@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementVal
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.MultiLanguageProperty;
@@ -83,11 +84,11 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     @Override
     public void init(CoreConfig core, OpcUaEndpointConfig config, ServiceContext context) {
         currentConfig = config;
+        Ensure.requireNonNull(currentConfig, "currentConfig must not be null");
         service = context;
+        Ensure.requireNonNull(service, "service must not be null");
         messageBus = service.getMessageBus();
-        if (messageBus == null) {
-            throw new IllegalArgumentException("MessageBus is null");
-        }
+        Ensure.requireNonNull(messageBus, "messageBus must not be null");
     }
 
 
@@ -97,14 +98,9 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             LOGGER.info("OPC UA Endpoint already started");
             return;
         }
-        if (currentConfig == null) {
-            throw new IllegalStateException("OPC UA Endpoint cannot be started because no configuration is available");
-        }
 
         aasEnvironment = service.getAASEnvironment();
-        if (aasEnvironment == null) {
-            throw new IllegalArgumentException("AASEnvironment is null");
-        }
+        Ensure.requireNonNull(aasEnvironment, "aasEnvironment must not be null");
 
         try {
             server = new Server(currentConfig.getTcpPort(), aasEnvironment, this);
@@ -119,9 +115,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
     @Override
     public void stop() {
-        if (currentConfig == null) {
-            throw new IllegalStateException("OPC UA Endpoint cannot be stopped because no configuration is available");
-        }
+        Ensure.requireNonNull(currentConfig, "currentConfig must not be null");
 
         try {
             if (server != null) {
@@ -151,12 +145,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      */
     public boolean writeValue(SubmodelElement element, Submodel submodel, Reference refElement) {
         boolean retval = false;
-        if (element == null) {
-            throw new IllegalArgumentException("element == null");
-        }
-        else if (submodel == null) {
-            throw new IllegalArgumentException("submodel == null");
-        }
+        Ensure.requireNonNull(element, "element must not be null");
+        Ensure.requireNonNull(submodel, "submodel must not be null");
 
         try {
             SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
