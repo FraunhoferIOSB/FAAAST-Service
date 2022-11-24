@@ -50,6 +50,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
 import io.adminshell.aas.v3.model.Asset;
@@ -188,20 +189,22 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      *
      * @param server the server in which the node manager is created.
      * @param namespaceUri the namespace URI for the nodes
-     * @param aas the AAS environment
-     * @param ep the associated endpoint
+     * @param aasEnvironment the AAS environment
+     * @param endpoint the associated endpoint
      */
-    public AasServiceNodeManager(UaServer server, String namespaceUri, AssetAdministrationShellEnvironment aas, OpcUaEndpoint ep) {
+    public AasServiceNodeManager(UaServer server, String namespaceUri, AssetAdministrationShellEnvironment aasEnvironment, OpcUaEndpoint endpoint) {
         super(server, namespaceUri);
-        aasEnvironment = aas;
+        Ensure.requireNonNull(aasEnvironment, "aasEnvironment must not be null");
+        Ensure.requireNonNull(endpoint, "endpoint must not be null");
 
-        endpoint = ep;
+        this.aasEnvironment = aasEnvironment;
+        this.endpoint = endpoint;
         submodelElementAasMap = new ConcurrentHashMap<>();
         submodelElementOpcUAMap = new ConcurrentHashMap<>();
         submodelOpcUAMap = new ConcurrentHashMap<>();
         referableMap = new ConcurrentHashMap<>();
 
-        messageBus = ep.getMessageBus();
+        messageBus = endpoint.getMessageBus();
         subscriptions = new ArrayList<>();
     }
 
