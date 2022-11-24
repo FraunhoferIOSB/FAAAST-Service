@@ -288,31 +288,25 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws ServiceResultException If the operation fails
      */
     private void createAasNodes() throws StatusException, ServiceResultException, ServiceException, AddressSpaceException {
-        if (aasEnvironment != null) {
-            // add AASEnvironmentType
-            addAasEnvironmentNode();
+        addAasEnvironmentNode();
 
-            // ConceptDescriptions.
-            ConceptDescriptionCreator.addConceptDescriptions(aasEnvironment.getConceptDescriptions(), this);
+        ConceptDescriptionCreator.addConceptDescriptions(aasEnvironment.getConceptDescriptions(), this);
 
-            // Assets
-            List<Asset> assets = aasEnvironment.getAssets();
-            if ((assets != null) && (!assets.isEmpty())) {
-                for (Asset asset: assets) {
-                    AssetCreator.addAsset(aasEnvironmentNode, asset, this);
-                }
+        List<Asset> assets = aasEnvironment.getAssets();
+        if (assets != null) {
+            for (Asset asset: assets) {
+                AssetCreator.addAsset(aasEnvironmentNode, asset, this);
             }
-
-            // Submodels
-            List<Submodel> submodels = aasEnvironment.getSubmodels();
-            if ((submodels != null) && (!submodels.isEmpty())) {
-                for (Submodel submodel: submodels) {
-                    SubmodelCreator.addSubmodel(aasEnvironmentNode, submodel, this);
-                }
-            }
-
-            addAssetAdministrationShells();
         }
+
+        List<Submodel> submodels = aasEnvironment.getSubmodels();
+        if (submodels != null) {
+            for (Submodel submodel: submodels) {
+                SubmodelCreator.addSubmodel(aasEnvironmentNode, submodel, this);
+            }
+        }
+
+        addAssetAdministrationShells();
     }
 
 
@@ -322,8 +316,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws StatusException If the operation fails
      */
     private void addAssetAdministrationShells() throws StatusException {
-        for (AssetAdministrationShell aas: aasEnvironment.getAssetAdministrationShells()) {
-            AssetAdministrationShellCreator.addAssetAdministrationShell(aasEnvironmentNode, aas, this);
+        if (aasEnvironment.getAssetAdministrationShells() != null) {
+            for (AssetAdministrationShell aas: aasEnvironment.getAssetAdministrationShells()) {
+                AssetAdministrationShellCreator.addAssetAdministrationShell(aasEnvironmentNode, aas, this);
+            }
         }
     }
 
@@ -333,17 +329,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void addAasEnvironmentNode() {
         final UaObject objectsFolder = getServer().getNodeManagerRoot().getObjectsFolder();
-        if (aasEnvironment != null) {
-            String name = "AASEnvironment";
-            LOG.debug("addAasEnvironmentNode {}; to ObjectsFolder", name);
-            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-            NodeId nid = createNodeId(objectsFolder, browseName);
-            FolderType ft = createInstance(AASEnvironmentType.class, nid, browseName, LocalizedText.english(name));
-            LOG.debug("addAasEnvironmentNode: Created class: {}", ft.getClass().getName());
-            aasEnvironmentNode = (AASEnvironmentType) ft;
+        String name = "AASEnvironment";
+        LOG.debug("addAasEnvironmentNode {}; to ObjectsFolder", name);
+        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
+        NodeId nid = createNodeId(objectsFolder, browseName);
+        FolderType ft = createInstance(AASEnvironmentType.class, nid, browseName, LocalizedText.english(name));
+        LOG.debug("addAasEnvironmentNode: Created class: {}", ft.getClass().getName());
+        aasEnvironmentNode = (AASEnvironmentType) ft;
 
-            objectsFolder.addComponent(aasEnvironmentNode);
-        }
+        objectsFolder.addComponent(aasEnvironmentNode);
     }
 
 
