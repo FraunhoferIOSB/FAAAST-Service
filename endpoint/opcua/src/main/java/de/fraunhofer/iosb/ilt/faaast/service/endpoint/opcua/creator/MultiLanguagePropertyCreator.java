@@ -67,7 +67,7 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
             List<LangString> values = aasMultiLang.getValues();
             if (values != null) {
                 if (multiLangNode.getValueNode() == null) {
-                    AasSubmodelElementHelper.addMultiLanguageValueNode(multiLangNode, values.size());
+                    AasSubmodelElementHelper.addMultiLanguageValueNode(multiLangNode, values.size(), nodeManager);
                 }
 
                 multiLangNode.getValueNode().setValue(ValueConverter.getLocalizedTextFromLangStringSet(values));

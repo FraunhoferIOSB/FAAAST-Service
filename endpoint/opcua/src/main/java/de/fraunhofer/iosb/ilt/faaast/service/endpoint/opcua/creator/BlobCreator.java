@@ -72,7 +72,7 @@ public class BlobCreator extends SubmodelElementCreator {
             // Value
             if (aasBlob.getValue() != null) {
                 if (blobNode.getValueNode() == null) {
-                    AasSubmodelElementHelper.addBlobValueNode(blobNode);
+                    AasSubmodelElementHelper.addBlobValueNode(blobNode, nodeManager);
                 }
 
                 nodeManager.addSubmodelElementAasMap(blobNode.getValueNode().getNodeId(),

@@ -107,7 +107,7 @@ public class FileCreator extends SubmodelElementCreator {
 
     private static void setValueData(AASFileType fileNode, File aasFile, AasServiceNodeManager nodeManager) throws StatusException {
         if (fileNode.getValueNode() == null) {
-            AasSubmodelElementHelper.addFileValueNode(fileNode);
+            AasSubmodelElementHelper.addFileValueNode(fileNode, nodeManager);
         }
 
         fileNode.setValue(aasFile.getValue());

@@ -212,8 +212,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             super.init();
 
-            AasSubmodelElementHelper.setNodeManager(this);
-
             createAddressSpace();
         }
         catch (ServiceResultException ex) {
@@ -619,7 +617,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         LOG.debug("updateSubmodelElementValue");
         if (submodelElementOpcUAMap.containsKey(reference)) {
             AASSubmodelElementType subElem = submodelElementOpcUAMap.get(reference);
-            AasSubmodelElementHelper.setSubmodelElementValue(subElem, newValue);
+            AasSubmodelElementHelper.setSubmodelElementValue(subElem, newValue, this);
         }
         else if (LOG.isWarnEnabled()) {
             LOG.warn("SubmodelElement {} not found in submodelElementOpcUAMap", AasUtils.asString(reference));

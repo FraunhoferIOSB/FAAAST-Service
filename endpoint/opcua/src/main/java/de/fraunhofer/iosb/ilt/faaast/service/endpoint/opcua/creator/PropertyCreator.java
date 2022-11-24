@@ -125,7 +125,7 @@ public class PropertyCreator extends SubmodelElementCreator {
             nodeManager.addSubmodelElementAasMap(myPropertyId, new SubmodelElementData(aasProperty, submodel, SubmodelElementData.Type.PROPERTY_VALUE, propRef));
             LOGGER.debug("setPropertyValueAndType: NodeId {}; Property: {}", myPropertyId, aasProperty);
 
-            AasSubmodelElementHelper.setPropertyValueAndType(aasProperty, prop, new ValueData(myPropertyId, browseName, displayName));
+            AasSubmodelElementHelper.setPropertyValueAndType(aasProperty, prop, new ValueData(myPropertyId, browseName, displayName), nodeManager);
         }
         catch (Exception ex) {
             LOGGER.error("addOpcUaProperty Exception", ex);
