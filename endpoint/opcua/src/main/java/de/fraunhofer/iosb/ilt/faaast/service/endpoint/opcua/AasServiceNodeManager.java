@@ -29,7 +29,6 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.common.ServiceResultException;
 import com.prosysopc.ua.types.opcua.BaseObjectType;
-import com.prosysopc.ua.types.opcua.FolderType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetAdministrationShellCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.AssetCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.ConceptDescriptionCreator;
@@ -130,6 +129,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     public static final String NAMESPACE_URI = "http://www.iosb.fraunhofer.de/ILT/AAS/OPCUA";
 
     /**
+     * The name of the AAS Environment node
+     */
+    private static final String AAS_ENVIRONMENT_NAME = "AASEnvironment";
+
+    /**
      * The logger for this class
      */
     private static final Logger LOG = LoggerFactory.getLogger(AasServiceNodeManager.class);
@@ -205,6 +209,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         referableMap = new ConcurrentHashMap<>();
 
         messageBus = endpoint.getMessageBus();
+        Ensure.requireNonNull(messageBus, "messageBus must not be null");
         subscriptions = new ArrayList<>();
     }
 
@@ -329,13 +334,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void addAasEnvironmentNode() {
         final UaObject objectsFolder = getServer().getNodeManagerRoot().getObjectsFolder();
-        String name = "AASEnvironment";
-        LOG.debug("addAasEnvironmentNode {}; to ObjectsFolder", name);
-        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), name).toQualifiedName(getNamespaceTable());
-        NodeId nid = createNodeId(objectsFolder, browseName);
-        FolderType ft = createInstance(AASEnvironmentType.class, nid, browseName, LocalizedText.english(name));
-        LOG.debug("addAasEnvironmentNode: Created class: {}", ft.getClass().getName());
-        aasEnvironmentNode = (AASEnvironmentType) ft;
+        LOG.debug("addAasEnvironmentNode {}; to ObjectsFolder", AAS_ENVIRONMENT_NAME);
+        QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASEnvironmentType.getNamespaceUri(), AAS_ENVIRONMENT_NAME).toQualifiedName(getNamespaceTable());
+        aasEnvironmentNode = createInstance(AASEnvironmentType.class, createNodeId(objectsFolder, browseName), browseName, LocalizedText.english(AAS_ENVIRONMENT_NAME));
+        LOG.debug("addAasEnvironmentNode: Created class: {}", aasEnvironmentNode.getClass().getName());
 
         objectsFolder.addComponent(aasEnvironmentNode);
     }
@@ -347,55 +349,46 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws MessageBusException if subscribing fails
      */
     private void subscribeMessageBus() throws MessageBusException {
-        if (messageBus != null) {
-            LOG.debug("subscribeMessageBus: subscribe ValueChangeEvents");
-            SubscriptionInfo info = SubscriptionInfo.create(ValueChangeEventMessage.class, t -> {
-                try {
-                    valueChanged(t.getElement(), t.getNewValue(), t.getOldValue());
-                }
-                catch (StatusException e) {
-                    LOG.error("valueChanged Exception", e);
-                }
-            });
-            SubscriptionId rv = messageBus.subscribe(info);
-            subscriptions.add(rv);
+        LOG.debug("subscribeMessageBus: subscribe ValueChangeEvents");
+        SubscriptionInfo info = SubscriptionInfo.create(ValueChangeEventMessage.class, x -> {
+            try {
+                valueChanged(x.getElement(), x.getNewValue(), x.getOldValue());
+            }
+            catch (StatusException e) {
+                LOG.error("valueChanged Exception", e);
+            }
+        });
+        subscriptions.add(messageBus.subscribe(info));
 
-            info = SubscriptionInfo.create(ElementCreateEventMessage.class, x -> {
-                try {
-                    elementCreated(x.getElement(), x.getValue());
-                }
-                catch (Exception e) {
-                    LOG.error("elementCreated Exception", e);
-                }
-            });
-            rv = messageBus.subscribe(info);
-            subscriptions.add(rv);
+        info = SubscriptionInfo.create(ElementCreateEventMessage.class, x -> {
+            try {
+                elementCreated(x.getElement(), x.getValue());
+            }
+            catch (Exception e) {
+                LOG.error("elementCreated Exception", e);
+            }
+        });
+        subscriptions.add(messageBus.subscribe(info));
 
-            info = SubscriptionInfo.create(ElementDeleteEventMessage.class, x -> {
-                try {
-                    elementDeleted(x.getElement());
-                }
-                catch (Exception e) {
-                    LOG.error("elementDeleted Exception", e);
-                }
-            });
-            rv = messageBus.subscribe(info);
-            subscriptions.add(rv);
+        info = SubscriptionInfo.create(ElementDeleteEventMessage.class, x -> {
+            try {
+                elementDeleted(x.getElement());
+            }
+            catch (Exception e) {
+                LOG.error("elementDeleted Exception", e);
+            }
+        });
+        subscriptions.add(messageBus.subscribe(info));
 
-            info = SubscriptionInfo.create(ElementUpdateEventMessage.class, x -> {
-                try {
-                    elementUpdated(x.getElement(), x.getValue());
-                }
-                catch (Exception e) {
-                    LOG.error("elementUpdated Exception", e);
-                }
-            });
-            rv = messageBus.subscribe(info);
-            subscriptions.add(rv);
-        }
-        else {
-            LOG.warn("MessageBus not available!");
-        }
+        info = SubscriptionInfo.create(ElementUpdateEventMessage.class, x -> {
+            try {
+                elementUpdated(x.getElement(), x.getValue());
+            }
+            catch (Exception e) {
+                LOG.error("elementUpdated Exception", e);
+            }
+        });
+        subscriptions.add(messageBus.subscribe(info));
     }
 
 
@@ -577,11 +570,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void unsubscribeMessageBus() {
         try {
-            if (messageBus != null) {
-                LOG.debug("unsubscribe from the MessageBus");
-                for (int i = 0; i < subscriptions.size(); i++) {
-                    messageBus.unsubscribe(subscriptions.get(i));
-                }
+            LOG.debug("unsubscribe from the MessageBus");
+            for (int i = 0; i < subscriptions.size(); i++) {
+                messageBus.unsubscribe(subscriptions.get(i));
             }
         }
         catch (Exception ex) {
