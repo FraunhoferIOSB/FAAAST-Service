@@ -50,6 +50,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
 import io.adminshell.aas.v3.model.Asset;
@@ -59,7 +60,6 @@ import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.Constraint;
 import io.adminshell.aas.v3.model.DataElement;
 import io.adminshell.aas.v3.model.EmbeddedDataSpecification;
-import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
@@ -490,20 +490,15 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             LOG.debug("elementDeleted called. Reference {}", AasUtils.asString(element));
         }
         // The element is the object that should be deleted
-        ObjectData data = null;
-        if (referableMap.containsKey(element)) {
-            data = referableMap.get(element);
-
+        ObjectData data = referableMap.get(element);
+        if (data != null) {
             // remove element from the map
             referableMap.remove(element);
-        }
-        else if (LOG.isInfoEnabled()) {
-            LOG.info("elementDeleted: element not found in referableMap: {}", AasUtils.asString(element));
-        }
-
-        if (data != null) {
             removeFromMaps(data.getNode(), element, data.getReferable());
             deleteNode(data.getNode(), true, true);
+        }
+        else if (LOG.isInfoEnabled()) {
+            LOG.debug("elementDeleted: element not found in referableMap: {}", AasUtils.asString(element));
         }
     }
 
@@ -528,14 +523,16 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         // Currently we implement update as delete and create. 
         elementDeleted(element);
 
-        // elementCreated needs the parent as element 
-        List<Key> keys = element.getKeys();
-        if (keys.size() > 1) {
+        // elementCreated needs the parent as element where it's available
+        Reference createElement;
+        if (element.getKeys().size() > 1) {
             // remove the last element from the list
-            keys.remove(keys.size() - 1);
+            createElement = ReferenceHelper.getParent(element);
         }
-        element.setKeys(keys);
-        elementCreated(element, value);
+        else {
+            createElement = element;
+        }
+        elementCreated(createElement, value);
     }
 
 
