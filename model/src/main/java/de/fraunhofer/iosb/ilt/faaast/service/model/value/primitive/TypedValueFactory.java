@@ -40,6 +40,39 @@ public class TypedValueFactory {
 
 
     /**
+     * Creates a new {@link TypedValue} instance based on datatype and string-based value. If datatypeName is unknown,
+     * type default to string. If parsing fails, null is returned.
+     *
+     * @param datatypeName name of the datatype
+     * @param value value in string representation
+     * @return typed value representation
+     */
+    public static TypedValue<?> createSafe(String datatypeName, String value) {
+        return createSafe(Datatype.fromName(datatypeName), value);
+    }
+
+
+    /**
+     * Creates a new {@link TypedValue} instance based on datatype and string-based value. If parsing fails, null is
+     * returned.
+     *
+     * @param datatype datatype to use
+     * @param value value in string representation
+     * @return typed value representation or null is parsing fails
+     * @throws IllegalArgumentException if datatype is null
+     * @throws RuntimeException if instantiating new class fails
+     */
+    public static TypedValue<?> createSafe(Datatype datatype, String value) {
+        try {
+            return create(datatype, value);
+        }
+        catch (ValueFormatException e) {
+            return null;
+        }
+    }
+
+
+    /**
      * Creates a new {@link TypedValue} instance based on datatype and string-based value.
      *
      * @param datatype datatype to use

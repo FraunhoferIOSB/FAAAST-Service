@@ -46,6 +46,8 @@
         <module>assetconnection/opcua</module>
         <module>assetconnection/http</module>
         <module>dataformat/json</module>
+        <module>submodeltemplate/timeseries</module>
+        <module>submodeltemplate/timeseries/provider/influx</module>
         <module>starter</module>
     </modules>
     <scm>
@@ -82,6 +84,7 @@
         <equalsverifier.version>3.11</equalsverifier.version>
         <guava.version>31.1-jre</guava.version>
         <hamcrest.version>2.2</hamcrest.version>
+        <influxdb.version>6.7.0</influxdb.version>
         <jackson.databind.version>2.14.0</jackson.databind.version>
         <jackson.version>2.14.0</jackson.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
@@ -139,7 +142,6 @@
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <systemstubs.version>2.0.1</systemstubs.version>
         <wiremock.version>2.35.0</wiremock.version>
-        <protobuf.version>6.7.0</protobuf.version>
     </properties>
     <dependencies>
         <dependency>

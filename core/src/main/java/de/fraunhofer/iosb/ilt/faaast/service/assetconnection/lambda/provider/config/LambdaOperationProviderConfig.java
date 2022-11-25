@@ -14,20 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaOperationProvider;
 
 
 /**
  * Configuration for code-backed operation provider.
  */
-public class LambdaOperationProviderConfig extends AbstractLambdaProviderConfig<AssetOperationProvider> implements AssetOperationProviderConfig {
+public class LambdaOperationProviderConfig extends AbstractLambdaProviderConfig<LambdaOperationProvider> implements AssetOperationProviderConfig {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractLambdaProviderConfig.AbstractBuilder<AssetOperationProvider, LambdaOperationProviderConfig, Builder> {
+    public static class Builder extends AbstractLambdaProviderConfig.AbstractBuilder<LambdaOperationProvider, LambdaOperationProviderConfig, Builder> {
 
         @Override
         protected Builder getSelf() {

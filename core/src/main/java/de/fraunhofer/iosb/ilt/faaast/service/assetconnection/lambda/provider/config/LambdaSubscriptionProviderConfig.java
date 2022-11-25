@@ -14,20 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaSubscriptionProvider;
 
 
 /**
  * Configuration for code-backed subscription provider.
  */
-public class LambdaSubscriptionProviderConfig extends AbstractLambdaProviderConfig<AssetSubscriptionProvider> implements AssetSubscriptionProviderConfig {
+public class LambdaSubscriptionProviderConfig extends AbstractLambdaProviderConfig<LambdaSubscriptionProvider> implements AssetSubscriptionProviderConfig {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractLambdaProviderConfig.AbstractBuilder<AssetSubscriptionProvider, LambdaSubscriptionProviderConfig, Builder> {
+    public static class Builder extends AbstractLambdaProviderConfig.AbstractBuilder<LambdaSubscriptionProvider, LambdaSubscriptionProviderConfig, Builder> {
 
         @Override
         protected Builder getSelf() {

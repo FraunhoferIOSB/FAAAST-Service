@@ -21,6 +21,7 @@ import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 
@@ -35,6 +36,26 @@ public class IdentifierHelper {
 
     private IdentifierHelper() {
 
+    }
+
+
+    /**
+     * Generates a random id based on UUID without '-'.
+     *
+     * @return a random id
+     */
+    public static String randomId() {
+        return UUID.randomUUID().toString().replace("-", "");
+    }
+
+
+    /**
+     * Generates a random id with based on UUID without '-' with the pattern '[prefix]_[random id]'.
+     *
+     * @return a random id
+     */
+    public static String randomId(String prefix) {
+        return String.format("%s_%s", prefix, randomId());
     }
 
 

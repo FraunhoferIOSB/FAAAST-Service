@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
+import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
+import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +29,48 @@ import java.util.stream.Collectors;
 public class AasHelper {
 
     private AasHelper() {}
+
+
+    /**
+     * Applies/Copies basic properties from one {@link io.adminshell.aas.v3.model.SubmodelElementCollection} to another.
+     *
+     * @param src the source to copy from
+     * @param target the target to copy to
+     */
+    public static void applyBasicProperties(SubmodelElementCollection src, SubmodelElementCollection target) {
+        target.setAllowDuplicates(src.getAllowDuplicates());
+        target.setCategory(src.getCategory());
+        target.setDescriptions(src.getDescriptions());
+        target.setDisplayNames(src.getDisplayNames());
+        target.setEmbeddedDataSpecifications(src.getEmbeddedDataSpecifications());
+        target.setExtensions(src.getExtensions());
+        target.setIdShort(src.getIdShort());
+        target.setKind(src.getKind());
+        target.setOrdered(src.getOrdered());
+        target.setQualifiers(src.getQualifiers());
+        target.setSemanticId(src.getSemanticId());
+    }
+
+
+    /**
+     * Applies/Copies basic properties from one {@link io.adminshell.aas.v3.model.Submodel} to another.
+     *
+     * @param src the source to copy from
+     * @param target the target to copy to
+     */
+    public static void applyBasicProperties(Submodel src, Submodel target) {
+        target.setAdministration(src.getAdministration());
+        target.setCategory(src.getCategory());
+        target.setDescriptions(src.getDescriptions());
+        target.setDisplayNames(src.getDisplayNames());
+        target.setEmbeddedDataSpecifications(src.getEmbeddedDataSpecifications());
+        target.setExtensions(src.getExtensions());
+        target.setIdShort(src.getIdShort());
+        target.setIdentification(src.getIdentification());
+        target.setKind(src.getKind());
+        target.setQualifiers(src.getQualifiers());
+        target.setSemanticId(src.getSemanticId());
+    }
 
 
     /**
@@ -59,8 +103,8 @@ public class AasHelper {
             return List.of();
         }
         return collection.stream()
-                .filter(x -> Objects.equals(idShort, x.getIdShort()))
                 .filter(Objects::nonNull)
+                .filter(x -> Objects.equals(idShort, x.getIdShort()))
                 .filter(x -> type.isAssignableFrom(x.getClass()))
                 .map(x -> (T) x)
                 .collect(Collectors.toList());
@@ -86,6 +130,30 @@ public class AasHelper {
                 .filter(x -> type.isAssignableFrom(x.getClass()))
                 .map(x -> (T) x)
                 .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Gets a single element from a collection of elements by semanticId and type.
+     *
+     * @param <T> expected type of the element
+     * @param collection the collection to search
+     * @param semanticId the semanticId of the elements to get
+     * @param type expected type of the element
+     * @return the elements with the given idShort
+     * @throws IllegalArgumentException if no matching element is found
+     */
+    public static <T extends SubmodelElement> T getElementBySemanticId(Collection<SubmodelElement> collection, String semanticId, Class<T> type) {
+        List<T> matches = getElementsBySemanticId(collection, semanticId, type);
+        if (matches.isEmpty()) {
+            return null;
+        }
+        if (matches.size() > 1) {
+            throw new IllegalArgumentException(String.format("expected at most one SubmodelElement with semanticId '%s' in collection, but found %d",
+                    semanticId,
+                    matches.size()));
+        }
+        return matches.get(0);
     }
 
 

@@ -15,6 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaSubscriptionProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaValueProviderConfig;
@@ -26,4 +29,26 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.con
 public class LambdaAssetConnectionConfig
         extends AssetConnectionConfig<LambdaAssetConnection, LambdaValueProviderConfig, LambdaOperationProviderConfig, LambdaSubscriptionProviderConfig> {
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public abstract static class AbstractBuilder<T extends LambdaAssetConnectionConfig, B extends AbstractBuilder<T, B>>
+            extends
+            AssetConnectionConfig.AbstractBuilder<LambdaAssetConnectionConfig, LambdaValueProviderConfig, LambdaValueProvider, LambdaOperationProviderConfig, LambdaOperationProvider, LambdaSubscriptionProviderConfig, LambdaSubscriptionProvider, LambdaAssetConnection, B> {}
+
+    public static class Builder extends AbstractBuilder<LambdaAssetConnectionConfig, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected LambdaAssetConnectionConfig newBuildingInstance() {
+            return new LambdaAssetConnectionConfig();
+        }
+
+    }
 }

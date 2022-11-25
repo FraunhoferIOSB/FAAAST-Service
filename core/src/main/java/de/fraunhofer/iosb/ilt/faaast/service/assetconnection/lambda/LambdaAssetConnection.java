@@ -17,9 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaOperationProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaSubscriptionProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config.LambdaValueProviderConfig;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * Asset connection implementation that executes Java code.
  */
 public class LambdaAssetConnection extends
-        AbstractAssetConnection<LambdaAssetConnection, LambdaAssetConnectionConfig, LambdaValueProviderConfig, AssetValueProvider, LambdaOperationProviderConfig, AssetOperationProvider, LambdaSubscriptionProviderConfig, AssetSubscriptionProvider> {
+        AbstractAssetConnection<LambdaAssetConnection, LambdaAssetConnectionConfig, LambdaValueProviderConfig, LambdaValueProvider, LambdaOperationProviderConfig, LambdaOperationProvider, LambdaSubscriptionProviderConfig, LambdaSubscriptionProvider> {
 
     public LambdaAssetConnection() {
         super();
@@ -44,9 +44,9 @@ public class LambdaAssetConnection extends
     public LambdaAssetConnection(
             CoreConfig coreConfig,
             ServiceContext serviceContext,
-            Map<Reference, AssetValueProvider> valueProviders,
-            Map<Reference, AssetOperationProvider> operationProviders,
-            Map<Reference, AssetSubscriptionProvider> subscriptionProviders) throws ConfigurationInitializationException {
+            Map<Reference, LambdaValueProvider> valueProviders,
+            Map<Reference, LambdaOperationProvider> operationProviders,
+            Map<Reference, LambdaSubscriptionProvider> subscriptionProviders) throws ConfigurationInitializationException {
         super();
         LambdaAssetConnectionConfig config = new LambdaAssetConnectionConfig();
         if (valueProviders != null) {
@@ -78,26 +78,31 @@ public class LambdaAssetConnection extends
 
 
     @Override
-    protected AssetOperationProvider createOperationProvider(Reference reference, LambdaOperationProviderConfig providerConfig) throws AssetConnectionException {
+    protected LambdaOperationProvider createOperationProvider(Reference reference, LambdaOperationProviderConfig providerConfig) throws AssetConnectionException {
+        providerConfig.getImplementation().init(serviceContext);
         return providerConfig.getImplementation();
     }
 
 
     @Override
-    protected AssetSubscriptionProvider createSubscriptionProvider(Reference reference, LambdaSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
+    protected LambdaSubscriptionProvider createSubscriptionProvider(Reference reference, LambdaSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
+        providerConfig.getImplementation().init(serviceContext);
         return providerConfig.getImplementation();
     }
 
 
     @Override
-    protected AssetValueProvider createValueProvider(Reference reference, LambdaValueProviderConfig providerConfig) throws AssetConnectionException {
+    protected LambdaValueProvider createValueProvider(Reference reference, LambdaValueProviderConfig providerConfig) throws AssetConnectionException {
+        providerConfig.getImplementation().init(serviceContext);
         return providerConfig.getImplementation();
     }
 
 
     @Override
     protected void initConnection(LambdaAssetConnectionConfig config) throws ConfigurationInitializationException {
-        // intentionally left empty
+        valueProviders.values().forEach(x -> x.init(serviceContext));
+        operationProviders.values().forEach(x -> x.init(serviceContext));
+        subscriptionProviders.values().forEach(x -> x.init(serviceContext));
     }
 
 }

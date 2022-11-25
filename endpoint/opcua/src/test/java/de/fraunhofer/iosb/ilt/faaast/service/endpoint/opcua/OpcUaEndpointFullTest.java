@@ -58,7 +58,6 @@ import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultQualifier;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.io.IOException;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -931,7 +930,7 @@ public class OpcUaEndpointFullTest {
         TestUtils.checkAasPropertyObject(client, smNode, aasns, TestConstants.FULL_DATETIME_PROP_NAME, AASModelingKindDataType.Instance, "Parameter",
                 AASValueTypeDataType.DateTime, dt, new ArrayList<>());
 
-        ZonedDateTime zdtnew = ZonedDateTime.now(ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE));
+        ZonedDateTime zdtnew = ZonedDateTime.now(DateTimeValue.DEFAULT_TIMEZONE);
         DateTime dtnew = new DateTime(GregorianCalendar.from(zdtnew));
         TestUtils.writeNewValueIntern(client, propValueNode, dt, dtnew);
 

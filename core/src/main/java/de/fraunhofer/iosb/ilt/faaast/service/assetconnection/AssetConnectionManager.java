@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.LambdaAssetConnection;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.LambdaAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
@@ -46,11 +48,15 @@ public class AssetConnectionManager {
     private final List<AssetConnection> connections;
     private final CoreConfig coreConfig;
     private final ServiceContext serviceContext;
+    private final LambdaAssetConnection lambdaAssetConnection;
 
     public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections, ServiceContext context) throws ConfigurationException, AssetConnectionException {
         this.coreConfig = coreConfig;
-        this.connections = connections != null ? connections : new ArrayList<>();
+        this.connections = connections != null ? new ArrayList<>(connections) : new ArrayList<>();
         this.serviceContext = context;
+        this.lambdaAssetConnection = new LambdaAssetConnection();
+        this.lambdaAssetConnection.init(coreConfig, LambdaAssetConnectionConfig.builder().build(), serviceContext);
+        this.connections.add(lambdaAssetConnection);
         validateConnections();
         for (var assetConnection: this.connections) {
             final Map<Reference, AssetSubscriptionProvider> subscriptionProviders = assetConnection.getSubscriptionProviders();
@@ -67,6 +73,11 @@ public class AssetConnectionManager {
                 });
             }
         }
+    }
+
+
+    public LambdaAssetConnection getLambdaAssetConnection() {
+        return lambdaAssetConnection;
     }
 
 
@@ -96,16 +107,6 @@ public class AssetConnectionManager {
             validateConnections();
         }
         validateConnections();
-    }
-
-
-    /**
-     * Gets all connections managed by this AssetConnectionManager.
-     *
-     * @return all managed connections
-     */
-    public List<AssetConnection> getConnections() {
-        return connections;
     }
 
 

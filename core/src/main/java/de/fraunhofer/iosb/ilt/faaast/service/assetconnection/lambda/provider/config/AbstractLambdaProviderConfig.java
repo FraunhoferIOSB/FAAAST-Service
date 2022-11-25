@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaAssetProvider;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
@@ -24,7 +24,7 @@ import java.util.Objects;
  *
  * @param <T> type of the provider
  */
-public abstract class AbstractLambdaProviderConfig<T extends AssetProvider> {
+public abstract class AbstractLambdaProviderConfig<T extends LambdaAssetProvider> {
 
     private T implementation;
 
@@ -56,7 +56,7 @@ public abstract class AbstractLambdaProviderConfig<T extends AssetProvider> {
         return Objects.hash(implementation);
     }
 
-    protected abstract static class AbstractBuilder<T extends AssetProvider, C extends AbstractLambdaProviderConfig<T>, B extends AbstractBuilder<T, C, B>>
+    protected abstract static class AbstractBuilder<T extends LambdaAssetProvider, C extends AbstractLambdaProviderConfig<T>, B extends AbstractBuilder<T, C, B>>
             extends ExtendableBuilder<C, B> {
 
         public B implementation(T value) {

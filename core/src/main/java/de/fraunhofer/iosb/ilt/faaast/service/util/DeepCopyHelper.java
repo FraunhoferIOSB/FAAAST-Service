@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.adminshell.aas.v3.dataformat.DeserializationException;
 import io.adminshell.aas.v3.dataformat.SerializationException;
 import io.adminshell.aas.v3.dataformat.json.JsonDeserializer;
@@ -37,6 +38,21 @@ public class DeepCopyHelper {
 
     private DeepCopyHelper() {}
 
+    private static final JsonDeserializer DESERIALIZER = new JsonDeserializer() {
+        @Override
+        protected void buildMapper() {
+            super.buildMapper();
+            mapper.registerModule(new JavaTimeModule());
+        }
+    };
+
+    private static final JsonSerializer SERIALIZER = new JsonSerializer() {
+        @Override
+        protected void buildMapper() {
+            super.buildMapper();
+            mapper.registerModule(new JavaTimeModule());
+        }
+    };
 
     /**
      * Create a deep copy of a {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment} object.
@@ -46,8 +62,9 @@ public class DeepCopyHelper {
      * @throws RuntimeException when operation fails
      */
     public static AssetAdministrationShellEnvironment deepCopy(AssetAdministrationShellEnvironment env) {
+
         try {
-            return new JsonDeserializer().read(new JsonSerializer().write(env));
+            return DESERIALIZER.read(SERIALIZER.write(env));
         }
         catch (SerializationException | DeserializationException e) {
             throw new IllegalArgumentException("deep copy of AAS environment failed", e);
@@ -75,7 +92,7 @@ public class DeepCopyHelper {
                     String.format("type mismatch - can not create deep copy of instance of type %s with target type %s", referable.getClass(), outputClass));
         }
         try {
-            return (T) new JsonDeserializer().readReferable(new JsonSerializer().write(referable), outputClass);
+            return (T) DESERIALIZER.readReferable(SERIALIZER.write(referable), outputClass);
         }
         catch (SerializationException | DeserializationException e) {
             throw new RuntimeException("deep copy of AAS environment failed", e);

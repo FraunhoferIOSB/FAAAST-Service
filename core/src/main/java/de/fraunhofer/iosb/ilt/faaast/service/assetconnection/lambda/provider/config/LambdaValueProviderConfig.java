@@ -14,20 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.LambdaValueProvider;
 
 
 /**
  * Configuration for code-backed value provider.
  */
-public class LambdaValueProviderConfig extends AbstractLambdaProviderConfig<AssetValueProvider> implements AssetValueProviderConfig {
+public class LambdaValueProviderConfig extends AbstractLambdaProviderConfig<LambdaValueProvider> implements AssetValueProviderConfig {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractLambdaProviderConfig.AbstractBuilder<AssetValueProvider, LambdaValueProviderConfig, Builder> {
+    public static class Builder extends AbstractLambdaProviderConfig.AbstractBuilder<LambdaValueProvider, LambdaValueProviderConfig, Builder> {
 
         @Override
         protected Builder getSelf() {
