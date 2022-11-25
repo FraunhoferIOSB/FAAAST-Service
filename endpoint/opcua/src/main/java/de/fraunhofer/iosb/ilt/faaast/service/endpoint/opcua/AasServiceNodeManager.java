@@ -540,18 +540,16 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * Unsubscribes from the MessageBus.
      */
     private void unsubscribeMessageBus() {
-        try {
-            LOG.debug("unsubscribe from the MessageBus");
-            for (int i = 0; i < subscriptions.size(); i++) {
-                messageBus.unsubscribe(subscriptions.get(i));
+        LOG.debug("unsubscribe from the MessageBus ({} Subscriptions)", subscriptions.size());
+        for (var subscription: subscriptions) {
+            try {
+                messageBus.unsubscribe(subscription);
+            }
+            catch (Exception ex) {
+                LOG.error("unsubscribeMessageBus Exception", ex);
             }
         }
-        catch (Exception ex) {
-            LOG.error("unsubscribeMessageBus Exception", ex);
-        }
-        finally {
-            subscriptions.clear();
-        }
+        subscriptions.clear();
     }
 
 
@@ -569,8 +567,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
         LOG.debug("updateSubmodelElementValue");
         if (submodelElementOpcUAMap.containsKey(reference)) {
-            AASSubmodelElementType subElem = submodelElementOpcUAMap.get(reference);
-            AasSubmodelElementHelper.setSubmodelElementValue(subElem, newValue, this);
+            AasSubmodelElementHelper.setSubmodelElementValue(submodelElementOpcUAMap.get(reference), newValue, this);
         }
         else if (LOG.isWarnEnabled()) {
             LOG.warn("SubmodelElement {} not found in submodelElementOpcUAMap", AasUtils.asString(reference));
@@ -584,8 +581,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @return The desired NodeId
      */
     public NodeId getDefaultNodeId() {
-        int nr = ++nodeIdCounter;
-        return new NodeId(getNamespaceIndex(), nr);
+        return new NodeId(getNamespaceIndex(), ++nodeIdCounter);
     }
 
 
@@ -607,12 +603,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @return The coresponding Submodel node
      */
     public UaNode getSubmodelNode(Reference reference) {
-        UaNode retval = null;
-        if (submodelOpcUAMap.containsKey(reference)) {
-            retval = submodelOpcUAMap.get(reference);
-        }
-
-        return retval;
+        return submodelOpcUAMap.get(reference);
     }
 
 
@@ -669,7 +660,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             // no special treatment necessary for other types like AssetAdministrationShell, Asset or others
         }
-        catch (Exception ex) {
+        catch (RuntimeException ex) {
             // This exception is not thrown here. We ignore the error.
             LOG.error("removeFromMaps Exception", ex);
         }
