@@ -18,7 +18,6 @@ import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.server.ServerUserIdentity;
 import com.prosysopc.ua.server.Session;
 import com.prosysopc.ua.server.UserValidator;
-import com.prosysopc.ua.stack.builtintypes.StatusCode;
 import com.prosysopc.ua.stack.core.UserIdentityToken;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.CertificateValidator;
@@ -60,15 +59,15 @@ public class AasUserValidator implements UserValidator {
         // Return true, if the user is allowed access to the server
         // Note that the UserIdentity can be of different actual types,
         // depending on the selected authentication mode (by the client).
-        LOGGER.info("onValidate: userIdentity={}", userIdentity);
+        LOGGER.trace("onValidate: userIdentity={}", userIdentity);
         if (userIdentity.getType().equals(UserTokenType.UserName)) {
             return userMap.containsKey(userIdentity.getName()) && userMap.get(userIdentity.getName()).equals(userIdentity.getPassword());
         }
 
         if (userIdentity.getType().equals(UserTokenType.Certificate)) {
             // Get StatusCode for the certificate
-            StatusCode code = this.validator.validateCertificate(userIdentity.getCertificate());
-            return code.isGood(); // SessionManager will throw Bad_IdentityTokenRejected when this method returns false
+            // SessionManager will throw Bad_IdentityTokenRejected when this method returns false
+            return this.validator.validateCertificate(userIdentity.getCertificate()).isGood();
         }
 
         // check anonymous access
