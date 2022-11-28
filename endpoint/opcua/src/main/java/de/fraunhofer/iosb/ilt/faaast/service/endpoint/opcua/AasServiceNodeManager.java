@@ -662,7 +662,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         }
         catch (RuntimeException ex) {
             // This exception is not thrown here. We ignore the error.
-            LOG.error("removeFromMaps Exception", ex);
+            LOG.info("removeFromMaps Exception", ex);
         }
     }
 
@@ -678,11 +678,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         if (LOG.isDebugEnabled()) {
             LOG.debug("doRemoveFromMaps: remove SubmodelElement {}", AasUtils.asString(reference));
         }
-        if (submodelElementOpcUAMap.containsKey(reference)) {
-            submodelElementOpcUAMap.remove(reference);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: {}", AasUtils.asString(reference));
-            }
+        AASSubmodelElementType removedElement = submodelElementOpcUAMap.remove(reference);
+        if ((removedElement != null) && LOG.isDebugEnabled()) {
+            LOG.debug("doRemoveFromMaps: remove SubmodelElement from submodelElementOpcUAMap: {}", AasUtils.asString(reference));
         }
 
         if (element instanceof AASPropertyType) {
@@ -788,16 +786,11 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void doRemoveFromMaps(Reference parent, SubmodelElement de) {
         Reference ref = AasUtils.toReference(parent, de);
-        ObjectData element = null;
-        if (referableMap.containsKey(ref)) {
-            element = referableMap.get(ref);
-
+        ObjectData element = referableMap.remove(ref);
+        if (element != null) {
             if (element.getNode() instanceof AASSubmodelElementType) {
                 doRemoveFromMaps((AASSubmodelElementType) element.getNode(), ref, de);
             }
-
-            // remove element from the map
-            referableMap.remove(ref);
         }
         else if (LOG.isInfoEnabled()) {
             LOG.info("doRemoveFromMaps: element not found in referableMap: {}", AasUtils.asString(ref));
@@ -819,8 +812,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             doRemoveFromMaps(reference, element);
         }
 
-        if (submodelOpcUAMap.containsKey(reference)) {
-            submodelOpcUAMap.remove(reference);
-        }
+        submodelOpcUAMap.remove(reference);
     }
 }
