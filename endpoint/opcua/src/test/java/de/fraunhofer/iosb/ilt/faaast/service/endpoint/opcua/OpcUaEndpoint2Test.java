@@ -97,14 +97,20 @@ public class OpcUaEndpoint2Test {
         config.setTcpPort(OPC_TCP_PORT);
         config.setSecondsTillShutdown(0);
         config.setAllowAnonymous(false);
-        Files.walk(Paths.get(TestConstants.SERVER_CERT_PATH))
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
-        Files.walk(Paths.get(TestConstants.USER_CERT_PATH))
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+        Path certPath = Paths.get(TestConstants.SERVER_CERT_PATH);
+        if (Files.exists(certPath)) {
+            Files.walk(certPath)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
+        certPath = Paths.get(TestConstants.USER_CERT_PATH);
+        if (Files.exists(certPath)) {
+            Files.walk(certPath)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
         config.setServerCertificateBasePath(TestConstants.SERVER_CERT_PATH);
         config.setUserCertificateBasePath(TestConstants.USER_CERT_PATH);
         config.setDiscoveryServerUrl(null);
