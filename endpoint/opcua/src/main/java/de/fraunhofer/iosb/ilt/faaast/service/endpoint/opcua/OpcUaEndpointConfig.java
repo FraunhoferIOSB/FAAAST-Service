@@ -33,7 +33,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     private int secondsTillShutdown;
     private Map<String, String> userMap;
     private boolean allowAnonymous;
-    private boolean registerWithDiscoveryServer;
+    private String discoveryServerUrl;
     private String serverCertificateBasePath;
     private String userCertificateBasePath;
 
@@ -41,7 +41,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         this.tcpPort = DEFAULT_PORT;
         this.secondsTillShutdown = DEFAULT_SECONDS_SHUTDOWN;
         this.allowAnonymous = true;
-        this.registerWithDiscoveryServer = false;
+        this.discoveryServerUrl = "";
         this.userMap = new HashMap<>();
         this.serverCertificateBasePath = DEFAULT_SERVER_CERT_PATH;
         this.userCertificateBasePath = DEFAULT_USER_CERT_PATH;
@@ -60,7 +60,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         return Objects.equals(tcpPort, that.tcpPort)
                 && Objects.equals(secondsTillShutdown, that.secondsTillShutdown)
                 && Objects.equals(allowAnonymous, that.allowAnonymous)
-                && Objects.equals(registerWithDiscoveryServer, that.registerWithDiscoveryServer)
+                && Objects.equals(discoveryServerUrl, that.discoveryServerUrl)
                 && Objects.equals(userMap, that.userMap)
                 && Objects.equals(serverCertificateBasePath, that.serverCertificateBasePath)
                 && Objects.equals(userCertificateBasePath, that.userCertificateBasePath);
@@ -69,7 +69,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous, registerWithDiscoveryServer, userMap, serverCertificateBasePath, userCertificateBasePath);
+        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous, discoveryServerUrl, userMap, serverCertificateBasePath, userCertificateBasePath);
     }
 
 
@@ -154,22 +154,24 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Gets a value indicating whether the server should register with the discovery server
+     * Gets the URL of the discovery server.
+     * If this value is null or empty, the discovery server registration is disabled.
      * 
-     * @return True if the server should register with the discovery server, false otherwise
+     * @return The discovery server URL. Discovery registration is disabled if the value is null or empty
      */
-    public boolean getRegisterWithDiscoveryServer() {
-        return registerWithDiscoveryServer;
+    public String getDiscoveryServerUrl() {
+        return discoveryServerUrl;
     }
 
 
     /**
-     * Sets a value indicating whether the server should register with the discovery server
+     * Sets the URL of the discovery server.
+     * If this value is null or an empty string, the discovery server registration is disabled.
      * 
-     * @param value True if the server should register with the discovery server, false otherwise
+     * @param value The discovery server URL. Discovery registration is disabled if the value is null or empty
      */
-    public void setRegisterWithDiscoveryServer(boolean value) {
-        registerWithDiscoveryServer = value;
+    public void setDiscoveryServerUrl(String value) {
+        discoveryServerUrl = value;
     }
 
 

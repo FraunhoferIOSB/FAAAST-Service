@@ -62,9 +62,8 @@ public class Server {
     private static final String APPLICATION_NAME = "Fraunhofer IOSB AAS OPC UA Server";
     private static final String APPLICATION_URI = "urn:hostname:Fraunhofer:OPCUA:AasServer";
     private static final int CERT_KEY_SIZE = 2048;
-    private static final String PRIV_KEY_PASS = "opcua";
-    private static final String DISCOVERY_SERVER_URL = "opc.tcp://localhost:4840";
     private static final String ISSUERS_PATH = "/issuers";
+
     private final int tcpPort;
     private final AssetAdministrationShellEnvironment aasEnvironment;
     private final OpcUaEndpoint endpoint;
@@ -95,8 +94,9 @@ public class Server {
      * @throws UaServerException If an error occurs
      * @throws IOException If an error occurs
      * @throws SecureIdentityException If an error occurs
+     * @throws java.net.URISyntaxException
      */
-    public void startup() throws UaServerException, IOException, SecureIdentityException {
+    public void startup() throws UaServerException, IOException, SecureIdentityException, URISyntaxException {
         String hostName;
         hostName = InetAddress.getLocalHost().getHostName();
 
@@ -141,19 +141,19 @@ public class Server {
         File privatePath = new File(applicationCertificateStore.getBaseDir(), "private");
 
         KeyPair issuerCertificate = ApplicationIdentity.loadOrCreateIssuerCertificate(
-                "FraunhoferIosbSampleCA@" + ApplicationIdentity.getActualHostNameWithoutDomain() + "_https_" + CERT_KEY_SIZE, privatePath, PRIV_KEY_PASS, 3650, false,
+                "FraunhoferIosbSampleCA@" + ApplicationIdentity.getActualHostNameWithoutDomain() + "_https_" + CERT_KEY_SIZE, privatePath, null, 3650, false,
                 CERT_KEY_SIZE);
 
         int[] keySizes = new int[] {
                 CERT_KEY_SIZE
         };
 
-        final ApplicationIdentity identity = ApplicationIdentity.loadOrCreateCertificate(appDescription, "Fraunhofer IOSB", PRIV_KEY_PASS,
+        final ApplicationIdentity identity = ApplicationIdentity.loadOrCreateCertificate(appDescription, "Fraunhofer IOSB", null,
                 privatePath, null, keySizes, true);
 
         hostName = ApplicationIdentity.getActualHostName();
         identity.setHttpsCertificate(
-                ApplicationIdentity.loadOrCreateHttpsCertificate(appDescription, hostName, PRIV_KEY_PASS, issuerCertificate, privatePath, true, CERT_KEY_SIZE));
+                ApplicationIdentity.loadOrCreateHttpsCertificate(appDescription, hostName, null, issuerCertificate, privatePath, true, CERT_KEY_SIZE));
 
         uaServer.setApplicationIdentity(identity);
 
@@ -213,15 +213,10 @@ public class Server {
     }
 
 
-    private void registerDiscovery() {
-        if (endpoint.asConfig().getRegisterWithDiscoveryServer()) {
-            try {
-                // Register to the local discovery server (if present)
-                uaServer.setDiscoveryServerUrl(DISCOVERY_SERVER_URL);
-            }
-            catch (URISyntaxException e) {
-                LOGGER.error("DiscoveryURL is not valid", e);
-            }
+    private void registerDiscovery() throws URISyntaxException {
+        if ((endpoint.asConfig().getDiscoveryServerUrl() != null) && (endpoint.asConfig().getDiscoveryServerUrl().length() > 0)) {
+            // Register to the local discovery server (if present)
+            uaServer.setDiscoveryServerUrl(endpoint.asConfig().getDiscoveryServerUrl());
         }
     }
 

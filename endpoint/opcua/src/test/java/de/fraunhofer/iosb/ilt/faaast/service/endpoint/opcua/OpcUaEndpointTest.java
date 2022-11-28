@@ -118,6 +118,7 @@ public class OpcUaEndpointTest {
         config.setAllowAnonymous(true);
         config.setServerCertificateBasePath(TestConstants.SERVER_CERT_PATH);
         config.setUserCertificateBasePath(TestConstants.USER_CERT_PATH);
+        config.setDiscoveryServerUrl(null);
 
         service = new TestService(config, null, false);
         service.start();

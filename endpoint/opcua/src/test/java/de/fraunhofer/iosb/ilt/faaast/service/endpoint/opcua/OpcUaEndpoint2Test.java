@@ -49,8 +49,13 @@ import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultRelationshipElement;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,8 +97,17 @@ public class OpcUaEndpoint2Test {
         config.setTcpPort(OPC_TCP_PORT);
         config.setSecondsTillShutdown(0);
         config.setAllowAnonymous(false);
+        Files.walk(Paths.get(TestConstants.SERVER_CERT_PATH))
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+        Files.walk(Paths.get(TestConstants.USER_CERT_PATH))
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
         config.setServerCertificateBasePath(TestConstants.SERVER_CERT_PATH);
         config.setUserCertificateBasePath(TestConstants.USER_CERT_PATH);
+        config.setDiscoveryServerUrl(null);
         Map<String, String> users = new HashMap<>();
         users.put(USERNAME, PASSWORD);
         config.setUserMap(users);

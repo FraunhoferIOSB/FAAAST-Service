@@ -109,6 +109,7 @@ public class OpcUaEndpointFullTest {
         config.setAllowAnonymous(true);
         config.setServerCertificateBasePath(TestConstants.SERVER_CERT_PATH);
         config.setUserCertificateBasePath(TestConstants.USER_CERT_PATH);
+        config.setDiscoveryServerUrl(null);
 
         TestAssetConnectionConfig assetConnectionConfig = new TestAssetConnectionConfig();
 
