@@ -64,7 +64,7 @@ public class Server {
     private static final int CERT_KEY_SIZE = 2048;
     private static final String PRIV_KEY_PASS = "opcua";
     private static final String DISCOVERY_SERVER_URL = "opc.tcp://localhost:4840";
-
+    private static final String ISSUERS_PATH = "/issuers";
     private final int tcpPort;
     private final AssetAdministrationShellEnvironment aasEnvironment;
     private final OpcUaEndpoint endpoint;
@@ -108,7 +108,7 @@ public class Server {
         uaServer.setEnableIPv6(false);
 
         final PkiDirectoryCertificateStore applicationCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getServerCertificateBasePath());
-        final PkiDirectoryCertificateStore applicationIssuerCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getServerCertificateBasePath() + "/issuers");
+        final PkiDirectoryCertificateStore applicationIssuerCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getServerCertificateBasePath() + ISSUERS_PATH);
         final DefaultCertificateValidator applicationCertificateValidator = new DefaultCertificateValidator(applicationCertificateStore, applicationIssuerCertificateStore);
 
         uaServer.setCertificateValidator(applicationCertificateValidator);
@@ -116,7 +116,7 @@ public class Server {
 
         // Handle user certificates
         final PkiDirectoryCertificateStore userCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getUserCertificateBasePath());
-        final PkiDirectoryCertificateStore userIssuerCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getUserCertificateBasePath() + "/issuers");
+        final PkiDirectoryCertificateStore userIssuerCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getUserCertificateBasePath() + ISSUERS_PATH);
 
         final DefaultCertificateValidator userCertificateValidator = new DefaultCertificateValidator(userCertificateStore, userIssuerCertificateStore);
         userCertificateValidator.setValidationListener(userCertificateValidationListener);
