@@ -62,7 +62,7 @@ public class Server {
     private static final String APPLICATION_NAME = "Fraunhofer IOSB AAS OPC UA Server";
     private static final String APPLICATION_URI = "urn:hostname:Fraunhofer:OPCUA:AasServer";
     private static final int CERT_KEY_SIZE = 2048;
-    private static final String ISSUERS_PATH = "/issuers";
+    private static final String ISSUERS_PATH = "issuers";
 
     private final int tcpPort;
     private final AssetAdministrationShellEnvironment aasEnvironment;
@@ -108,7 +108,12 @@ public class Server {
         uaServer.setEnableIPv6(false);
 
         final PkiDirectoryCertificateStore applicationCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getServerCertificateBasePath());
-        final PkiDirectoryCertificateStore applicationIssuerCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getServerCertificateBasePath() + ISSUERS_PATH);
+        String issuersPath = endpoint.asConfig().getServerCertificateBasePath();
+        if (!issuersPath.endsWith("/")) {
+            issuersPath += "/";
+        }
+        issuersPath += ISSUERS_PATH;
+        final PkiDirectoryCertificateStore applicationIssuerCertificateStore = new PkiDirectoryCertificateStore(issuersPath);
         final DefaultCertificateValidator applicationCertificateValidator = new DefaultCertificateValidator(applicationCertificateStore, applicationIssuerCertificateStore);
 
         uaServer.setCertificateValidator(applicationCertificateValidator);
@@ -116,7 +121,12 @@ public class Server {
 
         // Handle user certificates
         final PkiDirectoryCertificateStore userCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getUserCertificateBasePath());
-        final PkiDirectoryCertificateStore userIssuerCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getUserCertificateBasePath() + ISSUERS_PATH);
+        issuersPath = endpoint.asConfig().getUserCertificateBasePath();
+        if (!issuersPath.endsWith("/")) {
+            issuersPath += "/";
+        }
+        issuersPath += ISSUERS_PATH;
+        final PkiDirectoryCertificateStore userIssuerCertificateStore = new PkiDirectoryCertificateStore(issuersPath);
 
         final DefaultCertificateValidator userCertificateValidator = new DefaultCertificateValidator(userCertificateStore, userIssuerCertificateStore);
         userCertificateValidator.setValidationListener(userCertificateValidationListener);
