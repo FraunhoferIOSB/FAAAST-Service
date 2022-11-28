@@ -107,16 +107,16 @@ public class Server {
         // currently without IPv6
         uaServer.setEnableIPv6(false);
 
-        final PkiDirectoryCertificateStore applicationCertificateStore = new PkiDirectoryCertificateStore("PKI/CA");
-        final PkiDirectoryCertificateStore applicationIssuerCertificateStore = new PkiDirectoryCertificateStore("PKI/CA/issuers");
+        final PkiDirectoryCertificateStore applicationCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getServerCertificateBasePath());
+        final PkiDirectoryCertificateStore applicationIssuerCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getServerCertificateBasePath() + "/issuers");
         final DefaultCertificateValidator applicationCertificateValidator = new DefaultCertificateValidator(applicationCertificateStore, applicationIssuerCertificateStore);
 
         uaServer.setCertificateValidator(applicationCertificateValidator);
         applicationCertificateValidator.setValidationListener(validationListener);
 
         // Handle user certificates
-        final PkiDirectoryCertificateStore userCertificateStore = new PkiDirectoryCertificateStore("USERS_PKI/CA");
-        final PkiDirectoryCertificateStore userIssuerCertificateStore = new PkiDirectoryCertificateStore("USERS_PKI/CA/issuers");
+        final PkiDirectoryCertificateStore userCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getUserCertificateBasePath());
+        final PkiDirectoryCertificateStore userIssuerCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getUserCertificateBasePath() + "/issuers");
 
         final DefaultCertificateValidator userCertificateValidator = new DefaultCertificateValidator(userCertificateStore, userIssuerCertificateStore);
         userCertificateValidator.setValidationListener(userCertificateValidationListener);

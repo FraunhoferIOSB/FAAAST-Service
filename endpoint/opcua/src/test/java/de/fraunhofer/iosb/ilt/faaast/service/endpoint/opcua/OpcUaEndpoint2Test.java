@@ -92,6 +92,8 @@ public class OpcUaEndpoint2Test {
         config.setTcpPort(OPC_TCP_PORT);
         config.setSecondsTillShutdown(0);
         config.setAllowAnonymous(false);
+        config.setServerCertificateBasePath(TestConstants.SERVER_CERT_PATH);
+        config.setUserCertificateBasePath(TestConstants.USER_CERT_PATH);
         Map<String, String> users = new HashMap<>();
         users.put(USERNAME, PASSWORD);
         config.setUserMap(users);

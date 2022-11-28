@@ -100,4 +100,7 @@ public class TestConstants {
     public static final int AAS_QUALIFIER_LIST_ID = 1037;
     public static final int AAS_ID_KEY_VALUE_PAIR_LIST_ID = 1039;
     public static final int AAS_KEY_DATA_TYPE_ID = 3011;
+
+    public static final String SERVER_CERT_PATH = "PKI/CA";
+    public static final String USER_CERT_PATH = "USERS_PKI/CA";
 }

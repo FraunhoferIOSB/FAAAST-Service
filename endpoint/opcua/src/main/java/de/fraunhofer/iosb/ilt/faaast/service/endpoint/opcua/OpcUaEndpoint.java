@@ -85,6 +85,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     public void init(CoreConfig core, OpcUaEndpointConfig config, ServiceContext context) {
         currentConfig = config;
         Ensure.requireNonNull(currentConfig, "currentConfig must not be null");
+        Ensure.requireNonNull(currentConfig.getServerCertificateBasePath(), "ServerCertificateBasePath must not be null");
+        Ensure.requireNonNull(currentConfig.getUserCertificateBasePath(), "UserCertificateBasePath must not be null");
         service = context;
         Ensure.requireNonNull(service, "service must not be null");
         messageBus = service.getMessageBus();

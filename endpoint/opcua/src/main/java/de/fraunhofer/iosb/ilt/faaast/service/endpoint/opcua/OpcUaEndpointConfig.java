@@ -26,19 +26,25 @@ import java.util.Objects;
 public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
     public static final int DEFAULT_PORT = 4840;
-    public static final int DEFAULT_SECONDS_SHUTDOWN = 2;
+    private static final int DEFAULT_SECONDS_SHUTDOWN = 2;
+    private static final String DEFAULT_SERVER_CERT_PATH = "PKI/CA";
+    private static final String DEFAULT_USER_CERT_PATH = "USERS_PKI/CA";
     private int tcpPort;
     private int secondsTillShutdown;
     private Map<String, String> userMap;
     private boolean allowAnonymous;
     private boolean registerWithDiscoveryServer;
+    private String serverCertificateBasePath;
+    private String userCertificateBasePath;
 
     public OpcUaEndpointConfig() {
         this.tcpPort = DEFAULT_PORT;
-        this.secondsTillShutdown = 2;
+        this.secondsTillShutdown = DEFAULT_SECONDS_SHUTDOWN;
         this.allowAnonymous = true;
         this.registerWithDiscoveryServer = false;
         this.userMap = new HashMap<>();
+        this.serverCertificateBasePath = DEFAULT_SERVER_CERT_PATH;
+        this.userCertificateBasePath = DEFAULT_USER_CERT_PATH;
     }
 
 
@@ -55,13 +61,15 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
                 && Objects.equals(secondsTillShutdown, that.secondsTillShutdown)
                 && Objects.equals(allowAnonymous, that.allowAnonymous)
                 && Objects.equals(registerWithDiscoveryServer, that.registerWithDiscoveryServer)
-                && Objects.equals(userMap, that.userMap);
+                && Objects.equals(userMap, that.userMap)
+                && Objects.equals(serverCertificateBasePath, that.serverCertificateBasePath)
+                && Objects.equals(userCertificateBasePath, that.userCertificateBasePath);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous, registerWithDiscoveryServer, userMap);
+        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous, registerWithDiscoveryServer, userMap, serverCertificateBasePath, userCertificateBasePath);
     }
 
 
@@ -165,6 +173,46 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     }
 
 
+    /**
+     * Gets the base path for the server certificates
+     * 
+     * @return The server certificate base path
+     */
+    public String getServerCertificateBasePath() {
+        return serverCertificateBasePath;
+    }
+
+
+    /**
+     * Sets the base path for the server certificates
+     * 
+     * @param value The server certificate base path
+     */
+    public void setServerCertificateBasePath(String value) {
+        serverCertificateBasePath = value;
+    }
+
+
+    /**
+     * Gets the base path for the user certificates
+     * 
+     * @return The user certificate base path
+     */
+    public String getUserCertificateBasePath() {
+        return userCertificateBasePath;
+    }
+
+
+    /**
+     * Sets the base path for the user certificatess
+     * 
+     * @param value The user certificate base path
+     */
+    public void setUserCertificateBasePath(String value) {
+        userCertificateBasePath = value;
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
@@ -197,6 +245,18 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
         public B allowAnonymous(boolean value) {
             getBuildingInstance().setAllowAnonymous(value);
+            return getSelf();
+        }
+
+
+        public B serverCertificateBasePath(String value) {
+            getBuildingInstance().setServerCertificateBasePath(value);
+            return getSelf();
+        }
+
+
+        public B userCertificateBasePath(String value) {
+            getBuildingInstance().setUserCertificateBasePath(value);
             return getSelf();
         }
     }
