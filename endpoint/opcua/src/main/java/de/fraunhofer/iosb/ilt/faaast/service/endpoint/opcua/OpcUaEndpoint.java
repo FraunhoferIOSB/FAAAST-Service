@@ -115,8 +115,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
     @Override
     public void stop() {
-        Ensure.requireNonNull(currentConfig, "currentConfig must not be null");
-
         try {
             if (server != null) {
                 LOGGER.info("stop server. Currently running: {}", server.isRunning());

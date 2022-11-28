@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -25,6 +26,7 @@ import java.util.Objects;
 public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
     public static final int DEFAULT_PORT = 4840;
+    public static final int DEFAULT_SECONDS_SHUTDOWN = 2;
     private int tcpPort;
     private int secondsTillShutdown;
     private Map<String, String> userMap;
@@ -33,7 +35,10 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
     public OpcUaEndpointConfig() {
         this.tcpPort = DEFAULT_PORT;
+        this.secondsTillShutdown = 2;
         this.allowAnonymous = true;
+        this.registerWithDiscoveryServer = false;
+        this.userMap = new HashMap<>();
     }
 
 
@@ -48,13 +53,15 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         OpcUaEndpointConfig that = (OpcUaEndpointConfig) o;
         return Objects.equals(tcpPort, that.tcpPort)
                 && Objects.equals(secondsTillShutdown, that.secondsTillShutdown)
-                && Objects.equals(allowAnonymous, that.allowAnonymous);
+                && Objects.equals(allowAnonymous, that.allowAnonymous)
+                && Objects.equals(registerWithDiscoveryServer, that.registerWithDiscoveryServer)
+                && Objects.equals(userMap, that.userMap);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous);
+        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous, registerWithDiscoveryServer, userMap);
     }
 
 
@@ -172,6 +179,12 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
         public B secondsTillShutdown(int value) {
             getBuildingInstance().setSecondsTillShutdown(value);
+            return getSelf();
+        }
+
+
+        public B user(String username, String password) {
+            getBuildingInstance().getUserMap().put(username, password);
             return getSelf();
         }
 

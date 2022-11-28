@@ -72,8 +72,8 @@ public class Server {
     private UaServer uaServer;
     private boolean running;
 
-    protected final DefaultCertificateValidatorListener validationListener = new AasCertificateValidationListener();
-    protected final DefaultCertificateValidatorListener userCertificateValidationListener = new AasCertificateValidationListener();
+    private final DefaultCertificateValidatorListener validationListener = new AasCertificateValidationListener();
+    private final DefaultCertificateValidatorListener userCertificateValidationListener = new AasCertificateValidationListener();
 
     /**
      * Creates a new instance of Server.
