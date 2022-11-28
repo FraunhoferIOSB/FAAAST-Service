@@ -30,12 +30,13 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.TimeUnit;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -43,6 +44,7 @@ import org.influxdb.dto.QueryResult;
  */
 public class InfluxV1LinkedSegmentProvider implements LinkedSegmentProvider<InfluxV1LinkedSegmentProviderConfig> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(InfluxV1LinkedSegmentProvider.class);
     private InfluxV1LinkedSegmentProviderConfig config;
 
     @Override
@@ -62,6 +64,8 @@ public class InfluxV1LinkedSegmentProvider implements LinkedSegmentProvider<Infl
                     valuePreprocessed = ((Number) value).intValue();
                 }
             }
+            default:
+                // intentionally left empty
 
         }
         return TypedValueFactory.create(datatype, Objects.toString(valuePreprocessed));
@@ -78,14 +82,14 @@ public class InfluxV1LinkedSegmentProvider implements LinkedSegmentProvider<Infl
                     result,
                     result.toLowerCase().contains(" where ") ? "AND" : "WHERE",
                     config.getTimeField(),
-                    timespan.getStart().get());
+                    TimeUnit.NANOSECONDS.convert(timespan.getStart().get().toInstant().toEpochMilli(), TimeUnit.MILLISECONDS));
         }
         if (timespan.getEnd().isPresent()) {
             result = String.format("%s %s %s <= %s",
                     result,
                     result.toLowerCase().contains(" where ") ? "AND" : "WHERE",
                     config.getTimeField(),
-                    timespan.getEnd().get());
+                    TimeUnit.NANOSECONDS.convert(timespan.getEnd().get().toInstant().toEpochMilli(), TimeUnit.MILLISECONDS));
         }
         return result;
     }
@@ -100,35 +104,56 @@ public class InfluxV1LinkedSegmentProvider implements LinkedSegmentProvider<Infl
     private List<Record> getRecords(Metadata metadata, LinkedSegment segment, String query) {
         InfluxDB influxDB = InfluxDBFactory.connect(segment.getEndpoint());
         influxDB.setDatabase(config.getDatabase());
-        QueryResult queryResult = influxDB.query(new Query(query));
-        QueryResult.Series series = queryResult.getResults().get(0).getSeries().get(0);
+        QueryResult queryResults = influxDB.query(new Query(query));
+        if (queryResults.hasError()) {
+            String message = String.format("Error reading from InfluxDB v1 (database: %s, query: %s, error: %s)",
+                    config.getDatabase(),
+                    query,
+                    queryResults.getError());
+            LOGGER.debug(message);
+            throw new RuntimeException(message);
+        }
         List<Record> result = new ArrayList<>();
-        for (var values: series.getValues()) {
-            Record record = new Record();
-            for (int i = 0; i < values.size(); i++) {
-                String fieldName = series.getColumns().get(i);
-                Object fieldValue = values.get(i);
-                if (config.getTimeField().equals(fieldName)) {
-                    record.setTime(ZonedDateTime.parse(fieldValue.toString()));
+        if (queryResults.getResults() == null || queryResults.getResults().isEmpty()) {
+            return result;
+        }
+        for (var queryResult: queryResults.getResults()) {
+            if (queryResult == null || queryResult.getSeries() == null) {
+                continue;
+            }
+            for (var series: queryResult.getSeries()) {
+                if (series == null || series.getValues() == null) {
+                    continue;
                 }
-                else if (metadata.getRecordMetadata().containsKey(fieldName)) {
-                    try {
-                        record.getVariables().put(
-                                fieldName,
-                                parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
+                for (var values: series.getValues()) {
+                    Record record = new Record();
+                    for (int i = 0; i < values.size(); i++) {
+                        String fieldName = series.getColumns().get(i);
+                        Object fieldValue = values.get(i);
+                        if (config.getTimeField().equals(fieldName)) {
+                            record.setTime(ZonedDateTime.parse(fieldValue.toString()));
+                        }
+                        else if (metadata.getRecordMetadata().containsKey(fieldName)) {
+                            try {
+                                record.getVariables().put(
+                                        fieldName,
+                                        parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
+                            }
+                            catch (ValueFormatException ex) {
+                                LOGGER.warn("Error reading from InfluxDB v1 - conversion error", ex);
+                            }
+                        }
                     }
-                    catch (ValueFormatException ex) {
-                        Logger.getLogger(InfluxV1LinkedSegmentProvider.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    result.add(record);
                 }
             }
-            result.add(record);
         }
         return result;
     }
 
 
     @Override
+
     public List<Record> getRecords(Metadata metadata, LinkedSegment segment) {
         return getRecords(metadata, segment, segment.getQuery());
     }

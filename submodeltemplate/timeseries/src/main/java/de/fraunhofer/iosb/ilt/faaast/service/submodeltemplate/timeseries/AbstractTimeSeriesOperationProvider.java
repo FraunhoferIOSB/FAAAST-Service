@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.AbstractLambdaOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.TimeSeries;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -120,25 +119,6 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
     }
 
 
-    //    /**
-    //     * Gets a list of segments of the SMT TimeSeries submodel.
-    //     *
-    //     * @param internalSegments if internalSegments should be returned
-    //     * @param externalSegments if externalSegments should be returned
-    //     * @param linkedSegments if linkedSegments should be returned
-    //     * @return list of segments of selected type(s)
-    //     */
-    //    protected List<InternalSegment> getInternalSegments() {
-    //        
-    //        SubmodelElementCollection segmentsCollection = getSegmentsCollection();
-    //        return CollectionHelper.merge(
-    //                internalSegments ? AasHelper.getElementsBySemanticId(segmentsCollection.getValues(), Constants.INTERNAL_SEGMENT_SEMANTIC_ID, SubmodelElementCollection.class)
-    //                        : List.of(),
-    //                externalSegments ? AasHelper.getElementsBySemanticId(segmentsCollection.getValues(), Constants.EXTERNAL_SEGMENT_SEMANTIC_ID, SubmodelElementCollection.class)
-    //                        : List.of(),
-    //                linkedSegments ? AasHelper.getElementsBySemanticId(segmentsCollection.getValues(), Constants.LINKED_SEGMENT_SEMANTIC_ID, SubmodelElementCollection.class)
-    //                        : List.of());
-    //    }
     /**
      * Gets the records of an InternalSegment.
      *
@@ -154,20 +134,6 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
                         .getValues(),
                 Constants.RECORD_SEMANTIC_ID,
                 SubmodelElementCollection.class);
-    }
-
-
-    /**
-     * Filters a given list of records by timespan.
-     *
-     * @param records the records to filter
-     * @param timespan the timespan the record need to conform to
-     * @return filtered list of records
-     */
-    protected List<Record> filterRecords(List<Record> records, Timespan timespan) {
-        return records.stream()
-                .filter(x -> timespan.includes(x.getTime()))
-                .collect(Collectors.toList());
     }
 
 
@@ -197,35 +163,6 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
 
 
     /**
-     * Filters a given list of segments by timespan.
-     *
-     * @param segments the segments to filter
-     * @param timespan the timespan the segments need to conform to
-     * @param useSegmentTimestamps if start and end time of a segment should be used. If true, filtering by start and
-     *            end time happens if at least one of the properties is set, otherwise its a fallback to record-level
-     *            filtering.
-     * @return filtered list of segments
-     */
-    protected List<SubmodelElementCollection> filterSegments(List<SubmodelElementCollection> segments, Timespan timespan, boolean useSegmentTimestamps) {
-        return segments.stream()
-                .filter(x -> {
-                    if (useSegmentTimestamps) {
-                        Timespan segmentTimestamp = new Timespan(
-                                AasHelper.getElementByIdShort(x.getValues(), Constants.SEGMENT_START_TIME_ID_SHORT, Property.class).getValue(),
-                                AasHelper.getElementByIdShort(x.getValues(), Constants.SEGMENT_END_TIME_ID_SHORT, Property.class).getValue());
-                        if (segmentTimestamp.getStart().isPresent() || segmentTimestamp.getEnd().isPresent()) {
-                            return timespan.overlaps(segmentTimestamp);
-                        }
-                        // segment does have neither start or end timestamp -> check on record level                        
-                    }
-                    throw new UnsupportedOperationException();
-                    //                    return !filterRecords(getRecords(x), timespan).isEmpty();
-                })
-                .collect(Collectors.toList());
-    }
-
-
-    /**
      * Extract Timespan parameter from input variables.
      *
      * @param input the input parameters
@@ -242,7 +179,7 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
                     Datatype.DATE_TIME.getName(),
                     timespan.getValueType()));
         }
-        return new Timespan(timespan.getMin(), timespan.getMax());
+        return Timespan.fromString(timespan.getMin(), timespan.getMax());
     }
 
 

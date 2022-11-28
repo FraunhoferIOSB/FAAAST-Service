@@ -18,7 +18,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyInternalSegmentProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyLinkedSegmentProviderConfig;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -36,9 +39,11 @@ public class TimeSeriesSubmodelTemplateProcessorConfigTest {
 
 
     @Test
+    @Ignore
     public void foo() {
-        TimeSeriesSubmodelTemplateProcessorConfig.builder()
-                //                .segmentProvider(value)
+        TimeSeriesSubmodelTemplateProcessorConfig config = TimeSeriesSubmodelTemplateProcessorConfig.builder()
+                .internalSegmentProvider(new DummyInternalSegmentProviderConfig())
+                .linkedSegmentProvider(new DummyLinkedSegmentProviderConfig())
                 .build();
     }
 

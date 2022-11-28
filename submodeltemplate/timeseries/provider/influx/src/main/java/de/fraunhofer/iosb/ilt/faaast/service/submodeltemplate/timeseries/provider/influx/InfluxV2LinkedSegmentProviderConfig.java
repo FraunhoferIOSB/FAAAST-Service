@@ -22,6 +22,7 @@ import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
  * Configuration for {@link InfluxV2LinkedSegmentProvider}.
  */
 public class InfluxV2LinkedSegmentProviderConfig extends LinkedSegmentProviderConfig<InfluxV2LinkedSegmentProvider> {
+
     private String token;
     private String bucket;
 

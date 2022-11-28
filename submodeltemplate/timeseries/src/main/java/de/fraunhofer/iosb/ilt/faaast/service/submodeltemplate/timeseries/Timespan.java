@@ -28,10 +28,29 @@ public class Timespan {
 
     private final Optional<ZonedDateTime> start;
     private final Optional<ZonedDateTime> end;
+    public static final Timespan EMPTY = new Timespan(Optional.empty(), Optional.empty());
 
-    public Timespan(Optional<ZonedDateTime> start, Optional<ZonedDateTime> end) {
-        this.start = start;
-        this.end = end;
+    /**
+     * Creates an new instance of given start and end.
+     *
+     * @param start the start
+     * @param end the end
+     * @return new instance
+     */
+    public static Timespan of(ZonedDateTime start, ZonedDateTime end) {
+        return new Timespan(start, end);
+    }
+
+
+    /**
+     * Creates an new instance of given start and end.
+     *
+     * @param start the start
+     * @param end the end
+     * @return new instance
+     */
+    public static Timespan fromString(String start, String end) {
+        return new Timespan(ZonedDateTimeHelper.tryParse(start), ZonedDateTimeHelper.tryParse(end));
     }
 
 
@@ -41,9 +60,9 @@ public class Timespan {
     }
 
 
-    public Timespan(String start, String end) {
-        this.start = ZonedDateTimeHelper.tryParse(start);
-        this.end = ZonedDateTimeHelper.tryParse(end);
+    public Timespan(Optional<ZonedDateTime> start, Optional<ZonedDateTime> end) {
+        this.start = start;
+        this.end = end;
     }
 
 

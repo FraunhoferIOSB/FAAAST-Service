@@ -20,8 +20,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.M
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import org.influxdb.dto.Point;
 
 
 public class TimeSeriesData {
@@ -106,14 +104,5 @@ public class TimeSeriesData {
             RECORD_07,
             RECORD_08,
             RECORD_09);
-
-    public static Point toInfluxPoint(Record record, String measurement) {
-        return Point
-                .measurement(measurement)
-                .time(record.getTime().toEpochSecond(), TimeUnit.SECONDS)
-                .addField(TimeSeriesData.FIELD_1, (int) record.getVariables().get(TimeSeriesData.FIELD_1).getValue())
-                .addField(TimeSeriesData.FIELD_2, (double) record.getVariables().get(TimeSeriesData.FIELD_2).getValue())
-                .build();
-    }
 
 }
