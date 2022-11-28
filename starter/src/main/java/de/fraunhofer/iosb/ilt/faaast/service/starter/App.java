@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.starter.App.APP_NAME;
 
+import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -31,6 +32,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValidationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
@@ -127,6 +130,30 @@ public class App implements Runnable {
     @Option(names = "--no-modelValidation", negatable = true, description = "Validates the AAS Environment. True by default")
     public boolean validateModel = true;
 
+    @Option(names = "--loglevel-faaast", description = "Sets the log level for FA³ST packages. This overrides the log level defined by other commands such as -q or -v.")
+    public Level logLevelFaaast;
+
+    @Option(names = "--loglevel-external", description = "Sets the log level for external packages. This overrides the log level defined by other commands such as -q or -v.")
+    public Level logLevelExternal;
+
+    @Option(names = {
+            "-q",
+            "--quite"
+    }, description = "Reduces log output (ERROR for FA³ST packages, ERROR for all other packages). Default information about the starting process will still be printed.")
+    public boolean quite = false;
+
+    @Option(names = {
+            "-v",
+            "--verbose"
+    }, description = "Enables verbose logging (INFO for FA³ST packages, WARN for all other packages).")
+    public boolean verbose = false;
+
+    @Option(names = "-vv", description = "Enables very verbose logging (DEBUG for FA³ST packages, INFO for all other packages).")
+    public boolean veryVerbose = false;
+
+    @Option(names = "-vvv", description = "Enables very very verbose logging (TRACE for FA³ST packages, DEBUG for all other packages).")
+    public boolean veryVeryVerbose = false;
+
     protected boolean dryRun = false;
 
     @Spec
@@ -158,6 +185,7 @@ public class App implements Runnable {
             }
         });
         CommandLine commandLine = new CommandLine(new App())
+                .registerConverter(Level.class, new LogLevelTypeConverter())
                 .setCaseInsensitiveEnumValuesAllowed(true);
         try {
             CommandLine.ParseResult result = commandLine.parseArgs(args);
@@ -226,8 +254,37 @@ public class App implements Runnable {
     }
 
 
+    private void configureLogging() {
+        if (veryVeryVerbose) {
+            FaaastFilter.setLevelFaaast(Level.TRACE);
+            FaaastFilter.setLevelExternal(Level.DEBUG);
+        }
+        else if (veryVerbose) {
+            FaaastFilter.setLevelFaaast(Level.DEBUG);
+            FaaastFilter.setLevelExternal(Level.INFO);
+        }
+        else if (verbose) {
+            FaaastFilter.setLevelFaaast(Level.INFO);
+            FaaastFilter.setLevelExternal(Level.WARN);
+        }
+        else if (quite) {
+            FaaastFilter.setLevelFaaast(Level.ERROR);
+            FaaastFilter.setLevelExternal(Level.ERROR);
+        }
+        if (logLevelFaaast != null) {
+            FaaastFilter.setLevelFaaast(logLevelFaaast);
+        }
+        if (logLevelExternal != null) {
+            FaaastFilter.setLevelExternal(logLevelExternal);
+        }
+        LOGGER.info("Using log level for FA³ST packages: {}", FaaastFilter.getLevelFaaast());
+        LOGGER.info("Using log level for external packages: {}", FaaastFilter.getLevelExternal());
+    }
+
+
     @Override
     public void run() {
+        configureLogging();
         printHeader();
         ServiceConfig config = null;
         try {
