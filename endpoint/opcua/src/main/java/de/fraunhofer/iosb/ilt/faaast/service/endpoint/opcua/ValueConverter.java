@@ -29,6 +29,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.AssetKind;
 import io.adminshell.aas.v3.model.Blob;
@@ -752,6 +755,21 @@ public class ValueConverter {
             retval = new Variant(value);
         }
 
+        return retval;
+    }
+
+
+    public static Object convertTypedValue(TypedValue<?> typedValue) throws NumberFormatException {
+        if (typedValue == null) {
+            return null;
+        }
+        Object retval = typedValue.getValue();
+        if ((typedValue instanceof DecimalValue) || (typedValue instanceof IntegerValue)) {
+            retval = Long.valueOf(retval.toString());
+        }
+        else if (typedValue instanceof DateTimeValue) {
+            retval = ValueConverter.createDateTime((ZonedDateTime) retval);
+        }
         return retval;
     }
 }

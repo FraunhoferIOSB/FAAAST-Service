@@ -41,8 +41,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DecimalValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntegerValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
@@ -50,12 +48,9 @@ import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import opc.i4aas.AASAnnotatedRelationshipElementType;
 import opc.i4aas.AASBlobType;
 import opc.i4aas.AASEntityType;
@@ -769,21 +764,21 @@ public class AasSubmodelElementHelper {
         Ensure.requireNonNull(refNode, "refNode must be non-null");
         Ensure.requireNonNull(ref, "ref must be non-null");
 
-        List<AASKeyDataType> keyList = ref.getKeys().stream().map(k -> {
+        AASKeyDataType[] keys = ref.getKeys().stream().map(k -> {
             AASKeyDataType keyValue = new AASKeyDataType();
             keyValue.setIdType(ValueConverter.getAasKeyType(k.getIdType()));
             keyValue.setType(ValueConverter.getAasKeyElementsDataType(k.getType()));
             keyValue.setValue(k.getValue());
             return keyValue;
-        }).collect(Collectors.toList());
+        }).toArray(AASKeyDataType[]::new);
 
         refNode.getKeysNode().setArrayDimensions(new UnsignedInteger[] {
-                UnsignedInteger.valueOf(keyList.size())
+                UnsignedInteger.valueOf(keys.length)
         });
         if (readOnly) {
             refNode.getKeysNode().setAccessLevel(AccessLevelType.CurrentRead);
         }
-        refNode.setKeys(keyList.toArray(AASKeyDataType[]::new));
+        refNode.setKeys(keys);
     }
 
 
@@ -796,9 +791,6 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setDataElementValue(UaNode node, DataElementValue value, NodeManagerUaNode nodeManager) throws StatusException {
-        Ensure.requireNonNull(node, "node must not be null");
-        Ensure.requireNonNull(value, VALUE_NULL);
-
         if ((node instanceof AASPropertyType) && (value instanceof PropertyValue)) {
             setPropertyValue((AASPropertyType) node, (PropertyValue) value);
         }
@@ -832,22 +824,8 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails.
      */
     private static void setPropertyValue(AASPropertyType property, PropertyValue value) throws StatusException {
-        Ensure.requireNonNull(property, "property must not be null");
-        Ensure.requireNonNull(value, VALUE_NULL);
-
         LOG.debug("setPropertyValue: {} to {}", property.getBrowseName().getName(), value.getValue());
-
-        // special treatment for some not directly supported types
-        TypedValue<?> tv = value.getValue();
-        Object obj = tv.getValue();
-        if ((tv instanceof DecimalValue) || (tv instanceof IntegerValue)) {
-            obj = Long.valueOf(obj.toString());
-        }
-        else if (tv instanceof DateTimeValue) {
-            ZonedDateTime zdt = (ZonedDateTime) obj;
-            obj = new DateTime(GregorianCalendar.from(zdt));
-        }
-        property.setValue(obj);
+        property.setValue(ValueConverter.convertTypedValue(value.getValue()));
     }
 
 
@@ -860,9 +838,6 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setEntityPropertyValue(AASEntityType entity, EntityValue value, NodeManagerUaNode nodeManager) throws StatusException {
-        Ensure.requireNonNull(entity, "entity must not be null");
-        Ensure.requireNonNull(value, VALUE_NULL);
-
         // EntityType
         entity.setEntityType(ValueConverter.getAasEntityType(value.getEntityType()));
 
@@ -900,9 +875,6 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setFilePropertyValue(AASFileType file, FileValue value, NodeManagerUaNode nodeManager) throws StatusException {
-        Ensure.requireNonNull(file, "file must not be null");
-        Ensure.requireNonNull(value, VALUE_NULL);
-
         file.setMimeType(value.getMimeType());
         if (value.getValue() != null) {
             if (file.getValueNode() == null) {
@@ -923,9 +895,6 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setBlobValue(AASBlobType blob, BlobValue value, NodeManagerUaNode nodeManager) throws StatusException {
-        Ensure.requireNonNull(blob, "blob must not be null");
-        Ensure.requireNonNull(value, VALUE_NULL);
-
         // MimeType
         blob.setMimeType(value.getMimeType());
 
@@ -948,9 +917,6 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setReferenceElementValue(AASReferenceElementType refElement, ReferenceElementValue value) throws StatusException {
-        Ensure.requireNonNull(refElement, "refElement must not be null");
-        Ensure.requireNonNull(value, VALUE_NULL);
-
         DefaultReference ref = new DefaultReference.Builder().keys(value.getKeys()).build();
         setAasReferenceData(ref, refElement.getValueNode());
     }
@@ -964,33 +930,11 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setRangeValue(AASRangeType range, RangeValue<?> value) throws StatusException {
-        Ensure.requireNonNull(range, "range must not be null");
-        Ensure.requireNonNull(value, VALUE_NULL);
-
-        // special treatment for some not directly supported types
-        TypedValue<?> tvmin = value.getMin();
-        Object objmin = tvmin.getValue();
-        if ((tvmin instanceof DecimalValue) || (tvmin instanceof IntegerValue)) {
-            objmin = Long.valueOf(objmin.toString());
-        }
-        else if (tvmin instanceof DateTimeValue) {
-            objmin = ValueConverter.createDateTime((ZonedDateTime) objmin);
-        }
-
-        TypedValue<?> tvmax = value.getMax();
-        Object objmax = tvmax.getValue();
-        if ((tvmax instanceof DecimalValue) || (tvmax instanceof IntegerValue)) {
-            objmax = Long.valueOf(objmax.toString());
-        }
-        else if (tvmax instanceof DateTimeValue) {
-            objmax = ValueConverter.createDateTime((ZonedDateTime) objmax);
-        }
-
         if (range.getMinNode() != null) {
-            range.setMin(objmin);
+            range.setMin(ValueConverter.convertTypedValue(value.getMin()));
         }
         if (range.getMaxNode() != null) {
-            range.setMax(objmax);
+            range.setMax(ValueConverter.convertTypedValue(value.getMax()));
         }
     }
 
@@ -1005,9 +949,6 @@ public class AasSubmodelElementHelper {
      */
     private static void setMultiLanguagePropertyValue(AASMultiLanguagePropertyType multiLangProp, MultiLanguagePropertyValue value, NodeManagerUaNode nodeManager)
             throws StatusException {
-        Ensure.requireNonNull(multiLangProp, "multiLangProp must not be null");
-        Ensure.requireNonNull(value, VALUE_NULL);
-
         List<LangString> values = new ArrayList<>(value.getLangStringSet());
         if (multiLangProp.getValueNode() == null) {
             addMultiLanguageValueNode(multiLangProp, values.size(), nodeManager);
