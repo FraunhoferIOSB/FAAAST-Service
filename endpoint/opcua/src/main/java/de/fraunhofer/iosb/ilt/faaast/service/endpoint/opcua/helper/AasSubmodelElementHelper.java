@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import opc.i4aas.AASAnnotatedRelationshipElementType;
 import opc.i4aas.AASBlobType;
 import opc.i4aas.AASEntityType;
@@ -113,10 +114,8 @@ public class AasSubmodelElementHelper {
         Ensure.requireNonNull(aasElement, "aasElement must not be null");
         Ensure.requireNonNull(value, VALUE_NULL);
 
-        Reference ref = new DefaultReference.Builder().keys(value.getFirst()).build();
-        setAasReferenceData(ref, aasElement.getFirstNode(), false);
-        ref = new DefaultReference.Builder().keys(value.getSecond()).build();
-        setAasReferenceData(ref, aasElement.getSecondNode(), false);
+        setAasReferenceData(new DefaultReference.Builder().keys(value.getFirst()).build(), aasElement.getFirstNode(), false);
+        setAasReferenceData(new DefaultReference.Builder().keys(value.getSecond()).build(), aasElement.getSecondNode(), false);
 
         if ((aasElement instanceof AASAnnotatedRelationshipElementType) && (value instanceof AnnotatedRelationshipElementValue)) {
             AASAnnotatedRelationshipElementType annotatedElement = (AASAnnotatedRelationshipElementType) aasElement;
@@ -124,7 +123,7 @@ public class AasSubmodelElementHelper {
             UaNode[] annotationNodes = annotatedElement.getAnnotationNode().getComponents();
             Map<String, DataElementValue> valueMap = annotatedValue.getAnnotations();
             if (annotationNodes.length != valueMap.size()) {
-                LOG.warn("Size of Value ({}) doesn't match the number of AnnotationNodes ({})", valueMap.size(), annotationNodes.length);
+                LOG.error("Size of Value ({}) doesn't match the number of AnnotationNodes ({})", valueMap.size(), annotationNodes.length);
                 throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
             }
 
@@ -176,13 +175,13 @@ public class AasSubmodelElementHelper {
      * @param nodeManager The corresponding Node Manager.
      */
     public static void addBlobValueNode(UaNode node, NodeManagerUaNode nodeManager) {
-        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASBlobType.VALUE);
-        PlainProperty<ByteString> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
+        NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASBlobType.VALUE);
+        PlainProperty<ByteString> property = new PlainProperty<>(nodeManager, propertyId,
                 UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASBlobType.getNamespaceUri(), AASBlobType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
                 LocalizedText.english(AASBlobType.VALUE));
-        myProperty.setDataTypeId(Identifiers.ByteString);
-        myProperty.setDescription(new LocalizedText("", ""));
-        node.addProperty(myProperty);
+        property.setDataTypeId(Identifiers.ByteString);
+        property.setDescription(new LocalizedText("", ""));
+        node.addProperty(property);
     }
 
 
@@ -193,16 +192,16 @@ public class AasSubmodelElementHelper {
      * @param nodeManager The corresponding Node Manager.
      */
     public static void addFileValueNode(UaNode fileNode, NodeManagerUaNode nodeManager) {
-        NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.VALUE);
-        PlainProperty<String> myProperty = new PlainProperty<>(nodeManager, myPropertyId,
+        NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), fileNode.getNodeId().getValue().toString() + "." + AASFileType.VALUE);
+        PlainProperty<String> property = new PlainProperty<>(nodeManager, propertyId,
                 UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASFileType.getNamespaceUri(), AASFileType.VALUE).toQualifiedName(nodeManager.getNamespaceTable()),
                 LocalizedText.english(AASFileType.VALUE));
-        myProperty.setDataTypeId(Identifiers.String);
+        property.setDataTypeId(Identifiers.String);
         if (VALUES_READ_ONLY) {
-            myProperty.setAccessLevel(AccessLevelType.CurrentRead);
+            property.setAccessLevel(AccessLevelType.CurrentRead);
         }
-        myProperty.setDescription(new LocalizedText("", ""));
-        fileNode.addProperty(myProperty);
+        property.setDescription(new LocalizedText("", ""));
+        fileNode.addProperty(property);
     }
 
 
@@ -214,8 +213,8 @@ public class AasSubmodelElementHelper {
      * @param nodeManager The corresponding Node Manager.
      */
     public static void addMultiLanguageValueNode(UaNode node, int arraySize, NodeManagerUaNode nodeManager) {
-        NodeId propId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASMultiLanguagePropertyType.VALUE);
-        PlainProperty<LocalizedText[]> myLTProperty = new PlainProperty<>(nodeManager, propId,
+        NodeId propertyId = new NodeId(nodeManager.getNamespaceIndex(), node.getNodeId().getValue().toString() + "." + AASMultiLanguagePropertyType.VALUE);
+        PlainProperty<LocalizedText[]> myLTProperty = new PlainProperty<>(nodeManager, propertyId,
                 UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASMultiLanguagePropertyType.getNamespaceUri(), AASMultiLanguagePropertyType.VALUE)
                         .toQualifiedName(nodeManager.getNamespaceTable()),
                 LocalizedText.english(AASMultiLanguagePropertyType.VALUE));
@@ -770,14 +769,13 @@ public class AasSubmodelElementHelper {
         Ensure.requireNonNull(refNode, "refNode must be non-null");
         Ensure.requireNonNull(ref, "ref must be non-null");
 
-        List<AASKeyDataType> keyList = new ArrayList<>();
-        ref.getKeys().stream().map(k -> {
+        List<AASKeyDataType> keyList = ref.getKeys().stream().map(k -> {
             AASKeyDataType keyValue = new AASKeyDataType();
             keyValue.setIdType(ValueConverter.getAasKeyType(k.getIdType()));
             keyValue.setType(ValueConverter.getAasKeyElementsDataType(k.getType()));
             keyValue.setValue(k.getValue());
             return keyValue;
-        }).forEachOrdered(keyList::add);
+        }).collect(Collectors.toList());
 
         refNode.getKeysNode().setArrayDimensions(new UnsignedInteger[] {
                 UnsignedInteger.valueOf(keyList.size())

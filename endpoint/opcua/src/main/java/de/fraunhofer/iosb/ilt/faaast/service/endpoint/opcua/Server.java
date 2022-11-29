@@ -293,7 +293,6 @@ public class Server {
             loadI4AasNodes();
             AasServiceNodeManager aasNodeManager = new AasServiceNodeManager(uaServer, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint);
             aasNodeManager.getIoManager().addListeners(new AasServiceIoManagerListener(endpoint, aasNodeManager));
-            LOGGER.debug("Address space created.");
         }
         catch (Exception ex) {
             LOGGER.error("createAddressSpace Exception", ex);
@@ -314,7 +313,7 @@ public class Server {
             LOGGER.error("loadI4AasNodes Exception", ex);
         }
 
-        long dauer = System.currentTimeMillis() - start;
-        LOGGER.trace("loadI4AasNodes end. Dauer: {} ms", dauer);
+        long duration = System.currentTimeMillis() - start;
+        LOGGER.trace("loadI4AasNodes end. Dauer: {} ms", duration);
     }
 }
