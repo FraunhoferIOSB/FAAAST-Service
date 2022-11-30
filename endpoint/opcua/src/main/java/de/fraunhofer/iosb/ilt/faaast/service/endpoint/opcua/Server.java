@@ -131,62 +131,9 @@ public class Server {
         final DefaultCertificateValidator userCertificateValidator = new DefaultCertificateValidator(userCertificateStore, userIssuerCertificateStore);
         userCertificateValidator.setValidationListener(userCertificateValidationListener);
 
-        ApplicationDescription appDescription = new ApplicationDescription();
-        // 'localhost' (all lower case) in the ApplicationName and
-        // ApplicationURI is converted to the actual host name of the computer
-        // (including the possible domain part) in which the application is run.
-        // (as available from ApplicationIdentity.getActualHostName())
-        // 'hostname' is converted to the host name without the domain part.
-        // (as available from
-        // ApplicationIdentity.getActualHostNameWithoutDomain())
-        appDescription.setApplicationName(new LocalizedText(APPLICATION_NAME + "@hostname"));
-        appDescription.setApplicationUri(APPLICATION_URI);
-        appDescription.setProductUri("urn:de:fraunhofer:iosb:opcua:aas:server");
-        appDescription.setApplicationType(ApplicationType.Server);
+        setApplicationIdentity(applicationCertificateStore);
 
-        uaServer.setPort(Protocol.OpcTcp, tcpPort);
-
-        LOGGER.trace("Loading certificates..");
-
-        File privatePath = new File(applicationCertificateStore.getBaseDir(), "private");
-
-        KeyPair issuerCertificate = ApplicationIdentity.loadOrCreateIssuerCertificate(
-                "FraunhoferIosbSampleCA@" + ApplicationIdentity.getActualHostNameWithoutDomain() + "_https_" + CERT_KEY_SIZE, privatePath, null, 3650, false,
-                CERT_KEY_SIZE);
-
-        int[] keySizes = new int[] {
-                CERT_KEY_SIZE
-        };
-
-        final ApplicationIdentity identity = ApplicationIdentity.loadOrCreateCertificate(appDescription, "Fraunhofer IOSB", null,
-                privatePath, null, keySizes, true);
-
-        hostName = ApplicationIdentity.getActualHostName();
-        identity.setHttpsCertificate(
-                ApplicationIdentity.loadOrCreateHttpsCertificate(appDescription, hostName, null, issuerCertificate, privatePath, true, CERT_KEY_SIZE));
-
-        uaServer.setApplicationIdentity(identity);
-
-        Set<SecurityPolicy> supportedSecurityPolicies = new HashSet<>();
-        supportedSecurityPolicies.add(SecurityPolicy.NONE);
-        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_101);
-        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_102);
-        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_103);
-        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_104);
-
-        Set<MessageSecurityMode> supportedMessageSecurityModes = new HashSet<>();
-        supportedMessageSecurityModes.add(MessageSecurityMode.None);
-        supportedMessageSecurityModes.add(MessageSecurityMode.Sign);
-        supportedMessageSecurityModes.add(MessageSecurityMode.SignAndEncrypt);
-        uaServer.getSecurityModes().addAll(SecurityMode.combinations(supportedMessageSecurityModes, supportedSecurityPolicies));
-
-        uaServer.getHttpsSecurityModes().addAll(SecurityMode.combinations(EnumSet.of(MessageSecurityMode.None, MessageSecurityMode.Sign), supportedSecurityPolicies));
-
-        Set<HttpsSecurityPolicy> supportedHttpsSecurityPolicies = new HashSet<>();
-        supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_102);
-        supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_103);
-        supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_104);
-        uaServer.getHttpsSettings().setHttpsSecurityPolicies(supportedHttpsSecurityPolicies);
+        setSecurityPolicies();
 
         uaServer.getHttpsSettings().setCertificateValidator(applicationCertificateValidator);
 
@@ -220,6 +167,62 @@ public class Server {
         uaServer.start();
 
         running = true;
+    }
+
+
+    private void setApplicationIdentity(final PkiDirectoryCertificateStore applicationCertificateStore) throws IOException, SecureIdentityException, UaServerException {
+        String hostName;
+        ApplicationDescription appDescription = new ApplicationDescription();
+        // 'localhost' (all lower case) in the ApplicationName and
+        // ApplicationURI is converted to the actual host name of the computer
+        // (including the possible domain part) in which the application is run.
+        // (as available from ApplicationIdentity.getActualHostName())
+        // 'hostname' is converted to the host name without the domain part.
+        // (as available from
+        // ApplicationIdentity.getActualHostNameWithoutDomain())
+        appDescription.setApplicationName(new LocalizedText(APPLICATION_NAME + "@hostname"));
+        appDescription.setApplicationUri(APPLICATION_URI);
+        appDescription.setProductUri("urn:de:fraunhofer:iosb:opcua:aas:server");
+        appDescription.setApplicationType(ApplicationType.Server);
+        uaServer.setPort(Protocol.OpcTcp, tcpPort);
+        LOGGER.trace("Loading certificates..");
+        File privatePath = new File(applicationCertificateStore.getBaseDir(), "private");
+        KeyPair issuerCertificate = ApplicationIdentity.loadOrCreateIssuerCertificate(
+                "FraunhoferIosbSampleCA@" + ApplicationIdentity.getActualHostNameWithoutDomain() + "_https_" + CERT_KEY_SIZE, privatePath, null, 3650, false,
+                CERT_KEY_SIZE);
+        int[] keySizes = new int[] {
+                CERT_KEY_SIZE
+        };
+        final ApplicationIdentity identity = ApplicationIdentity.loadOrCreateCertificate(appDescription, "Fraunhofer IOSB", null,
+                privatePath, null, keySizes, true);
+        hostName = ApplicationIdentity.getActualHostName();
+        identity.setHttpsCertificate(
+                ApplicationIdentity.loadOrCreateHttpsCertificate(appDescription, hostName, null, issuerCertificate, privatePath, true, CERT_KEY_SIZE));
+        uaServer.setApplicationIdentity(identity);
+    }
+
+
+    private void setSecurityPolicies() {
+        Set<SecurityPolicy> supportedSecurityPolicies = new HashSet<>();
+        supportedSecurityPolicies.add(SecurityPolicy.NONE);
+        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_101);
+        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_102);
+        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_103);
+        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_104);
+
+        Set<MessageSecurityMode> supportedMessageSecurityModes = new HashSet<>();
+        supportedMessageSecurityModes.add(MessageSecurityMode.None);
+        supportedMessageSecurityModes.add(MessageSecurityMode.Sign);
+        supportedMessageSecurityModes.add(MessageSecurityMode.SignAndEncrypt);
+        uaServer.getSecurityModes().addAll(SecurityMode.combinations(supportedMessageSecurityModes, supportedSecurityPolicies));
+
+        uaServer.getHttpsSecurityModes().addAll(SecurityMode.combinations(EnumSet.of(MessageSecurityMode.None, MessageSecurityMode.Sign), supportedSecurityPolicies));
+
+        Set<HttpsSecurityPolicy> supportedHttpsSecurityPolicies = new HashSet<>();
+        supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_102);
+        supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_103);
+        supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_104);
+        uaServer.getHttpsSettings().setHttpsSecurityPolicies(supportedHttpsSecurityPolicies);
     }
 
 
