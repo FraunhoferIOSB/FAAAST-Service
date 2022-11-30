@@ -34,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,12 +52,13 @@ public class AasServiceIoManagerListener implements IoManagerListener {
     /**
      * Creates a new instance of AasServiceIoManagerListener
      *
-     * @param ep the associated endpoint
-     * @param nodeMan the associated NodeManager
+     * @param endpoint the associated endpoint
+     * @param nodeManager the associated NodeManager
      */
-    public AasServiceIoManagerListener(OpcUaEndpoint ep, AasServiceNodeManager nodeMan) {
-        endpoint = ep;
-        nodeManager = nodeMan;
+    public AasServiceIoManagerListener(OpcUaEndpoint endpoint, AasServiceNodeManager nodeManager) {
+        this.endpoint = endpoint;
+        Ensure.requireNonNull(endpoint, "endpoint must not be null");
+        this.nodeManager = nodeManager;
     }
 
 
@@ -114,10 +116,7 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                 "onWriteValue: nodeId={}{}{} value={}", nodeId, uvn != null ? " node=" + uvn.getBrowseName() : "", indexRange != null ? " indexRange=" + indexRange : "", dv);
 
         try {
-            if (endpoint == null) {
-                LOGGER.warn("onWriteValue: no Endpoint available");
-            }
-            else if (dv.getStatusCode().isNotGood()) {
+            if (dv.getStatusCode().isNotGood()) {
                 LOGGER.warn("onWriteValue: StatusCode not good");
             }
             else {

@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import java.util.List;
@@ -48,12 +49,13 @@ public class AasServiceMethodManagerListener implements CallableListener {
     /**
      * Creates a new instance of AasServiceMethodManagerListener
      *
-     * @param ep the associated endpoint
-     * @param nodeMan the associated NodeManager
+     * @param endpoint the associated endpoint
+     * @param nodeManager the associated NodeManager
      */
-    public AasServiceMethodManagerListener(OpcUaEndpoint ep, AasServiceNodeManager nodeMan) {
-        endpoint = ep;
-        nodeManager = nodeMan;
+    public AasServiceMethodManagerListener(OpcUaEndpoint endpoint, AasServiceNodeManager nodeManager) {
+        this.endpoint = endpoint;
+        Ensure.requireNonNull(endpoint, "endpoint must not be null");
+        this.nodeManager = nodeManager;
     }
 
 
@@ -68,23 +70,18 @@ public class AasServiceMethodManagerListener implements CallableListener {
         LOGGER.trace("onCall: method {}: called. InputArguments: {}", methodId, inputArguments);
 
         try {
-            if (endpoint == null) {
-                LOGGER.warn("onCall: no Endpoint available");
+            SubmodelElementData data = nodeManager.getAasData(objectId);
+            Operation aasOper = (Operation) data.getSubmodelElement();
+            if (aasOper != null) {
+                List<OperationVariable> inputVariables = aasOper.getInputVariables();
+                ValueConverter.setOperationValues(inputVariables, inputArguments);
+                List<OperationVariable> outputVariables = endpoint.callOperation(aasOper, inputVariables, data.getSubmodel(), data.getReference());
+
+                ValueConverter.setOutputArguments(outputVariables, outputs);
+                retval = true;
             }
             else {
-                SubmodelElementData data = nodeManager.getAasData(objectId);
-                Operation aasOper = (Operation) data.getSubmodelElement();
-                if (aasOper != null) {
-                    List<OperationVariable> inputVariables = aasOper.getInputVariables();
-                    ValueConverter.setOperationValues(inputVariables, inputArguments);
-                    List<OperationVariable> outputVariables = endpoint.callOperation(aasOper, inputVariables, data.getSubmodel(), data.getReference());
-
-                    ValueConverter.setOutputArguments(outputVariables, outputs);
-                    retval = true;
-                }
-                else {
-                    LOGGER.info("onCall: Property for {} not found", objectId);
-                }
+                LOGGER.info("onCall: Property for {} not found", objectId);
             }
         }
         catch (StatusException se) {
