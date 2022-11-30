@@ -395,12 +395,18 @@ public class AasSubmodelElementHelper {
 
 
     private static void setBooleanPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        PlainProperty<Boolean> boolProperty = createBooleanProperty(valueData, typedValue != null ? typedValue.getValue() : null);
+        prop.addProperty(boolProperty);
+    }
+
+
+    private static PlainProperty<Boolean> createBooleanProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
         PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
         myBoolProperty.setDataTypeId(Identifiers.Boolean);
-        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-            myBoolProperty.setValue(typedValue.getValue().getValue());
+        if ((typedValue != null) && (typedValue.getValue() != null)) {
+            myBoolProperty.setValue(typedValue.getValue());
         }
-        prop.addProperty(myBoolProperty);
+        return myBoolProperty;
     }
 
 
@@ -719,23 +725,13 @@ public class AasSubmodelElementHelper {
                                               TypedValue<?> maxTypedValue)
             throws StatusException {
         if (minValue != null) {
-            PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(minData.getNodeManager(), minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-            myBoolProperty.setDataTypeId(Identifiers.Boolean);
-            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                myBoolProperty.setValue(minTypedValue.getValue());
-            }
-            myBoolProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myBoolProperty);
+            PlainProperty<Boolean> boolProperty = createBooleanProperty(minData, minTypedValue);
+            range.addProperty(boolProperty);
         }
 
         if (maxValue != null) {
-            PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(maxData.getNodeManager(), maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-            myBoolProperty.setDataTypeId(Identifiers.Boolean);
-            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                myBoolProperty.setValue(maxTypedValue.getValue());
-            }
-            myBoolProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myBoolProperty);
+            PlainProperty<Boolean> boolProperty = createBooleanProperty(maxData, maxTypedValue);
+            range.addProperty(boolProperty);
         }
     }
 
