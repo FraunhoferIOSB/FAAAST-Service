@@ -248,11 +248,11 @@ public class AasSubmodelElementHelper {
 
             switch (valueDataType) {
                 case Boolean:
-                    setBooleanPropertyValue(valueData, typedValue, prop);
+                    prop.addProperty(createBooleanProperty(valueData, typedValue != null ? typedValue.getValue() : null));
                     break;
 
                 case DateTime:
-                    setDateTimePropertyValue(valueData, typedValue, prop);
+                    prop.addProperty(createDateTimeProperty(valueData, typedValue != null ? typedValue.getValue() : null));
                     break;
 
                 case Int32:
@@ -377,26 +377,19 @@ public class AasSubmodelElementHelper {
     }
 
 
-    private static void setDateTimePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+    private static PlainProperty<DateTime> createDateTimeProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
         PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
         myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
-        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-            if (typedValue.getValue() instanceof DateTimeValue) {
-                DateTimeValue dtval = (DateTimeValue) typedValue.getValue();
-                DateTime dt = ValueConverter.createDateTime(dtval.getValue());
-                myDateTimeProperty.setValue(dt);
+        if ((typedValue != null) && (typedValue.getValue() != null)) {
+            if (typedValue instanceof DateTimeValue) {
+                DateTimeValue dtval = (DateTimeValue) typedValue;
+                myDateTimeProperty.setValue(ValueConverter.createDateTime(dtval.getValue()));
             }
             else {
-                myDateTimeProperty.setValue(typedValue.getValue().getValue());
+                myDateTimeProperty.setValue(typedValue.getValue());
             }
         }
-        prop.addProperty(myDateTimeProperty);
-    }
-
-
-    private static void setBooleanPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        PlainProperty<Boolean> boolProperty = createBooleanProperty(valueData, typedValue != null ? typedValue.getValue() : null);
-        prop.addProperty(boolProperty);
+        return myDateTimeProperty;
     }
 
 
@@ -432,8 +425,7 @@ public class AasSubmodelElementHelper {
                     break;
 
                 case DateTime:
-                    setDateTimeRangeMin(minValue, minData, minTypedValue, range);
-                    setDateTimeRangeMax(maxValue, maxData, maxTypedValue, range);
+                    setDateTimeRangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
                 case Int32:
@@ -679,44 +671,14 @@ public class AasSubmodelElementHelper {
     }
 
 
-    private static void setDateTimeRangeMax(String maxValue, ValueData maxData, TypedValue<?> maxTypedValue, AASRangeType range)
-            throws StatusException {
-        if (maxValue != null) {
-            PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(maxData.getNodeManager(), maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-            myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
-            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                if (maxTypedValue instanceof DateTimeValue) {
-                    DateTimeValue dtval = (DateTimeValue) maxTypedValue;
-                    DateTime dt = ValueConverter.createDateTime(dtval.getValue());
-                    myDateTimeProperty.setValue(dt);
-                }
-                else {
-                    myDateTimeProperty.setValue(maxTypedValue.getValue());
-                }
-            }
-            myDateTimeProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myDateTimeProperty);
-        }
-    }
-
-
-    private static void setDateTimeRangeMin(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range)
+    private static void setDateTimeRangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
+                                               AASRangeType range)
             throws StatusException {
         if (minValue != null) {
-            PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(minData.getNodeManager(), minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-            myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
-            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                if (minTypedValue instanceof DateTimeValue) {
-                    DateTimeValue dtval = (DateTimeValue) minTypedValue;
-                    DateTime dt = ValueConverter.createDateTime(dtval.getValue());
-                    myDateTimeProperty.setValue(dt);
-                }
-                else {
-                    myDateTimeProperty.setValue(minTypedValue.getValue());
-                }
-            }
-            myDateTimeProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myDateTimeProperty);
+            range.addProperty(createDateTimeProperty(minData, minTypedValue));
+        }
+        if (maxValue != null) {
+            range.addProperty(createDateTimeProperty(maxData, maxTypedValue));
         }
     }
 
@@ -725,13 +687,11 @@ public class AasSubmodelElementHelper {
                                               TypedValue<?> maxTypedValue)
             throws StatusException {
         if (minValue != null) {
-            PlainProperty<Boolean> boolProperty = createBooleanProperty(minData, minTypedValue);
-            range.addProperty(boolProperty);
+            range.addProperty(createBooleanProperty(minData, minTypedValue));
         }
 
         if (maxValue != null) {
-            PlainProperty<Boolean> boolProperty = createBooleanProperty(maxData, maxTypedValue);
-            range.addProperty(boolProperty);
+            range.addProperty(createBooleanProperty(maxData, maxTypedValue));
         }
     }
 
