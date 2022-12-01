@@ -18,108 +18,126 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Timespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProvider;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.SubmodelElement;
-import io.apisense.embed.influx.InfluxServer;
-import io.apisense.embed.influx.ServerAlreadyRunningException;
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.Assume;
+import org.junit.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.DockerClientFactory;
+import org.testcontainers.containers.InfluxDBContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.utility.DockerImageName;
 
 
 public abstract class AbstractInfluxLinkedSegmentProviderTest {
 
-    protected static InfluxServer server;
-    protected static String endpoint;
-    protected static final String DATABASE = "TestDatabase";
-    protected static final String MEASUREMENT = "TestMeasurement";
-    private boolean initialized = false;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractInfluxLinkedSegmentProviderTest.class);
+    protected static final String ADMIN_USER = "testadmin";
+    protected static final String ADMIN_PASSWORD = "testadminpassword";
+    protected static final String TOKEN = "testtoken";
+    protected static final String ORGANIZATION = "testorg";
+    protected static final String BUCKET = "testbucket";
+    protected static final String MEASUREMENT = "testmeasurement";
+    protected static final String USERNAME = "testuser";
+    protected static final String PASSWORD = "testpassword";
+    protected static final String DATABASE = "testbucket";
 
-    protected LinkedSegment linkedSegment = LinkedSegment.builder()
-            .semanticId(ReferenceHelper.globalReference(Constants.LINKED_SEGMENT_SEMANTIC_ID))
-            .build();
-
-    protected static int findFreePort() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            return serverSocket.getLocalPort();
+    protected InfluxDBContainer<?> createInfluxContainer(InfluxServerConfig config) throws Exception {
+        InfluxDBContainer<?> result = new InfluxDBContainer<>(DockerImageName.parse("influxdb:" + config.getVersion()))
+                .withLogConsumer(new Slf4jLogConsumer(LOGGER))
+                .withAuthEnabled(config.getAuthEnabled());
+        if (config.getAdminUser() != null) {
+            result.withAdmin(config.getAdminUser());
         }
-    }
-
-
-    protected abstract void startInflux(int port) throws Exception;
-
-
-    protected abstract void initInflux(List<Record> records);
-
-
-    protected abstract String getQuery();
-
-
-    protected String buildEndpointUrl(int port) {
-        return "http://localhost:" + port;
-    }
-
-
-    @Before
-    public void setup() throws IOException, ServerAlreadyRunningException, Exception {
-        if (!initialized) {
-            int port = findFreePort();
-            endpoint = buildEndpointUrl(port);
-            linkedSegment.setEndpoint(endpoint);
-            linkedSegment.setQuery(getQuery());
-            startInflux(port);
-            initInflux(TimeSeriesData.RECORDS);
-            initialized = true;
+        if (config.getAdminPassword() != null) {
+            result.withAdminPassword(config.getAdminPassword());
         }
+        if (config.getBucket() != null) {
+            result.withBucket(config.getBucket());
+        }
+        if (config.getToken() != null) {
+            result.withAdminToken(config.getToken());
+        }
+        if (config.getOrganization() != null) {
+            result.withOrganization(config.getOrganization());
+        }
+        if (config.getUsername() != null) {
+            result.withUsername(config.getUsername());
+        }
+        if (config.getPassword() != null) {
+            result.withPassword(config.getPassword());
+        }
+        if (config.getDatabase() != null) {
+            result.withDatabase(config.getDatabase());
+        }
+        return result;
     }
 
 
-    protected abstract LinkedSegmentProviderConfig<?> getProviderConfig();
+    @BeforeClass
+    public static void ensureDockerAvailable() {
+        Assume.assumeTrue("Docker is not available on this environment", DockerClientFactory.instance().isDockerAvailable());
+    }
 
+    public static interface InfluxInitializer {
 
-    @Test
-    public void testGetRecords() throws ConfigurationException, AssetConnectionException, MessageBusException, EndpointException {
-        LinkedSegmentProvider<?> provider = (LinkedSegmentProvider<?>) getProviderConfig().newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class));
-        // fetch all records
-        assertEqualsIgnoringIdShort(
-                TimeSeriesData.RECORDS,
-                provider.getRecords(TimeSeriesData.METADATA, linkedSegment,
-                        Timespan.EMPTY));
-        // fetch exactly all records
-        assertEqualsIgnoringIdShort(
-                TimeSeriesData.RECORDS,
-                provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
-                        TimeSeriesData.RECORD_00.getTime(),
-                        TimeSeriesData.RECORD_09.getTime())));
-        // fetch nothing
-        assertEqualsIgnoringIdShort(
-                List.of(),
-                provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
-                        TimeSeriesData.RECORD_00.getTime().minusHours(1),
-                        TimeSeriesData.RECORD_00.getTime().minusMinutes(1))));
-        // fetch partially
-        assertEqualsIgnoringIdShort(
-                List.of(TimeSeriesData.RECORD_03, TimeSeriesData.RECORD_04),
-                provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
-                        TimeSeriesData.RECORD_03.getTime(),
-                        TimeSeriesData.RECORD_04.getTime())));
+        public void initialize(InfluxServerConfig serverConfig, String endpoint, String measurement, List<Record> records);
+    }
+
+    public void assertGetRecords(
+                                 InfluxServerConfig serverConfig,
+                                 InfluxInitializer initializer,
+                                 AbstractInfluxLinkedSegmentProviderConfig<?> providerConfig,
+                                 String measurement,
+                                 String query)
+            throws Exception {
+        InfluxDBContainer<?> server = createInfluxContainer(serverConfig);
+        server.start();
+        String endpoint = "http://localhost:" + server.getMappedPort(8086);
+        initializer.initialize(serverConfig, endpoint, measurement, TimeSeriesData.RECORDS);
+        LinkedSegment linkedSegment = LinkedSegment.builder()
+                .semanticId(ReferenceHelper.globalReference(Constants.LINKED_SEGMENT_SEMANTIC_ID))
+                .endpoint(endpoint)
+                .query(query)
+                .build();
+        providerConfig.setEndpoint(endpoint);
+        AbstractInfluxLinkedSegmentProvider<?> provider = (AbstractInfluxLinkedSegmentProvider<?>) providerConfig.newInstance(CoreConfig.DEFAULT, mock(ServiceContext.class));
+        try {
+            // fetch all records
+            assertEqualsIgnoringIdShort(
+                    TimeSeriesData.RECORDS,
+                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment,
+                            Timespan.EMPTY));
+            // fetch exactly all records
+            assertEqualsIgnoringIdShort(
+                    TimeSeriesData.RECORDS,
+                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
+                            TimeSeriesData.RECORD_00.getTime(),
+                            TimeSeriesData.RECORD_09.getTime())));
+            // fetch nothing
+            assertEqualsIgnoringIdShort(
+                    List.of(),
+                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
+                            TimeSeriesData.RECORD_00.getTime().minusHours(1),
+                            TimeSeriesData.RECORD_00.getTime().minusMinutes(1))));
+            // fetch partially
+            assertEqualsIgnoringIdShort(
+                    List.of(TimeSeriesData.RECORD_03, TimeSeriesData.RECORD_04),
+                    provider.getRecords(TimeSeriesData.METADATA, linkedSegment, Timespan.of(
+                            TimeSeriesData.RECORD_03.getTime(),
+                            TimeSeriesData.RECORD_04.getTime())));
+        }
+        finally {
+            server.stop();
+        }
     }
 
 

@@ -20,14 +20,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializati
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.InternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.InternalSegmentProvider;
 import java.util.List;
 
 
 /**
  * Default provider for internal Segments.
  */
-public class DefaultInternalSegmentProvider implements SegmentProvider<InternalSegment, DefaultInternalSegmentProviderConfig> {
+public class DefaultInternalSegmentProvider implements InternalSegmentProvider<DefaultInternalSegmentProviderConfig> {
 
     private DefaultInternalSegmentProviderConfig config;
 

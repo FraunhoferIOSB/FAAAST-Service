@@ -12,8 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.util.ZonedDateTimeHelper;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;

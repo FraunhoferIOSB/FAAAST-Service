@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.Abs
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.TimeSeries;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -98,8 +99,6 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
         SubmodelElementCollection metadata = AasHelper.getElementByIdShort(loadTimeSeries().getSubmodelElements(), Constants.TIMESERIES_METADATA_ID_SHORT,
                 SubmodelElementCollection.class);
         return Metadata.builder()
-                // ignore new for now
-                // .name(AasHelper.getElementByIdShort(metadata.getValues(), "Name", MultiLanguageProperty.class))
                 .recordMetadata(AasHelper.getElementByIdShort(metadata.getValues(), Constants.METADATA_RECORD_METADATA_ID_SHORT, SubmodelElementCollection.class)
                         .getValues().stream()
                         .collect(Collectors.toMap(

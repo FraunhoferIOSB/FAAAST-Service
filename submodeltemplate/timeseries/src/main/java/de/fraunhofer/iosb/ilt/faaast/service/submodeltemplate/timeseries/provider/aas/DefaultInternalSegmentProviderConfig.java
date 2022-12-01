@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.aas;
 
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.InternalSegmentProviderConfig;
 
 
 /**
  * Configuration class for {@link DefaultInternalSegmentProvider}.
  */
-public class DefaultInternalSegmentProviderConfig extends SegmentProviderConfig<DefaultInternalSegmentProvider> {
+public class DefaultInternalSegmentProviderConfig extends InternalSegmentProviderConfig<DefaultInternalSegmentProvider> {
 
 }

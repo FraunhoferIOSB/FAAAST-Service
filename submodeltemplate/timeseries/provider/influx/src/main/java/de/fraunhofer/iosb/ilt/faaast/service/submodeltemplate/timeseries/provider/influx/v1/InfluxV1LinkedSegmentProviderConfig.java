@@ -12,25 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx;
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.v1;
 
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProviderConfig;
 
 
 /**
  * Configuration for {@link InfluxV1LinkedSegmentProvider}.
  */
-public class InfluxV1LinkedSegmentProviderConfig extends LinkedSegmentProviderConfig<InfluxV1LinkedSegmentProvider> {
-
-    private static final String DEFAULT_TIME_FIELD = "time";
+public class InfluxV1LinkedSegmentProviderConfig extends AbstractInfluxLinkedSegmentProviderConfig<InfluxV1LinkedSegmentProvider> {
 
     private String database;
-    private String timeField;
-
-    public InfluxV1LinkedSegmentProviderConfig() {
-        this.timeField = DEFAULT_TIME_FIELD;
-    }
-
 
     public String getDatabase() {
         return database;
@@ -41,27 +33,11 @@ public class InfluxV1LinkedSegmentProviderConfig extends LinkedSegmentProviderCo
         this.database = database;
     }
 
-
-    public String getTimeField() {
-        return timeField;
-    }
-
-
-    public void setTimeField(String timeField) {
-        this.timeField = timeField;
-    }
-
     protected abstract static class AbstractBuilder<T extends InfluxV1LinkedSegmentProviderConfig, B extends AbstractBuilder<T, B>>
-            extends LinkedSegmentProviderConfig.AbstractBuilder<T, B> {
+            extends AbstractInfluxLinkedSegmentProviderConfig.AbstractBuilder<T, B> {
 
         public B database(String value) {
             getBuildingInstance().setDatabase(value);
-            return getSelf();
-        }
-
-
-        public B timeField(String value) {
-            getBuildingInstance().setTimeField(value);
             return getSelf();
         }
     }

@@ -35,7 +35,6 @@ public class TimeSeriesSubmodelTemplateProcessorConfig extends SubmodelTemplateP
 
     public TimeSeriesSubmodelTemplateProcessorConfig() {
         this.linkedSegmentProviders = new ArrayList<>();
-        // TODO assign AasInternalSegmentProvider
         this.internalSegmentProvider = new DefaultInternalSegmentProviderConfig();
     }
 

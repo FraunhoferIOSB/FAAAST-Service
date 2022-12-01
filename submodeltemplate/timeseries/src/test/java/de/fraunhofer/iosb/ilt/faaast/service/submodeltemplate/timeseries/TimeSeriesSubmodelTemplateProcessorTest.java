@@ -80,7 +80,7 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
     private static final long OPERATION_TIMEOUT = 500000;
 
     public static final InternalSegment INTERNAL_SEGMENT = InternalSegment.builder()
-            .dontAalculatePropertiesIfNotPresent()
+            .dontCalculatePropertiesIfNotPresent()
             .start(TimeSeriesData.RECORD_00.getTime())
             .end(TimeSeriesData.RECORD_05.getTime())
             .record(TimeSeriesData.RECORD_00)
@@ -92,13 +92,13 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
             .build();
 
     public static final InternalSegment INTERNAL_SEGMENT_WITHOUT_TIMES = InternalSegment.builder()
-            .dontAalculatePropertiesIfNotPresent()
+            .dontCalculatePropertiesIfNotPresent()
             .record(TimeSeriesData.RECORD_06)
             .record(TimeSeriesData.RECORD_07)
             .build();
 
     public static final InternalSegment INTERNAL_SEGMENT_WITH_WRONG_TIMES = InternalSegment.builder()
-            .dontAalculatePropertiesIfNotPresent()
+            .dontCalculatePropertiesIfNotPresent()
             .start(TimeSeriesData.RECORD_00.getTime())
             .end(TimeSeriesData.RECORD_05.getTime())
             .record(TimeSeriesData.RECORD_08)
@@ -197,7 +197,7 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
                         .build())
                 .metadata(TimeSeriesData.METADATA)
                 .segment(InternalSegment.builder()
-                        .dontAalculatePropertiesIfNotPresent()
+                        .dontCalculatePropertiesIfNotPresent()
                         .build())
                 .build();
         Service service = startNewService(
@@ -208,7 +208,6 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
                         .useSegmentTimestamps(false)
                         .internalSegmentProvider(new DummyInternalSegmentProviderConfig())
                         .build());
-
         assertReturnedRecords(service, timeSeries,
                 null,
                 null,
@@ -228,7 +227,7 @@ public class TimeSeriesSubmodelTemplateProcessorTest {
                         .build())
                 .metadata(TimeSeriesData.METADATA)
                 .segment(LinkedSegment.builder()
-                        .dontAalculatePropertiesIfNotPresent()
+                        .dontCalculatePropertiesIfNotPresent()
                         .endpoint(endpoint)
                         .build())
                 .build();

@@ -84,6 +84,8 @@
         <equalsverifier.version>3.11.1</equalsverifier.version>
         <guava.version>31.1-jre</guava.version>
         <hamcrest.version>2.2</hamcrest.version>
+        <influxdb.client.java.version>6.7.0</influxdb.client.java.version>
+        <influxdb.java.version>2.23</influxdb.java.version>
         <influxdb.version>6.7.0</influxdb.version>
         <jackson.databind.version>2.14.1</jackson.databind.version>
         <jackson.version>2.14.1</jackson.version>
@@ -142,6 +144,7 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <systemstubs.version>2.0.1</systemstubs.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
         <wiremock.version>2.35.0</wiremock.version>
     </properties>
     <dependencies>

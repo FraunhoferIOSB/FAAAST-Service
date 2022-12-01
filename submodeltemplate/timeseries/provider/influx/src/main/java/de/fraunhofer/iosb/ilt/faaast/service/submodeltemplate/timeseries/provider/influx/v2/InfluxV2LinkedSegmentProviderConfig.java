@@ -12,50 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx;
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.v2;
 
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProviderConfig;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProviderConfig;
 
 
 /**
  * Configuration for {@link InfluxV2LinkedSegmentProvider}.
  */
-public class InfluxV2LinkedSegmentProviderConfig extends LinkedSegmentProviderConfig<InfluxV2LinkedSegmentProvider> {
+public class InfluxV2LinkedSegmentProviderConfig extends AbstractInfluxLinkedSegmentProviderConfig<InfluxV2LinkedSegmentProvider> {
 
     private String token;
     private String bucket;
+    private String organization;
 
-    private String org;
-
-    private String username;
-
-    private String password;
-
-    private String fieldKey;
-
-    public String getOrg() {
-        return org;
+    public String getOrganization() {
+        return organization;
     }
 
 
-    public void setOrg(String org) {
-        this.org = org;
-    }
-
-
-    public String getFieldKey() {
-        return fieldKey;
-    }
-
-
-    public String getUsername() {
-        return username;
-    }
-
-
-    public String getPassword() {
-        return password;
+    public void setOrganization(String organization) {
+        this.organization = organization;
     }
 
 
@@ -78,23 +55,8 @@ public class InfluxV2LinkedSegmentProviderConfig extends LinkedSegmentProviderCo
         this.bucket = bucket;
     }
 
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-
-    public void setFieldKey(String fieldKey) {
-        this.fieldKey = fieldKey;
-    }
-
     protected abstract static class AbstractBuilder<C extends InfluxV2LinkedSegmentProviderConfig, B extends AbstractBuilder<C, B>>
-            extends ExtendableBuilder<C, B> {
+            extends AbstractInfluxLinkedSegmentProviderConfig.AbstractBuilder<C, B> {
 
         public B token(String value) {
             getBuildingInstance().setToken(value);
@@ -108,32 +70,8 @@ public class InfluxV2LinkedSegmentProviderConfig extends LinkedSegmentProviderCo
         }
 
 
-        public B username(String value) {
-            getBuildingInstance().setUsername(value);
-            return getSelf();
-        }
-
-
-        public B password(String value) {
-            getBuildingInstance().setPassword(value);
-            return getSelf();
-        }
-
-
-        public B fieldKey(String value) {
-            getBuildingInstance().setFieldKey(value);
-            return getSelf();
-        }
-
-
-        public B endpoint(String value) {
-            getBuildingInstance().setEndpoint(value);
-            return getSelf();
-        }
-
-
-        public B org(String value) {
-            getBuildingInstance().setOrg(value);
+        public B organization(String value) {
+            getBuildingInstance().setOrganization(value);
             return getSelf();
         }
 
