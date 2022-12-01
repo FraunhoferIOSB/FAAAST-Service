@@ -36,7 +36,9 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,92 +77,101 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
     }
 
 
-    private List<Record> getRecordsInfluxQL(Metadata metadata, String query) {
-        InfluxDBClient client = ClientHelper.createClient(
-                config.getEndpoint(),
-                config.getBucket(),
-                config.getOrganization(),
-                config.getUsername(),
-                config.getPassword(),
-                config.getToken());
-        InfluxQLQueryResult queryResults = client.getInfluxQLQueryApi().query(new InfluxQLQuery(query, config.getBucket()));
-        List<Record> result = new ArrayList<>();
-        if (queryResults == null) {
-            return result;
+    private List<Record> toRecords(Metadata metadata, InfluxQLQueryResult result) {
+        if (result == null || result.getResults() == null) {
+            return new ArrayList<>();
         }
-        for (var queryResult: queryResults.getResults()) {
-            if (queryResult == null) {
-                continue;
-            }
-            for (var series: queryResult.getSeries()) {
-                if (series == null) {
-                    continue;
-                }
-                for (var values: series.getValues()) {
-                    Record record = new Record();
-                    series.getColumns().forEach((fieldName, index) -> {
-                        Object fieldValue = values.getValueByKey(fieldName);
-                        if (fieldValue != null) {
-                            if (TIME_FIELD.equals(fieldName)) {
-                                record.setTime(ZonedDateTime.ofInstant(
-                                        Instant.ofEpochMilli(
-                                                TimeUnit.MILLISECONDS.convert(
-                                                        Long.parseLong(fieldValue.toString()),
-                                                        TimeUnit.NANOSECONDS)),
-                                        ZoneOffset.UTC));
-                            }
-                            else if (metadata.getRecordMetadata().containsKey(fieldName)) {
-                                try {
-                                    record.getVariables().put(
-                                            fieldName,
-                                            parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
-                                }
-                                catch (ValueFormatException ex) {
-                                    LOGGER.warn("Error reading from InfluxDB - conversion error", ex);
-                                }
-                            }
-                        }
-                    });
-                    result.add(record);
-                }
-            }
-        }
-        return result;
+        return result.getResults().stream()
+                .flatMap(x -> toRecords(metadata, x).stream())
+                .collect(Collectors.toList());
     }
 
 
-    private List<Record> getRecordsFlux(Metadata metadata, String query) {
-        InfluxDBClient client = ClientHelper.createClient(
-                config.getEndpoint(),
-                config.getBucket(),
-                config.getOrganization(),
-                config.getUsername(),
-                config.getPassword(),
-                config.getToken());
-        QueryApi queryApi = client.getQueryApi();
-        List<FluxTable> tables = queryApi.query(query);
-        int resultLength = tables.stream().mapToInt(x -> x.getRecords().size()).max().orElse(0);
-        Record[] result = new Record[resultLength];
-        for (int i = 0; i < tables.size(); i++) {
-            FluxTable table = tables.get(i);
-            for (int j = 0; j < table.getRecords().size(); j++) {
-                FluxRecord record = table.getRecords().get(j);
-                String fieldName = record.getField();
-                if (metadata.getRecordMetadata().containsKey(fieldName)) {
-                    Object fieldValue = record.getValue();
-                    Record newRecord = result[j] == null ? new Record() : result[j];
+    private List<Record> toRecords(Metadata metadata, InfluxQLQueryResult.Result result) {
+        if (result == null || result.getSeries() == null) {
+            return new ArrayList<>();
+        }
+        return result.getSeries().stream()
+                .flatMap(x -> x.getValues().stream().map(y -> toRecord(metadata, x.getColumns(), y.getValues())))
+                .collect(Collectors.toList());
+    }
+
+
+    private Record toRecord(Metadata metadata, Map<String, Integer> fields, Object[] values) {
+        Record result = new Record();
+        fields.forEach((fieldName, index) -> {
+            Object fieldValue = values[index];
+            if (fieldValue != null) {
+                if (TIME_FIELD.equals(fieldName)) {
+                    result.setTime(ZonedDateTime.ofInstant(
+                            Instant.ofEpochMilli(
+                                    TimeUnit.MILLISECONDS.convert(
+                                            Long.parseLong(fieldValue.toString()),
+                                            TimeUnit.NANOSECONDS)),
+                            ZoneOffset.UTC));
+                }
+                else if (metadata.getRecordMetadata().containsKey(fieldName)) {
                     try {
-                        newRecord.getVariables().put(fieldName, parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
+                        result.getVariables().put(
+                                fieldName,
+                                parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
                     }
                     catch (ValueFormatException ex) {
                         LOGGER.warn("Error reading from InfluxDB - conversion error", ex);
                     }
-                    newRecord.setTime(record.getTime().atZone(ZoneOffset.UTC));
-                    result[j] = newRecord;
                 }
             }
+        });
+        return result;
+    }
+
+
+    private List<Record> getRecordsInfluxQL(Metadata metadata, String query) {
+        try (InfluxDBClient client = ClientHelper.createClient(
+                config.getEndpoint(),
+                config.getBucket(),
+                config.getOrganization(),
+                config.getUsername(),
+                config.getPassword(),
+                config.getToken())) {
+            return toRecords(metadata, client.getInfluxQLQueryApi().query(new InfluxQLQuery(query, config.getBucket())));
         }
-        return Arrays.asList(result);
+    }
+
+
+    private List<Record> getRecordsFlux(Metadata metadata, String query) {
+        try (InfluxDBClient client = ClientHelper.createClient(
+                config.getEndpoint(),
+                config.getBucket(),
+                config.getOrganization(),
+                config.getUsername(),
+                config.getPassword(),
+                config.getToken())) {
+            QueryApi queryApi = client.getQueryApi();
+            List<FluxTable> tables = queryApi.query(query);
+            int resultLength = tables.stream().mapToInt(x -> x.getRecords().size()).max().orElse(0);
+            Record[] result = new Record[resultLength];
+            for (int i = 0; i < tables.size(); i++) {
+                FluxTable table = tables.get(i);
+                for (int j = 0; j < table.getRecords().size(); j++) {
+                    FluxRecord record = table.getRecords().get(j);
+                    String fieldName = record.getField();
+                    if (metadata.getRecordMetadata().containsKey(fieldName)) {
+                        Object fieldValue = record.getValue();
+                        Record newRecord = result[j] == null ? new Record() : result[j];
+                        try {
+                            newRecord.getVariables().put(fieldName, parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
+                        }
+                        catch (ValueFormatException ex) {
+                            LOGGER.warn("Error reading from InfluxDB - conversion error", ex);
+                        }
+                        newRecord.setTime(record.getTime().atZone(ZoneOffset.UTC));
+                        result[j] = newRecord;
+                    }
+                }
+            }
+            return Arrays.asList(result);
+        }
     }
 
 

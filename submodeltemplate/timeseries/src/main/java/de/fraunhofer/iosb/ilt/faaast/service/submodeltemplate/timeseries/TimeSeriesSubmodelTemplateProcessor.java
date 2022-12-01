@@ -40,8 +40,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -49,6 +49,7 @@ import java.util.logging.Logger;
  */
 public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProcessor<TimeSeriesSubmodelTemplateProcessorConfig> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesSubmodelTemplateProcessor.class);
     private TimeSeriesSubmodelTemplateProcessorConfig config;
 
     private Map<String, LinkedSegmentProvider> segmentProviders;
@@ -198,10 +199,15 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
                             .build());
             return true;
         }
-        catch (AssetConnectionException ex) {
-            Logger.getLogger(TimeSeriesSubmodelTemplateProcessor.class.getName()).log(Level.SEVERE, null, ex);
+        catch (AssetConnectionException e) {
+            LOGGER.trace("error processing SMT TimeSeries (submodel: {})",
+                    AasUtils.asString(AasUtils.toReference(submodel)),
+                    e);
+            LOGGER.error("error processing SMT TimeSeries (submodel: {}, reason: {})",
+                    AasUtils.asString(AasUtils.toReference(submodel)),
+                    e.getMessage());
+            return false;
         }
-        return true;
     }
 
 }

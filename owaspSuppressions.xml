@@ -10,4 +10,10 @@
 		<packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
 		<cve>CVE-2022-42003</cve>
 	</suppress>
+	<!-- false positive -->
+	<suppress>
+		<notes><![CDATA[file name: msgpack-core-0.9.3.jar]]></notes>
+		<packageUrl regex="true">^pkg:maven/org\.msgpack/msgpack\-core@.*$</packageUrl>
+		<cve>CVE-2022-41719</cve>
+	</suppress>
 </suppressions>

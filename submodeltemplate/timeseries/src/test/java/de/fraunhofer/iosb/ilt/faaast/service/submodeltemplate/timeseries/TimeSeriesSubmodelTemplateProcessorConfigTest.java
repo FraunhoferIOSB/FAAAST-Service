@@ -14,37 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyInternalSegmentProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.DummyLinkedSegmentProviderConfig;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
 
 public class TimeSeriesSubmodelTemplateProcessorConfigTest {
 
-    private static ObjectMapper mapper;
-
-    @BeforeClass
-    public static void init() {
-        mapper = new ObjectMapper()
-                .enable(SerializationFeature.INDENT_OUTPUT)
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-    }
-
-
     @Test
-    @Ignore
-    public void foo() {
-        TimeSeriesSubmodelTemplateProcessorConfig config = TimeSeriesSubmodelTemplateProcessorConfig.builder()
-                .internalSegmentProvider(new DummyInternalSegmentProviderConfig())
-                .linkedSegmentProvider(new DummyLinkedSegmentProviderConfig())
-                .build();
+    public void testEquals() {
+        EqualsVerifier.simple().forClass(TimeSeriesSubmodelTemplateProcessorConfig.class).verify();
     }
 
 }

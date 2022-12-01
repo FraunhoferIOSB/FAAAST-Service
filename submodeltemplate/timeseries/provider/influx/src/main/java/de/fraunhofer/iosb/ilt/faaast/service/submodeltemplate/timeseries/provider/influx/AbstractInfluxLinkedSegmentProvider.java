@@ -185,6 +185,7 @@ public abstract class AbstractInfluxLinkedSegmentProvider<T extends AbstractInfl
                 if (value instanceof Number) {
                     valuePreprocessed = ((Number) value).intValue();
                 }
+                break;
             }
             default:
                 // intentionally left empty

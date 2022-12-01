@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provide
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Query;
@@ -60,55 +61,62 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
     }
 
 
-    @Override
-    protected List<Record> getRecords(Metadata metadata, String query) {
-        InfluxDB influxDB = InfluxDBFactory.connect(config.getEndpoint(), config.getUsername(), config.getPassword());
-        influxDB.setDatabase(config.getDatabase());
-        QueryResult queryResults = influxDB.query(new Query(query));
-        if (queryResults.hasError()) {
+    private List<Record> toRecords(Metadata metadata, String query, QueryResult result) {
+        if (result == null || result.getResults() == null) {
+            return new ArrayList<>();
+        }
+        if (result.hasError()) {
             String message = String.format("Error reading from InfluxDB (database: %s, query: %s, error: %s)",
                     config.getDatabase(),
                     query,
-                    queryResults.getError());
+                    result.getError());
             LOGGER.debug(message);
             throw new RuntimeException(message);
         }
-        List<Record> result = new ArrayList<>();
-        if (queryResults.getResults() == null || queryResults.getResults().isEmpty()) {
-            return result;
+        return result.getResults().stream()
+                .flatMap(x -> toRecords(metadata, x).stream())
+                .collect(Collectors.toList());
+    }
+
+
+    private List<Record> toRecords(Metadata metadata, QueryResult.Result result) {
+        if (result == null || result.getSeries() == null) {
+            return new ArrayList<>();
         }
-        for (var queryResult: queryResults.getResults()) {
-            if (queryResult == null || queryResult.getSeries() == null) {
-                continue;
+        return result.getSeries().stream()
+                .flatMap(x -> x.getValues().stream().map(y -> toRecord(metadata, x.getColumns(), y)))
+                .collect(Collectors.toList());
+    }
+
+
+    private Record toRecord(Metadata metadata, List<String> fields, List<Object> values) {
+        Record result = new Record();
+        for (int i = 0; i < values.size(); i++) {
+            String fieldName = fields.get(i);
+            Object fieldValue = values.get(i);
+            if (TIME_FIELD.equals(fieldName)) {
+                result.setTime(ZonedDateTime.parse(fieldValue.toString()));
             }
-            for (var series: queryResult.getSeries()) {
-                if (series == null || series.getValues() == null) {
-                    continue;
+            else if (metadata.getRecordMetadata().containsKey(fieldName)) {
+                try {
+                    result.getVariables().put(
+                            fieldName,
+                            parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
                 }
-                for (var values: series.getValues()) {
-                    Record record = new Record();
-                    for (int i = 0; i < values.size(); i++) {
-                        String fieldName = series.getColumns().get(i);
-                        Object fieldValue = values.get(i);
-                        if (TIME_FIELD.equals(fieldName)) {
-                            record.setTime(ZonedDateTime.parse(fieldValue.toString()));
-                        }
-                        else if (metadata.getRecordMetadata().containsKey(fieldName)) {
-                            try {
-                                record.getVariables().put(
-                                        fieldName,
-                                        parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
-                            }
-                            catch (ValueFormatException ex) {
-                                LOGGER.warn("Error reading from InfluxDB - conversion error", ex);
-                            }
-                        }
-                    }
-                    result.add(record);
+                catch (ValueFormatException ex) {
+                    LOGGER.warn("Error reading from InfluxDB - conversion error", ex);
                 }
             }
         }
         return result;
+    }
+
+
+    @Override
+    protected List<Record> getRecords(Metadata metadata, String query) {
+        InfluxDB influxDB = InfluxDBFactory.connect(config.getEndpoint(), config.getUsername(), config.getPassword());
+        influxDB.setDatabase(config.getDatabase());
+        return toRecords(metadata, query, influxDB.query(new Query(query)));
     }
 
 
