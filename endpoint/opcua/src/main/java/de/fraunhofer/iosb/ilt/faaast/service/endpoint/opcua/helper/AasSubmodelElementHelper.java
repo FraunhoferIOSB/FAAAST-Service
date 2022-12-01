@@ -333,38 +333,57 @@ public class AasSubmodelElementHelper {
 
 
     private static void setStringValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        PlainProperty<String> myStringProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        myStringProperty.setDataTypeId(Identifiers.String);
-        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-            myStringProperty.setValue(typedValue.getValue().getValue());
+        prop.addProperty(createStringProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
+    private static PlainProperty<String> createStringProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+        PlainProperty<String> stringProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        stringProperty.setDataTypeId(Identifiers.String);
+        stringProperty.setDescription(new LocalizedText("", ""));
+        if ((typedValue != null) && (typedValue.getValue() != null)) {
+            stringProperty.setValue(typedValue.getValue());
         }
-        prop.addProperty(myStringProperty);
+        return stringProperty;
     }
 
 
     private static void setFloatPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        PlainProperty<Float> myFloatProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        myFloatProperty.setDataTypeId(Identifiers.Float);
-        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-            myFloatProperty.setValue(typedValue.getValue().getValue());
+        prop.addProperty(createFloatProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
+    private static PlainProperty<Float> createFloatProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+        PlainProperty<Float> floatProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        floatProperty.setDataTypeId(Identifiers.Float);
+        floatProperty.setDescription(new LocalizedText("", ""));
+        if ((typedValue != null) && (typedValue.getValue() != null)) {
+            floatProperty.setValue(typedValue.getValue());
         }
-        prop.addProperty(myFloatProperty);
+        return floatProperty;
     }
 
 
     private static void setDoublePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        PlainProperty<Double> myDoubleProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        myDoubleProperty.setDataTypeId(Identifiers.Double);
-        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-            myDoubleProperty.setValue(typedValue.getValue().getValue());
+        prop.addProperty(createDoubleProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
+    private static PlainProperty<Double> createDoubleProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+        PlainProperty<Double> doubleProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        doubleProperty.setDataTypeId(Identifiers.Double);
+        doubleProperty.setDescription(new LocalizedText("", ""));
+        if ((typedValue != null) && (typedValue.getValue() != null)) {
+            doubleProperty.setValue(typedValue.getValue());
         }
-        prop.addProperty(myDoubleProperty);
+        return doubleProperty;
     }
 
 
     private static PlainProperty<Byte> createSByteProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
         PlainProperty<Byte> sbyteProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
         sbyteProperty.setDataTypeId(Identifiers.SByte);
+        sbyteProperty.setDescription(new LocalizedText("", ""));
         if ((typedValue != null) && (typedValue.getValue() != null)) {
             sbyteProperty.setValue(typedValue.getValue());
         }
@@ -375,6 +394,7 @@ public class AasSubmodelElementHelper {
     private static PlainProperty<Short> createInt16Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
         PlainProperty<Short> int16Property = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
         int16Property.setDataTypeId(Identifiers.Int16);
+        int16Property.setDescription(new LocalizedText("", ""));
         if ((typedValue != null) && (typedValue.getValue() != null)) {
             int16Property.setValue(typedValue.getValue());
         }
@@ -385,6 +405,7 @@ public class AasSubmodelElementHelper {
     private static PlainProperty<Long> createInt64Property(ValueData valueData, TypedValue<?> typedValue) throws NumberFormatException, StatusException {
         PlainProperty<Long> longProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
         longProperty.setDataTypeId(Identifiers.Int64);
+        longProperty.setDescription(new LocalizedText("", ""));
         if (typedValue != null) {
             Object obj = typedValue.getValue();
             if ((obj != null) && (!(obj instanceof Long))) {
@@ -399,6 +420,7 @@ public class AasSubmodelElementHelper {
     private static PlainProperty<Integer> createInt32Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
         PlainProperty<Integer> intProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
         intProperty.setDataTypeId(Identifiers.Int32);
+        intProperty.setDescription(new LocalizedText("", ""));
         if ((typedValue != null) && (typedValue.getValue() != null)) {
             intProperty.setValue(typedValue.getValue());
         }
@@ -409,6 +431,7 @@ public class AasSubmodelElementHelper {
     private static PlainProperty<DateTime> createDateTimeProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
         PlainProperty<DateTime> dateTimeProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
         dateTimeProperty.setDataTypeId(Identifiers.DateTime);
+        dateTimeProperty.setDescription(new LocalizedText("", ""));
         if ((typedValue != null) && (typedValue.getValue() != null)) {
             if (typedValue instanceof DateTimeValue) {
                 DateTimeValue dtval = (DateTimeValue) typedValue;
@@ -423,12 +446,13 @@ public class AasSubmodelElementHelper {
 
 
     private static PlainProperty<Boolean> createBooleanProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<Boolean> myBoolProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        myBoolProperty.setDataTypeId(Identifiers.Boolean);
+        PlainProperty<Boolean> boolProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        boolProperty.setDataTypeId(Identifiers.Boolean);
+        boolProperty.setDescription(new LocalizedText("", ""));
         if ((typedValue != null) && (typedValue.getValue() != null)) {
-            myBoolProperty.setValue(typedValue.getValue());
+            boolProperty.setValue(typedValue.getValue());
         }
-        return myBoolProperty;
+        return boolProperty;
     }
 
 
@@ -488,21 +512,11 @@ public class AasSubmodelElementHelper {
                 default:
                     LOG.warn("setRangeValueAndType: Range {}: Unknown type: {}; use string as default", range.getBrowseName().getName(), valueType);
                     if (minValue != null) {
-                        PlainProperty<String> myStringProperty = new PlainProperty<>(minData.getNodeManager(), minData.getNodeId(), minData.getBrowseName(),
-                                minData.getDisplayName());
-                        myStringProperty.setDataTypeId(Identifiers.String);
-                        myStringProperty.setValue(minValue);
-                        myStringProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myStringProperty);
+                        range.addProperty(createStringProperty(minData, minTypedValue));
                     }
 
                     if (maxValue != null) {
-                        PlainProperty<String> myStringProperty = new PlainProperty<>(maxData.getNodeManager(), maxData.getNodeId(), maxData.getBrowseName(),
-                                maxData.getDisplayName());
-                        myStringProperty.setDataTypeId(Identifiers.String);
-                        myStringProperty.setValue(maxValue);
-                        myStringProperty.setDescription(new LocalizedText("", ""));
-                        range.addProperty(myStringProperty);
+                        range.addProperty(createStringProperty(maxData, maxTypedValue));
                     }
                     break;
             }
@@ -517,23 +531,11 @@ public class AasSubmodelElementHelper {
                                              TypedValue<?> maxTypedValue)
             throws StatusException {
         if (minValue != null) {
-            PlainProperty<String> myStringProperty = new PlainProperty<>(minData.getNodeManager(), minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-            myStringProperty.setDataTypeId(Identifiers.String);
-            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                myStringProperty.setValue(minTypedValue.getValue());
-            }
-            myStringProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myStringProperty);
+            range.addProperty(createStringProperty(minData, minTypedValue));
         }
 
         if (maxValue != null) {
-            PlainProperty<String> myStringProperty = new PlainProperty<>(maxData.getNodeManager(), maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-            myStringProperty.setDataTypeId(Identifiers.String);
-            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                myStringProperty.setValue(maxTypedValue.getValue());
-            }
-            myStringProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myStringProperty);
+            range.addProperty(createStringProperty(maxData, maxTypedValue));
         }
     }
 
@@ -542,23 +544,11 @@ public class AasSubmodelElementHelper {
                                             TypedValue<?> maxTypedValue)
             throws StatusException {
         if (minValue != null) {
-            PlainProperty<Float> myFloatProperty = new PlainProperty<>(minData.getNodeManager(), minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-            myFloatProperty.setDataTypeId(Identifiers.Float);
-            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                myFloatProperty.setValue(minTypedValue.getValue());
-            }
-            myFloatProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myFloatProperty);
+            range.addProperty(createFloatProperty(minData, minTypedValue));
         }
 
         if (maxValue != null) {
-            PlainProperty<Float> myFloatProperty = new PlainProperty<>(maxData.getNodeManager(), maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-            myFloatProperty.setDataTypeId(Identifiers.Float);
-            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                myFloatProperty.setValue(maxTypedValue.getValue());
-            }
-            myFloatProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myFloatProperty);
+            range.addProperty(createFloatProperty(maxData, maxTypedValue));
         }
     }
 
@@ -567,23 +557,11 @@ public class AasSubmodelElementHelper {
                                              TypedValue<?> maxTypedValue)
             throws StatusException {
         if (minValue != null) {
-            PlainProperty<Double> myDoubleProperty = new PlainProperty<>(minData.getNodeManager(), minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-            myDoubleProperty.setDataTypeId(Identifiers.Double);
-            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                myDoubleProperty.setValue(minTypedValue.getValue());
-            }
-            myDoubleProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myDoubleProperty);
+            range.addProperty(createDoubleProperty(minData, minTypedValue));
         }
 
         if (maxValue != null) {
-            PlainProperty<Double> myDoubleProperty = new PlainProperty<>(maxData.getNodeManager(), maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-            myDoubleProperty.setDataTypeId(Identifiers.Double);
-            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                myDoubleProperty.setValue(maxTypedValue.getValue());
-            }
-            myDoubleProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myDoubleProperty);
+            range.addProperty(createDoubleProperty(maxData, maxTypedValue));
         }
     }
 
