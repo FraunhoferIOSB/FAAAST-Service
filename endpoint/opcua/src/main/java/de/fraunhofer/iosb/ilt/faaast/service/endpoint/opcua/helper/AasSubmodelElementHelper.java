@@ -248,27 +248,27 @@ public class AasSubmodelElementHelper {
 
             switch (valueDataType) {
                 case Boolean:
-                    prop.addProperty(createBooleanProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+                    setBooleanPropertyValue(valueData, typedValue, prop);
                     break;
 
                 case DateTime:
-                    prop.addProperty(createDateTimeProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+                    setDateTimePropertyValue(valueData, typedValue, prop);
                     break;
 
                 case Int32:
-                    prop.addProperty(createInt32Property(valueData, typedValue != null ? typedValue.getValue() : null));
+                    setInt32PropertyValue(valueData, typedValue, prop);
                     break;
 
                 case Int64:
-                    prop.addProperty(createInt64Property(valueData, typedValue != null ? typedValue.getValue() : null));
+                    setInt64PropertyValue(valueData, typedValue, prop);
                     break;
 
                 case Int16:
-                    prop.addProperty(createInt16Property(valueData, typedValue != null ? typedValue.getValue() : null));
+                    setInt16PropertyValue(valueData, typedValue, prop);
                     break;
 
                 case SByte:
-                    setSByteValue(valueData, typedValue, prop);
+                    setSBytePropertyValue(valueData, typedValue, prop);
                     break;
 
                 case Double:
@@ -302,6 +302,36 @@ public class AasSubmodelElementHelper {
     }
 
 
+    private static void setBooleanPropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        prop.addProperty(createBooleanProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
+    private static void setDateTimePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        prop.addProperty(createDateTimeProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
+    private static void setInt16PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        prop.addProperty(createInt16Property(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
+    private static void setInt32PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        prop.addProperty(createInt32Property(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
+    private static void setInt64PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        prop.addProperty(createInt64Property(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
+    private static void setSBytePropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
+        prop.addProperty(createSByteProperty(valueData, typedValue != null ? typedValue.getValue() : null));
+    }
+
+
     private static void setStringValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
         PlainProperty<String> myStringProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
         myStringProperty.setDataTypeId(Identifiers.String);
@@ -332,13 +362,13 @@ public class AasSubmodelElementHelper {
     }
 
 
-    private static void setSByteValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        PlainProperty<Byte> mySByteProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        mySByteProperty.setDataTypeId(Identifiers.SByte);
-        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-            mySByteProperty.setValue(typedValue.getValue().getValue());
+    private static PlainProperty<Byte> createSByteProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+        PlainProperty<Byte> sbyteProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        sbyteProperty.setDataTypeId(Identifiers.SByte);
+        if ((typedValue != null) && (typedValue.getValue() != null)) {
+            sbyteProperty.setValue(typedValue.getValue());
         }
-        prop.addProperty(mySByteProperty);
+        return sbyteProperty;
     }
 
 
@@ -562,23 +592,11 @@ public class AasSubmodelElementHelper {
                                             TypedValue<?> maxTypedValue)
             throws StatusException {
         if (minValue != null) {
-            PlainProperty<Byte> mySByteProperty = new PlainProperty<>(minData.getNodeManager(), minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-            mySByteProperty.setDataTypeId(Identifiers.SByte);
-            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                mySByteProperty.setValue(minTypedValue.getValue());
-            }
-            mySByteProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(mySByteProperty);
+            range.addProperty(createSByteProperty(minData, minTypedValue));
         }
 
         if (maxValue != null) {
-            PlainProperty<Byte> mySByteProperty = new PlainProperty<>(maxData.getNodeManager(), maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-            mySByteProperty.setDataTypeId(Identifiers.SByte);
-            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                mySByteProperty.setValue(maxTypedValue.getValue());
-            }
-            mySByteProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(mySByteProperty);
+            range.addProperty(createSByteProperty(maxData, maxTypedValue));
         }
     }
 
