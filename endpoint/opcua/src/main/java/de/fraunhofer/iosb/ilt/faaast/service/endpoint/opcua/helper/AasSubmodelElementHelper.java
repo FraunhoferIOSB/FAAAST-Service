@@ -256,15 +256,15 @@ public class AasSubmodelElementHelper {
                     break;
 
                 case Int32:
-                    setInt32PropertyValue(valueData, typedValue, prop);
+                    prop.addProperty(createInt32Property(valueData, typedValue != null ? typedValue.getValue() : null));
                     break;
 
                 case Int64:
-                    setInt64PropertyValue(valueData, typedValue, prop);
+                    prop.addProperty(createInt64Property(valueData, typedValue != null ? typedValue.getValue() : null));
                     break;
 
                 case Int16:
-                    setInt16PropertyValue(valueData, typedValue, prop);
+                    prop.addProperty(createInt16Property(valueData, typedValue != null ? typedValue.getValue() : null));
                     break;
 
                 case SByte:
@@ -342,54 +342,53 @@ public class AasSubmodelElementHelper {
     }
 
 
-    private static void setInt16PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        PlainProperty<Short> myInt16Property = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        myInt16Property.setDataTypeId(Identifiers.Int16);
-        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-            myInt16Property.setValue(typedValue.getValue().getValue());
+    private static PlainProperty<Short> createInt16Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+        PlainProperty<Short> int16Property = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        int16Property.setDataTypeId(Identifiers.Int16);
+        if ((typedValue != null) && (typedValue.getValue() != null)) {
+            int16Property.setValue(typedValue.getValue());
         }
-        prop.addProperty(myInt16Property);
+        return int16Property;
     }
 
 
-    private static void setInt64PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop)
-            throws StatusException, NumberFormatException {
-        PlainProperty<Long> myLongProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        myLongProperty.setDataTypeId(Identifiers.Int64);
-        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-            Object obj = typedValue.getValue().getValue();
+    private static PlainProperty<Long> createInt64Property(ValueData valueData, TypedValue<?> typedValue) throws NumberFormatException, StatusException {
+        PlainProperty<Long> longProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        longProperty.setDataTypeId(Identifiers.Int64);
+        if (typedValue != null) {
+            Object obj = typedValue.getValue();
             if ((obj != null) && (!(obj instanceof Long))) {
                 obj = Long.valueOf(obj.toString());
             }
-            myLongProperty.setValue(obj);
+            longProperty.setValue(obj);
         }
-        prop.addProperty(myLongProperty);
+        return longProperty;
     }
 
 
-    private static void setInt32PropertyValue(ValueData valueData, PropertyValue typedValue, AASPropertyType prop) throws StatusException {
-        PlainProperty<Integer> myIntProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        myIntProperty.setDataTypeId(Identifiers.Int32);
-        if ((typedValue != null) && (typedValue.getValue() != null) && (typedValue.getValue().getValue() != null)) {
-            myIntProperty.setValue(typedValue.getValue().getValue());
+    private static PlainProperty<Integer> createInt32Property(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
+        PlainProperty<Integer> intProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        intProperty.setDataTypeId(Identifiers.Int32);
+        if ((typedValue != null) && (typedValue.getValue() != null)) {
+            intProperty.setValue(typedValue.getValue());
         }
-        prop.addProperty(myIntProperty);
+        return intProperty;
     }
 
 
     private static PlainProperty<DateTime> createDateTimeProperty(ValueData valueData, TypedValue<?> typedValue) throws StatusException {
-        PlainProperty<DateTime> myDateTimeProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
-        myDateTimeProperty.setDataTypeId(Identifiers.DateTime);
+        PlainProperty<DateTime> dateTimeProperty = new PlainProperty<>(valueData.getNodeManager(), valueData.getNodeId(), valueData.getBrowseName(), valueData.getDisplayName());
+        dateTimeProperty.setDataTypeId(Identifiers.DateTime);
         if ((typedValue != null) && (typedValue.getValue() != null)) {
             if (typedValue instanceof DateTimeValue) {
                 DateTimeValue dtval = (DateTimeValue) typedValue;
-                myDateTimeProperty.setValue(ValueConverter.createDateTime(dtval.getValue()));
+                dateTimeProperty.setValue(ValueConverter.createDateTime(dtval.getValue()));
             }
             else {
-                myDateTimeProperty.setValue(typedValue.getValue());
+                dateTimeProperty.setValue(typedValue.getValue());
             }
         }
-        return myDateTimeProperty;
+        return dateTimeProperty;
     }
 
 
@@ -433,8 +432,7 @@ public class AasSubmodelElementHelper {
                     break;
 
                 case Int64:
-                    setInt64RangeMin(minValue, minData, minTypedValue, range);
-                    setInt64RangeMax(maxValue, maxData, maxTypedValue, range);
+                    setInt64RangeValues(minValue, minData, minTypedValue, maxValue, maxData, maxTypedValue, range);
                     break;
 
                 case Int16:
@@ -589,59 +587,23 @@ public class AasSubmodelElementHelper {
                                             TypedValue<?> maxTypedValue)
             throws StatusException {
         if (minValue != null) {
-            PlainProperty<Short> myInt16Property = new PlainProperty<>(minData.getNodeManager(), minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-            myInt16Property.setDataTypeId(Identifiers.Int16);
-            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                myInt16Property.setValue(minTypedValue.getValue());
-            }
-            myInt16Property.setDescription(new LocalizedText("", ""));
-            range.addProperty(myInt16Property);
+            range.addProperty(createInt16Property(minData, minTypedValue));
         }
 
         if (maxValue != null) {
-            PlainProperty<Short> myInt16Property = new PlainProperty<>(maxData.getNodeManager(), maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-            myInt16Property.setDataTypeId(Identifiers.Int16);
-            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                myInt16Property.setValue(maxTypedValue.getValue());
-            }
-            myInt16Property.setDescription(new LocalizedText("", ""));
-            range.addProperty(myInt16Property);
+            range.addProperty(createInt16Property(maxData, maxTypedValue));
         }
     }
 
 
-    private static void setInt64RangeMax(String maxValue, ValueData maxData, TypedValue<?> maxTypedValue, AASRangeType range)
+    private static void setInt64RangeValues(String minValue, ValueData minData, TypedValue<?> minTypedValue, String maxValue, ValueData maxData, TypedValue<?> maxTypedValue,
+                                            AASRangeType range)
             throws NumberFormatException, StatusException {
-        if (maxValue != null) {
-            PlainProperty<Long> myLongProperty = new PlainProperty<>(maxData.getNodeManager(), maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-            myLongProperty.setDataTypeId(Identifiers.Int64);
-            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                Object obj = maxTypedValue.getValue();
-                if ((obj != null) && (!(obj instanceof Long))) {
-                    obj = Long.valueOf(obj.toString());
-                }
-                myLongProperty.setValue(obj);
-            }
-            myLongProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myLongProperty);
-        }
-    }
-
-
-    private static void setInt64RangeMin(String minValue, ValueData minData, TypedValue<?> minTypedValue, AASRangeType range)
-            throws StatusException, NumberFormatException {
         if (minValue != null) {
-            PlainProperty<Long> myLongProperty = new PlainProperty<>(minData.getNodeManager(), minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-            myLongProperty.setDataTypeId(Identifiers.Int64);
-            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                Object obj = minTypedValue.getValue();
-                if ((obj != null) && (!(obj instanceof Long))) {
-                    obj = Long.valueOf(obj.toString());
-                }
-                myLongProperty.setValue(obj);
-            }
-            myLongProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myLongProperty);
+            range.addProperty(createInt64Property(minData, minTypedValue));
+        }
+        if (maxValue != null) {
+            range.addProperty(createInt64Property(maxData, maxTypedValue));
         }
     }
 
@@ -650,23 +612,11 @@ public class AasSubmodelElementHelper {
                                             TypedValue<?> maxTypedValue)
             throws StatusException {
         if (minValue != null) {
-            PlainProperty<Integer> myIntProperty = new PlainProperty<>(minData.getNodeManager(), minData.getNodeId(), minData.getBrowseName(), minData.getDisplayName());
-            myIntProperty.setDataTypeId(Identifiers.Int32);
-            if ((minTypedValue != null) && (minTypedValue.getValue() != null)) {
-                myIntProperty.setValue(minTypedValue.getValue());
-            }
-            myIntProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myIntProperty);
+            range.addProperty(createInt32Property(minData, minTypedValue));
         }
 
         if (maxValue != null) {
-            PlainProperty<Integer> myIntProperty = new PlainProperty<>(maxData.getNodeManager(), maxData.getNodeId(), maxData.getBrowseName(), maxData.getDisplayName());
-            myIntProperty.setDataTypeId(Identifiers.Int32);
-            if ((maxTypedValue != null) && (maxTypedValue.getValue() != null)) {
-                myIntProperty.setValue(maxTypedValue.getValue());
-            }
-            myIntProperty.setDescription(new LocalizedText("", ""));
-            range.addProperty(myIntProperty);
+            range.addProperty(createInt32Property(maxData, maxTypedValue));
         }
     }
 
