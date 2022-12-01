@@ -81,7 +81,7 @@
         <commons.lang3.version>3.12.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
-        <equalsverifier.version>3.11.1</equalsverifier.version>
+        <equalsverifier.version>3.12</equalsverifier.version>
         <guava.version>31.1-jre</guava.version>
         <hamcrest.version>2.2</hamcrest.version>
         <influxdb.client.java.version>6.7.0</influxdb.client.java.version>
@@ -103,7 +103,7 @@
         <maven.plugin.buildhelper.version>3.3.0</maven.plugin.buildhelper.version>
         <maven.plugin.checkstyle.version>3.2.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.10.1</maven.plugin.compiler.version>
-        <maven.plugin.dependency.version>3.3.0</maven.plugin.dependency.version>
+        <maven.plugin.dependency.version>3.4.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.0.0-M7</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>5.0.0</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.0.1</maven.plugin.gpg.version>
@@ -132,7 +132,7 @@
         <proguard.version>7.3.0</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>4.9.0-43</prosys.sdk.version>
-        <protobuf.version>3.21.9</protobuf.version>
+        <protobuf.version>3.21.10</protobuf.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
         <slf4j.test.version>2.6.1</slf4j.test.version>
