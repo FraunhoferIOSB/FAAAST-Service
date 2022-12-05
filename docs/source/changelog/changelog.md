@@ -5,6 +5,9 @@
 **New Features**
 *   Improved logging (new CLI arguments `-q`, `-v`, `-vv`, `-vvv`, `--loglevel-faaast`, `--loglevel-external`)
 
+*   OPC UA Endpoint
+	*   Additional parameters availabe in configuration
+
 **Internal changes & bugfixes**
 *   Asset Connection
 	*   OPC UA
