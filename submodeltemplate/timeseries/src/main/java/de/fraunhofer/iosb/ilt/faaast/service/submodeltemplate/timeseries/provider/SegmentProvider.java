@@ -37,21 +37,25 @@ public interface SegmentProvider<T extends Segment, C extends SegmentProviderCon
      * @param metadata the metadata of the time series
      * @param segment the segment to read from
      * @return list of all records of the segment
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException if
+     *             fetching the data fails
      */
-    public List<Record> getRecords(Metadata metadata, T segment);
+    public List<Record> getRecords(Metadata metadata, T segment) throws SegmentProviderException;
 
 
     /**
-     * Reads records of a segment from underlying datasource filtered by time.If start or end is null, this means there is
-     * no
-     * restriction on start/end, e.g.if only start is defined, all records with a time >= start should be returned.
+     * Reads records of a segment from underlying datasource filtered by time.If start or end is null, this means there
+     * is no restriction on start/end, e.g.if only start is defined, all records with a time >= start should be
+     * returned.
      *
      * @param metadata the metadata of the time series
      * @param segment the segment to read from
      * @param timespan the timespan to search
      * @return all records of the segment within given time interval
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException if
+     *             fetching the data fails
      */
-    public default List<Record> getRecords(Metadata metadata, T segment, Timespan timespan) {
+    public default List<Record> getRecords(Metadata metadata, T segment, Timespan timespan) throws SegmentProviderException {
         return getRecords(metadata, segment).stream()
                 .filter(x -> timespan.includes(x.getTime()))
                 .collect(Collectors.toList());

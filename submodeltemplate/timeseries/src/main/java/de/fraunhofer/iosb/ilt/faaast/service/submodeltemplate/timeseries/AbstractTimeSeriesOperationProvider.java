@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.AbstractLambdaOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.TimeSeries;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
@@ -58,8 +59,9 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
      * operation call.
      *
      * @return the time series
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException if parsing values fails
      */
-    protected TimeSeries loadTimeSeries() {
+    protected TimeSeries loadTimeSeries() throws ValueFormatException {
         return TimeSeries.of(AasUtils.resolve(submodelRef, serviceContext.getAASEnvironment(), Submodel.class));
     }
 
@@ -94,8 +96,9 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
      * Gets the metadata element of the underlying submodel.
      *
      * @return the metadata element
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException if parsing values fails
      */
-    protected Metadata getMetadata() {
+    protected Metadata getMetadata() throws ValueFormatException {
         SubmodelElementCollection metadata = AasHelper.getElementByIdShort(loadTimeSeries().getSubmodelElements(), Constants.TIMESERIES_METADATA_ID_SHORT,
                 SubmodelElementCollection.class);
         return Metadata.builder()
@@ -112,8 +115,9 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
      * Gets the Segments collection of the SMT TimeSeries submodel.
      *
      * @return the Segments collection
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException if parsing values fails
      */
-    protected SubmodelElementCollection getSegmentsCollection() {
+    protected SubmodelElementCollection getSegmentsCollection() throws ValueFormatException {
         return AasHelper.getElementByIdShort(loadTimeSeries().getSubmodelElements(), Constants.TIMESERIES_SEGMENTS_ID_SHORT, SubmodelElementCollection.class);
     }
 

@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.InternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
@@ -23,7 +24,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.T
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Range;
@@ -64,32 +67,39 @@ public class ReadRecordsOperationProvider extends AbstractTimeSeriesOperationPro
 
     @Override
     public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-        validateInputParameters(input);
-        Timespan timespan = getTimespanFromInput(input, Constants.READ_RECORDS_INPUT_TIMESPAN_ID_SHORT);
-        TimeSeries timeSeries = loadTimeSeries();
-        List<Record> result = Stream.concat(
-                timeSeries.getSegments(InternalSegment.class).stream()
-                        .flatMap(x -> (Stream<Record>) internalSegmentProvider.getRecords(
-                                timeSeries.getMetadata(),
-                                x,
-                                timespan).stream()),
-                timeSeries.getSegments(LinkedSegment.class).stream()
-                        .filter(x -> linkedSegmentProviders.containsKey(x.getEndpoint()))
-                        .flatMap(x -> (Stream<Record>) linkedSegmentProviders.get(x.getEndpoint()).getRecords(
-                                timeSeries.getMetadata(),
-                                x,
-                                timespan).stream()))
-                // TODO add external segments
-                .collect(Collectors.toList());
-        return new OperationVariable[] {
-                new DefaultOperationVariable.Builder()
-                        .value(new DefaultSubmodelElementCollection.Builder()
-                                .idShort(Constants.READ_RECORDS_OUTPUT_RECORDS_ID_SHORT)
-                                .semanticId(ReferenceHelper.globalReference(Constants.READ_RECORDS_OUTPUT_RECORDS_SEMANTIC_ID))
-                                .values(result.stream().map(x -> (SubmodelElementCollection) x).collect(Collectors.toList()))
-                                .build())
-                        .build()
-        };
+        try {
+            validateInputParameters(input);
+            Timespan timespan = getTimespanFromInput(input, Constants.READ_RECORDS_INPUT_TIMESPAN_ID_SHORT);
+            TimeSeries timeSeries = loadTimeSeries();
+            List<Record> result = Stream.concat(
+                    timeSeries.getSegments(InternalSegment.class).stream()
+                            .flatMap(LambdaExceptionHelper.rethrowFunction(
+                                    x -> (Stream<Record>) internalSegmentProvider.getRecords(
+                                            timeSeries.getMetadata(),
+                                            x,
+                                            timespan).stream())),
+                    timeSeries.getSegments(LinkedSegment.class).stream()
+                            .filter(x -> linkedSegmentProviders.containsKey(x.getEndpoint()))
+                            .flatMap(LambdaExceptionHelper.rethrowFunction(
+                                    x -> (Stream<Record>) linkedSegmentProviders.get(x.getEndpoint()).getRecords(
+                                            timeSeries.getMetadata(),
+                                            x,
+                                            timespan).stream())))
+                    // TODO add external segments
+                    .collect(Collectors.toList());
+            return new OperationVariable[] {
+                    new DefaultOperationVariable.Builder()
+                            .value(new DefaultSubmodelElementCollection.Builder()
+                                    .idShort(Constants.READ_RECORDS_OUTPUT_RECORDS_ID_SHORT)
+                                    .semanticId(ReferenceHelper.globalReference(Constants.READ_RECORDS_OUTPUT_RECORDS_SEMANTIC_ID))
+                                    .values(result.stream().map(x -> (SubmodelElementCollection) x).collect(Collectors.toList()))
+                                    .build())
+                            .build()
+            };
+        }
+        catch (SegmentProviderException | ValueFormatException e) {
+            throw new AssetConnectionException(e);
+        }
     }
 
 

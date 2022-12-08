@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -34,7 +35,9 @@ public class LongValue extends TypedValue<Long> {
 
     @Override
     public String asString() {
-        return Long.toString(value);
+        return Objects.nonNull(value)
+                ? Long.toString(value)
+                : null;
     }
 
 

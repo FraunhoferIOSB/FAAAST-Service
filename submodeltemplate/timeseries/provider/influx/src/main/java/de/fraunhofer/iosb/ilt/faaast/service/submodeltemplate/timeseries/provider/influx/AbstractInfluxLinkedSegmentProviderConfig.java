@@ -27,9 +27,6 @@ public abstract class AbstractInfluxLinkedSegmentProviderConfig<T extends Abstra
     private String username;
     private String password;
 
-    public AbstractInfluxLinkedSegmentProviderConfig() {}
-
-
     public String getUsername() {
         return username;
     }

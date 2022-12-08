@@ -12,43 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
-
-import java.util.Objects;
-
+package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider;
 
 /**
- * A boolean value.
+ * Indicates that fetching data via a {@link SegmentProvider} failed.
  */
-public class BooleanValue extends TypedValue<Boolean> {
+public class SegmentProviderException extends Exception {
 
-    public BooleanValue() {
-        super();
+    public SegmentProviderException() {}
+
+
+    public SegmentProviderException(String message) {
+        super(message);
     }
 
 
-    public BooleanValue(Boolean value) {
-        super(value);
+    public SegmentProviderException(String message, Throwable cause) {
+        super(message, cause);
     }
 
 
-    @Override
-    public String asString() {
-        return Objects.nonNull(value)
-                ? Boolean.toString(value)
-                : null;
+    public SegmentProviderException(Throwable cause) {
+        super(cause);
     }
-
-
-    @Override
-    public void fromString(String value) {
-        this.setValue(Boolean.valueOf(value));
-    }
-
-
-    @Override
-    public Datatype getDataType() {
-        return Datatype.BOOLEAN;
-    }
-
 }

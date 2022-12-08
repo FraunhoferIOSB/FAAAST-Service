@@ -14,48 +14,44 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
+import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import java.time.ZonedDateTime;
+import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
+import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.Assert;
 import org.junit.Test;
 
 
-public class TimeSeriesTest {
-
-    public static final InternalSegment INTERNAL_SEGMENT = InternalSegment.builder()
-            .start(ZonedDateTime.parse("2022-01-01T00:00:00Z"))
-            .end(ZonedDateTime.parse("2022-01-04T00:00:00Z"))
-            .records(TimeSeriesData.RECORDS)
-            .build();
-
-    public static final InternalSegment INTERNAL_SEGMENT_WITHOUT_TIMES = InternalSegment.builder()
-            .records(TimeSeriesData.RECORDS)
-            .build();
+public class TimeSeriesTest extends BaseModelTest {
 
     @Test
-    public void testConversionRoundTrip() {
+    public void testConversionRoundTrip() throws ValueFormatException {
         TimeSeries expected = TimeSeries.builder()
                 .identification(new DefaultIdentifier.Builder()
                         .idType(IdentifierType.IRI)
                         .identifier(IdentifierHelper.randomId("TimeSeries"))
                         .build())
                 .metadata(TimeSeriesData.METADATA)
-                .segment(INTERNAL_SEGMENT)
+                .segment(INTERNAL_SEGMENT_WITH_TIMES)
                 .segment(INTERNAL_SEGMENT_WITHOUT_TIMES)
+                .segment(LINKED_SEGMENT)
                 .build();
         TimeSeries actual = TimeSeries.of(expected);
+        assertAASEquals(expected, actual);
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testWithAdditionalProperties() {
+    public void testWithAdditionalProperties() throws ValueFormatException {
         TimeSeries expected = TimeSeries.builder()
                 .idShort("idShort")
                 .category("category")
@@ -67,33 +63,39 @@ public class TimeSeriesTest {
                         .identifier(IdentifierHelper.randomId("TimeSeries"))
                         .build())
                 .metadata(TimeSeriesData.METADATA)
-                .segment(INTERNAL_SEGMENT)
-                .segment(INTERNAL_SEGMENT)
+                .segment(INTERNAL_SEGMENT_WITH_TIMES)
+                .segment(INTERNAL_SEGMENT_WITH_TIMES)
                 .build();
         TimeSeries actual = TimeSeries.of(expected);
+        assertAASEquals(expected, actual);
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testWithChildren() {
+    public void testAddAdditionalElement() throws ValueFormatException {
         TimeSeries expected = TimeSeries.builder()
-                .submodelElement(new DefaultProperty.Builder()
-                        .idShort("idShort")
-                        .category("category")
-                        .description(new LangString("foo", "en"))
-                        .description(new LangString("bar", "de"))
-                        .kind(ModelingKind.INSTANCE)
-                        .build())
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.IRI)
-                        .identifier(IdentifierHelper.randomId("TimeSeries"))
-                        .build())
-                .metadata(TimeSeriesData.METADATA)
-                .segment(INTERNAL_SEGMENT)
-                .segment(INTERNAL_SEGMENT_WITHOUT_TIMES)
+                .submodelElement(ADDITIONAL_ELEMENT)
                 .build();
         TimeSeries actual = TimeSeries.of(expected);
+        assertAASHasElements(actual.getSubmodelElements(), ADDITIONAL_ELEMENT);
         Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testParseWithAdditionalElement() throws ValueFormatException {
+        Submodel expected = new DefaultSubmodel.Builder()
+                .idShort(Constants.TIMESERIES_SUBMODEL_ID_SHORT)
+                .semanticId(ReferenceHelper.globalReference(Constants.TIMESERIES_SUBMODEL_SEMANTIC_ID))
+                .submodelElement(new Metadata())
+                .submodelElement(new DefaultSubmodelElementCollection.Builder()
+                        .idShort(Constants.TIMESERIES_SEGMENTS_ID_SHORT)
+                        .semanticId(ReferenceHelper.globalReference(Constants.SEGMENTS_SEMANTIC_ID))
+                        .build())
+                .submodelElement(ADDITIONAL_ELEMENT)
+                .build();
+        TimeSeries actual = TimeSeries.of(expected);
+        assertAASEquals(expected, actual);
     }
 }

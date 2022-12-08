@@ -217,8 +217,6 @@ public class Service implements ServiceContext {
             for (var submodelTemplateProcessor: submodelTemplateProcessors) {
                 if (submodelTemplateProcessor.accept(submodel) && submodelTemplateProcessor.process(submodel, assetConnectionManager)) {
                     persistence.put(submodel);
-                    // TODO: notify messagebus!
-                    // potential solutions: use service requests or call before initializing endpoints
                 }
             }
         }
@@ -241,10 +239,9 @@ public class Service implements ServiceContext {
             }
             assetConnectionManager = new AssetConnectionManager(config.getCore(), assetConnections, this);
         }
+        initSubmodelTemplateProcessors();
         endpoints = new ArrayList<>();
         if (config.getEndpoints() == null || config.getEndpoints().isEmpty()) {
-            // TODO maybe be less restrictive and only print warning
-            //throw new InvalidConfigurationException("at least endpoint must be defined in the configuration");
             LOGGER.warn("no endpoint configuration found, starting service without endpoint which means the service will not be accessible via any kind of API");
         }
         else {
@@ -254,6 +251,5 @@ public class Service implements ServiceContext {
             }
         }
         this.requestHandler = new RequestHandlerManager(this.config.getCore(), this.persistence, this.messageBus, this.assetConnectionManager);
-        initSubmodelTemplateProcessors();
     }
 }

@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.InternalSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.LinkedSegment;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
@@ -24,7 +25,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.T
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Range;
@@ -34,6 +37,7 @@ import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -68,35 +72,41 @@ public class ReadSegmentsOperationProvider extends AbstractTimeSeriesOperationPr
     }
 
 
-    private <T extends Segment> Predicate<T> segmentTimeFilter(Timespan timespan, Metadata metadata, Function<T, SegmentProvider> segmentProviderSupplier) {
-        return x -> (useSegmentTimestamps && (x.getStart().isPresent() || x.getEnd().isPresent()))
+    private <T extends Segment> Predicate<T> segmentTimeFilter(Timespan timespan, Metadata metadata, Function<T, SegmentProvider> segmentProviderSupplier)
+            throws SegmentProviderException {
+        return LambdaExceptionHelper.rethrowPredicate(x -> (useSegmentTimestamps && (Objects.nonNull(x.getStart()) || Objects.nonNull(x.getEnd())))
                 ? timespan.overlaps(new Timespan(x.getStart(), x.getEnd()))
-                : !segmentProviderSupplier.apply(x).getRecords(metadata, x, timespan).isEmpty();
+                : !segmentProviderSupplier.apply(x).getRecords(metadata, x, timespan).isEmpty());
     }
 
 
     @Override
     public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-        validateInputParameters(input);
-        Timespan timespan = getTimespanFromInput(input, Constants.READ_SEGMENTS_INPUT_TIMESPAN_ID_SHORT);
-        TimeSeries timeSeries = loadTimeSeries();
-        List<Segment> result = Stream.concat(
-                timeSeries.getSegments(InternalSegment.class).stream()
-                        .filter(segmentTimeFilter(timespan, timeSeries.getMetadata(), x -> internalSegmentProvider)),
-                timeSeries.getSegments(LinkedSegment.class).stream()
-                        .filter(segmentTimeFilter(timespan, timeSeries.getMetadata(),
-                                x -> linkedSegmentProviders.get(x.getEndpoint()))))
-                // TODO add external segments
-                .collect(Collectors.toList());
-        return new OperationVariable[] {
-                new DefaultOperationVariable.Builder()
-                        .value(new DefaultSubmodelElementCollection.Builder()
-                                .idShort(Constants.READ_SEGMENTS_OUTPUT_SEGMENTS_ID_SHORT)
-                                .semanticId(ReferenceHelper.globalReference(Constants.READ_SEGMENTS_OUTPUT_SEGMENTS_SEMANTIC_ID))
-                                .values(result.stream().map(SubmodelElement.class::cast).collect(Collectors.toList()))
-                                .build())
-                        .build()
-        };
+        try {
+            validateInputParameters(input);
+            Timespan timespan = getTimespanFromInput(input, Constants.READ_SEGMENTS_INPUT_TIMESPAN_ID_SHORT);
+            TimeSeries timeSeries = loadTimeSeries();
+            List<Segment> result = Stream.concat(
+                    timeSeries.getSegments(InternalSegment.class).stream()
+                            .filter(segmentTimeFilter(timespan, timeSeries.getMetadata(), x -> internalSegmentProvider)),
+                    timeSeries.getSegments(LinkedSegment.class).stream()
+                            .filter(segmentTimeFilter(timespan, timeSeries.getMetadata(),
+                                    x -> linkedSegmentProviders.get(x.getEndpoint()))))
+                    // TODO add external segments
+                    .collect(Collectors.toList());
+            return new OperationVariable[] {
+                    new DefaultOperationVariable.Builder()
+                            .value(new DefaultSubmodelElementCollection.Builder()
+                                    .idShort(Constants.READ_SEGMENTS_OUTPUT_SEGMENTS_ID_SHORT)
+                                    .semanticId(ReferenceHelper.globalReference(Constants.READ_SEGMENTS_OUTPUT_SEGMENTS_SEMANTIC_ID))
+                                    .values(result.stream().map(SubmodelElement.class::cast).collect(Collectors.toList()))
+                                    .build())
+                            .build()
+            };
+        }
+        catch (SegmentProviderException | ValueFormatException e) {
+            throw new AssetConnectionException(e);
+        }
     }
 
 

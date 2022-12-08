@@ -22,7 +22,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.L
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,18 +52,18 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
 
 
     @Override
-    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, Timespan timespan) {
+    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, Timespan timespan) throws SegmentProviderException {
         return getRecords(metadata, withTimeFilter(segment.getQuery(), timespan));
     }
 
 
     @Override
-    public List<Record> getRecords(Metadata metadata, LinkedSegment segment) {
+    public List<Record> getRecords(Metadata metadata, LinkedSegment segment) throws SegmentProviderException {
         return getRecords(metadata, segment.getQuery());
     }
 
 
-    private List<Record> toRecords(Metadata metadata, String query, QueryResult result) {
+    private List<Record> toRecords(Metadata metadata, String query, QueryResult result) throws SegmentProviderException {
         if (result == null || result.getResults() == null) {
             return new ArrayList<>();
         }
@@ -71,25 +73,28 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                     query,
                     result.getError());
             LOGGER.debug(message);
-            throw new RuntimeException(message);
+            throw new SegmentProviderException(message);
         }
         return result.getResults().stream()
-                .flatMap(x -> toRecords(metadata, x).stream())
+                .flatMap(LambdaExceptionHelper.rethrowFunction(x -> toRecords(metadata, x).stream()))
                 .collect(Collectors.toList());
     }
 
 
-    private List<Record> toRecords(Metadata metadata, QueryResult.Result result) {
+    private List<Record> toRecords(Metadata metadata, QueryResult.Result result) throws SegmentProviderException {
         if (result == null || result.getSeries() == null) {
             return new ArrayList<>();
         }
         return result.getSeries().stream()
-                .flatMap(x -> x.getValues().stream().map(y -> toRecord(metadata, x.getColumns(), y)))
+                .flatMap(LambdaExceptionHelper.rethrowFunction(
+                        x -> x.getValues().stream()
+                                .map(LambdaExceptionHelper.rethrowFunction(
+                                        y -> toRecord(metadata, x.getColumns(), y)))))
                 .collect(Collectors.toList());
     }
 
 
-    private Record toRecord(Metadata metadata, List<String> fields, List<Object> values) {
+    private Record toRecord(Metadata metadata, List<String> fields, List<Object> values) throws SegmentProviderException {
         Record result = new Record();
         for (int i = 0; i < values.size(); i++) {
             String fieldName = fields.get(i);
@@ -103,8 +108,8 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                             fieldName,
                             parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
                 }
-                catch (ValueFormatException ex) {
-                    LOGGER.warn("Error reading from InfluxDB - conversion error", ex);
+                catch (ValueFormatException e) {
+                    throw new SegmentProviderException("Error reading from InfluxDB - conversion error", e);
                 }
             }
         }
@@ -113,7 +118,7 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
 
 
     @Override
-    protected List<Record> getRecords(Metadata metadata, String query) {
+    protected List<Record> getRecords(Metadata metadata, String query) throws SegmentProviderException {
         InfluxDB influxDB = InfluxDBFactory.connect(config.getEndpoint(), config.getUsername(), config.getPassword());
         influxDB.setDatabase(config.getDatabase());
         return toRecords(metadata, query, influxDB.query(new Query(query)));

@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.util;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 
@@ -84,6 +85,26 @@ public class LambdaExceptionHelper {
          * @throws E if operation fails
          */
         public R apply(T t) throws E;
+    }
+
+    /**
+     * Wrapper for {@link java.util.function.Predicate} with expected exception.
+     *
+     * @param <T> the type of the input to the predicate
+     * @param <E> the type of expected exception
+     */
+    @FunctionalInterface
+    public interface PredicateWithExceptions<T, E extends Exception> {
+
+        /**
+         * Wrapper for {@link java.util.function.Predicate#test(java.lang.Object)
+         * }.
+         *
+         * @param t the predicate argument
+         * @return if the predicate is matched
+         * @throws E if matching the predicate fails
+         */
+        public boolean test(T t) throws E;
     }
 
     /**
@@ -183,6 +204,28 @@ public class LambdaExceptionHelper {
             catch (Exception e) {
                 throwAsUnchecked(e);
                 return null;
+            }
+        };
+    }
+
+
+    /**
+     * Wraps a {@link Predicate} throwing an Exception to be conveniently used in functional expressions.
+     *
+     * @param <T> input type of the predicate
+     * @param <E> type of the potentially thrown exception
+     * @param predicate the actual predicate
+     * @return a wrapping predicate
+     * @throws E if execution of underlying predicate throws given exception
+     */
+    public static <T, E extends Exception> Predicate<T> rethrowPredicate(PredicateWithExceptions<T, E> predicate) throws E {
+        return t -> {
+            try {
+                return predicate.test(t);
+            }
+            catch (Exception e) {
+                throwAsUnchecked(e);
+                return false;
             }
         };
     }

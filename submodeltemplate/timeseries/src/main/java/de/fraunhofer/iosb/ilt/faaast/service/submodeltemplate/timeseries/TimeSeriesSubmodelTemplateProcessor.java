@@ -84,7 +84,7 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
             internalSegmentProvider = (SegmentProvider) config.getInternalSegmentProvider().newInstance(coreConfig, serviceContext);
         }
         catch (ConfigurationException e) {
-            throw new RuntimeException(e);
+            throw new ConfigurationInitializationException(e);
         }
     }
 

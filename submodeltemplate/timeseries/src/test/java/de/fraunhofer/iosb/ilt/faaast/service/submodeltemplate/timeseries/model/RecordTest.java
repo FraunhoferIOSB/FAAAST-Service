@@ -19,27 +19,32 @@ import static de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 
 
-public class RecordTest {
+public class RecordTest extends BaseModelTest {
 
     @Test
-    public void testConversionRoundTrip() {
+    public void testConversionRoundTrip() throws ValueFormatException {
         Record expected = TimeSeriesData.RECORD_01;
         Record actual = Record.of(expected);
+        assertAASEquals(expected, actual);
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testWithAdditionalProperties() {
+    public void testWithAdditionalProperties() throws ValueFormatException {
         Record expected = Record.builder()
                 .idShort("idShort")
                 .category("category")
@@ -51,25 +56,57 @@ public class RecordTest {
                 .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.1"))
                 .build();
         Record actual = Record.of(expected);
+        assertAASEquals(expected, actual);
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testWithChildren() {
+    public void testAddAdditionalElement() throws ValueFormatException {
         Record expected = Record.builder()
-                .time(ZonedDateTime.parse("2021-01-01T00:00:00Z"))
-                .variable(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"))
-                .variable(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.1"))
-                .value(new DefaultProperty.Builder()
-                        .idShort("idShort")
-                        .category("category")
-                        .description(new LangString("foo", "en"))
-                        .description(new LangString("bar", "de"))
-                        .kind(ModelingKind.INSTANCE)
-                        .build())
+                .value(ADDITIONAL_ELEMENT)
                 .build();
         Record actual = Record.of(expected);
+        assertAASHasElements(actual, ADDITIONAL_ELEMENT);
         Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testParseWithAdditionalElement() throws ValueFormatException {
+        SubmodelElementCollection expected = new DefaultSubmodelElementCollection.Builder()
+                .semanticId(ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID))
+                .value(PROPERTY_TIME)
+                .value(PROPERTY_FIELD1)
+                .value(PROPERTY_FIELD2)
+                .value(ADDITIONAL_ELEMENT)
+                .build();
+        Record actual = Record.of(expected);
+        assertAASEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testWithUpdatingElements() throws ValueFormatException {
+        Record record = new Record();
+        assertAASElements(record);
+
+        record.setTime(TIME);
+        assertAASElements(record, PROPERTY_TIME);
+
+        record.getVariables().put(FIELD_1, TypedValueFactory.createSafe(Datatype.INT, "0"));
+        assertAASElements(record, PROPERTY_TIME, PROPERTY_FIELD1);
+
+        record.getVariables().put(FIELD_2, TypedValueFactory.createSafe(Datatype.DOUBLE, "0.1"));
+        assertAASElements(record, PROPERTY_TIME, PROPERTY_FIELD1, PROPERTY_FIELD2);
+
+        record.setTime(null);
+        assertAASElements(record, PROPERTY_FIELD1, PROPERTY_FIELD2);
+
+        record.getVariables().remove(FIELD_1);
+        assertAASElements(record, PROPERTY_FIELD2);
+
+        record.getVariables().clear();
+        assertAASElements(record);
     }
 }

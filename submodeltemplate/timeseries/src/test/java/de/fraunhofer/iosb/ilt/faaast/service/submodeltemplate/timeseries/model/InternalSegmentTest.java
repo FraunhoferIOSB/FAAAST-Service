@@ -14,87 +14,137 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
+import io.adminshell.aas.v3.model.Property;
+import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 
 
-public class InternalSegmentTest {
+public class InternalSegmentTest extends BaseModelTest {
 
-    public static final InternalSegment INTERNAL_SEGMENT = InternalSegment.builder()
-            .start(ZonedDateTime.parse("2022-01-01T00:00:00Z"))
-            .end(ZonedDateTime.parse("2022-01-04T00:00:00Z"))
-            .records(TimeSeriesData.RECORDS)
+    private static final Property START_TIME = new DefaultProperty.Builder()
+            .idShort(Constants.SEGMENT_START_TIME_ID_SHORT)
+            .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
+            .valueType(Datatype.DATE_TIME.getName())
+            .value(INTERNAL_SEGMENT_WITH_TIMES.getStart().toString())
             .build();
 
-    public static final InternalSegment INTERNAL_SEGMENT_WITHOUT_TIMES = InternalSegment.builder()
-            .records(TimeSeriesData.RECORDS)
+    private static final Property RECORD_COUNT = new DefaultProperty.Builder()
+            .idShort(Constants.SEGMENT_RECORD_COUNT_ID_SHORT)
+            .valueType(Datatype.LONG.getName())
+            .value("1")
+            .build();
+
+    private static final SubmodelElementCollection EMPTY_RECORDS = new DefaultSubmodelElementCollection.Builder()
+            .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
+            .build();
+
+    private static final SubmodelElementCollection RECORDS = new DefaultSubmodelElementCollection.Builder()
+            .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
+            .value(TimeSeriesData.RECORD_00)
             .build();
 
     @Test
-    public void testConversionRoundTrip() {
-        InternalSegment expected = INTERNAL_SEGMENT;
+    public void testConversionRoundTrip() throws ValueFormatException {
+        InternalSegment expected = INTERNAL_SEGMENT_WITH_TIMES;
         InternalSegment actual = InternalSegment.of(expected);
+        assertAASEquals(expected, actual);
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testConversionRoundTrip_WithoutAutoCompleteProperties() {
+    public void testConversionRoundTripWithoutAutoCompleteProperties() throws ValueFormatException {
         InternalSegment expected = INTERNAL_SEGMENT_WITHOUT_TIMES;
-        expected.setCalculatePropertiesIfNotPresent(false);
         InternalSegment actual = InternalSegment.of(expected);
-        expected.setCalculatePropertiesIfNotPresent(true);
+        assertAASEquals(expected, actual);
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testConversionRoundTrip_WithAutoCompleteProperties() {
+    public void testConversionRoundTripWithAutoCompleteProperties() throws ValueFormatException {
         InternalSegment expected = INTERNAL_SEGMENT_WITHOUT_TIMES;
         InternalSegment actual = InternalSegment.of(expected);
+        actual.setCalculatePropertiesIfNotPresent(true);
+        assertAASNotEquals(expected, actual);
         Assert.assertNotEquals(expected, actual);
     }
 
 
     @Test
-    public void testWithAdditionalProperties() {
+    public void testWithAdditionalProperties() throws ValueFormatException {
         InternalSegment expected = InternalSegment.builder()
                 .idShort("idShort")
                 .category("category")
                 .description(new LangString("foo", "en"))
                 .description(new LangString("bar", "de"))
                 .kind(ModelingKind.INSTANCE)
-                .start(ZonedDateTime.parse("2022-01-01T00:00:00Z"))
-                .end(ZonedDateTime.parse("2022-01-02T00:00:00Z"))
+                .start(INTERNAL_SEGMENT_WITH_TIMES.getStart())
+                .end(INTERNAL_SEGMENT_WITH_TIMES.getEnd())
                 .record(TimeSeriesData.RECORD_00)
                 .record(TimeSeriesData.RECORD_01)
                 .build();
         InternalSegment actual = InternalSegment.of(expected);
+        assertAASEquals(expected, actual);
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testWithChildren() {
-        InternalSegment expected = InternalSegment.builder()
-                .value(new DefaultProperty.Builder()
-                        .idShort("idShort")
-                        .category("category")
-                        .description(new LangString("foo", "en"))
-                        .description(new LangString("bar", "de"))
-                        .kind(ModelingKind.INSTANCE)
+    public void testParseWithAdditionalElement() throws ValueFormatException {
+        SubmodelElementCollection expected = new DefaultSubmodelElementCollection.Builder()
+                .semanticId(ReferenceHelper.globalReference(Constants.INTERNAL_SEGMENT_SEMANTIC_ID))
+                .value(new DefaultSubmodelElementCollection.Builder()
+                        .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
+                        .value(TimeSeriesData.RECORD_00)
                         .build())
-                .start(ZonedDateTime.parse("2022-01-01T00:00:00Z"))
-                .end(ZonedDateTime.parse("2022-01-02T00:00:00Z"))
-                .record(TimeSeriesData.RECORD_00)
-                .record(TimeSeriesData.RECORD_01)
+                .value(ADDITIONAL_ELEMENT)
                 .build();
         InternalSegment actual = InternalSegment.of(expected);
+        assertAASEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testAddAdditionalElement() throws ValueFormatException {
+        InternalSegment expected = InternalSegment.builder()
+                .value(ADDITIONAL_ELEMENT)
+                .build();
+        InternalSegment actual = InternalSegment.of(expected);
+        assertAASHasElements(actual, ADDITIONAL_ELEMENT);
         Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testWithUpdatingElements() throws ValueFormatException {
+        InternalSegment segment = new InternalSegment();
+        assertAASElements(segment, EMPTY_RECORDS);
+
+        segment.setStart(ZonedDateTime.parse(START_TIME.getValue()));
+        assertAASElements(segment, EMPTY_RECORDS, START_TIME);
+
+        segment.setRecordCount(Long.parseLong(RECORD_COUNT.getValue()));
+        assertAASElements(segment, EMPTY_RECORDS, START_TIME, RECORD_COUNT);
+
+        segment.getRecords().add(TimeSeriesData.RECORD_00);
+        assertAASElements(segment, START_TIME, RECORD_COUNT, RECORDS);
+
+        segment.setStart(null);
+        assertAASElements(segment, RECORD_COUNT, RECORDS);
+
+        segment.getRecords().remove(0);
+        assertAASElements(segment, EMPTY_RECORDS, RECORD_COUNT);
     }
 }

@@ -14,16 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
-import java.util.Collection;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 /**
@@ -32,20 +28,8 @@ import java.util.stream.Collectors;
 public class InternalSegment extends Segment {
 
     public InternalSegment() {
-        super();
         this.idShort = IdentifierHelper.randomId("InternalSegment");
         this.semanticId = ReferenceHelper.globalReference(Constants.INTERNAL_SEGMENT_SEMANTIC_ID);
-    }
-
-
-    @Override
-    public Collection<SubmodelElement> getValues() {
-        Collection<SubmodelElement> result = super.getValues();
-        result.add(new DefaultSubmodelElementCollection.Builder()
-                .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
-                .values(records.stream().map(x -> (SubmodelElement) x).collect(Collectors.toList()))
-                .build());
-        return result;
     }
 
 
@@ -55,24 +39,33 @@ public class InternalSegment extends Segment {
      * @param smc the {@link io.adminshell.aas.v3.model.SubmodelElementCollection} to parse
      * @return the parsed {@link io.adminshell.aas.v3.model.SubmodelElementCollection} as {@link InternalSegment}, or
      *         null if input is null
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException if parsing values fails
      */
-    public static InternalSegment of(SubmodelElementCollection smc) {
-        if (smc == null) {
-            return null;
+    public static InternalSegment of(SubmodelElementCollection smc) throws ValueFormatException {
+        return Segment.of(new InternalSegment(), smc);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
         }
-        InternalSegment result = new InternalSegment();
-        Segment.of(result, smc);
-        SubmodelElementCollection recordsSMC = AasHelper.getElementByIdShort(result.values, Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT, SubmodelElementCollection.class);
-        if (recordsSMC != null) {
-            result.records.addAll((recordsSMC).getValues().stream()
-                    .filter(Objects::nonNull)
-                    .filter(x -> SubmodelElementCollection.class.isAssignableFrom(x.getClass()))
-                    .map(x -> Record.of((SubmodelElementCollection) x))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList()));
-            result.values.remove(recordsSMC);
+        else if (obj == null) {
+            return false;
         }
-        return result;
+        else if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        else {
+            return super.equals(obj);
+        }
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
     }
 
 

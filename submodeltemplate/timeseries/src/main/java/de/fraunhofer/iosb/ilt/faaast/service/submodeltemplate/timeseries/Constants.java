@@ -14,6 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import io.adminshell.aas.v3.model.Reference;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+
 /**
  * Constants related to SMT TimeSeries.
  */
@@ -34,6 +41,7 @@ public class Constants {
     public static final String SEGMENT_SAMPLING_RATE_ID_SHORT = "SamplingRate";
     public static final String SEGMENT_KIND_ID_SHORT = "Kind";
     public static final String EXTERNAL_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Segments/ExternalSegment/1/1";
+    public static final String FILE_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries//File/1/1";
     public static final String LINKED_SEGMENT_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Segments/LinkedSegment/1/1";
     public static final String LINKED_SEGMENT_ENDPOINT_ID_SHORT = "Endpoint";
     public static final String LINKED_SEGMENT_QUERY_ID_SHORT = "Query";
@@ -55,11 +63,21 @@ public class Constants {
     public static final String READ_SEGMENTS_OUTPUT_SEGMENTS_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/TimeSeries /ReadSegments/Segments/1/1";
     // Time
     public static final String TIME_UTC = "https://admin-shell.io/idta/timeseries/UtcTime/1/1";
+    public static final String TIME_TAI = "https://admin-shell.io/idta/timeseries/TaiTime/1/1";
+    public static final String TIME_RELATIVE_POINT_IN_TIME = "https://admin-shell.io/idta/timeseries/RelativePointInTime/1/1";
+    public static final String TIME_RELATIVE_DURATION = "https://admin-shell.io/idta/timeseries/RelativeTimeDuration/1/1";
     // Time Unit
     public static final String TIMEUNIT_MILLISECOND = "millisecond";
     public static final String TIMEUNIT_SECOND = "second";
     public static final String TIMEUNIT_MINUTE = "minute";
     public static final String TIMEUNIT_HERTZ = "hertz";
+
+    public static final List<Reference> SEGMENTS_SEMANTIC_IDS = Stream.of(
+            INTERNAL_SEGMENT_SEMANTIC_ID,
+            LINKED_SEGMENT_SEMANTIC_ID,
+            EXTERNAL_SEGMENT_SEMANTIC_ID)
+            .map(ReferenceHelper::globalReference)
+            .collect(Collectors.toList());
 
     private Constants() {}
 }

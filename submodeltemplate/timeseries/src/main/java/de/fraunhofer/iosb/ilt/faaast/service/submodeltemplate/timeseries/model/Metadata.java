@@ -16,34 +16,110 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.MapWrapper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.SubmodelElement;
+import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.builder.SubmodelElementCollectionBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 
 /**
  * Represents metadata according to SMT TimeSeries.
  */
-public class Metadata extends DefaultSubmodelElementCollection {
+public class Metadata extends ExtendableSubmodelElementCollection {
+
+    private static class RecordMetadata extends ExtendableSubmodelElementCollection {
+
+        @JsonIgnore
+        Wrapper<Map<String, Datatype>, Property> variables = new MapWrapper<String, Datatype, Property>(
+                values,
+                new HashMap<>(),
+                Property.class,
+                x -> new DefaultProperty.Builder()
+                        .idShort(x.getKey())
+                        .valueType(x.getValue().getName())
+                        .build(),
+                x -> !Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
+                x -> new AbstractMap.SimpleEntry<>(
+                        x.getIdShort(),
+                        Datatype.fromName(x.getValueType())));
+
+        RecordMetadata() {
+            withAdditionalValues(variables);
+            this.idShort = Constants.METADATA_RECORD_METADATA_ID_SHORT;
+        }
+
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            else if (obj == null) {
+                return false;
+            }
+            else if (this.getClass() != obj.getClass()) {
+                return false;
+            }
+            return super.equals(obj);
+        }
+
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode());
+        }
+    }
 
     @JsonIgnore
-    protected Map<String, Datatype> recordMetadata;
+    private ValueWrapper<RecordMetadata, SubmodelElementCollection> recordMetadata = new ValueWrapper<RecordMetadata, SubmodelElementCollection>(
+            values,
+            new RecordMetadata(),
+            false,
+            SubmodelElementCollection.class,
+            x -> new DefaultSubmodelElementCollection.Builder()
+                    .idShort(Constants.METADATA_RECORD_METADATA_ID_SHORT)
+                    .values(x.getValues())
+                    .build(),
+            x -> Objects.equals(Constants.METADATA_RECORD_METADATA_ID_SHORT, x.getIdShort()),
+            x -> ExtendableSubmodelElementCollection.genericOf(new RecordMetadata(), x));
 
     public Metadata() {
-        this.recordMetadata = new HashMap<>();
+        withAdditionalValues(recordMetadata);
         this.idShort = Constants.TIMESERIES_METADATA_ID_SHORT;
         this.semanticId = ReferenceHelper.globalReference(Constants.METADATA_SEMANTIC_ID);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        else if (obj == null) {
+            return false;
+        }
+        else if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        return super.equals(obj);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
     }
 
 
@@ -53,50 +129,25 @@ public class Metadata extends DefaultSubmodelElementCollection {
      * @param smc the {@link io.adminshell.aas.v3.model.SubmodelElementCollection} to parse
      * @return the parsed {@link io.adminshell.aas.v3.model.SubmodelElementCollection} as {@link Metadata}, or null if
      *         input is null
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException if parsing values fails
      */
-    public static Metadata of(SubmodelElementCollection smc) {
-        if (smc == null) {
-            return null;
-        }
-        Metadata result = new Metadata();
-        AasHelper.applyBasicProperties(smc, result);
-        Collection<SubmodelElement> elements = smc.getValues();
-        SubmodelElementCollection recordMetadata = AasHelper.getElementByIdShort(
-                elements,
-                Constants.METADATA_RECORD_METADATA_ID_SHORT, SubmodelElementCollection.class);
-        result.recordMetadata = Record.of(recordMetadata)
-                .getVariables().entrySet().stream()
-                .collect(Collectors.toMap(
-                        x -> x.getKey(),
-                        x -> x.getValue().getDataType()));
-        elements.remove(recordMetadata);
-        result.values = elements;
-        return result;
+    public static Metadata of(SubmodelElementCollection smc) throws ValueFormatException {
+        return ExtendableSubmodelElementCollection.genericOf(new Metadata(), smc);
     }
 
 
     public Map<String, Datatype> getRecordMetadata() {
-        return recordMetadata;
+        return this.recordMetadata.getValue().variables.getValue();
     }
 
 
+    /**
+     * Sets the record metadata.
+     *
+     * @param recordMetadata the record metadata
+     */
     public void setRecordMetadata(Map<String, Datatype> recordMetadata) {
-        this.recordMetadata = recordMetadata;
-    }
-
-
-    @Override
-    public Collection<SubmodelElement> getValues() {
-        return new ArrayList<>(Arrays.asList(
-                new DefaultSubmodelElementCollection.Builder()
-                        .idShort(Constants.METADATA_RECORD_METADATA_ID_SHORT)
-                        .values(recordMetadata.entrySet().stream()
-                                .map(field -> new DefaultProperty.Builder()
-                                        .idShort(field.getKey())
-                                        .valueType(field.getValue().getName())
-                                        .build())
-                                .collect(Collectors.toList()))
-                        .build()));
+        this.recordMetadata.getValue().variables.setValue(recordMetadata);
     }
 
 

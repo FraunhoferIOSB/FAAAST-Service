@@ -14,25 +14,27 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
+import io.adminshell.aas.v3.model.Property;
+import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.Assert;
 import org.junit.Test;
 
 
-public class LinkedSegmentTest {
+public class LinkedSegmentTest extends BaseModelTest {
 
     @Test
     public void testConversionRoundTrip() {
-        LinkedSegment expected = LinkedSegment.builder()
-                .semanticId(ReferenceHelper.globalReference(Constants.LINKED_SEGMENT_SEMANTIC_ID))
-                .endpoint("host")
-                .query("query")
-                .build();
+        LinkedSegment expected = LINKED_SEGMENT;
         LinkedSegment actual = LinkedSegment.of(expected);
+        assertAASEquals(expected, actual);
         Assert.assertEquals(expected, actual);
     }
 
@@ -55,20 +57,76 @@ public class LinkedSegmentTest {
 
 
     @Test
-    public void testWithChildren() {
-        LinkedSegment expected = LinkedSegment.builder()
-                .value(new DefaultProperty.Builder()
-                        .idShort("idShort")
-                        .category("category")
-                        .description(new LangString("foo", "en"))
-                        .description(new LangString("bar", "de"))
-                        .kind(ModelingKind.INSTANCE)
-                        .build())
+    public void testParseWithAdditionalElement() throws ValueFormatException {
+        SubmodelElementCollection expected = new DefaultSubmodelElementCollection.Builder()
                 .semanticId(ReferenceHelper.globalReference(Constants.LINKED_SEGMENT_SEMANTIC_ID))
-                .endpoint("host")
-                .query("query")
+                .value(new DefaultProperty.Builder()
+                        .idShort(Constants.LINKED_SEGMENT_QUERY_ID_SHORT)
+                        .valueType(Datatype.STRING.getName())
+                        .value(LINKED_SEGMENT.getQuery())
+                        .build())
+                .value(ADDITIONAL_ELEMENT)
+                .build();
+        Record actual = Record.of(expected);
+        assertAASEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testAddAdditionalElement() throws ValueFormatException {
+        LinkedSegment expected = LinkedSegment.builder()
+                .value(ADDITIONAL_ELEMENT)
                 .build();
         LinkedSegment actual = LinkedSegment.of(expected);
+        assertAASHasElements(actual, ADDITIONAL_ELEMENT);
         Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testWithUpdatingElements() throws ValueFormatException {
+
+        SubmodelElementCollection emptyRecords = new DefaultSubmodelElementCollection.Builder()
+                .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
+                .build();
+
+        Property emptyEndpoint = new DefaultProperty.Builder()
+                .idShort(Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT)
+                .valueType(Datatype.STRING.getName())
+                .value(null)
+                .build();
+
+        Property endpoint = new DefaultProperty.Builder()
+                .idShort(Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT)
+                .valueType(Datatype.STRING.getName())
+                .value(LINKED_SEGMENT.getEndpoint())
+                .build();
+
+        Property emptyQuery = new DefaultProperty.Builder()
+                .idShort(Constants.LINKED_SEGMENT_QUERY_ID_SHORT)
+                .valueType(Datatype.STRING.getName())
+                .value(null)
+                .build();
+
+        Property query = new DefaultProperty.Builder()
+                .idShort(Constants.LINKED_SEGMENT_QUERY_ID_SHORT)
+                .valueType(Datatype.STRING.getName())
+                .value(LINKED_SEGMENT.getQuery())
+                .build();
+
+        LinkedSegment segment = new LinkedSegment();
+        assertAASElements(segment, emptyRecords, emptyEndpoint, emptyQuery);
+
+        segment.setQuery(query.getValue());
+        assertAASElements(segment, emptyRecords, emptyEndpoint, query);
+
+        segment.setEndpoint(endpoint.getValue());
+        assertAASElements(segment, emptyRecords, endpoint, query);
+
+        segment.setQuery(null);
+        assertAASElements(segment, emptyRecords, endpoint, emptyQuery);
+
+        segment.setEndpoint(null);
+        assertAASElements(segment, emptyRecords, emptyEndpoint, emptyQuery);
     }
 }

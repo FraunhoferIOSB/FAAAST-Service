@@ -20,118 +20,73 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.MapWrapper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.builder.SubmodelElementCollectionBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.ZonedDateTime;
-import java.util.Collection;
+import java.util.AbstractMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 /**
  * Represents a record according to SMT TimeSeries.
  */
-public class Record extends DefaultSubmodelElementCollection {
+public class Record extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
-    private ZonedDateTime time;
+    private Wrapper<ZonedDateTime, Property> time = new ValueWrapper<ZonedDateTime, Property>(
+            values,
+            null,
+            false,
+            Property.class,
+            x -> Objects.nonNull(x)
+                    ? new DefaultProperty.Builder()
+                            .idShort("time")
+                            .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
+                            .valueType(Datatype.DATE_TIME.getName())
+                            .value(x.toString())
+                            .build()
+                    : null,
+            x -> Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
+            x -> ZonedDateTime.parse(((Property) x).getValue()));
+
     @JsonIgnore
-    private Map<String, TypedValue> variables;
+    private Wrapper<Map<String, TypedValue>, Property> variables = new MapWrapper<String, TypedValue, Property>(
+            values,
+            new HashMap<>(),
+            Property.class,
+            x -> new DefaultProperty.Builder()
+                    .idShort(x.getKey())
+                    .valueType(x.getValue().getDataType().getName())
+                    .value(x.getValue().asString())
+                    .build(),
+            x -> !Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
+            x -> {
+                try {
+                    return new AbstractMap.SimpleEntry<>(
+                            x.getIdShort(),
+                            TypedValueFactory.create(
+                                    x.getValueType(),
+                                    x.getValue()));
+                }
+                catch (ValueFormatException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            });
 
     public Record() {
-        this.variables = new HashMap<>();
+        withAdditionalValues(time, variables);
         this.idShort = IdentifierHelper.randomId("Record");
         this.semanticId = ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID);
-    }
-
-
-    /**
-     * Creates a new instance based on a {@link io.adminshell.aas.v3.model.SubmodelElementCollection}.
-     *
-     * @param smc the {@link io.adminshell.aas.v3.model.SubmodelElementCollection} to parse
-     * @return the parsed {@link io.adminshell.aas.v3.model.SubmodelElementCollection} as {@link Record}, or null if
-     *         input is null
-     */
-    public static Record of(SubmodelElementCollection smc) {
-        if (smc == null) {
-            return null;
-        }
-        Record result = new Record();
-        AasHelper.applyBasicProperties(smc, result);
-        for (var sme: smc.getValues()) {
-            if (Property.class.isAssignableFrom(sme.getClass())) {
-                Property property = (Property) sme;
-                if (Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), sme.getSemanticId())) {
-                    result.time = ZonedDateTime.parse(((Property) sme).getValue());
-                }
-                else {
-                    try {
-                        result.variables.put(
-                                property.getIdShort(),
-                                TypedValueFactory.create(
-                                        property.getValueType(),
-                                        property.getValue()));
-                    }
-                    catch (ValueFormatException e) {
-                        // what to do?
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-            else {
-                result.values.add(sme);
-            }
-        }
-        return result;
-    }
-
-
-    public ZonedDateTime getTime() {
-        return time;
-    }
-
-
-    public void setTime(ZonedDateTime time) {
-        this.time = time;
-    }
-
-
-    public Map<String, TypedValue> getVariables() {
-        return variables;
-    }
-
-
-    public void setVariables(Map<String, TypedValue> variables) {
-        this.variables = variables;
-    }
-
-
-    @Override
-    public Collection<SubmodelElement> getValues() {
-        List<SubmodelElement> result = variables.entrySet().stream()
-                .map(x -> new DefaultProperty.Builder()
-                        .idShort(x.getKey())
-                        .valueType(x.getValue().getDataType().getName())
-                        .value(x.getValue().asString())
-                        .build())
-                .collect(Collectors.toList());
-        result.add(new DefaultProperty.Builder()
-                .idShort("time")
-                .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
-                .valueType(Datatype.DATE_TIME.getName())
-                .value(time.toString())
-                .build());
-        return result;
     }
 
 
@@ -148,7 +103,7 @@ public class Record extends DefaultSubmodelElementCollection {
         }
         else {
             Record other = (Record) obj;
-            return super.equals(other)
+            return super.equals(obj)
                     && Objects.equals(this.time, other.time)
                     && Objects.equals(this.variables, other.variables);
         }
@@ -157,9 +112,50 @@ public class Record extends DefaultSubmodelElementCollection {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(),
-                this.time,
-                this.variables);
+        return Objects.hash(super.hashCode(), time, variables);
+    }
+
+
+    /**
+     * Creates a new instance based on a {@link io.adminshell.aas.v3.model.SubmodelElementCollection}.
+     *
+     * @param smc the {@link io.adminshell.aas.v3.model.SubmodelElementCollection} to parse
+     * @return the parsed {@link io.adminshell.aas.v3.model.SubmodelElementCollection} as {@link Record}, or null if
+     *         input is null
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException if parsing values fails
+     */
+    public static Record of(SubmodelElementCollection smc) throws ValueFormatException {
+        return ExtendableSubmodelElementCollection.genericOf(new Record(), smc);
+    }
+
+
+    public ZonedDateTime getTime() {
+        return time.getValue();
+    }
+
+
+    /**
+     * Sets the time.
+     *
+     * @param time the tiem to set
+     */
+    public void setTime(ZonedDateTime time) {
+        this.time.setValue(time);
+    }
+
+
+    public Map<String, TypedValue> getVariables() {
+        return variables.getValue();
+    }
+
+
+    /**
+     * Sets the variables.
+     *
+     * @param variables the variables to set
+     */
+    public void setVariables(Map<String, TypedValue> variables) {
+        this.variables.setValue(variables);
     }
 
 

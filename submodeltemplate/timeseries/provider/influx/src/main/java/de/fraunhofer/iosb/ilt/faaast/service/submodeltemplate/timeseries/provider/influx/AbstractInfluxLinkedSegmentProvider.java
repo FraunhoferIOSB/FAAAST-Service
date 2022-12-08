@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.M
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
@@ -60,18 +61,20 @@ public abstract class AbstractInfluxLinkedSegmentProvider<T extends AbstractInfl
      * @param metadata the metadata of the segment containing fields and types to read
      * @param query the query to execute
      * @return fetched data
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException if
+     *             fetching the data fails
      */
-    protected abstract List<Record> getRecords(Metadata metadata, String query);
+    protected abstract List<Record> getRecords(Metadata metadata, String query) throws SegmentProviderException;
 
 
     @Override
-    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, Timespan timespan) {
+    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, Timespan timespan) throws SegmentProviderException {
         return getRecords(metadata, withTimeFilter(segment.getQuery(), timespan));
     }
 
 
     @Override
-    public List<Record> getRecords(Metadata metadata, LinkedSegment segment) {
+    public List<Record> getRecords(Metadata metadata, LinkedSegment segment) throws SegmentProviderException {
         return getRecords(metadata, segment.getQuery());
     }
 
@@ -189,7 +192,6 @@ public abstract class AbstractInfluxLinkedSegmentProvider<T extends AbstractInfl
             }
             default:
                 // intentionally left empty
-
         }
         return TypedValueFactory.create(datatype, Objects.toString(valuePreprocessed));
     }

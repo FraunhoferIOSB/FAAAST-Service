@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive;
 
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -34,7 +35,9 @@ public class DoubleValue extends TypedValue<Double> {
 
     @Override
     public String asString() {
-        return Double.toString(value);
+        return Objects.nonNull(value)
+                ? Double.toString(value)
+                : null;
     }
 
 

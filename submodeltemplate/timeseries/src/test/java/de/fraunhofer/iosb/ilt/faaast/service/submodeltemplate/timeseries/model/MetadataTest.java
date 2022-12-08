@@ -14,30 +14,82 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData.FIELD_1;
+import static de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData.FIELD_2;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
+import io.adminshell.aas.v3.dataformat.SerializationException;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
+import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.Assert;
 import org.junit.Test;
 
 
-public class MetadataTest {
+public class MetadataTest extends BaseModelTest {
+
+    private static final SubmodelElementCollection METADATA_RECORD_EMPTY = new DefaultSubmodelElementCollection.Builder()
+            .idShort(Constants.METADATA_RECORD_METADATA_ID_SHORT)
+            .build();
+
+    private static final SubmodelElementCollection METADATA_RECORD_FIELD1 = new DefaultSubmodelElementCollection.Builder()
+            .idShort(Constants.METADATA_RECORD_METADATA_ID_SHORT)
+            .value(new DefaultProperty.Builder()
+                    .idShort(TimeSeriesData.FIELD_1)
+                    .valueType(Datatype.INT.getName())
+                    .build())
+            .build();
+
+    private static final SubmodelElementCollection METADATA_RECORD_FIELD2 = new DefaultSubmodelElementCollection.Builder()
+            .idShort(Constants.METADATA_RECORD_METADATA_ID_SHORT)
+            .value(new DefaultProperty.Builder()
+                    .idShort(TimeSeriesData.FIELD_2)
+                    .valueType(Datatype.DOUBLE.getName())
+                    .build())
+            .build();
+
+    private static final SubmodelElementCollection METADATA_RECORD_FIELD1_FIELD2 = new DefaultSubmodelElementCollection.Builder()
+            .idShort(Constants.METADATA_RECORD_METADATA_ID_SHORT)
+            .value(new DefaultProperty.Builder()
+                    .idShort(TimeSeriesData.FIELD_1)
+                    .valueType(Datatype.INT.getName())
+                    .build())
+            .value(new DefaultProperty.Builder()
+                    .idShort(TimeSeriesData.FIELD_2)
+                    .valueType(Datatype.DOUBLE.getName())
+                    .build())
+            .build();
 
     @Test
-    public void testConversionRoundTrip() {
+    public void testConversionRoundTrip() throws ValueFormatException {
         Metadata expected = Metadata.builder()
                 .recordMetadata(TimeSeriesData.FIELD_1, Datatype.INT)
                 .recordMetadata(TimeSeriesData.FIELD_2, Datatype.DOUBLE)
                 .build();
         Metadata actual = Metadata.of(expected);
+        assertAASEquals(expected, actual);
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testWithAdditionalProperties() {
+    public void testParseRecords() throws ValueFormatException, SerializationException {
+        Metadata expected = Metadata.builder()
+                .recordMetadata(TimeSeriesData.FIELD_1, Datatype.INT)
+                .recordMetadata(TimeSeriesData.FIELD_2, Datatype.DOUBLE)
+                .build();
+        Metadata actual = Metadata.of(expected);
+        assertAASEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testWithAdditionalProperties() throws ValueFormatException {
         Metadata expected = Metadata.builder()
                 .idShort("idShort")
                 .category("category")
@@ -48,24 +100,47 @@ public class MetadataTest {
                 .recordMetadata(TimeSeriesData.FIELD_2, Datatype.DOUBLE)
                 .build();
         Metadata actual = Metadata.of(expected);
+        assertAASEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testAddAdditionalElement() throws ValueFormatException {
+        Metadata expected = Metadata.builder()
+                .value(ADDITIONAL_ELEMENT)
+                .build();
+        Metadata actual = Metadata.of(expected);
+        assertAASHasElements(actual, ADDITIONAL_ELEMENT);
         Assert.assertEquals(expected, actual);
     }
 
 
     @Test
-    public void testWithChildren() {
-        Metadata expected = Metadata.builder()
-                .value(new DefaultProperty.Builder()
-                        .idShort("idShort")
-                        .category("category")
-                        .description(new LangString("foo", "en"))
-                        .description(new LangString("bar", "de"))
-                        .kind(ModelingKind.INSTANCE)
-                        .build())
-                .recordMetadata(TimeSeriesData.FIELD_1, Datatype.INT)
-                .recordMetadata(TimeSeriesData.FIELD_2, Datatype.DOUBLE)
+    public void testParseWithAdditionalElement() throws ValueFormatException {
+        SubmodelElementCollection expected = new DefaultSubmodelElementCollection.Builder()
+                .value(METADATA_RECORD_FIELD1_FIELD2)
+                .value(ADDITIONAL_ELEMENT)
                 .build();
         Metadata actual = Metadata.of(expected);
-        Assert.assertEquals(expected, actual);
+        assertAASEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testWithUpdatingElements() throws ValueFormatException {
+        Metadata metadata = new Metadata();
+        assertAASElements(metadata, METADATA_RECORD_EMPTY);
+
+        metadata.getRecordMetadata().put(FIELD_1, Datatype.INT);
+        assertAASElements(metadata, METADATA_RECORD_FIELD1);
+
+        metadata.getRecordMetadata().put(FIELD_2, Datatype.DOUBLE);
+        assertAASElements(metadata, METADATA_RECORD_FIELD1_FIELD2);
+
+        metadata.getRecordMetadata().remove(FIELD_1);
+        assertAASElements(metadata, METADATA_RECORD_FIELD2);
+
+        metadata.getRecordMetadata().clear();
+        assertAASElements(metadata, METADATA_RECORD_EMPTY);
     }
 }

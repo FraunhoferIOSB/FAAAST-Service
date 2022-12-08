@@ -33,8 +33,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
@@ -104,36 +102,19 @@ public class JsonDeserializerTest {
     }
 
 
-    private String filesAsJsonArray(Map<SubmodelElement, File> input) {
+    private String filesAsJsonArray(Map<SubmodelElement, File> input) throws IOException {
         return input.entrySet().stream()
-                .map(x -> {
-                    try {
-                        return ValueHelper.extractValueJson(x.getValue(), x.getKey());
-                    }
-                    catch (IOException e) {
-                        // TODO proper error handling
-                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, e);
-                    }
-                    return null;
-                })
+                .map(LambdaExceptionHelper.rethrowFunction(x -> ValueHelper.extractValueJson(x.getValue(), x.getKey())))
                 .collect(Collectors.joining(",", "[", "]"));
     }
 
 
-    private String filesAsJsonObject(Map<SubmodelElement, File> input) {
+    private String filesAsJsonObject(Map<SubmodelElement, File> input) throws IOException {
         return input.entrySet().stream()
-                .map(x -> {
-                    try {
-                        return String.format("\"%s\": %s",
-                                x.getKey().getIdShort(),
-                                ValueHelper.extractValueJson(x.getValue(), x.getKey()));
-                    }
-                    catch (IOException e) {
-                        // TODO proper error handling
-                        Logger.getLogger(JsonDeserializerTest.class.getName()).log(Level.SEVERE, null, e);
-                    }
-                    return null;
-                })
+                .map(LambdaExceptionHelper.rethrowFunction(x -> String.format(
+                        "\"%s\": %s",
+                        x.getKey().getIdShort(),
+                        ValueHelper.extractValueJson(x.getValue(), x.getKey()))))
                 .collect(Collectors.joining(",", "{", "}"));
     }
 

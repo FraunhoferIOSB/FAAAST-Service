@@ -16,15 +16,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.File;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -33,82 +31,49 @@ import java.util.List;
 public class ExternalSegment extends Segment {
 
     @JsonIgnore
-    private List<File> files;
-    @JsonIgnore
-    private List<Blob> blobs;
+    private final Wrapper<File, File> file = new ValueWrapper<File, File>(
+            values,
+            null,
+            true,
+            File.class,
+            x -> {
+                x.setSemanticId(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID));
+                return x;
+            },
+            x -> Objects.equals(ReferenceHelper.globalReference(Constants.FILE_SEMANTIC_ID), x.getSemanticId()),
+            x -> x);
 
     /**
      * Creates a new instance based on a {@link io.adminshell.aas.v3.model.SubmodelElementCollection}.
      *
      * @param smc the {@link io.adminshell.aas.v3.model.SubmodelElementCollection} to parse
-     * @return the parsed {@link io.adminshell.aas.v3.model.SubmodelElementCollection} as {@link LinkedSegment}, or null
-     *         if input is null
+     * @return the parsed {@link io.adminshell.aas.v3.model.SubmodelElementCollection} as {@link ExternalSegment}, or
+     *         null if input is null
      */
     public static ExternalSegment of(SubmodelElementCollection smc) {
-        if (smc == null) {
-            return null;
-        }
-        ExternalSegment result = new ExternalSegment();
-        Segment.of(result, smc);
-        // TODO
-        //Property endpoint = AasHelper.getElementByIdShort(result.values, Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT, Property.class);
-        //if (endpoint != null) {
-        //    result.files = endpoint.getValue();
-        //    result.values.remove(endpoint);
-        //}
-        //Property query = AasHelper.getElementByIdShort(result.values, Constants.LINKED_SEGMENT_QUERY_ID_SHORT, Property.class);
-        //if (query != null) {
-        //    result.blobs = query.getValue();
-        //    result.values.remove(query);
-        //}
-        return result;
+        return Segment.of(new ExternalSegment(), smc);
     }
 
 
     public ExternalSegment() {
-        super();
-        this.files = new ArrayList<>();
-        this.blobs = new ArrayList<>();
-        this.idShort = IdentifierHelper.randomId("LinkedSegment");
-        this.semanticId = ReferenceHelper.globalReference(Constants.LINKED_SEGMENT_SEMANTIC_ID);
+        this.idShort = IdentifierHelper.randomId("ExternalSegment");
+        this.semanticId = ReferenceHelper.globalReference(Constants.EXTERNAL_SEGMENT_SEMANTIC_ID);
+        withAdditionalValues(file);
     }
 
 
-    public List<File> getFiles() {
-        return files;
+    public File getFile() {
+        return file.getValue();
     }
 
 
-    public void setFiles(List<File> files) {
-        this.files = files;
-    }
-
-
-    public List<Blob> getBlobs() {
-        return blobs;
-    }
-
-
-    public void setBlobs(List<Blob> blobs) {
-        this.blobs = blobs;
-    }
-
-
-    @Override
-    public Collection<SubmodelElement> getValues() {
-        Collection<SubmodelElement> result = super.getValues();
-        // TODO
-        //result.add(new DefaultProperty.Builder()
-        //        .idShort(Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT)
-        //        .valueType(Datatype.STRING.getName())
-        //        .value(files)
-        //        .build());
-        //result.add(new DefaultProperty.Builder()
-        //        .idShort(Constants.LINKED_SEGMENT_QUERY_ID_SHORT)
-        //        .valueType(Datatype.STRING.getName())
-        //        .value(blobs)
-        //        .build());
-        return result;
+    /**
+     * Sets the file.
+     *
+     * @param file the file to set.
+     */
+    public void setFile(File file) {
+        this.file.setValue(file);
     }
 
 
@@ -118,26 +83,8 @@ public class ExternalSegment extends Segment {
 
     public abstract static class AbstractBuilder<T extends ExternalSegment, B extends AbstractBuilder<T, B>> extends Segment.AbstractBuilder<T, B> {
 
-        public B files(List<File> value) {
-            getBuildingInstance().setFiles(value);
-            return getSelf();
-        }
-
-
         public B file(File value) {
-            getBuildingInstance().getFiles().add(value);
-            return getSelf();
-        }
-
-
-        public B blobs(List<Blob> value) {
-            getBuildingInstance().setBlobs(value);
-            return getSelf();
-        }
-
-
-        public B blob(Blob value) {
-            getBuildingInstance().getBlobs().add(value);
+            getBuildingInstance().setFile(value);
             return getSelf();
         }
     }

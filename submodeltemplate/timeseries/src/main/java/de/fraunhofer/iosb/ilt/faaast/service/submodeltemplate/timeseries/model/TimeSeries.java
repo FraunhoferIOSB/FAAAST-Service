@@ -15,66 +15,122 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodel;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ListWrapper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.builder.SubmodelBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
 /**
  * Represents a time series according to SMT TimeSeries.
  */
-public class TimeSeries extends DefaultSubmodel {
+public class TimeSeries extends ExtendableSubmodel {
 
     @JsonIgnore
-    private List<Segment> segments;
+    private Wrapper<Metadata, SubmodelElementCollection> metadata = new ValueWrapper<Metadata, SubmodelElementCollection>(
+            submodelElements,
+            new Metadata(),
+            true,
+            SubmodelElementCollection.class,
+            x -> Objects.nonNull(x) ? x : new Metadata(),
+            x -> Objects.equals(Constants.TIMESERIES_METADATA_ID_SHORT, x.getIdShort()),
+            x -> {
+                try {
+                    return Objects.nonNull(x) ? Metadata.of(x) : new Metadata();
+                }
+                catch (ValueFormatException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
     @JsonIgnore
-    private Metadata metadata;
+    private ListWrapper<Segment, SubmodelElementCollection> segments;
+
+    @JsonIgnore
+    ExtendableSubmodelElementCollection segmentsList;
 
     /**
      * Creates a new instance based on a {@link io.adminshell.aas.v3.model.Submodel}.
      *
      * @param submodel the {@link io.adminshell.aas.v3.model.Submodel} to parse
      * @return the parsed {@link io.adminshell.aas.v3.model.Submodel} as {@link TimeSeries}, or null if input is null
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException if parsing values fails
      */
-    public static TimeSeries of(Submodel submodel) {
-        if (submodel == null) {
-            return null;
-        }
+    public static TimeSeries of(Submodel submodel) throws ValueFormatException {
         TimeSeries result = new TimeSeries();
-        AasHelper.applyBasicProperties(submodel, result);
-        List<SubmodelElement> elements = submodel.getSubmodelElements();
-        SubmodelElementCollection segments = AasHelper.getElementByIdShort(elements, Constants.TIMESERIES_SEGMENTS_ID_SHORT, SubmodelElementCollection.class);
-        if (segments != null) {
-            result.segments = segments.getValues().stream()
-                    .filter(Objects::nonNull)
-                    .filter(x -> SubmodelElementCollection.class.isAssignableFrom(x.getClass()))
-                    .map(x -> Segment.of((SubmodelElementCollection) x))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            elements.remove(segments);
+        Optional<SubmodelElementCollection> segments = submodel.getSubmodelElements().stream()
+                .filter(Objects::nonNull)
+                .filter(x -> SubmodelElementCollection.class.isAssignableFrom(x.getClass()))
+                .map(SubmodelElementCollection.class::cast)
+                .filter(x -> Objects.equals(x.getIdShort(), Constants.TIMESERIES_SEGMENTS_ID_SHORT))
+                .findFirst();
+        Submodel toParse = submodel;
+        if (segments.isPresent()) {
+            result.segmentsList = ExtendableSubmodelElementCollection.genericOf(result.segmentsList, segments.get());
+            toParse = DeepCopyHelper.deepCopy(submodel, Submodel.class);
+            toParse.setSubmodelElements(submodel.getSubmodelElements().stream()
+                    .filter(x -> !Objects.equals(segments.get(), x))
+                    .collect(Collectors.toList()));
         }
-        SubmodelElementCollection metadataSMC = AasHelper.getElementByIdShort(elements, Constants.TIMESERIES_METADATA_ID_SHORT, SubmodelElementCollection.class);
-        if (metadataSMC != null) {
-            result.metadata = Metadata.of(metadataSMC);
-            elements.remove(metadataSMC);
+        return ExtendableSubmodel.genericOf(result, toParse);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
         }
-        result.submodelElements = elements;
-        return result;
+        else if (obj == null) {
+            return false;
+        }
+        else if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        return super.equals(obj);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
     }
 
 
     public TimeSeries() {
-        this.segments = new ArrayList<>();
+        withAdditionalValues(metadata);
+        segmentsList = new ExtendableSubmodelElementCollection.Builder()
+                .idShort(Constants.TIMESERIES_SEGMENTS_ID_SHORT)
+                .build();
+        segments = new ListWrapper<>(
+                segmentsList.getValues(),
+                new ArrayList<>(),
+                SubmodelElementCollection.class,
+                x -> x,
+                x -> Constants.SEGMENTS_SEMANTIC_IDS.contains(x.getSemanticId()),
+                x -> {
+                    try {
+                        return Segment.of(x);
+                    }
+                    catch (ValueFormatException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+        segmentsList.withAdditionalValues(segments);
+        submodelElements.add(segmentsList);
         this.idShort = Constants.TIMESERIES_SUBMODEL_ID_SHORT;
         this.semanticId = ReferenceHelper.globalReference(Constants.TIMESERIES_SUBMODEL_SEMANTIC_ID);
     }
@@ -97,35 +153,32 @@ public class TimeSeries extends DefaultSubmodel {
 
 
     public List<Segment> getSegments() {
-        return segments;
+        return segments.getValue();
     }
 
 
+    /**
+     * Sets the segments of this time seris.
+     *
+     * @param segments the segments to set
+     */
     public void setSegments(List<Segment> segments) {
-        this.segments = segments;
+        this.segments.setValue(segments);
     }
 
 
     public Metadata getMetadata() {
-        return metadata;
+        return metadata.getValue();
     }
 
 
+    /**
+     * Sets the metadata.
+     *
+     * @param metadata the metadata to set
+     */
     public void setMetadata(Metadata metadata) {
-        this.metadata = metadata;
-    }
-
-
-    @Override
-    public List<SubmodelElement> getSubmodelElements() {
-        List<SubmodelElement> result = new ArrayList<>(super.getSubmodelElements());
-        result.add(new DefaultSubmodelElementCollection.Builder()
-                .idShort(Constants.TIMESERIES_SEGMENTS_ID_SHORT)
-                .semanticId(ReferenceHelper.globalReference(Constants.SEGMENTS_SEMANTIC_ID))
-                .values(segments.stream().map(x -> (SubmodelElement) x).collect(Collectors.toList()))
-                .build());
-        result.add(metadata);
-        return result;
+        this.metadata.setValue(metadata);
     }
 
 

@@ -16,54 +16,164 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.ZonedDateTimeComparator;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ListWrapper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.util.TimeUnitHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.ModelingKind;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.builder.SubmodelElementCollectionBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 /**
  * Represents a segment according to SMT TimeSeries.
  */
-public abstract class Segment extends DefaultSubmodelElementCollection {
+public abstract class Segment extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
-    protected Optional<Long> recordCount;
+    private ListWrapper<Record, SubmodelElementCollection> records;
+
     @JsonIgnore
-    protected Optional<Long> samplingInterval;
-    @JsonIgnore
-    protected Optional<TimeUnit> samplingIntervalUnit;
-    @JsonIgnore
-    protected Optional<Long> samplingRate;
-    @JsonIgnore
-    protected Optional<TimeUnit> samplingRateUnit;
-    @JsonIgnore
-    protected String dataKind;
-    @JsonIgnore
-    protected List<Record> records;
-    @JsonIgnore
-    protected Optional<ZonedDateTime> start;
-    @JsonIgnore
-    protected Optional<ZonedDateTime> end;
+    ExtendableSubmodelElementCollection recordsList;
+
     @JsonIgnore
     private boolean calculatePropertiesIfNotPresent;
+
+    @JsonIgnore
+    private final Wrapper<Long, Property> recordCount = new ValueWrapper<Long, Property>(
+            values,
+            null,
+            true,
+            Property.class,
+            x -> Objects.nonNull(x) || calculatePropertiesIfNotPresent
+                    ? new DefaultProperty.Builder()
+                            .idShort(Constants.SEGMENT_RECORD_COUNT_ID_SHORT)
+                            .valueType(Datatype.LONG.getName())
+                            .value(Long.toString(Optional
+                                    .ofNullable(x)
+                                    .orElse(Long.valueOf(records.getValue().size()))))
+                            .build()
+                    : null,
+            x -> Objects.equals(Constants.SEGMENT_RECORD_COUNT_ID_SHORT, x.getIdShort()),
+            x -> Long.parseLong(x.getValue()));
+
+    @JsonIgnore
+    private final Wrapper<IntervalWithUnit, Property> samplingInterval = new ValueWrapper<>(
+            values,
+            null,
+            false,
+            Property.class,
+            x -> new DefaultProperty.Builder()
+                    .idShort(Constants.SEGMENT_SAMPLING_INTERVAL_ID_SHORT)
+                    .semanticId(Objects.nonNull(x.getUnit()) ? TimeUnitHelper.toSemanticId(x.getUnit()) : null)
+                    .valueType(Datatype.LONG.getName())
+                    .value(Long.toString(x.getInterval()))
+                    .build(),
+            x -> Objects.equals(Constants.SEGMENT_SAMPLING_INTERVAL_ID_SHORT, x.getIdShort()),
+            x -> new IntervalWithUnit(Long.parseLong(x.getValue()), TimeUnitHelper.fromSemanticId(x.getSemanticId())));
+
+    @JsonIgnore
+    private final Wrapper<IntervalWithUnit, Property> samplingRate = new ValueWrapper<>(
+            values,
+            null,
+            false,
+            Property.class,
+            x -> new DefaultProperty.Builder()
+                    .idShort(Constants.SEGMENT_SAMPLING_RATE_ID_SHORT)
+                    .semanticId(Objects.nonNull(x.getUnit()) ? TimeUnitHelper.toSemanticId(x.getUnit()) : null)
+                    .valueType(Datatype.LONG.getName())
+                    .value(Long.toString(x.getInterval()))
+                    .build(),
+            x -> Objects.equals(Constants.SEGMENT_SAMPLING_RATE_ID_SHORT, x.getIdShort()),
+            x -> new IntervalWithUnit(Long.parseLong(x.getValue()), TimeUnitHelper.fromSemanticId(x.getSemanticId())));
+
+    @JsonIgnore
+    private Wrapper<String, Property> dataKind = new ValueWrapper<String, Property>(
+            values,
+            null,
+            false,
+            Property.class,
+            x -> new DefaultProperty.Builder()
+                    .idShort(Constants.SEGMENT_KIND_ID_SHORT)
+                    //.semanticId("???")
+                    .valueType(Datatype.STRING.getName())
+                    .value(x)
+                    .build(),
+            x -> Objects.equals(Constants.SEGMENT_KIND_ID_SHORT, x.getIdShort()),
+            x -> x.getValue());
+
+    private void updateCalculatedProperties() {
+        start.setValue(start.getValue());
+        end.setValue(end.getValue());
+        recordCount.setValue(recordCount.getValue());
+    }
+
+
+    @Override
+    public Collection<SubmodelElement> getValues() {
+        updateCalculatedProperties();
+        return super.getValues();
+    }
+
+    @JsonIgnore
+    private Wrapper<ZonedDateTime, Property> start = new ValueWrapper<ZonedDateTime, Property>(
+            values,
+            null,
+            true,
+            Property.class,
+            x -> Objects.nonNull(x) || (calculatePropertiesIfNotPresent && !records.isEmpty())
+                    ? new DefaultProperty.Builder()
+                            .idShort(Constants.SEGMENT_START_TIME_ID_SHORT)
+                            .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
+                            .valueType(Datatype.DATE_TIME.getName())
+                            .value(Objects.toString(
+                                    Optional.ofNullable(x)
+                                            .orElse(records.stream()
+                                                    .map(y -> y.getTime())
+                                                    .min(new ZonedDateTimeComparator())
+                                                    .orElse(null))))
+                            .build()
+                    : null,
+            x -> Objects.equals(Constants.SEGMENT_START_TIME_ID_SHORT, x.getIdShort()),
+            x -> ZonedDateTime.parse(x.getValue()));
+
+    @JsonIgnore
+    private Wrapper<ZonedDateTime, Property> end = new ValueWrapper<ZonedDateTime, Property>(
+            values,
+            null,
+            true,
+            Property.class,
+            x -> Objects.nonNull(x) || (calculatePropertiesIfNotPresent && !records.isEmpty())
+                    ? new DefaultProperty.Builder()
+                            .idShort(Constants.SEGMENT_END_TIME_ID_SHORT)
+                            .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
+                            .valueType(Datatype.DATE_TIME.getName())
+                            .value(Objects.toString(
+                                    Optional.ofNullable(x).orElse(records.stream()
+                                            .map(y -> y.getTime())
+                                            .max(new ZonedDateTimeComparator())
+                                            .orElse(null))))
+                            .build()
+                    : null,
+            x -> Objects.equals(Constants.SEGMENT_END_TIME_ID_SHORT, x.getIdShort()),
+            x -> ZonedDateTime.parse(x.getValue()));
 
     /**
      * Parses a given {@link io.adminshell.aas.v3.model.SubmodelElementCollection} into a {@link Segment}. Which
@@ -72,8 +182,10 @@ public abstract class Segment extends DefaultSubmodelElementCollection {
      * @param smc the {@link io.adminshell.aas.v3.model.SubmodelElementCollection} to parse
      * @return the parsed {@link io.adminshell.aas.v3.model.SubmodelElementCollection} as {@link Segment}, or null if
      *         input is null
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException if parsing values fails
+     * @throws IllegalArgumentException if segment type is not supported
      */
-    public static Segment of(SubmodelElementCollection smc) {
+    public static Segment of(SubmodelElementCollection smc) throws ValueFormatException {
         if (smc == null) {
             return null;
         }
@@ -84,172 +196,6 @@ public abstract class Segment extends DefaultSubmodelElementCollection {
             return LinkedSegment.of(smc);
         }
         throw new IllegalArgumentException(String.format("unsupported segment type (semanticId: %s)", AasUtils.asString(smc.getSemanticId())));
-    }
-
-
-    /**
-     * Helper method to parse common elements of all segments from a given
-     * {@link io.adminshell.aas.v3.model.SubmodelElementCollection}.
-     *
-     * @param <T> subtype of {@link Segment} expected
-     * @param target target instance to update with parsed values
-     * @param src {@link io.adminshell.aas.v3.model.SubmodelElementCollection} to parse
-     */
-    protected static <T extends Segment> void of(T target, SubmodelElementCollection src) {
-        AasHelper.applyBasicProperties(src, target);
-        for (var sme: src.getValues()) {
-            if (Property.class.isAssignableFrom(sme.getClass())) {
-                Property property = (Property) sme;
-                switch (sme.getIdShort()) {
-                    case Constants.SEGMENT_RECORD_COUNT_ID_SHORT: {
-                        target.recordCount = Optional.ofNullable(Long.parseLong(property.getValue()));
-                        break;
-                    }
-                    case Constants.SEGMENT_START_TIME_ID_SHORT: {
-                        target.start = Optional.ofNullable(ZonedDateTime.parse(property.getValue()));
-                        break;
-                    }
-                    case Constants.SEGMENT_END_TIME_ID_SHORT: {
-                        target.end = Optional.ofNullable(ZonedDateTime.parse(property.getValue()));
-                        break;
-                    }
-                    case Constants.SEGMENT_SAMPLING_INTERVAL_ID_SHORT: {
-                        target.samplingInterval = Optional.of(Long.parseLong(property.getValue()));
-                        target.samplingIntervalUnit = Optional.ofNullable(TimeUnitHelper.fromSemanticId(property.getSemanticId()));
-                        break;
-                    }
-                    case Constants.SEGMENT_SAMPLING_RATE_ID_SHORT: {
-                        target.samplingRate = Optional.of(Long.parseLong(property.getValue()));
-                        target.samplingRateUnit = Optional.ofNullable(TimeUnitHelper.fromSemanticId(property.getSemanticId()));
-                        break;
-                    }
-                    case Constants.SEGMENT_KIND_ID_SHORT: {
-                        target.kind = ModelingKind.valueOf(property.getValue());
-                        break;
-                    }
-                    default: {
-                        target.values.add(sme);
-                    }
-                }
-            }
-            else {
-                target.values.add(sme);
-            }
-        }
-    }
-
-
-    public Segment() {
-        this.recordCount = Optional.empty();
-        this.records = new ArrayList<>();
-        this.start = Optional.empty();
-        this.end = Optional.empty();
-        this.samplingInterval = Optional.empty();
-        this.samplingIntervalUnit = Optional.empty();
-        this.samplingRate = Optional.empty();
-        this.samplingRateUnit = Optional.empty();
-        this.idShort = IdentifierHelper.randomId("Segment");
-        this.calculatePropertiesIfNotPresent = true;
-    }
-
-
-    public Optional<Long> getSamplingInterval() {
-        return samplingInterval;
-    }
-
-
-    public void setSamplingInterval(long samplingInterval) {
-        this.samplingInterval = Optional.of(samplingInterval);
-    }
-
-
-    public long getRecordCount() {
-        return recordCount.orElse(Long.valueOf(records.size()));
-    }
-
-
-    public void setRecordCount(long recordCount) {
-        this.recordCount = Optional.ofNullable(recordCount);
-    }
-
-
-    public Optional<TimeUnit> getSamplingIntervalUnit() {
-        return samplingIntervalUnit;
-    }
-
-
-    public void setSamplingIntervalUnit(TimeUnit samplingIntervalUnit) {
-        this.samplingIntervalUnit = Optional.ofNullable(samplingIntervalUnit);
-    }
-
-
-    public Optional<Long> getSamplingRate() {
-        return samplingRate;
-    }
-
-
-    public void setSamplingRate(long samplingRate) {
-        this.samplingRate = Optional.of(samplingRate);
-    }
-
-
-    public Optional<TimeUnit> getSamplingRateUnit() {
-        return samplingRateUnit;
-    }
-
-
-    public void setSamplingRateUnit(TimeUnit samplingRateUnit) {
-        this.samplingRateUnit = Optional.ofNullable(samplingRateUnit);
-    }
-
-
-    public String getDataKind() {
-        return dataKind;
-    }
-
-
-    public void setDataKind(String dataKind) {
-        this.dataKind = dataKind;
-    }
-
-
-    public List<Record> getRecords() {
-        return records;
-    }
-
-
-    public void setRecords(List<Record> records) {
-        this.records = records;
-    }
-
-
-    public Optional<ZonedDateTime> getStart() {
-        return start;
-    }
-
-
-    public void setStart(Optional<ZonedDateTime> start) {
-        this.start = start;
-    }
-
-
-    public Optional<ZonedDateTime> getEnd() {
-        return end;
-    }
-
-
-    public void setEnd(Optional<ZonedDateTime> end) {
-        this.end = end;
-    }
-
-
-    public boolean getCalculatePropertiesIfNotPresent() {
-        return calculatePropertiesIfNotPresent;
-    }
-
-
-    public void setCalculatePropertiesIfNotPresent(boolean calculatePropertiesIfNotPresent) {
-        this.calculatePropertiesIfNotPresent = calculatePropertiesIfNotPresent;
     }
 
 
@@ -266,111 +212,196 @@ public abstract class Segment extends DefaultSubmodelElementCollection {
         }
         else {
             Segment other = (Segment) obj;
-            return super.equals(other)
-                    // use getters as they may hide optional value
-                    && Objects.equals(getRecordCount(), other.getRecordCount())
-                    && Objects.equals(this.start, other.start)
-                    && Objects.equals(this.end, other.end)
-                    && Objects.equals(this.samplingInterval, other.samplingInterval)
-                    && Objects.equals(this.samplingIntervalUnit, other.samplingIntervalUnit)
-                    && Objects.equals(this.samplingRate, other.samplingRate)
-                    && Objects.equals(this.samplingRateUnit, other.samplingRateUnit)
-                    && Objects.equals(this.kind, other.kind)
-                    && Objects.equals(this.records, other.records);
+            return super.equals(obj)
+                    && Objects.equals(this.calculatePropertiesIfNotPresent, other.calculatePropertiesIfNotPresent)
+                    && Objects.equals(this.dataKind, other.dataKind);
         }
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(),
-                getRecordCount(),
-                this.start,
-                this.end,
-                this.samplingInterval,
-                this.samplingIntervalUnit,
-                this.samplingRate,
-                this.samplingRateUnit,
-                this.kind,
-                this.records);
+        return Objects.hash(super.hashCode(), calculatePropertiesIfNotPresent, dataKind);
     }
 
 
-    @Override
-    public Collection<SubmodelElement> getValues() {
-        List<SubmodelElement> result = new ArrayList<>();
-        if (recordCount.isPresent() || calculatePropertiesIfNotPresent) {
-            result.add(new DefaultProperty.Builder()
-                    .idShort(Constants.SEGMENT_RECORD_COUNT_ID_SHORT)
-                    .valueType(Datatype.LONG.getName())
-                    .value(Long.toString(getRecordCount()))
-                    .build());
+    /**
+     * Parses a given {@link SubmodelElementCollection} into a segment.
+     *
+     * @param <T> actual type of segment
+     * @param target (empty) instance of actual segment type to parse into; this object will be modified by this method!
+     * @param smc SubmodelElementCollection to parse
+     * @return the modified {@code target}
+     */
+    protected static <T extends Segment> T of(T target, SubmodelElementCollection smc) {
+        Optional<SubmodelElementCollection> records = smc.getValues().stream()
+                .filter(Objects::nonNull)
+                .filter(x -> SubmodelElementCollection.class.isAssignableFrom(x.getClass()))
+                .map(SubmodelElementCollection.class::cast)
+                .filter(x -> Objects.equals(x.getIdShort(), Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT))
+                .findFirst();
+        SubmodelElementCollection toParse = smc;
+        if (records.isPresent()) {
+            target.recordsList = ExtendableSubmodelElementCollection.genericOf(target.recordsList, records.get());
+            toParse = DeepCopyHelper.deepCopy(smc, SubmodelElementCollection.class);
+            toParse.setValues(smc.getValues().stream()
+                    .filter(x -> !Objects.equals(records.get(), x))
+                    .collect(Collectors.toList()));
         }
-        if (start.isPresent() || (calculatePropertiesIfNotPresent && !records.isEmpty())) {
-            result.add(new DefaultProperty.Builder()
-                    .idShort(Constants.SEGMENT_START_TIME_ID_SHORT)
-                    .semanticId(ReferenceHelper.globalReference(Constants.SEGMENT_START_TIME_ID_SHORT))
-                    .valueType(Datatype.DATE_TIME.getName())
-                    .value(Objects.toString(
-                            start.orElse(records.stream()
-                                    .map(x -> x.getTime())
-                                    .min(new ZonedDateTimeComparator())
-                                    .orElse(null))))
-                    .build());
-        }
-        if (end.isPresent() || (calculatePropertiesIfNotPresent && !records.isEmpty())) {
-            result.add(new DefaultProperty.Builder()
-                    .idShort(Constants.SEGMENT_END_TIME_ID_SHORT)
-                    .semanticId(ReferenceHelper.globalReference(Constants.SEGMENT_END_TIME_ID_SHORT))
-                    .valueType(Datatype.DATE_TIME.getName())
-                    .value(Objects.toString(
-                            end.orElse(records.stream()
-                                    .map(x -> x.getTime())
-                                    .max(new ZonedDateTimeComparator())
-                                    .orElse(null))))
-                    .build());
-        }
-        if (samplingInterval.isPresent()) {
-            result.add(new DefaultProperty.Builder()
-                    .idShort(Constants.SEGMENT_SAMPLING_INTERVAL_ID_SHORT)
-                    .semanticId(samplingIntervalUnit.isPresent() ? TimeUnitHelper.toSemanticId(samplingIntervalUnit.get()) : null)
-                    .valueType(Datatype.LONG.getName())
-                    .value(Long.toString(samplingInterval.get()))
-                    .build());
-        }
-        if (samplingRate.isPresent()) {
-            result.add(new DefaultProperty.Builder()
-                    .idShort(Constants.SEGMENT_SAMPLING_RATE_ID_SHORT)
-                    .semanticId(samplingIntervalUnit.isPresent() ? TimeUnitHelper.toSemanticId(samplingRateUnit.get()) : null)
-                    .valueType(Datatype.LONG.getName())
-                    .value(Long.toString(samplingRate.get()))
-                    .build());
-        }
-        return result;
+        return ExtendableSubmodelElementCollection.genericOf(target, toParse);
+    }
+
+
+    public Segment() {
+        withAdditionalValues(dataKind, recordCount, start, end, samplingInterval, samplingRate);
+        recordsList = new ExtendableSubmodelElementCollection.Builder()
+                .idShort(Constants.INTERNAL_SEGMENT_RECORDS_ID_SHORT)
+                .build();
+        records = new ListWrapper<>(
+                recordsList.getValues(),
+                new ArrayList<>(),
+                SubmodelElementCollection.class,
+                x -> x,
+                x -> Objects.equals(ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID), x.getSemanticId()),
+                x -> {
+                    try {
+                        return Record.of(x);
+                    }
+                    catch (ValueFormatException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+        recordsList.withAdditionalValues(records);
+        values.add(recordsList);
+        this.idShort = IdentifierHelper.randomId("Segment");
+        this.calculatePropertiesIfNotPresent = false;
+    }
+
+
+    public IntervalWithUnit getSamplingInterval() {
+        return samplingInterval.getValue();
+    }
+
+
+    /**
+     * Sets the sampling interval.
+     *
+     * @param samplingInterval the sampling interval to set
+     */
+    public void setSamplingInterval(IntervalWithUnit samplingInterval) {
+        this.samplingInterval.setValue(samplingInterval);
+    }
+
+
+    public Long getRecordCount() {
+        return recordCount.getValue();
+    }
+
+
+    /**
+     * Sets the record count.
+     *
+     * @param recordCount the record count to set
+     */
+    public void setRecordCount(long recordCount) {
+        this.recordCount.setValue(recordCount);
+    }
+
+
+    public IntervalWithUnit getSamplingRate() {
+        return samplingRate.getValue();
+    }
+
+
+    /**
+     * Sets the sampling rate.
+     *
+     * @param samplingRate the sampling rate to set
+     */
+    public void setSamplingRate(IntervalWithUnit samplingRate) {
+        this.samplingRate.setValue(samplingRate);
+    }
+
+
+    public String getDataKind() {
+        return dataKind.getValue();
+    }
+
+
+    /**
+     * Sets the data kind..
+     *
+     * @param dataKind the data kind to set
+     */
+    public void setDataKind(String dataKind) {
+        this.dataKind.setValue(dataKind);
+    }
+
+
+    public List<Record> getRecords() {
+        return records.getValue();
+    }
+
+
+    /**
+     * Sets the records of this segment.
+     *
+     * @param records the records to set
+     */
+    public void setRecords(List<Record> records) {
+        this.records.setValue(records);
+    }
+
+
+    public ZonedDateTime getStart() {
+        return start.getValue();
+    }
+
+
+    /**
+     * Sets the start of this segment.
+     *
+     * @param start the start to set
+     */
+    public void setStart(ZonedDateTime start) {
+        this.start.setValue(start);
+    }
+
+
+    public ZonedDateTime getEnd() {
+        return end.getValue();
+    }
+
+
+    /**
+     * Sets the end of this segment.
+     *
+     * @param end the end to set
+     */
+    public void setEnd(ZonedDateTime end) {
+        this.end.setValue(end);
+    }
+
+
+    public boolean getCalculatePropertiesIfNotPresent() {
+        return calculatePropertiesIfNotPresent;
+    }
+
+
+    public void setCalculatePropertiesIfNotPresent(boolean calculatePropertiesIfNotPresent) {
+        this.calculatePropertiesIfNotPresent = calculatePropertiesIfNotPresent;
     }
 
     public abstract static class AbstractBuilder<T extends Segment, B extends AbstractBuilder<T, B>> extends SubmodelElementCollectionBuilder<T, B> {
 
-        public B samplingInterval(long value) {
+        public B samplingInterval(IntervalWithUnit value) {
             getBuildingInstance().setSamplingInterval(value);
             return getSelf();
         }
 
 
-        public B samplingRate(long value) {
+        public B samplingRate(IntervalWithUnit value) {
             getBuildingInstance().setSamplingRate(value);
-            return getSelf();
-        }
-
-
-        public B samplingRateUnit(TimeUnit value) {
-            getBuildingInstance().setSamplingRateUnit(value);
-            return getSelf();
-        }
-
-
-        public B samplingIntervalUnit(TimeUnit value) {
-            getBuildingInstance().setSamplingIntervalUnit(value);
             return getSelf();
         }
 
@@ -388,13 +419,13 @@ public abstract class Segment extends DefaultSubmodelElementCollection {
 
 
         public B start(ZonedDateTime value) {
-            getBuildingInstance().setStart(Optional.ofNullable(value));
+            getBuildingInstance().setStart(value);
             return getSelf();
         }
 
 
         public B end(ZonedDateTime value) {
-            getBuildingInstance().setEnd(Optional.ofNullable(value));
+            getBuildingInstance().setEnd(value);
             return getSelf();
         }
 

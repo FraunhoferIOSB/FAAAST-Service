@@ -28,8 +28,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.L
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Metadata;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Record;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.Timespan;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProviderException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.AbstractInfluxLinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.influx.util.ClientHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -58,75 +60,79 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
 
 
     @Override
-    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, Timespan timespan) {
+    public List<Record> getRecords(Metadata metadata, LinkedSegment segment, Timespan timespan) throws SegmentProviderException {
         return getRecords(metadata, withTimeFilter(segment.getQuery(), timespan));
     }
 
 
     @Override
-    public List<Record> getRecords(Metadata metadata, LinkedSegment segment) {
+    public List<Record> getRecords(Metadata metadata, LinkedSegment segment) throws SegmentProviderException {
         return getRecords(metadata, segment.getQuery());
     }
 
 
     @Override
-    protected List<Record> getRecords(Metadata metadata, String query) {
+    protected List<Record> getRecords(Metadata metadata, String query) throws SegmentProviderException {
         return isInfluxQL(query)
                 ? getRecordsInfluxQL(metadata, query)
                 : getRecordsFlux(metadata, query);
     }
 
 
-    private List<Record> toRecords(Metadata metadata, InfluxQLQueryResult result) {
+    private List<Record> toRecords(Metadata metadata, InfluxQLQueryResult result) throws SegmentProviderException {
         if (result == null || result.getResults() == null) {
             return new ArrayList<>();
         }
         return result.getResults().stream()
-                .flatMap(x -> toRecords(metadata, x).stream())
+                .flatMap(LambdaExceptionHelper.rethrowFunction(x -> toRecords(metadata, x).stream()))
                 .collect(Collectors.toList());
     }
 
 
-    private List<Record> toRecords(Metadata metadata, InfluxQLQueryResult.Result result) {
+    private List<Record> toRecords(Metadata metadata, InfluxQLQueryResult.Result result) throws SegmentProviderException {
         if (result == null || result.getSeries() == null) {
             return new ArrayList<>();
         }
         return result.getSeries().stream()
-                .flatMap(x -> x.getValues().stream().map(y -> toRecord(metadata, x.getColumns(), y.getValues())))
+                .flatMap(LambdaExceptionHelper.rethrowFunction(
+                        x -> x.getValues().stream()
+                                .map(LambdaExceptionHelper.rethrowFunction(
+                                        y -> toRecord(metadata, x.getColumns(), y.getValues())))))
                 .collect(Collectors.toList());
     }
 
 
-    private Record toRecord(Metadata metadata, Map<String, Integer> fields, Object[] values) {
+    private Record toRecord(Metadata metadata, Map<String, Integer> fields, Object[] values) throws SegmentProviderException {
         Record result = new Record();
-        fields.forEach((fieldName, index) -> {
-            Object fieldValue = values[index];
-            if (fieldValue != null) {
-                if (TIME_FIELD.equals(fieldName)) {
-                    result.setTime(ZonedDateTime.ofInstant(
-                            Instant.ofEpochMilli(
-                                    TimeUnit.MILLISECONDS.convert(
-                                            Long.parseLong(fieldValue.toString()),
-                                            TimeUnit.NANOSECONDS)),
-                            ZoneOffset.UTC));
-                }
-                else if (metadata.getRecordMetadata().containsKey(fieldName)) {
-                    try {
-                        result.getVariables().put(
-                                fieldName,
-                                parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
+        fields.forEach(LambdaExceptionHelper.rethrowBiConsumer(
+                (fieldName, index) -> {
+                    Object fieldValue = values[index];
+                    if (fieldValue != null) {
+                        if (TIME_FIELD.equals(fieldName)) {
+                            result.setTime(ZonedDateTime.ofInstant(
+                                    Instant.ofEpochMilli(
+                                            TimeUnit.MILLISECONDS.convert(
+                                                    Long.parseLong(fieldValue.toString()),
+                                                    TimeUnit.NANOSECONDS)),
+                                    ZoneOffset.UTC));
+                        }
+                        else if (metadata.getRecordMetadata().containsKey(fieldName)) {
+                            try {
+                                result.getVariables().put(
+                                        fieldName,
+                                        parseValue(fieldValue, metadata.getRecordMetadata().get(fieldName)));
+                            }
+                            catch (ValueFormatException e) {
+                                throw new SegmentProviderException("Error reading from InfluxDB - conversion error", e);
+                            }
+                        }
                     }
-                    catch (ValueFormatException ex) {
-                        LOGGER.warn("Error reading from InfluxDB - conversion error", ex);
-                    }
-                }
-            }
-        });
+                }));
         return result;
     }
 
 
-    private List<Record> getRecordsInfluxQL(Metadata metadata, String query) {
+    private List<Record> getRecordsInfluxQL(Metadata metadata, String query) throws SegmentProviderException {
         try (InfluxDBClient client = ClientHelper.createClient(
                 config.getEndpoint(),
                 config.getBucket(),
@@ -136,10 +142,13 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                 config.getToken())) {
             return toRecords(metadata, client.getInfluxQLQueryApi().query(new InfluxQLQuery(query, config.getBucket())));
         }
+        catch (Exception e) {
+            throw new SegmentProviderException("error reading data from influx", e);
+        }
     }
 
 
-    private List<Record> getRecordsFlux(Metadata metadata, String query) {
+    private List<Record> getRecordsFlux(Metadata metadata, String query) throws SegmentProviderException {
         try (InfluxDBClient client = ClientHelper.createClient(
                 config.getEndpoint(),
                 config.getBucket(),
@@ -171,6 +180,9 @@ public class InfluxV2LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
                 }
             }
             return Arrays.asList(result);
+        }
+        catch (Exception e) {
+            throw new SegmentProviderException("error reading data from influx", e);
         }
     }
 

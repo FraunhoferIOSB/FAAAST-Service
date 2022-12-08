@@ -17,14 +17,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
-import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ValueWrapper;
+import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import java.util.Collection;
+import java.util.Objects;
 
 
 /**
@@ -33,9 +33,32 @@ import java.util.Collection;
 public class LinkedSegment extends Segment {
 
     @JsonIgnore
-    private String endpoint;
+    private final Wrapper<String, Property> endpoint = new ValueWrapper<String, Property>(
+            values,
+            null,
+            true,
+            Property.class,
+            x -> new DefaultProperty.Builder()
+                    .idShort(Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT)
+                    .valueType(Datatype.STRING.getName())
+                    .value(x)
+                    .build(),
+            x -> Objects.equals(Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT, x.getIdShort()),
+            x -> x.getValue());
+
     @JsonIgnore
-    private String query;
+    private final Wrapper<String, Property> query = new ValueWrapper<String, Property>(
+            values,
+            null,
+            true,
+            Property.class,
+            x -> new DefaultProperty.Builder()
+                    .idShort(Constants.LINKED_SEGMENT_QUERY_ID_SHORT)
+                    .valueType(Datatype.STRING.getName())
+                    .value(x)
+                    .build(),
+            x -> Objects.equals(Constants.LINKED_SEGMENT_QUERY_ID_SHORT, x.getIdShort()),
+            x -> x.getValue());
 
     /**
      * Creates a new instance based on a {@link io.adminshell.aas.v3.model.SubmodelElementCollection}.
@@ -45,66 +68,65 @@ public class LinkedSegment extends Segment {
      *         if input is null
      */
     public static LinkedSegment of(SubmodelElementCollection smc) {
-        if (smc == null) {
-            return null;
-        }
-        LinkedSegment result = new LinkedSegment();
-        Segment.of(result, smc);
-        Property endpoint = AasHelper.getElementByIdShort(result.values, Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT, Property.class);
-        if (endpoint != null) {
-            result.endpoint = endpoint.getValue();
-            result.values.remove(endpoint);
-        }
-        Property query = AasHelper.getElementByIdShort(result.values, Constants.LINKED_SEGMENT_QUERY_ID_SHORT, Property.class);
-        if (query != null) {
-            result.query = query.getValue();
-            result.values.remove(query);
-        }
-        return result;
+        return Segment.of(new LinkedSegment(), smc);
     }
 
 
     public LinkedSegment() {
-        super();
         this.idShort = IdentifierHelper.randomId("LinkedSegment");
         this.semanticId = ReferenceHelper.globalReference(Constants.LINKED_SEGMENT_SEMANTIC_ID);
+        withAdditionalValues(endpoint, query);
     }
 
 
     public String getEndpoint() {
-        return endpoint;
-    }
-
-
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-    }
-
-
-    public String getQuery() {
-        return query;
-    }
-
-
-    public void setQuery(String query) {
-        this.query = query;
+        return endpoint.getValue();
     }
 
 
     @Override
-    public Collection<SubmodelElement> getValues() {
-        Collection<SubmodelElement> result = super.getValues();
-        result.add(new DefaultProperty.Builder()
-                .idShort(Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT)
-                .valueType(Datatype.STRING.getName())
-                .value(endpoint)
-                .build());
-        result.add(new DefaultProperty.Builder()
-                .idShort(Constants.LINKED_SEGMENT_QUERY_ID_SHORT)
-                .valueType(Datatype.STRING.getName())
-                .value(query)
-                .build());
-        return result;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        else if (obj == null) {
+            return false;
+        }
+        else if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        return super.equals(obj);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
+
+    /**
+     * Sets the endpoint.
+     *
+     * @param endpoint the endpoint to set
+     */
+    public void setEndpoint(String endpoint) {
+        this.endpoint.setValue(endpoint);
+    }
+
+
+    public String getQuery() {
+        return query.getValue();
+    }
+
+
+    /**
+     * Sets the quey.
+     *
+     * @param query the query to set
+     */
+    public void setQuery(String query) {
+        this.query.setValue(query);
     }
 
 
