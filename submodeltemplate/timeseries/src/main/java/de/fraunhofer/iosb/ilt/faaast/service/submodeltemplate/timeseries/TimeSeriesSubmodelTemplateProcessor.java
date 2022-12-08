@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.SubmodelTemplatePr
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.LinkedSegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.provider.SegmentProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.util.AasHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.LangString;
@@ -72,15 +73,9 @@ public class TimeSeriesSubmodelTemplateProcessor implements SubmodelTemplateProc
     public void init(CoreConfig coreConfig, TimeSeriesSubmodelTemplateProcessorConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
         segmentProviders = new HashMap<>();
-        config.getLinkedSegmentProviders().forEach(x -> {
-            try {
-                segmentProviders.put(x.getEndpoint(), (LinkedSegmentProvider) x.newInstance(coreConfig, serviceContext));
-            }
-            catch (ConfigurationException e) {
-                throw new RuntimeException(e);
-            }
-        });
         try {
+            config.getLinkedSegmentProviders()
+                    .forEach(LambdaExceptionHelper.rethrowConsumer(x -> segmentProviders.put(x.getEndpoint(), (LinkedSegmentProvider) x.newInstance(coreConfig, serviceContext))));
             internalSegmentProvider = (SegmentProvider) config.getInternalSegmentProvider().newInstance(coreConfig, serviceContext);
         }
         catch (ConfigurationException e) {

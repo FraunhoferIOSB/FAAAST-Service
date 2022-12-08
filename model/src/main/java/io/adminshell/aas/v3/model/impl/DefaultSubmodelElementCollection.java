@@ -74,9 +74,6 @@ public class DefaultSubmodelElementCollection implements SubmodelElementCollecti
     @IRI("https://admin-shell.io/aas/3/0/RC01/SubmodelElementCollection/value")
     protected Collection<SubmodelElement> values = new ArrayList<>();
 
-    public DefaultSubmodelElementCollection() {}
-
-
     @Override
     public int hashCode() {
         return Objects.hash(this.allowDuplicates,

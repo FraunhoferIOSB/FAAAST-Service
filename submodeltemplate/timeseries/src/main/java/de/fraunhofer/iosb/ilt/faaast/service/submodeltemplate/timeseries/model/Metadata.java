@@ -39,49 +39,6 @@ import java.util.Objects;
  */
 public class Metadata extends ExtendableSubmodelElementCollection {
 
-    private static class RecordMetadata extends ExtendableSubmodelElementCollection {
-
-        @JsonIgnore
-        Wrapper<Map<String, Datatype>, Property> variables = new MapWrapper<String, Datatype, Property>(
-                values,
-                new HashMap<>(),
-                Property.class,
-                x -> new DefaultProperty.Builder()
-                        .idShort(x.getKey())
-                        .valueType(x.getValue().getName())
-                        .build(),
-                x -> !Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
-                x -> new AbstractMap.SimpleEntry<>(
-                        x.getIdShort(),
-                        Datatype.fromName(x.getValueType())));
-
-        RecordMetadata() {
-            withAdditionalValues(variables);
-            this.idShort = Constants.METADATA_RECORD_METADATA_ID_SHORT;
-        }
-
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            else if (obj == null) {
-                return false;
-            }
-            else if (this.getClass() != obj.getClass()) {
-                return false;
-            }
-            return super.equals(obj);
-        }
-
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(super.hashCode());
-        }
-    }
-
     @JsonIgnore
     private ValueWrapper<RecordMetadata, SubmodelElementCollection> recordMetadata = new ValueWrapper<RecordMetadata, SubmodelElementCollection>(
             values,
@@ -150,6 +107,48 @@ public class Metadata extends ExtendableSubmodelElementCollection {
         this.recordMetadata.getValue().variables.setValue(recordMetadata);
     }
 
+    private static class RecordMetadata extends ExtendableSubmodelElementCollection {
+
+        @JsonIgnore
+        Wrapper<Map<String, Datatype>, Property> variables = new MapWrapper<String, Datatype, Property>(
+                values,
+                new HashMap<>(),
+                Property.class,
+                x -> new DefaultProperty.Builder()
+                        .idShort(x.getKey())
+                        .valueType(x.getValue().getName())
+                        .build(),
+                x -> !Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
+                x -> new AbstractMap.SimpleEntry<>(
+                        x.getIdShort(),
+                        Datatype.fromName(x.getValueType())));
+
+        RecordMetadata() {
+            withAdditionalValues(variables);
+            this.idShort = Constants.METADATA_RECORD_METADATA_ID_SHORT;
+        }
+
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            else if (obj == null) {
+                return false;
+            }
+            else if (this.getClass() != obj.getClass()) {
+                return false;
+            }
+            return super.equals(obj);
+        }
+
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode());
+        }
+    }
 
     public static Builder builder() {
         return new Builder();

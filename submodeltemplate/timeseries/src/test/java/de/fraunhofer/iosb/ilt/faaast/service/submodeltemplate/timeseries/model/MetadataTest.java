@@ -14,9 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
-import static de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData.FIELD_1;
-import static de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData.FIELD_2;
-
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
@@ -131,13 +128,13 @@ public class MetadataTest extends BaseModelTest {
         Metadata metadata = new Metadata();
         assertAASElements(metadata, METADATA_RECORD_EMPTY);
 
-        metadata.getRecordMetadata().put(FIELD_1, Datatype.INT);
+        metadata.getRecordMetadata().put(TimeSeriesData.FIELD_1, Datatype.INT);
         assertAASElements(metadata, METADATA_RECORD_FIELD1);
 
-        metadata.getRecordMetadata().put(FIELD_2, Datatype.DOUBLE);
+        metadata.getRecordMetadata().put(TimeSeriesData.FIELD_2, Datatype.DOUBLE);
         assertAASElements(metadata, METADATA_RECORD_FIELD1_FIELD2);
 
-        metadata.getRecordMetadata().remove(FIELD_1);
+        metadata.getRecordMetadata().remove(TimeSeriesData.FIELD_1);
         assertAASElements(metadata, METADATA_RECORD_FIELD2);
 
         metadata.getRecordMetadata().clear();

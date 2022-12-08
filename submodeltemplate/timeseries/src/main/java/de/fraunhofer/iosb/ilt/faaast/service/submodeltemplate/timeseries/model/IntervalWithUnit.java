@@ -31,8 +31,9 @@ public class IntervalWithUnit {
     }
 
 
-    public IntervalWithUnit(Long intervall, TimeUnit unit) {
-
+    public IntervalWithUnit(Long interval, TimeUnit unit) {
+        this.interval = interval;
+        this.unit = unit;
     }
 
 
