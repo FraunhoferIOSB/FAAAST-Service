@@ -17,8 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /**
@@ -72,12 +70,10 @@ public class Constants {
     public static final String TIMEUNIT_MINUTE = "minute";
     public static final String TIMEUNIT_HERTZ = "hertz";
 
-    public static final List<Reference> SEGMENTS_SEMANTIC_IDS = Stream.of(
-            INTERNAL_SEGMENT_SEMANTIC_ID,
-            LINKED_SEGMENT_SEMANTIC_ID,
-            EXTERNAL_SEGMENT_SEMANTIC_ID)
-            .map(ReferenceHelper::globalReference)
-            .collect(Collectors.toList());
+    public static final List<Reference> SEGMENTS_SEMANTIC_IDS = List.of(
+            ReferenceHelper.globalReference(INTERNAL_SEGMENT_SEMANTIC_ID),
+            ReferenceHelper.globalReference(LINKED_SEGMENT_SEMANTIC_ID),
+            ReferenceHelper.globalReference(EXTERNAL_SEGMENT_SEMANTIC_ID));
 
     private Constants() {}
 }

@@ -43,7 +43,7 @@ import java.util.Objects;
 public class Record extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
-    private Wrapper<ZonedDateTime, Property> time = new ValueWrapper<ZonedDateTime, Property>(
+    private Wrapper<ZonedDateTime, Property> time = new ValueWrapper<>(
             values,
             null,
             false,
@@ -57,10 +57,10 @@ public class Record extends ExtendableSubmodelElementCollection {
                             .build()
                     : null,
             x -> Objects.equals(ReferenceHelper.globalReference(Constants.TIME_UTC), x.getSemanticId()),
-            x -> ZonedDateTime.parse(((Property) x).getValue()));
+            x -> ZonedDateTime.parse(x.getValue()));
 
     @JsonIgnore
-    private Wrapper<Map<String, TypedValue>, Property> variables = new MapWrapper<String, TypedValue, Property>(
+    private Wrapper<Map<String, TypedValue>, Property> variables = new MapWrapper<>(
             values,
             new HashMap<>(),
             Property.class,
@@ -122,9 +122,8 @@ public class Record extends ExtendableSubmodelElementCollection {
      * @param smc the {@link io.adminshell.aas.v3.model.SubmodelElementCollection} to parse
      * @return the parsed {@link io.adminshell.aas.v3.model.SubmodelElementCollection} as {@link Record}, or null if
      *         input is null
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException if parsing values fails
      */
-    public static Record of(SubmodelElementCollection smc) throws ValueFormatException {
+    public static Record of(SubmodelElementCollection smc) {
         return ExtendableSubmodelElementCollection.genericOf(new Record(), smc);
     }
 

@@ -147,7 +147,7 @@ public class MapWrapper<K, V, A extends SubmodelElement> implements Map<K, V>, W
     @Override
     public void putAll(Map<? extends K, ? extends V> m) {
         if (m != null) {
-            m.forEach((k, v) -> put(k, v));
+            m.forEach(this::put);
         }
     }
 
@@ -165,7 +165,7 @@ public class MapWrapper<K, V, A extends SubmodelElement> implements Map<K, V>, W
     @Override
     public List<A> toAAS() {
         return value.entrySet().stream()
-                .map(x -> convertToAAS.apply(x))
+                .map(convertToAAS::apply)
                 .collect(Collectors.toList());
     }
 
@@ -183,7 +183,7 @@ public class MapWrapper<K, V, A extends SubmodelElement> implements Map<K, V>, W
         aasElements.clear();
         if (newValue != null) {
             aasElements = newValue.entrySet().stream()
-                    .map(x -> convertToAAS.apply(x))
+                    .map(convertToAAS::apply)
                     .collect(Collectors.toList());
             parentValues.addAll(aasElements);
         }

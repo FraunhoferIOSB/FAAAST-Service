@@ -27,6 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 
@@ -52,19 +53,19 @@ public class LambdaAssetConnection extends
         if (valueProviders != null) {
             config.setValueProviders(valueProviders.entrySet().stream()
                     .collect(Collectors.toMap(
-                            x -> x.getKey(),
+                            Entry::getKey,
                             x -> LambdaValueProviderConfig.builder().implementation(x.getValue()).build())));
         }
         if (operationProviders != null) {
             config.setOperationProviders(operationProviders.entrySet().stream()
                     .collect(Collectors.toMap(
-                            x -> x.getKey(),
+                            Entry::getKey,
                             x -> LambdaOperationProviderConfig.builder().implementation(x.getValue()).build())));
         }
         if (subscriptionProviders != null) {
             config.setSubscriptionProviders(subscriptionProviders.entrySet().stream()
                     .collect(Collectors.toMap(
-                            x -> x.getKey(),
+                            Entry::getKey,
                             x -> LambdaSubscriptionProviderConfig.builder().implementation(x.getValue()).build())));
         }
         init(coreConfig, config, serviceContext);

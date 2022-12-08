@@ -92,7 +92,7 @@ public class ReadRecordsOperationProvider extends AbstractTimeSeriesOperationPro
                             .value(new DefaultSubmodelElementCollection.Builder()
                                     .idShort(Constants.READ_RECORDS_OUTPUT_RECORDS_ID_SHORT)
                                     .semanticId(ReferenceHelper.globalReference(Constants.READ_RECORDS_OUTPUT_RECORDS_SEMANTIC_ID))
-                                    .values(result.stream().map(x -> (SubmodelElementCollection) x).collect(Collectors.toList()))
+                                    .values(result.stream().map(SubmodelElementCollection.class::cast).collect(Collectors.toList()))
                                     .build())
                             .build()
             };

@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.lambda.provider.AbstractLambdaOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
@@ -27,6 +26,7 @@ import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Range;
+import io.adminshell.aas.v3.model.Referable;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -81,7 +81,7 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
         return (T) Stream.of(variables)
                 .filter(x -> Objects.equals(idShort, x.getValue().getIdShort()))
                 .filter(Objects::nonNull)
-                .map(x -> x.getValue())
+                .map(OperationVariable::getValue)
                 .filter(Objects::nonNull)
                 .filter(x -> type.isAssignableFrom(x.getClass()))
                 .findFirst()
@@ -105,7 +105,7 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
                 .recordMetadata(AasHelper.getElementByIdShort(metadata.getValues(), Constants.METADATA_RECORD_METADATA_ID_SHORT, SubmodelElementCollection.class)
                         .getValues().stream()
                         .collect(Collectors.toMap(
-                                x -> x.getIdShort(),
+                                Referable::getIdShort,
                                 x -> Datatype.fromName(((Property) x).getValueType()))))
                 .build();
     }
@@ -205,9 +205,5 @@ public abstract class AbstractTimeSeriesOperationProvider extends AbstractLambda
      * @return description of expected input parameters of the operation
      */
     protected abstract String getExpectedInputParametersMessage();
-
-
-    @Override
-    public abstract OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException;
 
 }

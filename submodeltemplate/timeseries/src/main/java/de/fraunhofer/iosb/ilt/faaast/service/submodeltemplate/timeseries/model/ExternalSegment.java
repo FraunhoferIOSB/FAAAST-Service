@@ -31,7 +31,7 @@ import java.util.Objects;
 public class ExternalSegment extends Segment {
 
     @JsonIgnore
-    private final Wrapper<File, File> file = new ValueWrapper<File, File>(
+    private final Wrapper<File, File> file = new ValueWrapper<>(
             values,
             null,
             true,
@@ -74,6 +74,29 @@ public class ExternalSegment extends Segment {
      */
     public void setFile(File file) {
         this.file.setValue(file);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        else if (obj == null) {
+            return false;
+        }
+        else if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        else {
+            return super.equals(obj);
+        }
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
     }
 
 

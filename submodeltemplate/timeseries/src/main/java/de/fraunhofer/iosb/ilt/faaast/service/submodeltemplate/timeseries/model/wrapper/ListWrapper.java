@@ -109,7 +109,7 @@ public class ListWrapper<T, A extends SubmodelElement> implements List<T>, Wrapp
     @Override
     public boolean addAll(Collection<? extends T> c) {
         if (Objects.nonNull(c)) {
-            return c.stream().map(x -> add(x)).anyMatch(x -> Objects.equals(x, true));
+            return c.stream().map(this::add).anyMatch(x -> Objects.equals(x, true));
         }
         return false;
     }
@@ -119,7 +119,7 @@ public class ListWrapper<T, A extends SubmodelElement> implements List<T>, Wrapp
     public boolean addAll(int index, Collection<? extends T> c) {
         boolean result = value.addAll(index, c);
         if (result) {
-            c.forEach(x -> addInternal(x));
+            c.forEach(this::addInternal);
         }
         return result;
     }
@@ -237,7 +237,7 @@ public class ListWrapper<T, A extends SubmodelElement> implements List<T>, Wrapp
         boolean result = value.retainAll(c);
         if (result) {
             original.removeAll(value);
-            original.forEach(x -> removeInternal(x));
+            original.forEach(this::removeInternal);
         }
         return result;
     }
@@ -267,7 +267,7 @@ public class ListWrapper<T, A extends SubmodelElement> implements List<T>, Wrapp
 
 
     @Override
-    public <T> T[] toArray(T[] a) {
+    public <U> U[] toArray(U[] a) {
         return value.toArray(a);
     }
 
@@ -289,7 +289,7 @@ public class ListWrapper<T, A extends SubmodelElement> implements List<T>, Wrapp
     @Override
     public List<A> toAAS() {
         return value.stream()
-                .map(x -> convertToAAS.apply(x))
+                .map(convertToAAS::apply)
                 .collect(Collectors.toList());
     }
 
@@ -307,7 +307,7 @@ public class ListWrapper<T, A extends SubmodelElement> implements List<T>, Wrapp
         aasElements.clear();
         if (newValue != null) {
             aasElements = newValue.stream()
-                    .map(x -> convertToAAS.apply(x))
+                    .map(convertToAAS::apply)
                     .collect(Collectors.toList());
             parentValues.addAll(aasElements);
         }

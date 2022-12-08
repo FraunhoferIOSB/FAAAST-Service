@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.MapWrapper;
@@ -40,7 +39,7 @@ import java.util.Objects;
 public class Metadata extends ExtendableSubmodelElementCollection {
 
     @JsonIgnore
-    private ValueWrapper<RecordMetadata, SubmodelElementCollection> recordMetadata = new ValueWrapper<RecordMetadata, SubmodelElementCollection>(
+    private ValueWrapper<RecordMetadata, SubmodelElementCollection> recordMetadata = new ValueWrapper<>(
             values,
             new RecordMetadata(),
             false,
@@ -86,9 +85,8 @@ public class Metadata extends ExtendableSubmodelElementCollection {
      * @param smc the {@link io.adminshell.aas.v3.model.SubmodelElementCollection} to parse
      * @return the parsed {@link io.adminshell.aas.v3.model.SubmodelElementCollection} as {@link Metadata}, or null if
      *         input is null
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException if parsing values fails
      */
-    public static Metadata of(SubmodelElementCollection smc) throws ValueFormatException {
+    public static Metadata of(SubmodelElementCollection smc) {
         return ExtendableSubmodelElementCollection.genericOf(new Metadata(), smc);
     }
 
@@ -110,7 +108,7 @@ public class Metadata extends ExtendableSubmodelElementCollection {
     private static class RecordMetadata extends ExtendableSubmodelElementCollection {
 
         @JsonIgnore
-        Wrapper<Map<String, Datatype>, Property> variables = new MapWrapper<String, Datatype, Property>(
+        Wrapper<Map<String, Datatype>, Property> variables = new MapWrapper<>(
                 values,
                 new HashMap<>(),
                 Property.class,

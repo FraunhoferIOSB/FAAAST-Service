@@ -40,21 +40,14 @@ import java.util.stream.Collectors;
 public class TimeSeries extends ExtendableSubmodel {
 
     @JsonIgnore
-    private Wrapper<Metadata, SubmodelElementCollection> metadata = new ValueWrapper<Metadata, SubmodelElementCollection>(
+    private Wrapper<Metadata, SubmodelElementCollection> metadata = new ValueWrapper<>(
             submodelElements,
             new Metadata(),
             true,
             SubmodelElementCollection.class,
             x -> Objects.nonNull(x) ? x : new Metadata(),
             x -> Objects.equals(Constants.TIMESERIES_METADATA_ID_SHORT, x.getIdShort()),
-            x -> {
-                try {
-                    return Objects.nonNull(x) ? Metadata.of(x) : new Metadata();
-                }
-                catch (ValueFormatException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            Metadata::of);
 
     @JsonIgnore
     private ListWrapper<Segment, SubmodelElementCollection> segments;
@@ -67,9 +60,8 @@ public class TimeSeries extends ExtendableSubmodel {
      *
      * @param submodel the {@link io.adminshell.aas.v3.model.Submodel} to parse
      * @return the parsed {@link io.adminshell.aas.v3.model.Submodel} as {@link TimeSeries}, or null if input is null
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException if parsing values fails
      */
-    public static TimeSeries of(Submodel submodel) throws ValueFormatException {
+    public static TimeSeries of(Submodel submodel) {
         TimeSeries result = new TimeSeries();
         Optional<SubmodelElementCollection> segments = submodel.getSubmodelElements().stream()
                 .filter(Objects::nonNull)

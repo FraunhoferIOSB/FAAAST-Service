@@ -36,7 +36,7 @@ import org.hamcrest.Matchers;
 import org.junit.Assert;
 
 
-public class BaseModelTest {
+public abstract class BaseModelTest {
 
     protected static final ZonedDateTime TIME = ZonedDateTime.parse("2021-01-01T00:00:00Z");
 

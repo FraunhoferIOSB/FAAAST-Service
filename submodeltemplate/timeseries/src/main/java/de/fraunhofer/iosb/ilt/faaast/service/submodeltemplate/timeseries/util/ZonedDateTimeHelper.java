@@ -40,4 +40,9 @@ public class ZonedDateTimeHelper {
             return Optional.empty();
         }
     }
+
+
+    private ZonedDateTimeHelper() {
+
+    }
 }

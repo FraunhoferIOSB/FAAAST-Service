@@ -92,7 +92,7 @@ public class DeepCopyHelper {
                     String.format("type mismatch - can not create deep copy of instance of type %s with target type %s", referable.getClass(), outputClass));
         }
         try {
-            return (T) DESERIALIZER.readReferable(SERIALIZER.write(referable), outputClass);
+            return DESERIALIZER.readReferable(SERIALIZER.write(referable), outputClass);
         }
         catch (SerializationException | DeserializationException e) {
             throw new RuntimeException("deep copy of AAS environment failed", e);

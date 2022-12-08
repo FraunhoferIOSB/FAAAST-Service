@@ -33,7 +33,7 @@ import java.util.Objects;
 public class LinkedSegment extends Segment {
 
     @JsonIgnore
-    private final Wrapper<String, Property> endpoint = new ValueWrapper<String, Property>(
+    private final Wrapper<String, Property> endpoint = new ValueWrapper<>(
             values,
             null,
             true,
@@ -44,10 +44,10 @@ public class LinkedSegment extends Segment {
                     .value(x)
                     .build(),
             x -> Objects.equals(Constants.LINKED_SEGMENT_ENDPOINT_ID_SHORT, x.getIdShort()),
-            x -> x.getValue());
+            Property::getValue);
 
     @JsonIgnore
-    private final Wrapper<String, Property> query = new ValueWrapper<String, Property>(
+    private final Wrapper<String, Property> query = new ValueWrapper<>(
             values,
             null,
             true,
@@ -58,7 +58,7 @@ public class LinkedSegment extends Segment {
                     .value(x)
                     .build(),
             x -> Objects.equals(Constants.LINKED_SEGMENT_QUERY_ID_SHORT, x.getIdShort()),
-            x -> x.getValue());
+            Property::getValue);
 
     /**
      * Creates a new instance based on a {@link io.adminshell.aas.v3.model.SubmodelElementCollection}.

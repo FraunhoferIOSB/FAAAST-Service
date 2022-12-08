@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constan
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -56,7 +57,7 @@ public class TimeUnitHelper {
     public static Reference toSemanticId(TimeUnit timeUnit) {
         return timeUnitMapping.entrySet().stream()
                 .filter(x -> Objects.equals(timeUnit, x.getValue()))
-                .map(x -> x.getKey())
+                .map(Entry::getKey)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(String.format("unsupported time unit (timeUnit: '%s')", timeUnit)));
     }
