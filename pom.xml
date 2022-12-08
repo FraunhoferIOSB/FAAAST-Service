@@ -96,6 +96,7 @@
         <jsonassert.version>1.5.1</jsonassert.version>
         <jsonpath.version>2.7.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
+        <kotlin.version>1.6.20</kotlin.version>
         <logback.version>1.4.5</logback.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -146,6 +147,7 @@
         <systemstubs.version>2.0.1</systemstubs.version>
         <testcontainers.version>1.17.6</testcontainers.version>
         <wiremock.version>2.35.0</wiremock.version>
+        <woodstox.version>6.4.0</woodstox.version>
     </properties>
     <dependencies>
         <dependency>
