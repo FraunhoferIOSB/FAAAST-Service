@@ -30,7 +30,7 @@ public class Constants {
     public static final String SEGMENTS_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Segments/1/1";
     public static final String TIMESERIES_SEGMENTS_ID_SHORT = "Segments";
     public static final String TIMESERIES_METADATA_ID_SHORT = "Metadata";
-    public static final String METADATA_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Metadata/1/";
+    public static final String METADATA_SEMANTIC_ID = "https://admin-shell.io/idta/timeseries/Metadata/1/1";
     public static final String METADATA_RECORD_METADATA_ID_SHORT = "RecordMetadata";
     public static final String SEGMENT_RECORD_COUNT_ID_SHORT = "RecordCount";
     public static final String SEGMENT_START_TIME_ID_SHORT = "StartTime";
