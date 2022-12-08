@@ -10,4 +10,58 @@
 		<packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
 		<cve>CVE-2022-42003</cve>
 	</suppress>
+	<!-- begin: false positive -->
+	<suppress>
+		<notes><![CDATA[file name: msgpack-core-0.9.3.jar]]></notes>
+		<packageUrl regex="true">^pkg:maven/org\.msgpack/msgpack\-core@.*$</packageUrl>
+		<cve>CVE-2022-41719</cve>
+	</suppress>
+	<!-- end: false positive -->
+	<!-- begin: only affects FTP acces which is not used in this project -->
+	<suppress>
+		<notes><![CDATA[file name: commons-compress-1.21.jar]]></notes>
+		<packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-compress@.*$</packageUrl>
+		<cve>CVE-2021-37533</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[file name: commons-compress-1.22.jar]]></notes>
+		<packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-compress@.*$</packageUrl>
+		<cve>CVE-2021-37533</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[file name: commons-csv-1.9.0.jar]]></notes>
+		<packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-csv@.*$</packageUrl>
+		<cve>CVE-2021-37533</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[file name: commons-io-2.11.0.jar]]></notes>
+		<packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
+		<cve>CVE-2021-37533</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[file name: commons-logging-1.2.jar]]></notes>
+		<packageUrl regex="true">^pkg:maven/commons\-logging/commons\-logging@.*$</packageUrl>
+		<cve>CVE-2021-37533</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[file name: commons-math3-3.6.1.jar]]></notes>
+		<packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-math3@.*$</packageUrl>
+		<cve>CVE-2021-37533</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[file name: jcl-over-slf4j-1.7.36.jar]]></notes>
+		<packageUrl regex="true">^pkg:maven/org\.slf4j/jcl\-over\-slf4j@.*$</packageUrl>
+		<cve>CVE-2021-37533</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[file name: commons-cli-1.5.0.jar]]></notes>
+		<packageUrl regex="true">^pkg:maven/commons\-cli/commons\-cli@.*$</packageUrl>
+		<cve>CVE-2021-37533</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[file name: commons-codec-1.15.jar]]></notes>
+		<packageUrl regex="true">^pkg:maven/commons\-codec/commons\-codec@.*$</packageUrl>
+		<cve>CVE-2021-37533</cve>
+	</suppress>
+	<!-- end: only affects FTP acces which is not used in this project -->
 </suppressions>
