@@ -107,7 +107,7 @@
         <maven.plugin.jib.version>3.3.1</maven.plugin.jib.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>7.4.0</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>7.4.1</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.6.3</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>4.9.0-28</maven.plugin.prosys.codegen.version>
