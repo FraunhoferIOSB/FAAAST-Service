@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 #
-
 VERSION=$1
 NEXTVERSION=$2
 if [[ -z "$3" ]]; then
@@ -8,6 +7,32 @@ if [[ -z "$3" ]]; then
 else
   NEXTBRANCH=$3
 fi
+TAG_VERSION="version"
+TAG_DOWNLOAD_SNAPSHOT="download-snapshot"
+TAG_CHANGELOG_HEADER="changelog-header"
+CHANGELOG_FILE="./docs/source/changelog/changelog.md"
+
+# arguments: file, tag, newValue, originalValue(optional, default: matches anything)
+function replaceValue()
+{
+	local file=$1
+	local tag=$2
+	local newValue=$3
+	local originalValue=${4:-[^<]*}
+	local startTag="<!--start:${tag}-->"
+	local endTag="<!--end:${tag}-->"
+	sed -r -z "s/$startTag($originalValue)$endTag/$startTag$newValue$endTag/g" -i $file
+}
+
+# arguments: file
+function removeTag()
+{
+	local file=$1
+	local tag=$2
+	local startTag="<!--start:${tag}-->"
+	local endTag="<!--end:${tag}-->"
+	sed -r -z "s/$startTag([^<]*)$endTag/\1/g" -i $file
+}
 
 echo "Releasing:  ${VERSION},
 tagged:    v${VERSION},
@@ -19,11 +44,11 @@ read -s
 echo "Replacing version numbers"
 mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion="${VERSION}"
 sed -i 's/<tag>HEAD<\/tag>/<tag>v'"${VERSION}"'<\/tag>/g' pom.xml
-sed -r -z 's/(<artifactId>starter<\/artifactId>[\r\n]+\s*<version>)[^<]+(<\/version>)/\1'"${VERSION}"'\2/g' -i README.md
-sed -r -z 's/(\x27de.fraunhofer.iosb.ilt.faaast.service:starter:)[^\x27]*\x27/\1'"${VERSION}"'\x27/g' -i README.md
-sed -r -z 's/(<artifactId>starter<\/artifactId>[\r\n]+\s*<version>)[^<]+(<\/version>)/\1'"${VERSION}"'\2/g' -i ./docs/source/gettingstarted/gettingstarted.md
-sed -r -z 's/(\x27de.fraunhofer.iosb.ilt.faaast.service:starter:)[^\x27]*\x27/\1'"${VERSION}"'\x27/g' -i ./docs/source/gettingstarted/gettingstarted.md
-sed -i 's/## Current development version ('"${VERSION}"'-SNAPSHOT)/## Release version '"${VERSION}"'/g' ./docs/source/changelog/changelog.md
+replaceValue README.md $TAG_VERSION $VERSION
+replaceValue README.md $TAG_DOWNLOAD_SNAPSHOT ""
+replaceValue $CHANGELOG_FILE $TAG_VERSION $VERSION
+replaceValue $CHANGELOG_FILE $TAG_CHANGELOG_HEADER "## Release version ${VERSION}"
+removeTag $CHANGELOG_FILE $TAG_CHANGELOG_HEADER
 mvn -B spotless:apply
 
 echo "Git add ."
@@ -38,8 +63,9 @@ echo "Next: replacing version nubmers [enter]"
 read -s
 mvn versions:set -DgenerateBackupPoms=false -DnewVersion="${NEXTVERSION}"-SNAPSHOT
 sed -i 's/<tag>v'"${VERSION}"'<\/tag>/<tag>'"${NEXTBRANCH}"'<\/tag>/g' pom.xml
-sed -i '3i ## Current development version ('"${NEXTVERSION}"'-SNAPSHOT)\
-' ./docs/source/changelog/changelog.md
+sed -i "2 i <!--start:${TAG_CHANGELOG_HEADER}--><!--end:${TAG_CHANGELOG_HEADER}-->" $CHANGELOG_FILE
+replaceValue $CHANGELOG_FILE $TAG_CHANGELOG_HEADER "## Current development version (${NEXTVERSION}-SNAPSHOT)"
+replaceValue README.md $TAG_DOWNLOAD_SNAPSHOT "[Download latest SNAPSHOT version ($NEXTVERSION)]($DOWNLOAD_URL_SNAPHOT)"
 mvn -B spotless:apply
 
 echo "Git add ."
