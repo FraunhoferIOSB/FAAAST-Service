@@ -10,7 +10,7 @@ fi
 TAG_VERSION="version"
 TAG_DOWNLOAD_SNAPSHOT="download-snapshot"
 TAG_CHANGELOG_HEADER="changelog-header"
-CHANGELOG_FILE = "./docs/source/changelog/changelog.md"
+CHANGELOG_FILE="./docs/source/changelog/changelog.md"
 
 # arguments: file, tag, newValue, originalValue(optional, default: matches anything)
 function replaceValue()
@@ -46,7 +46,7 @@ mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion="${VERSION}"
 sed -i 's/<tag>HEAD<\/tag>/<tag>v'"${VERSION}"'<\/tag>/g' pom.xml
 replaceValue README.md $TAG_VERSION $VERSION
 replaceValue README.md $TAG_DOWNLOAD_SNAPSHOT ""
-replaceVvalue $CHANGELOG_FILE $TAG_VERSION $VERSION
+replaceValue $CHANGELOG_FILE $TAG_VERSION $VERSION
 replaceValue $CHANGELOG_FILE $TAG_CHANGELOG_HEADER "## Release version ${VERSION}"
 removeTag $CHANGELOG_FILE $TAG_CHANGELOG_HEADER
 mvn -B spotless:apply

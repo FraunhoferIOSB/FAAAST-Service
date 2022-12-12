@@ -29,7 +29,7 @@ You can find a detailled documentation :blue_book: [here](https://faaast-service
 ### Download pre-compiled JAR
 
 [Download latest released version (<!--start:version-->0.3.0<!--end:version-->)](https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/service/starter/<!--start:version-->0.3.0<!--end:version-->/starter-<!--start:version-->0.3.0<!--end:version-->.jar)
-<!--start:$download-snapshot--><!--end:$download-snapshot-->
+<!--start:download-snapshot--><!--end:download-snapshot-->
 
 ### As Maven Dependency
 ```xml
