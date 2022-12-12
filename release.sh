@@ -8,9 +8,14 @@ else
   NEXTBRANCH=$3
 fi
 TAG_VERSION="version"
+TAG_DOWNLOAD_RELEASE="download-release"
 TAG_DOWNLOAD_SNAPSHOT="download-snapshot"
 TAG_CHANGELOG_HEADER="changelog-header"
 CHANGELOG_FILE="./docs/source/changelog/changelog.md"
+README_FILE="README.md"
+GETTING_STARTED_FILE="./docs/source/gettingstarted/gettingstarted.md"
+LATEST_RELEASE_VERSION_CONTENT="[Download latest RELEASE version \($VERSION\)]\(https:\/\/repo1.maven.org\/maven2\/de\/fraunhofer\/iosb\/ilt\/faaast\/service\/starter\/${VERSION}\/starter-${VERSION}.jar\)"
+LATEST_SNAPSHOT_VERSION_CONTENT="[Download latest SNAPSHOT version \($NEXTVERSION\-SNAPSHOT)]\(https:\/\/oss.sonatype.org\/service\/local\/artifact\/maven\/redirect?r=snapshots\&g=de\.fraunhofer\.iosb\.ilt\.faaast\.service\&a=starter\&v=${NEXTVERSION}-SNAPSHOT\)"
 
 # arguments: file, tag, newValue, originalValue(optional, default: matches anything)
 function replaceValue()
@@ -44,12 +49,16 @@ read -s
 echo "Replacing version numbers"
 mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion="${VERSION}"
 sed -i 's/<tag>HEAD<\/tag>/<tag>v'"${VERSION}"'<\/tag>/g' pom.xml
-replaceValue README.md $TAG_VERSION $VERSION
-replaceValue README.md $TAG_DOWNLOAD_SNAPSHOT ""
+replaceValue $README_FILE $TAG_VERSION $VERSION
+replaceValue $README_FILE $TAG_DOWNLOAD_SNAPSHOT ""
+replaceValue $README_FILE $TAG_DOWNLOAD_RELEASE $LATEST_RELEASE_VERSION_CONTENT
+replaceValue $GETTING_STARTED_FILE $TAG_DOWNLOAD_RELEASE $LATEST_RELEASE_VERSION_CONTENT
 replaceValue $CHANGELOG_FILE $TAG_VERSION $VERSION
 replaceValue $CHANGELOG_FILE $TAG_CHANGELOG_HEADER "## Release version ${VERSION}"
 removeTag $CHANGELOG_FILE $TAG_CHANGELOG_HEADER
+
 mvn -B spotless:apply
+
 
 echo "Git add ."
 git add .
@@ -63,9 +72,10 @@ echo "Next: replacing version nubmers [enter]"
 read -s
 mvn versions:set -DgenerateBackupPoms=false -DnewVersion="${NEXTVERSION}"-SNAPSHOT
 sed -i 's/<tag>v'"${VERSION}"'<\/tag>/<tag>'"${NEXTBRANCH}"'<\/tag>/g' pom.xml
+replaceValue $README_FILE $TAG_DOWNLOAD_SNAPSHOT LATEST_SNAPSHOT_VERSION_CONTENT
+replaceValue $GETTING_STARTED_FILE $TAG_DOWNLOAD_SNAPSHOT LATEST_SNAPSHOT_VERSION_CONTENT
 sed -i "2 i <!--start:${TAG_CHANGELOG_HEADER}--><!--end:${TAG_CHANGELOG_HEADER}-->" $CHANGELOG_FILE
 replaceValue $CHANGELOG_FILE $TAG_CHANGELOG_HEADER "## Current development version (${NEXTVERSION}-SNAPSHOT)"
-replaceValue README.md $TAG_DOWNLOAD_SNAPSHOT "[Download latest SNAPSHOT version ($NEXTVERSION)](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=de.fraunhofer.iosb.ilt.faaast.service&a=starter&v=${NEXTVERSION}-SNAPSHOT)"
 mvn -B spotless:apply
 
 echo "Git add ."
