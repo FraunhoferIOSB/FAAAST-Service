@@ -1,6 +1,7 @@
 # Changelog
 
-<!--start:changelog-header-->## Current development version (0.4.0-SNAPSHOT)<!--end:changelog-header-->
+<!--start:changelog-header-->
+## Current development version (0.4.0-SNAPSHOT)<!--end:changelog-header-->
 
 **New Features**
 *   Improved logging (new CLI arguments `-q`, `-v`, `-vv`, `-vvv`, `--loglevel-faaast`, `--loglevel-external`)
