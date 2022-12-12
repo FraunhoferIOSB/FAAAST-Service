@@ -65,7 +65,7 @@ mvn versions:set -DgenerateBackupPoms=false -DnewVersion="${NEXTVERSION}"-SNAPSH
 sed -i 's/<tag>v'"${VERSION}"'<\/tag>/<tag>'"${NEXTBRANCH}"'<\/tag>/g' pom.xml
 sed -i "2 i <!--start:${TAG_CHANGELOG_HEADER}--><!--end:${TAG_CHANGELOG_HEADER}-->" $CHANGELOG_FILE
 replaceValue $CHANGELOG_FILE $TAG_CHANGELOG_HEADER "## Current development version (${NEXTVERSION}-SNAPSHOT)"
-replaceValue README.md $TAG_DOWNLOAD_SNAPSHOT "[Download latest SNAPSHOT version ($NEXTVERSION)]($DOWNLOAD_URL_SNAPHOT)"
+replaceValue README.md $TAG_DOWNLOAD_SNAPSHOT "[Download latest SNAPSHOT version ($NEXTVERSION)](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=de.fraunhofer.iosb.ilt.faaast.service&a=starter&v=${NEXTVERSION}-SNAPSHOT)"
 mvn -B spotless:apply
 
 echo "Git add ."
