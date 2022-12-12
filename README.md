@@ -29,7 +29,7 @@ You can find a detailled documentation :blue_book: [here](https://faaast-service
 ### Download pre-compiled JAR
 
 <!--start:download-release-->
-[Download latest RELEASE version (0.3.0)](https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/service/starter/0.3.0/starter-0.3.0.jar)<!--end:download-release-->
+[Download latest RELEASE version (0.4.0)](https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/service/starter/0.4.0/starter-0.4.0.jar)<!--end:download-release-->
 
 <!--start:download-snapshot-->
 <!--end:download-snapshot-->
@@ -39,13 +39,13 @@ You can find a detailled documentation :blue_book: [here](https://faaast-service
 <dependency>
 	<groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
 	<artifactId>starter</artifactId>
-	<version>0.3.0</version>
+	<version>0.4.0</version>
 </dependency>
 ```
 
 ### As Gradle Dependency
 ```kotlin
-implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:0.3.0'
+implementation 'de.fraunhofer.iosb.ilt.faaast.service:starter:0.4.0'
 ```
 
 A maven plugin we are using in our build script leads to an error while resolving the dependency tree in gradle. Therefore you need to add following code snippet in your `build.gradle`. This code snippet removes the classifier of the transitive dependency `com.google.inject:guice`.
