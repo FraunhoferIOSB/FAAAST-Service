@@ -26,7 +26,7 @@ function replaceValue()
 	local originalValue=${4:-[^<]*}
 	local startTag="<!--start:${tag}-->"
 	local endTag="<!--end:${tag}-->"
-	sed -r -z "s/$startTag($originalValue)$endTag/$startTag$newValue$endTag/g" -i $file
+	sed -r -z "s/$startTag($originalValue)$endTag/$startTag$newValue$endTag/g" -i "$file"
 }
 
 # arguments: file
@@ -36,7 +36,7 @@ function removeTag()
 	local tag=$2
 	local startTag="<!--start:${tag}-->"
 	local endTag="<!--end:${tag}-->"
-	sed -r -z "s/$startTag([^<]*)$endTag/\1/g" -i $file
+	sed -r -z "s/$startTag([^<]*)$endTag/\1/g" -i "$file"
 }
 
 echo "Releasing:  ${VERSION},
@@ -49,13 +49,13 @@ read -s
 echo "Replacing version numbers"
 mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion="${VERSION}"
 sed -i 's/<tag>HEAD<\/tag>/<tag>v'"${VERSION}"'<\/tag>/g' pom.xml
-replaceValue $README_FILE $TAG_VERSION $VERSION
-replaceValue $README_FILE $TAG_DOWNLOAD_SNAPSHOT ""
-replaceValue $README_FILE $TAG_DOWNLOAD_RELEASE $LATEST_RELEASE_VERSION_CONTENT
-replaceValue $GETTING_STARTED_FILE $TAG_DOWNLOAD_RELEASE $LATEST_RELEASE_VERSION_CONTENT
-replaceValue $CHANGELOG_FILE $TAG_VERSION $VERSION
-replaceValue $CHANGELOG_FILE $TAG_CHANGELOG_HEADER "## Release version ${VERSION}"
-removeTag $CHANGELOG_FILE $TAG_CHANGELOG_HEADER
+replaceValue "$README_FILE" "$TAG_VERSION" "$VERSION"
+replaceValue "$README_FILE" "$TAG_DOWNLOAD_SNAPSHOT" ""
+replaceValue "$README_FILE" "$TAG_DOWNLOAD_RELEASE" "$LATEST_RELEASE_VERSION_CONTENT"
+replaceValue "$GETTING_STARTED_FILE" "$TAG_DOWNLOAD_RELEASE" "$LATEST_RELEASE_VERSION_CONTENT"
+replaceValue "$CHANGELOG_FILE" "$TAG_VERSION $VERSION"
+replaceValue "$CHANGELOG_FILE" "$TAG_CHANGELOG_HEADER" "## Release version ${VERSION}"
+removeTag "$CHANGELOG_FILE" "$TAG_CHANGELOG_HEADER"
 
 mvn -B spotless:apply
 
@@ -72,10 +72,10 @@ echo "Next: replacing version nubmers [enter]"
 read -s
 mvn versions:set -DgenerateBackupPoms=false -DnewVersion="${NEXTVERSION}"-SNAPSHOT
 sed -i 's/<tag>v'"${VERSION}"'<\/tag>/<tag>'"${NEXTBRANCH}"'<\/tag>/g' pom.xml
-replaceValue $README_FILE $TAG_DOWNLOAD_SNAPSHOT $LATEST_SNAPSHOT_VERSION_CONTENT
-replaceValue $GETTING_STARTED_FILE $TAG_DOWNLOAD_SNAPSHOT $LATEST_SNAPSHOT_VERSION_CONTENT
-sed -i "2 i <!--start:${TAG_CHANGELOG_HEADER}--><!--end:${TAG_CHANGELOG_HEADER}-->" $CHANGELOG_FILE
-replaceValue $CHANGELOG_FILE $TAG_CHANGELOG_HEADER "## Current development version (${NEXTVERSION}-SNAPSHOT)"
+replaceValue "$README_FILE" "$TAG_DOWNLOAD_SNAPSHOT" "$LATEST_SNAPSHOT_VERSION_CONTENT"
+replaceValue "$GETTING_STARTED_FILE" "$TAG_DOWNLOAD_SNAPSHOT" "$LATEST_SNAPSHOT_VERSION_CONTENT"
+sed -i "2 i <!--start:${TAG_CHANGELOG_HEADER}--><!--end:${TAG_CHANGELOG_HEADER}-->" "$CHANGELOG_FILE"
+replaceValue "$CHANGELOG_FILE" "$TAG_CHANGELOG_HEADER" "## Current development version (${NEXTVERSION}-SNAPSHOT)"
 mvn -B spotless:apply
 
 echo "Git add ."
