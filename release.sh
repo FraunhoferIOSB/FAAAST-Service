@@ -72,8 +72,8 @@ echo "Next: replacing version nubmers [enter]"
 read -s
 mvn versions:set -DgenerateBackupPoms=false -DnewVersion="${NEXTVERSION}"-SNAPSHOT
 sed -i 's/<tag>v'"${VERSION}"'<\/tag>/<tag>'"${NEXTBRANCH}"'<\/tag>/g' pom.xml
-replaceValue $README_FILE $TAG_DOWNLOAD_SNAPSHOT LATEST_SNAPSHOT_VERSION_CONTENT
-replaceValue $GETTING_STARTED_FILE $TAG_DOWNLOAD_SNAPSHOT LATEST_SNAPSHOT_VERSION_CONTENT
+replaceValue $README_FILE $TAG_DOWNLOAD_SNAPSHOT $LATEST_SNAPSHOT_VERSION_CONTENT
+replaceValue $GETTING_STARTED_FILE $TAG_DOWNLOAD_SNAPSHOT $LATEST_SNAPSHOT_VERSION_CONTENT
 sed -i "2 i <!--start:${TAG_CHANGELOG_HEADER}--><!--end:${TAG_CHANGELOG_HEADER}-->" $CHANGELOG_FILE
 replaceValue $CHANGELOG_FILE $TAG_CHANGELOG_HEADER "## Current development version (${NEXTVERSION}-SNAPSHOT)"
 mvn -B spotless:apply
