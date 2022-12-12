@@ -12,7 +12,7 @@
 [Download latest RELEASE version (0.4.0)](https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/service/starter/0.4.0/starter-0.4.0.jar)<!--end:download-release-->
 
 <!--start:download-snapshot-->
-<!--end:download-snapshot-->
+[Download latest SNAPSHOT version (0.5.0-SNAPSHOT)](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=de.fraunhofer.iosb.ilt.faaast.service&a=starter&v=0.5.0-SNAPSHOT)<!--end:download-snapshot-->
 
 ### As Maven Dependency
 

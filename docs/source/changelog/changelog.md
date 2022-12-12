@@ -1,4 +1,6 @@
 # Changelog
+<!--start:changelog-header-->
+## Current development version (0.5.0-SNAPSHOT)<!--end:changelog-header-->
 
 ## Release version 0.4.0
 
