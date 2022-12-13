@@ -125,7 +125,7 @@
         <milo.version>0.6.8</milo.version>
         <mockito.version>4.9.0</mockito.version>
         <moquette.version>0.15.1</moquette.version>
-        <netty.version>4.1.85.Final</netty.version>
+        <netty.version>4.1.86.Final</netty.version>
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.7.0</picocli.version>
         <poi.ooxml.version>5.2.3</poi.ooxml.version>
@@ -137,7 +137,7 @@
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
         <slf4j.test.version>2.6.1</slf4j.test.version>
-        <slf4j.version>2.0.5</slf4j.version>
+        <slf4j.version>2.0.6</slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
