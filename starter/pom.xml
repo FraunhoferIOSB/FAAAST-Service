@@ -181,6 +181,9 @@
                             </path>
                         </paths>
                     </extraDirectories>
+                    <container>
+                        <user>1002</user>
+                    </container>
                 </configuration>
             </plugin>
             <plugin>
