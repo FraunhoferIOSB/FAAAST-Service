@@ -31,13 +31,11 @@ public class AssetAdministrationShellDescriptor {
 
     private String idShort;
 
-    //@Singular
     private List<EndpointDescriptor> endpoints;
 
     private AdministrationDescriptor administration;
 
-    //@Singular("oneDescription")
-    //private List<Description> description;
+    private List<DescriptionDescriptor> descriptions;
 
     //private Reference globalAssetId;
 
@@ -53,14 +51,27 @@ public class AssetAdministrationShellDescriptor {
         idShort = null;
         endpoints = new ArrayList<>();
         administration = null;
+        descriptions = new ArrayList<>();
     }
 
 
-    public AssetAdministrationShellDescriptor(String id, String idShort, List<EndpointDescriptor> endpoints, AdministrationDescriptor administration) {
+    public AssetAdministrationShellDescriptor(String id, String idShort, List<EndpointDescriptor> endpoints, AdministrationDescriptor administration,
+            List<DescriptionDescriptor> descriptions) {
         this.id = id;
         this.idShort = idShort;
-        this.endpoints = endpoints;
+        if (endpoints == null) {
+            this.endpoints = new ArrayList<>();
+        }
+        else {
+            this.endpoints = endpoints;
+        }
         this.administration = administration;
+        if (descriptions == null) {
+            this.descriptions = new ArrayList<>();
+        }
+        else {
+            this.descriptions = descriptions;
+        }
     }
 
 
@@ -104,6 +115,16 @@ public class AssetAdministrationShellDescriptor {
     }
 
 
+    public List<DescriptionDescriptor> getDescriptions() {
+        return descriptions;
+    }
+
+
+    public void setDescriptions(List<DescriptionDescriptor> descriptions) {
+        this.descriptions = descriptions;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -116,13 +137,14 @@ public class AssetAdministrationShellDescriptor {
         return Objects.equals(id, that.id)
                 && Objects.equals(idShort, that.idShort)
                 && Objects.equals(endpoints, that.endpoints)
-                && Objects.equals(administration, that.administration);
+                && Objects.equals(administration, that.administration)
+                && Objects.equals(descriptions, that.descriptions);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, idShort, endpoints, administration);
+        return Objects.hash(id, idShort, endpoints, administration, descriptions);
     }
 
 
@@ -150,8 +172,26 @@ public class AssetAdministrationShellDescriptor {
         }
 
 
+        public B endpoint(EndpointDescriptor value) {
+            getBuildingInstance().getEndpoints().add(value);
+            return getSelf();
+        }
+
+
         public B administration(AdministrationDescriptor value) {
             getBuildingInstance().setAdministrationDescriptor(value);
+            return getSelf();
+        }
+
+
+        public B descriptions(List<DescriptionDescriptor> value) {
+            getBuildingInstance().setDescriptions(value);
+            return getSelf();
+        }
+
+
+        public B oneDescription(DescriptionDescriptor value) {
+            getBuildingInstance().getDescriptions().add(value);
             return getSelf();
         }
     }
