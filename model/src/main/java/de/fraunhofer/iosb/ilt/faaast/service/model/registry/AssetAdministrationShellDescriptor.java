@@ -37,7 +37,7 @@ public class AssetAdministrationShellDescriptor {
 
     private List<DescriptionDescriptor> descriptions;
 
-    //private Reference globalAssetId;
+    private ReferenceDescriptor globalAssetId;
 
     //private Identification identification;
 
@@ -52,11 +52,12 @@ public class AssetAdministrationShellDescriptor {
         endpoints = new ArrayList<>();
         administration = null;
         descriptions = new ArrayList<>();
+        globalAssetId = null;
     }
 
 
     public AssetAdministrationShellDescriptor(String id, String idShort, List<EndpointDescriptor> endpoints, AdministrationDescriptor administration,
-            List<DescriptionDescriptor> descriptions) {
+            List<DescriptionDescriptor> descriptions, ReferenceDescriptor globalAssetId) {
         this.id = id;
         this.idShort = idShort;
         if (endpoints == null) {
@@ -72,6 +73,7 @@ public class AssetAdministrationShellDescriptor {
         else {
             this.descriptions = descriptions;
         }
+        this.globalAssetId = globalAssetId;
     }
 
 
@@ -125,6 +127,16 @@ public class AssetAdministrationShellDescriptor {
     }
 
 
+    public ReferenceDescriptor getGlobalAssetId() {
+        return globalAssetId;
+    }
+
+
+    public void setGlobalAssetId(ReferenceDescriptor globalAssetId) {
+        this.globalAssetId = globalAssetId;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -138,13 +150,14 @@ public class AssetAdministrationShellDescriptor {
                 && Objects.equals(idShort, that.idShort)
                 && Objects.equals(endpoints, that.endpoints)
                 && Objects.equals(administration, that.administration)
-                && Objects.equals(descriptions, that.descriptions);
+                && Objects.equals(descriptions, that.descriptions)
+                && Objects.equals(globalAssetId, that.globalAssetId);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, idShort, endpoints, administration, descriptions);
+        return Objects.hash(id, idShort, endpoints, administration, descriptions, globalAssetId);
     }
 
 
@@ -192,6 +205,12 @@ public class AssetAdministrationShellDescriptor {
 
         public B oneDescription(DescriptionDescriptor value) {
             getBuildingInstance().getDescriptions().add(value);
+            return getSelf();
+        }
+
+
+        public B globalAssetId(ReferenceDescriptor value) {
+            getBuildingInstance().setGlobalAssetId(value);
             return getSelf();
         }
     }
