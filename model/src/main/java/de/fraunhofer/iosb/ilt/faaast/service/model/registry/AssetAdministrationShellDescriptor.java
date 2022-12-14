@@ -29,17 +29,17 @@ public class AssetAdministrationShellDescriptor {
     @JsonIgnore
     private String id;
 
+    private String idShort;
+
     //@Singular
     private List<EndpointDescriptor> endpoints;
 
-    //private AdministrationDescriptor administration;
+    private AdministrationDescriptor administration;
 
     //@Singular("oneDescription")
     //private List<Description> description;
 
     //private Reference globalAssetId;
-
-    private String idShort;
 
     //private Identification identification;
 
@@ -52,6 +52,15 @@ public class AssetAdministrationShellDescriptor {
         id = null;
         idShort = null;
         endpoints = new ArrayList<>();
+        administration = null;
+    }
+
+
+    public AssetAdministrationShellDescriptor(String id, String idShort, List<EndpointDescriptor> endpoints, AdministrationDescriptor administration) {
+        this.id = id;
+        this.idShort = idShort;
+        this.endpoints = endpoints;
+        this.administration = administration;
     }
 
 
@@ -85,6 +94,16 @@ public class AssetAdministrationShellDescriptor {
     }
 
 
+    public AdministrationDescriptor getAdministration() {
+        return administration;
+    }
+
+
+    public void setAdministrationDescriptor(AdministrationDescriptor administration) {
+        this.administration = administration;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -95,13 +114,15 @@ public class AssetAdministrationShellDescriptor {
         }
         AssetAdministrationShellDescriptor that = (AssetAdministrationShellDescriptor) o;
         return Objects.equals(id, that.id)
-                && Objects.equals(idShort, that.idShort);
+                && Objects.equals(idShort, that.idShort)
+                && Objects.equals(endpoints, that.endpoints)
+                && Objects.equals(administration, that.administration);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, idShort);
+        return Objects.hash(id, idShort, endpoints, administration);
     }
 
 
@@ -125,6 +146,12 @@ public class AssetAdministrationShellDescriptor {
 
         public B endpoints(List<EndpointDescriptor> value) {
             getBuildingInstance().setEndpoints(value);
+            return getSelf();
+        }
+
+
+        public B administration(AdministrationDescriptor value) {
+            getBuildingInstance().setAdministrationDescriptor(value);
             return getSelf();
         }
     }

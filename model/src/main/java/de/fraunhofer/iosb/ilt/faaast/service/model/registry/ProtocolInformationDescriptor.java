@@ -41,6 +41,18 @@ public class ProtocolInformationDescriptor {
     }
 
 
+    public ProtocolInformationDescriptor(String endpointAddress, String endpointProtocol, String endpointProtocolVersion, String subprotocol, String subprotocolBody,
+            String subprotocolBodyEncoding) {
+
+        this.endpointAddress = endpointAddress;
+        this.endpointProtocol = endpointProtocol;
+        this.endpointProtocolVersion = endpointProtocolVersion;
+        this.subprotocol = subprotocol;
+        this.subprotocolBody = subprotocolBody;
+        this.subprotocolBodyEncoding = subprotocolBodyEncoding;
+    }
+
+
     public String getEndpointAddress() {
         return endpointAddress;
     }

@@ -26,9 +26,7 @@ public class EndpointDescriptor {
 
     @JsonIgnore
     private String id;
-
     private String interfaceInformation;
-
     private ProtocolInformationDescriptor protocolInformation;
 
     public EndpointDescriptor() {
@@ -36,6 +34,14 @@ public class EndpointDescriptor {
         id = null;
         interfaceInformation = null;
         protocolInformation = null;
+    }
+
+
+    public EndpointDescriptor(String id, String interfaceInformation, ProtocolInformationDescriptor protocolInformation) {
+
+        this.id = id;
+        this.interfaceInformation = interfaceInformation;
+        this.protocolInformation = protocolInformation;
     }
 
 
