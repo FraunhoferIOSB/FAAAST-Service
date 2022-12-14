@@ -16,13 +16,14 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.registry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.io.Serializable;
 import java.util.Objects;
 
 
 /**
  * Registry Descriptor for Endpoint.
  */
-public class EndpointDescriptor {
+public class EndpointDescriptor implements Serializable {
 
     @JsonIgnore
     private String id;

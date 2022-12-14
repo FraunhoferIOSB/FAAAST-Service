@@ -15,13 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.registry;
 
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.io.Serializable;
 import java.util.Objects;
 
 
 /**
  * Registry Descriptor for ProtocolInformation.
  */
-public class ProtocolInformationDescriptor {
+public class ProtocolInformationDescriptor implements Serializable {
 
     private String endpointAddress;
     private String endpointProtocol;

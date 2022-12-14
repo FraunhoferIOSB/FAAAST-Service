@@ -15,13 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.registry;
 
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.io.Serializable;
 import java.util.Objects;
 
 
 /**
  * Registry Descriptor for Administration.
  */
-public class AdministrationDescriptor {
+public class AdministrationDescriptor implements Serializable {
 
     private String version;
     private String revision;
