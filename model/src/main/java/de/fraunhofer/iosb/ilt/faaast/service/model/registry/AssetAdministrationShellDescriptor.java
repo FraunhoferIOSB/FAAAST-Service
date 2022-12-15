@@ -40,7 +40,7 @@ public class AssetAdministrationShellDescriptor implements Serializable {
 
     private ReferenceDescriptor globalAssetId;
 
-    //private Identification identification;
+    private IdentificationDescriptor identification;
 
     //private List<IdentifierKeyValuePair> specificAssetIds;
 
@@ -138,6 +138,16 @@ public class AssetAdministrationShellDescriptor implements Serializable {
     }
 
 
+    public IdentificationDescriptor getIdentification() {
+        return identification;
+    }
+
+
+    public void setIdentification(IdentificationDescriptor identification) {
+        this.identification = identification;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -152,13 +162,14 @@ public class AssetAdministrationShellDescriptor implements Serializable {
                 && Objects.equals(endpoints, that.endpoints)
                 && Objects.equals(administration, that.administration)
                 && Objects.equals(descriptions, that.descriptions)
-                && Objects.equals(globalAssetId, that.globalAssetId);
+                && Objects.equals(globalAssetId, that.globalAssetId)
+                && Objects.equals(identification, that.identification);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, idShort, endpoints, administration, descriptions, globalAssetId);
+        return Objects.hash(id, idShort, endpoints, administration, descriptions, globalAssetId, identification);
     }
 
 
@@ -212,6 +223,12 @@ public class AssetAdministrationShellDescriptor implements Serializable {
 
         public B globalAssetId(ReferenceDescriptor value) {
             getBuildingInstance().setGlobalAssetId(value);
+            return getSelf();
+        }
+
+
+        public B identification(IdentificationDescriptor value) {
+            getBuildingInstance().setIdentification(value);
             return getSelf();
         }
     }
