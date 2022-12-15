@@ -29,20 +29,13 @@ public class AssetAdministrationShellDescriptor implements Serializable {
 
     @JsonIgnore
     private String id;
-
     private String idShort;
-
     private List<EndpointDescriptor> endpoints;
-
     private AdministrationDescriptor administration;
-
     private List<DescriptionDescriptor> descriptions;
-
     private ReferenceDescriptor globalAssetId;
-
     private IdentificationDescriptor identification;
-
-    //private List<IdentifierKeyValuePair> specificAssetIds;
+    private List<IdentifierKeyValuePairDescriptor> specificAssetIds;
 
     //@Singular
     //private List<Submodel> submodelDescriptors;
@@ -54,11 +47,14 @@ public class AssetAdministrationShellDescriptor implements Serializable {
         administration = null;
         descriptions = new ArrayList<>();
         globalAssetId = null;
+        identification = null;
+        specificAssetIds = new ArrayList<>();
     }
 
 
     public AssetAdministrationShellDescriptor(String id, String idShort, List<EndpointDescriptor> endpoints, AdministrationDescriptor administration,
-            List<DescriptionDescriptor> descriptions, ReferenceDescriptor globalAssetId) {
+            List<DescriptionDescriptor> descriptions, ReferenceDescriptor globalAssetId, IdentificationDescriptor identification,
+            List<IdentifierKeyValuePairDescriptor> specificAssetIds) {
         this.id = id;
         this.idShort = idShort;
         if (endpoints == null) {
@@ -75,6 +71,13 @@ public class AssetAdministrationShellDescriptor implements Serializable {
             this.descriptions = descriptions;
         }
         this.globalAssetId = globalAssetId;
+        this.identification = identification;
+        if (specificAssetIds == null) {
+            this.specificAssetIds = new ArrayList<>();
+        }
+        else {
+            this.specificAssetIds = specificAssetIds;
+        }
     }
 
 
@@ -148,6 +151,16 @@ public class AssetAdministrationShellDescriptor implements Serializable {
     }
 
 
+    public List<IdentifierKeyValuePairDescriptor> getSpecificAssetIds() {
+        return specificAssetIds;
+    }
+
+
+    public void setSpecificAssetIds(List<IdentifierKeyValuePairDescriptor> specificAssetIds) {
+        this.specificAssetIds = specificAssetIds;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -163,13 +176,14 @@ public class AssetAdministrationShellDescriptor implements Serializable {
                 && Objects.equals(administration, that.administration)
                 && Objects.equals(descriptions, that.descriptions)
                 && Objects.equals(globalAssetId, that.globalAssetId)
-                && Objects.equals(identification, that.identification);
+                && Objects.equals(identification, that.identification)
+                && Objects.equals(specificAssetIds, that.specificAssetIds);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, idShort, endpoints, administration, descriptions, globalAssetId, identification);
+        return Objects.hash(id, idShort, endpoints, administration, descriptions, globalAssetId, identification, specificAssetIds);
     }
 
 
@@ -229,6 +243,18 @@ public class AssetAdministrationShellDescriptor implements Serializable {
 
         public B identification(IdentificationDescriptor value) {
             getBuildingInstance().setIdentification(value);
+            return getSelf();
+        }
+
+
+        public B specificAssetIds(List<IdentifierKeyValuePairDescriptor> value) {
+            getBuildingInstance().setSpecificAssetIds(value);
+            return getSelf();
+        }
+
+
+        public B specificAssetId(IdentifierKeyValuePairDescriptor value) {
+            getBuildingInstance().getSpecificAssetIds().add(value);
             return getSelf();
         }
     }
