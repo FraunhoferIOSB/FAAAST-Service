@@ -54,8 +54,8 @@ public class IdentificationDescriptor implements Serializable {
     }
 
 
-    public void setIdType(String id) {
-        this.id = idType;
+    public void setIdType(String idType) {
+        this.idType = idType;
     }
 
 
