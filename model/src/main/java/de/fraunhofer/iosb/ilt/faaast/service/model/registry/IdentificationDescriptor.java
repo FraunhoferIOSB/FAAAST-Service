@@ -35,7 +35,7 @@ public class IdentificationDescriptor implements Serializable {
 
     public IdentificationDescriptor(String id, String idType) {
         this.id = id;
-        this.idType = id;
+        this.idType = idType;
     }
 
 
