@@ -23,39 +23,38 @@ import java.util.Objects;
 
 
 /**
- * Registry Descriptor for AssetAdministrationShell.
+ * Registry Descriptor for Submodel.
  */
-public class AssetAdministrationShellDescriptor implements Serializable {
+public class SubmodelDescriptor implements Serializable {
 
     @JsonIgnore
     private String id;
     private String idShort;
+    @JsonIgnore
+    private String identifier;
     private List<EndpointDescriptor> endpoints;
     private AdministrationDescriptor administration;
     private List<DescriptionDescriptor> descriptions;
-    private ReferenceDescriptor globalAssetId;
     private IdentificationDescriptor identification;
-    private List<IdentifierKeyValuePairDescriptor> specificAssetIds;
-    private List<SubmodelDescriptor> submodels;
+    private ReferenceDescriptor semanticId;
 
-    public AssetAdministrationShellDescriptor() {
+    public SubmodelDescriptor() {
         id = null;
         idShort = null;
+        identifier = null;
         endpoints = new ArrayList<>();
         administration = null;
         descriptions = new ArrayList<>();
-        globalAssetId = null;
         identification = null;
-        specificAssetIds = new ArrayList<>();
-        submodels = new ArrayList<>();
+        semanticId = null;
     }
 
 
-    public AssetAdministrationShellDescriptor(String id, String idShort, List<EndpointDescriptor> endpoints, AdministrationDescriptor administration,
-            List<DescriptionDescriptor> descriptions, ReferenceDescriptor globalAssetId, IdentificationDescriptor identification,
-            List<IdentifierKeyValuePairDescriptor> specificAssetIds, List<SubmodelDescriptor> submodels) {
+    public SubmodelDescriptor(String id, String idShort, String identifier, List<EndpointDescriptor> endpoints, AdministrationDescriptor administration,
+            List<DescriptionDescriptor> descriptions, IdentificationDescriptor identification, ReferenceDescriptor semanticId) {
         this.id = id;
         this.idShort = idShort;
+        this.identifier = identifier;
         if (endpoints == null) {
             this.endpoints = new ArrayList<>();
         }
@@ -69,20 +68,8 @@ public class AssetAdministrationShellDescriptor implements Serializable {
         else {
             this.descriptions = descriptions;
         }
-        this.globalAssetId = globalAssetId;
         this.identification = identification;
-        if (specificAssetIds == null) {
-            this.specificAssetIds = new ArrayList<>();
-        }
-        else {
-            this.specificAssetIds = specificAssetIds;
-        }
-        if (submodels == null) {
-            this.submodels = new ArrayList<>();
-        }
-        else {
-            this.submodels = submodels;
-        }
+        this.semanticId = semanticId;
     }
 
 
@@ -106,6 +93,16 @@ public class AssetAdministrationShellDescriptor implements Serializable {
     }
 
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+
     public List<EndpointDescriptor> getEndpoints() {
         return endpoints;
     }
@@ -121,7 +118,7 @@ public class AssetAdministrationShellDescriptor implements Serializable {
     }
 
 
-    public void setAdministrationDescriptor(AdministrationDescriptor administration) {
+    public void setAdministration(AdministrationDescriptor administration) {
         this.administration = administration;
     }
 
@@ -136,16 +133,6 @@ public class AssetAdministrationShellDescriptor implements Serializable {
     }
 
 
-    public ReferenceDescriptor getGlobalAssetId() {
-        return globalAssetId;
-    }
-
-
-    public void setGlobalAssetId(ReferenceDescriptor globalAssetId) {
-        this.globalAssetId = globalAssetId;
-    }
-
-
     public IdentificationDescriptor getIdentification() {
         return identification;
     }
@@ -156,23 +143,13 @@ public class AssetAdministrationShellDescriptor implements Serializable {
     }
 
 
-    public List<IdentifierKeyValuePairDescriptor> getSpecificAssetIds() {
-        return specificAssetIds;
+    public ReferenceDescriptor getSemanticId() {
+        return semanticId;
     }
 
 
-    public void setSpecificAssetIds(List<IdentifierKeyValuePairDescriptor> specificAssetIds) {
-        this.specificAssetIds = specificAssetIds;
-    }
-
-
-    public List<SubmodelDescriptor> getSubmodels() {
-        return submodels;
-    }
-
-
-    public void setSubmodels(List<SubmodelDescriptor> submodels) {
-        this.submodels = submodels;
+    public void setSemanticId(ReferenceDescriptor semanticId) {
+        this.semanticId = semanticId;
     }
 
 
@@ -184,22 +161,21 @@ public class AssetAdministrationShellDescriptor implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AssetAdministrationShellDescriptor that = (AssetAdministrationShellDescriptor) o;
+        SubmodelDescriptor that = (SubmodelDescriptor) o;
         return Objects.equals(id, that.id)
                 && Objects.equals(idShort, that.idShort)
+                && Objects.equals(identifier, that.identifier)
                 && Objects.equals(endpoints, that.endpoints)
                 && Objects.equals(administration, that.administration)
                 && Objects.equals(descriptions, that.descriptions)
-                && Objects.equals(globalAssetId, that.globalAssetId)
                 && Objects.equals(identification, that.identification)
-                && Objects.equals(specificAssetIds, that.specificAssetIds)
-                && Objects.equals(submodels, that.submodels);
+                && Objects.equals(semanticId, that.semanticId);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, idShort, endpoints, administration, descriptions, globalAssetId, identification, specificAssetIds, submodels);
+        return Objects.hash(id, idShort, identifier, endpoints, administration, descriptions, identification, semanticId);
     }
 
 
@@ -207,7 +183,7 @@ public class AssetAdministrationShellDescriptor implements Serializable {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends AssetAdministrationShellDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends SubmodelDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -217,6 +193,12 @@ public class AssetAdministrationShellDescriptor implements Serializable {
 
         public B idShort(String value) {
             getBuildingInstance().setIdShort(value);
+            return getSelf();
+        }
+
+
+        public B identifier(String value) {
+            getBuildingInstance().setIdentifier(value);
             return getSelf();
         }
 
@@ -234,7 +216,7 @@ public class AssetAdministrationShellDescriptor implements Serializable {
 
 
         public B administration(AdministrationDescriptor value) {
-            getBuildingInstance().setAdministrationDescriptor(value);
+            getBuildingInstance().setAdministration(value);
             return getSelf();
         }
 
@@ -245,14 +227,8 @@ public class AssetAdministrationShellDescriptor implements Serializable {
         }
 
 
-        public B oneDescription(DescriptionDescriptor value) {
+        public B description(DescriptionDescriptor value) {
             getBuildingInstance().getDescriptions().add(value);
-            return getSelf();
-        }
-
-
-        public B globalAssetId(ReferenceDescriptor value) {
-            getBuildingInstance().setGlobalAssetId(value);
             return getSelf();
         }
 
@@ -263,31 +239,13 @@ public class AssetAdministrationShellDescriptor implements Serializable {
         }
 
 
-        public B specificAssetIds(List<IdentifierKeyValuePairDescriptor> value) {
-            getBuildingInstance().setSpecificAssetIds(value);
-            return getSelf();
-        }
-
-
-        public B specificAssetId(IdentifierKeyValuePairDescriptor value) {
-            getBuildingInstance().getSpecificAssetIds().add(value);
-            return getSelf();
-        }
-
-
-        public B submodels(List<SubmodelDescriptor> value) {
-            getBuildingInstance().setSubmodels(value);
-            return getSelf();
-        }
-
-
-        public B submodel(SubmodelDescriptor value) {
-            getBuildingInstance().getSubmodels().add(value);
+        public B semanticId(ReferenceDescriptor value) {
+            getBuildingInstance().setSemanticId(value);
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<AssetAdministrationShellDescriptor, Builder> {
+    public static class Builder extends AbstractBuilder<SubmodelDescriptor, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -296,8 +254,8 @@ public class AssetAdministrationShellDescriptor implements Serializable {
 
 
         @Override
-        protected AssetAdministrationShellDescriptor newBuildingInstance() {
-            return new AssetAdministrationShellDescriptor();
+        protected SubmodelDescriptor newBuildingInstance() {
+            return new SubmodelDescriptor();
         }
     }
 }
