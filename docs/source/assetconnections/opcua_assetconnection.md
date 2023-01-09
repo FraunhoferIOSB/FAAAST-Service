@@ -22,15 +22,19 @@
 
 | Name | Allowed Value | Description |
 |:--| -- | -- |
-| nodeId | String | nodeId of the the OPC UA node to read/write in ExpandedNodeId format |
+| nodeId | String | NodeId of the the OPC UA node to read/write in ExpandedNodeId format |
+| arrayElementIndex | String | _optional_ Index of the desired array element if the value is an array |
 
 All NodeIds (also below) are specified in the ExpandedNodeId format (see [OPC UA Reference, Part 6](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1/), Section ExpandedNodeId). In the following you can see two examples.
+
+If the value is an array, it's possible to reference a specific element of the array. The index of the desired element is specified with square brackets, e.g. "[2]".  If the value is multi-dimensional array, multiple indizes can be specified, e.g. "&#091;1&#093;&#091;3&#093;".
 
 #### Example
 
 ```json
 {
-	"nodeId": "nsu=com:example;s=foo"
+	"nodeId": "nsu=com:example;s=foo",
+	"arrayElementIndex" : "[2]"
 }
 ```
 
@@ -38,7 +42,8 @@ or
 
 ```json
 {
-	"nodeId": "ns=2;s=foo"
+	"nodeId": "ns=2;s=foo",
+	"arrayElementIndex" : "[2]"
 }
 ```
 
@@ -78,15 +83,19 @@ or
 
 | Name | Allowed Value | Description |
 |:--| -- | -- |
-| nodeId | String | nodeId of the the OPC UA node to read/write in ExpandedNodeId format |
+| nodeId | String | NodeId of the the OPC UA node to read/write in ExpandedNodeId format |
 | interval | long | Interval to poll the server for changes (in ms) _currently not used_
+| arrayElementIndex | String | _optional_ Index of the desired array element if the value is an array |
+
+If the value is an array, it's possible to reference a specific element of the array. The index of the desired element is specified with square brackets, e.g. "[2]".  If the value is multi-dimensional array, multiple indizes can be specified, e.g. "&#091;1&#093;&#091;3&#093;".
 
 #### Example
 
 ```json
 {
 	"nodeId": "nsu=com:example;s=foo",
-	"interval": 1000
+	"interval": 1000,
+	"arrayElementIndex" : "[2]"
 }
 ```
 
