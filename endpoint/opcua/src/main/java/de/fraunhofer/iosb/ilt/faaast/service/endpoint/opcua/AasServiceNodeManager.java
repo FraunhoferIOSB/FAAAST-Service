@@ -310,16 +310,6 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             }
         }
 
-        addAssetAdministrationShells();
-    }
-
-
-    /**
-     * Adds the AssetAdministrationShells of the current environment.
-     *
-     * @throws StatusException If the operation fails
-     */
-    private void addAssetAdministrationShells() throws StatusException {
         if (aasEnvironment.getAssetAdministrationShells() != null) {
             for (AssetAdministrationShell aas: aasEnvironment.getAssetAdministrationShells()) {
                 AssetAdministrationShellCreator.addAssetAdministrationShell(aasEnvironmentNode, aas, this);
