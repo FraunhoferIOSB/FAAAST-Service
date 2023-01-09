@@ -116,7 +116,7 @@
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.28.0</maven.plugin.spotless.version>
         <milo.version>0.6.8</milo.version>
-        <mockito.version>4.9.0</mockito.version>
+        <mockito.version>4.11.0</mockito.version>
         <moquette.version>0.15.1</moquette.version>
         <netty.version>4.1.86.Final</netty.version>
         <paho.version>1.2.5</paho.version>
