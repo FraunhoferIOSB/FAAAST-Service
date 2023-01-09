@@ -186,6 +186,7 @@ public class App implements Runnable {
         });
         CommandLine commandLine = new CommandLine(new App())
                 .registerConverter(Level.class, new LogLevelTypeConverter())
+                .setExecutionExceptionHandler(new ExecutionExceptionHandler())
                 .setCaseInsensitiveEnumValuesAllowed(true);
         try {
             CommandLine.ParseResult result = commandLine.parseArgs(args);
@@ -235,22 +236,21 @@ public class App implements Runnable {
     }
 
 
-    private boolean validateModelIfRequired(ServiceConfig config) {
+    private void validateModelIfRequired(ServiceConfig config) {
         if (validateModel) {
             try {
                 AssetAdministrationShellEnvironment model = config.getPersistence().getEnvironment() == null
                         ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModel()).getEnvironment()
                         : config.getPersistence().getEnvironment();
-                return validate(model);
+                validate(model);
             }
             catch (IOException e) {
-                LOGGER.error("Unexpected exception with validating model", e);
+                throw new InitializationException("Unexpected exception while validating model", e);
             }
             catch (DeserializationException e) {
-                LOGGER.error("Error loading model file", e);
+                throw new InitializationException("Error loading model file", e);
             }
         }
-        return true;
     }
 
 
@@ -291,13 +291,10 @@ public class App implements Runnable {
             config = getConfig();
         }
         catch (IOException e) {
-            LOGGER.error("Error loading config file", e);
-            return;
+            throw new InitializationException("Error loading config file", e);
         }
         withModel(config);
-        if (!validateModelIfRequired(config)) {
-            return;
-        }
+        validateModelIfRequired(config);
         if (autoCompleteConfiguration) {
             ServiceConfigHelper.autoComplete(config);
         }
@@ -308,15 +305,13 @@ public class App implements Runnable {
                     .collect(Collectors.toList()));
         }
         catch (InvalidConfigurationException | ReflectiveOperationException e) {
-            LOGGER.error("Adding endpoints to config failed", e);
-            return;
+            throw new InitializationException("Adding endpoints to config failed", e);
         }
         try {
             config = ServiceConfigHelper.withProperties(config, getConfigOverrides());
         }
         catch (JsonProcessingException e) {
-            LOGGER.error("Overriding config properties failed", e);
-            return;
+            throw new InitializationException("Overriding config properties failed", e);
         }
         if (!dryRun) {
             runService(config);
@@ -497,30 +492,28 @@ public class App implements Runnable {
     }
 
 
-    private boolean validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
-        boolean result = true;
+    private void validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
         LOGGER.debug("Validating model...");
         try {
             ValueTypeValidator.validate(aasEnv);
         }
         catch (ValidationException e) {
-            LOGGER.info("Model type validation failed with the following error(s):{}{}", System.lineSeparator(), e.getMessage());
-            result = false;
+            throw new InitializationException(
+                    String.format("Model type validation failed with the following error(s):%s%s",
+                            System.lineSeparator(),
+                            e.getMessage()));
         }
         ShaclValidator shaclValidator = ShaclValidator.getInstance();
         ValidationReport report = shaclValidator.validateGetReport(aasEnv);
         if (!report.conforms()) {
             ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
             ShLib.printReport(validationResultStream, report);
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Detailed model validation failed with the following error(s):{}{}", System.lineSeparator(), validationResultStream);
-            }
-            result = false;
+            throw new InitializationException(
+                    String.format("Detailed model validation failed with the following error(s):%s%s",
+                            System.lineSeparator(),
+                            validationResultStream));
         }
-        if (result) {
-            LOGGER.info("Model successfully validated");
-        }
-        return result;
+        LOGGER.info("Model successfully validated");
     }
 
 
