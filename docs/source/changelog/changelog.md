@@ -1,6 +1,11 @@
 # Changelog
+<!--start:changelog-header-->
+## Current development version (0.5.0-SNAPSHOT)<!--end:changelog-header-->
 
-## Current development version (0.4.0-SNAPSHOT)
+**New Features**
+*   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
+
+## Release version 0.4.0
 
 **New Features**
 *   Improved logging (new CLI arguments `-q`, `-v`, `-vv`, `-vvv`, `--loglevel-faaast`, `--loglevel-external`)
