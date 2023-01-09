@@ -216,9 +216,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     @Override
     protected void init() throws StatusException, UaNodeFactoryException {
+        super.init();
         try {
-            super.init();
-
             createAddressSpace();
         }
         catch (ServiceResultException ex) {
