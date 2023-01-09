@@ -1,13 +1,22 @@
 # Changelog
+<!--start:changelog-header-->
+## Current development version (0.5.0-SNAPSHOT)<!--end:changelog-header-->
 
-## Current development version (0.4.0-SNAPSHOT)
-**Bugfixes**
-*   Fixed error related to JSONPath expressions that could occure in asset connections when using certain JSONPath expressions
+**New Features**
+*   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
+
+## Release version 0.4.0
+
+**New Features**
+*   Improved logging (new CLI arguments `-q`, `-v`, `-vv`, `-vvv`, `--loglevel-faaast`, `--loglevel-external`)
 
 **Internal changes & bugfixes**
 *   Asset Connection
 	*   OPC UA
 		*   Fixed problem converting DateTime values
+*   Fixed error related to JSONPath expressions that could occure in asset connections when using certain JSONPath expressions
+*   Fixed error in reference helper with setting proper type of key elements when an identifiable and a independant referable have the same idshort
+*   Removed dependencies on checks module which is only needed for codestyle check while compiling and therefore not released on maven. This caused a missing dependency exception when using any FA³ST module within your code.
 
 **New Features**
 *   Asset Connection

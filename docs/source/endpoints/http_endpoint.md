@@ -32,7 +32,7 @@ In order to use the HTTP Endpoint the configuration settings require to include 
     -   /shells/{aasIdentifier}/aas ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange)
     -   /shells/{aasIdentifier}/aas/asset-information ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange)
     -   /shells/{aasIdentifier}/aas/submodels ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
-    -   /shells/{aasIdentifier}/aas/submodels{submodeIdentifier} ![DELETE](https://img.shields.io/badge/DELETE-red)
+    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier} ![DELETE](https://img.shields.io/badge/DELETE-red)
 
 -   Submodel Repository Interface
     -   /submodels ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
@@ -43,14 +43,14 @@ In order to use the HTTP Endpoint the configuration settings require to include 
     -   /submodels/{submodelIdentifier}/submodel/submodel-elements ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
     -   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath} ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
     -   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke ![POST](https://img.shields.io/badge/POST-brightgreen)
-    -   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/{handle-Id} ![GET](https://img.shields.io/badge/GET-blue)
+    -   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/{handle-Id} ![GET](https://img.shields.io/badge/GET-blue)
 
 -   Submodel Interface (combined with Asset Administration Shell Interface)
     -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange)
     -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
     -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath} ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen), ![PUT](https://img.shields.io/badge/PUT-orange), ![DELETE](https://img.shields.io/badge/DELETE-red)
     -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke ![POST](https://img.shields.io/badge/POST-brightgreen)
-    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-Results/{handle-Id} ![GET](https://img.shields.io/badge/GET-blue)
+    -   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/{handle-Id} ![GET](https://img.shields.io/badge/GET-blue)
 
 -   Concept Description Repository Interface
     -   /concept-descriptions ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
