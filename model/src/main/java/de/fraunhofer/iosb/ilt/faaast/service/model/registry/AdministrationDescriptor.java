@@ -27,6 +27,18 @@ public class AdministrationDescriptor implements Serializable {
     private String version;
     private String revision;
 
+    public AdministrationDescriptor() {
+        version = null;
+        revision = null;
+    }
+
+
+    public AdministrationDescriptor(String version, String revision) {
+        this.version = version;
+        this.revision = revision;
+    }
+
+
     public String getVersion() {
         return version;
     }
@@ -43,18 +55,6 @@ public class AdministrationDescriptor implements Serializable {
 
 
     public void setRevision(String revision) {
-        this.revision = revision;
-    }
-
-
-    public AdministrationDescriptor() {
-        version = null;
-        revision = null;
-    }
-
-
-    public AdministrationDescriptor(String version, String revision) {
-        this.version = version;
         this.revision = revision;
     }
 

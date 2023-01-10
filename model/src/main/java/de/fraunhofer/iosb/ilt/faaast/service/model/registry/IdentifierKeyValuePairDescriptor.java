@@ -32,6 +32,15 @@ public class IdentifierKeyValuePairDescriptor implements Serializable {
     private String key;
     private String value;
 
+    public IdentifierKeyValuePairDescriptor() {
+        id = null;
+        semanticId = null;
+        externalSubjectId = null;
+        key = null;
+        value = null;
+    }
+
+
     public String getId() {
         return id;
     }

@@ -28,8 +28,13 @@ public class ReferenceDescriptor implements Serializable {
 
     @JsonIgnore
     private String id;
-
     private List<KeyDescriptor> keys;
+
+    public ReferenceDescriptor() {
+        id = null;
+        keys = null;
+    }
+
 
     public String getId() {
         return id;
