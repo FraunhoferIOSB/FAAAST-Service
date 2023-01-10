@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
-import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.ValueRanks;
 import com.prosysopc.ua.nodes.UaNode;
@@ -28,7 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
@@ -37,16 +35,15 @@ import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import java.util.Locale;
 import opc.i4aas.AASOperationType;
-import opc.i4aas.ObjectTypeIds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * Helper class to create Operations and integrate them into the OPC UA address space.
+ * Helper class to create Operations and integrate them into the
+ * OPC UA address space.
  */
 public class OperationCreator extends SubmodelElementCreator {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationCreator.class);
 
     /**
@@ -56,14 +53,14 @@ public class OperationCreator extends SubmodelElementCreator {
      * @param aasOperation The corresponding AAS operation to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The reference to the parent object
-     * @param ordered Specifies whether the operation should be added ordered (true) or unordered (false)
+     * @param ordered Specifies whether the operation should be added ordered
+     *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      */
     public static void addAasOperation(UaNode node, Operation aasOperation, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager) {
-        Ensure.requireNonNull(aasOperation, "aasOperation must be non-null");
         try {
             String name = aasOperation.getIdShort();
-            QualifiedName browseName = UaQualifiedName.from(ObjectTypeIds.AASOperationType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
+            QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASOperationType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
             NodeId nid = nodeManager.getDefaultNodeId();
             AASOperationType oper = nodeManager.createInstance(AASOperationType.class, nid, browseName, LocalizedText.english(name));
             addSubmodelElementBaseData(oper, aasOperation, nodeManager);
@@ -107,8 +104,8 @@ public class OperationCreator extends SubmodelElementCreator {
 
             nodeManager.addReferable(operRef, new ObjectData(aasOperation, oper, submodel));
         }
-        catch (StatusException e) {
-            LOGGER.error("Error creating OPC UA operation (idShort: {})", aasOperation.getIdShort(), e);
+        catch (Exception ex) {
+            LOGGER.error("addAasOperation Exception", ex);
         }
     }
 

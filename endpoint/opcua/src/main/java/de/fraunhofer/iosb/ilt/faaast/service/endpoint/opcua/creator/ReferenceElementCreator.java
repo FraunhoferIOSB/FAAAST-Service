@@ -24,7 +24,7 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.ReferenceElement;
@@ -33,7 +33,8 @@ import opc.i4aas.AASReferenceElementType;
 
 
 /**
- * Helper class to create ReferenceElements and integrate them into the OPC UA address space.
+ * Helper class to create ReferenceElements and integrate them into the
+ * OPC UA address space.
  */
 public class ReferenceElementCreator extends SubmodelElementCreator {
 
@@ -44,7 +45,8 @@ public class ReferenceElementCreator extends SubmodelElementCreator {
      * @param aasRefElem The AAS reference element to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The reference to the parent object
-     * @param ordered Specifies whether the reference element should be added ordered (true) or unordered (false)
+     * @param ordered Specifies whether the reference element should be added
+     *            ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */

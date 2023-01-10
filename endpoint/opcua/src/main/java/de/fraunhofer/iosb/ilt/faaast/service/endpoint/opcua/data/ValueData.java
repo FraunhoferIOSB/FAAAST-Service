@@ -21,10 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 
 
 /**
- * Class with information for values.
+ * Class with information for values
  */
 public class ValueData {
-
     private final NodeId nodeId;
 
     private final QualifiedName browseName;
@@ -35,7 +34,7 @@ public class ValueData {
 
     /**
      * Creates a new instance of ValueHelper.
-     *
+     * 
      * @param nodeId The desired NodeId.
      * @param browseName The desired Browse Name.
      * @param displayName The desired Display Name.
@@ -51,7 +50,7 @@ public class ValueData {
 
     /**
      * Gets the NodeId.
-     *
+     * 
      * @return The NodeId.
      */
     public NodeId getNodeId() {
@@ -61,7 +60,7 @@ public class ValueData {
 
     /**
      * Gets the Browse Name.
-     *
+     * 
      * @return The Browse Name.
      */
     public QualifiedName getBrowseName() {
@@ -71,7 +70,7 @@ public class ValueData {
 
     /**
      * Gets the Display Name.
-     *
+     * 
      * @return The Display Name.
      */
     public LocalizedText getDisplayName() {
@@ -81,7 +80,7 @@ public class ValueData {
 
     /**
      * Gets the Node Manager.
-     *
+     * 
      * @return The Node Manager.
      */
     public AasServiceNodeManager getNodeManager() {

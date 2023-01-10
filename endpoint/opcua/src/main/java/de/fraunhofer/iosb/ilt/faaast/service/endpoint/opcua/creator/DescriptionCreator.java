@@ -22,7 +22,8 @@ import java.util.List;
 
 
 /**
- * Helper class to create Descriptions and integrate them into the OPC UA address space.
+ * Helper class to create Descriptions and integrate them into the
+ * OPC UA address space.
  */
 public class DescriptionCreator {
 

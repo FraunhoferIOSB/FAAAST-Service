@@ -20,22 +20,22 @@ import io.adminshell.aas.v3.model.Submodel;
 
 
 /**
- * Class with information for AAS objects.
+ * Class with information for AAS objects
  */
 public class ObjectData {
 
     /**
-     * The Referable.
+     * The Referable
      */
     private final Referable referable;
 
     /**
-     * The OPC UA Node.
+     * The OPC UA Node
      */
     private final BaseObjectType node;
 
     /**
-     * The corresponding Submodel, if available.
+     * The corresponding Submodel, if available
      */
     private final Submodel submodel;
 
@@ -67,7 +67,7 @@ public class ObjectData {
 
 
     /**
-     * Gets the Referable.
+     * Gets the Referable,
      *
      * @return The Referable
      */
@@ -77,7 +77,7 @@ public class ObjectData {
 
 
     /**
-     * Gets the OPC UA Node.
+     * Gets the OPC UA Node
      *
      * @return The Node
      */
@@ -87,7 +87,7 @@ public class ObjectData {
 
 
     /**
-     * Gets the corresponding Submodel.
+     * Gets the corresponding Submodel
      *
      * @return The corresponding Submodel, null if not available
      */

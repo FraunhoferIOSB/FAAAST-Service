@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class that listens to I/O-Events.
+ * Class that listens to I/O-Events
  */
 public class AasServiceIoManagerListener implements IoManagerListener {
 
@@ -50,14 +50,14 @@ public class AasServiceIoManagerListener implements IoManagerListener {
     private final AasServiceNodeManager nodeManager;
 
     /**
-     * Creates a new instance of AasServiceIoManagerListener.
+     * Creates a new instance of AasServiceIoManagerListener
      *
      * @param endpoint the associated endpoint
      * @param nodeManager the associated NodeManager
      */
     public AasServiceIoManagerListener(OpcUaEndpoint endpoint, AasServiceNodeManager nodeManager) {
         this.endpoint = endpoint;
-        Ensure.requireNonNull(endpoint, "endpoint must be non-null");
+        Ensure.requireNonNull(endpoint, "endpoint must not be null");
         this.nodeManager = nodeManager;
     }
 
@@ -147,8 +147,8 @@ public class AasServiceIoManagerListener implements IoManagerListener {
                 }
             }
         }
-        catch (Exception e) {
-            throw new StatusException(e.getMessage(), StatusCodes.Bad_UnexpectedError);
+        catch (Exception ex) {
+            throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError);
         }
 
         // We return true here. So, the value is not written to the node here. 

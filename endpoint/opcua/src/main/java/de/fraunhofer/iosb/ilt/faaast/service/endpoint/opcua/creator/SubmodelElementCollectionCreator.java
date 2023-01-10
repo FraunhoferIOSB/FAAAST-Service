@@ -39,7 +39,8 @@ import opc.i4aas.AASSubmodelElementCollectionType;
 
 
 /**
- * Helper class to create SubmodelElementCollections and integrate them into the OPC UA address space.
+ * Helper class to create SubmodelElementCollections and integrate them into the
+ * OPC UA address space.
  */
 public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
 
@@ -50,7 +51,8 @@ public class SubmodelElementCollectionCreator extends SubmodelElementCreator {
      * @param aasColl The corresponding SubmodelElementCollection to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the entity should be added ordered (true) or unordered (false)
+     * @param ordered Specifies whether the entity should be added ordered
+     *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails

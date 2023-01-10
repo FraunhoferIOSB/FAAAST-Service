@@ -27,7 +27,7 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.types.opcua.server.FileTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.File;
 import io.adminshell.aas.v3.model.Reference;
@@ -38,10 +38,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Helper class to create AAS files and integrate them into the OPC UA address space.
+ * Helper class to create AAS files and integrate them into the
+ * OPC UA address space.
  */
 public class FileCreator extends SubmodelElementCreator {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(FileCreator.class);
 
     /**
@@ -52,7 +52,8 @@ public class FileCreator extends SubmodelElementCreator {
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent node
      * @param ordered Specifies whether the file should be added ordered (true) or unordered (false)
-     * @param nodeName The desired Name of the node. If this value is not set, the IdShort of the file is used.
+     * @param nodeName The desired Name of the node. If this value is not set,
+     *            the IdShort of the file is used.
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */

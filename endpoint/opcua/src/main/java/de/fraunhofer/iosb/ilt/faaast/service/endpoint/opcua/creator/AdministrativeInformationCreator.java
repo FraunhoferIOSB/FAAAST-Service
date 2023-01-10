@@ -29,7 +29,8 @@ import opc.i4aas.AASAdministrativeInformationType;
 
 
 /**
- * Helper class to create AdministrativeInformations and integrate them into the OPC UA address space.
+ * Helper class to create AdministrativeInformations and integrate them into the
+ * OPC UA address space.
  */
 public class AdministrativeInformationCreator {
 
@@ -39,7 +40,8 @@ public class AdministrativeInformationCreator {
 
 
     /**
-     * Adds the AdminInformation Properties to the given node (if they don't exist).
+     * Adds the AdminInformation Properties to the given node (if they don't
+     * exist).
      *
      * @param adminInfNode The desired AdminInformation node
      * @param nodeManager The corresponding Node Manager

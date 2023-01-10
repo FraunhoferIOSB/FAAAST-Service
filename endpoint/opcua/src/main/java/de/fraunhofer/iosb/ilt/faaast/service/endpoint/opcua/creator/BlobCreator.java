@@ -26,7 +26,7 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Blob;
 import io.adminshell.aas.v3.model.Reference;
@@ -37,10 +37,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Helper class to create Blobs and integrate them into the OPC UA address space.
+ * Helper class to create Blobs and integrate them into the
+ * OPC UA address space.
  */
 public class BlobCreator extends SubmodelElementCreator {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(BlobCreator.class);
 
     /**
@@ -50,7 +50,8 @@ public class BlobCreator extends SubmodelElementCreator {
      * @param aasBlob The AAS blob to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef Tne reference to the parent object
-     * @param ordered Specifies whether the blob should be added ordered (true) or unordered (false)
+     * @param ordered Specifies whether the blob should be added ordered (true)
+     *            or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */

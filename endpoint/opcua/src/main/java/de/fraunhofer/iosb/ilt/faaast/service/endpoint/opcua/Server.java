@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import com.prosysopc.ua.ApplicationIdentity;
-import com.prosysopc.ua.ModelException;
 import com.prosysopc.ua.SecureIdentityException;
+import com.prosysopc.ua.UaApplication;
 import com.prosysopc.ua.UaApplication.Protocol;
 import com.prosysopc.ua.UserTokenPolicies;
 import com.prosysopc.ua.server.UaServer;
@@ -38,29 +38,28 @@ import com.prosysopc.ua.types.opcua.server.BuildInfoTypeNode;
 import com.prosysopc.ua.types.opcua.server.ServerCapabilitiesTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasCertificateValidationListener;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceIoManagerListener;
-import de.fraunhofer.iosb.ilt.faaast.service.util.GitVersionInfoHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
-import java.text.ParseException;
+import java.net.URL;
 import java.util.EnumSet;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 
 /**
- * Class for the OPC UA server.
+ * Class for the OPC UA server
  */
 public class Server {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
-    private static final String APPLICATION_NAME = "FAAAST-Service OPC UA Endpoint";
+    private static final String APPLICATION_NAME = "Fraunhofer IOSB AAS OPC UA Server";
     private static final String APPLICATION_URI = "urn:hostname:Fraunhofer:OPCUA:AasServer";
     private static final int CERT_KEY_SIZE = 2048;
     private static final String ISSUERS_PATH = "issuers";
@@ -90,7 +89,7 @@ public class Server {
 
 
     /**
-     * Starts the server.
+     * Starts the server
      *
      * @throws UaServerException If an error occurs
      * @throws IOException If an error occurs
@@ -145,7 +144,7 @@ public class Server {
 
         uaServer.setUserValidator(new AasUserValidator(
                 userCertificateValidator,
-                endpoint.asConfig().getUsers(),
+                endpoint.asConfig().getUserMap(),
                 endpoint.asConfig().getAllowAnonymous()));
 
         registerDiscovery();
@@ -236,7 +235,7 @@ public class Server {
 
 
     /**
-     * Stops the OPC UA server.
+     * Stops the OPC UA server
      *
      * @param secondsTillShutdown The number of seconds until the server stops
      */
@@ -247,7 +246,7 @@ public class Server {
 
 
     /**
-     * Indicates whether the server is running.
+     * Indicates whether the server is running
      *
      * @return True if the server is running, false otherwise
      */
@@ -257,30 +256,40 @@ public class Server {
 
 
     /**
-     * Initialize the information for the Server BuildInfo structure.
+     * Initialize the information for the Server BuildInfo structure
      */
-    private void initBuildInfo() {
+    protected void initBuildInfo() {
+        // Initialize BuildInfo - using the version info from the SDK
+        // You should replace this with your own build information
+
         final BuildInfoTypeNode buildInfo = uaServer.getNodeManagerRoot().getServerData().getServerStatusNode().getBuildInfoNode();
+
         buildInfo.setProductName(APPLICATION_NAME);
-        buildInfo.setManufacturerName("Fraunhofer IOSB");
-        try {
-            buildInfo.setSoftwareVersion(GitVersionInfoHelper.getBuildVersion());
-            buildInfo.setBuildNumber(GitVersionInfoHelper.getCommitIdAbbrev());
+
+        final String implementationVersion = UaApplication.getSdkVersion();
+        if (implementationVersion != null) {
+            int splitIndex = implementationVersion.lastIndexOf("-");
+            final String softwareVersion = splitIndex == -1 ? "dev" : implementationVersion.substring(0, splitIndex);
+            String buildNumber = splitIndex == -1 ? "dev" : implementationVersion.substring(splitIndex + 1);
+
+            buildInfo.setManufacturerName("Prosys OPC Ltd");
+            buildInfo.setSoftwareVersion(softwareVersion);
+            buildInfo.setBuildNumber(buildNumber);
+
         }
-        catch (IOException e) {
-            buildInfo.setSoftwareVersion("unknown");
-        }
-        try {
-            buildInfo.setBuildDate(DateTime.parseDateTime(GitVersionInfoHelper.getBuildTime()));
-        }
-        catch (IOException | ParseException e) {
-            // ignore
+
+        final URL classFile = UaServer.class.getResource("/de/fraunhofer/iosb/ilt/aas/service/protocol/Server.class");
+        if (classFile != null && classFile.getFile() != null) {
+            final File mfFile = new File(classFile.getFile());
+            GregorianCalendar c = new GregorianCalendar();
+            c.setTimeInMillis(mfFile.lastModified());
+            buildInfo.setBuildDate(new DateTime(c));
         }
     }
 
 
     /**
-     * Creates the server address space.
+     * Creates the server address space
      */
     private void createAddressSpace() {
         try {
@@ -288,14 +297,14 @@ public class Server {
             AasServiceNodeManager aasNodeManager = new AasServiceNodeManager(uaServer, AasServiceNodeManager.NAMESPACE_URI, aasEnvironment, endpoint);
             aasNodeManager.getIoManager().addListeners(new AasServiceIoManagerListener(endpoint, aasNodeManager));
         }
-        catch (Exception e) {
-            LOGGER.error("Error creating OPCUA address space", e);
+        catch (Exception ex) {
+            LOGGER.error("createAddressSpace Exception", ex);
         }
     }
 
 
     /**
-     * Loads the AAS nodes from the NodeSet file.
+     * Loads the AAS nodes from the NodeSet file
      */
     private void loadI4AasNodes() {
         long start = System.currentTimeMillis();
@@ -303,8 +312,8 @@ public class Server {
             LOGGER.debug("loadI4AasNodes start I4AAS");
             uaServer.getAddressSpace().loadModel(opc.i4aas.server.ServerInformationModel.getLocationURI());
         }
-        catch (ModelException | IOException | SAXException e) {
-            LOGGER.error("Error loading I4AAS namespace", e);
+        catch (Exception ex) {
+            LOGGER.error("loadI4AasNodes Exception", ex);
         }
 
         long duration = System.currentTimeMillis() - start;

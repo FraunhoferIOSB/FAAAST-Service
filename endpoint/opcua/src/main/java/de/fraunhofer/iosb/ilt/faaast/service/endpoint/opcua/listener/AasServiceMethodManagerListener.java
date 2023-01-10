@@ -47,14 +47,14 @@ public class AasServiceMethodManagerListener implements CallableListener {
     private final AasServiceNodeManager nodeManager;
 
     /**
-     * Creates a new instance of AasServiceMethodManagerListener.
+     * Creates a new instance of AasServiceMethodManagerListener
      *
      * @param endpoint the associated endpoint
      * @param nodeManager the associated NodeManager
      */
     public AasServiceMethodManagerListener(OpcUaEndpoint endpoint, AasServiceNodeManager nodeManager) {
         this.endpoint = endpoint;
-        Ensure.requireNonNull(endpoint, "endpoint must be non-null");
+        Ensure.requireNonNull(endpoint, "endpoint must not be null");
         this.nodeManager = nodeManager;
     }
 
@@ -84,8 +84,11 @@ public class AasServiceMethodManagerListener implements CallableListener {
                 LOGGER.info("onCall: Property for {} not found", objectId);
             }
         }
-        catch (Exception e) {
-            throw new StatusException(e.getMessage(), StatusCodes.Bad_UnexpectedError);
+        catch (StatusException se) {
+            throw se;
+        }
+        catch (Exception ex) {
+            throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError);
         }
 
         return retval;

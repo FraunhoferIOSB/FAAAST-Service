@@ -30,10 +30,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Helper class to create Assets and integrate them into the OPC UA address space.
+ * Helper class to create Assets and integrate them into the
+ * OPC UA address space.
  */
 public class AssetCreator {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AssetCreator.class);
 
     private AssetCreator() {

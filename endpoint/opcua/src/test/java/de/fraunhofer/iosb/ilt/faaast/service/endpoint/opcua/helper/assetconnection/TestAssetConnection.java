@@ -72,7 +72,7 @@ public class TestAssetConnection implements
             });
         }
         catch (Exception e) {
-            LOGGER.debug("registerOperationProvider error", e);
+            LOGGER.error("registerOperationProvider error", e);
         }
     }
 

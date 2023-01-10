@@ -31,10 +31,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Helper class to create DataElements and integrate them into the OPC UA address space.
+ * Helper class to create DataElements and integrate them into the
+ * OPC UA address space.
  */
 public class DataElementCreator extends SubmodelElementCreator {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(DataElementCreator.class);
 
     /**
@@ -44,7 +44,8 @@ public class DataElementCreator extends SubmodelElementCreator {
      * @param aasDataElement The corresponding AAS data element to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the element should be added ordered (true) or unordered (false)
+     * @param ordered Specifies whether the element should be added ordered
+     *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */

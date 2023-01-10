@@ -41,10 +41,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Helper class to create SubmodelElements and integrate them into the OPC UA address space.
+ * Helper class to create SubmodelElements and integrate them into the
+ * OPC UA address space.
  */
 public class SubmodelElementCreator {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelElementCreator.class);
 
     protected SubmodelElementCreator() {
@@ -78,7 +78,8 @@ public class SubmodelElementCreator {
      * @param elements The desired list of submodel elements
      * @param submodel The corresponding submodel
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies where the elements should de added ordered (true) or unordered (false)
+     * @param ordered Specifies where the elements should de added ordered
+     *            (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails

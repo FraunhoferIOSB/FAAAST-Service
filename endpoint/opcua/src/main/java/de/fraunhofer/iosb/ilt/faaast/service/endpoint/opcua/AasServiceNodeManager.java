@@ -38,8 +38,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelCrea
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator.SubmodelElementCreator;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceMethodManagerListener;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.AasSubmodelElementHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
@@ -88,92 +88,93 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A Node Manager for the AAS information model.
+ * A Node Manager for the AAS information model
  */
 public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
-     * Make certain variable values read-only, because writing would not make sense.
+     * Make certain variable values read-only, because writing would not make
+     * sense
      */
     public static final boolean VALUES_READ_ONLY = true;
 
     /**
-     * Text if node is null.
+     * Text if node is null
      */
     public static final String NODE_NULL = "node is null";
 
     /**
-     * Text for addIdentifiable Exception.
+     * Text for addIdentifiable Exception
      */
     public static final String ADD_IDENT_EXC = "addIdentifiable Exception";
 
     /**
-     * Text for Address Space Exception.
+     * Text for Address Space Exception
      */
     private static final String ERROR_ADDRESS_SPACE = "Error creating address space";
 
     /**
-     * Text if value is null.
+     * Text if value is null
      */
-    private static final String VALUE_NULL = "value must be non-null";
+    private static final String VALUE_NULL = "value must not be null";
 
     /**
-     * Text if element is null.
+     * Text if element is null
      */
-    private static final String ELEMENT_NULL = "element must be non-null";
+    private static final String ELEMENT_NULL = "element must not be null";
 
     /**
-     * The namespace URI of this node manager.
+     * The namespace URI of this node manager
      */
     public static final String NAMESPACE_URI = "http://www.iosb.fraunhofer.de/ILT/AAS/OPCUA";
 
     /**
-     * The name of the AAS Environment node.
+     * The name of the AAS Environment node
      */
     private static final String AAS_ENVIRONMENT_NAME = "AASEnvironment";
 
     /**
-     * The logger for this class.
+     * The logger for this class
      */
     private static final Logger LOG = LoggerFactory.getLogger(AasServiceNodeManager.class);
 
     /**
-     * The AAS environment associated with this Node Manager.
+     * The AAS environment associated with this Node Manager
      */
     private final AssetAdministrationShellEnvironment aasEnvironment;
 
     /**
-     * The associated Endpoint.
+     * The associated Endpoint
      */
     private final OpcUaEndpoint endpoint;
 
     /**
-     * The OPC UA Node for the AAS Environment.
+     * The OPC UA Node for the AAS Environment
      */
     private AASEnvironmentType aasEnvironmentNode;
 
     /**
-     * Maps NodeIds to AAS Data (e.g. Properties and operations).
+     * Maps NodeIds to AAS Data (e.g. Properties and operations)
      */
     private final Map<NodeId, SubmodelElementData> submodelElementAasMap;
 
     /**
-     * Maps AAS SubmodelElements to OPC UA SubmodelElements.
+     * Maps AAS SubmodelElements to OPC UA SubmodelElements
      */
     private final Map<Reference, AASSubmodelElementType> submodelElementOpcUAMap;
 
     /**
-     * Maps Submodel references to the OPC UA Submodel.
+     * Maps Submodel references to the OPC UA Submodel
      */
     private final Map<Reference, UaNode> submodelOpcUAMap;
 
     /**
-     * Maps NodeIds to the corresponding Referable elements.
+     * Maps NodeIds to the corresponding Referable elements
      */
     private final Map<Reference, ObjectData> referableMap;
 
     /**
-     * The MessageBus for signalling changes, e.g. changed values.
+     * The MessageBus for signalling changes, e.g. changed values
      */
     private final MessageBus<?> messageBus;
 
@@ -183,12 +184,12 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
     private final List<SubscriptionId> subscriptions;
 
     /**
-     * The counter for default NodeIds.
+     * The counter for default NodeIds
      */
     private int nodeIdCounter;
 
     /**
-     * Creates a new instance of AasServiceNodeManager.
+     * Creates a new instance of AasServiceNodeManager
      *
      * @param server the server in which the node manager is created.
      * @param namespaceUri the namespace URI for the nodes
@@ -197,8 +198,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     public AasServiceNodeManager(UaServer server, String namespaceUri, AssetAdministrationShellEnvironment aasEnvironment, OpcUaEndpoint endpoint) {
         super(server, namespaceUri);
-        Ensure.requireNonNull(aasEnvironment, "aasEnvironment must be non-null");
-        Ensure.requireNonNull(endpoint, "endpoint must be non-null");
+        Ensure.requireNonNull(aasEnvironment, "aasEnvironment must not be null");
+        Ensure.requireNonNull(endpoint, "endpoint must not be null");
 
         this.aasEnvironment = aasEnvironment;
         this.endpoint = endpoint;
@@ -208,7 +209,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         referableMap = new ConcurrentHashMap<>();
 
         messageBus = endpoint.getMessageBus();
-        Ensure.requireNonNull(messageBus, "messageBus must be non-null");
+        Ensure.requireNonNull(messageBus, "messageBus must not be null");
         subscriptions = new ArrayList<>();
     }
 
@@ -219,17 +220,17 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             createAddressSpace();
         }
-        catch (ServiceResultException e) {
-            LOG.trace(ERROR_ADDRESS_SPACE);
-            throw new StatusException(e);
+        catch (ServiceResultException ex) {
+            LOG.error(ERROR_ADDRESS_SPACE);
+            throw new StatusException(ex);
         }
-        catch (ServiceException e) {
-            LOG.trace(ERROR_ADDRESS_SPACE);
-            throw new StatusException(e.getServiceResult(), e);
+        catch (ServiceException ex) {
+            LOG.error(ERROR_ADDRESS_SPACE);
+            throw new StatusException(ex.getServiceResult(), ex);
         }
-        catch (AddressSpaceException | MessageBusException e) {
-            LOG.trace(ERROR_ADDRESS_SPACE);
-            throw new StatusException(e.getMessage(), e);
+        catch (AddressSpaceException | MessageBusException ex) {
+            LOG.error(ERROR_ADDRESS_SPACE);
+            throw new StatusException(ex.getMessage(), ex);
         }
     }
 
@@ -239,9 +240,10 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
         try {
             unsubscribeMessageBus();
         }
-        catch (Exception e) {
-            LOG.debug("Error unsubscribing from message bus", e);
+        catch (Exception ex) {
+            LOG.error("close Exception", ex);
         }
+
         super.close();
     }
 
@@ -337,40 +339,45 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      */
     private void subscribeMessageBus() throws MessageBusException {
         LOG.debug("subscribeMessageBus: subscribe ValueChangeEvents");
-        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ValueChangeEventMessage.class, x -> {
+        SubscriptionInfo info = SubscriptionInfo.create(ValueChangeEventMessage.class, x -> {
             try {
                 updateSubmodelElementValue(x.getElement(), x.getNewValue(), x.getOldValue());
             }
             catch (StatusException e) {
-                LOG.error("Error processing value change event from message bus", e);
+                LOG.error("valueChanged Exception", e);
             }
-        })));
+        });
+        subscriptions.add(messageBus.subscribe(info));
 
-        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementCreateEventMessage.class, x -> {
+        info = SubscriptionInfo.create(ElementCreateEventMessage.class, x -> {
             try {
                 elementCreated(x.getElement(), x.getValue());
             }
             catch (Exception e) {
-                LOG.error("Error processing element created event from message bus", e);
+                LOG.error("elementCreated Exception", e);
             }
-        })));
+        });
+        subscriptions.add(messageBus.subscribe(info));
 
-        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementDeleteEventMessage.class, x -> {
+        info = SubscriptionInfo.create(ElementDeleteEventMessage.class, x -> {
             try {
                 elementDeleted(x.getElement());
             }
             catch (Exception e) {
-                LOG.error("Error processing element deleted event from message bus", e);
+                LOG.error("elementDeleted Exception", e);
             }
-        })));
-        subscriptions.add(messageBus.subscribe(SubscriptionInfo.create(ElementUpdateEventMessage.class, x -> {
+        });
+        subscriptions.add(messageBus.subscribe(info));
+
+        info = SubscriptionInfo.create(ElementUpdateEventMessage.class, x -> {
             try {
                 elementUpdated(x.getElement(), x.getValue());
             }
             catch (Exception e) {
-                LOG.error("Error processing element updated event from message bus", e);
+                LOG.error("elementUpdated Exception", e);
             }
-        })));
+        });
+        subscriptions.add(messageBus.subscribe(info));
     }
 
 
@@ -527,8 +534,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
             try {
                 messageBus.unsubscribe(subscription);
             }
-            catch (Exception e) {
-                LOG.trace("unsubscribeMessageBus Exception", e);
+            catch (Exception ex) {
+                LOG.error("unsubscribeMessageBus Exception", ex);
             }
         }
         subscriptions.clear();
@@ -544,8 +551,8 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @throws StatusException If the operation fails
      */
     public void updateSubmodelElementValue(Reference reference, ElementValue newValue, ElementValue oldValue) throws StatusException {
-        Ensure.requireNonNull(reference, "reference must be non-null");
-        Ensure.requireNonNull(newValue, "newValue must be non-null");
+        Ensure.requireNonNull(reference, "reference must not be null");
+        Ensure.requireNonNull(newValue, "newValue must not be null");
 
         LOG.debug("updateSubmodelElementValue");
         if (submodelElementOpcUAMap.containsKey(reference)) {
@@ -559,7 +566,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Gets the next availabe default NodeId.
-     *
+     * 
      * @return The desired NodeId
      */
     public NodeId getDefaultNodeId() {
@@ -569,7 +576,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Adds an entry to the Referable map.
-     *
+     * 
      * @param reference The reference to the desired referable.
      * @param referableData The data of the desired referable.
      */
@@ -580,7 +587,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Retrieves the Submodel node for the given reference.
-     *
+     * 
      * @param reference The desired submodel reference.
      * @return The coresponding Submodel node
      */
@@ -591,7 +598,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Adds a SubmodelElement to the submodelElementOpcUAMap.
-     *
+     * 
      * @param reference The reference to the desired SubmodelElement.
      * @param submodelElement The corresponding SubmodelElement node.
      */
@@ -602,7 +609,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
     /**
      * Adds a Submodel to the submodelOpcUAMap.
-     *
+     * 
      * @param reference The reference to the desired Submodel.
      * @param node The corresponding Submodel node.
      */
@@ -630,7 +637,7 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
      * @param referable The corresponding referable
      */
     private void removeFromMaps(BaseObjectType node, Reference reference, Referable referable) {
-        Ensure.requireNonNull(node, "node must be non-null");
+        Ensure.requireNonNull(node, "node must not be null");
 
         try {
             if (node instanceof AASSubmodelElementType) {
@@ -642,9 +649,9 @@ public class AasServiceNodeManager extends NodeManagerUaNode {
 
             // no special treatment necessary for other types like AssetAdministrationShell, Asset or others
         }
-        catch (RuntimeException e) {
+        catch (RuntimeException ex) {
             // This exception is not thrown here. We ignore the error.
-            LOG.info("removeFromMaps Exception", e);
+            LOG.info("removeFromMaps Exception", ex);
         }
     }
 
