@@ -75,7 +75,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class to convert values between the AASService types and the OPC UA Types
+ * Class to convert values between the AASService types and the OPC UA Types.
  */
 public class ValueConverter {
 
@@ -90,6 +90,7 @@ public class ValueConverter {
     private static final ArrayList<TypeMapper<KeyType, AASKeyTypeDataType>> KEY_TYPE_LIST;
 
     private static class DatatypeMapper {
+
         private final String typeString;
         private final NodeId typeNode;
         private final AASValueTypeDataType valueType;
@@ -104,6 +105,7 @@ public class ValueConverter {
     }
 
     private static class TypeMapper<A, O> {
+
         private final A aasObject;
         private final O opcuaObject;
 
@@ -195,7 +197,7 @@ public class ValueConverter {
 
 
     /**
-     * Converts the AAS DataTypeDef into the corresponding OPC UA type (NodeId)
+     * Converts the AAS DataTypeDef into the corresponding OPC UA type (NodeId).
      *
      * @param valueType The desired valueType
      * @return The corresponding OPC UA type (NodeId)
@@ -217,7 +219,7 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given String to the corresponding AASValueTypeDataType
+     * Converts the given String to the corresponding AASValueTypeDataType.
      *
      * @param value The desired value.
      * @return The corresponding AASValueTypeDataType
@@ -247,7 +249,7 @@ public class ValueConverter {
     public static AASValueTypeDataType datatypeToValueType(Datatype type) {
         AASValueTypeDataType retval;
 
-        Ensure.requireNonNull(type, "type must not be null");
+        Ensure.requireNonNull(type, "type must be non-null");
         Optional<DatatypeMapper> rv = typeList.stream().filter(t -> t.datatype == type).findAny();
         if (rv.isEmpty()) {
             LOGGER.warn("datatypeToValueType: unknown type: {}", type);
@@ -390,7 +392,7 @@ public class ValueConverter {
      * @return The corresponding LocalizedText array
      */
     public static List<LangString> getLangStringSetFromLocalizedText(LocalizedText[] value) {
-        Ensure.requireNonNull(value, "value must not be null");
+        Ensure.requireNonNull(value, "value must be non-null");
 
         List<LangString> retval = new ArrayList<>();
 
@@ -403,7 +405,7 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given KeyElements value to the corresponding AASKeyElementsDataType
+     * Converts the given KeyElements value to the corresponding AASKeyElementsDataType.
      *
      * @param value The desired KeyElements value.
      * @return The converted AASKeyElementsDataType.
@@ -424,7 +426,7 @@ public class ValueConverter {
 
 
     /**
-     * Converts the given AASKeyElementsDataType to the corresponding KeyElements
+     * Converts the given AASKeyElementsDataType to the corresponding KeyElements.
      *
      * @param value The desired AASKeyElementsDataType
      * @return The corresponding KeyElements type
@@ -491,7 +493,7 @@ public class ValueConverter {
      * @return The created reference.
      */
     public static Reference getReferenceFromKeys(AASKeyDataType[] value) {
-        Ensure.requireNonNull(value, "value must not be null");
+        Ensure.requireNonNull(value, "value must be non-null");
 
         Reference retval;
 
@@ -676,7 +678,7 @@ public class ValueConverter {
 
 
     /**
-     * Gets the corresponding variant value from a given SubmodelElement
+     * Gets the corresponding variant value from a given SubmodelElement.
      *
      * @param submodelElement The desired SubmodelElement
      * @param type The desired type
@@ -699,7 +701,7 @@ public class ValueConverter {
 
 
     /**
-     * Creates an OPC UA date time from Java date time
+     * Creates an OPC UA date time from Java date time.
      *
      * @param value The input Java date time
      * @return The OPC UA date time
@@ -710,7 +712,7 @@ public class ValueConverter {
 
 
     /**
-     * Creates an OPC UA date time from Java date time
+     * Creates an OPC UA date time from Java date time.
      *
      * @param value The input Java date time
      * @return The OPC UA date time
@@ -759,6 +761,13 @@ public class ValueConverter {
     }
 
 
+    /**
+     * Converts a typed values to its corresponding raw Java value.
+     *
+     * @param typedValue the value to convert
+     * @return the corresponding raw value
+     * @throws NumberFormatException if conversion fails
+     */
     public static Object convertTypedValue(TypedValue<?> typedValue) throws NumberFormatException {
         if (typedValue == null) {
             return null;

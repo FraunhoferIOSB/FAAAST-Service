@@ -21,7 +21,7 @@ import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.AasSubmodelElementHelper;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.List;
 import opc.i4aas.AASReferenceList;
@@ -31,8 +31,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Helper class to create AAS References and integrate then into
- * the OPC UA address space.
+ * Helper class to create AAS References and integrate then into the OPC UA address space.
  */
 public class AasReferenceCreator {
 

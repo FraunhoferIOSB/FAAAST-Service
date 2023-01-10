@@ -27,7 +27,7 @@ import com.prosysopc.ua.types.opcua.server.FolderTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.AasSubmodelElementHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AdministrativeInformation;
 import io.adminshell.aas.v3.model.ConceptDescription;
@@ -50,7 +50,7 @@ import opc.i4aas.server.AASReferenceTypeNode;
 public class ConceptDescriptionCreator {
 
     /**
-     * Maps AAS references to dictionary entry types
+     * Maps AAS references to dictionary entry types.
      */
     private static final Map<Reference, DictionaryEntryType> dictionaryMap = new HashMap<>();
 

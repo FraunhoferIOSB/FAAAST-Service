@@ -31,7 +31,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     private static final String DEFAULT_USER_CERT_PATH = "USERS_PKI/CA";
     private int tcpPort;
     private int secondsTillShutdown;
-    private Map<String, String> userMap;
+    private Map<String, String> users;
     private boolean allowAnonymous;
     private String discoveryServerUrl;
     private String serverCertificateBasePath;
@@ -42,7 +42,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         this.secondsTillShutdown = DEFAULT_SECONDS_SHUTDOWN;
         this.allowAnonymous = true;
         this.discoveryServerUrl = "";
-        this.userMap = new HashMap<>();
+        this.users = new HashMap<>();
         this.serverCertificateBasePath = DEFAULT_SERVER_CERT_PATH;
         this.userCertificateBasePath = DEFAULT_USER_CERT_PATH;
     }
@@ -61,7 +61,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
                 && Objects.equals(secondsTillShutdown, that.secondsTillShutdown)
                 && Objects.equals(allowAnonymous, that.allowAnonymous)
                 && Objects.equals(discoveryServerUrl, that.discoveryServerUrl)
-                && Objects.equals(userMap, that.userMap)
+                && Objects.equals(users, that.users)
                 && Objects.equals(serverCertificateBasePath, that.serverCertificateBasePath)
                 && Objects.equals(userCertificateBasePath, that.userCertificateBasePath);
     }
@@ -69,12 +69,12 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous, discoveryServerUrl, userMap, serverCertificateBasePath, userCertificateBasePath);
+        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous, discoveryServerUrl, users, serverCertificateBasePath, userCertificateBasePath);
     }
 
 
     /**
-     * Gets the desired port for the OPC.TCP Endpoint
+     * Gets the desired port for the OPC.TCP Endpoint.
      *
      * @return The desired port for the OPC.TCP Endpoint
      */
@@ -84,7 +84,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Sets the given port for the OPC.TCP Endpoint
+     * Sets the given port for the OPC.TCP Endpoint.
      *
      * @param tcpPort The desired port for the OPC.TCP Endpoint
      */
@@ -94,7 +94,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Gets the number of seconds until the server stops on shutdown
+     * Gets the number of seconds until the server stops on shutdown.
      *
      * @return The desired number of seconds
      */
@@ -104,7 +104,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Sets the number of seconds until the server stops on shutdown
+     * Sets the number of seconds until the server stops on shutdown.
      *
      * @param value The desired number of seconds
      */
@@ -114,28 +114,28 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Gets the user names (Key) and passwords (Value)
-     * 
+     * Gets the user names (Key) and passwords (Value).
+     *
      * @return The desired user names (Key) and passwords (Value)
      */
-    public Map<String, String> getUserMap() {
-        return userMap;
+    public Map<String, String> getUsers() {
+        return users;
     }
 
 
     /**
-     * Sets the user names (Key) and passwords (Value)
-     * 
+     * Sets the user names (Key) and passwords (Value).
+     *
      * @param value The desired user names (Key) and passwords (Value)
      */
-    public void setUserMap(Map<String, String> value) {
-        userMap = value;
+    public void setUsers(Map<String, String> value) {
+        users = value;
     }
 
 
     /**
-     * Gets a value indicating whether anonymous access to the server is allowed
-     * 
+     * Gets a value indicating whether anonymous access to the server is allowed.
+     *
      * @return True if anonymous access is allowed, false otherwise
      */
     public boolean getAllowAnonymous() {
@@ -144,8 +144,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Sets a value indicating whether anonymous access to the server is allowed
-     * 
+     * Sets a value indicating whether anonymous access to the server is allowed.
+     *
      * @param value True if anonymous access is allowed, false otherwise
      */
     public void setAllowAnonymous(boolean value) {
@@ -154,9 +154,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Gets the URL of the discovery server.
-     * If this value is null or empty, the discovery server registration is disabled.
-     * 
+     * Gets the URL of the discovery server. If this value is null or empty, the discovery server registration is
+     * disabled.
+     *
      * @return The discovery server URL. Discovery registration is disabled if the value is null or empty
      */
     public String getDiscoveryServerUrl() {
@@ -165,9 +165,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Sets the URL of the discovery server.
-     * If this value is null or an empty string, the discovery server registration is disabled.
-     * 
+     * Sets the URL of the discovery server. If this value is null or an empty string, the discovery server registration
+     * is disabled.
+     *
      * @param value The discovery server URL. Discovery registration is disabled if the value is null or empty
      */
     public void setDiscoveryServerUrl(String value) {
@@ -176,8 +176,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Gets the base path for the server certificates
-     * 
+     * Gets the base path for the server certificates.
+     *
      * @return The server certificate base path
      */
     public String getServerCertificateBasePath() {
@@ -186,8 +186,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Sets the base path for the server certificates
-     * 
+     * Sets the base path for the server certificates.
+     *
      * @param value The server certificate base path
      */
     public void setServerCertificateBasePath(String value) {
@@ -196,8 +196,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Gets the base path for the user certificates
-     * 
+     * Gets the base path for the user certificates.
+     *
      * @return The user certificate base path
      */
     public String getUserCertificateBasePath() {
@@ -206,8 +206,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Sets the base path for the user certificatess
-     * 
+     * Sets the base path for the user certificates.
+     *
      * @param value The user certificate base path
      */
     public void setUserCertificateBasePath(String value) {
@@ -234,13 +234,13 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
         public B user(String username, String password) {
-            getBuildingInstance().getUserMap().put(username, password);
+            getBuildingInstance().getUsers().put(username, password);
             return getSelf();
         }
 
 
-        public B userMap(Map<String, String> value) {
-            getBuildingInstance().setUserMap(value);
+        public B users(Map<String, String> value) {
+            getBuildingInstance().setUsers(value);
             return getSelf();
         }
 

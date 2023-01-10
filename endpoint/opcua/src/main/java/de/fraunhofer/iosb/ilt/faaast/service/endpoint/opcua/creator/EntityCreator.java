@@ -28,7 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.AasSubmodelElementHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Entity;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
@@ -38,8 +38,7 @@ import opc.i4aas.AASEntityType;
 
 
 /**
- * Helper class to create Entities and integrate them into the
- * OPC UA address space.
+ * Helper class to create Entities and integrate them into the OPC UA address space.
  */
 public class EntityCreator extends SubmodelElementCreator {
 
@@ -50,8 +49,7 @@ public class EntityCreator extends SubmodelElementCreator {
      * @param aasEntity The AAS entity to add
      * @param submodel The corresponding Submodel
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the entity should be added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies whether the entity should be added ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      * @throws ServiceException If the operation fails

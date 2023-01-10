@@ -25,7 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.AasSubmodelElementHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.MultiLanguageProperty;
@@ -36,8 +36,7 @@ import opc.i4aas.AASMultiLanguagePropertyType;
 
 
 /**
- * Helper class to create MultiLanguageProperties and integrate them into the
- * OPC UA address space.
+ * Helper class to create MultiLanguageProperties and integrate them into the OPC UA address space.
  */
 public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
 
@@ -48,8 +47,7 @@ public class MultiLanguagePropertyCreator extends SubmodelElementCreator {
      * @param aasMultiLang The AAS Multi Language Property to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the multi language property should be
-     *            added ordered (true) or unordered (false)
+     * @param ordered Specifies whether the multi language property should be added ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */

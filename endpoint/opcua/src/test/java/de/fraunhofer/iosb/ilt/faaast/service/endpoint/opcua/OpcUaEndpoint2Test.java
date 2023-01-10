@@ -29,9 +29,9 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.RelativePath;
 import com.prosysopc.ua.stack.core.RelativePathElement;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestUtils;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.TestConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.TestService;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.TestUtils;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASSimple;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
@@ -116,7 +116,7 @@ public class OpcUaEndpoint2Test {
         config.setDiscoveryServerUrl(null);
         Map<String, String> users = new HashMap<>();
         users.put(USERNAME, PASSWORD);
-        config.setUserMap(users);
+        config.setUsers(users);
 
         service = new TestService(config, null, false);
         service.start();

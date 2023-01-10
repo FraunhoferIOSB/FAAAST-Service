@@ -19,7 +19,6 @@ import static de.fraunhofer.iosb.ilt.faaast.service.starter.App.APP_NAME;
 import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -35,6 +34,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.GitVersionInfoHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
@@ -560,20 +560,12 @@ public class App implements Runnable {
      */
     protected static class PropertiesVersionProvider implements IVersionProvider {
 
-        private static final String PATH_GIT_BUILD_VERSION = "git.build.version";
-        private static final String PATH_GIT_COMMIT_TIME = "git.commit.time";
-        private static final String PATH_GIT_COMMIT_ID_DESCRIBE = "git.commit.id.describe";
-        private static final TypeReference<Map<String, String>> TYPE_MAP_STRING_STRING = new TypeReference<Map<String, String>>() {
-            // Empty on purpose.
-        };
-
         @Override
         public String[] getVersion() throws Exception {
-            Map<String, String> gitInfo = new ObjectMapper().readValue(App.class.getClassLoader().getResourceAsStream("git.json"), TYPE_MAP_STRING_STRING);
             return new String[] {
-                    String.format("Version %s", gitInfo.get(PATH_GIT_BUILD_VERSION)),
-                    String.format("Git Commit ID: %s", gitInfo.get(PATH_GIT_COMMIT_ID_DESCRIBE)),
-                    String.format("Commit Time: %s", gitInfo.get(PATH_GIT_COMMIT_TIME)),
+                    String.format("Version %s", GitVersionInfoHelper.getBuildVersion()),
+                    String.format("Git Commit ID: %s", GitVersionInfoHelper.getCommitIdDescribe()),
+                    String.format("Commit Time: %s", GitVersionInfoHelper.getBuildTime()),
             };
         }
     }

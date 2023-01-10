@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper;
+package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util;
 
 import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
@@ -43,6 +43,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValu
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.Property;
@@ -70,22 +71,22 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class with helper methods for SubmodelElements used by the NodeManager
+ * Class with helper methods for SubmodelElements used by the NodeManager.
  */
 public class AasSubmodelElementHelper {
+
     /**
-     * The logger for this class
+     * The logger for this class.
      */
     private static final Logger LOG = LoggerFactory.getLogger(AasSubmodelElementHelper.class);
 
     /**
-     * Text if value is null
+     * Text if value is null.
      */
-    private static final String VALUE_NULL = "value must not be null";
+    private static final String VALUE_NULL = "value must be non-null";
 
     /**
-     * Make certain variable values read-only, because writing would not make
-     * sense
+     * Make certain variable values read-only, because writing would not make sense.
      */
     private static final boolean VALUES_READ_ONLY = true;
 
@@ -106,7 +107,7 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     public static void setRelationshipValue(AASRelationshipElementType aasElement, RelationshipElementValue value, NodeManagerUaNode nodeManager) throws StatusException {
-        Ensure.requireNonNull(aasElement, "aasElement must not be null");
+        Ensure.requireNonNull(aasElement, "aasElement must be non-null");
         Ensure.requireNonNull(value, VALUE_NULL);
 
         setAasReferenceData(new DefaultReference.Builder().keys(value.getFirst()).build(), aasElement.getFirstNode(), false);
@@ -118,7 +119,7 @@ public class AasSubmodelElementHelper {
             UaNode[] annotationNodes = annotatedElement.getAnnotationNode().getComponents();
             Map<String, DataElementValue> valueMap = annotatedValue.getAnnotations();
             if (annotationNodes.length != valueMap.size()) {
-                LOG.error("Size of Value ({}) doesn't match the number of AnnotationNodes ({})", valueMap.size(), annotationNodes.length);
+                LOG.trace("Size of Value ({}) doesn't match the number of AnnotationNodes ({})", valueMap.size(), annotationNodes.length);
                 throw new IllegalArgumentException("Size of Value doesn't match the number of AnnotationNodes");
             }
 
@@ -225,7 +226,7 @@ public class AasSubmodelElementHelper {
 
     /**
      * Set value and type for the desired Property.
-     * 
+     *
      * @param aasProperty The desired Property
      * @param prop The desired AAS Property.
      * @param valueData The desired property data.
@@ -296,8 +297,8 @@ public class AasSubmodelElementHelper {
                 prop.getValueNode().setDescription(new LocalizedText("", ""));
             }
         }
-        catch (Exception ex) {
-            LOG.error("setPropertyValueAndType Exception", ex);
+        catch (ValueFormatException e) {
+            LOG.error("Error setting OPC UA node value - illegal value format/type", e);
         }
     }
 
@@ -456,6 +457,17 @@ public class AasSubmodelElementHelper {
     }
 
 
+    /**
+     * Sets value and type for the given Range.
+     *
+     * @param valueType the value type
+     * @param minValue the min value
+     * @param maxValue the max value
+     * @param range The desired Range
+     * @param minData the min data
+     * @param maxData the max data
+     * @throws StatusException If the operation fails
+     */
     public static void setRangeValueAndType(String valueType, String minValue, String maxValue, AASRangeType range, ValueData minData,
                                             ValueData maxData)
             throws StatusException {
@@ -521,8 +533,8 @@ public class AasSubmodelElementHelper {
                     break;
             }
         }
-        catch (Exception ex) {
-            LOG.error("setPropertyValueAndType Exception", ex);
+        catch (Exception e) {
+            LOG.error("Error setting OPC UA node value - illegal value format/type", e);
         }
     }
 

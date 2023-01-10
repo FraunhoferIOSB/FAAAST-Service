@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager.VALUES_READ_ONLY;
 
+import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.UaQualifiedName;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
@@ -27,7 +28,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Reference;
@@ -38,10 +40,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Helper class to create Properties and integrate them into the
- * OPC UA address space.
+ * Helper class to create Properties and integrate them into the OPC UA address space.
  */
 public class PropertyCreator extends SubmodelElementCreator {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertyCreator.class);
 
     /**
@@ -51,11 +53,11 @@ public class PropertyCreator extends SubmodelElementCreator {
      * @param aasProperty The corresponding AAS property to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent node
-     * @param ordered Specifies whether the property should be added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies whether the property should be added ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      */
     public static void addAasProperty(UaNode node, Property aasProperty, Submodel submodel, Reference parentRef, boolean ordered, AasServiceNodeManager nodeManager) {
+        Ensure.requireNonNull(aasProperty, "aasProperty must be non-null");
         try {
             String name = aasProperty.getIdShort();
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASPropertyType.getNamespaceUri(), name).toQualifiedName(nodeManager.getNamespaceTable());
@@ -100,8 +102,8 @@ public class PropertyCreator extends SubmodelElementCreator {
 
             nodeManager.addReferable(propRef, new ObjectData(aasProperty, prop, submodel));
         }
-        catch (Exception ex) {
-            LOGGER.error("addAasProperty Exception", ex);
+        catch (StatusException e) {
+            LOGGER.error("Error creating OPC UA property (idShort: {})", aasProperty.getIdShort(), e);
         }
     }
 
@@ -116,6 +118,7 @@ public class PropertyCreator extends SubmodelElementCreator {
      * @param nodeManager The corresponding Node Manager
      */
     private static void addOpcUaProperty(Property aasProperty, Submodel submodel, AASPropertyType prop, Reference propRef, AasServiceNodeManager nodeManager) {
+        Ensure.requireNonNull(aasProperty, "aasProperty must be non-null");
         try {
             NodeId myPropertyId = new NodeId(nodeManager.getNamespaceIndex(), prop.getNodeId().getValue().toString() + "." + AASPropertyType.VALUE);
             QualifiedName browseName = UaQualifiedName.from(opc.i4aas.ObjectTypeIds.AASPropertyType.getNamespaceUri(), AASPropertyType.VALUE)
@@ -127,8 +130,8 @@ public class PropertyCreator extends SubmodelElementCreator {
 
             AasSubmodelElementHelper.setPropertyValueAndType(aasProperty, prop, new ValueData(myPropertyId, browseName, displayName, nodeManager));
         }
-        catch (Exception ex) {
-            LOGGER.error("addOpcUaProperty Exception", ex);
+        catch (Exception e) {
+            LOGGER.error("Error adding OPC UA property (idShort: {})", aasProperty.getIdShort(), e);
         }
     }
 

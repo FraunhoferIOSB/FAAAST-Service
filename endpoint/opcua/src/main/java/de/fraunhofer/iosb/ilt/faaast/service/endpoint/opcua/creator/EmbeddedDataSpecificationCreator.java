@@ -28,8 +28,7 @@ import opc.i4aas.AASSubmodelType;
 
 
 /**
- * Helper class to create EmbeddedDataSpecifications and integrate them into
- * the OPC UA address space.
+ * Helper class to create EmbeddedDataSpecifications and integrate them into the OPC UA address space.
  */
 public class EmbeddedDataSpecificationCreator {
 
@@ -93,8 +92,7 @@ public class EmbeddedDataSpecificationCreator {
     /**
      * Adds the references to the given Embedded Data Specifications.
      *
-     * @param submodelElementNode The desired object where the
-     *            DataSpecifications should be added
+     * @param submodelElementNode The desired object where the DataSpecifications should be added
      * @param list The list of the desired Data Specifications
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails

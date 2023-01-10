@@ -39,7 +39,7 @@ public class AasUserValidator implements UserValidator {
     private final boolean allowAnonymous;
 
     /**
-     * Creates a new instance of AasUserValidator
+     * Creates a new instance of AasUserValidator.
      *
      * @param validator used to validate certificates
      * @param userMap The desired user names (Key) and passwords (Value)
@@ -76,8 +76,8 @@ public class AasUserValidator implements UserValidator {
 
 
     @Override
-    public void onValidationError(Session sn, UserIdentityToken userToken, Exception exception) {
-        LOGGER.error("onValidationError: User validation failed: userToken={} error={}", userToken, exception);
+    public void onValidationError(Session sn, UserIdentityToken userToken, Exception e) {
+        LOGGER.error("User validation failed: userToken={}", userToken, e);
     }
 
 }

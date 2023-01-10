@@ -44,10 +44,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Helper class to create AssetAdministrationShells and integrate them into the
- * OPC UA address space.
+ * Helper class to create AssetAdministrationShells and integrate them into the OPC UA address space.
  */
 public class AssetAdministrationShellCreator {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AssetAdministrationShellCreator.class);
 
     private AssetAdministrationShellCreator() {
@@ -57,7 +57,7 @@ public class AssetAdministrationShellCreator {
 
     /**
      * Adds the given AssetAdministrationShell.
-     * 
+     *
      * @param node The UA node in which the IdentifierKeyValuePair should be created
      * @param aas The desirted AssetAdministrationShell.
      * @param nodeManager The corresponding Node Manager
@@ -202,8 +202,7 @@ public class AssetAdministrationShellCreator {
     /**
      * Adds a list of IdentifierKeyValuePairs to the given Node.
      *
-     * @param assetInfoNode The AssetInformation node in which the
-     *            IdentifierKeyValuePairs should be created or added
+     * @param assetInfoNode The AssetInformation node in which the IdentifierKeyValuePairs should be created or added
      * @param list The desired list of IdentifierKeyValuePairs
      * @param name The desired name of the Node
      * @param nodeManager The corresponding Node Manager

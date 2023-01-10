@@ -24,8 +24,7 @@ import opc.i4aas.AASIdentifiableType;
 
 
 /**
- * Helper class to create Identifiables and integrate them into the
- * OPC UA address space.
+ * Helper class to create Identifiables and integrate them into the OPC UA address space.
  */
 public class IdentifiableCreator {
 
@@ -37,8 +36,7 @@ public class IdentifiableCreator {
     /**
      * Adds AAS Identifiable information to the given node.
      *
-     * @param identifiableNode The desired node where the Identifiable
-     *            information should be added
+     * @param identifiableNode The desired node where the Identifiable information should be added
      * @param identifier The corresponding AAS Identifier
      * @param adminInfo The corresponding AAS Administrative Information
      * @param category The desired category

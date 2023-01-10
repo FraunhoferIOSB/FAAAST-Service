@@ -172,15 +172,6 @@
                             <password>${env.DOCKER_TOKEN}</password>
                         </auth>
                     </to>
-                    <extraDirectories>
-                        <paths>
-                            <path>
-                                <from>${project.build.outputDirectory}</from>
-                                <into>/app/resources</into>
-                                <includes>git.json</includes>
-                            </path>
-                        </paths>
-                    </extraDirectories>
                 </configuration>
             </plugin>
             <plugin>
@@ -199,34 +190,6 @@
                         <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
                     </compilerArgs>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>io.github.git-commit-id</groupId>
-                <artifactId>git-commit-id-maven-plugin</artifactId>
-                <version>${maven.plugin.git.commit.id.version}</version>
-                <configuration>
-                    <dotGitDirectory>${root.basedir}/.git</dotGitDirectory>
-                    <prefix>git</prefix>
-                    <verbose>false</verbose>
-                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.json</generateGitPropertiesFilename>
-                    <format>json</format>
-                    <offline>true</offline>
-                    <gitDescribe>
-                        <skip>false</skip>
-                        <always>true</always>
-                        <dirty>-dirty</dirty>
-                    </gitDescribe>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>get-the-git-infos</id>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

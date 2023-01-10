@@ -20,7 +20,7 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 
 
 /**
- * Class with data for Submodel elements
+ * Class with data for Submodel elements.
  */
 public class SubmodelElementData {
 
@@ -30,7 +30,7 @@ public class SubmodelElementData {
     private final Reference reference;
 
     /**
-     * Creates a new instance of SubmodelElementData
+     * Creates a new instance of SubmodelElementData.
      *
      * @param submodelElement The desired SubmodelElement
      * @param submodel The desired Submodel
@@ -46,7 +46,7 @@ public class SubmodelElementData {
 
 
     /**
-     * Gets the SubmodelElement
+     * Gets the SubmodelElement.
      *
      * @return The desired SubmodelElement
      */
@@ -56,7 +56,7 @@ public class SubmodelElementData {
 
 
     /**
-     * Gets the Submodel
+     * Gets the Submodel.
      *
      * @return The desired Submodel
      */
@@ -66,7 +66,7 @@ public class SubmodelElementData {
 
 
     /**
-     * Gets the type
+     * Gets the type.
      *
      * @return The type
      */

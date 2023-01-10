@@ -31,8 +31,7 @@ import opc.i4aas.AASCapabilityType;
 
 
 /**
- * Helper class to create Capabilities and integrate them into the
- * OPC UA address space.
+ * Helper class to create Capabilities and integrate them into the OPC UA address space.
  */
 public class CapabilityCreator extends SubmodelElementCreator {
 
@@ -43,8 +42,7 @@ public class CapabilityCreator extends SubmodelElementCreator {
      * @param aasCapability The corresponding AAS Capability to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the capability should be added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies whether the capability should be added ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */

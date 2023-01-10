@@ -28,7 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ValueData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.AasSubmodelElementHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Range;
 import io.adminshell.aas.v3.model.Reference;
@@ -37,8 +37,7 @@ import opc.i4aas.AASRangeType;
 
 
 /**
- * Helper class to create Ranges and integrate them into the
- * OPC UA address space.
+ * Helper class to create Ranges and integrate them into the OPC UA address space.
  */
 public class RangeCreator extends SubmodelElementCreator {
 
@@ -49,8 +48,7 @@ public class RangeCreator extends SubmodelElementCreator {
      * @param aasRange The corresponding AAS range object to add
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The reference to the parent object
-     * @param ordered Specifies whether the range should be added ordered (true)
-     *            or unordered (false)
+     * @param ordered Specifies whether the range should be added ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */
@@ -84,7 +82,7 @@ public class RangeCreator extends SubmodelElementCreator {
 
 
     /**
-     * Adds the min and max properties to the UA range object and sets the values
+     * Adds the min and max properties to the UA range object and sets the values.
      *
      * @param aasRange The AAS range object
      * @param range The corresponding UA range object

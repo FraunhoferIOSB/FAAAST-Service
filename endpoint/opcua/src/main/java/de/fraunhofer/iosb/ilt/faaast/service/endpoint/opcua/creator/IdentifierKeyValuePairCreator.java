@@ -22,7 +22,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.builtintypes.QualifiedName;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.AasSubmodelElementHelper;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.Reference;
 import opc.i4aas.AASIdentifierKeyValuePairType;
@@ -32,10 +32,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Helper class to create IdentifierKeyValuePairs and integrate them into the
- * OPC UA address space.
+ * Helper class to create IdentifierKeyValuePairs and integrate them into the OPC UA address space.
  */
 public class IdentifierKeyValuePairCreator {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(IdentifierKeyValuePairCreator.class);
 
     private IdentifierKeyValuePairCreator() {
@@ -59,7 +59,7 @@ public class IdentifierKeyValuePairCreator {
 
     /**
      * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
-     * 
+     *
      * @param identifierPairNode The desired IdentifierKeyValuePair Node
      * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
      * @param nodeManager The corresponding Node Manager
@@ -104,7 +104,7 @@ public class IdentifierKeyValuePairCreator {
 
     /**
      * Sets the data for the given IdentifierKeyValuePair Node from the corresponding AAS object.
-     * 
+     *
      * @param identifierPairNode The desired IdentifierKeyValuePair Node
      * @param aasIdentifierPair The corresponding AAS IdentifierKeyValuePair
      * @param readOnly True if the value should be read-only

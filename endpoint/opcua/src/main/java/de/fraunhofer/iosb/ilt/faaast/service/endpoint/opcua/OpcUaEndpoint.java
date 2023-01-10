@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Class for the OPC UA endpoint
+ * Class for the OPC UA endpoint.
  */
 public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
@@ -61,7 +61,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     private int requestCounter;
 
     /**
-     * Creates a new instance of OpcUaEndpoint
+     * Creates a new instance of OpcUaEndpoint.
      */
     public OpcUaEndpoint() {
         aasEnvironment = null;
@@ -72,7 +72,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
 
     /**
-     * Gets the MessageBus
+     * Gets the MessageBus.
      *
      * @return The MessageBus
      */
@@ -84,13 +84,13 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     @Override
     public void init(CoreConfig core, OpcUaEndpointConfig config, ServiceContext context) {
         currentConfig = config;
-        Ensure.requireNonNull(currentConfig, "currentConfig must not be null");
-        Ensure.requireNonNull(currentConfig.getServerCertificateBasePath(), "ServerCertificateBasePath must not be null");
-        Ensure.requireNonNull(currentConfig.getUserCertificateBasePath(), "UserCertificateBasePath must not be null");
+        Ensure.requireNonNull(currentConfig, "currentConfig must be non-null");
+        Ensure.requireNonNull(currentConfig.getServerCertificateBasePath(), "ServerCertificateBasePath must be non-null");
+        Ensure.requireNonNull(currentConfig.getUserCertificateBasePath(), "UserCertificateBasePath must be non-null");
         service = context;
-        Ensure.requireNonNull(service, "service must not be null");
+        Ensure.requireNonNull(service, "service must be non-null");
         messageBus = service.getMessageBus();
-        Ensure.requireNonNull(messageBus, "messageBus must not be null");
+        Ensure.requireNonNull(messageBus, "messageBus must be non-null");
     }
 
 
@@ -102,7 +102,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         }
 
         aasEnvironment = service.getAASEnvironment();
-        Ensure.requireNonNull(aasEnvironment, "aasEnvironment must not be null");
+        Ensure.requireNonNull(aasEnvironment, "aasEnvironment must be non-null");
 
         try {
             server = new Server(currentConfig.getTcpPort(), aasEnvironment, this);
@@ -145,8 +145,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      */
     public boolean writeValue(SubmodelElement element, Submodel submodel, Reference refElement) {
         boolean retval = false;
-        Ensure.requireNonNull(element, "element must not be null");
-        Ensure.requireNonNull(submodel, "submodel must not be null");
+        Ensure.requireNonNull(element, "element must be non-null");
+        Ensure.requireNonNull(submodel, "submodel must be non-null");
 
         try {
             SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
@@ -184,7 +184,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             }
         }
         catch (Exception e) {
-            LOGGER.error("writeValue error", e);
+            LOGGER.error("Error writing OPC UA value", e);
         }
 
         return retval;

@@ -37,10 +37,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Helper class to create Qualifier and integrate them into the
- * OPC UA address space.
+ * Helper class to create Qualifier and integrate them into the OPC UA address space.
  */
 public class QualifierCreator {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(QualifierCreator.class);
 
     private QualifierCreator() {

@@ -247,11 +247,10 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- disabling JavaDoc check for now -->
-            <!--<plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-            </plugin>-->
+            </plugin>
         </plugins>
     </build>
 </project>

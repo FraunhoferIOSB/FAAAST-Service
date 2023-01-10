@@ -24,7 +24,7 @@ import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.ObjectData;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.AasSubmodelElementHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.util.AasSubmodelElementHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
 import io.adminshell.aas.v3.model.DataElement;
@@ -36,8 +36,7 @@ import opc.i4aas.AASRelationshipElementType;
 
 
 /**
- * Helper class to create RelationshipElements and integrate them into the
- * OPC UA address space.
+ * Helper class to create RelationshipElements and integrate them into the OPC UA address space.
  */
 public class RelationshipElementCreator extends SubmodelElementCreator {
 
@@ -48,8 +47,7 @@ public class RelationshipElementCreator extends SubmodelElementCreator {
      * @param aasRelElem The corresponding AAS Relationship Element
      * @param submodel The corresponding Submodel as parent object of the data element
      * @param parentRef The AAS reference to the parent object
-     * @param ordered Specifies whether the entity should be added ordered
-     *            (true) or unordered (false)
+     * @param ordered Specifies whether the entity should be added ordered (true) or unordered (false)
      * @param nodeManager The corresponding Node Manager
      * @throws StatusException If the operation fails
      */

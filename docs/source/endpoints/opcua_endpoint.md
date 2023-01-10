@@ -26,7 +26,7 @@ In order to use the OPC UA Endpoint, the configuration settings require to inclu
 			"secondsTillShutdown" : 5,
 			"allowAnonymous" : true,
 			"discoveryServerUrl" : "opc.tcp://localhost:4840",
-			"userMap" : {
+			"users" : {
 			  "user1" : "secret"
 			},
 			"serverCertificateBasePath" : "PKI/CA",
@@ -41,7 +41,7 @@ OPC UA Endpoint configuration supports the following configuration parameters
 -   `secondsTillShutdown` is the number of seconds the server waits for clients to disconnect when stopping the Endpoint. When the Endpoint is stopped, the server sends a predefined event to all connected clients, that the OPC UA Server is about to shutdown. Now, the OPC UA Server waits the given number of seconds before he stops, to give the clients the possibility to disconnect from the Server. When `secondsTillShutdown` is 0, the Endpoint doesn't wait and stops immediately. Default is 2.
 -   `allowAnonymous` specifies whether anonymous access to the OPC UA Endpoint is enabled (True) or disabled (False). If anonymous access is disabled, only authenticated users have access to the OPC UA Endpoint. Default is True.
 -   `discoveryServerUrl` is the URL which is used for registration with a discovery server. An empty String disables discovery server registration. Default is an empty String.
--   `userMap` is a map with user authentication credentials for the OPC UA Endpoint. The Key is the User Name, the Value is the Password.
+-   `users` is a map with user authentication credentials for the OPC UA Endpoint. The Key is the User Name, the Value is the Password.
 -   `serverCertificateBasePath` is the path where the server certificates are stored. Default is "PKI/CA". Below this path, further subdirectories are created. In "private" the certificates and private keys of the OPC UA Endpoint are saved. The filename of the base server certificate is "Fraunhofer IOSB AAS OPC UA Server@ILT808_2048.der", the filename of the corresponding private key is "Fraunhofer IOSB AAS OPC UA Server@ILT808_2048.pem". In "rejected" unknown (rejected) certificates from connecting clients are saved. In "certs" trusted certificates for clients are saved. To trust the certificate of a client, move it from "rejected" to "certs". In "crl" the certificate revocation list for a CA certificate saved in "certs" is saved. In "issuers" the certificates of trusted CAs are saved.
 -   `userCertificateBasePath` is the path where the certificates for user authentication are saved. Default is "USERS_PKI/CA". Below this path, further subdirectories are created. In "rejected" certificates from unknown (rejected) users are saved. In "certs" certificates for trusted users are saved. To trust the certificate of a user, move it from "rejected" to "certs". In "crl" the certificate revocation list for a CA certificate saved in "certs" is saved. In "issuers" the certificates of trusted CAs are saved.
 
