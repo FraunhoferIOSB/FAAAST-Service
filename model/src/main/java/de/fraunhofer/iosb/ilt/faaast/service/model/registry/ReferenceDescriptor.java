@@ -15,8 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.registry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.adminshell.aas.v3.model.Key;
+import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,7 +35,7 @@ public class ReferenceDescriptor implements Serializable {
 
     public ReferenceDescriptor() {
         id = null;
-        keys = null;
+        keys = new ArrayList<>();
     }
 
 
@@ -96,6 +99,16 @@ public class ReferenceDescriptor implements Serializable {
 
         public B key(KeyDescriptor value) {
             getBuildingInstance().getKeys().add(value);
+            return getSelf();
+        }
+
+
+        public B from(Reference reference) {
+            if (reference != null) {
+                for (Key key: reference.getKeys()) {
+                    getBuildingInstance().getKeys().add(KeyDescriptor.builder().from(key).build());
+                }
+            }
             return getSelf();
         }
     }

@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.registry;
 
+import io.adminshell.aas.v3.model.AdministrativeInformation;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.Serializable;
 import java.util.Objects;
@@ -30,12 +31,6 @@ public class AdministrationDescriptor implements Serializable {
     public AdministrationDescriptor() {
         version = null;
         revision = null;
-    }
-
-
-    public AdministrationDescriptor(String version, String revision) {
-        this.version = version;
-        this.revision = revision;
     }
 
 
@@ -93,6 +88,15 @@ public class AdministrationDescriptor implements Serializable {
 
         public B revision(String value) {
             getBuildingInstance().setRevision(value);
+            return getSelf();
+        }
+
+
+        public B from(AdministrativeInformation administrativeInformation) {
+            if (administrativeInformation != null) {
+                getBuildingInstance().setVersion(administrativeInformation.getVersion());
+                getBuildingInstance().setRevision(administrativeInformation.getRevision());
+            }
             return getSelf();
         }
 

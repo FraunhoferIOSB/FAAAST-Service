@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.registry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.adminshell.aas.v3.model.LangString;
+import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -47,29 +49,6 @@ public class SubmodelDescriptor implements Serializable {
         descriptions = new ArrayList<>();
         identification = null;
         semanticId = null;
-    }
-
-
-    public SubmodelDescriptor(String id, String idShort, String identifier, List<EndpointDescriptor> endpoints, AdministrationDescriptor administration,
-            List<DescriptionDescriptor> descriptions, IdentificationDescriptor identification, ReferenceDescriptor semanticId) {
-        this.id = id;
-        this.idShort = idShort;
-        this.identifier = identifier;
-        if (endpoints == null) {
-            this.endpoints = new ArrayList<>();
-        }
-        else {
-            this.endpoints = endpoints;
-        }
-        this.administration = administration;
-        if (descriptions == null) {
-            this.descriptions = new ArrayList<>();
-        }
-        else {
-            this.descriptions = descriptions;
-        }
-        this.identification = identification;
-        this.semanticId = semanticId;
     }
 
 
@@ -241,6 +220,27 @@ public class SubmodelDescriptor implements Serializable {
 
         public B semanticId(ReferenceDescriptor value) {
             getBuildingInstance().setSemanticId(value);
+            return getSelf();
+        }
+
+
+        public B from(Submodel submodel) {
+            if (submodel != null) {
+                getBuildingInstance().setIdShort(submodel.getIdShort());
+                if (submodel.getIdentification() != null) {
+                    getBuildingInstance().setIdentifier(submodel.getIdentification().getIdentifier());
+                    getBuildingInstance().setIdentification(IdentificationDescriptor.builder().from(submodel.getIdentification()).build());
+                }
+                if (submodel.getAdministration() != null) {
+                    getBuildingInstance().setAdministration(AdministrationDescriptor.builder().from(submodel.getAdministration()).build());
+                }
+                for (LangString langString: submodel.getDescriptions()) {
+                    getBuildingInstance().getDescriptions().add(DescriptionDescriptor.builder().from(langString).build());
+                }
+                if (submodel.getSemanticId() != null) {
+                    getBuildingInstance().setSemanticId(ReferenceDescriptor.builder().from(submodel.getSemanticId()).build());
+                }
+            }
             return getSelf();
         }
     }

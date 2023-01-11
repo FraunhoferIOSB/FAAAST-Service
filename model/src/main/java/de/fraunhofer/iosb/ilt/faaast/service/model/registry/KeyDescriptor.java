@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.registry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
@@ -38,14 +39,6 @@ public class KeyDescriptor implements Serializable {
         idType = null;
         type = null;
         value = null;
-    }
-
-
-    public KeyDescriptor(String id, KeyType idType, KeyElements type, String value) {
-        this.id = id;
-        this.idType = idType;
-        this.type = type;
-        this.value = value;
     }
 
 
@@ -140,6 +133,15 @@ public class KeyDescriptor implements Serializable {
             return getSelf();
         }
 
+
+        public B from(Key key) {
+            if (key != null) {
+                getBuildingInstance().setIdType(key.getIdType());
+                getBuildingInstance().setType(key.getType());
+                getBuildingInstance().setValue(key.getValue());
+            }
+            return getSelf();
+        }
     }
 
     public static class Builder extends AbstractBuilder<KeyDescriptor, Builder> {

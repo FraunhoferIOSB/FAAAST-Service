@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.registry;
 
+import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.Serializable;
 import java.util.Objects;
@@ -30,12 +31,6 @@ public class IdentificationDescriptor implements Serializable {
     public IdentificationDescriptor() {
         id = null;
         idType = null;
-    }
-
-
-    public IdentificationDescriptor(String id, String idType) {
-        this.id = id;
-        this.idType = idType;
     }
 
 
@@ -93,6 +88,15 @@ public class IdentificationDescriptor implements Serializable {
 
         public B idType(String value) {
             getBuildingInstance().setIdType(value);
+            return getSelf();
+        }
+
+
+        public B from(Identifier identifier) {
+            if (identifier != null) {
+                getBuildingInstance().setId(identifier.getIdentifier());
+                getBuildingInstance().setIdType(identifier.getIdType().name());
+            }
             return getSelf();
         }
     }

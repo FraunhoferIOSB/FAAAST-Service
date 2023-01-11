@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.registry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.Serializable;
 import java.util.Objects;
@@ -34,13 +35,6 @@ public class DescriptionDescriptor implements Serializable {
         id = null;
         language = null;
         text = null;
-    }
-
-
-    public DescriptionDescriptor(String id, String language, String text) {
-        this.id = id;
-        this.language = language;
-        this.text = text;
     }
 
 
@@ -115,6 +109,15 @@ public class DescriptionDescriptor implements Serializable {
 
         public B text(String value) {
             getBuildingInstance().setText(value);
+            return getSelf();
+        }
+
+
+        public B from(LangString langString) {
+            if (langString != null) {
+                getBuildingInstance().setLanguage(langString.getLanguage());
+                getBuildingInstance().setText(langString.getValue());
+            }
             return getSelf();
         }
     }

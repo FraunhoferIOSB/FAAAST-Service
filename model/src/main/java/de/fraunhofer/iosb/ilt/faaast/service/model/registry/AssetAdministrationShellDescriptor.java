@@ -15,10 +15,20 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.registry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.AssetAdministrationShell;
+import io.adminshell.aas.v3.model.KeyElements;
+import io.adminshell.aas.v3.model.KeyType;
+import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -48,41 +58,6 @@ public class AssetAdministrationShellDescriptor implements Serializable {
         identification = null;
         specificAssetIds = new ArrayList<>();
         submodels = new ArrayList<>();
-    }
-
-
-    public AssetAdministrationShellDescriptor(String id, String idShort, List<EndpointDescriptor> endpoints, AdministrationDescriptor administration,
-            List<DescriptionDescriptor> descriptions, ReferenceDescriptor globalAssetId, IdentificationDescriptor identification,
-            List<IdentifierKeyValuePairDescriptor> specificAssetIds, List<SubmodelDescriptor> submodels) {
-        this.id = id;
-        this.idShort = idShort;
-        if (endpoints == null) {
-            this.endpoints = new ArrayList<>();
-        }
-        else {
-            this.endpoints = endpoints;
-        }
-        this.administration = administration;
-        if (descriptions == null) {
-            this.descriptions = new ArrayList<>();
-        }
-        else {
-            this.descriptions = descriptions;
-        }
-        this.globalAssetId = globalAssetId;
-        this.identification = identification;
-        if (specificAssetIds == null) {
-            this.specificAssetIds = new ArrayList<>();
-        }
-        else {
-            this.specificAssetIds = specificAssetIds;
-        }
-        if (submodels == null) {
-            this.submodels = new ArrayList<>();
-        }
-        else {
-            this.submodels = submodels;
-        }
     }
 
 
@@ -283,6 +258,53 @@ public class AssetAdministrationShellDescriptor implements Serializable {
 
         public B submodel(SubmodelDescriptor value) {
             getBuildingInstance().getSubmodels().add(value);
+            return getSelf();
+        }
+
+
+        public B from(AssetAdministrationShell assetAdministrationShell) {
+            if (assetAdministrationShell != null) {
+                getBuildingInstance().setIdShort(assetAdministrationShell.getIdShort());
+                if (assetAdministrationShell.getAdministration() != null) {
+                    getBuildingInstance().setAdministrationDescriptor(AdministrationDescriptor.builder().from(assetAdministrationShell.getAdministration()).build());
+                }
+                for (var langString: assetAdministrationShell.getDescriptions()) {
+                    getBuildingInstance().getDescriptions().add(DescriptionDescriptor.builder().from(langString).build());
+                }
+                if (assetAdministrationShell.getIdentification() != null) {
+                    getBuildingInstance().setIdentification(IdentificationDescriptor.builder().from(assetAdministrationShell.getIdentification()).build());
+                }
+                if (assetAdministrationShell.getAssetInformation() != null) {
+                    if (assetAdministrationShell.getAssetInformation().getGlobalAssetId() != null) {
+                        getBuildingInstance().setGlobalAssetId(ReferenceDescriptor.builder().from(assetAdministrationShell.getAssetInformation().getGlobalAssetId()).build());
+                    }
+                    for (var specificAssetId: assetAdministrationShell.getAssetInformation().getSpecificAssetIds()) {
+                        getBuildingInstance().getSpecificAssetIds().add(IdentifierKeyValuePairDescriptor.builder().from(specificAssetId).build());
+                    }
+                }
+            }
+            return getSelf();
+        }
+
+
+        public B from(AssetAdministrationShell assetAdministrationShell, List<Submodel> submodels) {
+            from(assetAdministrationShell);
+            if (assetAdministrationShell != null) {
+                Map<Reference, Submodel> submodelMap = new HashMap<>();
+                for (Submodel submodel: submodels) {
+                    KeyType keyType = KeyType.valueOf(submodel.getIdentification().getIdType().name());
+                    submodelMap.put(
+                            new DefaultReference.Builder()
+                                    .key(new DefaultKey.Builder().idType(keyType).type(KeyElements.SUBMODEL).value(submodel.getIdentification().getIdentifier()).build()).build(),
+                            submodel);
+                }
+                for (var reference: assetAdministrationShell.getSubmodels()) {
+                    if (!submodelMap.containsKey(reference)) {
+                        throw new IllegalArgumentException("Submodel not found: " + AasUtils.asString(reference));
+                    }
+                    getBuildingInstance().getSubmodels().add(SubmodelDescriptor.builder().from(submodelMap.get(reference)).build());
+                }
+            }
             return getSelf();
         }
     }

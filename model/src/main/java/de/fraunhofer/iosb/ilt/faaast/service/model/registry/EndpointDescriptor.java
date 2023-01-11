@@ -38,14 +38,6 @@ public class EndpointDescriptor implements Serializable {
     }
 
 
-    public EndpointDescriptor(String id, String interfaceInformation, ProtocolInformationDescriptor protocolInformation) {
-
-        this.id = id;
-        this.interfaceInformation = interfaceInformation;
-        this.protocolInformation = protocolInformation;
-    }
-
-
     public String getId() {
         return id;
     }
