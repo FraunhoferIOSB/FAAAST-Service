@@ -12,29 +12,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.registry;
+package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.LangString;
+import io.adminshell.aas.v3.model.Key;
+import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
 /**
- * Registry Descriptor for Description.
+ * Registry Descriptor for Reference.
  */
-public class DescriptionDescriptor implements Serializable {
+public class ReferenceDescriptor implements Serializable {
 
     @JsonIgnore
     private String id;
-    private String language;
-    private String text;
+    private List<KeyDescriptor> keys;
 
-    public DescriptionDescriptor() {
+    public ReferenceDescriptor() {
         id = null;
-        language = null;
-        text = null;
+        keys = new ArrayList<>();
     }
 
 
@@ -48,23 +49,13 @@ public class DescriptionDescriptor implements Serializable {
     }
 
 
-    public String getLanguage() {
-        return language;
+    public List<KeyDescriptor> getKeys() {
+        return keys;
     }
 
 
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
-
-    public String getText() {
-        return text;
-    }
-
-
-    public void setText(String text) {
-        this.text = text;
+    public void setKeys(List<KeyDescriptor> keys) {
+        this.keys = keys;
     }
 
 
@@ -76,16 +67,15 @@ public class DescriptionDescriptor implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        DescriptionDescriptor that = (DescriptionDescriptor) o;
+        ReferenceDescriptor that = (ReferenceDescriptor) o;
         return Objects.equals(id, that.id)
-                && Objects.equals(language, that.language)
-                && Objects.equals(text, that.text);
+                && Objects.equals(keys, that.keys);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, language, text);
+        return Objects.hash(id, keys);
     }
 
 
@@ -93,7 +83,7 @@ public class DescriptionDescriptor implements Serializable {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends DescriptionDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends ReferenceDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -101,28 +91,29 @@ public class DescriptionDescriptor implements Serializable {
         }
 
 
-        public B language(String value) {
-            getBuildingInstance().setLanguage(value);
+        public B keys(List<KeyDescriptor> value) {
+            getBuildingInstance().setKeys(value);
             return getSelf();
         }
 
 
-        public B text(String value) {
-            getBuildingInstance().setText(value);
+        public B key(KeyDescriptor value) {
+            getBuildingInstance().getKeys().add(value);
             return getSelf();
         }
 
 
-        public B from(LangString langString) {
-            if (langString != null) {
-                getBuildingInstance().setLanguage(langString.getLanguage());
-                getBuildingInstance().setText(langString.getValue());
+        public B from(Reference reference) {
+            if (reference != null) {
+                for (Key key: reference.getKeys()) {
+                    getBuildingInstance().getKeys().add(KeyDescriptor.builder().from(key).build());
+                }
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<DescriptionDescriptor, Builder> {
+    public static class Builder extends AbstractBuilder<ReferenceDescriptor, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -131,8 +122,8 @@ public class DescriptionDescriptor implements Serializable {
 
 
         @Override
-        protected DescriptionDescriptor newBuildingInstance() {
-            return new DescriptionDescriptor();
+        protected ReferenceDescriptor newBuildingInstance() {
+            return new ReferenceDescriptor();
         }
     }
 }

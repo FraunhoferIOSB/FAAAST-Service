@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.registry;
+package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
 import io.adminshell.aas.v3.model.AdministrativeInformation;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;

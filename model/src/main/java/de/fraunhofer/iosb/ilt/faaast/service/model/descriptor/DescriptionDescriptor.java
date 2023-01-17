@@ -12,25 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.registry;
+package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
-import io.adminshell.aas.v3.model.Identifier;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.Serializable;
 import java.util.Objects;
 
 
 /**
- * Registry Descriptor for Identification.
+ * Registry Descriptor for Description.
  */
-public class IdentificationDescriptor implements Serializable {
+public class DescriptionDescriptor implements Serializable {
 
+    @JsonIgnore
     private String id;
-    private String idType;
+    private String language;
+    private String text;
 
-    public IdentificationDescriptor() {
+    public DescriptionDescriptor() {
         id = null;
-        idType = null;
+        language = null;
+        text = null;
     }
 
 
@@ -44,13 +48,23 @@ public class IdentificationDescriptor implements Serializable {
     }
 
 
-    public String getIdType() {
-        return idType;
+    public String getLanguage() {
+        return language;
     }
 
 
-    public void setIdType(String idType) {
-        this.idType = idType;
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+
+    public String getText() {
+        return text;
+    }
+
+
+    public void setText(String text) {
+        this.text = text;
     }
 
 
@@ -62,15 +76,16 @@ public class IdentificationDescriptor implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        IdentificationDescriptor that = (IdentificationDescriptor) o;
+        DescriptionDescriptor that = (DescriptionDescriptor) o;
         return Objects.equals(id, that.id)
-                && Objects.equals(idType, that.idType);
+                && Objects.equals(language, that.language)
+                && Objects.equals(text, that.text);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, idType);
+        return Objects.hash(id, language, text);
     }
 
 
@@ -78,7 +93,7 @@ public class IdentificationDescriptor implements Serializable {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends IdentificationDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends DescriptionDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -86,22 +101,28 @@ public class IdentificationDescriptor implements Serializable {
         }
 
 
-        public B idType(String value) {
-            getBuildingInstance().setIdType(value);
+        public B language(String value) {
+            getBuildingInstance().setLanguage(value);
             return getSelf();
         }
 
 
-        public B from(Identifier identifier) {
-            if (identifier != null) {
-                getBuildingInstance().setId(identifier.getIdentifier());
-                getBuildingInstance().setIdType(identifier.getIdType().name());
+        public B text(String value) {
+            getBuildingInstance().setText(value);
+            return getSelf();
+        }
+
+
+        public B from(LangString langString) {
+            if (langString != null) {
+                getBuildingInstance().setLanguage(langString.getLanguage());
+                getBuildingInstance().setText(langString.getValue());
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<IdentificationDescriptor, Builder> {
+    public static class Builder extends AbstractBuilder<DescriptionDescriptor, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -110,8 +131,8 @@ public class IdentificationDescriptor implements Serializable {
 
 
         @Override
-        protected IdentificationDescriptor newBuildingInstance() {
-            return new IdentificationDescriptor();
+        protected DescriptionDescriptor newBuildingInstance() {
+            return new DescriptionDescriptor();
         }
     }
 }
