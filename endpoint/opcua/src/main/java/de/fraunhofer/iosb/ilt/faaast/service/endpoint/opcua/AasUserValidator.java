@@ -18,79 +18,63 @@ import com.prosysopc.ua.StatusException;
 import com.prosysopc.ua.server.ServerUserIdentity;
 import com.prosysopc.ua.server.Session;
 import com.prosysopc.ua.server.UserValidator;
-import com.prosysopc.ua.stack.builtintypes.StatusCode;
 import com.prosysopc.ua.stack.core.UserIdentityToken;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.CertificateValidator;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
  * Class used for custom user validation in UaServer.
- *
- * @author Tino Bischoff
  */
 public class AasUserValidator implements UserValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AasUserValidator.class);
 
     private final CertificateValidator validator;
+    private final Map<String, String> userMap;
+    private final boolean allowAnonymous;
 
     /**
      * Creates a new instance of AasUserValidator
      *
      * @param validator used to validate certificates
+     * @param userMap The desired user names (Key) and passwords (Value)
+     * @param allowAnonymous True if anonymous access is allowed, false otherwise
      */
-    public AasUserValidator(CertificateValidator validator) {
+    public AasUserValidator(CertificateValidator validator, Map<String, String> userMap, boolean allowAnonymous) {
         this.validator = validator;
+        this.userMap = userMap != null
+                ? userMap
+                : new HashMap<>();
+        this.allowAnonymous = allowAnonymous;
     }
 
 
-    /**
-     * Validate the user specified by token.
-     *
-     * @param session The session which the user is logging in.
-     * @param userIdentity the user identity.
-     * @return true, if the user is allowed access.
-     * @throws StatusException if there is a problem with the validation. For example, if the session is active, and you
-     *             do not want to enable user identity change, throw the exception with
-     *             StatusCodes.Bad_IdentityChangeNotSupported.
-     */
     @Override
     public boolean onValidate(Session session, ServerUserIdentity userIdentity) throws StatusException {
         // Return true, if the user is allowed access to the server
         // Note that the UserIdentity can be of different actual types,
         // depending on the selected authentication mode (by the client).
-        LOGGER.info("onValidate: userIdentity={}", userIdentity);
+        LOGGER.trace("onValidate: userIdentity={}", userIdentity);
         if (userIdentity.getType().equals(UserTokenType.UserName)) {
-            if (userIdentity.getName().equals("aas") && userIdentity.getPassword().equals("opcua")) {
-                return true;
-            }
-            else {
-                return userIdentity.getName().equals("aas2") && userIdentity.getPassword().equals("opcua2"); // Perhaps Bad_UserAccessDenied should be thrown here as well?
-            }
+            return userMap.containsKey(userIdentity.getName()) && userMap.get(userIdentity.getName()).equals(userIdentity.getPassword());
         }
 
         if (userIdentity.getType().equals(UserTokenType.Certificate)) {
             // Get StatusCode for the certificate
-            StatusCode code = this.validator.validateCertificate(userIdentity.getCertificate());
-            return code.isGood(); // SessionManager will throw Bad_IdentityTokenRejected when this method returns false
+            // SessionManager will throw Bad_IdentityTokenRejected when this method returns false
+            return this.validator.validateCertificate(userIdentity.getCertificate()).isGood();
         }
 
-        return true;
+        // check anonymous access
+        return allowAnonymous;
     }
 
 
-    /**
-     * Notification of a validation error. This may occur due to password validation failure or because the user was not
-     * accepted.
-     *
-     * @param sn The session which the user was logging in.
-     * @param userToken The user token that was used.
-     * @param exception The validation exception: StatusException if the user is not accepted. SecureIdentityException
-     *            if the token was not valid.
-     */
     @Override
     public void onValidationError(Session sn, UserIdentityToken userToken, Exception exception) {
         LOGGER.error("onValidationError: User validation failed: userToken={} error={}", userToken, exception);

@@ -85,14 +85,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Test class for the general OPC UA Endpoint test with the simple example
- *
- * @author Tino Bischoff
  */
 public class OpcUaEndpointTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpointTest.class);
 
-    private static final long DEFAULT_TIMEOUT = 500;
+    private static final long DEFAULT_TIMEOUT = 100;
 
     private static int OPC_TCP_PORT;
     private static String ENDPOINT_URL;
@@ -109,12 +107,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Initialize and start the test.
-     *
-     * @throws ConfigurationException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @BeforeClass
     public static void startTest() throws ConfigurationException, Exception {
         OPC_TCP_PORT = findFreePort();
@@ -123,15 +115,16 @@ public class OpcUaEndpointTest {
         OpcUaEndpointConfig config = new OpcUaEndpointConfig();
         config.setTcpPort(OPC_TCP_PORT);
         config.setSecondsTillShutdown(0);
+        config.setAllowAnonymous(true);
+        config.setServerCertificateBasePath(TestConstants.SERVER_CERT_PATH);
+        config.setUserCertificateBasePath(TestConstants.USER_CERT_PATH);
+        config.setDiscoveryServerUrl(null);
 
         service = new TestService(config, null, false);
         service.start();
     }
 
 
-    /**
-     * Stop the test.
-     */
     @AfterClass
     public static void stopTest() {
         LOGGER.trace("stopTest");
@@ -142,12 +135,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Test method for testing the OPC UA Endpoint
-     *
-     * @throws InterruptedException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testOpcUaEndpoint() throws InterruptedException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -239,15 +226,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Test method for changing a property based on an event from the MessageBus. Sets an event on the MessageBus and
-     * checks the new value in the server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws StatusException If the operation fails
-     */
     @Test
     public void testUpdatePropertyValue() throws SecureIdentityException, ServiceException, IOException, StatusException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -301,7 +279,6 @@ public class OpcUaEndpointTest {
         //propertyValue.setValue(new IntValue(newValue));
         valueChangeMessage.setNewValue(PropertyValue.of(Datatype.INT, newValue.toString()));
         service.getMessageBus().publish(valueChangeMessage);
-        Thread.sleep(100);
 
         // check MessageBus
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
@@ -317,17 +294,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Test method for writing a property. Writes the property in the OPC UA Server and checks the new value in the
-     * server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWritePropertyValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -364,14 +330,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Test method to check whether the new value message from the MessageBus is processed correctly
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testPropertyChangeFromMessageBus() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -404,6 +362,7 @@ public class OpcUaEndpointTest {
         keys.add(new DefaultKey.Builder().idType(KeyType.ID_SHORT).type(KeyElements.PROPERTY).value(TestConstants.MAX_ROTATION_SPEED_NAME).build());
         Reference propRef = new DefaultReference.Builder().keys(keys).build();
 
+        CountDownLatch condition = new CountDownLatch(1);
         ValueChangeEventMessage valueChangeMessage = new ValueChangeEventMessage();
         valueChangeMessage.setElement(propRef);
         valueChangeMessage.setOldValue(PropertyValue.of(Datatype.INT, "5000"));
@@ -411,7 +370,7 @@ public class OpcUaEndpointTest {
         valueChangeMessage.setNewValue(PropertyValue.of(Datatype.INT, newValue.toString()));
         service.getMessageBus().publish(valueChangeMessage);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // read new value
         DataValue value = client.readValue(targets[0].getTargetId());
@@ -423,16 +382,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Test method for writing a range. Writes the property in the OPC UA Server and checks the new value in the server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteRangeValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -469,16 +418,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Test method for writing a range. Writes the property in the OPC UA Server and checks the new value in the server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteBlobValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -518,17 +457,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Test method for writing a property. Writes the property in the OPC UA Server and checks the new value in the
-     * server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteMultiLanguagePropertyValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -574,17 +502,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Test method for writing a property. Writes the property in the OPC UA Server and checks the new value in the
-     * server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteReferenceElementValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -631,17 +548,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Test method for writing a property of an entity. Writes the property in the OPC UA Server and checks the new
-     * value in the server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteEntityPropertyValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -680,17 +586,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Test method for writing the type of an entity. Writes the property in the OPC UA Server and checks the new value
-     * in the server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteEntityType() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -727,14 +622,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Test method for adding a new property to an existing submodel.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -762,6 +649,7 @@ public class OpcUaEndpointTest {
         Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
 
         // Send event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementCreateEventMessage msg = new ElementCreateEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("http://i40.customer.com/type/1/1/7A7104BDAB57E184").build()).build());
@@ -774,7 +662,7 @@ public class OpcUaEndpointTest {
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the element is there now
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -787,14 +675,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Test method for adding a complete submodel to an AAS.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testAddSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -823,6 +703,7 @@ public class OpcUaEndpointTest {
         Assert.assertTrue("testAddSubmodel Browse Result Bad", bpres[0].getStatusCode().isBad());
 
         // Send event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementCreateEventMessage msg = new ElementCreateEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.ASSET_ADMINISTRATION_SHELL).value("http://customer.com/aas/9175_7013_7091_9168").build())
@@ -888,7 +769,7 @@ public class OpcUaEndpointTest {
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the element is there now
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -901,19 +782,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Tests the given AAS Node.
-     *
-     * @param client The OPC UA> Client.
-     * @param aasNode The desired AAS Node.
-     * @param submodelDocNode The Submodel Documentation Node
-     * @param submodelOperDataNode The Submodel OperationalData Node
-     * @param submodelTechDataNode The Submodel TechnicalData Node
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     private void testAas(UaClient client, NodeId aasNode, NodeId submodelDocNode, NodeId submodelOperDataNode, NodeId submodelTechDataNode)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, aasNode, "AAS:" + TestConstants.SIMPLE_AAS_NAME);
@@ -927,16 +795,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Tests the given Asset Node.
-     *
-     * @param client The OPC UA> Client.
-     * @param assetNode The desired Asset Node.
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     private void testAsset(UaClient client, NodeId assetNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, assetNode, "Asset:" + TestConstants.SIMPLE_ASSET_NAME);
         TestUtils.checkType(client, assetNode, new NodeId(aasns, TestConstants.AAS_ASSET_TYPE_ID));
@@ -947,17 +805,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Tests the given Submodel Documentation.
-     *
-     * @param client The OPC UA Client.
-     * @param submodelNode The desired Submodel
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws InterruptedException Id a wait was interrupted
-     */
     private void testSubmodelDoc(UaClient client, NodeId submodelNode)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException, InterruptedException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_DOC_NODE_NAME);
@@ -993,16 +840,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Test the given Submodel OperationalData
-     *
-     * @param client The OPC UA Client.
-     * @param submodelNode The desired Submodel
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     private void testSubmodelOperationalData(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_OPER_DATA_NODE_NAME);
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
@@ -1018,16 +855,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Tests the desired Submodel TechnicalData.
-     *
-     * @param client the OPC UA Client.
-     * @param submodelNode The desired Submodel
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     private void testSubmodelTechnicalData(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.SUBMODEL_TECH_DATA_NODE_NAME);
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));
@@ -1045,17 +872,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Tests the SubodelElement OperatingManual from the Submodel Documentation
-     *
-     * @param client the OPC UA Client.
-     * @param node The desired OperatingManual
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws InterruptedException If a wait was interrupted
-     */
     private void testOperatingManual(UaClient client, NodeId node) throws ServiceException, AddressSpaceException, StatusException, ServiceResultException, InterruptedException {
         TestUtils.checkDisplayName(client, node, TestConstants.OPERATING_MANUAL_NAME);
         TestUtils.checkType(client, node, new NodeId(aasns, TestConstants.AAS_SUBMODEL_ELEM_COLL_TYPE_ID));
@@ -1071,20 +887,6 @@ public class OpcUaEndpointTest {
     }
 
 
-    /**
-     * Searches for the Submodel reference node and checks the corresponding values
-     *
-     * @param client The OPC UA Client.
-     * @param baseNode The base node where the Node is searched.
-     * @param aasns The namespace index of the AAS namespace.
-     * @param submodelDocNode The Submodel Documentation Node
-     * @param submodelOperDataNode The Submodel OperationalData Node
-     * @param submodelTechDataNode The Submodel TechnicalData Node
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     */
     private void testSubmodelRefs(UaClient client, NodeId baseNode, int aasns, NodeId submodelDocNode, NodeId submodelOperDataNode, NodeId submodelTechDataNode)
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         List<RelativePath> relPath = new ArrayList<>();

@@ -4,6 +4,12 @@
 
 **New Features**
 *   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
+*   OPC UA Endpoint
+	*   Additional parameters availabe in configuration
+
+**Internal changes & bugfixes**
+*   OPC UA Endpoint
+	*   Major code refactoring
 
 ## Release version 0.4.0
 
