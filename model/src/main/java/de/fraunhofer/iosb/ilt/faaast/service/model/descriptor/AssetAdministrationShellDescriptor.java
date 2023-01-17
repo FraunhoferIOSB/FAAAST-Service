@@ -269,7 +269,7 @@ public class AssetAdministrationShellDescriptor implements Serializable {
                     getBuildingInstance().setAdministrationDescriptor(AdministrationDescriptor.builder().from(assetAdministrationShell.getAdministration()).build());
                 }
                 for (var langString: assetAdministrationShell.getDescriptions()) {
-                    getBuildingInstance().getDescriptions().add(DescriptionDescriptor.builder().from(langString).build());
+                    getBuildingInstance().getDescriptions().add(DefaultDescriptionDescriptor.builder().from(langString).build());
                 }
                 if (assetAdministrationShell.getIdentification() != null) {
                     getBuildingInstance().setIdentification(IdentificationDescriptor.builder().from(assetAdministrationShell.getIdentification()).build());

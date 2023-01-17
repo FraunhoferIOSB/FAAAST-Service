@@ -14,125 +14,19 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
-import java.io.Serializable;
-import java.util.Objects;
-
-
 /**
- * Registry Descriptor for Description.
+ * Registry Descriptor interface for Description.
  */
-public class DescriptionDescriptor implements Serializable {
+public interface DescriptionDescriptor {
 
-    @JsonIgnore
-    private String id;
-    private String language;
-    private String text;
-
-    public DescriptionDescriptor() {
-        id = null;
-        language = null;
-        text = null;
-    }
+    public String getLanguage();
 
 
-    public String getId() {
-        return id;
-    }
+    public void setLanguage(String language);
 
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String getText();
 
 
-    public String getLanguage() {
-        return language;
-    }
-
-
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
-
-    public String getText() {
-        return text;
-    }
-
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        DescriptionDescriptor that = (DescriptionDescriptor) o;
-        return Objects.equals(id, that.id)
-                && Objects.equals(language, that.language)
-                && Objects.equals(text, that.text);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, language, text);
-    }
-
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public abstract static class AbstractBuilder<T extends DescriptionDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
-
-        public B language(String value) {
-            getBuildingInstance().setLanguage(value);
-            return getSelf();
-        }
-
-
-        public B text(String value) {
-            getBuildingInstance().setText(value);
-            return getSelf();
-        }
-
-
-        public B from(LangString langString) {
-            if (langString != null) {
-                getBuildingInstance().setLanguage(langString.getLanguage());
-                getBuildingInstance().setText(langString.getValue());
-            }
-            return getSelf();
-        }
-    }
-
-    public static class Builder extends AbstractBuilder<DescriptionDescriptor, Builder> {
-
-        @Override
-        protected Builder getSelf() {
-            return this;
-        }
-
-
-        @Override
-        protected DescriptionDescriptor newBuildingInstance() {
-            return new DescriptionDescriptor();
-        }
-    }
+    public void setText(String text);
 }

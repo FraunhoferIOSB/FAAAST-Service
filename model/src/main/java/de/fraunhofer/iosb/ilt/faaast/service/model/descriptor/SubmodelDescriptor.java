@@ -235,7 +235,7 @@ public class SubmodelDescriptor implements Serializable {
                     getBuildingInstance().setAdministration(AdministrationDescriptor.builder().from(submodel.getAdministration()).build());
                 }
                 for (LangString langString: submodel.getDescriptions()) {
-                    getBuildingInstance().getDescriptions().add(DescriptionDescriptor.builder().from(langString).build());
+                    getBuildingInstance().getDescriptions().add(DefaultDescriptionDescriptor.builder().from(langString).build());
                 }
                 if (submodel.getSemanticId() != null) {
                     getBuildingInstance().setSemanticId(ReferenceDescriptor.builder().from(submodel.getSemanticId()).build());
