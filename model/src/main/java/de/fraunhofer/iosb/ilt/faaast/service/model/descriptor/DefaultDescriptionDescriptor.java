@@ -16,14 +16,13 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
-import java.io.Serializable;
 import java.util.Objects;
 
 
 /**
  * Registry Descriptor default implementation for Description.
  */
-public class DefaultDescriptionDescriptor implements DescriptionDescriptor, Serializable {
+public class DefaultDescriptionDescriptor implements DescriptionDescriptor {
 
     private String language;
     private String text;

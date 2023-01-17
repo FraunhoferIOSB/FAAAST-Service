@@ -14,10 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
+import java.io.Serializable;
+
+
 /**
  * Registry Descriptor interface for Description.
  */
-public interface DescriptionDescriptor {
+public interface DescriptionDescriptor extends Serializable {
 
     public String getLanguage();
 
