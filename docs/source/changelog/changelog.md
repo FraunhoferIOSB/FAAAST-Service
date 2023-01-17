@@ -8,6 +8,8 @@
 	*   Additional parameters availabe in configuration
 
 **Internal changes & bugfixes**
+*   HTTP Endpoint
+	*   DELETE /submodels/{submodelIdentifier} now correctly returns code 204 instead of 200
 *   OPC UA Endpoint
 	*   Major code refactoring
 

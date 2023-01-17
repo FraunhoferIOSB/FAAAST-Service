@@ -565,7 +565,7 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteSubmodelByIdResponse actual = manager.execute(request);
         DeleteSubmodelByIdResponse expected = new DeleteSubmodelByIdResponse.Builder()
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).remove(environment.getSubmodels().get(0).getIdentification());
