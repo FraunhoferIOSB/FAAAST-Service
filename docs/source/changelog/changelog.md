@@ -9,7 +9,10 @@
 
 **Internal changes & bugfixes**
 *   HTTP Endpoint
-	*   DELETE /submodels/{submodelIdentifier} now correctly returns code 204 instead of 200
+	*   DELETE requests now correctly return HTTP status code `204 NO CONTENT`. The following URL patterns are affected:
+		*   /submodels/{submodelIdentifier}
+		*   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+		*   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
 *   OPC UA Endpoint
 	*   Major code refactoring
 

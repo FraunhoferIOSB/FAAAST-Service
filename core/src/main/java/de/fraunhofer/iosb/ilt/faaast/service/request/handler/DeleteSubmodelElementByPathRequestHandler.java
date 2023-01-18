@@ -47,7 +47,7 @@ public class DeleteSubmodelElementByPathRequestHandler extends AbstractSubmodelI
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
         SubmodelElement submodelElement = persistence.get(reference, new QueryModifier());
         persistence.remove(reference);
-        response.setStatusCode(StatusCode.SUCCESS);
+        response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         messageBus.publish(ElementDeleteEventMessage.builder()
                 .element(reference)
                 .value(submodelElement)

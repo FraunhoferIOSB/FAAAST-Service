@@ -200,24 +200,26 @@ public class HttpHelper {
         Ensure.requireNonNull(response, "response must be non-null");
         Ensure.requireNonNull(statusCode, "statusCode must be non-null");
         response.setStatus(toHttpStatusCode(statusCode));
-        if (contentType != null) {
-            response.setContentType(contentType.toString());
-            try {
-                if (contentType.charset().isPresent()) {
-                    response.setCharacterEncoding(contentType.charset().get().toString());
+        if (statusCode != StatusCode.SUCCESS_NO_CONTENT) {
+            if (contentType != null) {
+                response.setContentType(contentType.toString());
+                try {
+                    if (contentType.charset().isPresent()) {
+                        response.setCharacterEncoding(contentType.charset().get().toString());
+                    }
+                }
+                catch (IllegalStateException | IllegalCharsetNameException | UnsupportedCharsetException e) {
+                    LOGGER.warn("could not determine charset for contentType '{}'", contentType, e);
                 }
             }
-            catch (IllegalStateException | IllegalCharsetNameException | UnsupportedCharsetException e) {
-                LOGGER.warn("could not determine charset for contentType '{}'", contentType, e);
-            }
-        }
-        if (content != null) {
-            try {
-                response.getOutputStream().write(content);
-                response.getOutputStream().flush();
-            }
-            catch (IOException e) {
-                send(response, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
+            if (content != null) {
+                try {
+                    response.getOutputStream().write(content);
+                    response.getOutputStream().flush();
+                }
+                catch (IOException e) {
+                    send(response, StatusCode.SERVER_INTERNAL_ERROR, Result.exception(e.getMessage()));
+                }
             }
         }
     }
