@@ -15,15 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AdministrationDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.DescriptionDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.EndpointDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.IdentificationDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ReferenceDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
-import java.util.List;
 import java.util.Objects;
 
 
@@ -75,49 +71,8 @@ public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor im
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends DefaultSubmodelDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B idShort(String value) {
-            getBuildingInstance().setIdShort(value);
-            return getSelf();
-        }
-
-
-        public B endpoints(List<EndpointDescriptor> value) {
-            getBuildingInstance().setEndpoints(value);
-            return getSelf();
-        }
-
-
-        public B endpoint(EndpointDescriptor value) {
-            getBuildingInstance().getEndpoints().add(value);
-            return getSelf();
-        }
-
-
-        public B administration(AdministrationDescriptor value) {
-            getBuildingInstance().setAdministration(value);
-            return getSelf();
-        }
-
-
-        public B descriptions(List<DescriptionDescriptor> value) {
-            getBuildingInstance().setDescriptions(value);
-            return getSelf();
-        }
-
-
-        public B description(DescriptionDescriptor value) {
-            getBuildingInstance().getDescriptions().add(value);
-            return getSelf();
-        }
-
-
-        public B identification(IdentificationDescriptor value) {
-            getBuildingInstance().setIdentification(value);
-            return getSelf();
-        }
-
+    public abstract static class AbstractBuilder<T extends DefaultSubmodelDescriptor, B extends AbstractBuilder<T, B>>
+            extends AbstractIdentifiableDescriptor.AbstractBuilder<T, B> {
 
         public B semanticId(ReferenceDescriptor value) {
             getBuildingInstance().setSemanticId(value);
