@@ -38,7 +38,7 @@ public interface AssetAdministrationShellDescriptor extends Serializable {
     public AdministrationDescriptor getAdministration();
 
 
-    public void setAdministrationDescriptor(AdministrationDescriptor administration);
+    public void setAdministration(AdministrationDescriptor administration);
 
 
     public List<DescriptionDescriptor> getDescriptions();

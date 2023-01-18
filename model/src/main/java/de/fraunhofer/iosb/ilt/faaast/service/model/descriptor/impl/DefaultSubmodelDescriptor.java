@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,82 +30,12 @@ import java.util.Objects;
 /**
  * Registry Descriptor for default implementation Submodel.
  */
-public class DefaultSubmodelDescriptor implements SubmodelDescriptor {
+public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor implements SubmodelDescriptor {
 
-    private String idShort;
-    private List<EndpointDescriptor> endpoints;
-    private AdministrationDescriptor administration;
-    private List<DescriptionDescriptor> descriptions;
-    private IdentificationDescriptor identification;
     private ReferenceDescriptor semanticId;
 
     public DefaultSubmodelDescriptor() {
-        idShort = null;
-        endpoints = new ArrayList<>();
-        administration = null;
-        descriptions = new ArrayList<>();
-        identification = null;
         semanticId = null;
-    }
-
-
-    @Override
-    public String getIdShort() {
-        return idShort;
-    }
-
-
-    @Override
-    public void setIdShort(String idShort) {
-        this.idShort = idShort;
-    }
-
-
-    @Override
-    public List<EndpointDescriptor> getEndpoints() {
-        return endpoints;
-    }
-
-
-    @Override
-    public void setEndpoints(List<EndpointDescriptor> endpoints) {
-        this.endpoints = endpoints;
-    }
-
-
-    @Override
-    public AdministrationDescriptor getAdministration() {
-        return administration;
-    }
-
-
-    @Override
-    public void setAdministration(AdministrationDescriptor administration) {
-        this.administration = administration;
-    }
-
-
-    @Override
-    public List<DescriptionDescriptor> getDescriptions() {
-        return descriptions;
-    }
-
-
-    @Override
-    public void setDescriptions(List<DescriptionDescriptor> descriptions) {
-        this.descriptions = descriptions;
-    }
-
-
-    @Override
-    public IdentificationDescriptor getIdentification() {
-        return identification;
-    }
-
-
-    @Override
-    public void setIdentification(IdentificationDescriptor identification) {
-        this.identification = identification;
     }
 
 
@@ -131,18 +60,14 @@ public class DefaultSubmodelDescriptor implements SubmodelDescriptor {
             return false;
         }
         DefaultSubmodelDescriptor that = (DefaultSubmodelDescriptor) o;
-        return Objects.equals(idShort, that.idShort)
-                && Objects.equals(endpoints, that.endpoints)
-                && Objects.equals(administration, that.administration)
-                && Objects.equals(descriptions, that.descriptions)
-                && Objects.equals(identification, that.identification)
+        return super.equals(that)
                 && Objects.equals(semanticId, that.semanticId);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(idShort, endpoints, administration, descriptions, identification, semanticId);
+        return Objects.hash(super.hashCode(), semanticId);
     }
 
 

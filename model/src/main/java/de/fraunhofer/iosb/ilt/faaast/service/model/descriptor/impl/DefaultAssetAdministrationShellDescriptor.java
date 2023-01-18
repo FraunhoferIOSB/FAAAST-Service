@@ -41,74 +41,16 @@ import java.util.Objects;
 /**
  * Registry Descriptor default implementation for AssetAdministrationShell.
  */
-public class DefaultAssetAdministrationShellDescriptor implements AssetAdministrationShellDescriptor {
+public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifiableDescriptor implements AssetAdministrationShellDescriptor {
 
-    private String idShort;
-    private List<EndpointDescriptor> endpoints;
-    private AdministrationDescriptor administration;
-    private List<DescriptionDescriptor> descriptions;
     private ReferenceDescriptor globalAssetId;
-    private IdentificationDescriptor identification;
     private List<IdentifierKeyValuePairDescriptor> specificAssetIds;
     private List<SubmodelDescriptor> submodels;
 
     public DefaultAssetAdministrationShellDescriptor() {
-        idShort = null;
-        endpoints = new ArrayList<>();
-        administration = null;
-        descriptions = new ArrayList<>();
         globalAssetId = null;
-        identification = null;
         specificAssetIds = new ArrayList<>();
         submodels = new ArrayList<>();
-    }
-
-
-    @Override
-    public String getIdShort() {
-        return idShort;
-    }
-
-
-    @Override
-    public void setIdShort(String idShort) {
-        this.idShort = idShort;
-    }
-
-
-    @Override
-    public List<EndpointDescriptor> getEndpoints() {
-        return endpoints;
-    }
-
-
-    @Override
-    public void setEndpoints(List<EndpointDescriptor> endpoints) {
-        this.endpoints = endpoints;
-    }
-
-
-    @Override
-    public AdministrationDescriptor getAdministration() {
-        return administration;
-    }
-
-
-    @Override
-    public void setAdministrationDescriptor(AdministrationDescriptor administration) {
-        this.administration = administration;
-    }
-
-
-    @Override
-    public List<DescriptionDescriptor> getDescriptions() {
-        return descriptions;
-    }
-
-
-    @Override
-    public void setDescriptions(List<DescriptionDescriptor> descriptions) {
-        this.descriptions = descriptions;
     }
 
 
@@ -121,18 +63,6 @@ public class DefaultAssetAdministrationShellDescriptor implements AssetAdministr
     @Override
     public void setGlobalAssetId(ReferenceDescriptor globalAssetId) {
         this.globalAssetId = globalAssetId;
-    }
-
-
-    @Override
-    public IdentificationDescriptor getIdentification() {
-        return identification;
-    }
-
-
-    @Override
-    public void setIdentification(IdentificationDescriptor identification) {
-        this.identification = identification;
     }
 
 
@@ -169,12 +99,8 @@ public class DefaultAssetAdministrationShellDescriptor implements AssetAdministr
             return false;
         }
         DefaultAssetAdministrationShellDescriptor that = (DefaultAssetAdministrationShellDescriptor) o;
-        return Objects.equals(idShort, that.idShort)
-                && Objects.equals(endpoints, that.endpoints)
-                && Objects.equals(administration, that.administration)
-                && Objects.equals(descriptions, that.descriptions)
+        return super.equals(that)
                 && Objects.equals(globalAssetId, that.globalAssetId)
-                && Objects.equals(identification, that.identification)
                 && Objects.equals(specificAssetIds, that.specificAssetIds)
                 && Objects.equals(submodels, that.submodels);
     }
@@ -182,7 +108,7 @@ public class DefaultAssetAdministrationShellDescriptor implements AssetAdministr
 
     @Override
     public int hashCode() {
-        return Objects.hash(idShort, endpoints, administration, descriptions, globalAssetId, identification, specificAssetIds, submodels);
+        return Objects.hash(super.hashCode(), globalAssetId, specificAssetIds, submodels);
     }
 
 
@@ -211,7 +137,7 @@ public class DefaultAssetAdministrationShellDescriptor implements AssetAdministr
 
 
         public B administration(AdministrationDescriptor value) {
-            getBuildingInstance().setAdministrationDescriptor(value);
+            getBuildingInstance().setAdministration(value);
             return getSelf();
         }
 
@@ -268,7 +194,7 @@ public class DefaultAssetAdministrationShellDescriptor implements AssetAdministr
             if (assetAdministrationShell != null) {
                 getBuildingInstance().setIdShort(assetAdministrationShell.getIdShort());
                 if (assetAdministrationShell.getAdministration() != null) {
-                    getBuildingInstance().setAdministrationDescriptor(AdministrationDescriptor.builder().from(assetAdministrationShell.getAdministration()).build());
+                    getBuildingInstance().setAdministration(AdministrationDescriptor.builder().from(assetAdministrationShell.getAdministration()).build());
                 }
                 for (var langString: assetAdministrationShell.getDescriptions()) {
                     getBuildingInstance().getDescriptions().add(DefaultDescriptionDescriptor.builder().from(langString).build());
