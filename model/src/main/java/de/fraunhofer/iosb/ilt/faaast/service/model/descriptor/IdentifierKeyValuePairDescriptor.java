@@ -14,169 +14,34 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.Serializable;
-import java.util.Objects;
 
 
 /**
- * Registry Descriptor for IdentifierKeyValuePair.
+ * Registry Descriptor interface for IdentifierKeyValuePair.
  */
-public class IdentifierKeyValuePairDescriptor implements Serializable {
+public interface IdentifierKeyValuePairDescriptor extends Serializable {
 
-    @JsonIgnore
-    private String id;
-    private ReferenceDescriptor semanticId;
-    private ReferenceDescriptor externalSubjectId;
-    private String key;
-    private String value;
-
-    public IdentifierKeyValuePairDescriptor() {
-        id = null;
-        semanticId = null;
-        externalSubjectId = null;
-        key = null;
-        value = null;
-    }
+    public ReferenceDescriptor getSemanticId();
 
 
-    public String getId() {
-        return id;
-    }
+    public void setSemanticId(ReferenceDescriptor semanticId);
 
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public ReferenceDescriptor getExternalSubjectId();
 
 
-    public ReferenceDescriptor getSemanticId() {
-        return semanticId;
-    }
+    public void setExternalSubjectId(ReferenceDescriptor externalSubjectId);
 
 
-    public void setSemanticId(ReferenceDescriptor semanticId) {
-        this.semanticId = semanticId;
-    }
+    public String getKey();
 
 
-    public ReferenceDescriptor getExternalSubjectId() {
-        return externalSubjectId;
-    }
+    public void setKey(String key);
 
 
-    public void setExternalSubjectId(ReferenceDescriptor externalSubjectId) {
-        this.externalSubjectId = externalSubjectId;
-    }
+    public String getValue();
 
 
-    public String getKey() {
-        return key;
-    }
-
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-
-    public String getValue() {
-        return value;
-    }
-
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        IdentifierKeyValuePairDescriptor that = (IdentifierKeyValuePairDescriptor) o;
-        return Objects.equals(id, that.id)
-                && Objects.equals(semanticId, that.semanticId)
-                && Objects.equals(externalSubjectId, that.externalSubjectId)
-                && Objects.equals(key, that.key)
-                && Objects.equals(value, that.value);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, semanticId, externalSubjectId, key, value);
-    }
-
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public abstract static class AbstractBuilder<T extends IdentifierKeyValuePairDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
-
-        public B semanticId(ReferenceDescriptor value) {
-            getBuildingInstance().setSemanticId(value);
-            return getSelf();
-        }
-
-
-        public B externalSubjectId(ReferenceDescriptor value) {
-            getBuildingInstance().setExternalSubjectId(value);
-            return getSelf();
-        }
-
-
-        public B key(String value) {
-            getBuildingInstance().setKey(value);
-            return getSelf();
-        }
-
-
-        public B value(String value) {
-            getBuildingInstance().setValue(value);
-            return getSelf();
-        }
-
-
-        public B from(IdentifierKeyValuePair identifierKeyValuePair) {
-            if (identifierKeyValuePair != null) {
-                if (identifierKeyValuePair.getSemanticId() != null) {
-                    getBuildingInstance().setSemanticId(ReferenceDescriptor.builder().from(identifierKeyValuePair.getSemanticId()).build());
-                }
-                if (identifierKeyValuePair.getExternalSubjectId() != null) {
-                    getBuildingInstance().setExternalSubjectId(ReferenceDescriptor.builder().from(identifierKeyValuePair.getExternalSubjectId()).build());
-                }
-                getBuildingInstance().setKey(identifierKeyValuePair.getKey());
-                getBuildingInstance().setValue(identifierKeyValuePair.getValue());
-            }
-            return getSelf();
-        }
-    }
-
-    public static class Builder extends AbstractBuilder<IdentifierKeyValuePairDescriptor, Builder> {
-
-        @Override
-        protected Builder getSelf() {
-            return this;
-        }
-
-
-        @Override
-        protected IdentifierKeyValuePairDescriptor newBuildingInstance() {
-            return new IdentifierKeyValuePairDescriptor();
-        }
-    }
+    public void setValue(String value);
 }

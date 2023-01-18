@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultKeyDescriptor;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
@@ -106,7 +107,7 @@ public class ReferenceDescriptor implements Serializable {
         public B from(Reference reference) {
             if (reference != null) {
                 for (Key key: reference.getKeys()) {
-                    getBuildingInstance().getKeys().add(KeyDescriptor.builder().from(key).build());
+                    getBuildingInstance().getKeys().add(DefaultKeyDescriptor.builder().from(key).build());
                 }
             }
             return getSelf();
