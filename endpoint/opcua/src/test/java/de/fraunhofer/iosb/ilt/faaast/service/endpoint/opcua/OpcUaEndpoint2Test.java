@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import com.prosysopc.ua.SecureIdentityException;
 import com.prosysopc.ua.ServiceException;
+import com.prosysopc.ua.SessionActivationException;
+import com.prosysopc.ua.UserIdentity;
 import com.prosysopc.ua.client.UaClient;
 import com.prosysopc.ua.stack.builtintypes.DataValue;
 import com.prosysopc.ua.stack.builtintypes.NodeId;
@@ -47,9 +49,18 @@ import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultRelationshipElement;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import opc.i4aas.AASKeyDataType;
 import opc.i4aas.AASKeyElementsDataType;
 import opc.i4aas.AASKeyTypeDataType;
@@ -64,25 +75,20 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * @author Tino Bischoff
+ * Test class for additional tests of the OPC UA Endpoint with the simple example
  */
 public class OpcUaEndpoint2Test {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint2Test.class);
 
     private static final int OPC_TCP_PORT = 18123;
-    private static final long DEFAULT_TIMEOUT = 1000;
-
+    private static final long DEFAULT_TIMEOUT = 100;
+    private static final String USERNAME = "testuser";
+    private static final String PASSWORD = "testpassword";
     private static final String ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
 
     private static TestService service;
 
-    /**
-     * Initialize and start the test.
-     *
-     * @throws ConfigurationException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @BeforeClass
     public static void startTest() throws ConfigurationException, Exception {
         LOGGER.trace("startTest");
@@ -90,15 +96,33 @@ public class OpcUaEndpoint2Test {
         OpcUaEndpointConfig config = new OpcUaEndpointConfig();
         config.setTcpPort(OPC_TCP_PORT);
         config.setSecondsTillShutdown(0);
+        config.setAllowAnonymous(false);
+        Path certPath = Paths.get(TestConstants.SERVER_CERT_PATH);
+        if (Files.exists(certPath)) {
+            Files.walk(certPath)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
+        certPath = Paths.get(TestConstants.USER_CERT_PATH);
+        if (Files.exists(certPath)) {
+            Files.walk(certPath)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
+        config.setServerCertificateBasePath(TestConstants.SERVER_CERT_PATH);
+        config.setUserCertificateBasePath(TestConstants.USER_CERT_PATH);
+        config.setDiscoveryServerUrl(null);
+        Map<String, String> users = new HashMap<>();
+        users.put(USERNAME, PASSWORD);
+        config.setUserMap(users);
 
         service = new TestService(config, null, false);
         service.start();
     }
 
 
-    /**
-     * Stop the test.
-     */
     @AfterClass
     public static void stopTest() {
         LOGGER.trace("stopTest");
@@ -108,18 +132,11 @@ public class OpcUaEndpoint2Test {
     }
 
 
-    /**
-     * Test method for deleting a complete submodel (Technical Data).
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testDeleteSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
+        client.setUserIdentity(new UserIdentity(USERNAME, PASSWORD));
         TestUtils.initialize(client);
         client.connect();
         System.out.println("testDeleteSubmodel: client connected");
@@ -140,23 +157,24 @@ public class OpcUaEndpoint2Test {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testDeleteSubmodel Browse Result Null", bpres);
-        Assert.assertTrue("testDeleteSubmodel Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testDeleteSubmodel Browse Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testDeleteSubmodel Browse Result 1 Good", bpres[0].getStatusCode().isGood());
         Assert.assertTrue("testDeleteSubmodel Browse Result 2 Good", bpres[1].getStatusCode().isGood());
 
         // Send delete event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(AASSimple.SUBMODEL_TECHNICAL_DATA_ID).build())
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the element is not there anymore
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testDeleteSubmodel Browse Result Null", bpres);
-        Assert.assertTrue("testDeleteSubmodel Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testDeleteSubmodel Browse Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testDeleteSubmodel Browse Result 1 Bad", bpres[0].getStatusCode().isBad());
         Assert.assertTrue("testDeleteSubmodel Browse Result 2 Bad", bpres[1].getStatusCode().isBad());
 
@@ -165,18 +183,11 @@ public class OpcUaEndpoint2Test {
     }
 
 
-    /**
-     * Test method for updating a complete submodel (Operational Data).
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testUpdateSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
+        client.setUserIdentity(new UserIdentity(USERNAME, PASSWORD));
         TestUtils.initialize(client);
         client.connect();
         System.out.println("testUpdateSubmodel: client connected");
@@ -201,7 +212,7 @@ public class OpcUaEndpoint2Test {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testUpdateSubmodel Browse Result Null", bpres);
-        Assert.assertTrue("testUpdateSubmodel Browse 1 Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testUpdateSubmodel Browse 1 Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testUpdateSubmodel Browse 1 Result 1 Good", bpres[0].getStatusCode().isGood());
         Assert.assertTrue("testUpdateSubmodel Browse 1 Result 2 Bad", bpres[1].getStatusCode().isBad());
 
@@ -211,6 +222,7 @@ public class OpcUaEndpoint2Test {
 
         // update submodel 
         // Send update event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementUpdateEventMessage msg = new ElementUpdateEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(AASSimple.SUBMODEL_OPERATIONAL_DATA_ID).build())
@@ -276,12 +288,12 @@ public class OpcUaEndpoint2Test {
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the old element is not there anymore, but the new element
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testUpdateSubmodel Browse Result old Null", bpres);
-        Assert.assertTrue("testUpdateSubmodel Browse 2 Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testUpdateSubmodel Browse 2 Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testUpdateSubmodel Browse 2 Result 1 Bad", bpres[0].getStatusCode().isBad());
         Assert.assertTrue("testUpdateSubmodel Browse 2 Result 2 Good", bpres[1].getStatusCode().isGood());
 
@@ -304,18 +316,11 @@ public class OpcUaEndpoint2Test {
     }
 
 
-    /**
-     * Test method for updating a SubmodelElement.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testUpdateSubmodelElement() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
+        client.setUserIdentity(new UserIdentity(USERNAME, PASSWORD));
         TestUtils.initialize(client);
         client.connect();
         System.out.println("testUpdateSubmodelElement: client connected");
@@ -341,7 +346,7 @@ public class OpcUaEndpoint2Test {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testUpdateSubmodelElement Browse Result Null", bpres);
-        Assert.assertTrue("testUpdateSubmodelElement Browse 1 Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testUpdateSubmodelElement Browse 1 Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testUpdateSubmodelElement Browse 1 Result 1 Good", bpres[0].getStatusCode().isGood());
         Assert.assertTrue("testUpdateSubmodelElement Browse 1 Result 2 Good", bpres[1].getStatusCode().isGood());
 
@@ -358,6 +363,7 @@ public class OpcUaEndpoint2Test {
 
         // update SubmodelElement 
         // Send update event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementUpdateEventMessage msg = new ElementUpdateEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value(TestConstants.SUBMODEL_DOC_NAME).build())
@@ -377,11 +383,12 @@ public class OpcUaEndpoint2Test {
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        // check MessageBus
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("testUpdateSubmodelElement Browse 2 Result Null", bpres);
-        Assert.assertTrue("testUpdateSubmodelElement Browse 2 Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("testUpdateSubmodelElement Browse 2 Result: size doesn't match", 2, bpres.length);
         Assert.assertTrue("testUpdateSubmodelElement Browse 2 Result 1 Good", bpres[0].getStatusCode().isGood());
         Assert.assertTrue("testUpdateSubmodelElement Browse 2 Result 2 Bad", bpres[1].getStatusCode().isBad());
 
@@ -399,5 +406,15 @@ public class OpcUaEndpoint2Test {
 
         System.out.println("disconnect client");
         client.disconnect();
+    }
+
+
+    @Test(expected = SessionActivationException.class)
+    public void testPreventAnonymousAccess() throws SessionActivationException, SecureIdentityException, IOException, ServiceException {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        // The call to connect is expected to throw an exception as anonymous access is not allowed
+        client.connect();
     }
 }

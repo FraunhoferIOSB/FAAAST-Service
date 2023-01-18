@@ -12,11 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection;
+package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
+import picocli.CommandLine;
+import picocli.CommandLine.IExecutionExceptionHandler;
+import picocli.CommandLine.ParseResult;
 
 
-public class TestSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
+/**
+ * Handles how exceptions are displayed in CLI.
+ */
+public class ExecutionExceptionHandler implements IExecutionExceptionHandler {
 
+    @Override
+    public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
+        cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
+        return cmd.getExitCodeExceptionMapper() != null
+                ? cmd.getExitCodeExceptionMapper().getExitCode(ex)
+                : cmd.getCommandSpec().exitCodeOnExecutionException();
+    }
 }

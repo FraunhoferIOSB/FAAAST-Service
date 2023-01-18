@@ -28,28 +28,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class for reacting to certificate validation handling results.
- *
- * @author Tino Bischoff
  */
 public class AasCertificateValidationListener implements DefaultCertificateValidatorListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AasCertificateValidationListener.class);
 
-    /**
-     * Handle certificate validation. The method is called once the actual validator has already checked the certificate
-     * and provides the results of the checks in the parameters. If isTrusted, isSignVerified, isValid are all false,
-     * you should normally accept the certificate.
-     *
-     * @param cert the certificate that is being validated
-     * @param ad The Application Description
-     * @param passedChecks the certification checks that failed
-     * @return validation result: accept or reject; once or permanently?
-     */
     @Override
     public ValidationResult onValidate(Cert cert, ApplicationDescription ad, EnumSet<CertificateCheck> passedChecks) {
 
         try {
-            LOGGER.info("onValidate: {}, {}", ad, CertificateUtils.getApplicationUriOfCertificate(cert));
+            LOGGER.debug("onValidate: {}, {}", ad, CertificateUtils.getApplicationUriOfCertificate(cert));
         }
         catch (CertificateParsingException ex) {
             LOGGER.error("onValidate Exception", ex);

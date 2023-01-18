@@ -2,6 +2,17 @@
 <!--start:changelog-header-->
 ## Current development version (0.5.0-SNAPSHOT)<!--end:changelog-header-->
 
+**New Features**
+*   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
+*   OPC UA Endpoint
+	*   Additional parameters availabe in configuration
+
+**Internal changes & bugfixes**
+*   HTTP Endpoint
+	*   DELETE /submodels/{submodelIdentifier} now correctly returns code 204 instead of 200
+*   OPC UA Endpoint
+	*   Major code refactoring
+
 ## Release version 0.4.0
 
 **New Features**

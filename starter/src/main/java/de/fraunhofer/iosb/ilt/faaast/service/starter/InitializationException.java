@@ -12,11 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection;
+package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProviderConfig;
+/**
+ * Exception indicating initialization of a FA³ST Service failed.
+ */
+public class InitializationException extends RuntimeException {
+
+    public InitializationException() {
+        super();
+    }
 
 
-public class TestSubscriptionProviderConfig implements AssetSubscriptionProviderConfig {
+    public InitializationException(String message) {
+        super(message);
+    }
 
+
+    public InitializationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
