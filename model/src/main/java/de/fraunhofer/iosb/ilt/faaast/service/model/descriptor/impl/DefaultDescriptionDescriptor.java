@@ -12,8 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
+package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.DescriptionDescriptor;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;

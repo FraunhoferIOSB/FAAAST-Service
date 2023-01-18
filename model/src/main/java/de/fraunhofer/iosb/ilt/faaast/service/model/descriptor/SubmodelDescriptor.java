@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultDescriptionDescriptor;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;

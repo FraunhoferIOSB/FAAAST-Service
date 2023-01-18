@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultDescriptionDescriptor;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.KeyElements;
