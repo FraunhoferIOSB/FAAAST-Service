@@ -142,10 +142,10 @@ public class DefaultIdentifierKeyValuePairDescriptor implements IdentifierKeyVal
         public B from(IdentifierKeyValuePair identifierKeyValuePair) {
             if (identifierKeyValuePair != null) {
                 if (identifierKeyValuePair.getSemanticId() != null) {
-                    getBuildingInstance().setSemanticId(ReferenceDescriptor.builder().from(identifierKeyValuePair.getSemanticId()).build());
+                    getBuildingInstance().setSemanticId(DefaultReferenceDescriptor.builder().from(identifierKeyValuePair.getSemanticId()).build());
                 }
                 if (identifierKeyValuePair.getExternalSubjectId() != null) {
-                    getBuildingInstance().setExternalSubjectId(ReferenceDescriptor.builder().from(identifierKeyValuePair.getExternalSubjectId()).build());
+                    getBuildingInstance().setExternalSubjectId(DefaultReferenceDescriptor.builder().from(identifierKeyValuePair.getExternalSubjectId()).build());
                 }
                 getBuildingInstance().setKey(identifierKeyValuePair.getKey());
                 getBuildingInstance().setValue(identifierKeyValuePair.getValue());

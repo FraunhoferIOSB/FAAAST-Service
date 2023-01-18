@@ -14,249 +14,47 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultDescriptionDescriptor;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 
 /**
- * Registry Descriptor for Submodel.
+ * Registry Descriptor interface for Submodel.
  */
-public class SubmodelDescriptor implements Serializable {
+public interface SubmodelDescriptor extends Serializable {
 
-    @JsonIgnore
-    private String id;
-    private String idShort;
-    @JsonIgnore
-    private String identifier;
-    private List<EndpointDescriptor> endpoints;
-    private AdministrationDescriptor administration;
-    private List<DescriptionDescriptor> descriptions;
-    private IdentificationDescriptor identification;
-    private ReferenceDescriptor semanticId;
+    public String getIdShort();
 
-    public SubmodelDescriptor() {
-        id = null;
-        idShort = null;
-        identifier = null;
-        endpoints = new ArrayList<>();
-        administration = null;
-        descriptions = new ArrayList<>();
-        identification = null;
-        semanticId = null;
-    }
 
+    public void setIdShort(String idShort);
 
-    public String getId() {
-        return id;
-    }
 
+    public List<EndpointDescriptor> getEndpoints();
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
+    public void setEndpoints(List<EndpointDescriptor> endpoints);
 
-    public String getIdShort() {
-        return idShort;
-    }
 
+    public AdministrationDescriptor getAdministration();
 
-    public void setIdShort(String idShort) {
-        this.idShort = idShort;
-    }
 
+    public void setAdministration(AdministrationDescriptor administration);
 
-    public String getIdentifier() {
-        return identifier;
-    }
 
+    public List<DescriptionDescriptor> getDescriptions();
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
 
+    public void setDescriptions(List<DescriptionDescriptor> descriptions);
 
-    public List<EndpointDescriptor> getEndpoints() {
-        return endpoints;
-    }
 
+    public IdentificationDescriptor getIdentification();
 
-    public void setEndpoints(List<EndpointDescriptor> endpoints) {
-        this.endpoints = endpoints;
-    }
 
+    public void setIdentification(IdentificationDescriptor identification);
 
-    public AdministrationDescriptor getAdministration() {
-        return administration;
-    }
 
+    public ReferenceDescriptor getSemanticId();
 
-    public void setAdministration(AdministrationDescriptor administration) {
-        this.administration = administration;
-    }
 
-
-    public List<DescriptionDescriptor> getDescriptions() {
-        return descriptions;
-    }
-
-
-    public void setDescriptions(List<DescriptionDescriptor> descriptions) {
-        this.descriptions = descriptions;
-    }
-
-
-    public IdentificationDescriptor getIdentification() {
-        return identification;
-    }
-
-
-    public void setIdentification(IdentificationDescriptor identification) {
-        this.identification = identification;
-    }
-
-
-    public ReferenceDescriptor getSemanticId() {
-        return semanticId;
-    }
-
-
-    public void setSemanticId(ReferenceDescriptor semanticId) {
-        this.semanticId = semanticId;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        SubmodelDescriptor that = (SubmodelDescriptor) o;
-        return Objects.equals(id, that.id)
-                && Objects.equals(idShort, that.idShort)
-                && Objects.equals(identifier, that.identifier)
-                && Objects.equals(endpoints, that.endpoints)
-                && Objects.equals(administration, that.administration)
-                && Objects.equals(descriptions, that.descriptions)
-                && Objects.equals(identification, that.identification)
-                && Objects.equals(semanticId, that.semanticId);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, idShort, identifier, endpoints, administration, descriptions, identification, semanticId);
-    }
-
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public abstract static class AbstractBuilder<T extends SubmodelDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
-
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
-
-        public B idShort(String value) {
-            getBuildingInstance().setIdShort(value);
-            return getSelf();
-        }
-
-
-        public B identifier(String value) {
-            getBuildingInstance().setIdentifier(value);
-            return getSelf();
-        }
-
-
-        public B endpoints(List<EndpointDescriptor> value) {
-            getBuildingInstance().setEndpoints(value);
-            return getSelf();
-        }
-
-
-        public B endpoint(EndpointDescriptor value) {
-            getBuildingInstance().getEndpoints().add(value);
-            return getSelf();
-        }
-
-
-        public B administration(AdministrationDescriptor value) {
-            getBuildingInstance().setAdministration(value);
-            return getSelf();
-        }
-
-
-        public B descriptions(List<DescriptionDescriptor> value) {
-            getBuildingInstance().setDescriptions(value);
-            return getSelf();
-        }
-
-
-        public B description(DescriptionDescriptor value) {
-            getBuildingInstance().getDescriptions().add(value);
-            return getSelf();
-        }
-
-
-        public B identification(IdentificationDescriptor value) {
-            getBuildingInstance().setIdentification(value);
-            return getSelf();
-        }
-
-
-        public B semanticId(ReferenceDescriptor value) {
-            getBuildingInstance().setSemanticId(value);
-            return getSelf();
-        }
-
-
-        public B from(Submodel submodel) {
-            if (submodel != null) {
-                getBuildingInstance().setIdShort(submodel.getIdShort());
-                if (submodel.getIdentification() != null) {
-                    getBuildingInstance().setIdentifier(submodel.getIdentification().getIdentifier());
-                    getBuildingInstance().setIdentification(IdentificationDescriptor.builder().from(submodel.getIdentification()).build());
-                }
-                if (submodel.getAdministration() != null) {
-                    getBuildingInstance().setAdministration(AdministrationDescriptor.builder().from(submodel.getAdministration()).build());
-                }
-                for (LangString langString: submodel.getDescriptions()) {
-                    getBuildingInstance().getDescriptions().add(DefaultDescriptionDescriptor.builder().from(langString).build());
-                }
-                if (submodel.getSemanticId() != null) {
-                    getBuildingInstance().setSemanticId(ReferenceDescriptor.builder().from(submodel.getSemanticId()).build());
-                }
-            }
-            return getSelf();
-        }
-    }
-
-    public static class Builder extends AbstractBuilder<SubmodelDescriptor, Builder> {
-
-        @Override
-        protected Builder getSelf() {
-            return this;
-        }
-
-
-        @Override
-        protected SubmodelDescriptor newBuildingInstance() {
-            return new SubmodelDescriptor();
-        }
-    }
+    public void setSemanticId(ReferenceDescriptor semanticId);
 }

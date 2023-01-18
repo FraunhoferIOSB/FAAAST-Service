@@ -278,7 +278,8 @@ public class DefaultAssetAdministrationShellDescriptor implements AssetAdministr
                 }
                 if (assetAdministrationShell.getAssetInformation() != null) {
                     if (assetAdministrationShell.getAssetInformation().getGlobalAssetId() != null) {
-                        getBuildingInstance().setGlobalAssetId(ReferenceDescriptor.builder().from(assetAdministrationShell.getAssetInformation().getGlobalAssetId()).build());
+                        getBuildingInstance()
+                                .setGlobalAssetId(DefaultReferenceDescriptor.builder().from(assetAdministrationShell.getAssetInformation().getGlobalAssetId()).build());
                     }
                     for (var specificAssetId: assetAdministrationShell.getAssetInformation().getSpecificAssetIds()) {
                         getBuildingInstance().getSpecificAssetIds().add(DefaultIdentifierKeyValuePairDescriptor.builder().from(specificAssetId).build());
@@ -304,7 +305,7 @@ public class DefaultAssetAdministrationShellDescriptor implements AssetAdministr
                     if (!submodelMap.containsKey(reference)) {
                         throw new IllegalArgumentException("Submodel not found: " + AasUtils.asString(reference));
                     }
-                    getBuildingInstance().getSubmodels().add(SubmodelDescriptor.builder().from(submodelMap.get(reference)).build());
+                    getBuildingInstance().getSubmodels().add(DefaultSubmodelDescriptor.builder().from(submodelMap.get(reference)).build());
                 }
             }
             return getSelf();
