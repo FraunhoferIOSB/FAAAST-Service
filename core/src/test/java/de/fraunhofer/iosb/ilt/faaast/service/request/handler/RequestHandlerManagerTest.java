@@ -565,7 +565,7 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteSubmodelByIdResponse actual = manager.execute(request);
         DeleteSubmodelByIdResponse expected = new DeleteSubmodelByIdResponse.Builder()
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).remove(environment.getSubmodels().get(0).getIdentification());
@@ -769,7 +769,7 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteSubmodelElementByPathResponse actual = manager.execute(request);
         DeleteSubmodelElementByPathResponse expected = new DeleteSubmodelElementByPathResponse.Builder()
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).remove(reference);

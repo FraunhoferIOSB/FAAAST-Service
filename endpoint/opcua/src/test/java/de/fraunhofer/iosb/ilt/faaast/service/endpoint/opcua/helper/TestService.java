@@ -30,20 +30,10 @@ import java.util.List;
 
 
 /**
- * A AAS Test service.
- *
- * @author Tino Bischoff
+ * An AAS Test service.
  */
 public class TestService extends Service {
 
-    /**
-     * Creates a new instance of TestService
-     *
-     * @param assetConnectionConfig The desired AssetConnection
-     * @param full True if the full example is requested, otherwise the simple is used
-     * @throws ConfigurationException If the operation fails
-     */
-    @SuppressWarnings("rawtypes")
     public TestService(OpcUaEndpointConfig config, TestAssetConnectionConfig assetConnectionConfig, boolean full) throws ConfigurationException, AssetConnectionException {
         super(ServiceConfig.builder()
                 .core(CoreConfig.builder()

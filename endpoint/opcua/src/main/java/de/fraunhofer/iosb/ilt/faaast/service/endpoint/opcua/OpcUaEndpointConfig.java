@@ -15,22 +15,36 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 
 /**
  * Class with Configuration information for the OPC UA Endpoint.
- *
- * @author Tino Bischoff
  */
 public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
     public static final int DEFAULT_PORT = 4840;
+    private static final int DEFAULT_SECONDS_SHUTDOWN = 2;
+    private static final String DEFAULT_SERVER_CERT_PATH = "PKI/CA";
+    private static final String DEFAULT_USER_CERT_PATH = "USERS_PKI/CA";
     private int tcpPort;
     private int secondsTillShutdown;
+    private Map<String, String> userMap;
+    private boolean allowAnonymous;
+    private String discoveryServerUrl;
+    private String serverCertificateBasePath;
+    private String userCertificateBasePath;
 
     public OpcUaEndpointConfig() {
         this.tcpPort = DEFAULT_PORT;
+        this.secondsTillShutdown = DEFAULT_SECONDS_SHUTDOWN;
+        this.allowAnonymous = true;
+        this.discoveryServerUrl = "";
+        this.userMap = new HashMap<>();
+        this.serverCertificateBasePath = DEFAULT_SERVER_CERT_PATH;
+        this.userCertificateBasePath = DEFAULT_USER_CERT_PATH;
     }
 
 
@@ -44,13 +58,18 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         }
         OpcUaEndpointConfig that = (OpcUaEndpointConfig) o;
         return Objects.equals(tcpPort, that.tcpPort)
-                && Objects.equals(secondsTillShutdown, that.secondsTillShutdown);
+                && Objects.equals(secondsTillShutdown, that.secondsTillShutdown)
+                && Objects.equals(allowAnonymous, that.allowAnonymous)
+                && Objects.equals(discoveryServerUrl, that.discoveryServerUrl)
+                && Objects.equals(userMap, that.userMap)
+                && Objects.equals(serverCertificateBasePath, that.serverCertificateBasePath)
+                && Objects.equals(userCertificateBasePath, that.userCertificateBasePath);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(tcpPort, secondsTillShutdown);
+        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous, discoveryServerUrl, userMap, serverCertificateBasePath, userCertificateBasePath);
     }
 
 
@@ -94,6 +113,108 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     }
 
 
+    /**
+     * Gets the user names (Key) and passwords (Value)
+     * 
+     * @return The desired user names (Key) and passwords (Value)
+     */
+    public Map<String, String> getUserMap() {
+        return userMap;
+    }
+
+
+    /**
+     * Sets the user names (Key) and passwords (Value)
+     * 
+     * @param value The desired user names (Key) and passwords (Value)
+     */
+    public void setUserMap(Map<String, String> value) {
+        userMap = value;
+    }
+
+
+    /**
+     * Gets a value indicating whether anonymous access to the server is allowed
+     * 
+     * @return True if anonymous access is allowed, false otherwise
+     */
+    public boolean getAllowAnonymous() {
+        return allowAnonymous;
+    }
+
+
+    /**
+     * Sets a value indicating whether anonymous access to the server is allowed
+     * 
+     * @param value True if anonymous access is allowed, false otherwise
+     */
+    public void setAllowAnonymous(boolean value) {
+        allowAnonymous = value;
+    }
+
+
+    /**
+     * Gets the URL of the discovery server.
+     * If this value is null or empty, the discovery server registration is disabled.
+     * 
+     * @return The discovery server URL. Discovery registration is disabled if the value is null or empty
+     */
+    public String getDiscoveryServerUrl() {
+        return discoveryServerUrl;
+    }
+
+
+    /**
+     * Sets the URL of the discovery server.
+     * If this value is null or an empty string, the discovery server registration is disabled.
+     * 
+     * @param value The discovery server URL. Discovery registration is disabled if the value is null or empty
+     */
+    public void setDiscoveryServerUrl(String value) {
+        discoveryServerUrl = value;
+    }
+
+
+    /**
+     * Gets the base path for the server certificates
+     * 
+     * @return The server certificate base path
+     */
+    public String getServerCertificateBasePath() {
+        return serverCertificateBasePath;
+    }
+
+
+    /**
+     * Sets the base path for the server certificates
+     * 
+     * @param value The server certificate base path
+     */
+    public void setServerCertificateBasePath(String value) {
+        serverCertificateBasePath = value;
+    }
+
+
+    /**
+     * Gets the base path for the user certificates
+     * 
+     * @return The user certificate base path
+     */
+    public String getUserCertificateBasePath() {
+        return userCertificateBasePath;
+    }
+
+
+    /**
+     * Sets the base path for the user certificatess
+     * 
+     * @param value The user certificate base path
+     */
+    public void setUserCertificateBasePath(String value) {
+        userCertificateBasePath = value;
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
@@ -108,6 +229,36 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
         public B secondsTillShutdown(int value) {
             getBuildingInstance().setSecondsTillShutdown(value);
+            return getSelf();
+        }
+
+
+        public B user(String username, String password) {
+            getBuildingInstance().getUserMap().put(username, password);
+            return getSelf();
+        }
+
+
+        public B userMap(Map<String, String> value) {
+            getBuildingInstance().setUserMap(value);
+            return getSelf();
+        }
+
+
+        public B allowAnonymous(boolean value) {
+            getBuildingInstance().setAllowAnonymous(value);
+            return getSelf();
+        }
+
+
+        public B serverCertificateBasePath(String value) {
+            getBuildingInstance().setServerCertificateBasePath(value);
+            return getSelf();
+        }
+
+
+        public B userCertificateBasePath(String value) {
+            getBuildingInstance().setUserCertificateBasePath(value);
             return getSelf();
         }
     }

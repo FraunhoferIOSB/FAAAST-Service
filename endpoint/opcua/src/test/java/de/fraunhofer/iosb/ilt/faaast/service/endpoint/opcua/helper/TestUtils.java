@@ -63,25 +63,10 @@ import org.junit.Assert;
 
 /**
  * Test utilities
- *
- * @author Tino Bischoff
  */
 public class TestUtils {
 
-    private static final long WRITE_TIMEOUT = 200;
-
-    /**
-     * Define a minimal ApplicationIdentity.If you use secure connections, you will also need to define the application
-     * instance certificate and manage server certificates.See the SampleConsoleClient.initialize() for a full example
-     * of that.
-     *
-     * @param client The desired OPC UA Client
-     * @throws com.prosysopc.ua.SecureIdentityException
-     * @throws java.io.IOException
-     * @throws java.net.UnknownHostException
-     */
     public static void initialize(UaClient client) throws SecureIdentityException, IOException, UnknownHostException {
-        // *** Application Description is sent to the server
         ApplicationDescription appDescription = new ApplicationDescription();
         appDescription.setApplicationName(new LocalizedText("AAS UnitTest Client", Locale.ENGLISH));
         // 'localhost' (all lower case) in the URI is converted to the actual
@@ -96,15 +81,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Checks the Browse Name of the given Node.
-     *
-     * @param client The OPC UA Client
-     * @param nodeId The NodeId of the desired Node.
-     * @param desiredName The desired Browse Name.
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     */
     public static void checkBrowseName(UaClient client, NodeId nodeId, String desiredName) throws ServiceException, AddressSpaceException {
         UaNode node = client.getAddressSpace().getNode(nodeId);
         Assert.assertNotNull("Node is null: " + desiredName, node);
@@ -112,12 +88,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Checks the Browse Name of the given Node.
-     *
-     * @param node The desired Node.
-     * @param desiredName The desired Browse Name.
-     */
     public static void checkBrowseName(UaNode node, String desiredName) {
         QualifiedName qname = node.getBrowseName();
         Assert.assertNotNull(qname);
@@ -125,15 +95,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Checks the Display Name of the given Node.
-     *
-     * @param client The OPC UA Client
-     * @param nodeId The desired Node.
-     * @param desiredName The desired Display Name.
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     */
     public static void checkDisplayName(UaClient client, NodeId nodeId, String desiredName) throws ServiceException, AddressSpaceException {
         UaNode node = client.getAddressSpace().getNode(nodeId);
         Assert.assertNotNull("Node is null: " + desiredName, node);
@@ -142,19 +103,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Searches for the Identification Node in the given Node and checks the corresponding values.
-     *
-     * @param client The OPC UA Client
-     * @param baseNode The base node where the Identification Node is searched.
-     * @param aasns The namespace index of the AAS namespace.
-     * @param idType The expected IdType
-     * @param id The expected ID
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     */
     public static void checkIdentificationNode(UaClient client, NodeId baseNode, int aasns, AASIdentifierTypeDataType idType, String id)
             throws ServiceException, StatusException, ServiceResultException, AddressSpaceException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -164,7 +112,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentificationNode Browse Result Null", bpres);
-        Assert.assertTrue("checkIdentificationNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkIdentificationNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkIdentificationNode Browse Target Node Null", targets);
@@ -174,18 +122,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Searches for the ModelingKind Node in the given Node and checks the ModelingKind value.
-     *
-     * @param client The OPC UA Client
-     * @param baseNode The base node where the ModelingKind Node is searched.
-     * @param aasns The namespace index of the AAS namespace.
-     * @param modelingKind The expected ModelingKind Value
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     public static void checkModelingKindNode(UaClient client, NodeId baseNode, int aasns, AASModelingKindDataType modelingKind)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -194,29 +130,17 @@ public class TestUtils {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkModelingKind Browse Result Null", bpres);
-        Assert.assertTrue("checkModelingKind Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertNotNull("checkModelingKindNode Browse Result Null", bpres);
+        Assert.assertEquals("checkModelingKindNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkModelingKind Browse Target Node Null", targets);
-        Assert.assertTrue("checkModelingKind Browse targets empty", targets.length > 0);
+        Assert.assertNotNull("checkModelingKindNode Browse Target Node Null", targets);
+        Assert.assertTrue("checkModelingKindNode Browse targets empty", targets.length > 0);
 
         checkModelingKind(client, client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId()), modelingKind);
     }
 
 
-    /**
-     * Searches for the Category Node in the given Node and checks the Category value.
-     *
-     * @param client The OPC UA client
-     * @param node The desired node
-     * @param aasns The namespace index of the AAS namespace
-     * @param category The expected category value
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     public static void checkCategoryNode(UaClient client, NodeId node, int aasns, String category)
             throws ServiceException, StatusException, AddressSpaceException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -226,7 +150,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("Category Result Null", bpres);
-        Assert.assertTrue("Category Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("Category Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("Browse Category Null", targets);
@@ -246,16 +170,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Searches for the DataSpecification Node in the given Node.
-     *
-     * @param client The OPC UA client
-     * @param node The desired node
-     * @param aasns The namespace index of the AAS namespace
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     */
     public static void checkDataSpecificationNode(UaClient client, NodeId node, int aasns) throws ServiceException, ServiceResultException, AddressSpaceException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -264,7 +178,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkDataSpecificationNode Browse Result Null", bpres);
-        Assert.assertTrue("checkDataSpecificationNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkDataSpecificationNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkDataSpecificationNode Node Targets Null", targets);
@@ -278,16 +192,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Searches for the BillOfMaterial Node in the given Node.
-     *
-     * @param client The OPC UA client
-     * @param node The desired node
-     * @param aasns The namespace index of the AAS namespace
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     public static void checkBillOfMaterialNode(UaClient client, NodeId node, int aasns) throws ServiceException, AddressSpaceException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -296,7 +200,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkBillOfMaterialNode Browse Result Null", bpres);
-        Assert.assertTrue("checkBillOfMaterialNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkBillOfMaterialNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkBillOfMaterialNode Node Targets Null", targets);
@@ -310,18 +214,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Searches for the Qualifier Node in the given Node.
-     *
-     * @param client The OPC UA client
-     * @param node The desired node
-     * @param aasns The namespace index of the AAS namespace
-     * @param qualifierList The list of qualifiers
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     */
     public static void checkQualifierNode(UaClient client, NodeId node, int aasns, List<Qualifier> qualifierList)
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -331,7 +223,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkQualifierNode Browse Result Null", bpres);
-        Assert.assertTrue("checkQualifierNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkQualifierNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkQualifierNode Node Targets Null", targets);
@@ -355,23 +247,9 @@ public class TestUtils {
         }
 
         checkQualifierList(qualifierList, nodeList);
-        //Assert.assertArrayEquals(qualifierList.toArray(), nodeList.toArray());
     }
 
 
-    /**
-     * Searches for the Administration Node in the given Node and checks the corresponding values.
-     *
-     * @param client The OPC UA Client
-     * @param baseNode The base node where the Administration Node is searched.
-     * @param aasns The namespace index of the AAS namespace.
-     * @param version The expected version
-     * @param revision The expected revision
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     */
     public static void checkAdministrationNode(UaClient client, NodeId baseNode, int aasns, String version, String revision)
             throws ServiceException, StatusException, ServiceResultException, AddressSpaceException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -381,7 +259,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAdministrationNode Browse(1) Result Null", bpres);
-        Assert.assertTrue("checkAdministrationNode Browse(1) Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkAdministrationNode Browse(1) Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAdministrationNode Browse Administration Node Null", targets);
@@ -413,7 +291,7 @@ public class TestUtils {
         if (size > 0) {
             bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(administrationNode, relPath.toArray(RelativePath[]::new));
             Assert.assertNotNull("checkAdministrationNode Browse(2) Result Null", bpres);
-            Assert.assertTrue("checkAdministrationNode Browse(2) Result: size doesn't match", bpres.length == size);
+            Assert.assertEquals("checkAdministrationNode Browse(2) Result: size doesn't match", size, bpres.length);
 
             int index = 0;
             if (version != null) {
@@ -441,17 +319,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Searches for the AssetInformation Node and checks the values
-     *
-     * @param client The OPC UA client
-     * @param baseNode The base node where the AssetInformation Node is searched.
-     * @param aasns The namespace index of the AAS namespace.
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     */
     public static void checkAssetInformationNode(UaClient client, NodeId baseNode, int aasns)
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -461,7 +328,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAssetInformationNode Browse(1) Result Null", bpres);
-        Assert.assertTrue("checkAssetInformationNode Browse(1) Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkAssetInformationNode Browse(1) Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAssetInformationNode Browse AssetInfo Node Null", targets);
@@ -488,17 +355,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Searches for a Variable (as Property) with the given Name and checks the boolean Value
-     *
-     * @param client The OPC UA client
-     * @param node The desired node
-     * @param aasns The namespace index of the AAS namespace
-     * @param name The Name of the desired Property
-     * @param propValue The expected value of the Property.
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     */
     public static void checkVariableBool(UaClient client, NodeId node, int aasns, String name, boolean propValue) throws ServiceException, StatusException {
         List<RelativePath> relPath = new ArrayList<>();
         List<RelativePathElement> browsePath = new ArrayList<>();
@@ -506,12 +362,12 @@ public class TestUtils {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkPropertyBool Browse Result Null", bpres);
-        Assert.assertTrue("checkPropertyBool Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertNotNull("checkVariableBool Browse Result Null", bpres);
+        Assert.assertEquals("checkVariableBool Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkPropertyBool Node Targets Null", targets);
-        Assert.assertTrue("checkPropertyBool Node targets empty", targets.length > 0);
+        Assert.assertNotNull("checkVariableBool Node Targets Null", targets);
+        Assert.assertTrue("checkVariableBool Node targets empty", targets.length > 0);
 
         DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -519,23 +375,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Checks the String Property with the given Name
-     *
-     * @param client The OPC UA Client
-     * @param node The Node where the desired property is located
-     * @param aasns The namespace index of the AAS namespace
-     * @param name The name of the desired property
-     * @param kind The expected ModelingKind
-     * @param category The expected Category
-     * @param valueType The expected ValueType
-     * @param propValue The expected Value
-     * @param qualifierList The list of qualifiers
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     public static void checkAasPropertyString(UaClient client, NodeId node, int aasns, String name, AASModelingKindDataType kind, String category, AASValueTypeDataType valueType,
                                               String propValue, List<Qualifier> qualifierList)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
@@ -546,7 +385,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyString Browse Property Result Null", bpres);
-        Assert.assertTrue("checkAasPropertyString Browse Property Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkAasPropertyString Browse Property Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAasPropertyString Property Null", targets);
@@ -569,7 +408,7 @@ public class TestUtils {
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyString Browse Value & Type Result Null", bpres);
-        Assert.assertTrue("checkAasPropertyString Browse Value & Type Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("checkAasPropertyString Browse Value & Type Result: size doesn't match", 2, bpres.length);
 
         targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAasPropertyString ValueType Null", targets);
@@ -596,23 +435,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Checks the String Property with the given Name
-     *
-     * @param client The OPC UA Client
-     * @param node The Node where the desired property is located
-     * @param aasns The namespace index of the AAS namespace
-     * @param name The name of the desired property
-     * @param kind The expected ModelingKind
-     * @param category The expected Category
-     * @param valueType The expected ValueType
-     * @param propValue The expected Value
-     * @param qualifierList The list of qualifiers
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     public static void checkAasPropertyObject(UaClient client, NodeId node, int aasns, String name, AASModelingKindDataType kind, String category, AASValueTypeDataType valueType,
                                               Object propValue, List<Qualifier> qualifierList)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
@@ -622,12 +444,12 @@ public class TestUtils {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkAasPropertyString Browse Property Result Null", bpres);
-        Assert.assertTrue("checkAasPropertyString Browse Property Result: size doesn't match", bpres.length == 1);
+        Assert.assertNotNull("checkAasPropertyObject Browse Property Result Null", bpres);
+        Assert.assertEquals("checkAasPropertyObject Browse Property Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkAasPropertyString Property Null", targets);
-        Assert.assertTrue("checkAasPropertyString Property empty", targets.length > 0);
+        Assert.assertNotNull("checkAasPropertyObject Property Null", targets);
+        Assert.assertTrue("checkAasPropertyObject Property empty", targets.length > 0);
         NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
 
         checkType(client, propertyNode, new NodeId(aasns, TestConstants.AAS_PROPERTY_TYPE_ID));
@@ -646,19 +468,19 @@ public class TestUtils {
         relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
-        Assert.assertNotNull("checkAasPropertyString Browse Value & Type Result Null", bpres);
-        Assert.assertTrue("checkAasPropertyString Browse Value & Type Result: size doesn't match", bpres.length == 2);
+        Assert.assertNotNull("checkAasPropertyObject Browse Value & Type Result Null", bpres);
+        Assert.assertEquals("checkAasPropertyObject Browse Value & Type Result: size doesn't match", 2, bpres.length);
 
         targets = bpres[0].getTargets();
-        Assert.assertNotNull("checkAasPropertyString ValueType Null", targets);
-        Assert.assertTrue("checkAasPropertyString ValueType empty", targets.length > 0);
+        Assert.assertNotNull("checkAasPropertyObject ValueType Null", targets);
+        Assert.assertTrue("checkAasPropertyObject ValueType empty", targets.length > 0);
         DataValue value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
         Assert.assertEquals(valueType.ordinal(), value.getValue().intValue());
 
         targets = bpres[1].getTargets();
-        Assert.assertNotNull("checkAasPropertyString Value Null", targets);
-        Assert.assertTrue("checkAasPropertyString value empty", targets.length > 0);
+        Assert.assertNotNull("checkAasPropertyObject Value Null", targets);
+        Assert.assertTrue("checkAasPropertyObject value empty", targets.length > 0);
         value = client.readValue(targets[0].getTargetId());
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
 
@@ -667,23 +489,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Checks the File Property with the given Name.
-     *
-     * @param client The OPC UA Client
-     * @param node The Node where the desired property is located
-     * @param aasns The namespace index of the AAS namespace
-     * @param name The name of the desired property
-     * @param kind The expected ModelingKind
-     * @param category The expected Category
-     * @param mimeType The expected MimeType
-     * @param propValue The expected Value
-     * @param fileSize the expected File Size.
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     */
     public static void checkAasPropertyFile(UaClient client, NodeId node, int aasns, String name, AASModelingKindDataType kind, String category, String mimeType, String propValue,
                                             int fileSize)
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
@@ -694,7 +499,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyFile Browse Property Result Null", bpres);
-        Assert.assertTrue("checkAasPropertyFile Browse Property Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkAasPropertyFile Browse Property Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("checkAasPropertyFile Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -722,7 +527,7 @@ public class TestUtils {
 
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(propertyNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasPropertyFile Browse Value & Type Result Null", bpres);
-        Assert.assertTrue("checkAasPropertyFile Browse Value & Type Result: size doesn't match", bpres.length == 3);
+        Assert.assertEquals("checkAasPropertyFile Browse Value & Type Result: size doesn't match", 3, bpres.length);
 
         // MimeType
         targets = bpres[0].getTargets();
@@ -753,31 +558,11 @@ public class TestUtils {
     }
 
 
-    /**
-     * Checks if the given Node is of the desired type.
-     *
-     * @param client The OPC UA Client
-     * @param node The desired Node
-     * @param typeNode The expected type.
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     public static void checkType(UaClient client, ExpandedNodeId node, NodeId typeNode) throws ServiceException, AddressSpaceException, ServiceResultException {
         checkType(client, client.getAddressSpace().getNamespaceTable().toNodeId(node), typeNode);
     }
 
 
-    /**
-     * Checks if the given Node is of the desired type.
-     *
-     * @param client The OPC UA Client
-     * @param node The desired Node
-     * @param typeNode The expected type.
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     public static void checkType(UaClient client, NodeId node, NodeId typeNode) throws ServiceException, AddressSpaceException, ServiceResultException {
         UaNode uanode = client.getAddressSpace().getNode(node);
         Assert.assertNotNull("checkType UaNode Null", uanode);
@@ -789,19 +574,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Searches for the Submodel reference Node with the given name
-     *
-     * @param client The OPC UA Client
-     * @param baseNode The base node where the AssetInformation Node is searched.
-     * @param aasns The namespace index of the AAS namespace.
-     * @param name The name of the desired Node
-     * @param submodelNode The Submodel Node
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     */
     public static void checkSubmodelRef(UaClient client, NodeId baseNode, int aasns, String name, NodeId submodelNode)
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -811,7 +583,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkSubmodelRef Browse Result Null", bpres);
-        Assert.assertTrue("checkSubmodelRef Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkSubmodelRef Browse Result: size doesn't match", 1, bpres.length);
         Assert.assertTrue("checkSubmodelRef Browse Result Good", bpres[0].getStatusCode().isGood());
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -834,17 +606,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Writes the new value into the given node and checks whether the value was written correctly.
-     *
-     * @param client The OPC UA Client.
-     * @param writeNode The node which should be written.
-     * @param oldValue The old value.
-     * @param newValue The new value.
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     */
     public static void writeNewValueIntern(UaClient client, NodeId writeNode, Object oldValue, Object newValue) throws ServiceException, StatusException, InterruptedException {
         DataValue value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -857,9 +618,6 @@ public class TestUtils {
 
         client.writeValue(writeNode, newValue);
 
-        // wait until the write is finished completely
-        Thread.sleep(WRITE_TIMEOUT);
-
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -867,17 +625,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Writes the new value (array) into the given node and checks whether the value was written correctly.
-     *
-     * @param client The OPC UA Client.
-     * @param writeNode The node which should be written.
-     * @param oldValue The old value.
-     * @param newValue The new value.
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     */
     public static void writeNewValueArray(UaClient client, NodeId writeNode, LocalizedText[] oldValue, LocalizedText[] newValue)
             throws ServiceException, StatusException, InterruptedException {
         DataValue value = client.readValue(writeNode);
@@ -886,9 +633,6 @@ public class TestUtils {
 
         client.writeValue(writeNode, newValue);
 
-        // wait until the write is finished completely
-        Thread.sleep(WRITE_TIMEOUT);
-
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -896,17 +640,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Writes the new value (array) into the given node and checks whether the value was written correctly.
-     *
-     * @param client The OPC UA Client.
-     * @param writeNode The node which should be written.
-     * @param oldValue The old value.
-     * @param newValue The new value.
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     */
     public static void writeNewValueArray(UaClient client, NodeId writeNode, AASKeyDataType[] oldValue, AASKeyDataType[] newValue)
             throws ServiceException, StatusException, InterruptedException {
         DataValue value = client.readValue(writeNode);
@@ -915,9 +648,6 @@ public class TestUtils {
 
         client.writeValue(writeNode, newValue);
 
-        // wait until the write is finished completely
-        Thread.sleep(WRITE_TIMEOUT);
-
         // read new value
         value = client.readValue(writeNode);
         Assert.assertEquals(StatusCode.GOOD, value.getStatusCode());
@@ -925,19 +655,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Checks the Identification values in the given node.
-     *
-     * @param client The OPC UA Client.
-     * @param identificationNode the desired Identification Node.
-     * @param aasns The namespace index of the AAS namespace.
-     * @param idType The expected IdType
-     * @param id The expected ID
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     private static void checkIdentification(UaClient client, NodeId identificationNode, int aasns, AASIdentifierTypeDataType idType, String id)
             throws ServiceException, StatusException, AddressSpaceException, ServiceResultException {
         checkType(client, identificationNode, new NodeId(aasns, TestConstants.AAS_IDENTIFIER_TYPE_ID));
@@ -952,7 +669,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(identificationNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentification Browse Result Null", bpres);
-        Assert.assertTrue("checkIdentification Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("checkIdentification Browse Result: size doesn't match", 2, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkIdentification IdType Null", targets);
@@ -970,17 +687,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Checks the ModelingKind value in the given Node. The Node must already be the ModelingKind Node.
-     *
-     * @param client The OPC UA Client
-     * @param kindNode The ModelingKind Node
-     * @param modelingKind The expected ModelingKind value.
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     private static void checkModelingKind(UaClient client, NodeId kindNode, AASModelingKindDataType modelingKind)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         checkDisplayName(client, kindNode, TestConstants.MODELING_KIND_NAME);
@@ -991,18 +697,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Searches for the AssetKind Node in the given Node and checks the AssetKind value.
-     *
-     * @param client The OPC UA Client
-     * @param baseNode The base node where the AssetKind Node is searched.
-     * @param aasns The namespace index of the AAS namespace.
-     * @param assetKind The expected AssetKind Value
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     private static void checkAssetKindNode(UaClient client, NodeId baseNode, int aasns, AASAssetKindDataType assetKind)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -1012,7 +706,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAssetKindNode Browse Result Null", bpres);
-        Assert.assertTrue("checkAssetKindNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkAssetKindNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAssetKindNode Browse Target Node Null", targets);
@@ -1022,17 +716,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Checks the AssetKind value in the given Node. The Node must already be the AssetKind Node.
-     *
-     * @param client The OPC UA Client
-     * @param kindNode The Asset Node
-     * @param modelingKind The expected Asset value.
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     private static void checkAssetKind(UaClient client, NodeId kindNode, AASAssetKindDataType assetKind)
             throws ServiceException, AddressSpaceException, StatusException, ServiceResultException {
         checkDisplayName(client, kindNode, TestConstants.ASSET_KIND_NAME);
@@ -1043,19 +726,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Searches for a Reference Node with the given Name and checks the corresponding values.
-     *
-     * @param client The OPC UA Client
-     * @param baseNode The base node where the Reference Node is searched.
-     * @param aasns The namespace index of the AAS namespace.
-     * @param name The desired Name
-     * @param refKeys The expected list of Keys
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     */
     private static void checkAasReferenceNode(UaClient client, NodeId baseNode, int aasns, String name, List<AASKeyDataType> refKeys)
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -1065,7 +735,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkAasReferenceNode Browse Result Null", bpres);
-        Assert.assertTrue("checkAasReferenceNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkAasReferenceNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkAasReferenceNode Browse Target Node Null", targets);
@@ -1077,18 +747,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Checks the given Reference Node
-     *
-     * @param client The OPC UA Client
-     * @param node The desired Node
-     * @param aasns The namespace index of the AAS namespace.
-     * @param refKeys The expected list of Keys
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws StatusException If the operation fails
-     */
     private static void checkAasReference(UaClient client, NodeId node, int aasns, List<AASKeyDataType> refKeys)
             throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
         checkType(client, node, new NodeId(aasns, TestConstants.AAS_REFERENCE_TYPE_ID));
@@ -1111,7 +769,6 @@ public class TestUtils {
         Variant var = value.getValue();
         Object o = var.getValue();
         Assert.assertTrue("Keys no array", var.isArray());
-        //Assert.assertEquals(AASKeyDataType.class, o.getClass());
 
         AASKeyDataType[] arr = (AASKeyDataType[]) o;
         Assert.assertEquals(refKeys.size(), arr.length);
@@ -1119,19 +776,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Searches for an IdentifierKeyValuePairList Node with the given Name and checks the corresponding values.
-     *
-     * @param client The OPC UA Client
-     * @param baseNode The base node where the desired Node is searched.
-     * @param aasns The namespace index of the AAS namespace.
-     * @param name The desired Name of the Node
-     * @param map The expected values.
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws StatusException If the operation fails
-     */
     private static void checkIdentifierKeyValuePairListNode(UaClient client, NodeId baseNode, int aasns, String name, Map<String, String> map)
             throws ServiceException, ServiceResultException, AddressSpaceException, StatusException {
         List<RelativePath> relPath = new ArrayList<>();
@@ -1141,7 +785,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(baseNode, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentifierKeyValuePairListNode Browse Result Null", bpres);
-        Assert.assertTrue("checkIdentifierKeyValuePairListNode Browse Result: size doesn't match", bpres.length == 1);
+        Assert.assertEquals("checkIdentifierKeyValuePairListNode Browse Result: size doesn't match", 1, bpres.length);
 
         BrowsePathTarget[] targets = bpres[0].getTargets();
         Assert.assertNotNull("checkIdentifierKeyValuePairListNode Browse Target Node Null", targets);
@@ -1165,18 +809,6 @@ public class TestUtils {
     }
 
 
-    /**
-     * Checks the given IdentifierKeyValuePair Node
-     *
-     * @param client The OPC UA Client
-     * @param node The desired node
-     * @param aasns The namespace index of the AAS namespace.
-     * @param map The expected values
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws StatusException If the operation fails
-     */
     private static void checkIdentifierKeyValuePairNode(UaClient client, NodeId node, int aasns, Map<String, String> map)
             throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
         checkType(client, node, new NodeId(aasns, TestConstants.AAS_ID_KEY_VALUE_PAIR_ID));
@@ -1191,7 +823,7 @@ public class TestUtils {
 
         BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(RelativePath[]::new));
         Assert.assertNotNull("checkIdentifierKeyValuePairNode Browse Result Null", bpres);
-        Assert.assertTrue("checkIdentifierKeyValuePairNode Browse Result: size doesn't match", bpres.length == 2);
+        Assert.assertEquals("checkIdentifierKeyValuePairNode Browse Result: size doesn't match", 2, bpres.length);
 
         // Key
         BrowsePathTarget[] targets = bpres[0].getTargets();
@@ -1214,28 +846,6 @@ public class TestUtils {
     }
 
 
-    //    public static void checkFullManufacturerName(UaClient client, NodeId node) {
-    //        List<RelativePath> relPath = new ArrayList<>();
-    //        List<RelativePathElement> browsePath = new ArrayList<>();
-    //        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, name)));
-    //        relPath.add(new RelativePath(browsePath.toArray(new RelativePathElement[0])));
-    //
-    //        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(node, relPath.toArray(new RelativePath[0]));
-    //        Assert.assertNotNull("checkAasPropertyString Browse Property Result Null", bpres);
-    //        Assert.assertTrue("checkAasPropertyString Browse Property Result: size doesn't match", bpres.length == 1);
-    //
-    //        BrowsePathTarget[] targets = bpres[0].getTargets();
-    //        Assert.assertNotNull("checkAasPropertyString Property Null", targets);
-    //        Assert.assertTrue("checkAasPropertyString Property empty", targets.length > 0);
-    //        NodeId propertyNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
-    //        
-    //    }
-    /**
-     * Checks the given Qualifier Lists
-     *
-     * @param listExpected The expected Qualifier List
-     * @param listCurrent The current Qualifier List
-     */
     private static void checkQualifierList(List<Qualifier> listExpected, List<AASQualifierType> listCurrent) {
         Assert.assertEquals(listExpected.size(), listCurrent.size());
 

@@ -850,7 +850,7 @@ public class HttpEndpointIT {
                         x -> assertExecute(
                                 HttpMethod.DELETE,
                                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
-                                StatusCode.SUCCESS)));
+                                StatusCode.SUCCESS_NO_CONTENT)));
         List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
@@ -1126,7 +1126,7 @@ public class HttpEndpointIT {
                         x -> assertExecute(
                                 HttpMethod.DELETE,
                                 API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
-                                StatusCode.SUCCESS)));
+                                StatusCode.SUCCESS_NO_CONTENT)));
         List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
@@ -1385,7 +1385,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecute(HttpMethod.DELETE,
                                 API_PATHS.submodelRepository().submodel(expected),
-                                StatusCode.SUCCESS)));
+                                StatusCode.SUCCESS_NO_CONTENT)));
         List<Submodel> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.submodelRepository().submodels(),
                 Submodel.class);

@@ -27,8 +27,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.ExecutionState;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.InvokeOperationSyncResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.InvokeOperationSyncRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValueParser;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.MultiLanguageProperty;
@@ -45,10 +47,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class for the OPC UA endpoint
- *
- * @author Tino Bischoff
  */
-@SuppressWarnings("java:S2139")
 public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaEndpoint.class);
@@ -77,46 +76,33 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      *
      * @return The MessageBus
      */
-    @SuppressWarnings("java:S1452")
     public MessageBus<?> getMessageBus() {
         return messageBus;
     }
 
 
-    /**
-     * Initializes the OPC UA Endpoint with the given Configurations. This is the first call.
-     *
-     * @param core The desired Core Configuration
-     * @param config The desired OPC UA Configuration
-     * @param context The desired ServiceContext
-     */
     @Override
     public void init(CoreConfig core, OpcUaEndpointConfig config, ServiceContext context) {
         currentConfig = config;
+        Ensure.requireNonNull(currentConfig, "currentConfig must not be null");
+        Ensure.requireNonNull(currentConfig.getServerCertificateBasePath(), "ServerCertificateBasePath must not be null");
+        Ensure.requireNonNull(currentConfig.getUserCertificateBasePath(), "UserCertificateBasePath must not be null");
         service = context;
+        Ensure.requireNonNull(service, "service must not be null");
         messageBus = service.getMessageBus();
-        if (messageBus == null) {
-            throw new IllegalArgumentException("MessageBus is null");
-        }
+        Ensure.requireNonNull(messageBus, "messageBus must not be null");
     }
 
 
-    /**
-     * Starts the Endpoint. This is the third call.
-     */
     @Override
     public void start() throws EndpointException {
         if (server != null && server.isRunning()) {
-            throw new IllegalStateException("OPC UA Endpoint cannot be started because it is already running");
-        }
-        else if (currentConfig == null) {
-            throw new IllegalStateException("OPC UA Endpoint cannot be started because no configuration is available");
+            LOGGER.info("OPC UA Endpoint already started");
+            return;
         }
 
         aasEnvironment = service.getAASEnvironment();
-        if (aasEnvironment == null) {
-            throw new IllegalArgumentException("AASEnvironment is null");
-        }
+        Ensure.requireNonNull(aasEnvironment, "aasEnvironment must not be null");
 
         try {
             server = new Server(currentConfig.getTcpPort(), aasEnvironment, this);
@@ -124,21 +110,13 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
             LOGGER.info("server started");
         }
         catch (Exception e) {
-            LOGGER.error("Error starting OPC UA Server", e);
             throw new EndpointException("OPC UA server could not be started", e);
         }
     }
 
 
-    /**
-     * Stops the Endpoint.
-     */
     @Override
     public void stop() {
-        if (currentConfig == null) {
-            throw new IllegalStateException("OPC UA Endpoint cannot be stopped because no configuration is available");
-        }
-
         try {
             if (server != null) {
                 LOGGER.info("stop server. Currently running: {}", server.isRunning());
@@ -151,11 +129,6 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     }
 
 
-    /**
-     * Retrieves the Endpoint Configuration.
-     *
-     * @return The current Configuration.
-     */
     @Override
     public OpcUaEndpointConfig asConfig() {
         return currentConfig;
@@ -172,12 +145,8 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      */
     public boolean writeValue(SubmodelElement element, Submodel submodel, Reference refElement) {
         boolean retval = false;
-        if (element == null) {
-            throw new IllegalArgumentException("element == null");
-        }
-        else if (submodel == null) {
-            throw new IllegalArgumentException("submodel == null");
-        }
+        Ensure.requireNonNull(element, "element must not be null");
+        Ensure.requireNonNull(submodel, "submodel must not be null");
 
         try {
             SetSubmodelElementValueByPathRequest request = new SetSubmodelElementValueByPathRequest();
@@ -187,12 +156,12 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
 
             request.setSubmodelId(submodel.getIdentification());
             request.setPath(path);
-            request.setValueParser(new OpcUaElementValueParser());
+            request.setValueParser(ElementValueParser.DEFAULT);
             if (element instanceof MultiLanguageProperty) {
                 MultiLanguageProperty mlp = (MultiLanguageProperty) element;
                 if ((mlp.getValues() != null) && (mlp.getValues().size() > 1)) {
                     for (int i = 0; i < mlp.getValues().size(); i++) {
-                        LOGGER.info("writeValue: MLP {}: {}", i, mlp.getValues().get(i).getValue());
+                        LOGGER.trace("writeValue: MLP {}: {}", i, mlp.getValues().get(i).getValue());
                     }
                 }
             }
@@ -203,14 +172,14 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
                 MultiLanguagePropertyValue mlpv = (MultiLanguagePropertyValue) request.getRawValue();
                 if ((mlpv.getLangStringSet() != null) && (mlpv.getLangStringSet().size() > 1)) {
                     for (int i = 0; i < mlpv.getLangStringSet().size(); i++) {
-                        LOGGER.info("writeValue: MLPV {}: {}", i, mlpv.getLangStringSet().toArray()[i]);
+                        LOGGER.trace("writeValue: MLPV {}: {}", i, mlpv.getLangStringSet().toArray()[i]);
                     }
                 }
             }
 
             Response response = service.execute(request);
-            LOGGER.info("writeValue: Submodel {}; Element {}; Status: {}", submodel.getIdentification().getIdentifier(), element.getIdShort(), response.getStatusCode());
-            if (isSuccess(response.getStatusCode())) {
+            LOGGER.debug("writeValue: Submodel {}; Element {}; Status: {}", submodel.getIdentification().getIdentifier(), element.getIdShort(), response.getStatusCode());
+            if (response.getStatusCode().isSuccess()) {
                 retval = true;
             }
         }
@@ -234,62 +203,40 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
      */
     public List<OperationVariable> callOperation(Operation operation, List<OperationVariable> inputVariables, Submodel submodel, Reference refElement) throws StatusException {
         List<OperationVariable> outputArguments;
-        try {
-            InvokeOperationSyncRequest request = new InvokeOperationSyncRequest();
+        InvokeOperationSyncRequest request = new InvokeOperationSyncRequest();
 
-            List<Key> path = new ArrayList<>();
-            path.addAll(refElement.getKeys());
+        List<Key> path = new ArrayList<>();
+        path.addAll(refElement.getKeys());
 
-            request.setSubmodelId(submodel.getIdentification());
-            request.setPath(path);
-            request.setInputArguments(inputVariables);
+        request.setSubmodelId(submodel.getIdentification());
+        request.setPath(path);
+        request.setInputArguments(inputVariables);
 
-            requestCounter++;
-            request.setRequestId(Integer.toString(requestCounter));
+        requestCounter++;
+        request.setRequestId(Integer.toString(requestCounter));
 
-            // execute method
-            InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
-            if (isSuccess(response.getStatusCode())) {
-                if (response.getPayload().getExecutionState() == ExecutionState.COMPLETED) {
-                    LOGGER.info("callOperation: Operation {} executed successfully", operation.getIdShort());
-                }
-                else {
-                    LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getPayload().getExecutionState());
-                    throw new StatusException(StatusCodes.Bad_UnexpectedError);
-                }
-            }
-            else if (response.getStatusCode() == StatusCode.CLIENT_METHOD_NOT_ALLOWED) {
-                LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
-                throw new StatusException(StatusCodes.Bad_NotExecutable);
+        // execute method
+        InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
+        if (response.getStatusCode().isSuccess()) {
+            if (response.getPayload().getExecutionState() == ExecutionState.COMPLETED) {
+                LOGGER.info("callOperation: Operation {} executed successfully", operation.getIdShort());
             }
             else {
-                LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
+                LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getPayload().getExecutionState());
                 throw new StatusException(StatusCodes.Bad_UnexpectedError);
             }
+        }
+        else if (response.getStatusCode() == StatusCode.CLIENT_METHOD_NOT_ALLOWED) {
+            LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
+            throw new StatusException(StatusCodes.Bad_NotExecutable);
+        }
+        else {
+            LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getStatusCode());
+            throw new StatusException(StatusCodes.Bad_UnexpectedError);
+        }
 
-            outputArguments = response.getPayload().getOutputArguments();
-        }
-        catch (Exception e) {
-            LOGGER.error("callOperation error", e);
-            throw e;
-        }
+        outputArguments = response.getPayload().getOutputArguments();
 
         return outputArguments;
-    }
-
-
-    /**
-     * Returns a value indicating whether the given StatusCode is a success
-     *
-     * @param code The desired StatusCode
-     * @return True if the StatusCode is a success, false otherweise
-     */
-    private static boolean isSuccess(StatusCode code) {
-        boolean retval = false;
-        if ((code == StatusCode.SUCCESS) || (code == StatusCode.SUCCESS_CREATED) || (code == StatusCode.SUCCESS_NO_CONTENT)) {
-            retval = true;
-        }
-
-        return retval;
     }
 }

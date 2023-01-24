@@ -4,6 +4,17 @@
 
 **New Features**
 *   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
+*   OPC UA Endpoint
+	*   Additional parameters availabe in configuration
+
+**Internal changes & bugfixes**
+*   HTTP Endpoint
+	*   DELETE requests now correctly return HTTP status code `204 NO CONTENT`. The following URL patterns are affected:
+		*   /submodels/{submodelIdentifier}
+		*   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+		*   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+*   OPC UA Endpoint
+	*   Major code refactoring
 
 ## Release version 0.4.0
 
