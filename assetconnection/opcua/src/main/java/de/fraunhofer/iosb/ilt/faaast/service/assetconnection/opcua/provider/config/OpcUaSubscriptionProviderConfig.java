@@ -21,20 +21,9 @@ import java.util.Objects;
 /**
  * Config file for OPC UA-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider}.
  */
-public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderConfig implements AssetSubscriptionProviderConfig {
+public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderArrayConfig implements AssetSubscriptionProviderConfig {
 
-    private String arrayElementIndex;
     private long interval;
-
-    public String getArrayElementIndex() {
-        return arrayElementIndex;
-    }
-
-
-    public void setArrayElementIndex(String arrayElementIndex) {
-        this.arrayElementIndex = arrayElementIndex;
-    }
-
 
     @Override
     public boolean equals(Object o) {
@@ -46,8 +35,7 @@ public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderConfig
         }
         OpcUaSubscriptionProviderConfig that = (OpcUaSubscriptionProviderConfig) o;
         return super.equals(o)
-                && Objects.equals(interval, that.interval)
-                && Objects.equals(arrayElementIndex, that.arrayElementIndex);
+                && Objects.equals(interval, that.interval);
     }
 
 
@@ -63,7 +51,7 @@ public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderConfig
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), interval, arrayElementIndex);
+        return Objects.hash(super.hashCode(), interval);
     }
 
 
@@ -86,16 +74,10 @@ public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderConfig
     }
 
     private abstract static class AbstractBuilder<T extends OpcUaSubscriptionProviderConfig, B extends AbstractBuilder<T, B>>
-            extends AbstractOpcUaProviderConfig.AbstractBuilder<T, B> {
+            extends AbstractOpcUaProviderArrayConfig.AbstractBuilder<T, B> {
 
         public B interval(long value) {
             getBuildingInstance().setInterval(value);
-            return getSelf();
-        }
-
-
-        public B arrayElementIndex(String arrayElementIndex) {
-            getBuildingInstance().setArrayElementIndex(arrayElementIndex);
             return getSelf();
         }
     }
