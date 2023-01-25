@@ -168,12 +168,12 @@ public class ValueConverter {
             throw new ValueConversionException(String.format("unable to determine nodeId of datatype of OPC UA value (datatype: %s)", value.getDataType().get()));
         }
 
-        value = getArrayElement(value, index);
+        Variant elementValue = getArrayElement(value, index);
 
         OpcUaToAasValueConverter converter = opcUaToAasConverters.getOrDefault(
                 new ConversionTypeInfo(targetType, valueDatatype.get()),
                 new DefaultConverter());
-        return converter.convert(value, targetType);
+        return converter.convert(elementValue, targetType);
     }
 
 
