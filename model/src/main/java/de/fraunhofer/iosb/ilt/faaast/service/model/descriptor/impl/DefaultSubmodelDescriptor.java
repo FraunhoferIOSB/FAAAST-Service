@@ -35,6 +35,12 @@ public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor im
     }
 
 
+    public DefaultSubmodelDescriptor(SubmodelDescriptor source) {
+        super(source.getIdShort(), source.getEndpoints(), source.getAdministration(), source.getDescriptions(), source.getIdentification());
+        semanticId = source.getSemanticId();
+    }
+
+
     @Override
     public ReferenceDescriptor getSemanticId() {
         return semanticId;

@@ -39,6 +39,14 @@ public class DefaultIdentifierKeyValuePairDescriptor implements IdentifierKeyVal
     }
 
 
+    public DefaultIdentifierKeyValuePairDescriptor(IdentifierKeyValuePairDescriptor source) {
+        semanticId = source.getSemanticId();
+        externalSubjectId = source.getExternalSubjectId();
+        key = source.getKey();
+        value = source.getValue();
+    }
+
+
     @Override
     public ReferenceDescriptor getSemanticId() {
         return semanticId;

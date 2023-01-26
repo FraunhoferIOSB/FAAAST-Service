@@ -34,6 +34,12 @@ public class DefaultDescriptionDescriptor implements DescriptionDescriptor {
     }
 
 
+    public DefaultDescriptionDescriptor(DescriptionDescriptor source) {
+        language = source.getLanguage();
+        text = source.getText();
+    }
+
+
     @Override
     public String getLanguage() {
         return language;

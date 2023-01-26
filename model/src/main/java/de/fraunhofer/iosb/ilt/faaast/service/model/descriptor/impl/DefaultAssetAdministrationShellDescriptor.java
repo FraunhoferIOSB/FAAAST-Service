@@ -51,6 +51,14 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
     }
 
 
+    public DefaultAssetAdministrationShellDescriptor(AssetAdministrationShellDescriptor source) {
+        super(source.getIdShort(), source.getEndpoints(), source.getAdministration(), source.getDescriptions(), source.getIdentification());
+        globalAssetId = source.getGlobalAssetId();
+        specificAssetIds = source.getSpecificAssetIds();
+        submodels = source.getSubmodels();
+    }
+
+
     @Override
     public ReferenceDescriptor getGlobalAssetId() {
         return globalAssetId;

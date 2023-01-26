@@ -44,6 +44,16 @@ public abstract class AbstractIdentifiableDescriptor {
     }
 
 
+    protected AbstractIdentifiableDescriptor(String idShort, List<EndpointDescriptor> endpoints, AdministrationDescriptor administration, List<DescriptionDescriptor> descriptions,
+            IdentificationDescriptor identification) {
+        this.idShort = idShort;
+        this.endpoints = endpoints;
+        this.administration = administration;
+        this.descriptions = descriptions;
+        this.identification = identification;
+    }
+
+
     public String getIdShort() {
         return idShort;
     }

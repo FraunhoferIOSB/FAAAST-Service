@@ -38,6 +38,13 @@ public class DefaultKeyDescriptor implements KeyDescriptor {
     }
 
 
+    public DefaultKeyDescriptor(KeyDescriptor source) {
+        idType = source.getIdType();
+        type = source.getType();
+        value = source.getValue();
+    }
+
+
     @Override
     public KeyType getIdType() {
         return idType;

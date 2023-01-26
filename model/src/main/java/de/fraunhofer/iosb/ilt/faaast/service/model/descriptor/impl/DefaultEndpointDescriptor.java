@@ -34,6 +34,12 @@ public class DefaultEndpointDescriptor implements EndpointDescriptor {
     }
 
 
+    public DefaultEndpointDescriptor(EndpointDescriptor source) {
+        interfaceInformation = source.getInterfaceInformation();
+        protocolInformation = source.getProtocolInformation();
+    }
+
+
     @Override
     public String getInterfaceInformation() {
         return interfaceInformation;
