@@ -137,7 +137,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <systemstubs.version>2.0.1</systemstubs.version>
+        <systemstubs.version>2.0.2</systemstubs.version>
         <wiremock.version>2.35.0</wiremock.version>
         <woodstox.version>6.5.0</woodstox.version>
     </properties>
