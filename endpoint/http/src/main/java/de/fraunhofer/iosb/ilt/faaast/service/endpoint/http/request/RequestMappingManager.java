@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.AbstractMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.RequestMapperNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
@@ -41,7 +42,9 @@ public class RequestMappingManager extends AbstractMappingManager<AbstractReques
      *
      * @param httpRequest HTTP-based request to find a suitable request mapper
      * @return protocol-agnostic request
-     * @throws InvalidRequestException if no mapper is found for request
+     * @throws RequestMapperNotFoundException if no mapper is found for request
+     * @throws MethodNotAllowedException if the method was not valid for the request
+     * @throws IllegalStateException if there were multiple matching mappers
      */
     public AbstractRequestMapper findRequestMapper(HttpRequest httpRequest) throws InvalidRequestException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
@@ -49,21 +52,13 @@ public class RequestMappingManager extends AbstractMappingManager<AbstractReques
                 .filter(request -> request.matchesUrl(httpRequest))
                 .collect(Collectors.toSet());
         if (mappersByUrl.isEmpty()) {
-            throw new InvalidRequestException(String.format("no matching request mapper found for URL '%s'", httpRequest.getPath()));
+            throw new RequestMapperNotFoundException(httpRequest);
         }
         Set<AbstractRequestMapper> mappersByUrlAndMethod = mappersByUrl.stream()
                 .filter(x -> x.getMethod() == httpRequest.getMethod())
                 .collect(Collectors.toSet());
         if (mappersByUrlAndMethod.isEmpty()) {
-            throw new MethodNotAllowedException(String.format(
-                    "method '%s' not allowed for URL '%s' (allowed methods: %s)",
-                    httpRequest.getMethod(),
-                    httpRequest.getPath(),
-                    mappersByUrl.stream()
-                            .map(x -> x.getMethod().name())
-                            .distinct()
-                            .sorted()
-                            .collect(Collectors.joining(", "))));
+            throw new MethodNotAllowedException(httpRequest, mappersByUrl);
         }
         if (mappersByUrlAndMethod.size() > 1) {
             throw new IllegalStateException(String.format(

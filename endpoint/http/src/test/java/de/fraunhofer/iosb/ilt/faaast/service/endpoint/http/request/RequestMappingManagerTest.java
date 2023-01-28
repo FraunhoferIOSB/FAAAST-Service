@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.RequestMapperNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
@@ -979,15 +980,11 @@ public class RequestMappingManagerTest {
     }
 
 
-    @Test
+    @Test(expected = RequestMapperNotFoundException.class)
     public void testInvalidSubURL() throws InvalidRequestException {
-        String path = "shells/" + EncodingHelper.base64UrlEncode(AAS.getIdentification().getIdentifier()) + "/bogus";
-        InvalidRequestException exception = Assert.assertThrows(InvalidRequestException.class,
-                () -> mappingManager.map(HttpRequest.builder()
-                        .method(HttpMethod.GET)
-                        .path(path)
-                        .build()));
-        // We only want the base class here (400), not children like MethodNotAllowedException (405).
-        Assert.assertEquals(InvalidRequestException.class, exception.getClass());
+        mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.GET)
+                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getIdentification().getIdentifier()) + "/bogus")
+                .build());
     }
 }

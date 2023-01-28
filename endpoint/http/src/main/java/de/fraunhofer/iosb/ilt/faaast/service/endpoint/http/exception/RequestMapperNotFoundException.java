@@ -15,24 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception;
 
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 /**
- * Exception to indicate a given method is not allowed for the URL.
+ * Exception to indicate there is no mapper for a path.
  */
-public class MethodNotAllowedException extends InvalidRequestException {
+public class RequestMapperNotFoundException extends InvalidRequestException {
 
-    public MethodNotAllowedException(HttpRequest request, Set<AbstractRequestMapper> allowedMethodMappers) {
-        super(String.format("method '%s' not allowed for URL '%s' (allowed methods: %s)",
-                request.getMethod(),
-                request.getPath(),
-                allowedMethodMappers.stream()
-                        .map(x -> x.getMethod().name())
-                        .distinct()
-                        .sorted()
-                        .collect(Collectors.joining(", "))));
+    public RequestMapperNotFoundException(HttpRequest request) {
+        super(String.format("no matching request mapper found for URL '%s'", request.getPath()));
     }
 }
