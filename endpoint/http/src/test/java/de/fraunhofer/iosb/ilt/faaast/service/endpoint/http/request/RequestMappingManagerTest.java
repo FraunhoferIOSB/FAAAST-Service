@@ -979,11 +979,15 @@ public class RequestMappingManagerTest {
     }
 
 
-    @Test(expected = InvalidRequestException.class)
+    @Test
     public void testInvalidSubURL() throws InvalidRequestException {
-        mappingManager.map(HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getIdentification().getIdentifier()) + "/bogus")
-                .build());
+        String path = "shells/" + EncodingHelper.base64UrlEncode(AAS.getIdentification().getIdentifier()) + "/bogus";
+        InvalidRequestException exception = Assert.assertThrows(InvalidRequestException.class,
+                () -> mappingManager.map(HttpRequest.builder()
+                        .method(HttpMethod.GET)
+                        .path(path)
+                        .build()));
+        // We only want the base class here (400), not children like MethodNotAllowedException (405).
+        Assert.assertEquals(InvalidRequestException.class, exception.getClass());
     }
 }
