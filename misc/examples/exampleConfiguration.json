@@ -8,7 +8,7 @@
         }],
     "persistence": {
         "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory",
-        "initialModel": "/app/AASEnv.json",
+        "initialModel": "/app/resources/demoAAS.json",
         "decoupleEnvironment": true
     },
     "messageBus": {
