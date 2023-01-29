@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   FA3ST:
-    image: hansmees/faaast-no-root
+    image: fraunhoferiosb/faaast-service
     volumes:
       - ../examples/:/app/resources/
     environment:
