@@ -67,7 +67,7 @@ interface Gettable {
      *             of given type can be found
      * @throws IllegalArgumentException if modifier is null
      */
-    default public <T> T getOfType(Identifier id, QueryModifier modifier, Class<T> clazz) throws ResourceNotFoundException {
+    default public <T extends Identifiable> T getOfType(Identifier id, QueryModifier modifier, Class<T> clazz) throws ResourceNotFoundException {
         Identifiable obj = get(id, modifier);
         if (clazz.isAssignableFrom(obj.getClass())) {
             return clazz.cast(obj);
