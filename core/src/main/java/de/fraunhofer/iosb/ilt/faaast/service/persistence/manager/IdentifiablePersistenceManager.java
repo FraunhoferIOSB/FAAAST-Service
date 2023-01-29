@@ -67,16 +67,15 @@ public class IdentifiablePersistenceManager extends PersistenceManager {
      * </ul>
      *
      * @param id of the Identifiable
-     * @param <T> type of the Identifiable
      * @return the Identifiable
      * @throws ResourceNotFoundException if resource is not found
      */
-    public <T extends Identifiable> T getIdentifiableById(Identifier id) throws ResourceNotFoundException {
+    public Identifiable getIdentifiableById(Identifier id) throws ResourceNotFoundException {
         ensureInitialized();
         if (id == null) {
             return null;
         }
-        return (T) Stream.of(aasEnvironment.getAssetAdministrationShells(),
+        return Stream.of(aasEnvironment.getAssetAdministrationShells(),
                 aasEnvironment.getSubmodels(),
                 aasEnvironment.getConceptDescriptions(),
                 aasEnvironment.getAssets())

@@ -37,6 +37,48 @@ import java.util.Set;
 
 
 /**
+ * Dummy non-generic base interface for Persistence in order to work around Java weirdness around raw types and methods
+ * with a generic return type.
+ */
+interface Gettable {
+
+    /**
+     * Get an Identifiable by an Identifier.
+     *
+     * @param id the Identifier of the requested Identifiable
+     * @param modifier QueryModifier to define Level and Extent of the query
+     * @return the Identifiable with the given Identifier
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if no resource addressed by id
+     *             can be found
+     * @throws IllegalArgumentException if modifier is null
+     */
+    public Identifiable get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException;
+
+
+    /**
+     * Get an Identifiable of a specified type by an Identifier.
+     *
+     * @param id the Identifier of the requested Identifiable
+     * @param modifier QueryModifier to define Level and Extent of the query
+     * @param clazz the type the Identifiable must have or derive from
+     * @param <T> defines the type of the requested Identifiable
+     * @return the Identifiable of the given type with the given Identifier
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if no resource addressed by id
+     *             of given type can be found
+     * @throws IllegalArgumentException if modifier is null
+     */
+    default public <T> T getOfType(Identifier id, QueryModifier modifier, Class<T> clazz) throws ResourceNotFoundException {
+        Identifiable obj = get(id, modifier);
+        if (clazz.isAssignableFrom(obj.getClass())) {
+            return clazz.cast(obj);
+        }
+        throw new ResourceNotFoundException("Resource was found but is of incorrect type");
+    }
+
+}
+
+
+/**
  * An implementation of a persistence inherits from this interface. The persistence manages create, read, update and
  * delete actions with the element in the corresponding
  * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}. Each persistence instance needs one instance
@@ -44,21 +86,7 @@ import java.util.Set;
  *
  * @param <C> type of the corresponding configuration class
  */
-public interface Persistence<C extends PersistenceConfig> extends Configurable<C> {
-
-    /**
-     * Get an Identifiable by an Identifier.
-     *
-     * @param id the Identifier of the requested Identifiable
-     * @param modifier QueryModifier to define Level and Extent of the query
-     * @param <T> defines the type of the requested Identifiable
-     * @return the Identifiable with the given Identifier
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if no resource addressed by id
-     *             can be found
-     * @throws IllegalArgumentException if modifier is null
-     */
-    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException;
-
+public interface Persistence<C extends PersistenceConfig> extends Configurable<C>, Gettable {
 
     /**
      * Get a Submodel Element by a Reference.

@@ -140,13 +140,13 @@ public abstract class AbstractInMemoryPersistence<T extends PersistenceConfig<?>
 
 
     @Override
-    public <I extends Identifiable> I get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException {
+    public Identifiable get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException {
         if (id == null) {
             return null;
         }
         Ensure.requireNonNull(modifier, MSG_MODIFIER_NOT_NULL);
         return QueryModifierHelper.applyQueryModifier(
-                (I) identifiablePersistenceManager.getIdentifiableById(id),
+                identifiablePersistenceManager.getIdentifiableById(id),
                 modifier);
     }
 

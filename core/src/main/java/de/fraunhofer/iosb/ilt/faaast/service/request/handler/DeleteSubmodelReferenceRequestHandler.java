@@ -43,7 +43,7 @@ public class DeleteSubmodelReferenceRequestHandler extends AbstractRequestHandle
     @Override
     public DeleteSubmodelReferenceResponse process(DeleteSubmodelReferenceRequest request) throws ResourceNotFoundException, MessageBusException {
         DeleteSubmodelReferenceResponse response = new DeleteSubmodelReferenceResponse();
-        AssetAdministrationShell aas = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
+        AssetAdministrationShell aas = persistence.getOfType(request.getId(), new QueryModifier(), AssetAdministrationShell.class);
         aas.getSubmodels().remove(request.getSubmodelRef());
         persistence.put(aas);
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);

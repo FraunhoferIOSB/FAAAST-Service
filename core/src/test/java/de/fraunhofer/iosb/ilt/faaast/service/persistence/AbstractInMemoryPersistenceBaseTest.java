@@ -227,7 +227,7 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getIdentification().equals(id))
                 .findFirst().get();
-        AssetAdministrationShell actual = (AssetAdministrationShell) persistence.get(id, QueryModifier.DEFAULT);
+        AssetAdministrationShell actual = persistence.getOfType(id, QueryModifier.DEFAULT, AssetAdministrationShell.class);
         Assert.assertEquals(expected, actual);
     }
 
@@ -242,7 +242,7 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
         Submodel expected = environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().equals(id))
                 .findFirst().get();
-        Submodel actual = (Submodel) persistence.get(id, QueryModifier.DEFAULT);
+        Submodel actual = persistence.getOfType(id, QueryModifier.DEFAULT, Submodel.class);
         Assert.assertEquals(expected, actual);
     }
 
@@ -256,7 +256,7 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
         ConceptDescription expected = environment.getConceptDescriptions().stream()
                 .filter(x -> x.getIdentification().equals(id))
                 .findFirst().get();
-        ConceptDescription actual = (ConceptDescription) persistence.get(id, QueryModifier.DEFAULT);
+        ConceptDescription actual = persistence.getOfType(id, QueryModifier.DEFAULT, ConceptDescription.class);
         Assert.assertEquals(expected, actual);
 
     }
@@ -516,7 +516,7 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
         Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElement.getIdShort());
         persistence.put(null, reference, expected);
         SubmodelElement actualSubmodelElement = persistence.get(reference, QueryModifier.DEFAULT);
-        Submodel actualSubmodel = (Submodel) persistence.get(submodel.getIdentification(), QueryModifier.DEFAULT);
+        Submodel actualSubmodel = persistence.getOfType(submodel.getIdentification(), QueryModifier.DEFAULT, Submodel.class);
         int idxActual = actualSubmodel.getSubmodelElements().indexOf(expected);
         Assert.assertEquals(expected, actualSubmodelElement);
         Assert.assertEquals(idxExpected, idxActual);
@@ -654,7 +654,7 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
         String category = "NewCategory";
         expected.setCategory(category);
         persistence.put(expected);
-        ConceptDescription actual = (ConceptDescription) persistence.get(expected.getIdentification(), QueryModifier.DEFAULT);
+        ConceptDescription actual = persistence.getOfType(expected.getIdentification(), QueryModifier.DEFAULT, ConceptDescription.class);
         int actualIndex = persistence.get(null, null, null, QueryModifier.DEFAULT).indexOf(actual);
         Assert.assertEquals(expected, actual);
         Assert.assertEquals(expectedIndex, actualIndex);
@@ -702,11 +702,11 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
                 .build();
         Submodel expected = environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().equals(submodelId)).findFirst().get();
-        Submodel actual = (Submodel) persistence.get(submodelId, queryModifier);
+        Submodel actual = persistence.getOfType(submodelId, queryModifier, Submodel.class);
         Assert.assertEquals(expected, actual);
 
         queryModifier = new QueryModifier.Builder().level(Level.CORE).build();
-        actual = (Submodel) persistence.get(submodelId, queryModifier);
+        actual = persistence.getOfType(submodelId, queryModifier, Submodel.class);
         List<SubmodelElement> submodelElementCollections = actual.getSubmodelElements().stream()
                 .filter(x -> SubmodelElementCollection.class.isAssignableFrom(x.getClass()))
                 .collect(Collectors.toList());

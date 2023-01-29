@@ -97,7 +97,7 @@ public class PersistenceInMemoryTest {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getIdentification().equals(id))
                 .findFirst().get();
-        AssetAdministrationShell actual = (AssetAdministrationShell) persistence.get(id, QueryModifier.DEFAULT);
+        AssetAdministrationShell actual = persistence.getOfType(id, QueryModifier.DEFAULT, AssetAdministrationShell.class);
         Assert.assertEquals(expected, actual);
     }
 
@@ -118,7 +118,7 @@ public class PersistenceInMemoryTest {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getIdentification().equals(id))
                 .findFirst().get();
-        AssetAdministrationShell actual = (AssetAdministrationShell) persistence.get(id, QueryModifier.DEFAULT);
+        AssetAdministrationShell actual = persistence.getOfType(id, QueryModifier.DEFAULT, AssetAdministrationShell.class);
         Assert.assertEquals(expected, actual);
     }
 
@@ -140,7 +140,7 @@ public class PersistenceInMemoryTest {
         Submodel expected = environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().equals(id))
                 .findFirst().get();
-        Submodel actual = (Submodel) persistence.get(id, QueryModifier.DEFAULT);
+        Submodel actual = persistence.getOfType(id, QueryModifier.DEFAULT, Submodel.class);
         Assert.assertEquals(expected, actual);
 
         environment.getSubmodels().removeIf(x -> x.getIdentification().equals(id));
@@ -240,7 +240,7 @@ public class PersistenceInMemoryTest {
         AssetAdministrationShell expected = environment.getAssetAdministrationShells().stream()
                 .filter(x -> x.getIdentification().equals(id))
                 .findFirst().get();
-        AssetAdministrationShell actual = (AssetAdministrationShell) persistence.get(id, QueryModifier.DEFAULT);
+        AssetAdministrationShell actual = persistence.getOfType(id, QueryModifier.DEFAULT, AssetAdministrationShell.class);
         Assert.assertEquals(expected, actual);
     }
 
@@ -255,7 +255,7 @@ public class PersistenceInMemoryTest {
         Submodel expected = environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().equals(id))
                 .findFirst().get();
-        Submodel actual = (Submodel) persistence.get(id, QueryModifier.DEFAULT);
+        Submodel actual = persistence.get(id, QueryModifier.DEFAULT, Submodel.class);
         Assert.assertEquals(expected, actual);
     }
 
@@ -269,7 +269,7 @@ public class PersistenceInMemoryTest {
         ConceptDescription expected = environment.getConceptDescriptions().stream()
                 .filter(x -> x.getIdentification().equals(id))
                 .findFirst().get();
-        ConceptDescription actual = (ConceptDescription) persistence.get(id, QueryModifier.DEFAULT);
+        ConceptDescription actual = persistence.get(id, QueryModifier.DEFAULT, ConceptDescription.class);
         Assert.assertEquals(expected, actual);
 
     }
@@ -663,7 +663,7 @@ public class PersistenceInMemoryTest {
         String category = "NewCategory";
         expected.setCategory(category);
         persistence.put(expected);
-        ConceptDescription actual = (ConceptDescription) persistence.get(expected.getIdentification(), QueryModifier.DEFAULT);
+        ConceptDescription actual = persistence.getOfType(expected.getIdentification(), QueryModifier.DEFAULT, ConceptDescription.class);
         Assert.assertEquals(expected, actual);
     }
 
@@ -709,11 +709,11 @@ public class PersistenceInMemoryTest {
                 .build();
         Submodel expected = environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().equals(submodelId)).findFirst().get();
-        Submodel actual = (Submodel) persistence.get(submodelId, queryModifier);
+        Submodel actual = persistence.getOfType(submodelId, queryModifier, Submodel.class);
         Assert.assertEquals(expected, actual);
 
         queryModifier = new QueryModifier.Builder().level(Level.CORE).build();
-        actual = (Submodel) persistence.get(submodelId, queryModifier);
+        actual = persistence.getOfType(submodelId, queryModifier, Submodel.class);
         List<SubmodelElement> submodelElementCollections = actual.getSubmodelElements().stream()
                 .filter(x -> SubmodelElementCollection.class.isAssignableFrom(x.getClass()))
                 .collect(Collectors.toList());

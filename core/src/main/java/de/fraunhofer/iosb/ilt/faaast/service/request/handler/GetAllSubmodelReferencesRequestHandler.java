@@ -42,7 +42,7 @@ public class GetAllSubmodelReferencesRequestHandler extends AbstractRequestHandl
 
     @Override
     public GetAllSubmodelReferencesResponse process(GetAllSubmodelReferencesRequest request) throws ResourceNotFoundException, MessageBusException {
-        AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), request.getOutputModifier());
+        AssetAdministrationShell shell = persistence.getOfType(request.getId(), request.getOutputModifier(), AssetAdministrationShell.class);
         List<Reference> submodelReferences = shell.getSubmodels();
         messageBus.publish(ElementReadEventMessage.builder()
                 .element(shell)
