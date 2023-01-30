@@ -99,7 +99,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
 
-    - name: Build and push docker image: starter
+    - name: Build and push docker image - starter
       uses: docker/build-push-action@v3
       with:
         platforms: linux/amd64,linux/arm64
