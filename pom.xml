@@ -104,7 +104,6 @@
         <maven.plugin.jacoco.version>0.8.8</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.4.1</maven.plugin.javadoc.version>
-        <maven.plugin.jib.version>3.3.1</maven.plugin.jib.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
         <maven.plugin.owasp.version>8.0.1</maven.plugin.owasp.version>

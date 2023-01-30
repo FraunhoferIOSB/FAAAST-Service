@@ -1,6 +1,7 @@
 From eclipse-temurin:11-jre
 
-COPY ./target/starter-*-SNAPSHOT.jar /app/starter.jar
+ARG ARTIFACT_FILE
+COPY ./target/${ARTIFACT_FILE} /app/starter.jar
 
 RUN addgroup --system --gid 1000 faaast \
     && adduser --system --uid 1000 --gid 1000 --no-create-home faaast \

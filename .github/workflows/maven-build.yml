@@ -56,16 +56,16 @@ jobs:
       run: |
         mvn org.owasp:dependency-check-maven:aggregate -P owasp --settings maven-ci-settings.xml -B
 
-    - name: Build Docker Image
+    - name: Set env variables
       run: |
-        mvn jib:dockerBuild -pl starter -Dcontainer.image.tag=${GITHUB_REF_NAME//\//-} -B
-
-    - name: Extract Project version
-      id: project
-      run: echo ::set-output name=version::$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
+        echo "Exporting Variables"
+        export STARTER_NAME=$(mvn -pl starter -Dexec.executable='echo' -Dexec.args='${project.build.finalName}' exec:exec -q)
+        echo "STARTER_ARTIFACT=${STARTER_NAME}.jar"   >> $GITHUB_ENV
+        export version=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
+        echo "VERSION=${version}"     >> $GITHUB_ENV
 
     - name: Set up GnuPG
-      if:  ${{ endsWith(steps.project.outputs.version, '-SNAPSHOT') }}
+      if:  ${{ endsWith(env.VERSION, '-SNAPSHOT') }}
       env:
         GPG_EXECUTABLE: gpg
         GPG_SECRET_KEYS: ${{ secrets.GPG_SECRET_KEYS }}
@@ -79,7 +79,7 @@ jobs:
         echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE  --yes --batch --import-ownertrust
 
     - name: Deploy endpoint-opcua SNAPSHOT
-      if:  ${{ endsWith(steps.project.outputs.version, '-SNAPSHOT') }}
+      if:  ${{ endsWith(env.VERSION, '-SNAPSHOT') }}
       env:
         GPG_EXECUTABLE: gpg
         GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
@@ -89,10 +89,24 @@ jobs:
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: mvn clean deploy -P release --settings maven-ci-settings.xml -B
 
-    - name: Push Docker Image
-      if: github.ref == 'refs/heads/main'
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-      run: |
-        mvn jib:build -pl starter -Dcontainer.image.tag=latest -B
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    - name: Build and push docker image: starter
+      uses: docker/build-push-action@v3
+      with:
+        platforms: linux/amd64,linux/arm64
+        context: "./starter"
+        push: true
+        build-args: |
+          ARTIFACT_FILE=${{ env.STARTER_ARTIFACT }}
+        tags: |
+          fraunhoferiosb/faaast-service:latest
+          fraunhoferiosb/frost-server-http:${{ env.VERSION }}
