@@ -114,7 +114,7 @@
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.4.1</maven.plugin.shade.version>
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
-        <maven.plugin.spotless.version>2.30.0</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>2.31.0</maven.plugin.spotless.version>
         <milo.version>0.6.8</milo.version>
         <mockito.version>5.0.0</mockito.version>
         <moquette.version>0.15.1</moquette.version>
