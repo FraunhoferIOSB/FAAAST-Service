@@ -109,4 +109,4 @@ jobs:
           ARTIFACT_FILE=${{ env.STARTER_ARTIFACT }}
         tags: |
           fraunhoferiosb/faaast-service:latest
-          fraunhoferiosb/frost-server-http:${{ env.VERSION }}
+          fraunhoferiosb/faaast-service:${{ env.VERSION }}

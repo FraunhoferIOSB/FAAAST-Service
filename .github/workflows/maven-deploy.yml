@@ -104,5 +104,5 @@ jobs:
         build-args: |
           ARTIFACT_FILE=${{ env.STARTER_ARTIFACT }}
         tags: |
-          fraunhoferiosb/frost-server-http:${{ env.VERSION }}
-          fraunhoferiosb/frost-server-http:${{ env.DOCKER_TAG_SHORT }}
+          fraunhoferiosb/faaast-service:${{ env.VERSION }}
+          fraunhoferiosb/faaast-service:${{ env.DOCKER_TAG_SHORT }}
