@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.conf
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
 import java.util.Objects;
+import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 
 
 /**
@@ -33,6 +34,7 @@ public class OpcUaAssetConnectionConfig
     private String host;
     private String username;
     private String password;
+    private SecurityPolicy securityPolicy;
 
     @Override
     public boolean equals(Object o) {
@@ -46,7 +48,8 @@ public class OpcUaAssetConnectionConfig
         return super.equals(that)
                 && Objects.equals(host, that.host)
                 && Objects.equals(username, that.username)
-                && Objects.equals(password, that.password);
+                && Objects.equals(password, that.password)
+                && Objects.equals(securityPolicy, that.securityPolicy);
     }
 
 
@@ -80,9 +83,19 @@ public class OpcUaAssetConnectionConfig
     }
 
 
+    public SecurityPolicy getSecurityPolicy() {
+        return securityPolicy;
+    }
+
+
+    public void setSecurityPolicy(SecurityPolicy securityPolicy) {
+        this.securityPolicy = securityPolicy;
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), host, username, password);
+        return Objects.hash(super.hashCode(), host, username, password, securityPolicy);
     }
 
 
@@ -108,6 +121,12 @@ public class OpcUaAssetConnectionConfig
 
         public B password(String value) {
             getBuildingInstance().setPassword(value);
+            return getSelf();
+        }
+
+
+        public B securityPolicy(SecurityPolicy securityPolicy) {
+            getBuildingInstance().setSecurityPolicy(securityPolicy);
             return getSelf();
         }
     }

@@ -26,11 +26,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.OpcU
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.KeyStoreLoader;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
@@ -40,7 +46,9 @@ import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
+import org.eclipse.milo.opcua.stack.client.security.DefaultClientCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.UaException;
+import org.eclipse.milo.opcua.stack.core.security.DefaultTrustListManager;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
@@ -61,6 +69,8 @@ import org.slf4j.LoggerFactory;
  */
 public class OpcUaAssetConnection extends
         AbstractAssetConnection<OpcUaAssetConnection, OpcUaAssetConnectionConfig, OpcUaValueProviderConfig, OpcUaValueProvider, OpcUaOperationProviderConfig, OpcUaOperationProvider, OpcUaSubscriptionProviderConfig, OpcUaSubscriptionProvider> {
+
+    public static String APPLICATION_URI = "urn:de:fraunhofer:iosb:aas:service";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaAssetConnection.class);
     private static final ValueConverter valueConverter = new ValueConverter();
@@ -157,17 +167,42 @@ public class OpcUaAssetConnection extends
                 ? AnonymousProvider.INSTANCE
                 : new UsernameProvider(config.getUsername(), config.getPassword());
         try {
+            String securityBaseDir = System.getenv("FA3ST_ASSET_CONN_PKI");
+            if ((securityBaseDir == null) || securityBaseDir.equals("")) {
+                securityBaseDir = ".";
+            }
+            Path securityDir = Paths.get(securityBaseDir, "client", "security");
+            Files.createDirectories(securityDir);
+            if (!Files.exists(securityDir)) {
+                throw new ConfigurationInitializationException("unable to create security dir: " + securityDir);
+            }
+
+            File pkiDir = securityDir.resolve("pki").toFile();
+            LOGGER.trace("security dir: {}", securityDir.toAbsolutePath());
+            LOGGER.trace("security pki dir: {}", pkiDir.getAbsolutePath());
+
+            KeyStoreLoader loader = new KeyStoreLoader().load(securityDir);
+            DefaultTrustListManager trustListManager = new DefaultTrustListManager(pkiDir);
+            DefaultClientCertificateValidator certificateValidator = new DefaultClientCertificateValidator(trustListManager);
+
+            SecurityPolicy securityPolicy = config.getSecurityPolicy() != null ? config.getSecurityPolicy() : SecurityPolicy.None;
+
             client = OpcUaClient.create(
                     config.getHost(),
                     endpoints -> endpoints.stream()
-                            .filter(e -> e.getSecurityPolicyUri().equals(SecurityPolicy.None.getUri()))
+                            .filter(e -> e.getSecurityPolicyUri().equals(securityPolicy.getUri()))
                             .findFirst(),
                     configBuilder -> configBuilder
                             .setApplicationName(LocalizedText.english("AAS-Service"))
-                            .setApplicationUri("urn:de:fraunhofer:iosb:aas:service")
+                            .setApplicationUri(APPLICATION_URI)
+                            .setProductUri("urn:de:fraunhofer:iosb:ilt:faast:asset-connection")
                             .setIdentityProvider(identityProvider)
                             .setRequestTimeout(uint(1000))
                             .setAcknowledgeTimeout(uint(1000))
+                            .setKeyPair(loader.getClientKeyPair())
+                            .setCertificate(loader.getClientCertificate())
+                            .setCertificateChain(loader.getClientCertificateChain())
+                            .setCertificateValidator(certificateValidator)
                             .build());
             client.connect().get();
             client.addSessionActivityListener(new SessionActivityListener() {
@@ -186,7 +221,7 @@ public class OpcUaAssetConnection extends
             Thread.sleep(200);
             createNewSubscription();
         }
-        catch (InterruptedException | ExecutionException | UaException e) {
+        catch (InterruptedException | ExecutionException | UaException | IOException | AssetConnectionException e) {
             Thread.currentThread().interrupt();
             throw new ConfigurationInitializationException(String.format("error opening OPC UA connection (endpoint: %s)", config.getHost()), e);
         }
