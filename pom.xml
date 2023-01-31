@@ -81,7 +81,7 @@
         <container.image.tag>latest</container.image.tag>
         <equalsverifier.version>3.12.4</equalsverifier.version>
         <guava.version>31.1-jre</guava.version>
-        <jackson.databind.version>2.14.1</jackson.databind.version>
+        <jackson.databind.version>2.14.2</jackson.databind.version>
         <jackson.version>2.14.2</jackson.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <janino.version>3.1.9</janino.version>
@@ -104,7 +104,6 @@
         <maven.plugin.jacoco.version>0.8.8</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.4.1</maven.plugin.javadoc.version>
-        <maven.plugin.jib.version>3.3.1</maven.plugin.jib.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
         <maven.plugin.owasp.version>8.0.2</maven.plugin.owasp.version>
@@ -116,7 +115,7 @@
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.31.0</maven.plugin.spotless.version>
         <milo.version>0.6.8</milo.version>
-        <mockito.version>5.1.0</mockito.version>
+        <mockito.version>5.1.1</mockito.version>
         <moquette.version>0.15.1</moquette.version>
         <netty.version>4.1.87.Final</netty.version>
         <paho.version>1.2.5</paho.version>

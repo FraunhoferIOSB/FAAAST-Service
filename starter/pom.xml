@@ -159,31 +159,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.google.cloud.tools</groupId>
-                <artifactId>jib-maven-plugin</artifactId>
-                <version>${maven.plugin.jib.version}</version>
-                <configuration>
-                    <to>
-                        <image>${container.image.name}:${container.image.tag}</image>
-                        <auth>
-                            <!--suppress UnresolvedMavenProperty -->
-                            <username>${env.DOCKER_USERNAME}</username>
-                            <!--suppress UnresolvedMavenProperty -->
-                            <password>${env.DOCKER_TOKEN}</password>
-                        </auth>
-                    </to>
-                    <extraDirectories>
-                        <paths>
-                            <path>
-                                <from>${project.build.outputDirectory}</from>
-                                <into>/app/resources</into>
-                                <includes>git.json</includes>
-                            </path>
-                        </paths>
-                    </extraDirectories>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.plugin.compiler.version}</version>
