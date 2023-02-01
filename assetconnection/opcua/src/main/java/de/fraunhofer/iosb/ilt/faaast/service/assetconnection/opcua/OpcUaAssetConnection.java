@@ -70,7 +70,7 @@ import org.slf4j.LoggerFactory;
 public class OpcUaAssetConnection extends
         AbstractAssetConnection<OpcUaAssetConnection, OpcUaAssetConnectionConfig, OpcUaValueProviderConfig, OpcUaValueProvider, OpcUaOperationProviderConfig, OpcUaOperationProvider, OpcUaSubscriptionProviderConfig, OpcUaSubscriptionProvider> {
 
-    public static String APPLICATION_URI = "urn:de:fraunhofer:iosb:aas:service";
+    public static final String APPLICATION_URI = "urn:de:fraunhofer:iosb:aas:service";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaAssetConnection.class);
     private static final ValueConverter valueConverter = new ValueConverter();
