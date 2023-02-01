@@ -255,7 +255,7 @@ public class PersistenceInMemoryTest {
         Submodel expected = environment.getSubmodels().stream()
                 .filter(x -> x.getIdentification().equals(id))
                 .findFirst().get();
-        Submodel actual = persistence.get(id, QueryModifier.DEFAULT, Submodel.class);
+        Submodel actual = persistence.getOfType(id, QueryModifier.DEFAULT, Submodel.class);
         Assert.assertEquals(expected, actual);
     }
 
@@ -269,7 +269,7 @@ public class PersistenceInMemoryTest {
         ConceptDescription expected = environment.getConceptDescriptions().stream()
                 .filter(x -> x.getIdentification().equals(id))
                 .findFirst().get();
-        ConceptDescription actual = persistence.get(id, QueryModifier.DEFAULT, ConceptDescription.class);
+        ConceptDescription actual = persistence.getOfType(id, QueryModifier.DEFAULT, ConceptDescription.class);
         Assert.assertEquals(expected, actual);
 
     }
