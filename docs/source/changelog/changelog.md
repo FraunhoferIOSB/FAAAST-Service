@@ -7,6 +7,8 @@
 *   OPC UA Endpoint
 	*   Additional parameters availabe in configuration
 *   Docker container now runs using a non-root user
+*   OPC UA Asset Connection
+	*   make security policy configurable
 
 **Internal changes & bugfixes**
 *   HTTP Endpoint
