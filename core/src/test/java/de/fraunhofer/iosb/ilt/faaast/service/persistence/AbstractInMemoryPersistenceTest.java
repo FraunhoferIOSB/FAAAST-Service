@@ -21,7 +21,7 @@ import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 public class AbstractInMemoryPersistenceTest extends AbstractInMemoryPersistenceBaseTest {
 
     @Override
-    public Persistence getPersistenceImplementation() {
+    public ConfigurablePersistence getPersistenceImplementation() {
         return new Implementation();
     }
 

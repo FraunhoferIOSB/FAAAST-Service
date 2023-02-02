@@ -32,6 +32,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConfigurablePersistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.ReferenceBuilderHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
@@ -66,7 +67,7 @@ public class PersistenceInMemoryTest {
 
     private static final File MODEL_PATH = new File("src/test/resources/AASFull.json");
     private AssetAdministrationShellEnvironment environment;
-    private Persistence persistence;
+    private ConfigurablePersistence persistence;
     private ServiceContext serviceContext;
 
     @Before
@@ -328,8 +329,8 @@ public class PersistenceInMemoryTest {
     @Test
     public void getSubmodelsEmptyTest() {
         String aasId = "Test_AssetAdministrationShell_Mandatory";
-        List<AssetAdministrationShell> expected = List.of();
-        List<AssetAdministrationShell> actual = persistence.get(aasId, new DefaultReference(), QueryModifier.DEFAULT);
+        List<Submodel> expected = List.of();
+        List<Submodel> actual = persistence.get(aasId, new DefaultReference(), QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }
 

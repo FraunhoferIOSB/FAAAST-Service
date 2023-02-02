@@ -38,7 +38,7 @@ import io.adminshell.aas.v3.model.Submodel;
  */
 public abstract class AbstractSubmodelInterfaceRequestHandler<T extends AbstractSubmodelInterfaceRequest<U>, U extends Response> extends AbstractRequestHandler<T, U> {
 
-    protected AbstractSubmodelInterfaceRequestHandler(Persistence<?> persistence, MessageBus<?> messageBus, AssetConnectionManager assetConnectionManager) {
+    protected AbstractSubmodelInterfaceRequestHandler(Persistence persistence, MessageBus<?> messageBus, AssetConnectionManager assetConnectionManager) {
         super(persistence, messageBus, assetConnectionManager);
     }
 

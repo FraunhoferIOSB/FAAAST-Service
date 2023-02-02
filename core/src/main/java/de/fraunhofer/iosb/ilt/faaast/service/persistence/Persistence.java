@@ -37,10 +37,12 @@ import java.util.Set;
 
 
 /**
- * Dummy non-generic base interface for Persistence in order to work around Java weirdness around raw types and methods
- * with a generic return type.
+ * An implementation of a persistence inherits from this interface. The persistence manages create, read, update and
+ * delete actions with the element in the corresponding
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}. Each persistence instance needs one instance
+ * of an Asset Administration Shell Environment. There can only be one running instance of a persistence implementation.
  */
-interface Gettable {
+public interface Persistence {
 
     /**
      * Get an Identifiable by an Identifier.
@@ -74,19 +76,6 @@ interface Gettable {
         }
         throw new ResourceNotFoundException("Resource was found but is of incorrect type");
     }
-
-}
-
-
-/**
- * An implementation of a persistence inherits from this interface. The persistence manages create, read, update and
- * delete actions with the element in the corresponding
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}. Each persistence instance needs one instance
- * of an Asset Administration Shell Environment. There can only be one running instance of a persistence implementation.
- *
- * @param <C> type of the corresponding configuration class
- */
-public interface Persistence<C extends PersistenceConfig> extends Configurable<C>, Gettable {
 
     /**
      * Get a Submodel Element by a Reference.

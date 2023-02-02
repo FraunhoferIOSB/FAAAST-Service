@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
@@ -70,9 +71,9 @@ import org.mockito.Mockito;
 public abstract class AbstractInMemoryPersistenceBaseTest {
 
     protected AssetAdministrationShellEnvironment environment;
-    protected Persistence persistence;
+    protected ConfigurablePersistence persistence;
 
-    public abstract Persistence getPersistenceImplementation();
+    public abstract ConfigurablePersistence getPersistenceImplementation();
 
 
     public abstract AssetAdministrationShellEnvironment getEnvironment();
@@ -315,8 +316,8 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
     @Test
     public void getSubmodelsEmptyTest() {
         String aasId = "Test_AssetAdministrationShell_Mandatory";
-        List<AssetAdministrationShell> expected = List.of();
-        List<AssetAdministrationShell> actual = persistence.get(aasId, new DefaultReference(), QueryModifier.DEFAULT);
+        List<Submodel> expected = List.of();
+        List<Submodel> actual = persistence.get(aasId, new DefaultReference(), QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }
 

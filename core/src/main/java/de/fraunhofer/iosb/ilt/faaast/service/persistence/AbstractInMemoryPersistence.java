@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
@@ -62,7 +63,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @param <T> type of the corresponding configuration class
  */
-public abstract class AbstractInMemoryPersistence<T extends PersistenceConfig<?>> implements Persistence<T> {
+public abstract class AbstractInMemoryPersistence<T extends PersistenceConfig<?>> implements ConfigurablePersistence<T> {
 
     protected static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
     protected AssetAdministrationShellEnvironment aasEnvironment;
