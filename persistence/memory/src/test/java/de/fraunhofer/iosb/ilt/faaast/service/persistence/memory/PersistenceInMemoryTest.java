@@ -42,14 +42,13 @@ import io.adminshell.aas.v3.model.*;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import java.io.File;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.io.File;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class PersistenceInMemoryTest {
