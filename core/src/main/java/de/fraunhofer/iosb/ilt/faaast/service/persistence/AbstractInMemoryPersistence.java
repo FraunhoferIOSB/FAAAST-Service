@@ -63,7 +63,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @param <T> type of the corresponding configuration class
  */
-public abstract class AbstractInMemoryPersistence<T extends PersistenceConfig<?>> implements ConfigurablePersistence<T> {
+public abstract class AbstractInMemoryPersistence<T extends PersistenceConfig<?>> implements Persistence, Configurable<T> {
 
     protected static final String MSG_MODIFIER_NOT_NULL = "modifier must be non-null";
     protected AssetAdministrationShellEnvironment aasEnvironment;

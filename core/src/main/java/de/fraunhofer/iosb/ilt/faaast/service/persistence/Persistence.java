@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
-import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.AASXPackage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.PackageDescription;
@@ -76,6 +75,7 @@ public interface Persistence {
         }
         throw new ResourceNotFoundException("Resource was found but is of incorrect type");
     }
+
 
     /**
      * Get a Submodel Element by a Reference.

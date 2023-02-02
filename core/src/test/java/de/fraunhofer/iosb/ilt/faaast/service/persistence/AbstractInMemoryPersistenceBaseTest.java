@@ -71,9 +71,10 @@ import org.mockito.Mockito;
 public abstract class AbstractInMemoryPersistenceBaseTest {
 
     protected AssetAdministrationShellEnvironment environment;
-    protected ConfigurablePersistence persistence;
+    protected Persistence persistence;
+    protected Configurable configurable;
 
-    public abstract ConfigurablePersistence getPersistenceImplementation();
+    public abstract <T extends Persistence & Configurable> T getPersistenceImplementation();
 
 
     public abstract AssetAdministrationShellEnvironment getEnvironment();
@@ -85,9 +86,11 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
     @Before
     public void init() throws ConfigurationException, AssetConnectionException {
         environment = getEnvironment();
-        persistence = getPersistenceImplementation();
+        var persistenceImpl = getPersistenceImplementation();
+        persistence = persistenceImpl;
+        configurable = persistenceImpl;
         ServiceContext serviceContext = Mockito.mock(ServiceContext.class);
-        persistence.init(CoreConfig.builder().build(),
+        configurable.init(CoreConfig.builder().build(),
                 getPersistenceConfig(),
                 serviceContext);
     }

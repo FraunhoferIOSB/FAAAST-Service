@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.memory;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
@@ -32,50 +33,41 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.asset.GlobalAssetIdentification;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.ConfigurablePersistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.util.ReferenceBuilderHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.Blob;
-import io.adminshell.aas.v3.model.ConceptDescription;
-import io.adminshell.aas.v3.model.Identifiable;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
+import io.adminshell.aas.v3.model.*;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
-import java.io.File;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.io.File;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class PersistenceInMemoryTest {
 
     private static final File MODEL_PATH = new File("src/test/resources/AASFull.json");
     private AssetAdministrationShellEnvironment environment;
-    private ConfigurablePersistence persistence;
+    private Persistence persistence;
+    private Configurable configurable;
     private ServiceContext serviceContext;
 
     @Before
     public void init() throws ConfigurationException, AssetConnectionException {
         this.environment = AASFull.createEnvironment();
-        this.persistence = new PersistenceInMemory();
+        var persistenceImpl = new PersistenceInMemory();
+        this.persistence = persistenceImpl;
+        this.configurable = persistenceImpl;
         serviceContext = Mockito.mock(ServiceContext.class);
-        persistence.init(CoreConfig.builder().build(),
+        configurable.init(CoreConfig.builder().build(),
                 PersistenceInMemoryConfig.builder()
                         .environment(environment)
                         .build(),
@@ -85,7 +77,7 @@ public class PersistenceInMemoryTest {
 
     @Test
     public void configurationOfEnvironmentWithModelPathTest() throws ConfigurationInitializationException, ResourceNotFoundException {
-        persistence.init(CoreConfig.builder().build(),
+        configurable.init(CoreConfig.builder().build(),
                 PersistenceInMemoryConfig.builder()
                         .initialModel(MODEL_PATH)
                         .build(),
@@ -105,7 +97,7 @@ public class PersistenceInMemoryTest {
 
     @Test
     public void configurationOfEnvironmentWithModelPathAndEnvironmentTest() throws ConfigurationInitializationException, ResourceNotFoundException {
-        persistence.init(CoreConfig.builder().build(),
+        configurable.init(CoreConfig.builder().build(),
                 PersistenceInMemoryConfig.builder()
                         .initialModel(MODEL_PATH)
                         .environment(environment)
@@ -126,7 +118,7 @@ public class PersistenceInMemoryTest {
 
     @Test
     public void configurationOfEnvironmentWithEnvironmentNoDecoupleTest() throws ConfigurationInitializationException, ResourceNotFoundException {
-        persistence.init(CoreConfig.builder().build(),
+        configurable.init(CoreConfig.builder().build(),
                 PersistenceInMemoryConfig.builder()
                         .environment(environment)
                         .decoupleEnvironment(false)
