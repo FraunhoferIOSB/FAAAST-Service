@@ -15,24 +15,18 @@
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.google.common.reflect.TypeToken;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.config.serialization.ConfigTypeResolver;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiationException;
 
 
 /**
- * Superclass of all config classes that are coupled with a concrete implementation class (via generics). Each config
- * class can be serialized to/parsed from JSON in the form of { "@class": "[implemenation class], [normal JSON
- * serialization of properties] } where [implemenation class] is the fully qualified class name of an implementation
- * class (i.e. implementing the interface Configurable) that can be configured with this configuration.
+ * Superclass of all config classes that are coupled with a concrete implementation class (via generics).
  *
  * @param <T> type of the implementation class configured by this configuration
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "@class", visible = true)
-@JsonTypeIdResolver(ConfigTypeResolver.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, visible = true)
 public abstract class Config<T extends Configurable> {
 
     /**
