@@ -33,11 +33,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.SessionActivityListener;
@@ -46,12 +47,15 @@ import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
+import org.eclipse.milo.opcua.stack.client.DiscoveryClient;
 import org.eclipse.milo.opcua.stack.client.security.DefaultClientCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.security.DefaultTrustListManager;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
+import org.eclipse.milo.opcua.stack.core.types.enumerated.MessageSecurityMode;
+import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -185,13 +189,11 @@ public class OpcUaAssetConnection extends
             DefaultTrustListManager trustListManager = new DefaultTrustListManager(pkiDir);
             DefaultClientCertificateValidator certificateValidator = new DefaultClientCertificateValidator(trustListManager);
 
-            SecurityPolicy securityPolicy = config.getSecurityPolicy() != null ? config.getSecurityPolicy() : SecurityPolicy.None;
-
             client = OpcUaClient.create(
                     config.getHost(),
-                    endpoints -> endpoints.stream()
-                            .filter(e -> e.getSecurityPolicyUri().equals(securityPolicy.getUri()))
-                            .findFirst(),
+                    LambdaExceptionHelper.rethrowFunction(endpoints -> endpoints.stream()
+                            .filter(endpointFilter(config))
+                            .findFirst()),
                     configBuilder -> configBuilder
                             .setApplicationName(LocalizedText.english("AAS-Service"))
                             .setApplicationUri(APPLICATION_URI)
@@ -221,10 +223,22 @@ public class OpcUaAssetConnection extends
             Thread.sleep(200);
             createNewSubscription();
         }
-        catch (InterruptedException | ExecutionException | UaException | IOException | AssetConnectionException e) {
+        catch (Exception e) {
             Thread.currentThread().interrupt();
             throw new ConfigurationInitializationException(String.format("error opening OPC UA connection (endpoint: %s)", config.getHost()), e);
         }
     }
 
+
+    private Predicate<EndpointDescription> endpointFilter(OpcUaAssetConnectionConfig config) throws InterruptedException, ExecutionException {
+        SecurityPolicy securityPolicy = config.getSecurityPolicy() != null ? config.getSecurityPolicy() : SecurityPolicy.None;
+        MessageSecurityMode mode = securityPolicy != SecurityPolicy.None ? MessageSecurityMode.SignAndEncrypt : MessageSecurityMode.None;
+        Predicate<EndpointDescription> withEncrypt = e -> securityPolicy.getUri().equals(e.getSecurityPolicyUri()) && (e.getSecurityMode() == mode);
+        Optional<EndpointDescription> desiredEndpoint = DiscoveryClient.getEndpoints(config.getHost()).get().stream()
+                .filter(withEncrypt).findFirst();
+        if (desiredEndpoint.isPresent()) {
+            return withEncrypt;
+        }
+        return e -> securityPolicy.getUri().equals(e.getSecurityPolicyUri());
+    }
 }
