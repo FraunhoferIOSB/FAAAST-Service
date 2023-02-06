@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractInMemoryPersistenceBaseTest;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Identifier;
@@ -45,7 +46,7 @@ public class PersistenceFileTest extends AbstractInMemoryPersistenceBaseTest {
     private static final File ENV_FILE_XML = new File("src/test/resources/AASFull.xml");
 
     @Override
-    public PersistenceFile getPersistenceImplementation() {
+    public Persistence getPersistenceImplementation() {
         return new PersistenceFile();
     }
 
@@ -68,7 +69,7 @@ public class PersistenceFileTest extends AbstractInMemoryPersistenceBaseTest {
         environment = AASFull.createEnvironment();
         persistence = new PersistenceFile();
         ServiceContext serviceContext = Mockito.mock(ServiceContext.class);
-        configurable.init(CoreConfig.builder().build(),
+        persistence.init(CoreConfig.builder().build(),
                 persistenceFileConfig,
                 serviceContext);
     }

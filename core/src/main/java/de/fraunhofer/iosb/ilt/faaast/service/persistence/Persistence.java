@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
+import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.AASXPackage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.PackageDescription;
@@ -36,12 +37,10 @@ import java.util.Set;
 
 
 /**
- * An implementation of a persistence inherits from this interface. The persistence manages create, read, update and
- * delete actions with the element in the corresponding
- * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}. Each persistence instance needs one instance
- * of an Asset Administration Shell Environment. There can only be one running instance of a persistence implementation.
+ * Dummy non-generic base interface for Persistence in order to work around Java weirdness around raw types and methods
+ * with a generic return type.
  */
-public interface Persistence {
+interface Gettable {
 
     /**
      * Get an Identifiable by an Identifier.
@@ -76,6 +75,18 @@ public interface Persistence {
         throw new ResourceNotFoundException("Resource was found but is of incorrect type");
     }
 
+}
+
+
+/**
+ * An implementation of a persistence inherits from this interface. The persistence manages create, read, update and
+ * delete actions with the element in the corresponding
+ * {@link io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment}. Each persistence instance needs one instance
+ * of an Asset Administration Shell Environment. There can only be one running instance of a persistence implementation.
+ *
+ * @param <C> type of the corresponding configuration class
+ */
+public interface Persistence<C extends PersistenceConfig> extends Configurable<C>, Gettable {
 
     /**
      * Get a Submodel Element by a Reference.

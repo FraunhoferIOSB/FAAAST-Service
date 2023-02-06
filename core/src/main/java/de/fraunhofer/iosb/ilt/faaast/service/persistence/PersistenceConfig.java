@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
-import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.File;
@@ -29,7 +28,7 @@ import java.util.Objects;
  *
  * @param <T> type of the persistence
  */
-public class PersistenceConfig<T extends Configurable> extends Config<T> {
+public class PersistenceConfig<T extends Persistence> extends Config<T> {
 
     private static final boolean DEFAULT_DECOUPLE_ENVIRONMENT = true;
     private File initialModel;
@@ -128,7 +127,7 @@ public class PersistenceConfig<T extends Configurable> extends Config<T> {
      * @param <C> type of the config to build
      * @param <B> type of this builder, needed for inheritance builder pattern
      */
-    public abstract static class AbstractBuilder<T extends Configurable, C extends PersistenceConfig<T>, B extends AbstractBuilder<T, C, B>> extends ExtendableBuilder<C, B> {
+    public abstract static class AbstractBuilder<T extends Persistence, C extends PersistenceConfig<T>, B extends AbstractBuilder<T, C, B>> extends ExtendableBuilder<C, B> {
 
         public B initialModel(File value) {
             getBuildingInstance().setInitialModel(value);
@@ -154,7 +153,7 @@ public class PersistenceConfig<T extends Configurable> extends Config<T> {
      *
      * @param <T> type of the persistence of the config to build
      */
-    public static class Builder<T extends Configurable> extends AbstractBuilder<T, PersistenceConfig<T>, Builder<T>> {
+    public static class Builder<T extends Persistence> extends AbstractBuilder<T, PersistenceConfig<T>, Builder<T>> {
 
         @Override
         protected Builder<T> getSelf() {

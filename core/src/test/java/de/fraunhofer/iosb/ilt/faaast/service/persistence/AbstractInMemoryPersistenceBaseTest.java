@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
@@ -72,9 +71,8 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
 
     protected AssetAdministrationShellEnvironment environment;
     protected Persistence persistence;
-    protected Configurable configurable;
 
-    public abstract <T extends Persistence & Configurable> T getPersistenceImplementation();
+    public abstract Persistence getPersistenceImplementation();
 
 
     public abstract AssetAdministrationShellEnvironment getEnvironment();
@@ -86,11 +84,9 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
     @Before
     public void init() throws ConfigurationException, AssetConnectionException {
         environment = getEnvironment();
-        var persistenceImpl = getPersistenceImplementation();
-        persistence = persistenceImpl;
-        configurable = persistenceImpl;
+        persistence = getPersistenceImplementation();
         ServiceContext serviceContext = Mockito.mock(ServiceContext.class);
-        configurable.init(CoreConfig.builder().build(),
+        persistence.init(CoreConfig.builder().build(),
                 getPersistenceConfig(),
                 serviceContext);
     }
@@ -319,8 +315,8 @@ public abstract class AbstractInMemoryPersistenceBaseTest {
     @Test
     public void getSubmodelsEmptyTest() {
         String aasId = "Test_AssetAdministrationShell_Mandatory";
-        List<Submodel> expected = List.of();
-        List<Submodel> actual = persistence.get(aasId, new DefaultReference(), QueryModifier.DEFAULT);
+        List<AssetAdministrationShell> expected = List.of();
+        List<AssetAdministrationShell> actual = persistence.get(aasId, new DefaultReference(), QueryModifier.DEFAULT);
         Assert.assertEquals(expected, actual);
     }
 

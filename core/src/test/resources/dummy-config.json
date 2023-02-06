@@ -6,7 +6,7 @@
             },
     "assetConnections": [
         {
-            "@class": "de.fraunhofer.iosb.ilt.faaast.service.config.fixtures.DummyAssetConnectionConfig",
+            "@class": "de.fraunhofer.iosb.ilt.faaast.service.config.fixtures.DummyAssetConnection",
             "valueProviders":
                     {
                         "(Property)[ID_SHORT]Temperature":
@@ -20,7 +20,7 @@
     ],
     "persistence":
             {
-                "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig",
+                "@class": "de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence",
                 "decoupleEnvironment": true
             }
 }
