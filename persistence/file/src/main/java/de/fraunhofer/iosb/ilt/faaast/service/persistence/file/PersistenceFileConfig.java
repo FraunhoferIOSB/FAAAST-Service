@@ -16,10 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +36,7 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
     private static final String DEFAULT_BASE_PATH = Path.of("").toAbsolutePath().toString();
     private static final boolean DEFAULT_KEEP_INITIAL = true;
     public static final DataFormat DEFAULT_DATAFORMAT = DataFormat.JSON;
-    public static final String DEFAULT_FILENAME_PREFIX = "environment_createdByFAAAST";
+    public static final String DEFAULT_FILENAME_PREFIX = "model_persistence";
     public static final String DEFAULT_FILENAME = DEFAULT_FILENAME_PREFIX + "." + DEFAULT_DATAFORMAT.toString().toLowerCase();
 
     private String dataDir;
@@ -46,7 +48,6 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
     private DataFormat dataformat;
 
     public PersistenceFileConfig() {
-        dataDir = DEFAULT_BASE_PATH;
         keepInitial = DEFAULT_KEEP_INITIAL;
     }
 
@@ -54,34 +55,53 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
     /**
      * Sets the file name according to the configuration parameters.
      *
-     * @throws DeserializationException if parsing of aas environment fails
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException if initialModelFile
+     *             is present and cannot be parsed
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException if dataDir is not a
+     *             valid path
      */
-    public void init() throws DeserializationException {
-        if (!isKeepInitial()) {
-            Ensure.requireNonNull(getInitialModel());
-            filename = getInitialModel().getName();
-            dataDir = getInitialModel().getParent();
-            dataformat = EnvironmentSerializationManager.getDataFormat(getInitialModel());
-            Path filePath = getFilePath().toAbsolutePath();
-            LOGGER.info("File Persistence overrides the original model file {}", filePath);
+    public void init() throws ConfigurationInitializationException {
+        try {
+            if (Objects.nonNull(initialModelFile)) {
+                if (keepInitial) {
+                    if (Objects.isNull(dataformat)) {
+                        dataformat = EnvironmentSerializationManager.getDataFormat(initialModelFile);
+                    }
+                    filename = DEFAULT_FILENAME_PREFIX + "." + dataformat.toString().toLowerCase();
+                }
+                else {
+                    filename = initialModelFile.getName();
+                    dataDir = initialModelFile.getParent();
+                    dataformat = EnvironmentSerializationManager.getDataFormat(initialModelFile);
+                }
+            }
         }
-        else if (getInitialModel() != null && dataformat == null) {
-            dataformat = EnvironmentSerializationManager.getDataFormat(getInitialModel());
-            filename = DEFAULT_FILENAME_PREFIX + "." + dataformat.toString().toLowerCase();
+        catch (DeserializationException e) {
+            throw new ConfigurationInitializationException("error loading initial model file", e);
         }
-        else if (dataformat != null) {
-            filename = DEFAULT_FILENAME_PREFIX + "." + dataformat.toString().toLowerCase();
-        }
-        else {
+        if (Objects.isNull(dataformat)) {
             dataformat = DEFAULT_DATAFORMAT;
         }
+        if (Objects.isNull(dataDir)) {
+            dataDir = DEFAULT_BASE_PATH;
+        }
+        try {
+            Paths.get(dataDir);
+        }
+        catch (InvalidPathException | NullPointerException e) {
+            throw new ConfigurationInitializationException(String.format("dataDir is not a valid directory (dataDir: %s)", dataDir), e);
+        }
+        if (Objects.isNull(filename)) {
+            filename = DEFAULT_FILENAME_PREFIX + "." + dataformat.toString().toLowerCase();
+        }
+        LOGGER.info("File Persistence uses file {}", getFilePath().toAbsolutePath());
     }
 
 
     /**
-     * Get the current file path of the model file used by the file persistence.
+     * Get the current file path of the initialModel file used by the file persistence.
      *
-     * @return file path of the model file
+     * @return file path of the initialModel file
      */
     public Path getFilePath() {
         return Path.of(dataDir, filename);

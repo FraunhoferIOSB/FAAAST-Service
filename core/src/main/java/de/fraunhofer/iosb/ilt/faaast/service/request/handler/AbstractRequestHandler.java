@@ -47,7 +47,7 @@ import org.apache.commons.lang3.reflect.ConstructorUtils;
  */
 public abstract class AbstractRequestHandler<I extends Request<O>, O extends Response> {
 
-    protected final Persistence persistence;
+    protected final Persistence<?> persistence;
     protected final MessageBus messageBus;
     protected final AssetConnectionManager assetConnectionManager;
 

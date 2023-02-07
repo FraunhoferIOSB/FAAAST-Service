@@ -588,9 +588,13 @@ public class HttpEndpointTest {
                         .statusCode(StatusCode.SUCCESS)
                         .payload(expected)
                         .build());
-        when(persistence.get(aas.getIdentification(), new OutputModifier.Builder()
-                .level(Level.CORE)
-                .build())).thenReturn(aas);
+        when(persistence.get(
+                aas.getIdentification(),
+                new OutputModifier.Builder()
+                        .level(Level.CORE)
+                        .build(),
+                AssetAdministrationShell.class))
+                        .thenReturn(aas);
         mockAasContext(service, aasId);
         ContentResponse response = execute(
                 HttpMethod.GET,
