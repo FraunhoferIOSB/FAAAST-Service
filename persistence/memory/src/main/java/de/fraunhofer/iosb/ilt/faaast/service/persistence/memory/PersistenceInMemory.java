@@ -59,7 +59,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Implementation of {@link de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence} for in memory storage.
  *
- * Following types are not supported in the current version:
+ * <p>Following types are not supported in the current version:
  * <ul>
  * <li>AASX packages
  * <li>Package Descriptors
