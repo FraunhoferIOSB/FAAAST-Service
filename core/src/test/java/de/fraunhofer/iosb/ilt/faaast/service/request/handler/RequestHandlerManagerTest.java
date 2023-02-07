@@ -769,7 +769,7 @@ public class RequestHandlerManagerTest {
                 .build();
         DeleteSubmodelElementByPathResponse actual = manager.execute(request);
         DeleteSubmodelElementByPathResponse expected = new DeleteSubmodelElementByPathResponse.Builder()
-                .statusCode(StatusCode.SUCCESS)
+                .statusCode(StatusCode.SUCCESS_NO_CONTENT)
                 .build();
         Assert.assertTrue(ResponseHelper.equalsIgnoringTime(expected, actual));
         verify(persistence).remove(reference);
