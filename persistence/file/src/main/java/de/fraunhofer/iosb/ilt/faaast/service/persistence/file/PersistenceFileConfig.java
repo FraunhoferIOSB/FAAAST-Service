@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerialization
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
+import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -86,9 +87,9 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
             dataDir = DEFAULT_BASE_PATH;
         }
         try {
-            Paths.get(dataDir);
+            Paths.get(dataDir).toRealPath();
         }
-        catch (InvalidPathException | NullPointerException e) {
+        catch (IOException | InvalidPathException | NullPointerException e) {
             throw new ConfigurationInitializationException(String.format("dataDir is not a valid directory (dataDir: %s)", dataDir), e);
         }
         if (Objects.isNull(filename)) {

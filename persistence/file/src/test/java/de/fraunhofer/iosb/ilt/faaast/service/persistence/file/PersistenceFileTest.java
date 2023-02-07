@@ -123,7 +123,7 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
     public void testInvalidDataDir() throws ConfigurationException {
         PersistenceFileConfig.builder()
                 .initialModelFile(modelFileJson)
-                .dataDir("http://example.org")
+                .dataDir("[/:/]")
                 .keepInitial(true)
                 .build()
                 .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
