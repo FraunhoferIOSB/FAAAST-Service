@@ -166,7 +166,6 @@ public class App implements Runnable {
      * @param args CLI arguments
      */
     public static void main(String[] args) {
-        String FOO = null;
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
