@@ -76,13 +76,33 @@ jobs:
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: mvn clean deploy -P release --settings maven-ci-settings.xml -B
 
-    - name: Build and Push Docker Images
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+    - name: Set env variables
       run: |
-        export VERSION=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
-        # push version x.y.z
-        mvn jib:build -pl starter -Dcontainer.image.tag=${VERSION} -B
-        # push version x.y
-        mvn jib:build -pl starter -Dcontainer.image.tag=${VERSION%.*} -B
+        echo "Exporting Variables"
+        export STARTER_NAME=$(mvn -pl starter -Dexec.executable='echo' -Dexec.args='${project.build.finalName}' exec:exec -q)
+        echo "STARTER_ARTIFACT=${STARTER_NAME}.jar"   >> $GITHUB_ENV
+        export version=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
+        echo "VERSION=${version}"     >> $GITHUB_ENV
+        echo "DOCKER_TAG_SHORT=${version%.*}"     >> $GITHUB_ENV
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    - name: Build and push docker image - starter
+      uses: docker/build-push-action@v3
+      with:
+        platforms: linux/amd64,linux/arm64
+        context: "./starter"
+        push: true
+        build-args: |
+          ARTIFACT_FILE=${{ env.STARTER_ARTIFACT }}
+        tags: |
+          fraunhoferiosb/faaast-service:${{ env.VERSION }}
+          fraunhoferiosb/faaast-service:${{ env.DOCKER_TAG_SHORT }}
