@@ -89,11 +89,21 @@ public class RequestHandler extends AbstractHandler {
                 return;
             }
         }
+
+        HttpMethod method;
+        try {
+            method = HttpMethod.valueOf(request.getMethod());
+        }
+        catch (IllegalArgumentException e) {
+            HttpHelper.send(response, StatusCode.CLIENT_METHOD_NOT_ALLOWED, Result.error(String.format("Unknown method '%s'", request.getMethod())));
+            return;
+        }
+
         HttpRequest httpRequest = HttpRequest.builder()
                 .path(request.getRequestURI().replaceAll("/$", ""))
                 .query(request.getQueryString())
                 .body(reader.lines().collect(Collectors.joining(System.lineSeparator())))
-                .method(HttpMethod.valueOf(request.getMethod()))
+                .method(method)
                 .headers(Collections.list(request.getHeaderNames()).stream()
                         .collect(Collectors.toMap(
                                 x -> x,
