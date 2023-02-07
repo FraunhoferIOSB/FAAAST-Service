@@ -119,18 +119,18 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
     }
 
 
-    @Test(expected = ConfigurationInitializationException.class)
+    @Test
     public void testInvalidDataDir() throws ConfigurationException {
-        PersistenceFileConfig.builder()
+        Assert.assertThrows(ConfigurationInitializationException.class, () -> PersistenceFileConfig.builder()
                 .initialModelFile(modelFileJson)
                 .dataDir("[/:/]")
                 .keepInitial(true)
                 .build()
-                .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+                .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT));
     }
 
 
-    @Test(expected = ResourceNotFoundException.class)
+    @Test
     public void testOverrideInitial() throws ResourceNotFoundException, ConfigurationException, AssetConnectionException, IOException {
         PersistenceFileConfig config = PersistenceFileConfig.builder()
                 .initialModelFile(modelFileJson)
@@ -147,7 +147,7 @@ public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile
                         .map(Path::toString)
                         .filter(x -> x.endsWith(".json"))
                         .count());
-        newPersistence.get(identifier, QueryModifier.DEFAULT, AssetAdministrationShell.class);
+        Assert.assertThrows(ResourceNotFoundException.class, () -> newPersistence.get(identifier, QueryModifier.DEFAULT, AssetAdministrationShell.class));
     }
 
 

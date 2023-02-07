@@ -629,7 +629,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
     }
 
 
-    @Test(expected = ResourceNotFoundException.class)
+    @Test
     public void removeSubmodelTest() throws ResourceNotFoundException {
         Identifier submodelId = new DefaultIdentifier.Builder()
                 .idType(IdentifierType.IRI)
@@ -637,11 +637,11 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .build();
         Assert.assertNotNull(persistence.get(submodelId, QueryModifier.DEFAULT, Submodel.class));
         persistence.remove(submodelId);
-        persistence.get(submodelId, QueryModifier.DEFAULT, Submodel.class);
+        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.get(submodelId, QueryModifier.DEFAULT, Submodel.class));
     }
 
 
-    @Test(expected = ResourceNotFoundException.class)
+    @Test
     public void removeAASTest() throws ResourceNotFoundException {
         Identifier aasId = new DefaultIdentifier.Builder()
                 .idType(IdentifierType.IRI)
@@ -649,11 +649,11 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
                 .build();
         Assert.assertNotNull(persistence.get(aasId, QueryModifier.DEFAULT, AssetAdministrationShell.class));
         persistence.remove(aasId);
-        persistence.get(aasId, QueryModifier.DEFAULT, AssetAdministrationShell.class);
+        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.get(aasId, QueryModifier.DEFAULT, AssetAdministrationShell.class));
     }
 
 
-    @Test(expected = ResourceNotFoundException.class)
+    @Test
     public void removeByReferenceTest() throws ResourceNotFoundException {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
@@ -661,11 +661,11 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort);
         Assert.assertNotNull(persistence.get(reference, QueryModifier.DEFAULT));
         persistence.remove(reference);
-        persistence.get(reference, QueryModifier.DEFAULT);
+        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.get(reference, QueryModifier.DEFAULT));
     }
 
 
-    @Test(expected = ResourceNotFoundException.class)
+    @Test
     public void removeByReferencePropertyInSubmodelElementCollectionTest() throws ResourceNotFoundException {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell_Mandatory";
         String submodelId = "https://acplt.org/Test_Submodel_Mandatory";
@@ -674,11 +674,11 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElementCollectionIdShort, submodelElementIdShort);
         Assert.assertNotNull(persistence.get(reference, new OutputModifier()));
         persistence.remove(reference);
-        persistence.get(reference, QueryModifier.DEFAULT);
+        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.get(reference, QueryModifier.DEFAULT));
     }
 
 
-    @Test(expected = ResourceNotFoundException.class)
+    @Test
     public void removeByReferencePropertyTest() throws ResourceNotFoundException {
         String aasId = "https://acplt.org/Test_AssetAdministrationShell";
         String submodelId = "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial";
@@ -686,7 +686,7 @@ public abstract class AbstractPersistenceTest<T extends Persistence<C>, C extend
         Reference reference = ReferenceHelper.build(aasId, submodelId, submodelElementIdShort);
         Assert.assertNotNull(persistence.get(reference, new OutputModifier()));
         persistence.remove(reference);
-        persistence.get(reference, QueryModifier.DEFAULT);
+        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.get(reference, QueryModifier.DEFAULT));
     }
 
 

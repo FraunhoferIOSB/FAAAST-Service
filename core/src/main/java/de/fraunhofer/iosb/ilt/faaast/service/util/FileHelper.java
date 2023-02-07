@@ -22,6 +22,9 @@ import java.io.File;
  */
 public class FileHelper {
 
+    private static final String MSG_FILE_NON_NULL = "file must be non-null";
+    private static final String MSG_FILENAME_NON_NULL = "filename must be non-null";
+
     private FileHelper() {}
 
 
@@ -33,7 +36,7 @@ public class FileHelper {
      * @throws IllegalArgumentException if file is null
      */
     public static String getFilenameWithoutExtension(File file) {
-        Ensure.requireNonNull(file, "file must be non-null");
+        Ensure.requireNonNull(file, MSG_FILE_NON_NULL);
         return getFilenameWithoutExtension(file.getName());
     }
 
@@ -46,7 +49,7 @@ public class FileHelper {
      * @throws IllegalArgumentException if filename is null
      */
     public static String getFilenameWithoutExtension(String filename) {
-        Ensure.requireNonNull(filename, "filename must be non-null");
+        Ensure.requireNonNull(filename, MSG_FILENAME_NON_NULL);
         return filename.replaceFirst("[.][^.]+$", "");
     }
 
@@ -60,7 +63,7 @@ public class FileHelper {
      * @throws IllegalArgumentException if file is null
      */
     public static String getFileExtensionWithSeparator(File file) {
-        Ensure.requireNonNull(file, "file must be non-null");
+        Ensure.requireNonNull(file, MSG_FILE_NON_NULL);
         return getFileExtensionWithSeparator(file.getName());
     }
 
@@ -74,7 +77,7 @@ public class FileHelper {
      * @throws IllegalArgumentException if filename is null
      */
     public static String getFileExtensionWithSeparator(String filename) {
-        Ensure.requireNonNull(filename, "filename must be non-null");
+        Ensure.requireNonNull(filename, MSG_FILENAME_NON_NULL);
         int index = filename.lastIndexOf('.');
         if (index < 0 || index >= filename.length() - 1) {
             return "";
@@ -92,7 +95,7 @@ public class FileHelper {
      * @throws IllegalArgumentException if file is null
      */
     public static String getFileExtensionWithoutSeparator(File file) {
-        Ensure.requireNonNull(file, "file must be non-null");
+        Ensure.requireNonNull(file, MSG_FILE_NON_NULL);
         return getFileExtensionWithoutSeparator(file.getName());
     }
 
@@ -106,7 +109,7 @@ public class FileHelper {
      * @throws IllegalArgumentException if filename is null
      */
     public static String getFileExtensionWithoutSeparator(String filename) {
-        Ensure.requireNonNull(filename, "filename must be non-null");
+        Ensure.requireNonNull(filename, MSG_FILENAME_NON_NULL);
         int index = filename.lastIndexOf('.');
         if (index < 0 || index >= filename.length() - 1) {
             return "";

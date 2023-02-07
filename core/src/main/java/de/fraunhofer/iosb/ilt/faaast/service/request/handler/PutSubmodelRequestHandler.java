@@ -47,7 +47,7 @@ public class PutSubmodelRequestHandler extends AbstractRequestHandler<PutSubmode
     public PutSubmodelResponse process(PutSubmodelRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
         //check if resource does exist
         persistence.get(request.getSubmodel().getIdentification(), QueryModifier.DEFAULT, Submodel.class);
-        Submodel submodel = (Submodel) persistence.put(request.getSubmodel());
+        Submodel submodel = persistence.put(request.getSubmodel());
         Reference reference = AasUtils.toReference(submodel);
         syncWithAsset(reference, submodel.getSubmodelElements());
         messageBus.publish(ElementUpdateEventMessage.builder()
