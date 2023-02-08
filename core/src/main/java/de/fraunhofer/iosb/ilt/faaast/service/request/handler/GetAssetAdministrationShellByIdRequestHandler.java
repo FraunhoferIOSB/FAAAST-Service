@@ -40,7 +40,7 @@ public class GetAssetAdministrationShellByIdRequestHandler extends AbstractReque
 
     @Override
     public GetAssetAdministrationShellByIdResponse process(GetAssetAdministrationShellByIdRequest request) throws ResourceNotFoundException, MessageBusException {
-        AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), request.getOutputModifier());
+        AssetAdministrationShell shell = persistence.get(request.getId(), request.getOutputModifier(), AssetAdministrationShell.class);
         messageBus.publish(ElementReadEventMessage.builder()
                 .element(shell)
                 .value(shell)

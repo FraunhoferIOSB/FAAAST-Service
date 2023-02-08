@@ -239,9 +239,9 @@ public class App implements Runnable {
     private void validateModelIfRequired(ServiceConfig config) {
         if (validateModel) {
             try {
-                AssetAdministrationShellEnvironment model = config.getPersistence().getEnvironment() == null
-                        ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModel()).getEnvironment()
-                        : config.getPersistence().getEnvironment();
+                AssetAdministrationShellEnvironment model = config.getPersistence().getInitialModel() == null
+                        ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModelFile()).getEnvironment()
+                        : config.getPersistence().getInitialModel();
                 validate(model);
             }
             catch (IOException e) {
@@ -396,40 +396,40 @@ public class App implements Runnable {
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
             try {
                 LOGGER.info("Model: {} (CLI)", modelFile.getCanonicalFile());
-                if (config.getPersistence().getInitialModel() != null) {
+                if (config.getPersistence().getInitialModelFile() != null) {
                     LOGGER.info("Overriding Model Path {} set in Config File with {}",
-                            config.getPersistence().getInitialModel(),
+                            config.getPersistence().getInitialModelFile(),
                             modelFile.getCanonicalFile());
                 }
             }
             catch (IOException e) {
                 LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
             }
-            config.getPersistence().setInitialModel(modelFile);
+            config.getPersistence().setInitialModelFile(modelFile);
             return;
 
         }
         if (System.getenv(ENV_MODEL_FILE_PATH) != null && !System.getenv(ENV_MODEL_FILE_PATH).isBlank()) {
             LOGGER.info("Model: {} (ENV)", System.getenv(ENV_MODEL_FILE_PATH));
-            if (config.getPersistence().getInitialModel() != null) {
+            if (config.getPersistence().getInitialModelFile() != null) {
                 LOGGER.info("Overriding model path {} set in Config File with {}",
-                        config.getPersistence().getInitialModel(),
+                        config.getPersistence().getInitialModelFile(),
                         System.getenv(ENV_MODEL_FILE_PATH));
             }
-            config.getPersistence().setInitialModel(new File(System.getenv(ENV_MODEL_FILE_PATH)));
+            config.getPersistence().setInitialModelFile(new File(System.getenv(ENV_MODEL_FILE_PATH)));
             modelFile = new File(System.getenv(ENV_MODEL_FILE_PATH));
             return;
         }
 
-        if (config.getPersistence().getInitialModel() != null) {
-            LOGGER.info("Model: {} (CONFIG)", config.getPersistence().getInitialModel());
+        if (config.getPersistence().getInitialModelFile() != null) {
+            LOGGER.info("Model: {} (CONFIG)", config.getPersistence().getInitialModelFile());
             return;
         }
 
         Optional<File> defaultModel = findDefaultModel();
         if (defaultModel.isPresent()) {
             LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
-            config.getPersistence().setInitialModel(defaultModel.get());
+            config.getPersistence().setInitialModelFile(defaultModel.get());
             modelFile = new File(defaultModel.get().getAbsolutePath());
             return;
         }
@@ -441,7 +441,7 @@ public class App implements Runnable {
         }
         LOGGER.info("Model validation is disabled when using empty model");
         validateModel = false;
-        config.getPersistence().setEnvironment(new DefaultAssetAdministrationShellEnvironment.Builder().build());
+        config.getPersistence().setInitialModel(new DefaultAssetAdministrationShellEnvironment.Builder().build());
     }
 
 

@@ -2,21 +2,28 @@
 <!--start:changelog-header-->
 ## Current development version (0.5.0-SNAPSHOT)<!--end:changelog-header-->
 
-**New Features**
+**New Features & Major Changes**
 *   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
 *   OPC UA Endpoint
 	*   Additional parameters availabe in configuration
 *   Docker container now runs using a non-root user
+*   Base persistence configuration updated
+	*   changed `initialModel` from filename to `AASEnvironment` object
+	*   added  `initialModelFile`
+	*   removed `decoupleEnvironment` property. To achieve previous behavior you need to manually decouple the model by making a deep copy, e.g. via `DeepCopyHelper.deepCopy(...)`
 
 **Internal changes & bugfixes**
 *   HTTP Endpoint
-	*   DELETE requests now correctly return HTTP status code `204 NO CONTENT`. The following URL patterns are affected:
+	*   DELETE requests now correctly return HTTP status code `204 No Content`. The following URL patterns are affected:
 		*   /submodels/{submodelIdentifier}
 		*   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
 		*   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
 	*   Using not allowed HTTP methods not correctly returns `405 Method Not Allowed` instead of `500 Internal Server Error`
 	*   Unsupported URLS (valid URLs with additional path elements) now correctly return `400 Bad Request` instead of `405 Method not allowed`
+	*   GET /shells/{aasIdentifier} now correctly returns status code `404 Not Found` when called with an existing ID that is not an AAS (instead of `500 Internal Server Error`)
 *   OPC UA Endpoint
+	*   Major code refactoring
+*   Persistence
 	*   Major code refactoring
 *   Miscellaneous
 	*   Now using dockerfile to build docker container instead of jib maven plugin

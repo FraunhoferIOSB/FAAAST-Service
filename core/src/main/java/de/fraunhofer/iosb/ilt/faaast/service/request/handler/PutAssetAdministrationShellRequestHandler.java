@@ -41,9 +41,8 @@ public class PutAssetAdministrationShellRequestHandler extends AbstractRequestHa
 
     @Override
     public PutAssetAdministrationShellResponse process(PutAssetAdministrationShellRequest request) throws ResourceNotFoundException, MessageBusException {
-        //check if resource does exist
-        persistence.get(request.getAas().getIdentification(), QueryModifier.DEFAULT);
-        AssetAdministrationShell shell = (AssetAdministrationShell) persistence.put(request.getAas());
+        persistence.get(request.getAas().getIdentification(), QueryModifier.DEFAULT, AssetAdministrationShell.class);
+        AssetAdministrationShell shell = persistence.put(request.getAas());
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(shell)
                 .value(shell)

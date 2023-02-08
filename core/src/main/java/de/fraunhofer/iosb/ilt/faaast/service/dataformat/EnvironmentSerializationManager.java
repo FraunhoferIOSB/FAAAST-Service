@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
@@ -25,7 +26,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -193,7 +193,7 @@ public class EnvironmentSerializationManager {
 
     private static List<DataFormat> getPotentialDataFormats(File file) throws DeserializationException {
         Ensure.requireNonNull(file, MSG_FILE_MUST_BE_NON_NULL);
-        String fileExtension = FilenameUtils.getExtension(file.getName());
+        String fileExtension = FileHelper.getFileExtensionWithoutSeparator(file);
         List<DataFormat> potentialDataFormats = DataFormat.forFileExtension(fileExtension);
         if (potentialDataFormats.isEmpty()) {
             throw new DeserializationException(String.format("error reading AAS file - no supported data format found for extension '%s'", fileExtension));
