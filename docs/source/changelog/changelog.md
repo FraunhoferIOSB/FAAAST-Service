@@ -18,6 +18,7 @@
 		*   /submodels/{submodelIdentifier}
 		*   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
 		*   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+	*   Using not allowed HTTP methods not correctly returns `405 Method Not Allowed` instead of `500 Internal Server Error`
 	*   GET /shells/{aasIdentifier} now correctly returns status code `404 Not Found` when called with an existing ID that is not an AAS (instead of `500 Internal Server Error`)
 *   OPC UA Endpoint
 	*   Major code refactoring

@@ -42,6 +42,7 @@ jobs:
         mvn test-compile -P build-ci --settings maven-ci-settings.xml -B
 
     - name: Test with Coverage
+      if: ${{ github.event.pull_request.head.repo.fork == false }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

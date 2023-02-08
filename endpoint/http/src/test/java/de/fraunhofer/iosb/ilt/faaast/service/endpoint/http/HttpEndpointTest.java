@@ -207,6 +207,13 @@ public class HttpEndpointTest {
 
 
     @Test
+    public void testInvalidMethod() throws Exception {
+        ContentResponse response = execute(HttpMethod.PATCH, "/shells");
+        Assert.assertEquals(HttpStatus.METHOD_NOT_ALLOWED_405, response.getStatus());
+    }
+
+
+    @Test
     public void testCORSEnabled() throws Exception {
         ContentResponse response = execute(HttpMethod.GET, "/foo/bar");
         Assert.assertEquals("*", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER));
