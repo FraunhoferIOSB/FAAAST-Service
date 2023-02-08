@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 
 /**
- * Base class for mapping HTTP requests to protocl-agnostic requests.
+ * Base class for mapping HTTP requests to protocol-agnostic requests.
  */
 public abstract class AbstractRequestMapper {
 
@@ -75,7 +75,7 @@ public abstract class AbstractRequestMapper {
 
 
     /**
-     * Decides if a given HTTP request matches this concrete protocl-agnostic request.
+     * Decides if a given HTTP request matches this concrete protocol-agnostic request.
      *
      * @param httpRequest the HTTP request to check
      * @return true if matches, otherwise false
@@ -84,6 +84,21 @@ public abstract class AbstractRequestMapper {
     public boolean matchesUrl(HttpRequest httpRequest) {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         return httpRequest.getPath().matches(urlPattern);
+    }
+
+
+    /**
+     * Decides if a given URL matches this concrete protocol-agnostic request.
+     *
+     * @param url the URL to check
+     * @return true if matches, otherwise false
+     * @throws IllegalArgumentException if url is null
+     */
+    public boolean matchesUrl(String url) {
+        Ensure.requireNonNull(url, "url must be non-null");
+        return matchesUrl(HttpRequest.builder()
+                .path(url)
+                .build());
     }
 
 

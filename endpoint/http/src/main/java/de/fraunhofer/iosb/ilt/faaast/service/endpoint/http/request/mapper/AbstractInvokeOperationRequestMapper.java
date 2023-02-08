@@ -43,7 +43,7 @@ import java.util.Map;
 public abstract class AbstractInvokeOperationRequestMapper<T extends InvokeOperationRequest<U>, U extends Response> extends AbstractSubmodelInterfaceRequestMapper<T, U> {
 
     protected static final String SUBMODEL_ELEMENT_PATH = RegExHelper.uniqueGroupName();
-    protected static final String PATTERN = String.format("submodel-elements/(?<%s>.*)/invoke", SUBMODEL_ELEMENT_PATH);
+    protected static final String PATTERN = String.format("submodel-elements/%s/invoke", pathElement(SUBMODEL_ELEMENT_PATH));
 
     protected AbstractInvokeOperationRequestMapper(ServiceContext serviceContext) {
         super(serviceContext, HttpMethod.POST, PATTERN);
