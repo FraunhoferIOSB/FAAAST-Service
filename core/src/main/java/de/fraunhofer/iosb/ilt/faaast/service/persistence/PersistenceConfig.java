@@ -15,11 +15,16 @@
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
 import java.io.File;
-import java.util.NoSuchElementException;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -28,72 +33,58 @@ import java.util.Objects;
  *
  * @param <T> type of the persistence
  */
-public class PersistenceConfig<T extends Persistence> extends Config<T> {
+public abstract class PersistenceConfig<T extends Persistence> extends Config<T> {
 
-    private static final boolean DEFAULT_DECOUPLE_ENVIRONMENT = true;
-    private File initialModel;
-    private AssetAdministrationShellEnvironment environment;
-    private boolean decoupleEnvironment;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceConfig.class);
+    protected File initialModelFile;
+    protected AssetAdministrationShellEnvironment initialModel;
 
-    public PersistenceConfig(File initialModel) {
-        this.initialModel = initialModel;
-        decoupleEnvironment = DEFAULT_DECOUPLE_ENVIRONMENT;
+    public File getInitialModelFile() {
+        return initialModelFile;
     }
 
 
-    public PersistenceConfig() {
-        decoupleEnvironment = DEFAULT_DECOUPLE_ENVIRONMENT;
-    }
-
-
-    public File getInitialModel() {
+    public AssetAdministrationShellEnvironment getInitialModel() {
         return initialModel;
     }
 
 
+    public void setInitialModel(AssetAdministrationShellEnvironment initialModel) {
+        this.initialModel = initialModel;
+    }
+
+
+    public void setInitialModelFile(File initialModelFile) {
+        this.initialModelFile = initialModelFile;
+    }
+
+
     /**
-     * Sets model file containing initial model. Initial model is the model that is loaded on first start.
+     * Loads the initial model from code/memory if present, otherwise from file.
      *
-     * @param initialModel the model file
-     * @throws NoSuchElementException if file is not found
+     * @return the loaded initial model or an empty model if neither an initial in-memory model nor an initial model
+     *         file is specified.
+     * @throws InvalidConfigurationException if initial model file should be used and file does not exist or is not a
+     *             file
+     * @throws DeserializationException if deserialization fails
      */
-    public void setInitialModel(File initialModel) {
-        if (initialModel.exists() && initialModel.isFile()) {
-            this.initialModel = initialModel;
+    public AssetAdministrationShellEnvironment loadInitialModel() throws InvalidConfigurationException, DeserializationException {
+        if (Objects.nonNull(initialModel)) {
+            LOGGER.debug("using model from code/memory");
+            return initialModel;
         }
-        else {
-            throw new NoSuchElementException(String.format("The specified file ( %s ) was not found.", initialModel.getAbsolutePath()));
+        if (Objects.nonNull(initialModelFile)) {
+            if (!initialModelFile.exists()) {
+                throw new InvalidConfigurationException(String.format("model file not found (file: %s)", initialModelFile));
+            }
+            if (!initialModelFile.isFile()) {
+                throw new InvalidConfigurationException(String.format("model file is not file (file: %s)", initialModelFile));
+            }
+            return EnvironmentSerializationManager
+                    .deserialize(initialModelFile)
+                    .getEnvironment();
         }
-    }
-
-
-    public AssetAdministrationShellEnvironment getEnvironment() {
-        return environment;
-    }
-
-
-    /**
-     * Overwrites the AASEnvironment from model path.
-     *
-     * @param environment the environment to set
-     */
-    public void setEnvironment(AssetAdministrationShellEnvironment environment) {
-        this.environment = environment;
-    }
-
-
-    public boolean isDecoupleEnvironment() {
-        return decoupleEnvironment;
-    }
-
-
-    /**
-     * If true then a copied version of the environment is used.
-     *
-     * @param decoupleEnvironment flag indicating whether to decouple the environment
-     */
-    public void setDecoupleEnvironment(boolean decoupleEnvironment) {
-        this.decoupleEnvironment = decoupleEnvironment;
+        return new DefaultAssetAdministrationShellEnvironment.Builder().build();
     }
 
 
@@ -109,15 +100,14 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
             return false;
         }
         final PersistenceConfig<?> other = (PersistenceConfig<?>) obj;
-        return Objects.equals(this.initialModel, other.initialModel)
-                && Objects.equals(this.decoupleEnvironment, other.decoupleEnvironment)
-                && Objects.equals(this.environment, other.environment);
+        return Objects.equals(initialModelFile, other.initialModelFile)
+                && Objects.equals(initialModel, other.initialModel);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), this.initialModel, this.decoupleEnvironment, this.environment);
+        return Objects.hash(super.hashCode(), initialModelFile, initialModel);
     }
 
     /**
@@ -129,41 +119,15 @@ public class PersistenceConfig<T extends Persistence> extends Config<T> {
      */
     public abstract static class AbstractBuilder<T extends Persistence, C extends PersistenceConfig<T>, B extends AbstractBuilder<T, C, B>> extends ExtendableBuilder<C, B> {
 
-        public B initialModel(File value) {
+        public B initialModelFile(File value) {
+            getBuildingInstance().setInitialModelFile(value);
+            return getSelf();
+        }
+
+
+        public B initialModel(AssetAdministrationShellEnvironment value) {
             getBuildingInstance().setInitialModel(value);
             return getSelf();
-        }
-
-
-        public B environment(AssetAdministrationShellEnvironment value) {
-            getBuildingInstance().setEnvironment(value);
-            return getSelf();
-        }
-
-
-        public B decoupleEnvironment(boolean value) {
-            getBuildingInstance().setDecoupleEnvironment(value);
-            return getSelf();
-        }
-
-    }
-
-    /**
-     * Builder for PersistenceConfig class.
-     *
-     * @param <T> type of the persistence of the config to build
-     */
-    public static class Builder<T extends Persistence> extends AbstractBuilder<T, PersistenceConfig<T>, Builder<T>> {
-
-        @Override
-        protected Builder<T> getSelf() {
-            return this;
-        }
-
-
-        @Override
-        protected PersistenceConfig<T> newBuildingInstance() {
-            return new PersistenceConfig<>();
         }
 
     }

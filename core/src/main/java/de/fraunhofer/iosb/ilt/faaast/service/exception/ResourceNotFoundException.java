@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.exception;
 
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
+import io.adminshell.aas.v3.model.Identifiable;
+import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.Reference;
 
 
@@ -23,18 +25,30 @@ import io.adminshell.aas.v3.model.Reference;
  */
 public class ResourceNotFoundException extends Exception {
 
+    private static final String BASE_MSG = "Resource not found";
+
     public ResourceNotFoundException(String message) {
         super(message);
     }
 
 
     public ResourceNotFoundException(Reference reference, Throwable cause) {
-        this("Resource not found with ID Path: " + AasUtils.asString(reference), cause);
+        this(String.format("%s (reference: %s)", BASE_MSG, AasUtils.asString(reference)), cause);
     }
 
 
     public ResourceNotFoundException(Reference reference) {
-        this("Resource not found with ID Path: " + AasUtils.asString(reference));
+        this(String.format("%s (reference: %s)", BASE_MSG, AasUtils.asString(reference)));
+    }
+
+
+    public ResourceNotFoundException(Identifier id, Class<? extends Identifiable> type, Throwable cause) {
+        this(String.format("%s (id: %s, type: %s)", BASE_MSG, id, type), cause);
+    }
+
+
+    public ResourceNotFoundException(Identifier id, Class<? extends Identifiable> type) {
+        this(String.format("%s (id: %s, type: %s)", BASE_MSG, id, type));
     }
 
 

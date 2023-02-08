@@ -41,12 +41,6 @@ public class GetAssetAdministrationShellByIdRequestMapper
 
 
     @Override
-    public boolean matchesUrl(HttpRequest httpRequest) {
-        return super.matchesUrl(httpRequest) && httpRequest.getPathElements().size() == 2;
-    }
-
-
-    @Override
     public GetAssetAdministrationShellByIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAssetAdministrationShellByIdRequest.builder()
                 .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(AAS_ID))))

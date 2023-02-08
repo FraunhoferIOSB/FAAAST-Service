@@ -27,7 +27,7 @@ public class QueryModifier {
     protected Level level;
     protected Extent extent;
 
-    public QueryModifier() {
+    protected QueryModifier() {
         this.level = Level.DEEP;
         this.extent = Extent.WITHOUT_BLOB_VALUE;
     }

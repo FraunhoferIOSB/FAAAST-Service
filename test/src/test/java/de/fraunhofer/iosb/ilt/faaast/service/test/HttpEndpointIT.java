@@ -159,7 +159,7 @@ public class HttpEndpointIT {
                         .requestHandlerThreadPoolSize(2)
                         .build())
                 .persistence(PersistenceInMemoryConfig.builder()
-                        .environment(environment)
+                        .initialModel(DeepCopyHelper.deepCopy(environment))
                         .build())
                 .endpoints(List.of(HttpEndpointConfig.builder()
                         .port(PORT)
@@ -352,6 +352,19 @@ public class HttpEndpointIT {
                                 null,
                                 expected,
                                 AssetAdministrationShell.class)));
+    }
+
+
+    @Test
+    public void testAASRepositoryGetAssetAdministrationShellUsingSubmodelIdReturnsResourceNotFound()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        String submodelId = environment.getSubmodels().get(1).getIdentification().getIdentifier();
+        assertExecuteSingle(HttpMethod.GET,
+                API_PATHS.aasRepository().assetAdministrationShell(submodelId),
+                StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND,
+                null,
+                null,
+                AssetAdministrationShell.class);
     }
 
 

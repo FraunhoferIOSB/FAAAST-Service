@@ -43,7 +43,7 @@ public class DeleteConceptDescriptionByIdRequestHandler extends AbstractRequestH
     @Override
     public DeleteConceptDescriptionByIdResponse process(DeleteConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException {
         DeleteConceptDescriptionByIdResponse response = new DeleteConceptDescriptionByIdResponse();
-        ConceptDescription conceptDescription = (ConceptDescription) persistence.get(request.getId(), new QueryModifier());
+        ConceptDescription conceptDescription = persistence.get(request.getId(), QueryModifier.DEFAULT, ConceptDescription.class);
         persistence.remove(request.getId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         messageBus.publish(ElementDeleteEventMessage.builder()

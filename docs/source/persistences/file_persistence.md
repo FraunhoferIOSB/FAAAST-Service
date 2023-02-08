@@ -12,7 +12,7 @@ Example configuration for the file persistence:
 {
 	"persistence" : {
 		"@class" : "de.fraunhofer.iosb.ilt.faaast.service.persistence.file.PersistenceFile",
-		"initialModel" : "{pathTo}/FAAAST-Service/misc/examples/demoAAS.json",
+		"initialModelFile" : "{pathTo}/FAAAST-Service/misc/examples/demoAAS.json",
 		"dataDir": ".",
 		"keepInitial": true,
 		"dataformat": "XML"
