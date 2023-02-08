@@ -96,6 +96,7 @@ public class RequestHandler extends AbstractHandler {
         }
         catch (IllegalArgumentException e) {
             HttpHelper.send(response, StatusCode.CLIENT_METHOD_NOT_ALLOWED, Result.error(String.format("Unknown method '%s'", request.getMethod())));
+            baseRequest.setHandled(true);
             return;
         }
 

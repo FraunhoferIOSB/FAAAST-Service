@@ -14,6 +14,7 @@
 		*   /submodels/{submodelIdentifier}
 		*   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
 		*   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+	*   Using not allowed HTTP methods not correctly returns `405 Method Not Allowed` instead of `500 Internal Server Error`
 *   OPC UA Endpoint
 	*   Major code refactoring
 *   Miscellaneous
