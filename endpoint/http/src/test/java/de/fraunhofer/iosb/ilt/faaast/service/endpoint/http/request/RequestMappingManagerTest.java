@@ -994,6 +994,6 @@ public class RequestMappingManagerTest {
         Assert.assertThrows(MethodNotAllowedException.class, () -> mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.PATCH)
                 .path("shells")
-                .build()));;
+                .build()));
     }
 }
