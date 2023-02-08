@@ -12,19 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model;
+package de.fraunhofer.iosb.ilt.faaast.service.util;
+
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 
 /**
- * Enum describing supported HTTP methods.
+ * Utility class helping with streams.
  */
-public enum HttpMethod {
-    GET,
-    PUT,
-    DELETE,
-    PATCH,
-    POST,
-    OPTIONS,
-    HEAD,
-    TRACE,
-    CONNECT;
+public class StreamHelper {
+
+    private StreamHelper() {}
+
+
+    /**
+     * Creates a stream of the given elements or an empty stream if agument is null or empty.
+     *
+     * @param <T> type of the elements
+     * @param values values to convert to stream
+     * @return a stream of the given elements
+     */
+    public static <T> Stream<T> toStream(T... values) {
+        return Arrays.asList(values).stream();
+    }
 }

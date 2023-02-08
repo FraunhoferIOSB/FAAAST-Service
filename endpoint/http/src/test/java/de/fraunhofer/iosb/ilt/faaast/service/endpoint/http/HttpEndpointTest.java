@@ -324,6 +324,16 @@ public class HttpEndpointTest {
 
 
     @Test
+    public void testInvalidAASIdentifierAndAdditionalPathElement() throws Exception {
+        when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .build());
+        ContentResponse response = execute(HttpMethod.DELETE, "/shells/bogus/test");
+        Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+    }
+
+
+    @Test
     public void testInvalidBase64Param() throws Exception {
         ContentResponse response = execute(HttpMethod.GET, "/concept-descriptions/InvalidBase64");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
