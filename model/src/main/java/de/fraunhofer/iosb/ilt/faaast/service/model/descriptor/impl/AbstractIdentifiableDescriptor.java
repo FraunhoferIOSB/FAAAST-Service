@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AdministrationDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.DescriptionDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.EndpointDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.IdentificationDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
+import io.adminshell.aas.v3.model.AdministrativeInformation;
+import io.adminshell.aas.v3.model.Identifier;
+import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +30,10 @@ import java.util.Objects;
 public abstract class AbstractIdentifiableDescriptor {
 
     private String idShort;
-    private List<EndpointDescriptor> endpoints;
-    private AdministrationDescriptor administration;
-    private List<DescriptionDescriptor> descriptions;
-    private IdentificationDescriptor identification;
+    private List<Endpoint> endpoints;
+    private AdministrativeInformation administration;
+    private List<LangString> descriptions;
+    private Identifier identification;
 
     protected AbstractIdentifiableDescriptor() {
         idShort = null;
@@ -44,8 +44,12 @@ public abstract class AbstractIdentifiableDescriptor {
     }
 
 
-    protected AbstractIdentifiableDescriptor(String idShort, List<EndpointDescriptor> endpoints, AdministrationDescriptor administration, List<DescriptionDescriptor> descriptions,
-            IdentificationDescriptor identification) {
+    protected AbstractIdentifiableDescriptor(
+            String idShort,
+            List<Endpoint> endpoints,
+            AdministrativeInformation administration,
+            List<LangString> descriptions,
+            Identifier identification) {
         this.idShort = idShort;
         this.endpoints = endpoints;
         this.administration = administration;
@@ -64,42 +68,42 @@ public abstract class AbstractIdentifiableDescriptor {
     }
 
 
-    public List<EndpointDescriptor> getEndpoints() {
+    public List<Endpoint> getEndpoints() {
         return endpoints;
     }
 
 
-    public void setEndpoints(List<EndpointDescriptor> endpoints) {
+    public void setEndpoints(List<Endpoint> endpoints) {
         this.endpoints = endpoints;
     }
 
 
-    public AdministrationDescriptor getAdministration() {
+    public AdministrativeInformation getAdministration() {
         return administration;
     }
 
 
-    public void setAdministration(AdministrationDescriptor administration) {
+    public void setAdministration(AdministrativeInformation administration) {
         this.administration = administration;
     }
 
 
-    public List<DescriptionDescriptor> getDescriptions() {
+    public List<LangString> getDescriptions() {
         return descriptions;
     }
 
 
-    public void setDescriptions(List<DescriptionDescriptor> descriptions) {
+    public void setDescriptions(List<LangString> descriptions) {
         this.descriptions = descriptions;
     }
 
 
-    public IdentificationDescriptor getIdentification() {
+    public Identifier getIdentification() {
         return identification;
     }
 
 
-    public void setIdentification(IdentificationDescriptor identification) {
+    public void setIdentification(Identifier identification) {
         this.identification = identification;
     }
 
@@ -134,37 +138,37 @@ public abstract class AbstractIdentifiableDescriptor {
         }
 
 
-        public B endpoints(List<EndpointDescriptor> value) {
+        public B endpoints(List<Endpoint> value) {
             getBuildingInstance().setEndpoints(value);
             return getSelf();
         }
 
 
-        public B endpoint(EndpointDescriptor value) {
+        public B endpoint(Endpoint value) {
             getBuildingInstance().getEndpoints().add(value);
             return getSelf();
         }
 
 
-        public B administration(AdministrationDescriptor value) {
+        public B administration(AdministrativeInformation value) {
             getBuildingInstance().setAdministration(value);
             return getSelf();
         }
 
 
-        public B descriptions(List<DescriptionDescriptor> value) {
+        public B descriptions(List<LangString> value) {
             getBuildingInstance().setDescriptions(value);
             return getSelf();
         }
 
 
-        public B oneDescription(DescriptionDescriptor value) {
+        public B description(LangString value) {
             getBuildingInstance().getDescriptions().add(value);
             return getSelf();
         }
 
 
-        public B identification(IdentificationDescriptor value) {
+        public B identification(Identifier value) {
             getBuildingInstance().setIdentification(value);
             return getSelf();
         }

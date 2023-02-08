@@ -14,6 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
+import io.adminshell.aas.v3.model.AdministrativeInformation;
+import io.adminshell.aas.v3.model.Identifier;
+import io.adminshell.aas.v3.model.LangString;
+import io.adminshell.aas.v3.model.Reference;
 import java.io.Serializable;
 import java.util.List;
 
@@ -29,32 +33,32 @@ public interface SubmodelDescriptor extends Serializable {
     public void setIdShort(String idShort);
 
 
-    public List<EndpointDescriptor> getEndpoints();
+    public List<Endpoint> getEndpoints();
 
 
-    public void setEndpoints(List<EndpointDescriptor> endpoints);
+    public void setEndpoints(List<Endpoint> endpoints);
 
 
-    public AdministrationDescriptor getAdministration();
+    public AdministrativeInformation getAdministration();
 
 
-    public void setAdministration(AdministrationDescriptor administration);
+    public void setAdministration(AdministrativeInformation administration);
 
 
-    public List<DescriptionDescriptor> getDescriptions();
+    public List<LangString> getDescriptions();
 
 
-    public void setDescriptions(List<DescriptionDescriptor> descriptions);
+    public void setDescriptions(List<LangString> descriptions);
 
 
-    public IdentificationDescriptor getIdentification();
+    public Identifier getIdentification();
 
 
-    public void setIdentification(IdentificationDescriptor identification);
+    public void setIdentification(Identifier identification);
 
 
-    public ReferenceDescriptor getSemanticId();
+    public Reference getSemanticId();
 
 
-    public void setSemanticId(ReferenceDescriptor semanticId);
+    public void setSemanticId(Reference semanticId);
 }

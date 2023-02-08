@@ -14,11 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AdministrationDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.IdentificationDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ReferenceDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import io.adminshell.aas.v3.model.LangString;
+import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.Submodel;
 import java.util.Objects;
 
@@ -28,27 +25,21 @@ import java.util.Objects;
  */
 public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor implements SubmodelDescriptor {
 
-    private ReferenceDescriptor semanticId;
+    private Reference semanticId;
 
     public DefaultSubmodelDescriptor() {
         semanticId = null;
     }
 
 
-    public DefaultSubmodelDescriptor(SubmodelDescriptor source) {
-        super(source.getIdShort(), source.getEndpoints(), source.getAdministration(), source.getDescriptions(), source.getIdentification());
-        semanticId = source.getSemanticId();
-    }
-
-
     @Override
-    public ReferenceDescriptor getSemanticId() {
+    public Reference getSemanticId() {
         return semanticId;
     }
 
 
     @Override
-    public void setSemanticId(ReferenceDescriptor semanticId) {
+    public void setSemanticId(Reference semanticId) {
         this.semanticId = semanticId;
     }
 
@@ -80,27 +71,19 @@ public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor im
     public abstract static class AbstractBuilder<T extends DefaultSubmodelDescriptor, B extends AbstractBuilder<T, B>>
             extends AbstractIdentifiableDescriptor.AbstractBuilder<T, B> {
 
-        public B semanticId(ReferenceDescriptor value) {
+        public B semanticId(Reference value) {
             getBuildingInstance().setSemanticId(value);
             return getSelf();
         }
 
 
-        public B from(Submodel submodel) {
-            if (submodel != null) {
-                getBuildingInstance().setIdShort(submodel.getIdShort());
-                if (submodel.getIdentification() != null) {
-                    getBuildingInstance().setIdentification(IdentificationDescriptor.builder().from(submodel.getIdentification()).build());
-                }
-                if (submodel.getAdministration() != null) {
-                    getBuildingInstance().setAdministration(AdministrationDescriptor.builder().from(submodel.getAdministration()).build());
-                }
-                for (LangString langString: submodel.getDescriptions()) {
-                    getBuildingInstance().getDescriptions().add(DefaultDescriptionDescriptor.builder().from(langString).build());
-                }
-                if (submodel.getSemanticId() != null) {
-                    getBuildingInstance().setSemanticId(DefaultReferenceDescriptor.builder().from(submodel.getSemanticId()).build());
-                }
+        public B from(Submodel parent) {
+            if (parent != null) {
+                idShort(parent.getIdShort());
+                identification(parent.getIdentification());
+                administration(parent.getAdministration());
+                descriptions(parent.getDescriptions());
+                semanticId(parent.getSemanticId());
             }
             return getSelf();
         }

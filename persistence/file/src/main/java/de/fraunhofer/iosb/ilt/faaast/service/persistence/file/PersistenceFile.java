@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractInMemoryPersistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;

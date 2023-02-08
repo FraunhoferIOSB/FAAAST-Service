@@ -12,17 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
+package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
-import java.io.Serializable;
 import java.util.Objects;
 
 
 /**
  * Registry Descriptor for ProtocolInformation.
  */
-public class ProtocolInformationDescriptor implements Serializable {
+public class DefaultProtocolInformation implements ProtocolInformation {
 
     private String endpointAddress;
     private String endpointProtocol;
@@ -31,7 +31,7 @@ public class ProtocolInformationDescriptor implements Serializable {
     private String subprotocolBody;
     private String subprotocolBodyEncoding;
 
-    public ProtocolInformationDescriptor() {
+    public DefaultProtocolInformation() {
 
         endpointAddress = null;
         endpointProtocol = null;
@@ -42,61 +42,73 @@ public class ProtocolInformationDescriptor implements Serializable {
     }
 
 
+    @Override
     public String getEndpointAddress() {
         return endpointAddress;
     }
 
 
+    @Override
     public void setEndpointAddress(String endpointAddress) {
         this.endpointAddress = endpointAddress;
     }
 
 
+    @Override
     public String getEndpointProtocol() {
         return endpointProtocol;
     }
 
 
+    @Override
     public void setEndpointProtocol(String endpointProtocol) {
         this.endpointProtocol = endpointProtocol;
     }
 
 
+    @Override
     public String getEndpointProtocolVersion() {
         return endpointProtocolVersion;
     }
 
 
+    @Override
     public void setEndpointProtocolVersion(String endpointProtocolVersion) {
         this.endpointProtocolVersion = endpointProtocolVersion;
     }
 
 
+    @Override
     public String getSubprotocol() {
         return subprotocol;
     }
 
 
+    @Override
     public void setSubprotocol(String subprotocol) {
         this.subprotocol = subprotocol;
     }
 
 
+    @Override
     public String getSubprotocolBody() {
         return subprotocolBody;
     }
 
 
+    @Override
     public void setSubprotocolBody(String subprotocolBody) {
         this.subprotocolBody = subprotocolBody;
     }
 
 
+    @Override
     public String getSubprotocolBodyEncoding() {
         return subprotocolBodyEncoding;
     }
 
 
+    @Override
     public void setSubprotocolBodyEncoding(String subprotocolBodyEncoding) {
         this.subprotocolBodyEncoding = subprotocolBodyEncoding;
     }
@@ -110,7 +122,7 @@ public class ProtocolInformationDescriptor implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ProtocolInformationDescriptor that = (ProtocolInformationDescriptor) o;
+        DefaultProtocolInformation that = (DefaultProtocolInformation) o;
         return Objects.equals(endpointAddress, that.endpointAddress)
                 && Objects.equals(endpointProtocol, that.endpointProtocol)
                 && Objects.equals(endpointProtocolVersion, that.endpointProtocolVersion)
@@ -130,7 +142,7 @@ public class ProtocolInformationDescriptor implements Serializable {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends ProtocolInformationDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends DefaultProtocolInformation, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B endpointAddress(String value) {
             getBuildingInstance().setEndpointAddress(value);
@@ -168,7 +180,7 @@ public class ProtocolInformationDescriptor implements Serializable {
         }
     }
 
-    public static class Builder extends AbstractBuilder<ProtocolInformationDescriptor, Builder> {
+    public static class Builder extends AbstractBuilder<DefaultProtocolInformation, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -177,8 +189,8 @@ public class ProtocolInformationDescriptor implements Serializable {
 
 
         @Override
-        protected ProtocolInformationDescriptor newBuildingInstance() {
-            return new ProtocolInformationDescriptor();
+        protected DefaultProtocolInformation newBuildingInstance() {
+            return new DefaultProtocolInformation();
         }
     }
 }

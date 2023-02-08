@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.EndpointDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformationDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
@@ -23,20 +23,14 @@ import java.util.Objects;
 /**
  * Registry Descriptor default implementation for endpoint.
  */
-public class DefaultEndpointDescriptor implements EndpointDescriptor {
+public class DefaultEndpoint implements Endpoint {
 
     private String interfaceInformation;
-    private ProtocolInformationDescriptor protocolInformation;
+    private ProtocolInformation protocolInformation;
 
-    public DefaultEndpointDescriptor() {
+    public DefaultEndpoint() {
         interfaceInformation = null;
         protocolInformation = null;
-    }
-
-
-    public DefaultEndpointDescriptor(EndpointDescriptor source) {
-        interfaceInformation = source.getInterfaceInformation();
-        protocolInformation = source.getProtocolInformation();
     }
 
 
@@ -53,13 +47,13 @@ public class DefaultEndpointDescriptor implements EndpointDescriptor {
 
 
     @Override
-    public ProtocolInformationDescriptor getProtocolInformation() {
+    public ProtocolInformation getProtocolInformation() {
         return protocolInformation;
     }
 
 
     @Override
-    public void setProtocolInformation(ProtocolInformationDescriptor protocolInformation) {
+    public void setProtocolInformation(ProtocolInformation protocolInformation) {
         this.protocolInformation = protocolInformation;
     }
 
@@ -72,7 +66,7 @@ public class DefaultEndpointDescriptor implements EndpointDescriptor {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        DefaultEndpointDescriptor that = (DefaultEndpointDescriptor) o;
+        DefaultEndpoint that = (DefaultEndpoint) o;
         return Objects.equals(interfaceInformation, that.interfaceInformation)
                 && Objects.equals(protocolInformation, that.protocolInformation);
     }
@@ -88,7 +82,7 @@ public class DefaultEndpointDescriptor implements EndpointDescriptor {
         return new Builder();
     }
 
-    public abstract static class AbstractBuilder<T extends DefaultEndpointDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends DefaultEndpoint, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B interfaceInformation(String value) {
             getBuildingInstance().setInterfaceInformation(value);
@@ -96,13 +90,13 @@ public class DefaultEndpointDescriptor implements EndpointDescriptor {
         }
 
 
-        public B protocolInformation(ProtocolInformationDescriptor value) {
+        public B protocolInformation(ProtocolInformation value) {
             getBuildingInstance().setProtocolInformation(value);
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<DefaultEndpointDescriptor, Builder> {
+    public static class Builder extends AbstractBuilder<DefaultEndpoint, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -111,8 +105,8 @@ public class DefaultEndpointDescriptor implements EndpointDescriptor {
 
 
         @Override
-        protected DefaultEndpointDescriptor newBuildingInstance() {
-            return new DefaultEndpointDescriptor();
+        protected DefaultEndpoint newBuildingInstance() {
+            return new DefaultEndpoint();
         }
     }
 }

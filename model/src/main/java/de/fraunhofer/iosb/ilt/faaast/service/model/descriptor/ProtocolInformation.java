@@ -15,16 +15,46 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
 import java.io.Serializable;
-import java.util.List;
 
 
 /**
- * Registry Descriptor interface for Reference.
+ * Registry Descriptor for ProtocolInformation.
  */
-public interface ReferenceDescriptor extends Serializable {
+public interface ProtocolInformation extends Serializable {
 
-    public List<KeyDescriptor> getKeys();
+    public String getEndpointAddress();
 
 
-    public void setKeys(List<KeyDescriptor> keys);
+    public void setEndpointAddress(String endpointAddress);
+
+
+    public String getEndpointProtocol();
+
+
+    public void setEndpointProtocol(String endpointProtocol);
+
+
+    public String getEndpointProtocolVersion();
+
+
+    public void setEndpointProtocolVersion(String endpointProtocolVersion);
+
+
+    public String getSubprotocol();
+
+
+    public void setSubprotocol(String subprotocol);
+
+
+    public String getSubprotocolBody();
+
+
+    public void setSubprotocolBody(String subprotocolBody);
+
+
+    public String getSubprotocolBodyEncoding();
+
+
+    public void setSubprotocolBodyEncoding(String subprotocolBodyEncoding);
+
 }

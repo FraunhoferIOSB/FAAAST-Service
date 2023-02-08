@@ -18,30 +18,19 @@ import java.io.Serializable;
 
 
 /**
- * Registry Descriptor interface for IdentifierKeyValuePair.
+ * Registry Descriptor for Endpoint.
  */
-public interface IdentifierKeyValuePairDescriptor extends Serializable {
+public interface Endpoint extends Serializable {
 
-    public ReferenceDescriptor getSemanticId();
-
-
-    public void setSemanticId(ReferenceDescriptor semanticId);
+    public String getInterfaceInformation();
 
 
-    public ReferenceDescriptor getExternalSubjectId();
+    public void setInterfaceInformation(String interfaceInformation);
 
 
-    public void setExternalSubjectId(ReferenceDescriptor externalSubjectId);
+    public ProtocolInformation getProtocolInformation();
 
 
-    public String getKey();
+    public void setProtocolInformation(ProtocolInformation protocolInformation);
 
-
-    public void setKey(String key);
-
-
-    public String getValue();
-
-
-    public void setValue(String value);
 }
