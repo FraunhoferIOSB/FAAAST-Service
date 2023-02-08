@@ -47,17 +47,20 @@ import java.util.Set;
 public interface Persistence<C extends PersistenceConfig> extends Configurable<C> {
 
     /**
-     * Get an Identifiable by an Identifier.
+     * Gets an Identifiable by id and type.
      *
+     * @param <T> defines the type of the requested Identifiable
      * @param id the Identifier of the requested Identifiable
      * @param modifier QueryModifier to define Level and Extent of the query
-     * @param <T> defines the type of the requested Identifiable
+     * @param type the expected type of the Identifiable
      * @return the Identifiable with the given Identifier
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if no resource addressed by id
-     *             can be found
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ResourceNotFoundException if no resource can be found for
+     *             id or type of found resource does not match requeste type
+     * @throws IllegalArgumentException if id is null
      * @throws IllegalArgumentException if modifier is null
+     * @throws IllegalArgumentException if type is null
      */
-    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier) throws ResourceNotFoundException;
+    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException;
 
 
     /**

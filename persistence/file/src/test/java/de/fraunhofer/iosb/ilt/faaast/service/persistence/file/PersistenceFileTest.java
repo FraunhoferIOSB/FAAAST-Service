@@ -18,145 +18,175 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractInMemoryPersistenceBaseTest;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.PersistenceConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractPersistenceTest;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FileHelper;
+import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.Identifier;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.apache.commons.io.FileUtils;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 
-public class PersistenceFileTest extends AbstractInMemoryPersistenceBaseTest {
+public class PersistenceFileTest extends AbstractPersistenceTest<PersistenceFile, PersistenceFileConfig> {
 
-    public static final String SRC_TEST_RESOURCES = "src/test/resources";
+    private static final File RESOURCE_MODEL_FILE_JSON = new File(Thread.currentThread().getContextClassLoader().getResource("model.json").getFile());
+    private static final File RESOURCE_MODEL_FILE_XML = new File(Thread.currentThread().getContextClassLoader().getResource("model.xml").getFile());
+    private static final ServiceContext SERVICE_CONTEXT = Mockito.mock(ServiceContext.class);
 
-    private static final File ENV_FILE_JSON = new File("src/test/resources/AASFull.json");
-    private static final File ENV_FILE_XML = new File("src/test/resources/AASFull.xml");
-
-    @Override
-    public Persistence getPersistenceImplementation() {
-        return new PersistenceFile();
-    }
-
+    private File modelFileJson;
+    private File modelFileXml;
+    private AssetAdministrationShellEnvironment model;
+    private static Path tempDir;
 
     @Override
-    public AssetAdministrationShellEnvironment getEnvironment() {
-        return AASFull.createEnvironment();
-    }
-
-
-    @Override
-    public PersistenceConfig getPersistenceConfig() {
-        return PersistenceFileConfig.builder()
-                .environment(getEnvironment())
-                .build();
-    }
-
-
-    public void init(PersistenceFileConfig persistenceFileConfig) throws ConfigurationException, AssetConnectionException {
-        environment = AASFull.createEnvironment();
-        persistence = new PersistenceFile();
-        ServiceContext serviceContext = Mockito.mock(ServiceContext.class);
-        persistence.init(CoreConfig.builder().build(),
-                persistenceFileConfig,
-                serviceContext);
-    }
-
-
-    private PersistenceFileConfig createPersistenceConfig(boolean keepInitial) {
-        return createPersistenceConfig(keepInitial, ENV_FILE_JSON);
-    }
-
-
-    private PersistenceFileConfig createPersistenceConfig(boolean keepInitial, File initialModel) {
-        return PersistenceFileConfig.builder()
+    public PersistenceFileConfig getPersistenceConfig(File initialModelFile, AssetAdministrationShellEnvironment initialModel) throws ConfigurationInitializationException {
+        PersistenceFileConfig result = PersistenceFileConfig
+                .builder()
                 .initialModel(initialModel)
-                .dataDir(SRC_TEST_RESOURCES)
-                .keepInitial(keepInitial)
+                .initialModelFile(initialModelFile)
                 .build();
+        result.init();
+        return result;
     }
 
 
-    private void removeElementAndReloadPersistence(PersistenceFileConfig config, Identifier identifier)
-            throws ConfigurationException, AssetConnectionException, ResourceNotFoundException {
-        persistence.remove(identifier);
-        init(config);
+    @Before
+    public void initialize() throws Exception {
+        model = AASFull.createEnvironment();
+        tempDir = Files.createTempDirectory("faaast-temp");
+        modelFileJson = copyToTempDir(RESOURCE_MODEL_FILE_JSON);
+        modelFileXml = copyToTempDir(RESOURCE_MODEL_FILE_XML);
     }
 
 
-    @Test
-    public void loadChangedFileTest() throws ResourceNotFoundException, ConfigurationException, AssetConnectionException {
-        PersistenceFileConfig config = createPersistenceConfig(true);
-        init(config);
-        Identifier identifier = environment.getAssetAdministrationShells().get(0).getIdentification();
-        removeElementAndReloadPersistence(config, identifier);
-        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.get(identifier, QueryModifier.DEFAULT));
+    private File copyToTempDir(File baseFile) throws IOException {
+        Path result = Files.createTempFile(
+                tempDir,
+                FileHelper.getFilenameWithoutExtension(baseFile),
+                FileHelper.getFileExtensionWithSeparator(baseFile));
+        Files.copy(baseFile.toPath(), result, StandardCopyOption.REPLACE_EXISTING);
+        return result.toFile();
     }
 
 
-    @Test
-    public void keepInitialTest() throws ResourceNotFoundException, ConfigurationException, AssetConnectionException, IOException {
-        File copied = new File(SRC_TEST_RESOURCES + "/AASFull_temp.json");
-        File original = ENV_FILE_JSON;
-        FileUtils.copyFile(original, copied);
-
-        PersistenceFileConfig config = createPersistenceConfig(false, copied);
-        init(config);
-        Identifier identifier = environment.getAssetAdministrationShells().get(0).getIdentification();
-        removeElementAndReloadPersistence(config, identifier);
-        String path = Path.of(config.getDataDir(), PersistenceFileConfig.DEFAULT_FILENAME).toString();
-        File f = new File(path);
-        Assert.assertFalse(f.exists());
-        Assert.assertThrows(ResourceNotFoundException.class, () -> persistence.get(identifier, QueryModifier.DEFAULT));
+    private File getDefaultModelFile() throws ConfigurationInitializationException {
+        PersistenceFileConfig config = PersistenceFileConfig.builder().build();
+        config.init();
+        return config.getFilePath().toFile();
     }
 
 
     @Test
-    public void loadXMLFileTest() throws ConfigurationException, AssetConnectionException {
-        File copied = ENV_FILE_XML;
-        PersistenceFileConfig config = createPersistenceConfig(true, copied);
-        init(config);
-        String path = Path.of(config.getDataDir(), PersistenceFileConfig.DEFAULT_FILENAME_PREFIX + "." + "xml").toString();
-        File f = new File(path);
-        Assert.assertTrue(f.exists());
+    public void testDefaultDataDir() throws ConfigurationException {
+        PersistenceFileConfig.builder()
+                .initialModelFile(modelFileJson)
+                .keepInitial(true)
+                .build()
+                .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+        File modelFile = getDefaultModelFile();
+        modelFile.deleteOnExit();
+        Assert.assertTrue(modelFile.exists());
     }
 
 
     @Test
-    public void dataFormatTest() throws ConfigurationException, AssetConnectionException {
-        File copied = ENV_FILE_XML;
+    public void testCustomDataDir() throws ConfigurationException {
+        PersistenceFileConfig.builder()
+                .initialModelFile(modelFileJson)
+                .dataDir(tempDir.toString())
+                .keepInitial(true)
+                .build()
+                .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+        File modelFile = Paths
+                .get(tempDir.toString(), PersistenceFileConfig.DEFAULT_FILENAME_PREFIX + ".json")
+                .toFile();
+        Assert.assertTrue(modelFile.exists());
+    }
+
+
+    @Test
+    public void testInvalidDataDir() throws ConfigurationException {
+        Assert.assertThrows(ConfigurationInitializationException.class, () -> PersistenceFileConfig.builder()
+                .initialModelFile(modelFileJson)
+                .dataDir("[/:/]")
+                .keepInitial(true)
+                .build()
+                .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT));
+    }
+
+
+    @Test
+    public void testOverrideInitial() throws ResourceNotFoundException, ConfigurationException, AssetConnectionException, IOException {
         PersistenceFileConfig config = PersistenceFileConfig.builder()
-                .initialModel(copied)
-                .dataDir(SRC_TEST_RESOURCES)
+                .initialModelFile(modelFileJson)
+                .keepInitial(false)
+                .build();
+        PersistenceFile persistence = config.newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+        Identifier identifier = model.getAssetAdministrationShells().get(0).getIdentification();
+        persistence.remove(identifier);
+        PersistenceFile newPersistence = config.newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+        Assert.assertEquals(1,
+                Files.list(modelFileJson.getParentFile().toPath())
+                        .filter(file -> !Files.isDirectory(file))
+                        .map(Path::getFileName)
+                        .map(Path::toString)
+                        .filter(x -> x.endsWith(".json"))
+                        .count());
+        Assert.assertThrows(ResourceNotFoundException.class, () -> newPersistence.get(identifier, QueryModifier.DEFAULT, AssetAdministrationShell.class));
+    }
+
+
+    @Test
+    public void testLoadXml() throws ConfigurationException, AssetConnectionException {
+        PersistenceFileConfig.builder()
+                .initialModelFile(modelFileXml)
+                .dataDir(tempDir.toString())
+                .keepInitial(true)
+                .build()
+                .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+        File persistenceModelFile = Paths
+                .get(tempDir.toString(), PersistenceFileConfig.DEFAULT_FILENAME_PREFIX + ".xml")
+                .toFile();
+        Assert.assertTrue(persistenceModelFile.exists());
+    }
+
+
+    @Test
+    public void testUsingDifferentDataFormat() throws ConfigurationException, AssetConnectionException {
+        PersistenceFileConfig.builder()
+                .initialModelFile(modelFileXml)
+                .dataDir(tempDir.toString())
                 .keepInitial(true)
                 .dataformat(DataFormat.JSONLD)
-                .build();
-        init(config);
-        String path = Path.of(config.getDataDir(), PersistenceFileConfig.DEFAULT_FILENAME_PREFIX + "." + "jsonld").toString();
-        File f = new File(path);
-        Assert.assertTrue(f.exists());
+                .build()
+                .newInstance(CoreConfig.DEFAULT, SERVICE_CONTEXT);
+        File persistenceModelFile = Paths
+                .get(tempDir.toString(), PersistenceFileConfig.DEFAULT_FILENAME_PREFIX + ".jsonld")
+                .toFile();
+        Assert.assertTrue(persistenceModelFile.exists());
     }
 
 
     @After
-    public void cleanUp() throws IOException {
-        Files.deleteIfExists(Path.of(PersistenceFileConfig.builder()
-                .build().getDataDir(), PersistenceFileConfig.DEFAULT_FILENAME));
-        if (persistence != null) {
-            Files.deleteIfExists(((PersistenceFile) persistence).getConfig().getFilePath());
-        }
+    public void deleteTempFiles() throws IOException {
+        Files.walk(tempDir)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
     }
-
 }

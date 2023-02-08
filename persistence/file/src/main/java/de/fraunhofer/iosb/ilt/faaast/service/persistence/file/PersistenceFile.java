@@ -14,20 +14,37 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence.file;
 
+import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.AASXPackage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.aasx.PackageDescription;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationHandle;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.operation.OperationResult;
+import de.fraunhofer.iosb.ilt.faaast.service.model.asset.AssetIdentification;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.persistence.AbstractInMemoryPersistence;
-import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemory;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.ConceptDescription;
 import io.adminshell.aas.v3.model.Identifiable;
 import io.adminshell.aas.v3.model.Identifier;
+import io.adminshell.aas.v3.model.OperationVariable;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElement;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,42 +59,129 @@ import org.slf4j.LoggerFactory;
  * <li>SubmodelElementStructs
  * </ul>
  */
-public class PersistenceFile extends AbstractInMemoryPersistence<PersistenceFileConfig> {
+public class PersistenceFile implements Persistence<PersistenceFileConfig> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceFile.class);
+    private PersistenceFileConfig config;
+    private PersistenceInMemory persistence;
 
     @Override
-    public void initAASEnvironment(PersistenceFileConfig config) {
+    public PersistenceFileConfig asConfig() {
+        return config;
+    }
+
+
+    @Override
+    public <T extends Identifiable> T get(Identifier id, QueryModifier modifier, Class<T> type) throws ResourceNotFoundException {
+        return persistence.get(id, modifier, type);
+    }
+
+
+    @Override
+    public SubmodelElement get(Reference reference, QueryModifier modifier) throws ResourceNotFoundException {
+        return persistence.get(reference, modifier);
+    }
+
+
+    @Override
+    public List<AssetAdministrationShell> get(String idShort, List<AssetIdentification> assetIds, QueryModifier modifier) {
+        return persistence.get(idShort, assetIds, modifier);
+    }
+
+
+    @Override
+    public List<Submodel> get(String idShort, Reference semanticId, QueryModifier modifier) {
+        return persistence.get(idShort, semanticId, modifier);
+    }
+
+
+    @Override
+    public List<ConceptDescription> get(String idShort, Reference isCaseOf, Reference dataSpecification, QueryModifier modifier) {
+        return persistence.get(idShort, isCaseOf, dataSpecification, modifier);
+    }
+
+
+    @Override
+    public AASXPackage get(String packageId) {
+        return persistence.get(packageId);
+    }
+
+
+    @Override
+    public List<PackageDescription> get(Identifier aasId) {
+        return persistence.get(aasId);
+    }
+
+
+    @Override
+    public AssetAdministrationShellEnvironment getEnvironment() {
+        return persistence.getEnvironment();
+    }
+
+
+    @Override
+    public OperationVariable[] getOperationOutputVariables(Reference reference) {
+        return persistence.getOperationOutputVariables(reference);
+    }
+
+
+    @Override
+    public OperationResult getOperationResult(String handleId) {
+        return persistence.getOperationResult(handleId);
+    }
+
+
+    @Override
+    public List<SubmodelElement> getSubmodelElements(Reference reference, Reference semanticId, QueryModifier modifier) throws ResourceNotFoundException {
+        return persistence.getSubmodelElements(reference, semanticId, modifier);
+    }
+
+
+    @Override
+    public TypeInfo<?> getTypeInfo(Reference reference) {
+        return persistence.getTypeInfo(reference);
+    }
+
+
+    @Override
+    public void init(CoreConfig coreConfig, PersistenceFileConfig config, ServiceContext context) throws ConfigurationInitializationException {
         this.config = config;
         try {
             config.init();
-            aasEnvironment = loadAASEnvironment();
-            Path filePath = config.getFilePath().toAbsolutePath();
-            if (aasEnvironment != null) {
-                LOGGER.info("File Persistence uses existing model file {}", filePath);
-            }
-            else {
-                LOGGER.info("File Persistence creates model file {}", filePath);
-            }
+            AssetAdministrationShellEnvironment aasEnvironment = config.loadInitialModel();
+            persistence = PersistenceInMemoryConfig.builder()
+                    .initialModel(aasEnvironment)
+                    .build()
+                    .newInstance(coreConfig, context);
+            save();
+        }
+        catch (ConfigurationException | DeserializationException e) {
+            throw new ConfigurationInitializationException("initializing file persistence failed", e);
+        }
+    }
 
-            if (aasEnvironment == null) {
-                if (config.getEnvironment() != null) {
-                    aasEnvironment = config.isDecoupleEnvironment() ? DeepCopyHelper.deepCopy(config.getEnvironment()) : config.getEnvironment();
-                }
-                else {
-                    aasEnvironment = EnvironmentSerializationManager
-                            .deserialize(config.getInitialModel())
-                            .getEnvironment();
-                }
-                save();
-            }
-        }
-        catch (DeserializationException e) {
-            throw new IllegalArgumentException("Error deserializing AAS Environment", e);
-        }
-        identifiablePersistenceManager.setAasEnvironment(aasEnvironment);
-        referablePersistenceManager.setAasEnvironment(aasEnvironment);
-        packagePersistenceManager.setAasEnvironment(aasEnvironment);
+
+    @Override
+    public AASXPackage put(String packageId, Set<Identifier> aasIds, AASXPackage file, String fileName) {
+        AASXPackage result = persistence.put(packageId, aasIds, file, fileName);
+        save();
+        return result;
+    }
+
+
+    @Override
+    public String put(Set<Identifier> aasIds, AASXPackage file, String fileName) {
+        String result = persistence.put(aasIds, file, fileName);
+        save();
+        return result;
+    }
+
+
+    @Override
+    public OperationHandle putOperationContext(String handleId, String requestId, OperationResult operationResult) {
+        OperationHandle result = persistence.putOperationContext(handleId, requestId, operationResult);
+        save();
+        return result;
     }
 
 
@@ -85,7 +189,7 @@ public class PersistenceFile extends AbstractInMemoryPersistence<PersistenceFile
         try {
             EnvironmentSerializationManager
                     .serializerFor(config.getDataformat())
-                    .write(new File(String.valueOf(config.getFilePath())), aasEnvironment);
+                    .write(new File(String.valueOf(config.getFilePath())), persistence.getEnvironment());
         }
         catch (IOException | SerializationException e) {
             LOGGER.error(String.format("Could not save environment to file %s", config.getFilePath()), e);
@@ -93,20 +197,9 @@ public class PersistenceFile extends AbstractInMemoryPersistence<PersistenceFile
     }
 
 
-    private AssetAdministrationShellEnvironment loadAASEnvironment() throws DeserializationException {
-        File f = new File(config.getFilePath().toString());
-        if (f.exists() && !f.isDirectory()) {
-            return EnvironmentSerializationManager
-                    .deserialize(f)
-                    .getEnvironment();
-        }
-        return null;
-    }
-
-
     @Override
     public Identifiable put(Identifiable identifiable) {
-        Identifiable element = super.put(identifiable);
+        Identifiable element = persistence.put(identifiable);
         save();
         return element;
     }
@@ -114,7 +207,7 @@ public class PersistenceFile extends AbstractInMemoryPersistence<PersistenceFile
 
     @Override
     public SubmodelElement put(Reference parent, Reference referenceToSubmodelElement, SubmodelElement submodelElement) throws ResourceNotFoundException {
-        SubmodelElement element = super.put(parent, referenceToSubmodelElement, submodelElement);
+        SubmodelElement element = persistence.put(parent, referenceToSubmodelElement, submodelElement);
         save();
         return element;
     }
@@ -122,21 +215,21 @@ public class PersistenceFile extends AbstractInMemoryPersistence<PersistenceFile
 
     @Override
     public void remove(Identifier id) throws ResourceNotFoundException {
-        super.remove(id);
+        persistence.remove(id);
         save();
     }
 
 
     @Override
     public void remove(Reference reference) throws ResourceNotFoundException {
-        super.remove(reference);
+        persistence.remove(reference);
         save();
     }
 
 
     @Override
     public void remove(String packageId) {
-        super.remove(packageId);
+        persistence.remove(packageId);
         save();
     }
 }

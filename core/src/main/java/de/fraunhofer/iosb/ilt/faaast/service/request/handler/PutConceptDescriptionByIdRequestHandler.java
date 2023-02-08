@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.request.handler;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.QueryModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutConceptDescriptionByIdResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
@@ -41,8 +41,8 @@ public class PutConceptDescriptionByIdRequestHandler extends AbstractRequestHand
 
     @Override
     public PutConceptDescriptionByIdResponse process(PutConceptDescriptionByIdRequest request) throws ResourceNotFoundException, MessageBusException {
-        ConceptDescription conceptDescription = (ConceptDescription) persistence.get(request.getConceptDescription().getIdentification(), new OutputModifier());
-        conceptDescription = (ConceptDescription) persistence.put(request.getConceptDescription());
+        persistence.get(request.getConceptDescription().getIdentification(), QueryModifier.DEFAULT, ConceptDescription.class);
+        ConceptDescription conceptDescription = persistence.put(request.getConceptDescription());
         messageBus.publish(ElementUpdateEventMessage.builder()
                 .element(conceptDescription)
                 .value(conceptDescription)

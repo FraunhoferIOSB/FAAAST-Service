@@ -45,7 +45,7 @@ public class DeleteSubmodelElementByPathRequestHandler extends AbstractSubmodelI
     protected DeleteSubmodelElementByPathResponse doProcess(DeleteSubmodelElementByPathRequest request) throws Exception {
         DeleteSubmodelElementByPathResponse response = new DeleteSubmodelElementByPathResponse();
         Reference reference = ReferenceHelper.toReference(request.getPath(), request.getSubmodelId(), Submodel.class);
-        SubmodelElement submodelElement = persistence.get(reference, new QueryModifier());
+        SubmodelElement submodelElement = persistence.get(reference, QueryModifier.DEFAULT);
         persistence.remove(reference);
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         messageBus.publish(ElementDeleteEventMessage.builder()

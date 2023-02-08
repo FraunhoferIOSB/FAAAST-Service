@@ -44,7 +44,7 @@ public class GetSubmodelByIdRequestHandler extends AbstractRequestHandler<GetSub
 
     @Override
     public GetSubmodelByIdResponse process(GetSubmodelByIdRequest request) throws ResourceNotFoundException, AssetConnectionException, ValueMappingException, MessageBusException {
-        Submodel submodel = (Submodel) persistence.get(request.getId(), request.getOutputModifier());
+        Submodel submodel = persistence.get(request.getId(), request.getOutputModifier(), Submodel.class);
         Reference reference = AasUtils.toReference(submodel);
         syncWithAsset(reference, submodel.getSubmodelElements());
         messageBus.publish(ElementReadEventMessage.builder()

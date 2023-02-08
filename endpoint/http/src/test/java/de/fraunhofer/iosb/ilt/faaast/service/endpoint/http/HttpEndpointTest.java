@@ -207,6 +207,13 @@ public class HttpEndpointTest {
 
 
     @Test
+    public void testInvalidMethod() throws Exception {
+        ContentResponse response = execute(HttpMethod.PATCH, "/shells");
+        Assert.assertEquals(HttpStatus.METHOD_NOT_ALLOWED_405, response.getStatus());
+    }
+
+
+    @Test
     public void testCORSEnabled() throws Exception {
         ContentResponse response = execute(HttpMethod.GET, "/foo/bar");
         Assert.assertEquals("*", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER));
@@ -312,6 +319,16 @@ public class HttpEndpointTest {
                 .statusCode(StatusCode.SUCCESS)
                 .build());
         ContentResponse response = execute(HttpMethod.GET, "/shells/bogus/aas");
+        Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
+    }
+
+
+    @Test
+    public void testInvalidAASIdentifierAndAdditionalPathElement() throws Exception {
+        when(service.execute(any())).thenReturn(GetAssetAdministrationShellResponse.builder()
+                .statusCode(StatusCode.SUCCESS)
+                .build());
+        ContentResponse response = execute(HttpMethod.DELETE, "/shells/bogus/test");
         Assert.assertEquals(HttpStatus.BAD_REQUEST_400, response.getStatus());
     }
 
@@ -588,9 +605,13 @@ public class HttpEndpointTest {
                         .statusCode(StatusCode.SUCCESS)
                         .payload(expected)
                         .build());
-        when(persistence.get(aas.getIdentification(), new OutputModifier.Builder()
-                .level(Level.CORE)
-                .build())).thenReturn(aas);
+        when(persistence.get(
+                aas.getIdentification(),
+                new OutputModifier.Builder()
+                        .level(Level.CORE)
+                        .build(),
+                AssetAdministrationShell.class))
+                        .thenReturn(aas);
         mockAasContext(service, aasId);
         ContentResponse response = execute(
                 HttpMethod.GET,

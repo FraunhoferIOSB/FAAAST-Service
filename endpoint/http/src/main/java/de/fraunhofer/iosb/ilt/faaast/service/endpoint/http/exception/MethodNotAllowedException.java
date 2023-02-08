@@ -14,23 +14,34 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception;
 
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.StreamHelper;
+import java.util.Collection;
+import java.util.stream.Collectors;
+
+
 /**
  * Exception to indicate a given method is not allowed for the URL.
  */
-public class MethodNotAllowedException extends InvalidRequestException {
+public class MethodNotAllowedException extends Exception {
 
-    public MethodNotAllowedException(String message) {
-        super(message);
+    public MethodNotAllowedException(HttpRequest request, HttpMethod... allowedMethods) {
+        super(String.format("method '%s' not allowed for URL '%s' (allowed methods: %s)",
+                request.getMethod(),
+                request.getPath(),
+                StreamHelper.toStream(allowedMethods)
+                        .map(Enum::name)
+                        .distinct()
+                        .sorted()
+                        .collect(Collectors.joining(", "))));
     }
 
 
-    public MethodNotAllowedException(String message, Throwable cause) {
-        super(message, cause);
+    public MethodNotAllowedException(HttpRequest request, Collection<AbstractRequestMapper> allowedMethodMappers) {
+        this(request, allowedMethodMappers.stream()
+                .map(x -> x.getMethod())
+                .toArray(HttpMethod[]::new));
     }
-
-
-    public MethodNotAllowedException(Throwable cause) {
-        super(cause);
-    }
-
 }

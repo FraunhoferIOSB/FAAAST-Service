@@ -40,7 +40,7 @@ public class TestService extends Service {
                         .requestHandlerThreadPoolSize(2)
                         .build())
                 .persistence(PersistenceInMemoryConfig.builder()
-                        .environment(full ? AASFull.ENVIRONMENT : AASSimple.ENVIRONMENT)
+                        .initialModel(full ? AASFull.ENVIRONMENT : AASSimple.ENVIRONMENT)
                         .build())
                 .endpoint(config)
                 .messageBus(MessageBusInternalConfig.builder()
