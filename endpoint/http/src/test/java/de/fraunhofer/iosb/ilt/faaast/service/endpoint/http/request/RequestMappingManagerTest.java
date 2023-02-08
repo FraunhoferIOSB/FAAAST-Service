@@ -985,7 +985,7 @@ public class RequestMappingManagerTest {
         Assert.assertThrows(InvalidRequestException.class, () -> mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getIdentification().getIdentifier()) + "/bogus")
-                .build()));;
+                .build()));
     }
 
 

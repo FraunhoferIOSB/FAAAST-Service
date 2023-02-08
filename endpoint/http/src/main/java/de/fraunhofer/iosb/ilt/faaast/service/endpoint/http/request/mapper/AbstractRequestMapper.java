@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 
 /**
- * Base class for mapping HTTP requests to protocl-agnostic requests.
+ * Base class for mapping HTTP requests to protocol-agnostic requests.
  */
 public abstract class AbstractRequestMapper {
 
@@ -75,7 +75,7 @@ public abstract class AbstractRequestMapper {
 
 
     /**
-     * Decides if a given HTTP request matches this concrete protocl-agnostic request.
+     * Decides if a given HTTP request matches this concrete protocol-agnostic request.
      *
      * @param httpRequest the HTTP request to check
      * @return true if matches, otherwise false
@@ -88,7 +88,7 @@ public abstract class AbstractRequestMapper {
 
 
     /**
-     * Decides if a given URL matches this concrete protocl-agnostic request.
+     * Decides if a given URL matches this concrete protocol-agnostic request.
      *
      * @param url the URL to check
      * @return true if matches, otherwise false

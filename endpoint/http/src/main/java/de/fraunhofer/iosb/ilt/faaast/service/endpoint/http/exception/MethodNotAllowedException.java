@@ -32,7 +32,7 @@ public class MethodNotAllowedException extends Exception {
                 request.getMethod(),
                 request.getPath(),
                 StreamHelper.toStream(allowedMethods)
-                        .map(x -> x.name())
+                        .map(Enum::name)
                         .distinct()
                         .sorted()
                         .collect(Collectors.joining(", "))));
