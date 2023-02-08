@@ -6,6 +6,7 @@
 *   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
 *   OPC UA Endpoint
 	*   Additional parameters availabe in configuration
+*   Docker container now runs using a non-root user
 
 **Internal changes & bugfixes**
 *   HTTP Endpoint
@@ -13,8 +14,12 @@
 		*   /submodels/{submodelIdentifier}
 		*   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
 		*   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+	*   Using not allowed HTTP methods not correctly returns `405 Method Not Allowed` instead of `500 Internal Server Error`
+	*   Unsupported URLS (valid URLs with additional path elements) now correctly return `400 Bad Request` instead of `405 Method not allowed`
 *   OPC UA Endpoint
 	*   Major code refactoring
+*   Miscellaneous
+	*   Now using dockerfile to build docker container instead of jib maven plugin
 
 ## Release version 0.4.0
 

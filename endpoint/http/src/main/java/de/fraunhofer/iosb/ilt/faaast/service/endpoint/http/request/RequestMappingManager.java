@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.AbstractMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.RequestMapperNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.mapper.AbstractRequestMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
@@ -38,21 +38,36 @@ public class RequestMappingManager extends AbstractMappingManager<AbstractReques
 
 
     /**
+     * Gets a set of supported methods for the url or an empty set if url is not supported at all.
+     *
+     * @param url the URL to check
+     * @return a set of supported methods for the url
+     */
+    public Set<HttpMethod> getSupportedMethods(String url) {
+        return mappers.stream()
+                .filter(request -> request.matchesUrl(url))
+                .map(x -> x.getMethod())
+                .distinct()
+                .collect(Collectors.toSet());
+    }
+
+
+    /**
      * Finds corresponding protocol-agnostic request for given HTTP request.
      *
      * @param httpRequest HTTP-based request to find a suitable request mapper
      * @return protocol-agnostic request
-     * @throws RequestMapperNotFoundException if no mapper is found for request
+     * @throws InvalidRequestException if no mapper is found for request
      * @throws MethodNotAllowedException if the method was not valid for the request
      * @throws IllegalStateException if there were multiple matching mappers
      */
-    public AbstractRequestMapper findRequestMapper(HttpRequest httpRequest) throws InvalidRequestException {
+    public AbstractRequestMapper findRequestMapper(HttpRequest httpRequest) throws InvalidRequestException, MethodNotAllowedException {
         Ensure.requireNonNull(httpRequest, "httpRequest must be non-null");
         Set<AbstractRequestMapper> mappersByUrl = mappers.stream()
                 .filter(request -> request.matchesUrl(httpRequest))
                 .collect(Collectors.toSet());
         if (mappersByUrl.isEmpty()) {
-            throw new RequestMapperNotFoundException(httpRequest);
+            throw new InvalidRequestException(String.format("no matching request mapper found for URL '%s'", httpRequest.getPath()));
         }
         Set<AbstractRequestMapper> mappersByUrlAndMethod = mappersByUrl.stream()
                 .filter(x -> x.getMethod() == httpRequest.getMethod())
@@ -76,8 +91,9 @@ public class RequestMappingManager extends AbstractMappingManager<AbstractReques
      * @param httpRequest HTTP-based request to convert
      * @return protocol-agnostic request
      * @throws InvalidRequestException if no mapper is found for request or mapping fails
+     * @throws MethodNotAllowedException if HTTP method is not allowed on URL
      */
-    public Request map(HttpRequest httpRequest) throws InvalidRequestException {
+    public Request map(HttpRequest httpRequest) throws InvalidRequestException, MethodNotAllowedException {
         return findRequestMapper(httpRequest).parse(httpRequest);
     }
 

@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.RequestMapperNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.MethodNotAllowedException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
@@ -135,7 +135,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testDeleteAASXPackageByIdRequest() throws InvalidRequestException {
+    public void testDeleteAASXPackageByIdRequest() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = DeleteAASXPackageByIdRequest.builder()
                 .packageId(AASX_PACKAGE_ID)
                 .build();
@@ -148,7 +148,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testDeleteAllAssetLinksByIdRequest() throws InvalidRequestException {
+    public void testDeleteAllAssetLinksByIdRequest() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = DeleteAllAssetLinksByIdRequest.builder()
                 .id(AAS.getIdentification())
                 .build();
@@ -161,7 +161,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testDeleteAssetAdministrationShellById() throws InvalidRequestException {
+    public void testDeleteAssetAdministrationShellById() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = DeleteAssetAdministrationShellByIdRequest.builder()
                 .id(AAS.getIdentification())
                 .build();
@@ -174,7 +174,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testDeleteConceptDescriptionById() throws InvalidRequestException {
+    public void testDeleteConceptDescriptionById() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = DeleteConceptDescriptionByIdRequest.builder()
                 .id(CONCEPT_DESCRIPTION.getIdentification())
                 .build();
@@ -187,7 +187,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testDeleteSubmodelById() throws InvalidRequestException {
+    public void testDeleteSubmodelById() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = DeleteSubmodelByIdRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .build();
@@ -200,7 +200,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testDeleteSubmodelElementByPath() throws SerializationException, InvalidRequestException {
+    public void testDeleteSubmodelElementByPath() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = DeleteSubmodelElementByPathRequest.builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
@@ -215,7 +215,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testDeleteSubmodelReference() throws InvalidRequestException {
+    public void testDeleteSubmodelReference() throws InvalidRequestException, MethodNotAllowedException {
         Reference submodelRef = AasUtils.toReference(SUBMODEL);
         Request expected = DeleteSubmodelReferenceRequest.builder()
                 .id(AAS.getIdentification())
@@ -231,7 +231,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAASXByPackageIdRequest() throws InvalidRequestException {
+    public void testGetAASXByPackageIdRequest() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAASXByPackageIdRequest.builder()
                 .packageId(AASX_PACKAGE_ID)
                 .build();
@@ -244,7 +244,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllAASXPackageIdsRequest() throws InvalidRequestException {
+    public void testGetAllAASXPackageIdsRequest() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllAASXPackageIdsRequest.builder()
                 .aasId(AAS.getIdentification())
                 .build();
@@ -258,7 +258,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShellIdsByAssetLinkRequest() throws SerializationException, InvalidRequestException {
+    public void testGetAllAssetAdministrationShellIdsByAssetLinkRequest() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllAssetAdministrationShellIdsByAssetLinkRequest.builder()
                 .assetIdentifierPairs(ASSET_IDENTIFIERS)
                 .build();
@@ -272,7 +272,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShellsByAssetId() throws SerializationException, InvalidRequestException {
+    public void testGetAllAssetAdministrationShellsByAssetId() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         List<IdentifierKeyValuePair> assetIds = Arrays.asList(new DefaultIdentifierKeyValuePair.Builder()
                 .key(GLOBAL_ASSET_ID)
                 .value(AAS.getAssetInformation().getGlobalAssetId().getKeys().get(0).getValue())
@@ -292,7 +292,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShellsByIdShort() throws InvalidRequestException {
+    public void testGetAllAssetAdministrationShellsByIdShort() throws InvalidRequestException, MethodNotAllowedException {
         String idShort = AAS.getIdShort();
         Request expected = GetAllAssetAdministrationShellsByIdShortRequest.builder()
                 .outputModifier(OutputModifier.DEFAULT)
@@ -308,7 +308,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllAssetAdministrationShellsRequest() throws InvalidRequestException {
+    public void testGetAllAssetAdministrationShellsRequest() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllAssetAdministrationShellsRequest.builder()
                 .outputModifier(OutputModifier.DEFAULT)
                 .build();
@@ -321,7 +321,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllAssetLinksByIdRequest() throws InvalidRequestException {
+    public void testGetAllAssetLinksByIdRequest() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllAssetLinksByIdRequest.builder()
                 .id(AAS.getIdentification())
                 .build();
@@ -334,7 +334,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllConceptDescriptions() throws InvalidRequestException {
+    public void testGetAllConceptDescriptions() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllConceptDescriptionsRequest.builder()
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -346,7 +346,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllConceptDescriptionsByDataSpecificationReference() throws InvalidRequestException {
+    public void testGetAllConceptDescriptionsByDataSpecificationReference() throws InvalidRequestException, MethodNotAllowedException {
         Reference dataSpecificationRef = AasUtils.toReference(CONCEPT_DESCRIPTION);
         Request expected = GetAllConceptDescriptionsByDataSpecificationReferenceRequest.builder()
                 .dataSpecification(dataSpecificationRef)
@@ -361,7 +361,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllConceptDescriptionsByIdShort() throws InvalidRequestException {
+    public void testGetAllConceptDescriptionsByIdShort() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllConceptDescriptionsByIdShortRequest.builder()
                 .idShort(CONCEPT_DESCRIPTION.getIdShort())
                 .build();
@@ -375,7 +375,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllConceptDescriptionsByIsCaseOf() throws InvalidRequestException {
+    public void testGetAllConceptDescriptionsByIsCaseOf() throws InvalidRequestException, MethodNotAllowedException {
         Reference isCaseOf = CONCEPT_DESCRIPTION.getIsCaseOfs().get(0);
         Request expected = GetAllConceptDescriptionsByIsCaseOfRequest.builder()
                 .isCaseOf(isCaseOf)
@@ -390,7 +390,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllSubmodelElements() throws InvalidRequestException {
+    public void testGetAllSubmodelElements() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllSubmodelElementsRequest.builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .outputModifier(new OutputModifier.Builder()
@@ -407,7 +407,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllSubmodels() throws InvalidRequestException {
+    public void testGetAllSubmodels() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllSubmodelsRequest.builder()
                 .build();
         Request actual = mappingManager.map(HttpRequest.builder()
@@ -419,7 +419,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllSubmodelsByIdShort() throws InvalidRequestException {
+    public void testGetAllSubmodelsByIdShort() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllSubmodelsByIdShortRequest.builder()
                 .idShort(SUBMODEL.getIdShort())
                 .build();
@@ -433,7 +433,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAllSubmodelsBySemanticId() throws InvalidRequestException, SerializationException {
+    public void testGetAllSubmodelsBySemanticId() throws InvalidRequestException, MethodNotAllowedException, SerializationException {
         Request expected = GetAllSubmodelsBySemanticIdRequest.builder()
                 .semanticId(SUBMODEL.getSemanticId())
                 .build();
@@ -447,7 +447,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAssetAdministrationShell() throws InvalidRequestException {
+    public void testGetAssetAdministrationShell() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAssetAdministrationShellRequest.builder()
                 .id(AAS.getIdentification())
                 .outputModifier(new OutputModifier.Builder()
@@ -464,7 +464,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAssetAdministrationShellById() throws InvalidRequestException {
+    public void testGetAssetAdministrationShellById() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAssetAdministrationShellByIdRequest.builder()
                 .id(AAS.getIdentification())
                 .build();
@@ -477,7 +477,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetAssetInformationRequest() throws InvalidRequestException {
+    public void testGetAssetInformationRequest() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAssetInformationRequest.builder()
                 .id(AAS.getIdentification())
                 .build();
@@ -490,7 +490,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetConceptDescriptionById() throws InvalidRequestException {
+    public void testGetConceptDescriptionById() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetConceptDescriptionByIdRequest.builder()
                 .id(CONCEPT_DESCRIPTION.getIdentification())
                 .build();
@@ -503,7 +503,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetOperationAsyncResult() throws InvalidRequestException {
+    public void testGetOperationAsyncResult() throws InvalidRequestException, MethodNotAllowedException {
         final String handleId = UUID.randomUUID().toString();
         Request expected = GetOperationAsyncResultRequest.builder()
                 .handleId(handleId)
@@ -521,7 +521,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetSubmodel() throws InvalidRequestException {
+    public void testGetSubmodel() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetSubmodelRequest.builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .build();
@@ -534,7 +534,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetSubmodelByIdRequest() throws InvalidRequestException {
+    public void testGetSubmodelByIdRequest() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetSubmodelByIdRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .build();
@@ -547,7 +547,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testGetSubmodelElementByPath() throws InvalidRequestException {
+    public void testGetSubmodelElementByPath() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetSubmodelElementByPathRequest.builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
@@ -581,7 +581,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testInvokeOperationAsyncContentNormal() throws SerializationException, InvalidRequestException {
+    public void testInvokeOperationAsyncContentNormal() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = InvokeOperationAsyncRequest.builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(OPERATION_REF))
@@ -603,7 +603,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testInvokeOperationAsyncContentValue() throws SerializationException, InvalidRequestException {
+    public void testInvokeOperationAsyncContentValue() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = InvokeOperationAsyncRequest.builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(OPERATION_REF))
@@ -625,7 +625,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testInvokeOperationSyncContentNormal() throws SerializationException, InvalidRequestException {
+    public void testInvokeOperationSyncContentNormal() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = InvokeOperationSyncRequest.builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(OPERATION_REF))
@@ -646,7 +646,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testInvokeOperationSyncContentValue() throws SerializationException, InvalidRequestException {
+    public void testInvokeOperationSyncContentValue() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = InvokeOperationSyncRequest.builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(OPERATION_REF))
@@ -668,7 +668,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testMappingGetAllSubmodelReferences() throws InvalidRequestException {
+    public void testMappingGetAllSubmodelReferences() throws InvalidRequestException, MethodNotAllowedException {
         Request expected = GetAllSubmodelReferencesRequest.builder()
                 .id(AAS.getIdentification())
                 .build();
@@ -682,7 +682,7 @@ public class RequestMappingManagerTest {
 
     @Test
     @Ignore("AASX not implemented yet")
-    public void testPostAASXPackageRequest() throws IOException, InvalidRequestException {
+    public void testPostAASXPackageRequest() throws IOException, InvalidRequestException, MethodNotAllowedException {
         Assert.fail("not implemented (multipart HTTP message");
         Request expected = PostAASXPackageRequest.builder()
                 .aasId(AAS.getIdentification())
@@ -703,7 +703,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPostAllAssetLinksByIdRequest() throws SerializationException, InvalidRequestException {
+    public void testPostAllAssetLinksByIdRequest() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PostAllAssetLinksByIdRequest.builder()
                 .id(AAS.getIdentification())
                 .assetLinks(ASSET_IDENTIFIERS)
@@ -718,7 +718,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPostAssetAdministrationShell() throws SerializationException, InvalidRequestException {
+    public void testPostAssetAdministrationShell() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PostAssetAdministrationShellRequest.builder()
                 .aas(AAS)
                 .build();
@@ -732,7 +732,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPostConceptDescription() throws SerializationException, InvalidRequestException {
+    public void testPostConceptDescription() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PostConceptDescriptionRequest.builder()
                 .conceptDescription(CONCEPT_DESCRIPTION)
                 .build();
@@ -746,7 +746,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPostSubmodel() throws SerializationException, InvalidRequestException {
+    public void testPostSubmodel() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PostSubmodelRequest.builder()
                 .submodel(SUBMODEL)
                 .build();
@@ -760,7 +760,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPostSubmodelElement() throws SerializationException, InvalidRequestException {
+    public void testPostSubmodelElement() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PostSubmodelElementRequest.builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .submodelElement(SUBMODEL_ELEMENT)
@@ -775,7 +775,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPostSubmodelElementByPath() throws SerializationException, InvalidRequestException {
+    public void testPostSubmodelElementByPath() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PostSubmodelElementByPathRequest.builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
@@ -792,7 +792,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPostSubmodelReference() throws SerializationException, InvalidRequestException {
+    public void testPostSubmodelReference() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Reference submodelRef = AasUtils.toReference(SUBMODEL);
         Request expected = PostSubmodelReferenceRequest.builder()
                 .id(AAS.getIdentification())
@@ -809,7 +809,7 @@ public class RequestMappingManagerTest {
 
     @Test
     @Ignore("AASX not implemented yet")
-    public void testPutAASXPackageByIdRequest() throws IOException, InvalidRequestException {
+    public void testPutAASXPackageByIdRequest() throws IOException, InvalidRequestException, MethodNotAllowedException {
         Assert.fail("not implemented (requires multipart HTTP)");
         Request expected = GetAASXByPackageIdRequest.builder()
                 .packageId(AASX_PACKAGE_ID)
@@ -823,7 +823,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPutAssetAdministrationShell() throws SerializationException, InvalidRequestException {
+    public void testPutAssetAdministrationShell() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PutAssetAdministrationShellRequest.builder()
                 .id(AAS.getIdentification())
                 .aas(AAS)
@@ -838,7 +838,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPutAssetAdministrationShellById() throws SerializationException, InvalidRequestException {
+    public void testPutAssetAdministrationShellById() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PutAssetAdministrationShellByIdRequest.builder()
                 .id(AAS.getIdentification())
                 .aas(AAS)
@@ -853,7 +853,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPutAssetInformationRequest() throws SerializationException, InvalidRequestException {
+    public void testPutAssetInformationRequest() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PutAssetInformationRequest.builder()
                 .id(AAS.getIdentification())
                 .assetInformation(AAS.getAssetInformation())
@@ -868,7 +868,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPutConceptDescriptionById() throws SerializationException, InvalidRequestException {
+    public void testPutConceptDescriptionById() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PutConceptDescriptionByIdRequest.builder()
                 .id(CONCEPT_DESCRIPTION.getIdentification())
                 .conceptDescription(CONCEPT_DESCRIPTION)
@@ -883,7 +883,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPutSubmodel() throws SerializationException, InvalidRequestException {
+    public void testPutSubmodel() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PutSubmodelRequest.builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .submodel(SUBMODEL)
@@ -898,7 +898,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPutSubmodelById() throws SerializationException, InvalidRequestException {
+    public void testPutSubmodelById() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PutSubmodelByIdRequest.builder()
                 .id(SUBMODEL.getIdentification())
                 .submodel(SUBMODEL)
@@ -913,7 +913,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testPutSubmodelElementByPath() throws SerializationException, InvalidRequestException {
+    public void testPutSubmodelElementByPath() throws SerializationException, InvalidRequestException, MethodNotAllowedException {
         Request expected = PutSubmodelElementByPathRequest.builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
@@ -930,7 +930,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testSetSubmodelElementValueByPathContentNormal() throws SerializationException, InvalidRequestException, Exception {
+    public void testSetSubmodelElementValueByPathContentNormal() throws Exception {
         SetSubmodelElementValueByPathRequest expected = SetSubmodelElementValueByPathRequest.<String> builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
@@ -951,7 +951,7 @@ public class RequestMappingManagerTest {
 
 
     @Test
-    public void testSetSubmodelElementValueByPathContentValue() throws SerializationException, InvalidRequestException, Exception {
+    public void testSetSubmodelElementValueByPathContentValue() throws Exception {
         SetSubmodelElementValueByPathRequest expected = SetSubmodelElementValueByPathRequest.<String> builder()
                 .submodelId(SUBMODEL.getIdentification())
                 .path(ReferenceHelper.toKeys(SUBMODEL_ELEMENT_REF))
@@ -971,20 +971,29 @@ public class RequestMappingManagerTest {
     }
 
 
-    @Test(expected = InvalidRequestException.class)
-    public void testUnknownPath() throws InvalidRequestException {
-        mappingManager.map(HttpRequest.builder()
+    @Test
+    public void testUnknownPath() {
+        Assert.assertThrows(InvalidRequestException.class, () -> mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("foo")
-                .build());
+                .build()));
     }
 
 
-    @Test(expected = RequestMapperNotFoundException.class)
-    public void testInvalidSubURL() throws InvalidRequestException {
-        mappingManager.map(HttpRequest.builder()
+    @Test
+    public void testInvalidSubURL() {
+        Assert.assertThrows(InvalidRequestException.class, () -> mappingManager.map(HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .path("shells/" + EncodingHelper.base64UrlEncode(AAS.getIdentification().getIdentifier()) + "/bogus")
-                .build());
+                .build()));;
+    }
+
+
+    @Test
+    public void testUnsupportedOperation() {
+        Assert.assertThrows(MethodNotAllowedException.class, () -> mappingManager.map(HttpRequest.builder()
+                .method(HttpMethod.PATCH)
+                .path("shells")
+                .build()));;
     }
 }

@@ -16,10 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util;
 
 import com.google.common.net.MediaType;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.exception.InvalidRequestException;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.request.RequestMappingManager;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
@@ -30,9 +26,7 @@ import java.io.IOException;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.jetty.http.HttpStatus;
@@ -80,33 +74,6 @@ public class HttpHelper {
             default:
                 throw new IllegalArgumentException(String.format("unsupported status code '%s'", statusCode.name()));
         }
-    }
-
-
-    /**
-     * Finds all methods of the url for which there is an implemented request mapper registered to the given mapping
-     * manager.
-     *
-     * @param mappingManager where the request mappers are registered
-     * @param url which should be checked
-     * @return all supported HTTP Methods of the given request
-     */
-    public static Set<HttpMethod> findSupportedHTTPMethods(RequestMappingManager mappingManager, String url) {
-        Set<HttpMethod> allowedMethods = new HashSet<>();
-        for (HttpMethod httpMethod: HttpMethod.values()) {
-            try {
-                HttpRequest httpRequest = HttpRequest.builder()
-                        .path(url)
-                        .method(httpMethod)
-                        .build();
-                mappingManager.findRequestMapper(httpRequest);
-                allowedMethods.add(httpMethod);
-            }
-            catch (InvalidRequestException ignored) {
-                //intentionally empty
-            }
-        }
-        return allowedMethods;
     }
 
 

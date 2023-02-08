@@ -88,6 +88,21 @@ public abstract class AbstractRequestMapper {
 
 
     /**
+     * Decides if a given URL matches this concrete protocl-agnostic request.
+     *
+     * @param url the URL to check
+     * @return true if matches, otherwise false
+     * @throws IllegalArgumentException if url is null
+     */
+    public boolean matchesUrl(String url) {
+        Ensure.requireNonNull(url, "url must be non-null");
+        return matchesUrl(HttpRequest.builder()
+                .path(url)
+                .build());
+    }
+
+
+    /**
      * Converts the HTTP request to protocol-agnostic request.
      *
      * @param httpRequest the HTTP request to convert
