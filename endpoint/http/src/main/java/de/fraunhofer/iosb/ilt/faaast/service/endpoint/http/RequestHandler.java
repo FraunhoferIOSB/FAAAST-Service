@@ -89,11 +89,22 @@ public class RequestHandler extends AbstractHandler {
                 return;
             }
         }
+
+        HttpMethod method;
+        try {
+            method = HttpMethod.valueOf(request.getMethod());
+        }
+        catch (IllegalArgumentException e) {
+            HttpHelper.send(response, StatusCode.CLIENT_METHOD_NOT_ALLOWED, Result.error(String.format("Unknown method '%s'", request.getMethod())));
+            baseRequest.setHandled(true);
+            return;
+        }
+
         HttpRequest httpRequest = HttpRequest.builder()
                 .path(request.getRequestURI().replaceAll("/$", ""))
                 .query(request.getQueryString())
                 .body(reader.lines().collect(Collectors.joining(System.lineSeparator())))
-                .method(HttpMethod.valueOf(request.getMethod()))
+                .method(method)
                 .headers(Collections.list(request.getHeaderNames()).stream()
                         .collect(Collectors.toMap(
                                 x -> x,
@@ -138,7 +149,7 @@ public class RequestHandler extends AbstractHandler {
                             .map(x -> HttpMethod.valueOf(x.trim()))
                             .collect(Collectors.toSet())
                     : new HashSet<>();
-            Set<HttpMethod> allowedMethods = HttpHelper.findSupportedHTTPMethods(requestMappingManager, request.getRequestURI().replaceAll("/$", ""));
+            Set<HttpMethod> allowedMethods = requestMappingManager.getSupportedMethods(request.getRequestURI().replaceAll("/$", ""));
             allowedMethods.add(HttpMethod.OPTIONS);
             response.addHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_METHODS_HEADER,
                     allowedMethods.stream()

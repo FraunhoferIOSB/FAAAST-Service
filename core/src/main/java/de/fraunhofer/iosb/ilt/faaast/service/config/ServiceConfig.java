@@ -209,7 +209,6 @@ public class ServiceConfig {
 
         public Builder() {
             this.core = new CoreConfig();
-            this.persistence = new PersistenceConfig();
             this.assetConnections = new ArrayList<>();
             this.endpoints = new ArrayList<>();
         }

@@ -26,7 +26,6 @@ public class DummyConfigurable implements Configurable<DummyConfig> {
     @Override
     public void init(CoreConfig coreConfig, DummyConfig config, ServiceContext context) {
         this.config = config;
-        System.out.println("init called");
     }
 
 

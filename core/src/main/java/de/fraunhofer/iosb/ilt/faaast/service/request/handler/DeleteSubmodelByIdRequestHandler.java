@@ -43,7 +43,7 @@ public class DeleteSubmodelByIdRequestHandler extends AbstractRequestHandler<Del
     @Override
     public DeleteSubmodelByIdResponse process(DeleteSubmodelByIdRequest request) throws ResourceNotFoundException, MessageBusException {
         DeleteSubmodelByIdResponse response = new DeleteSubmodelByIdResponse();
-        Submodel submodel = (Submodel) persistence.get(request.getId(), new QueryModifier());
+        Submodel submodel = persistence.get(request.getId(), QueryModifier.DEFAULT, Submodel.class);
         persistence.remove(request.getId());
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);
         //TODO: Delete AssetConnections of underlying submodel elements?
