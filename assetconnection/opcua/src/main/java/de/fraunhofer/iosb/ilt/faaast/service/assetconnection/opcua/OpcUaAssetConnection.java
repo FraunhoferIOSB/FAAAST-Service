@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.conf
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
@@ -135,19 +136,43 @@ public class OpcUaAssetConnection extends
 
     @Override
     protected OpcUaOperationProvider createOperationProvider(Reference reference, OpcUaOperationProviderConfig providerConfig) throws AssetConnectionException {
-        return new OpcUaOperationProvider(serviceContext, client, reference, providerConfig, valueConverter);
+        try {
+            return new OpcUaOperationProvider(serviceContext, client, reference, providerConfig, valueConverter);
+        }
+        catch (InvalidConfigurationException e) {
+            throw new AssetConnectionException(String.format(
+                    "failed to create OPC UA operation provider, reason: invalid configuration (reference: %s)",
+                    AasUtils.asString(reference)),
+                    e);
+        }
     }
 
 
     @Override
-    protected OpcUaSubscriptionProvider createSubscriptionProvider(Reference reference, OpcUaSubscriptionProviderConfig providerConfig) {
-        return new OpcUaSubscriptionProvider(serviceContext, reference, providerConfig, client, opcUaSubscription, valueConverter);
+    protected OpcUaSubscriptionProvider createSubscriptionProvider(Reference reference, OpcUaSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
+        try {
+            return new OpcUaSubscriptionProvider(serviceContext, reference, providerConfig, client, opcUaSubscription, valueConverter);
+        }
+        catch (InvalidConfigurationException e) {
+            throw new AssetConnectionException(String.format(
+                    "failed to create OPC UA subscription provider, reason: invalid configuration (reference: %s)",
+                    AasUtils.asString(reference)),
+                    e);
+        }
     }
 
 
     @Override
     protected OpcUaValueProvider createValueProvider(Reference reference, OpcUaValueProviderConfig providerConfig) throws AssetConnectionException {
-        return new OpcUaValueProvider(serviceContext, client, reference, providerConfig, valueConverter);
+        try {
+            return new OpcUaValueProvider(serviceContext, client, reference, providerConfig, valueConverter);
+        }
+        catch (InvalidConfigurationException e) {
+            throw new AssetConnectionException(String.format(
+                    "failed to create OPC UA value provider, reason: invalid configuration (reference: %s)",
+                    AasUtils.asString(reference)),
+                    e);
+        }
     }
 
 

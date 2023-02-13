@@ -20,7 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProviderC
 /**
  * * Config file for OPC UA-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider}.
  */
-public class OpcUaValueProviderConfig extends AbstractOpcUaProviderArrayConfig implements AssetValueProviderConfig {
+public class OpcUaValueProviderConfig extends AbstractOpcUaProviderWithArrayConfig implements AssetValueProviderConfig {
 
     public static Builder builder() {
         return new Builder();
@@ -41,7 +41,7 @@ public class OpcUaValueProviderConfig extends AbstractOpcUaProviderArrayConfig i
     }
 
     private abstract static class AbstractBuilder<T extends OpcUaValueProviderConfig, B extends AbstractBuilder<T, B>>
-            extends AbstractOpcUaProviderArrayConfig.AbstractBuilder<T, B> {
+            extends AbstractOpcUaProviderWithArrayConfig.AbstractBuilder<T, B> {
 
     }
 }

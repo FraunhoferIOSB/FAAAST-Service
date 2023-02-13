@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * Config file for OPC UA-based {@link de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider}.
  */
-public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderArrayConfig implements AssetSubscriptionProviderConfig {
+public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderWithArrayConfig implements AssetSubscriptionProviderConfig {
 
     private long interval;
 
@@ -74,7 +74,7 @@ public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderArrayC
     }
 
     private abstract static class AbstractBuilder<T extends OpcUaSubscriptionProviderConfig, B extends AbstractBuilder<T, B>>
-            extends AbstractOpcUaProviderArrayConfig.AbstractBuilder<T, B> {
+            extends AbstractOpcUaProviderWithArrayConfig.AbstractBuilder<T, B> {
 
         public B interval(long value) {
             getBuildingInstance().setInterval(value);

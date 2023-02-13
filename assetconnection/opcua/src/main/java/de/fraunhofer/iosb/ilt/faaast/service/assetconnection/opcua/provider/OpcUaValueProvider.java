@@ -17,9 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConversionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
@@ -30,8 +32,6 @@ import io.adminshell.aas.v3.model.Reference;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
-import org.eclipse.milo.opcua.sdk.core.nodes.VariableNode;
-import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
@@ -41,16 +41,15 @@ import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
 /**
  * Implementation of ValueProvider for OPC UA asset connections. Supports reading and writing values from/to OPC UA.
  */
-public class OpcUaValueProvider extends AbstractOpcUaProvider<OpcUaValueProviderConfig> implements AssetValueProvider {
+public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValueProviderConfig> implements AssetValueProvider {
 
-    private VariableNode node;
     private Datatype datatype;
 
     public OpcUaValueProvider(ServiceContext serviceContext,
             OpcUaClient client,
             Reference reference,
             OpcUaValueProviderConfig providerConfig,
-            ValueConverter valueConverter) throws AssetConnectionException {
+            ValueConverter valueConverter) throws AssetConnectionException, InvalidConfigurationException {
         super(serviceContext, client, reference, providerConfig, valueConverter);
         init();
     }
@@ -84,16 +83,6 @@ public class OpcUaValueProvider extends AbstractOpcUaProvider<OpcUaValueProvider
                     baseErrorMessage,
                     AasUtils.asString(reference)));
         }
-        try {
-            node = client.getAddressSpace().getVariableNode(OpcUaHelper.parseNodeId(client, providerConfig.getNodeId()));
-        }
-        catch (UaException e) {
-            throw new AssetConnectionException(
-                    String.format("%s - could not parse nodeId (nodeId: %s)",
-                            baseErrorMessage,
-                            providerConfig.getNodeId()),
-                    e);
-        }
     }
 
 
@@ -102,14 +91,9 @@ public class OpcUaValueProvider extends AbstractOpcUaProvider<OpcUaValueProvider
         try {
             DataValue dataValue = client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()).get();
             OpcUaHelper.checkStatusCode(dataValue.getStatusCode(), "error reading value from asset conenction");
-            if ((providerConfig.getArrayElementIndex() == null) || ("".equals(providerConfig.getArrayElementIndex()))) {
-                return new PropertyValue(valueConverter.convert(dataValue.getValue(), datatype));
-            }
-            else {
-                return new PropertyValue(valueConverter.convertArray(dataValue.getValue(), datatype, providerConfig.getArrayElementIndex()));
-            }
+            return new PropertyValue(valueConverter.convert(unwrapValue(dataValue), datatype));
         }
-        catch (AssetConnectionException | InterruptedException | ExecutionException e) {
+        catch (InterruptedException | ExecutionException | ValueConversionException e) {
             Thread.currentThread().interrupt();
             throw new AssetConnectionException(String.format("error reading value from asset conenction (reference: %s)", AasUtils.asString(reference)), e);
         }
@@ -129,10 +113,10 @@ public class OpcUaValueProvider extends AbstractOpcUaProvider<OpcUaValueProvider
         }
         try {
             Variant writeValue = valueConverter.convert(((PropertyValue) value).getValue(), node.getDataType());
-            if ((providerConfig.getArrayElementIndex() != null) && (!"".equals(providerConfig.getArrayElementIndex()))) {
+            if (hasArrayIndex()) {
                 DataValue dataValue = client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()).get();
                 writeValue = valueConverter.convert(((PropertyValue) value).getValue(), node.getDataType());
-                valueConverter.setArrayElement(dataValue.getValue(), providerConfig.getArrayElementIndex(), writeValue.getValue());
+                setArrayElement(dataValue.getValue().getValue(), writeValue.getValue());
                 writeValue = dataValue.getValue();
             }
             StatusCode result = client.writeValue(node.getNodeId(), new DataValue(

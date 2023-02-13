@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionExce
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConversionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -49,7 +48,7 @@ public class SubscriptionMultiplexer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubscriptionMultiplexer.class);
     private final ServiceContext serviceContext;
-    private final OpcUaSubscriptionProviderConfig providerConfig;
+    private final OpcUaSubscriptionProvider provider;
     private final Reference reference;
     private final Set<NewDataListener> listeners;
     private final ValueConverter valueConverter;
@@ -60,19 +59,19 @@ public class SubscriptionMultiplexer {
 
     public SubscriptionMultiplexer(ServiceContext serviceContext,
             Reference reference,
-            OpcUaSubscriptionProviderConfig providerConfig,
+            OpcUaSubscriptionProvider provider,
             OpcUaClient client,
             ManagedSubscription opcUaSubscription,
             ValueConverter valueConverter) throws AssetConnectionException {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         Ensure.requireNonNull(reference, "reference must be non-null");
-        Ensure.requireNonNull(providerConfig, "providerConfig must be non-null");
+        Ensure.requireNonNull(provider, "provider must be non-null");
         Ensure.requireNonNull(client, "client must be non-null");
         Ensure.requireNonNull(opcUaSubscription, "opcUaSubscription must be non-null");
         Ensure.requireNonNull(valueConverter, "valueConverter must be non-null");
         this.serviceContext = serviceContext;
         this.reference = reference;
-        this.providerConfig = providerConfig;
+        this.provider = provider;
         this.client = client;
         this.opcUaSubscription = opcUaSubscription;
         this.valueConverter = valueConverter;
@@ -106,14 +105,14 @@ public class SubscriptionMultiplexer {
         }
         try {
             dataItem = opcUaSubscription.createDataItem(
-                    OpcUaHelper.parseNodeId(client, providerConfig.getNodeId()),
+                    OpcUaHelper.parseNodeId(client, provider.getNodeId()),
                     LambdaExceptionHelper.rethrowConsumer(
                             x -> x.addDataValueListener(LambdaExceptionHelper.rethrowConsumer(this::notify))));
         }
         catch (UaException e) {
             LOGGER.warn("Could not create subscrption item (reference: {}, nodeId: {})",
                     AasUtils.asString(reference),
-                    providerConfig.getNodeId(),
+                    provider.getNodeId(),
                     e);
         }
     }
@@ -135,13 +134,7 @@ public class SubscriptionMultiplexer {
 
     private void notify(DataValue value) {
         try {
-            DataElementValue newValue;
-            if ((providerConfig.getArrayElementIndex() == null) || ("".equals(providerConfig.getArrayElementIndex()))) {
-                newValue = new PropertyValue(valueConverter.convert(value.getValue(), datatype));
-            }
-            else {
-                newValue = new PropertyValue(valueConverter.convertArray(value.getValue(), datatype, providerConfig.getArrayElementIndex()));
-            }
+            DataElementValue newValue = new PropertyValue(valueConverter.convert(provider.unwrapValue(value), datatype));
             listeners.forEach(x -> {
                 try {
                     x.newDataReceived(newValue);
@@ -155,7 +148,7 @@ public class SubscriptionMultiplexer {
             LOGGER.warn("received illegal value via OPC UA subscription - type conversion faild (value: {}, target type: {}, nodeId: {})",
                     value.getValue(),
                     datatype,
-                    providerConfig.getNodeId(),
+                    provider.getNodeId(),
                     e);
         }
     }
@@ -210,7 +203,7 @@ public class SubscriptionMultiplexer {
             throw new AssetConnectionException(
                     String.format("Removing subscription failed (reference: %s, nodeId: %s)",
                             AasUtils.asString(reference),
-                            providerConfig.getNodeId()),
+                            provider.getNodeId()),
                     e);
         }
     }
@@ -218,7 +211,7 @@ public class SubscriptionMultiplexer {
 
     @Override
     public int hashCode() {
-        return Objects.hash(serviceContext, client, reference, providerConfig, valueConverter, listeners, opcUaSubscription, dataItem, datatype);
+        return Objects.hash(serviceContext, client, reference, provider, valueConverter, listeners, opcUaSubscription, dataItem, datatype);
     }
 
 
@@ -237,7 +230,7 @@ public class SubscriptionMultiplexer {
         return Objects.equals(serviceContext, that.serviceContext)
                 && Objects.equals(client, that.client)
                 && Objects.equals(reference, that.reference)
-                && Objects.equals(providerConfig, that.providerConfig)
+                && Objects.equals(provider, that.provider)
                 && Objects.equals(valueConverter, that.valueConverter)
                 && Objects.equals(listeners, that.listeners)
                 && Objects.equals(opcUaSubscription, that.opcUaSubscription)

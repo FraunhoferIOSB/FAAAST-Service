@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
@@ -21,7 +22,7 @@ import java.util.Objects;
 /**
  * Superclass for all OPC UA provider config classes.
  */
-public abstract class AbstractOpcUaProviderConfig {
+public abstract class AbstractOpcUaProviderConfig implements AssetProviderConfig {
 
     protected String nodeId;
 

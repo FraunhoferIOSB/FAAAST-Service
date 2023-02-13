@@ -20,19 +20,22 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionPr
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.Objects;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Implementation of SubscriptionProvider for OPC UA asset connections. Supports subscribing to OPC UA.
  */
-public class OpcUaSubscriptionProvider extends AbstractOpcUaProvider<OpcUaSubscriptionProviderConfig> implements AssetSubscriptionProvider {
+public class OpcUaSubscriptionProvider extends AbstractOpcUaProviderWithArray<OpcUaSubscriptionProviderConfig> implements AssetSubscriptionProvider {
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OpcUaSubscriptionProvider.class);
     private ManagedSubscription opcUaSubscription;
     private SubscriptionMultiplexer multiplexer = null;
 
@@ -41,7 +44,7 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProvider<OpcUaSubscr
             OpcUaSubscriptionProviderConfig providerConfig,
             OpcUaClient client,
             ManagedSubscription opcUaSubscription,
-            ValueConverter valueConverter) {
+            ValueConverter valueConverter) throws InvalidConfigurationException, AssetConnectionException {
         super(serviceContext, client, reference, providerConfig, valueConverter);
         Ensure.requireNonNull(opcUaSubscription, "opcUaSubscription must be non-null");
         this.opcUaSubscription = opcUaSubscription;
@@ -80,7 +83,7 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProvider<OpcUaSubscr
             multiplexer = new SubscriptionMultiplexer(
                     serviceContext,
                     reference,
-                    providerConfig,
+                    this,
                     client,
                     opcUaSubscription,
                     valueConverter);

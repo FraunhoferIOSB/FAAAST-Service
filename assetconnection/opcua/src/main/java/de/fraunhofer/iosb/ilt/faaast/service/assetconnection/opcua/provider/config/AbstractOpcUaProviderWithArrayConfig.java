@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * Superclass for OPC UA provider config classes with Array.
  */
-public abstract class AbstractOpcUaProviderArrayConfig extends AbstractOpcUaProviderConfig {
+public abstract class AbstractOpcUaProviderWithArrayConfig extends AbstractOpcUaProviderConfig {
 
     protected String arrayElementIndex;
 
@@ -42,7 +42,7 @@ public abstract class AbstractOpcUaProviderArrayConfig extends AbstractOpcUaProv
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractOpcUaProviderArrayConfig that = (AbstractOpcUaProviderArrayConfig) o;
+        AbstractOpcUaProviderWithArrayConfig that = (AbstractOpcUaProviderWithArrayConfig) o;
         return super.equals(o)
                 && Objects.equals(arrayElementIndex, that.arrayElementIndex);
     }
@@ -53,7 +53,7 @@ public abstract class AbstractOpcUaProviderArrayConfig extends AbstractOpcUaProv
         return Objects.hash(super.hashCode(), arrayElementIndex);
     }
 
-    protected abstract static class AbstractBuilder<T extends AbstractOpcUaProviderArrayConfig, B extends AbstractBuilder<T, B>>
+    protected abstract static class AbstractBuilder<T extends AbstractOpcUaProviderWithArrayConfig, B extends AbstractBuilder<T, B>>
             extends AbstractOpcUaProviderConfig.AbstractBuilder<T, B> {
 
         public B arrayElementIndex(String arrayElementIndex) {

@@ -97,6 +97,21 @@ public class Ensure {
 
 
     /**
+     * Validates that a given condition is met, otherwise throws exception.
+     *
+     * @param <E> type of the exception to throw
+     * @param condition condition to check
+     * @param exception the exception
+     * @throws E if condition is not satisfied
+     */
+    public static <E extends Throwable> void require(boolean condition, E exception) throws E {
+        if (!condition) {
+            throw exception;
+        }
+    }
+
+
+    /**
      * Checks that the specified object reference is not {@code null} and throws a customized
      * {@link IllegalArgumentException} if it is.
      *
@@ -125,9 +140,27 @@ public class Ensure {
      * @param obj the object to check
      * @param exception the exception to throw
      * @return {@code obj} if not {@code null}
-     * @throws IllegalArgumentException if {@code obj} is {@code null}
+     * @throws RuntimeException if {@code obj} is {@code null}
      */
     public static <T> T requireNonNull(T obj, RuntimeException exception) {
+        if (obj == null) {
+            throw exception;
+        }
+        return obj;
+    }
+
+
+    /**
+     * Checks that the specified object reference is not {@code null} and throws custom exception if it is.
+     *
+     * @param <T> the type of the reference
+     * @param <E> type of the exception to throw
+     * @param obj the object to check
+     * @param exception the exception to throw
+     * @return {@code obj} if not {@code null}
+     * @throws E if {@code obj} is {@code null}
+     */
+    public static <T, E extends Throwable> T requireNonNull(T obj, E exception) throws E {
         if (obj == null) {
             throw exception;
         }
