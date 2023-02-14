@@ -27,7 +27,6 @@ import io.adminshell.aas.v3.model.Reference;
 import java.util.Objects;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -35,7 +34,6 @@ import org.slf4j.LoggerFactory;
  */
 public class OpcUaSubscriptionProvider extends AbstractOpcUaProviderWithArray<OpcUaSubscriptionProviderConfig> implements AssetSubscriptionProvider {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OpcUaSubscriptionProvider.class);
     private ManagedSubscription opcUaSubscription;
     private SubscriptionMultiplexer multiplexer = null;
 
