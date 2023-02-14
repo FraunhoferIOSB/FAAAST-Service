@@ -54,7 +54,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
-import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
 import org.eclipse.milo.opcua.sdk.server.identity.AnonymousIdentityValidator;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
@@ -101,23 +100,24 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 .build();
         doReturn(infoExample).when(serviceContext).getTypeInfo(reference);
         OpcUaAssetConnection connection = new OpcUaAssetConnection();
+        OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
+                .host(localServerUrl)
+                .subscriptionProvider(reference, OpcUaSubscriptionProviderConfig.builder()
+                        .nodeId(nodeId)
+                        .interval(interval)
+                        .build())
+                .valueProvider(reference,
+                        OpcUaValueProviderConfig.builder()
+                                .nodeId(nodeId)
+                                .build())
+                .build();
         connection.init(
                 CoreConfig.builder()
                         .build(),
-                OpcUaAssetConnectionConfig.builder()
-                        .host(localServerUrl)
-                        .subscriptionProvider(reference, OpcUaSubscriptionProviderConfig.builder()
-                                .nodeId(nodeId)
-                                .interval(interval)
-                                .build())
-                        .valueProvider(reference,
-                                OpcUaValueProviderConfig.builder()
-                                        .nodeId(nodeId)
-                                        .build())
-                        .build(),
+                config,
                 serviceContext);
         // first value should always be the current value
-        OpcUaClient client = OpcUaHelper.createClient(localServerUrl, AnonymousProvider.INSTANCE);
+        OpcUaClient client = OpcUaHelper.connect(config);
         client.connect().get();
         DataValue originalValue = OpcUaHelper.readValue(client, nodeId);
         client.disconnect().get();
@@ -163,26 +163,26 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 .build();
         doReturn(infoExample).when(serviceContext).getTypeInfo(reference);
         OpcUaAssetConnection connection = new OpcUaAssetConnection();
+        OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
+                .host(serverUrl)
+                .subscriptionProvider(reference, OpcUaSubscriptionProviderConfig.builder()
+                        .nodeId(nodeId)
+                        .interval(interval)
+                        .arrayIndex(elementIndex)
+                        .build())
+                .valueProvider(reference,
+                        OpcUaValueProviderConfig.builder()
+                                .nodeId(nodeId)
+                                .arrayIndex(elementIndex)
+                                .build())
+                .build();
         connection.init(
                 CoreConfig.builder()
                         .build(),
-                OpcUaAssetConnectionConfig.builder()
-                        .host(serverUrl)
-                        .subscriptionProvider(reference, OpcUaSubscriptionProviderConfig.builder()
-                                .nodeId(nodeId)
-                                .interval(interval)
-                                .arrayElementIndex(elementIndex)
-                                .build())
-                        .valueProvider(reference,
-                                OpcUaValueProviderConfig.builder()
-                                        .nodeId(nodeId)
-                                        .arrayElementIndex(elementIndex)
-                                        .build())
-                        .build(),
+                config,
                 serviceContext);
         // first value should always be the current value
-        OpcUaClient client = OpcUaHelper.createClient(serverUrl, AnonymousProvider.INSTANCE);
-        client.connect().get();
+        OpcUaClient client = OpcUaHelper.connect(config);
         DataValue originalValue = OpcUaHelper.readValue(client, nodeId);
         client.disconnect().get();
         final AtomicReference<DataElementValue> originalValueResponse = new AtomicReference<>();
@@ -229,7 +229,7 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                         .valueProvider(reference,
                                 OpcUaValueProviderConfig.builder()
                                         .nodeId(nodeId)
-                                        .arrayElementIndex(arrayIndex)
+                                        .arrayIndex(arrayIndex)
                                         .build())
                         .host(serverUrl)
                         .build(),

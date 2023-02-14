@@ -17,21 +17,26 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util;
 import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.uint;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import java.net.URI;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnectionConfig;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
+import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
+import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
+import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.ExpandedNodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
-import org.eclipse.milo.opcua.stack.core.util.EndpointUtil;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -39,7 +44,10 @@ import org.eclipse.milo.opcua.stack.core.util.EndpointUtil;
  */
 public class OpcUaHelper {
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OpcUaHelper.class);
     public static final String NODE_ID_SEPARATOR = ";";
+    public static final String APPLICATION_URI = "urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:opcua";
+    public static final String APPLICATION_NAME = "FA³ST Asset Connection";
 
     private OpcUaHelper() {}
 
@@ -109,54 +117,89 @@ public class OpcUaHelper {
 
 
     /**
-     * Creates a new OPC UA client.
+     * Connect to a OPC UA server. This method already respects all configuration properties like credentials and
+     * numbers of retries.
      *
-     * @param opcUrl the URL of the OPC UA server to connect to
-     * @param identityProvider the identity provider
-     * @param applicationName the name of the application used for identification purposes
-     * @return new OPC UA client
-     * @throws UaException if creating connection fails
+     * @param config the configuration to use
+     * @param clientModifier optional way to modify client before connecting, e.g. for adding listeners
+     * @return new OPC UA client instance that is already connected to the server
+     * @throws AssetConnectionException if connecting fails
      */
-    public static OpcUaClient createClient(URI opcUrl, IdentityProvider identityProvider, String applicationName) throws UaException {
-        return OpcUaClient.create(
-                opcUrl.toString(),
-                endpoints -> Optional.of(
-                        EndpointUtil.updateUrl(
-                                endpoints.stream()
-                                        .findFirst()
-                                        .get(),
-                                opcUrl.getHost())),
-                configBuilder -> configBuilder
-                        .setApplicationName(LocalizedText.english(applicationName))
-                        .setApplicationUri("urn:de:fraunhofer:iosb:ilt:faaast" + UUID.randomUUID())
-                        .setIdentityProvider(identityProvider)
-                        .setRequestTimeout(uint(60000))
-                        .build());
+    public static OpcUaClient connect(OpcUaAssetConnectionConfig config, Consumer<OpcUaClient> clientModifier) throws AssetConnectionException {
+        OpcUaClient client = createClient(config);
+        if (Objects.nonNull(clientModifier)) {
+            clientModifier.accept(client);
+        }
+        return connect(client, config.getRetries());
     }
 
 
     /**
-     * Creates a new OPC UA client.
+     * Connect to a OPC UA server. This method already respects all configuration properties like credentials and
+     * numbers of retries.
      *
-     * @param opcUrl the URL of the OPC UA server to connect to
-     * @param identityProvider the identity provider
-     * @return new OPC UA client
-     * @throws UaException if creating connection fails
+     * @param config the configuration to use
+     * @return new OPC UA client instance that is already connected to the server
+     * @throws AssetConnectionException if connecting fails
      */
-    public static OpcUaClient createClient(String opcUrl, IdentityProvider identityProvider) throws UaException {
-        return createClient(URI.create(opcUrl), identityProvider);
+    public static OpcUaClient connect(OpcUaAssetConnectionConfig config) throws AssetConnectionException {
+        return connect(createClient(config), config.getRetries());
     }
 
 
-    /**
-     * Creates a new OPC UA client.
-     *
-     * @param opcUrl the URL of the OPC UA server to connect to
-     * @param identityProvider the identity provider
-     * @return new OPC UA client
-     * @throws UaException if creating connection fails
-     */
-    public static OpcUaClient createClient(URI opcUrl, IdentityProvider identityProvider) throws UaException {
-        return createClient(opcUrl, identityProvider, UUID.randomUUID().toString());
+    private static OpcUaClient createClient(OpcUaAssetConnectionConfig config) throws AssetConnectionException {
+        IdentityProvider identityProvider = StringUtils.isAllBlank(config.getUsername())
+                ? AnonymousProvider.INSTANCE
+                : new UsernameProvider(config.getUsername(), config.getPassword());
+        OpcUaClient client;
+        try {
+            client = OpcUaClient.create(
+                    config.getHost(),
+                    endpoints -> endpoints.stream()
+                            .filter(e -> e.getSecurityPolicyUri().equals(SecurityPolicy.None.getUri()))
+                            .findFirst(),
+                    configBuilder -> configBuilder
+                            .setApplicationName(LocalizedText.english(APPLICATION_NAME))
+                            .setApplicationUri(APPLICATION_URI)
+                            .setIdentityProvider(identityProvider)
+                            .setRequestTimeout(uint(config.getRequestTimeout()))
+                            .setAcknowledgeTimeout(uint(config.getAcknowledgeTimeout()))
+                            .build());
+        }
+        catch (UaException e) {
+            throw new AssetConnectionException(String.format("error creating OPC UA client (host: %s)", config.getHost()), e);
+        }
+        return client;
     }
+
+
+    private static OpcUaClient connect(OpcUaClient client, int retries) throws AssetConnectionException {
+        boolean success = false;
+        int count = 0;
+        do {
+            try {
+                client.connect().get();
+            }
+            catch (InterruptedException | ExecutionException e) {
+                // ignore
+                if (count >= retries) {
+                    throw new AssetConnectionException(String.format(
+                            "error opening OPC UA connection (host: %s)",
+                            client.getConfig().getEndpoint().getEndpointUrl()),
+                            e);
+                }
+                else {
+                    LOGGER.debug("Opening OPC UA connection failed on try %/% (host: %)",
+                            count + 1,
+                            retries + 1,
+                            client.getConfig().getEndpoint().getEndpointUrl());
+                }
+            }
+            finally {
+                count++;
+            }
+        } while (!success && count <= retries);
+        return client;
+    }
+
 }

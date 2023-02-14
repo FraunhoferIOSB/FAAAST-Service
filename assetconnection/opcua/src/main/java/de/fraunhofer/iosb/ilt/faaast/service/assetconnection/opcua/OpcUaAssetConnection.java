@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
-import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.uint;
-
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
@@ -26,26 +24,19 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.OpcU
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.SessionActivityListener;
 import org.eclipse.milo.opcua.sdk.client.api.UaSession;
-import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
-import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
-import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
 import org.eclipse.milo.opcua.stack.core.UaException;
-import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
-import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,44 +170,25 @@ public class OpcUaAssetConnection extends
 
 
     @Override
-    protected void initConnection(OpcUaAssetConnectionConfig config) throws ConfigurationInitializationException {
-        IdentityProvider identityProvider = StringUtils.isAllBlank(config.getUsername())
-                ? AnonymousProvider.INSTANCE
-                : new UsernameProvider(config.getUsername(), config.getPassword());
+    protected void initConnection(OpcUaAssetConnectionConfig config) throws AssetConnectionException {
+        client = OpcUaHelper.connect(config, x -> x.addSessionActivityListener(new SessionActivityListener() {
+            @Override
+            public void onSessionActive(UaSession session) {
+                LOGGER.info("OPC UA asset connection established (host: {})", config.getHost());
+            }
+
+
+            @Override
+            public void onSessionInactive(UaSession session) {
+                LOGGER.warn("OPC UA asset connection lost (host: {})", config.getHost());
+            }
+        }));
         try {
-            client = OpcUaClient.create(
-                    config.getHost(),
-                    endpoints -> endpoints.stream()
-                            .filter(e -> e.getSecurityPolicyUri().equals(SecurityPolicy.None.getUri()))
-                            .findFirst(),
-                    configBuilder -> configBuilder
-                            .setApplicationName(LocalizedText.english("AAS-Service"))
-                            .setApplicationUri("urn:de:fraunhofer:iosb:aas:service")
-                            .setIdentityProvider(identityProvider)
-                            .setRequestTimeout(uint(1000))
-                            .setAcknowledgeTimeout(uint(1000))
-                            .build());
-            client.connect().get();
-            final CountDownLatch isRunning = new CountDownLatch(1);
-            client.addSessionActivityListener(new SessionActivityListener() {
-                @Override
-                public void onSessionActive(UaSession session) {
-                    isRunning.countDown();
-                    LOGGER.info("OPC UA asset connection established (host: {})", config.getHost());
-                }
-
-
-                @Override
-                public void onSessionInactive(UaSession session) {
-                    LOGGER.warn("OPC UA asset connection lost (host: {})", config.getHost());
-                }
-            });
-            isRunning.await(3000, TimeUnit.MILLISECONDS);
             createNewSubscription();
         }
-        catch (InterruptedException | ExecutionException | UaException e) {
+        catch (UaException e) {
             Thread.currentThread().interrupt();
-            throw new ConfigurationInitializationException(String.format("error opening OPC UA connection (endpoint: %s)", config.getHost()), e);
+            throw new AssetConnectionException(String.format("creating OPC UA subscription failed (host: %s, node: %s)", config.getHost()), e);
         }
     }
 

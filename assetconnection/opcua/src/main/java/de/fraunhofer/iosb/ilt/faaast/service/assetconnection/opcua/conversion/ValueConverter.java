@@ -112,10 +112,10 @@ public class ValueConverter {
     public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
         Ensure.requireNonNull(value, new ValueConversionException("value must be non-null"));
         Ensure.requireNonNull(targetType, new ValueConversionException("targetType value must be non-null"));
-        Ensure.require(!value.getDataType().isEmpty(), new ValueConversionException(String.format("unable to determine datatype of OPC UA value (value: %s)", value)));
+        Ensure.require(value.getDataType().isPresent(), new ValueConversionException(String.format("unable to determine datatype of OPC UA value (value: %s)", value)));
 
         Optional<NodeId> valueDatatype = value.getDataType().get().toNodeId(null);
-        Ensure.require(!valueDatatype.isEmpty(),
+        Ensure.require(valueDatatype.isPresent(),
                 new ValueConversionException(String.format("unable to determine nodeId of datatype of OPC UA value (datatype: %s)", value.getDataType().get())));
         OpcUaToAasValueConverter converter = opcUaToAasConverters.getOrDefault(
                 new ConversionTypeInfo(targetType, valueDatatype.get()),

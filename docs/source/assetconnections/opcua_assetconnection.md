@@ -17,13 +17,16 @@
 | host | String | URL of the OPC UA server, e.g. _opc.tcp://localhost:4840_ |
 | username | String | _optional_ Username for connecting to the OPC UA server |
 | password | String | _optional_ Password for connecting to the OPC UA server |
+| requestTimeout | int | _optional_ Timeout for requests (in ms), default: 3000 |
+| acknowledgeTimeout | int | _optional_ Timeout for acknowledgement (in ms), default: 10000 |
+| retries | int | _optional_ Number of times a request/connection should be retried after failing, default: 1 |
 
 ### Value Provider
 
 | Name | Allowed Value | Description |
 |:--| -- | -- |
 | nodeId | String | NodeId of the the OPC UA node to read/write in ExpandedNodeId format |
-| arrayElementIndex | String | _optional_ Index of the desired array element if the value is an array |
+| arrayIndex | String | _optional_ Index of the desired array element if the value is an array |
 
 All NodeIds (also below) are specified in the ExpandedNodeId format (see [OPC UA Reference, Part 6](https://reference.opcfoundation.org/v104/Core/docs/Part6/5.3.1/), Section ExpandedNodeId). In the following you can see two examples.
 
@@ -34,7 +37,7 @@ If the value is an array, it's possible to reference a specific element of the a
 ```json
 {
 	"nodeId": "nsu=com:example;s=foo",
-	"arrayElementIndex" : "[2]"
+	"arrayIndex" : "[2]"
 }
 ```
 
@@ -43,7 +46,7 @@ or
 ```json
 {
 	"nodeId": "ns=2;s=foo",
-	"arrayElementIndex" : "[2]"
+	"arrayIndex" : "[2]"
 }
 ```
 
@@ -85,7 +88,7 @@ or
 |:--| -- | -- |
 | nodeId | String | NodeId of the the OPC UA node to read/write in ExpandedNodeId format |
 | interval | long | Interval to poll the server for changes (in ms) _currently not used_
-| arrayElementIndex | String | _optional_ Index of the desired array element if the value is an array |
+| arrayIndex | String | _optional_ Index of the desired array element if the value is an array |
 
 If the value is an array, it's possible to reference a specific element of the array. The index of the desired element is specified with square brackets, e.g. "[2]".  If the value is multi-dimensional array, multiple indizes can be specified, e.g. "&#091;1&#093;&#091;3&#093;".
 
@@ -95,7 +98,7 @@ If the value is an array, it's possible to reference a specific element of the a
 {
 	"nodeId": "nsu=com:example;s=foo",
 	"interval": 1000,
-	"arrayElementIndex" : "[2]"
+	"arrayIndex" : "[2]"
 }
 ```
 

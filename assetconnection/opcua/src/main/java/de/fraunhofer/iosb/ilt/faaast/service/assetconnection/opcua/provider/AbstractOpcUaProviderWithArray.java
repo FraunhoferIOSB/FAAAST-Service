@@ -46,7 +46,7 @@ public abstract class AbstractOpcUaProviderWithArray<T extends AbstractOpcUaProv
             T providerConfig,
             ValueConverter valueConverter) throws InvalidConfigurationException, AssetConnectionException {
         super(serviceContext, client, reference, providerConfig, valueConverter);
-        arrayIndex = ArrayHelper.parseArrayIndex(providerConfig.getArrayElementIndex());
+        arrayIndex = ArrayHelper.parseArrayIndex(providerConfig.getArrayIndex());
         validate();
     }
 
@@ -60,7 +60,7 @@ public abstract class AbstractOpcUaProviderWithArray<T extends AbstractOpcUaProv
                                 providerConfig.getNodeId(),
                                 super.node.getNodeClass())));
         this.node = (VariableNode) super.node;
-        UInteger[] actualArrayDimensions = ((VariableNode) node).getArrayDimensions();
+        UInteger[] actualArrayDimensions = node.getArrayDimensions();
         if (ArrayHelper.isValidArrayIndex(arrayIndex) && arrayIndex.length > actualArrayDimensions.length) {
             throw new InvalidConfigurationException(
                     String.format("provided array index has more dimensions than the corresponding node (provided dimensions: %d, actual dimensions: %d, nodeId: %s)",

@@ -22,15 +22,15 @@ import java.util.Objects;
  */
 public abstract class AbstractOpcUaProviderWithArrayConfig extends AbstractOpcUaProviderConfig {
 
-    protected String arrayElementIndex;
+    protected String arrayIndex;
 
-    public String getArrayElementIndex() {
-        return arrayElementIndex;
+    public String getArrayIndex() {
+        return arrayIndex;
     }
 
 
-    public void setArrayElementIndex(String arrayElementIndex) {
-        this.arrayElementIndex = arrayElementIndex;
+    public void setArrayIndex(String arrayIndex) {
+        this.arrayIndex = arrayIndex;
     }
 
 
@@ -44,20 +44,20 @@ public abstract class AbstractOpcUaProviderWithArrayConfig extends AbstractOpcUa
         }
         AbstractOpcUaProviderWithArrayConfig that = (AbstractOpcUaProviderWithArrayConfig) o;
         return super.equals(o)
-                && Objects.equals(arrayElementIndex, that.arrayElementIndex);
+                && Objects.equals(arrayIndex, that.arrayIndex);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), arrayElementIndex);
+        return Objects.hash(super.hashCode(), arrayIndex);
     }
 
     protected abstract static class AbstractBuilder<T extends AbstractOpcUaProviderWithArrayConfig, B extends AbstractBuilder<T, B>>
             extends AbstractOpcUaProviderConfig.AbstractBuilder<T, B> {
 
-        public B arrayElementIndex(String arrayElementIndex) {
-            getBuildingInstance().setArrayElementIndex(arrayElementIndex);
+        public B arrayIndex(String arrayElementIndex) {
+            getBuildingInstance().setArrayIndex(arrayElementIndex);
             return getSelf();
         }
 

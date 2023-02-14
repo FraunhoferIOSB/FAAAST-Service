@@ -29,7 +29,7 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
  */
 public class ArrayHelper {
 
-    private static final String REGEX_ARRAY_INDEX = "\\[([0-9]+)\\]";
+    private static final String REGEX_ARRAY_INDEX = "\\[(\\d+)\\]";
     private static final String REGEX_ARRAY_EXPRESSION = String.format("^(?>%s)+$", REGEX_ARRAY_INDEX);
     private static final Pattern REGEX_PATTERN_ARRAY_INDEX = Pattern.compile(REGEX_ARRAY_INDEX);
 
@@ -45,7 +45,7 @@ public class ArrayHelper {
      */
     public static int[] parseArrayIndex(String indexExpression) throws IllegalArgumentException {
         if (Objects.isNull(indexExpression) || indexExpression.isBlank()) {
-            return null;
+            return new int[0];
         }
         if (!indexExpression.matches(REGEX_ARRAY_EXPRESSION)) {
             throw new IllegalArgumentException(String.format("invalid array index expression (expression: %s, expected format: %s)",
@@ -107,13 +107,13 @@ public class ArrayHelper {
         for (int i = 0; i < index.length - 1; i++) {
             if (Objects.isNull(result)) {
                 throw new NullPointerException(String.format(
-                        "error accessing array at given index - intermediate element is null (requested index: %s, index with object being null: )",
+                        "error accessing array at given index - intermediate element is null (requested index: %s, index with object being null: %s)",
                         indexToString(index),
                         indexToString(i + 1, index)));
             }
             if (!result.getClass().isArray()) {
                 throw new ClassCastException(String.format(
-                        "error accessing array at given index - intermediate element not an array (requested index: %s, index with non-array object: )",
+                        "error accessing array at given index - intermediate element not an array (requested index: %s, index with non-array object: %s)",
                         indexToString(index),
                         indexToString(i + 1, index)));
             }
@@ -121,7 +121,7 @@ public class ArrayHelper {
         }
         if (!result.getClass().isArray()) {
             throw new ClassCastException(String.format(
-                    "error accessing array at given index - intermediate element not an array (requested index: %s, index with non-array object: )",
+                    "error accessing array at given index - intermediate element not an array (requested index: %s, index with non-array object: %s)",
                     indexToString(index),
                     indexToString(index.length - 1, index)));
         }
@@ -147,7 +147,7 @@ public class ArrayHelper {
 
 
     /**
-     * Gets the given value at array index of the given array.
+     * Gets the given value at array index of the given array. If no index is given the array itself is returned.
      *
      * @param array The original array.
      * @param index the index to get the element at
@@ -157,6 +157,9 @@ public class ArrayHelper {
      * @throws ArrayIndexOutOfBoundsException if index is out of bounds
      */
     public static Object getArrayElement(Object array, int... index) {
+        if (!isValidArrayIndex(index)) {
+            return array;
+        }
         return Array.get(navigateToIndex(array, index), index[index.length - 1]);
     }
 

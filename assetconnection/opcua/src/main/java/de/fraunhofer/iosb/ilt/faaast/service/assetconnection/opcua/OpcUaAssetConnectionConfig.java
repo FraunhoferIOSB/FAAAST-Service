@@ -30,9 +30,23 @@ import java.util.Objects;
 public class OpcUaAssetConnectionConfig
         extends AssetConnectionConfig<OpcUaAssetConnection, OpcUaValueProviderConfig, OpcUaOperationProviderConfig, OpcUaSubscriptionProviderConfig> {
 
+    public static final int DEFAULT_REQUEST_TIMEOUT = 3000;
+    public static final int DEFAULT_ACKNOWLEDGE_TIMEOUT = 10000;
+    public static final int DEFAULT_RETRIES = 1;
+
     private String host;
     private String username;
     private String password;
+    private int requestTimeout;
+    private int acknowledgeTimeout;
+    private int retries;
+
+    public OpcUaAssetConnectionConfig() {
+        this.requestTimeout = DEFAULT_REQUEST_TIMEOUT;
+        this.acknowledgeTimeout = DEFAULT_ACKNOWLEDGE_TIMEOUT;
+        this.retries = DEFAULT_RETRIES;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -46,7 +60,10 @@ public class OpcUaAssetConnectionConfig
         return super.equals(that)
                 && Objects.equals(host, that.host)
                 && Objects.equals(username, that.username)
-                && Objects.equals(password, that.password);
+                && Objects.equals(password, that.password)
+                && Objects.equals(requestTimeout, that.requestTimeout)
+                && Objects.equals(acknowledgeTimeout, that.acknowledgeTimeout)
+                && Objects.equals(retries, that.retries);
     }
 
 
@@ -80,9 +97,39 @@ public class OpcUaAssetConnectionConfig
     }
 
 
+    public int getRequestTimeout() {
+        return requestTimeout;
+    }
+
+
+    public void setRequestTimeout(int requestTimeout) {
+        this.requestTimeout = requestTimeout;
+    }
+
+
+    public int getAcknowledgeTimeout() {
+        return acknowledgeTimeout;
+    }
+
+
+    public void setAcknowledgeTimeout(int acknowledgeTimeout) {
+        this.acknowledgeTimeout = acknowledgeTimeout;
+    }
+
+
+    public int getRetries() {
+        return retries;
+    }
+
+
+    public void setRetries(int retries) {
+        this.retries = retries;
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), host, username, password);
+        return Objects.hash(super.hashCode(), host, username, password, requestTimeout, acknowledgeTimeout, retries);
     }
 
 
@@ -110,6 +157,25 @@ public class OpcUaAssetConnectionConfig
             getBuildingInstance().setPassword(value);
             return getSelf();
         }
+
+
+        public B requestTimeout(int value) {
+            getBuildingInstance().setRequestTimeout(value);
+            return getSelf();
+        }
+
+
+        public B acknowledgeTimeout(int value) {
+            getBuildingInstance().setAcknowledgeTimeout(value);
+            return getSelf();
+        }
+
+
+        public B retries(int value) {
+            getBuildingInstance().setRetries(value);
+            return getSelf();
+        }
+
     }
 
     public static class Builder extends AbstractBuilder<OpcUaAssetConnectionConfig, Builder> {

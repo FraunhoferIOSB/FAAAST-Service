@@ -136,7 +136,7 @@ public class SubscriptionMultiplexer {
 
     private void notify(DataValue value) {
         try {
-            DataElementValue newValue = new PropertyValue(valueConverter.convert(ArrayHelper.unwrapValue(value, providerConfig.getArrayElementIndex()), datatype));
+            DataElementValue newValue = new PropertyValue(valueConverter.convert(ArrayHelper.unwrapValue(value, providerConfig.getArrayIndex()), datatype));
             listeners.forEach(x -> {
                 try {
                     x.newDataReceived(newValue);

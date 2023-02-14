@@ -114,7 +114,7 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
         }
         try {
             Variant valueToWrite = valueConverter.convert(((PropertyValue) value).getValue(), node.getDataType());
-            if (ArrayHelper.isValidArrayIndex(providerConfig.getArrayElementIndex())) {
+            if (ArrayHelper.isValidArrayIndex(providerConfig.getArrayIndex())) {
                 valueToWrite = ArrayHelper.wrapValue(
                         client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()).get(),
                         valueToWrite,
