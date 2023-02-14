@@ -32,7 +32,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationExcep
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.SessionActivityListener;
@@ -195,9 +197,11 @@ public class OpcUaAssetConnection extends
                             .setAcknowledgeTimeout(uint(1000))
                             .build());
             client.connect().get();
+            final CountDownLatch isRunning = new CountDownLatch(1);
             client.addSessionActivityListener(new SessionActivityListener() {
                 @Override
                 public void onSessionActive(UaSession session) {
+                    isRunning.countDown();
                     LOGGER.info("OPC UA asset connection established (host: {})", config.getHost());
                 }
 
@@ -207,8 +211,7 @@ public class OpcUaAssetConnection extends
                     LOGGER.warn("OPC UA asset connection lost (host: {})", config.getHost());
                 }
             });
-            // without sleep bad timeout while waiting for acknowledge appears from time to time
-            Thread.sleep(200);
+            isRunning.await(3000, TimeUnit.MILLISECONDS);
             createNewSubscription();
         }
         catch (InterruptedException | ExecutionException | UaException e) {

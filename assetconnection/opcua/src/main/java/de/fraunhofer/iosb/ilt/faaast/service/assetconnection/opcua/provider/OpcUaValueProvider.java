@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConversionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.ArrayHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
@@ -91,7 +92,7 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
         try {
             DataValue dataValue = client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()).get();
             OpcUaHelper.checkStatusCode(dataValue.getStatusCode(), "error reading value from asset conenction");
-            return new PropertyValue(valueConverter.convert(unwrapValue(dataValue), datatype));
+            return new PropertyValue(valueConverter.convert(ArrayHelper.unwrapValue(dataValue, arrayIndex), datatype));
         }
         catch (InterruptedException | ExecutionException | ValueConversionException e) {
             Thread.currentThread().interrupt();
@@ -112,15 +113,15 @@ public class OpcUaValueProvider extends AbstractOpcUaProviderWithArray<OpcUaValu
                     value.getClass()));
         }
         try {
-            Variant writeValue = valueConverter.convert(((PropertyValue) value).getValue(), node.getDataType());
-            if (hasArrayIndex()) {
-                DataValue dataValue = client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()).get();
-                writeValue = valueConverter.convert(((PropertyValue) value).getValue(), node.getDataType());
-                setArrayElement(dataValue.getValue().getValue(), writeValue.getValue());
-                writeValue = dataValue.getValue();
+            Variant valueToWrite = valueConverter.convert(((PropertyValue) value).getValue(), node.getDataType());
+            if (ArrayHelper.isValidArrayIndex(providerConfig.getArrayElementIndex())) {
+                valueToWrite = ArrayHelper.wrapValue(
+                        client.readValue(0, TimestampsToReturn.Neither, node.getNodeId()).get(),
+                        valueToWrite,
+                        arrayIndex);
             }
             StatusCode result = client.writeValue(node.getNodeId(), new DataValue(
-                    writeValue,
+                    valueToWrite,
                     null,
                     null)).get();
             OpcUaHelper.checkStatusCode(result, "error setting value on asset connection");

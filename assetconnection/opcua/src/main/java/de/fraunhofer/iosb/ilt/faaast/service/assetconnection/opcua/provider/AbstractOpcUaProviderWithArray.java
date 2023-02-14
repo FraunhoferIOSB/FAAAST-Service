@@ -18,19 +18,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.AbstractOpcUaProviderWithArrayConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.ArrayHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.Reference;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.core.nodes.VariableNode;
-import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
-import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.NodeClass;
 
@@ -42,9 +37,6 @@ import org.eclipse.milo.opcua.stack.core.types.enumerated.NodeClass;
  */
 public abstract class AbstractOpcUaProviderWithArray<T extends AbstractOpcUaProviderWithArrayConfig> extends AbstractOpcUaProvider<T> {
 
-    protected static final String REGEX_ARRAY_INDEX = "\\[([0-9]+)\\]";
-    protected static final String REGEX_ARRAY_EXPRESSION = String.format("^(?>%s)+$", REGEX_ARRAY_INDEX);
-    protected static final Pattern REGEX_PATTERN_ARRAY_INDEX = Pattern.compile(REGEX_ARRAY_INDEX);
     protected int[] arrayIndex;
     protected VariableNode node;
 
@@ -54,31 +46,8 @@ public abstract class AbstractOpcUaProviderWithArray<T extends AbstractOpcUaProv
             T providerConfig,
             ValueConverter valueConverter) throws InvalidConfigurationException, AssetConnectionException {
         super(serviceContext, client, reference, providerConfig, valueConverter);
-        parseArrayIndices(providerConfig.getArrayElementIndex());
+        arrayIndex = ArrayHelper.parseArrayIndex(providerConfig.getArrayElementIndex());
         validate();
-    }
-
-
-    /**
-     * Unwraps value in terms of returning the sub-value based on index if set, otherwise returns unmodified value.
-     *
-     * @param dataValue the value to process
-     * @return the unwrapped value
-     */
-    public Variant unwrapValue(DataValue dataValue) {
-        return hasArrayIndex()
-                ? new Variant(getArrayElement(dataValue.getValue().getValue()))
-                : dataValue.getValue();
-    }
-
-
-    /**
-     * Return wether a valid array index has been defined for this provider.
-     *
-     * @return true if there is a valid array index, false otherwise
-     */
-    protected boolean hasArrayIndex() {
-        return Objects.nonNull(arrayIndex) && arrayIndex.length > 0;
     }
 
 
@@ -92,7 +61,7 @@ public abstract class AbstractOpcUaProviderWithArray<T extends AbstractOpcUaProv
                                 super.node.getNodeClass())));
         this.node = (VariableNode) super.node;
         UInteger[] actualArrayDimensions = ((VariableNode) node).getArrayDimensions();
-        if (hasArrayIndex() && arrayIndex.length > actualArrayDimensions.length) {
+        if (ArrayHelper.isValidArrayIndex(arrayIndex) && arrayIndex.length > actualArrayDimensions.length) {
             throw new InvalidConfigurationException(
                     String.format("provided array index has more dimensions than the corresponding node (provided dimensions: %d, actual dimensions: %d, nodeId: %s)",
                             arrayIndex.length,
@@ -102,96 +71,9 @@ public abstract class AbstractOpcUaProviderWithArray<T extends AbstractOpcUaProv
     }
 
 
-    private void parseArrayIndices(String index) throws InvalidConfigurationException {
-        if (Objects.isNull(index) || index.isBlank()) {
-            return;
-        }
-        if (!index.matches(REGEX_ARRAY_EXPRESSION)) {
-            throw new InvalidConfigurationException(String.format("invalid array index expression (expression: %s, expected format: %s)",
-                    index,
-                    REGEX_ARRAY_EXPRESSION));
-        }
-        arrayIndex = REGEX_PATTERN_ARRAY_INDEX.matcher(index).results()
-                .mapToInt(x -> Integer.parseInt(x.group(1)))
-                .toArray();
-    }
-
-
-    private String indexPartToString(int depth) {
-        Ensure.requireNonNull(depth, "depth must be non-null");
-        Ensure.requireNonNull(arrayIndex, "index must be non-null");
-        return Stream.of(arrayIndex)
-                .limit(depth)
-                .map(Object::toString)
-                .collect(Collectors.joining("", "[", "]"));
-    }
-
-
-    private String indexToString() {
-        return indexPartToString(arrayIndex.length);
-    }
-
-
-    /**
-     * Sets the given value in the desired element of the given array.
-     *
-     * @param array The original array.
-     * @param newValue The desired value.
-     * @throws NullPointerException if an intermediate element is null
-     * @throws ClassCastException if an intermediate element is not an array
-     * @throws ArrayIndexOutOfBoundsException if index is out of bounds
-     */
-    protected void setArrayElement(Object array, Object newValue) {
-        Array.set(navigateToIndex(array), arrayIndex[arrayIndex.length - 1], newValue);
-    }
-
-
-    private Object navigateToIndex(Object obj) {
-        if (Objects.isNull(arrayIndex)) {
-            return obj;
-        }
-        Object result = obj;
-        for (int i = 0; i < arrayIndex.length - 1; i++) {
-            if (Objects.isNull(result)) {
-                throw new NullPointerException(String.format(
-                        "error accessing array at given index - intermediate element is null (requested index: %s, index with object being null: )",
-                        indexToString(),
-                        indexPartToString(i + 1)));
-            }
-            if (!result.getClass().isArray()) {
-                throw new ClassCastException(String.format(
-                        "error accessing array at given index - intermediate element not an array (requested index: %s, index with non-array object: )",
-                        indexToString(),
-                        indexPartToString(i + 1)));
-            }
-            result = Array.get(result, arrayIndex[i]);
-        }
-        if (!result.getClass().isArray()) {
-            throw new ClassCastException(String.format(
-                    "error accessing array at given index - intermediate element not an array (requested index: %s, index with non-array object: )",
-                    indexToString(),
-                    indexPartToString(arrayIndex.length - 1)));
-        }
-        return result;
-    }
-
-
-    /**
-     * Gets the given value at array index of the given array.
-     *
-     * @param array The original array.
-     * @throws NullPointerException if an intermediate element is null
-     * @throws ClassCastException if an intermediate element is not an array
-     * @throws ArrayIndexOutOfBoundsException if index is out of bounds
-     */
-    protected Object getArrayElement(Object array) {
-        return Array.get(navigateToIndex(array), arrayIndex[arrayIndex.length - 1]);
-    }
-
-
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), arrayIndex);
+        return Objects.hash(super.hashCode(), node, Arrays.hashCode(arrayIndex));
     }
 
 
@@ -208,6 +90,7 @@ public abstract class AbstractOpcUaProviderWithArray<T extends AbstractOpcUaProv
         }
         final AbstractOpcUaProviderWithArray<?> that = (AbstractOpcUaProviderWithArray<?>) obj;
         return super.equals(obj)
+                && Objects.equals(node, that.node)
                 && Arrays.equals(arrayIndex, that.arrayIndex);
     }
 

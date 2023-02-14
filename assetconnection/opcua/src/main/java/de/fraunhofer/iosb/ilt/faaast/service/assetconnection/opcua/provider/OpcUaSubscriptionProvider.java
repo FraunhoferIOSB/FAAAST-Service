@@ -83,7 +83,7 @@ public class OpcUaSubscriptionProvider extends AbstractOpcUaProviderWithArray<Op
             multiplexer = new SubscriptionMultiplexer(
                     serviceContext,
                     reference,
-                    this,
+                    providerConfig,
                     client,
                     opcUaSubscription,
                     valueConverter);
