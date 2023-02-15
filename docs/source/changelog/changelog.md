@@ -5,12 +5,16 @@
 **New Features & Major Changes**
 *   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
 *   OPC UA Endpoint
-	*   Additional parameters availabe in configuration
+	*   Additional parameters available in configuration
 *   Docker container now runs using a non-root user
 *   Base persistence configuration updated
 	*   changed `initialModel` from filename to `AASEnvironment` object
 	*   added  `initialModelFile`
 	*   removed `decoupleEnvironment` property. To achieve previous behavior you need to manually decouple the model by making a deep copy, e.g. via `DeepCopyHelper.deepCopy(...)`
+*   Asset Connection
+	*   OPC UA
+		*   Support mapping to specific element in (multi-dimensional) array/vector
+		*   Additional parameters available in configuration: requestTimeout, acknowledgeTimeout, retries
 
 **Internal changes & bugfixes**
 *   HTTP Endpoint
