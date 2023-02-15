@@ -47,11 +47,11 @@ public abstract class AbstractOpcUaProviderWithArray<T extends AbstractOpcUaProv
             ValueConverter valueConverter) throws InvalidConfigurationException, AssetConnectionException {
         super(serviceContext, client, reference, providerConfig, valueConverter);
         arrayIndex = ArrayHelper.parseArrayIndex(providerConfig.getArrayIndex());
-        validate();
+        validateArrayIndex();
     }
 
 
-    private void validate() throws InvalidConfigurationException {
+    private void validateArrayIndex() throws InvalidConfigurationException {
         Ensure.require(
                 Objects.equals(NodeClass.Variable, super.node.getNodeClass())
                         && VariableNode.class.isAssignableFrom(super.node.getClass()),

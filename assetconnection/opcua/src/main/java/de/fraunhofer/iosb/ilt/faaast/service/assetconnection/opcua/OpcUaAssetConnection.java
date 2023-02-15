@@ -188,7 +188,7 @@ public class OpcUaAssetConnection extends
         }
         catch (UaException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("creating OPC UA subscription failed (host: %s, node: %s)", config.getHost()), e);
+            throw new AssetConnectionException(String.format("creating OPC UA subscription failed (host: %s)", config.getHost()), e);
         }
     }
 

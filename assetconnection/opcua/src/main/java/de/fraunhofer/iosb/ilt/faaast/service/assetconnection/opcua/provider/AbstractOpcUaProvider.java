@@ -57,7 +57,7 @@ public abstract class AbstractOpcUaProvider<T extends AbstractOpcUaProviderConfi
         this.client = client;
         this.providerConfig = providerConfig;
         this.valueConverter = valueConverter;
-        validate();
+        validateNode();
     }
 
 
@@ -66,7 +66,7 @@ public abstract class AbstractOpcUaProvider<T extends AbstractOpcUaProviderConfi
     }
 
 
-    private void validate() throws InvalidConfigurationException, AssetConnectionException {
+    private void validateNode() throws InvalidConfigurationException, AssetConnectionException {
         String baseErrorMsg = "invalid OPC UA provider configration";
         try {
             node = client.getAddressSpace().getNode(OpcUaHelper.parseNodeId(client, providerConfig.getNodeId()));

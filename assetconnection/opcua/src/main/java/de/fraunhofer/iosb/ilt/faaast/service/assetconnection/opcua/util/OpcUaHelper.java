@@ -179,6 +179,7 @@ public class OpcUaHelper {
         do {
             try {
                 client.connect().get();
+                success = true;
             }
             catch (InterruptedException | ExecutionException e) {
                 // ignore
@@ -189,10 +190,13 @@ public class OpcUaHelper {
                             e);
                 }
                 else {
-                    LOGGER.debug("Opening OPC UA connection failed on try %/% (host: %)",
+                    LOGGER.debug("Opening OPC UA connection failed on try {}/{} (host: {})",
                             count + 1,
                             retries + 1,
                             client.getConfig().getEndpoint().getEndpointUrl());
+                    if (InterruptedException.class.isAssignableFrom(e.getClass())) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
             }
             finally {
