@@ -5,12 +5,16 @@
 **New Features & Major Changes**
 *   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
 *   OPC UA Endpoint
-	*   Additional parameters availabe in configuration
+	*   Additional parameters available in configuration
 *   Docker container now runs using a non-root user
 *   Base persistence configuration updated
 	*   changed `initialModel` from filename to `AASEnvironment` object
 	*   added  `initialModelFile`
 	*   removed `decoupleEnvironment` property. To achieve previous behavior you need to manually decouple the model by making a deep copy, e.g. via `DeepCopyHelper.deepCopy(...)`
+*   Asset Connection
+	*   OPC UA
+		*   Support mapping to specific element in (multi-dimensional) array/vector
+		*   Additional parameters available in configuration: requestTimeout, acknowledgeTimeout, retries
 
 **Internal changes & bugfixes**
 *   HTTP Endpoint
@@ -40,11 +44,6 @@
 *   Fixed error related to JSONPath expressions that could occure in asset connections when using certain JSONPath expressions
 *   Fixed error in reference helper with setting proper type of key elements when an identifiable and a independant referable have the same idshort
 *   Removed dependencies on checks module which is only needed for codestyle check while compiling and therefore not released on maven. This caused a missing dependency exception when using any FA³ST module within your code.
-
-**New Features**
-*   Asset Connection
-	*   OPC UA
-		*   Support mapping to specific element in (multi-dimensional) array/vector
 
 ## Release version 0.3.0
 
