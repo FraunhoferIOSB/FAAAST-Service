@@ -15,12 +15,17 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.AbstractOpcUaProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.Reference;
 import java.util.Objects;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
+import org.eclipse.milo.opcua.sdk.core.nodes.Node;
+import org.eclipse.milo.opcua.stack.core.UaException;
 
 
 /**
@@ -28,19 +33,20 @@ import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
  *
  * @param <T> type of the asset provider config
  */
-public abstract class AbstractOpcUaProvider<T extends AssetProviderConfig> {
+public abstract class AbstractOpcUaProvider<T extends AbstractOpcUaProviderConfig> {
 
     protected final ServiceContext serviceContext;
     protected final Reference reference;
     protected final T providerConfig;
     protected final ValueConverter valueConverter;
     protected OpcUaClient client;
+    protected Node node;
 
     protected AbstractOpcUaProvider(ServiceContext serviceContext,
             OpcUaClient client,
             Reference reference,
             T providerConfig,
-            ValueConverter valueConverter) {
+            ValueConverter valueConverter) throws InvalidConfigurationException, AssetConnectionException {
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         Ensure.requireNonNull(client, "client must be non-null");
         Ensure.requireNonNull(reference, "reference must be non-null");
@@ -51,12 +57,37 @@ public abstract class AbstractOpcUaProvider<T extends AssetProviderConfig> {
         this.client = client;
         this.providerConfig = providerConfig;
         this.valueConverter = valueConverter;
+        validateNode();
+    }
+
+
+    public T getProviderConfig() {
+        return providerConfig;
+    }
+
+
+    private void validateNode() throws InvalidConfigurationException, AssetConnectionException {
+        String baseErrorMsg = "invalid OPC UA provider configration";
+        try {
+            node = client.getAddressSpace().getNode(OpcUaHelper.parseNodeId(client, providerConfig.getNodeId()));
+            Ensure.requireNonNull(node, new AssetConnectionException(
+                    String.format("%s - unable to access node (nodeId: %s)",
+                            baseErrorMsg,
+                            providerConfig.getNodeId())));
+        }
+        catch (UaException e) {
+            throw new InvalidConfigurationException(
+                    String.format("%s - could not parse nodeId (nodeId: %s)",
+                            baseErrorMsg,
+                            providerConfig.getNodeId()),
+                    e);
+        }
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(serviceContext, client, reference, providerConfig, valueConverter);
+        return Objects.hash(serviceContext, client, reference, providerConfig, valueConverter, node);
     }
 
 
@@ -76,7 +107,8 @@ public abstract class AbstractOpcUaProvider<T extends AssetProviderConfig> {
                 && Objects.equals(client, that.client)
                 && Objects.equals(reference, that.reference)
                 && Objects.equals(providerConfig, that.providerConfig)
-                && Objects.equals(valueConverter, that.valueConverter);
+                && Objects.equals(valueConverter, that.valueConverter)
+                && Objects.equals(node, that.node);
     }
 
 }

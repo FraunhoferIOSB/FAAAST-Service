@@ -14,17 +14,25 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetProviderConfig;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 /**
- * Superclass for all OPC UA provider config classes.
+ * Superclass for OPC UA provider config classes with Array.
  */
-public abstract class AbstractOpcUaProviderConfig implements AssetProviderConfig {
+public abstract class AbstractOpcUaProviderWithArrayConfig extends AbstractOpcUaProviderConfig {
 
-    protected String nodeId;
+    protected String arrayIndex;
+
+    public String getArrayIndex() {
+        return arrayIndex;
+    }
+
+
+    public void setArrayIndex(String arrayIndex) {
+        this.arrayIndex = arrayIndex;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -34,30 +42,22 @@ public abstract class AbstractOpcUaProviderConfig implements AssetProviderConfig
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractOpcUaProviderConfig that = (AbstractOpcUaProviderConfig) o;
-        return Objects.equals(nodeId, that.nodeId);
-    }
-
-
-    public String getNodeId() {
-        return nodeId;
-    }
-
-
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
+        AbstractOpcUaProviderWithArrayConfig that = (AbstractOpcUaProviderWithArrayConfig) o;
+        return super.equals(o)
+                && Objects.equals(arrayIndex, that.arrayIndex);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(nodeId);
+        return Objects.hash(super.hashCode(), arrayIndex);
     }
 
-    protected abstract static class AbstractBuilder<T extends AbstractOpcUaProviderConfig, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    protected abstract static class AbstractBuilder<T extends AbstractOpcUaProviderWithArrayConfig, B extends AbstractBuilder<T, B>>
+            extends AbstractOpcUaProviderConfig.AbstractBuilder<T, B> {
 
-        public B nodeId(String value) {
-            getBuildingInstance().setNodeId(value);
+        public B arrayIndex(String arrayElementIndex) {
+            getBuildingInstance().setArrayIndex(arrayElementIndex);
             return getSelf();
         }
 

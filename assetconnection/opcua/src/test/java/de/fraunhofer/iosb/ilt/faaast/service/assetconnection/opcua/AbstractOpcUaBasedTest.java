@@ -15,23 +15,25 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
 import org.eclipse.milo.opcua.sdk.server.identity.AnonymousIdentityValidator;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 
 
 public abstract class AbstractOpcUaBasedTest {
 
-    protected static final long DEFAULT_TIMEOUT = 1000;
-    protected static EmbeddedOpcUaServer server;
-    protected static String serverUrl;
-    protected static int tcpPort;
-    protected static int httpsPort;
+    protected static final long WAITTIME_MS = 100000;
+    protected final long DEFAULT_TIMEOUT = 1000;
+    protected EmbeddedOpcUaServer server;
+    protected String serverUrl;
+    protected int tcpPort;
+    protected int httpsPort;
 
-    @BeforeClass
-    public static void init() throws Exception {
+    @Before
+    public void init() throws Exception {
         tcpPort = findFreePort();
         httpsPort = findFreePort();
         server = new EmbeddedOpcUaServer(AnonymousIdentityValidator.INSTANCE, tcpPort, httpsPort);
@@ -40,8 +42,8 @@ public abstract class AbstractOpcUaBasedTest {
     }
 
 
-    @AfterClass
-    public static void cleanup() throws Exception {
+    @After
+    public void cleanup() throws Exception {
         server.shutdown().get();
     }
 
@@ -52,6 +54,16 @@ public abstract class AbstractOpcUaBasedTest {
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
             return serverSocket.getLocalPort();
         }
+    }
+
+
+    protected static boolean isDebugging() {
+        return ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
+    }
+
+
+    protected static long getWaitTime() {
+        return WAITTIME_MS * (isDebugging() ? 1000 : 1);
     }
 
 }

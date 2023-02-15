@@ -12,10 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util;
+package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaConstants;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -51,7 +51,7 @@ public class KeyStoreLoader {
     private KeyPair clientKeyPair;
 
     /**
-     * Loads the KeyStore from the givrn Path.
+     * Loads the KeyStore from the given Path.
      *
      * @param baseDir The desired Path.
      * @return The KeyStore.
@@ -60,6 +60,7 @@ public class KeyStoreLoader {
     public KeyStoreLoader load(Path baseDir) throws AssetConnectionException {
         try {
             KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            // TODO should this be configurable or at least be a constant?
             Path serverKeyStore = baseDir.resolve("fa3st-client.pfx");
             LOGGER.trace("Loading KeyStore at {}", serverKeyStore);
 
@@ -69,12 +70,12 @@ public class KeyStoreLoader {
                 KeyPair keyPair = SelfSignedCertificateGenerator.generateRsaKeyPair(2048);
 
                 SelfSignedCertificateBuilder builder = new SelfSignedCertificateBuilder(keyPair)
-                        .setCommonName("Fraunhofer IOSB AAS Service")
-                        .setOrganization("Fraunhofer IOSB")
+                        .setCommonName(OpcUaConstants.APPLICATION_NAME)
+                        .setOrganization(OpcUaConstants.ORGANIZATION)
                         .setOrganizationalUnit("")
                         .setLocalityName("Karlsruhe")
                         .setCountryCode("DE")
-                        .setApplicationUri(OpcUaAssetConnection.APPLICATION_URI)
+                        .setApplicationUri(OpcUaConstants.APPLICATION_URI)
                         .addDnsName("localhost")
                         .addIpAddress("127.0.0.1");
 

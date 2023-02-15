@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua;
 
-import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.uint;
-
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
@@ -26,36 +24,20 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.OpcU
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.KeyStoreLoader;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Predicate;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.SessionActivityListener;
 import org.eclipse.milo.opcua.sdk.client.api.UaSession;
-import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
-import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
-import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
-import org.eclipse.milo.opcua.stack.client.DiscoveryClient;
-import org.eclipse.milo.opcua.stack.client.security.DefaultClientCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.UaException;
-import org.eclipse.milo.opcua.stack.core.security.DefaultTrustListManager;
-import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
-import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
-import org.eclipse.milo.opcua.stack.core.types.enumerated.MessageSecurityMode;
-import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,8 +55,6 @@ import org.slf4j.LoggerFactory;
  */
 public class OpcUaAssetConnection extends
         AbstractAssetConnection<OpcUaAssetConnection, OpcUaAssetConnectionConfig, OpcUaValueProviderConfig, OpcUaValueProvider, OpcUaOperationProviderConfig, OpcUaOperationProvider, OpcUaSubscriptionProviderConfig, OpcUaSubscriptionProvider> {
-
-    public static final String APPLICATION_URI = "urn:de:fraunhofer:iosb:aas:service";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaAssetConnection.class);
     private static final ValueConverter valueConverter = new ValueConverter();
@@ -149,96 +129,68 @@ public class OpcUaAssetConnection extends
 
     @Override
     protected OpcUaOperationProvider createOperationProvider(Reference reference, OpcUaOperationProviderConfig providerConfig) throws AssetConnectionException {
-        return new OpcUaOperationProvider(serviceContext, client, reference, providerConfig, valueConverter);
+        try {
+            return new OpcUaOperationProvider(serviceContext, client, reference, providerConfig, valueConverter);
+        }
+        catch (InvalidConfigurationException e) {
+            throw new AssetConnectionException(String.format(
+                    "failed to create OPC UA operation provider, reason: invalid configuration (reference: %s)",
+                    AasUtils.asString(reference)),
+                    e);
+        }
     }
 
 
     @Override
-    protected OpcUaSubscriptionProvider createSubscriptionProvider(Reference reference, OpcUaSubscriptionProviderConfig providerConfig) {
-        return new OpcUaSubscriptionProvider(serviceContext, reference, providerConfig, client, opcUaSubscription, valueConverter);
+    protected OpcUaSubscriptionProvider createSubscriptionProvider(Reference reference, OpcUaSubscriptionProviderConfig providerConfig) throws AssetConnectionException {
+        try {
+            return new OpcUaSubscriptionProvider(serviceContext, reference, providerConfig, client, opcUaSubscription, valueConverter);
+        }
+        catch (InvalidConfigurationException e) {
+            throw new AssetConnectionException(String.format(
+                    "failed to create OPC UA subscription provider, reason: invalid configuration (reference: %s)",
+                    AasUtils.asString(reference)),
+                    e);
+        }
     }
 
 
     @Override
     protected OpcUaValueProvider createValueProvider(Reference reference, OpcUaValueProviderConfig providerConfig) throws AssetConnectionException {
-        return new OpcUaValueProvider(serviceContext, client, reference, providerConfig, valueConverter);
+        try {
+            return new OpcUaValueProvider(serviceContext, client, reference, providerConfig, valueConverter);
+        }
+        catch (InvalidConfigurationException e) {
+            throw new AssetConnectionException(String.format(
+                    "failed to create OPC UA value provider, reason: invalid configuration (reference: %s)",
+                    AasUtils.asString(reference)),
+                    e);
+        }
     }
 
 
     @Override
-    protected void initConnection(OpcUaAssetConnectionConfig config) throws ConfigurationInitializationException {
-        IdentityProvider identityProvider = StringUtils.isAllBlank(config.getUsername())
-                ? AnonymousProvider.INSTANCE
-                : new UsernameProvider(config.getUsername(), config.getPassword());
+    protected void initConnection(OpcUaAssetConnectionConfig config) throws AssetConnectionException, ConfigurationInitializationException {
+        client = OpcUaHelper.connect(config, x -> x.addSessionActivityListener(new SessionActivityListener() {
+            @Override
+            public void onSessionActive(UaSession session) {
+                LOGGER.info("OPC UA asset connection established (host: {})", config.getHost());
+            }
+
+
+            @Override
+            public void onSessionInactive(UaSession session) {
+                LOGGER.warn("OPC UA asset connection lost (host: {})", config.getHost());
+            }
+        }));
         try {
-            String securityBaseDir = System.getenv("FA3ST_ASSET_CONN_PKI");
-            if ((securityBaseDir == null) || securityBaseDir.equals("")) {
-                securityBaseDir = ".";
-            }
-            Path securityDir = Paths.get(securityBaseDir, "client", "security");
-            Files.createDirectories(securityDir);
-            if (!Files.exists(securityDir)) {
-                throw new ConfigurationInitializationException("unable to create security dir: " + securityDir);
-            }
-
-            File pkiDir = securityDir.resolve("pki").toFile();
-            LOGGER.trace("security dir: {}", securityDir.toAbsolutePath());
-            LOGGER.trace("security pki dir: {}", pkiDir.getAbsolutePath());
-
-            KeyStoreLoader loader = new KeyStoreLoader().load(securityDir);
-            DefaultTrustListManager trustListManager = new DefaultTrustListManager(pkiDir);
-            DefaultClientCertificateValidator certificateValidator = new DefaultClientCertificateValidator(trustListManager);
-
-            client = OpcUaClient.create(
-                    config.getHost(),
-                    LambdaExceptionHelper.rethrowFunction(endpoints -> endpoints.stream()
-                            .filter(endpointFilter(config))
-                            .findFirst()),
-                    configBuilder -> configBuilder
-                            .setApplicationName(LocalizedText.english("AAS-Service"))
-                            .setApplicationUri(APPLICATION_URI)
-                            .setProductUri("urn:de:fraunhofer:iosb:ilt:faast:asset-connection")
-                            .setIdentityProvider(identityProvider)
-                            .setRequestTimeout(uint(1000))
-                            .setAcknowledgeTimeout(uint(1000))
-                            .setKeyPair(loader.getClientKeyPair())
-                            .setCertificate(loader.getClientCertificate())
-                            .setCertificateChain(loader.getClientCertificateChain())
-                            .setCertificateValidator(certificateValidator)
-                            .build());
-            client.connect().get();
-            client.addSessionActivityListener(new SessionActivityListener() {
-                @Override
-                public void onSessionActive(UaSession session) {
-                    LOGGER.info("OPC UA asset connection established (host: {})", config.getHost());
-                }
-
-
-                @Override
-                public void onSessionInactive(UaSession session) {
-                    LOGGER.warn("OPC UA asset connection lost (host: {})", config.getHost());
-                }
-            });
-            // without sleep bad timeout while waiting for acknowledge appears from time to time
-            Thread.sleep(200);
             createNewSubscription();
         }
-        catch (Exception e) {
+        catch (UaException e) {
             Thread.currentThread().interrupt();
-            throw new ConfigurationInitializationException(String.format("error opening OPC UA connection (endpoint: %s)", config.getHost()), e);
+            throw new AssetConnectionException(String.format("creating OPC UA subscription failed (host: %s)", config.getHost()), e);
         }
+
     }
 
-
-    private Predicate<EndpointDescription> endpointFilter(OpcUaAssetConnectionConfig config) throws InterruptedException, ExecutionException {
-        SecurityPolicy securityPolicy = config.getSecurityPolicy() != null ? config.getSecurityPolicy() : SecurityPolicy.None;
-        MessageSecurityMode mode = securityPolicy != SecurityPolicy.None ? MessageSecurityMode.SignAndEncrypt : MessageSecurityMode.None;
-        Predicate<EndpointDescription> withEncrypt = e -> securityPolicy.getUri().equals(e.getSecurityPolicyUri()) && (e.getSecurityMode() == mode);
-        Optional<EndpointDescription> desiredEndpoint = DiscoveryClient.getEndpoints(config.getHost()).get().stream()
-                .filter(withEncrypt).findFirst();
-        if (desiredEndpoint.isPresent()) {
-            return withEncrypt;
-        }
-        return e -> securityPolicy.getUri().equals(e.getSecurityPolicyUri());
-    }
 }
