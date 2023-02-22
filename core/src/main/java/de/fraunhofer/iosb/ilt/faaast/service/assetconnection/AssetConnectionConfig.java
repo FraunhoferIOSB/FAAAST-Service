@@ -152,6 +152,14 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
     public abstract static class AbstractBuilder<T extends AssetConnectionConfig, VC extends AssetValueProviderConfig, V extends AssetValueProvider, OC extends AssetOperationProviderConfig, O extends AssetOperationProvider, SC extends AssetSubscriptionProviderConfig, S extends AssetSubscriptionProvider, C extends AssetConnection<T, VC, V, OC, O, SC, S>, B extends AbstractBuilder<T, VC, V, OC, O, SC, S, C, B>>
             extends ExtendableBuilder<T, B> {
 
+        public B of(T other) {
+            operationProviders(other.operationProviders);
+            valueProviders(other.valueProviders);
+            subscriptionProviders(other.subscriptionProviders);
+            return getSelf();
+        }
+
+
         public B operationProviders(Map<Reference, OC> value) {
             getBuildingInstance().setOperationProviders(value);
             return getSelf();

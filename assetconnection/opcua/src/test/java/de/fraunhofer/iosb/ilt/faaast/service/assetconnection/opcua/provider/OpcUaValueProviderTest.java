@@ -14,24 +14,32 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.AbstractOpcUaBasedTest;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.EmbeddedOpcUaServer;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.EmbeddedOpcUaServerConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.Protocol;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
-import org.eclipse.milo.opcua.stack.core.UaException;
 import org.junit.Test;
 
 
-public class OpcUaValueProviderTest extends AbstractOpcUaBasedTest {
+public class OpcUaValueProviderTest {
 
     @Test
-    public void testEquals() throws UaException {
-        OpcUaClient client1 = OpcUaClient.create(serverUrl);
-        OpcUaClient client2 = OpcUaClient.create(serverUrl);
-        EqualsVerifier.simple().forClass(OpcUaValueProvider.class)
-                .withPrefabValues(OpcUaClient.class, client1, client2)
-                .verify();
-        client1.disconnect();
-        client2.disconnect();
+    public void testEquals() throws Exception {
+        EmbeddedOpcUaServer server = new EmbeddedOpcUaServer(EmbeddedOpcUaServerConfig.builder().build());
+        server.startup();
+        try {
+            OpcUaClient client1 = OpcUaClient.create(server.getEndpoint(Protocol.TCP));
+            OpcUaClient client2 = OpcUaClient.create(server.getEndpoint(Protocol.TCP));
+            EqualsVerifier.simple().forClass(OpcUaValueProvider.class)
+                    .withPrefabValues(OpcUaClient.class, client1, client2)
+                    .verify();
+            client1.disconnect();
+            client2.disconnect();
+        }
+        finally {
+            server.shutdown();
+        }
     }
 
 }

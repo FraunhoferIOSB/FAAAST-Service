@@ -14,13 +14,42 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.CertificateInformation;
+
+
 /**
  * Constant values related to OPC UA.
  */
 public class OpcUaConstants {
 
     public static final String NODE_ID_SEPARATOR = ";";
-    public static final String APPLICATION_URI = "urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:opcua";
-    public static final String APPLICATION_NAME = "FA³ST Asset Connection";
-    public static final String ORGANIZATION = "Fraunhofer IOSB";
+    public static final String IP_LOCALHOST = "127.0.0.1";
+    public static final String DNS_LOCALHOST = "localhost";
+    public static final String CERTIFICATE_APPLICATION_URI = "urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:opcua";
+    public static final String CERTIFICATE_APPLICATION_NAME = "FA³ST OPC UA Asset Connection";
+    public static final String CERTIFICATE_ORGANIZATION = "Fraunhofer IOSB";
+    public static final String CERTIFICATE_ORGANIZATION_UNIT = "ILT";
+    public static final String CERTIFICATE_LOCALITY = "Karlsruhe";
+    public static final String CERTIFICATE_COUNTRYCODE = "DE";
+
+    public static final CertificateInformation DEFAULT_APPLICATION_CERTIFICATE_INFO = CertificateInformation.builder()
+            .applicationUri(CERTIFICATE_APPLICATION_URI)
+            .commonName(CERTIFICATE_APPLICATION_NAME)
+            .countryCode(CERTIFICATE_COUNTRYCODE)
+            .localityName(CERTIFICATE_LOCALITY)
+            .organization(CERTIFICATE_ORGANIZATION)
+            .organizationUnit(CERTIFICATE_ORGANIZATION_UNIT)
+            .ipAddress(IP_LOCALHOST)
+            .dnsName(DNS_LOCALHOST)
+            .build();
+
+    public static final CertificateInformation DEFAULT_AUTHENTICATION_CERTIFICATE_INFO = CertificateInformation.builder()
+            .applicationUri(CERTIFICATE_APPLICATION_URI)
+            .commonName(CERTIFICATE_APPLICATION_NAME)
+            .countryCode(CERTIFICATE_COUNTRYCODE)
+            .localityName(CERTIFICATE_LOCALITY)
+            .organization(CERTIFICATE_ORGANIZATION)
+            .organizationUnit(CERTIFICATE_ORGANIZATION_UNIT)
+            .autodetectDnsAndIp()
+            .build();
 }

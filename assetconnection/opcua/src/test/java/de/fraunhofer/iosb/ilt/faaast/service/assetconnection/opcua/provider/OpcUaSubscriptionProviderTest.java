@@ -14,29 +14,36 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.AbstractOpcUaBasedTest;
-import java.util.concurrent.ExecutionException;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.EmbeddedOpcUaServer;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.EmbeddedOpcUaServerConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.Protocol;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.subscriptions.ManagedSubscription;
-import org.eclipse.milo.opcua.stack.core.UaException;
 import org.junit.Test;
 
 
-public class OpcUaSubscriptionProviderTest extends AbstractOpcUaBasedTest {
+public class OpcUaSubscriptionProviderTest {
 
     @Test
-    public void testEquals() throws UaException, InterruptedException, ExecutionException {
-        OpcUaClient client1 = OpcUaClient.create(serverUrl);
-        client1.connect().get();
-        OpcUaClient client2 = OpcUaClient.create(serverUrl);
-        client2.connect().get();
-        EqualsVerifier.simple().forClass(OpcUaSubscriptionProvider.class)
-                .withPrefabValues(OpcUaClient.class, client1, client2)
-                .withPrefabValues(ManagedSubscription.class, ManagedSubscription.create(client1), ManagedSubscription.create(client2))
-                .verify();
-        client1.disconnect();
-        client2.disconnect();
+    public void testEquals() throws Exception {
+        EmbeddedOpcUaServer server = new EmbeddedOpcUaServer(EmbeddedOpcUaServerConfig.builder().build());
+        server.startup();
+        try {
+            OpcUaClient client1 = OpcUaClient.create(server.getEndpoint(Protocol.TCP));
+            client1.connect().get();
+            OpcUaClient client2 = OpcUaClient.create(server.getEndpoint(Protocol.TCP));
+            client2.connect().get();
+            EqualsVerifier.simple().forClass(OpcUaSubscriptionProvider.class)
+                    .withPrefabValues(OpcUaClient.class, client1, client2)
+                    .withPrefabValues(ManagedSubscription.class, ManagedSubscription.create(client1), ManagedSubscription.create(client2))
+                    .verify();
+            client1.disconnect();
+            client2.disconnect();
+        }
+        finally {
+            server.shutdown();
+        }
     }
 
 }

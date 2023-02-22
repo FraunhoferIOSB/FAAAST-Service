@@ -18,33 +18,43 @@ import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnectionConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.KeyStoreLoader;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
+import org.eclipse.milo.opcua.sdk.client.api.identity.X509IdentityProvider;
+import org.eclipse.milo.opcua.stack.client.DiscoveryClient;
 import org.eclipse.milo.opcua.stack.client.security.ClientCertificateValidator;
 import org.eclipse.milo.opcua.stack.client.security.DefaultClientCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.security.DefaultTrustListManager;
+import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.ExpandedNodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
+import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
+import org.eclipse.milo.opcua.stack.core.util.CertificateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +65,10 @@ import org.slf4j.LoggerFactory;
 public class OpcUaHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaHelper.class);
+    private static final List<TransportProfile> SUPPORTED_TRANSPORT_SCHEMES = List.of(
+            TransportProfile.TCP_UASC_UABINARY,
+            TransportProfile.HTTPS_UABINARY,
+            TransportProfile.WSS_UASC_UABINARY);
 
     private OpcUaHelper() {}
 
@@ -159,54 +173,189 @@ public class OpcUaHelper {
     }
 
 
-    private static OpcUaClient createClient(OpcUaAssetConnectionConfig config) throws AssetConnectionException, ConfigurationInitializationException {
-        String securityBaseDir = config.getSecurityBaseDir();
+    private static IdentityProvider getIdentityProvider(OpcUaAssetConnectionConfig config) throws ConfigurationInitializationException {
+        // TODO depend on UserTokenType   
+        if (Objects.nonNull(config.getAuthenticationCertificateFile())) {
+            File authenticationCertificateFile = config.getAuthenticationCertificateFile();
+            if (!authenticationCertificateFile.exists()) {
+                authenticationCertificateFile = config.getSecurityBaseDir().resolve(authenticationCertificateFile.toPath()).toFile();
+            }
+            if (authenticationCertificateFile.exists()) {
+                try {
+                    CertificateData certificateData = KeystoreHelper.loadOrCreate(authenticationCertificateFile, config.getAuthenticationCertificatePassword(),
+                            OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
+                    return new X509IdentityProvider(certificateData.getCertificate(), certificateData.getKeyPair().getPrivate());
+                }
+                catch (IOException | GeneralSecurityException e) {
+                    throw new ConfigurationInitializationException(String.format(
+                            "error loading OPC UA client authentication certificate file (file: %s)",
+                            config.getAuthenticationCertificateFile()),
+                            e);
+                }
+            }
+        }
+        if (!StringHelper.isBlank(config.getUsername())) {
+            return new UsernameProvider(config.getUsername(), config.getPassword());
+        }
+        return AnonymousProvider.INSTANCE;
+    }
 
-        Path securityDir = Paths.get(securityBaseDir, "client", "security");
-        KeyStoreLoader keyStoreLoader;
+
+    /**
+     * Extracts transport profile from host URL is possible, otherwise throws IllegalArgumentException.
+     *
+     * @param host the host URL, e.g. https://example.com
+     * @return the transport profile
+     * @throws IllegalArgumentException if transport profile could not be determined
+     */
+    public static TransportProfile detectTransportProfile(String host) {
+        Ensure.requireNonNull(host, "host must be non-null");
+        return SUPPORTED_TRANSPORT_SCHEMES.stream()
+                .filter(x -> host.startsWith(x.getScheme()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(String.format(
+                        "unsupported transport protocol scheme (host: %s, supported schemes: %s)",
+                        host,
+                        SUPPORTED_TRANSPORT_SCHEMES.stream().map(x -> x.getScheme()).collect(Collectors.joining(", ")))));
+    }
+
+
+    private static EndpointDescription findBestMatchingEndpoint(OpcUaAssetConnectionConfig config) throws AssetConnectionException {
+        try {
+            return DiscoveryClient.getEndpoints(config.getHost()).get().stream()
+                    .filter(e -> e.getSecurityPolicyUri().equals(config.getSecurityPolicy().getUri()))
+                    .filter(e -> e.getSecurityMode() == config.getSecurityMode())
+                    .filter(e -> Objects.equals(config.getTransportProfile().getUri(), e.getTransportProfileUri()))
+                    .findFirst()
+                    .orElseThrow(() -> new AssetConnectionException(
+                            String.format(
+                                    "No matching endpoint found (host: %s, security policy: %s, security mode: %s)",
+                                    config.getHost(),
+                                    config.getSecurityPolicy(),
+                                    config.getSecurityMode())));
+        }
+        catch (InterruptedException | ExecutionException e) {
+            throw new AssetConnectionException(String.format(
+                    "Unable to fetch available endpoints (host: %s)",
+                    config.getHost(),
+                    config.getSecurityPolicy(),
+                    config.getSecurityMode()), e);
+        }
+    }
+
+
+    private static Optional<CertificateData> loadCertificate(File file, String password) {
+        try {
+            return Optional.of(KeystoreHelper.load(file, password));
+        }
+        catch (IOException | GeneralSecurityException e) {
+            return Optional.empty();
+        }
+    }
+
+
+    /**
+     * Loads the authentication certificate.
+     *
+     * @param securityBaseDir the security base dir
+     * @param certificateFile the keystore file
+     * @param certificatePassword the password for the keystore
+     * @return the certificate data
+     * @throws ConfigurationInitializationException if loading fails
+     */
+    public static CertificateData loadAuthenticationCertificate(Path securityBaseDir, File certificateFile, String certificatePassword)
+            throws ConfigurationInitializationException {
+        return loadCertificate("authentication", securityBaseDir, certificateFile, certificatePassword);
+    }
+
+
+    /**
+     * Loads the application certificate.
+     *
+     * @param securityBaseDir the security base dir
+     * @param certificateFile the keystore file
+     * @param certificatePassword the password for the keystore
+     * @return the certificate data
+     * @throws ConfigurationInitializationException if loading fails
+     */
+    public static CertificateData loadApplicationCertificate(Path securityBaseDir, File certificateFile, String certificatePassword) throws ConfigurationInitializationException {
+        return loadCertificate("application", securityBaseDir, certificateFile, certificatePassword);
+    }
+
+
+    private static CertificateData loadCertificate(String name, Path securityBaseDir, File certificateFile, String certificatePassword)
+            throws ConfigurationInitializationException {
+        Optional<CertificateData> result;
+        // try loading from given path (either absolute or relative)
+        result = loadCertificate(certificateFile, certificatePassword);
+        if (result.isPresent()) {
+            LOGGER.debug("Using OPC UA client {} certificate from {}", name, certificateFile);
+        }
+        else {
+            // try loading relative to securityBaseDir
+            result = loadCertificate(
+                    securityBaseDir.resolve(certificateFile.toPath()).toFile(), certificatePassword);
+            if (result.isPresent()) {
+                LOGGER.debug("Using OPC UA client {} certificate from {}", name, securityBaseDir.resolve(certificateFile.toPath()));
+            }
+            else {
+                try {
+                    // if still empty, generate
+                    result = Optional.of(KeystoreHelper.generateSelfSigned(OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO));
+                }
+                catch (KeyStoreException | NoSuchAlgorithmException e) {
+                    throw new ConfigurationInitializationException(String.format("error generating OPC UA client %s certificate", name), e);
+                }
+                LOGGER.debug("Generating new OPC UA client {} certificate", name);
+            }
+        }
+        return result.orElseThrow(() -> new ConfigurationInitializationException(String.format(
+                "unable to load or generate OPC UA client %s certificate", name)));
+    }
+
+
+    private static OpcUaClient createClient(OpcUaAssetConnectionConfig config)
+            throws AssetConnectionException, ConfigurationInitializationException {
+        CertificateData applicationCertificate = loadApplicationCertificate(
+                config.getSecurityBaseDir(),
+                config.getApplicationCertificateFile(),
+                config.getApplicationCertificatePassword());
+
         ClientCertificateValidator certificateValidator;
         try {
-            Files.createDirectories(securityDir);
-            File pkiDir = securityDir.resolve("pki").toFile();
-            LOGGER.trace("security dir: {}", securityDir.toAbsolutePath());
-            LOGGER.trace("security pki dir: {}", pkiDir.getAbsolutePath());
-
-            keyStoreLoader = new KeyStoreLoader().load(securityDir);
-            certificateValidator = new DefaultClientCertificateValidator(new DefaultTrustListManager(pkiDir));
+            Files.createDirectories(config.getSecurityBaseDir());
+            certificateValidator = new DefaultClientCertificateValidator(new DefaultTrustListManager(SecurityPathHelper.pki(config.getSecurityBaseDir()).toFile()));
         }
         catch (IOException e) {
             throw new ConfigurationInitializationException("unable to initialize OPC UA client security", e);
         }
+        EndpointDescription endpoint = findBestMatchingEndpoint(config);
+        LOGGER.debug("using endpoint: {}", endpoint);
 
-        IdentityProvider identityProvider = StringHelper.isBlank(config.getUsername())
-                ? AnonymousProvider.INSTANCE
-                : new UsernameProvider(config.getUsername(), config.getPassword());
-        OpcUaClient client;
+        IdentityProvider identityProvider = getIdentityProvider(config);
         try {
-            client = OpcUaClient.create(
+            return OpcUaClient.create(
                     config.getHost(),
                     endpoints -> endpoints.stream()
-                            .filter(e -> e.getSecurityPolicyUri().equals(config.getSecurityPolicy().getUri()))
-                            .filter(e -> e.getSecurityMode() == config.getSecurityMode())
+                            .filter(e -> Objects.equals(endpoint, e))
                             .findFirst(),
                     configBuilder -> configBuilder
-                            .setApplicationName(LocalizedText.english(OpcUaConstants.APPLICATION_NAME))
-                            .setApplicationUri(OpcUaConstants.APPLICATION_URI)
-                            // TODO Is this needed? Why?
-                            //.setProductUri("urn:de:fraunhofer:iosb:ilt:faast:asset-connection")
+                            .setApplicationName(LocalizedText.english(OpcUaConstants.CERTIFICATE_APPLICATION_NAME))
+                            .setApplicationUri(CertificateUtil.getSanUri(applicationCertificate.getCertificate())
+                                    .orElse(OpcUaConstants.CERTIFICATE_APPLICATION_URI))
+                            //                            .setProductUri("urn:de:fraunhofer:iosb:ilt:faast:asset-connection")
                             .setIdentityProvider(identityProvider)
                             .setRequestTimeout(uint(config.getRequestTimeout()))
                             .setAcknowledgeTimeout(uint(config.getAcknowledgeTimeout()))
-                            .setKeyPair(keyStoreLoader.getClientKeyPair())
-                            .setCertificate(keyStoreLoader.getClientCertificate())
-                            .setCertificateChain(keyStoreLoader.getClientCertificateChain())
+                            .setKeyPair(applicationCertificate.getKeyPair())
+                            .setCertificate(applicationCertificate.getCertificate())
+                            .setCertificateChain(applicationCertificate.getCertificateChain())
                             .setCertificateValidator(certificateValidator)
                             .build());
         }
         catch (UaException e) {
             throw new AssetConnectionException(String.format("error creating OPC UA client (host: %s)", config.getHost()), e);
         }
-        return client;
     }
 
 
@@ -220,6 +369,7 @@ public class OpcUaHelper {
             }
             catch (InterruptedException | ExecutionException e) {
                 // ignore
+                e.printStackTrace();
                 if (count >= retries) {
                     throw new AssetConnectionException(String.format(
                             "error opening OPC UA connection (host: %s)",
