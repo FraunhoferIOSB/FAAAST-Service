@@ -32,6 +32,13 @@ public class OpcUaConstants {
     public static final String CERTIFICATE_LOCALITY = "Karlsruhe";
     public static final String CERTIFICATE_COUNTRYCODE = "DE";
 
+    /**
+     * Hide the implicit public constructor.
+     */
+    private OpcUaConstants() {
+
+    }
+
     public static final CertificateInformation DEFAULT_APPLICATION_CERTIFICATE_INFO = CertificateInformation.builder()
             .applicationUri(CERTIFICATE_APPLICATION_URI)
             .commonName(CERTIFICATE_APPLICATION_NAME)

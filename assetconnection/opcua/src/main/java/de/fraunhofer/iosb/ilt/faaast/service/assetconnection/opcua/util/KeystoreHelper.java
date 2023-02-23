@@ -48,6 +48,14 @@ public class KeystoreHelper {
     private static final String DEFAULT_ALIAS = "faaast";
 
     /**
+     * Hide the implicit public constructor.
+     */
+    private KeystoreHelper() {
+
+    }
+
+
+    /**
      * TODO.
      *
      * @param file

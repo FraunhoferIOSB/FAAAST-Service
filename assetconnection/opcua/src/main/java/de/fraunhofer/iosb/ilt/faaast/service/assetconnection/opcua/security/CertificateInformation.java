@@ -192,7 +192,7 @@ public class CertificateInformation {
 
 
         public Builder organizationUnit(String value) {
-            getBuildingInstance().setOrganization(value);
+            getBuildingInstance().setOrganizationUnit(value);
             return this;
         }
 
