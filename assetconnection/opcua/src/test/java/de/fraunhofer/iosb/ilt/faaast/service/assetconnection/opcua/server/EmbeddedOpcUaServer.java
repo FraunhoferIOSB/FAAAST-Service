@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.milo.opcua.sdk.server.OpcUaServer;
 import org.eclipse.milo.opcua.sdk.server.api.ManagedNamespaceWithLifecycle;
-import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfig;
 import org.eclipse.milo.opcua.sdk.server.api.config.OpcUaServerConfigBuilder;
 import org.eclipse.milo.opcua.sdk.server.identity.AnonymousIdentityValidator;
 import org.eclipse.milo.opcua.sdk.server.identity.CompositeValidator;
@@ -65,6 +64,7 @@ import org.eclipse.milo.opcua.stack.server.security.ServerCertificateValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * Helper class to run embedded OPC UA server
  */
@@ -83,6 +83,7 @@ public class EmbeddedOpcUaServer {
     private static final List<TransportProfile> SUPPORTED_TRANSPORT_PROFILES = List.of(TransportProfile.HTTPS_UABINARY, TransportProfile.TCP_UASC_UABINARY);
 
     private final EmbeddedOpcUaServerConfig config;
+    private final OpcUaServer server;
     private final List<ManagedNamespaceWithLifecycle> namespaces = new ArrayList<>();
 
     static {
@@ -94,15 +95,16 @@ public class EmbeddedOpcUaServer {
         config.getAllowedClientCertificates().add(certificate);
     }
 
+
     public void disallowClient(X509Certificate certificate) {
         config.getAllowedClientCertificates().remove(certificate);
     }
+
 
     public EmbeddedOpcUaServerConfig getConfig() {
         return config;
     }
 
-    private OpcUaServer server;
 
     //    /**
     //     * Starts an embedded OPC UA server.
@@ -142,13 +144,14 @@ public class EmbeddedOpcUaServer {
             result = compositor.apply(result, new UsernameIdentityValidator(
                     false,
                     x -> config.getAllowedCredentials().containsKey(x.getUsername())
-                    && Objects.equals(x.getPassword(), config.getAllowedCredentials().get(x.getUsername()))));
+                            && Objects.equals(x.getPassword(), config.getAllowedCredentials().get(x.getUsername()))));
         }
         if (availableTokenPolicies.contains(UserTokenType.Certificate)) {
             result = compositor.apply(result, new X509IdentityValidator(x -> config.getAllowedClientCertificates().contains(x)));
         }
         return result;
     }
+
 
     private static CertificateData getApplicationCertificate(EmbeddedOpcUaServerConfig config) throws IOException, GeneralSecurityException {
         return Objects.nonNull(config.getApplicationCertificate())
@@ -159,11 +162,13 @@ public class EmbeddedOpcUaServer {
                                 OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
     }
 
+
     private static CertificateData getHttpsCertificate(EmbeddedOpcUaServerConfig config) throws Exception {
         return Objects.nonNull(config.getHttpsCertificate())
                 ? config.getHttpsCertificate()
                 : generateHttpsCertificate();
     }
+
 
     private static CertificateData generateHttpsCertificate() throws Exception {
         KeyPair httpsKeyPair = SelfSignedCertificateGenerator.generateRsaKeyPair(2048);
@@ -175,6 +180,7 @@ public class EmbeddedOpcUaServer {
                 .certificate(httpsCertificateBuilder.build())
                 .build();
     }
+
 
     /**
      * Starts an embedded OPC UA server.
@@ -198,8 +204,8 @@ public class EmbeddedOpcUaServer {
         String applicationUri = CertificateUtil
                 .getSanUri(applicationCertificate.getCertificate())
                 .orElseThrow(() -> new UaRuntimeException(
-                StatusCodes.Bad_ConfigurationError,
-                "certificate is missing the application URI"));
+                        StatusCodes.Bad_ConfigurationError,
+                        "certificate is missing the application URI"));
         server = new OpcUaServer(new OpcUaServerConfigBuilder()
                 .setEndpoints(createEndpointConfigurations(applicationCertificate.getCertificate(), config.getEndpointSecurityConfigurations()))
                 .setApplicationUri(applicationUri)
@@ -213,17 +219,25 @@ public class EmbeddedOpcUaServer {
                 .setIdentityValidator(buildIdentityValidator(config))
                 .setProductUri(BUILD_INFO.getProductUri())
                 .build());
+        //System.out.println("EmbeddedOpcUaServer: desired endpoints");
+        //server.getEndpointDescriptions().stream()
+        //        .forEach(e -> System.out
+        //                .println("EndpointUrl: " + e.getEndpointUrl() + "; SecurityPolicyUri: " + e.getSecurityPolicyUri() + "; SecurityMode: " + e.getSecurityMode()));
+        //        .forEach(e -> LOGGER.error("EndpointUrl: {}; SecurityPolicyUri: {}; SecurityMode: {}", e.getEndpointUrl(), e.getSecurityPolicyUri(), e.getSecurityMode()));
         namespaces.add(new ExampleNamespace(server));
         startupNamespaces();
     }
+
 
     private void startupNamespaces() {
         namespaces.forEach(x -> x.startup());
     }
 
+
     private void shutdownNamespaces() {
         namespaces.forEach(x -> x.shutdown());
     }
+
 
     private static UserTokenPolicy toPolicy(UserTokenType tokenType) {
         return UserTokenPolicy.builder()
@@ -234,6 +248,7 @@ public class EmbeddedOpcUaServer {
                 .securityPolicyUri(tokenType == UserTokenType.Anonymous ? null : SecurityPolicy.Basic256.getUri())
                 .build();
     }
+
 
     private EndpointConfiguration.Builder applyEndpointSecurityConfiguration(EndpointConfiguration.Builder builder, EndpointSecurityConfiguration securityConfiguration) {
         return builder.copy()
@@ -246,6 +261,7 @@ public class EmbeddedOpcUaServer {
                 .setBindPort(config.getProtocolPorts().get(securityConfiguration.getProtocol()));
     }
 
+
     public static TransportProfile getTransportProfile(Protocol protocol) {
         switch (protocol) {
             case TCP:
@@ -257,6 +273,7 @@ public class EmbeddedOpcUaServer {
         }
     }
 
+
     private static Set<String> getRelevantHostnames(X509Certificate certificate) {
         Set<String> result = new HashSet<>();
         result.addAll(CertificateUtil.getSanIpAddresses(certificate));
@@ -267,6 +284,7 @@ public class EmbeddedOpcUaServer {
         }
         return result;
     }
+
 
     public String getEndpoint(TransportProfile transportProfile) {
         Ensure.requireNonNull(transportProfile, "transportProfile must be non-null");
@@ -282,9 +300,11 @@ public class EmbeddedOpcUaServer {
                 config.getPath());
     }
 
+
     public String getEndpoint(Protocol protocol) {
         return getEndpoint(getTransportProfile(protocol));
     }
+
 
     private Set<EndpointConfiguration> createEndpointConfigurations(X509Certificate certificate, List<EndpointSecurityConfiguration> endpointSecurityConfigurations) {
         List<EndpointSecurityConfiguration> securityConfigurations = endpointSecurityConfigurations;
@@ -293,13 +313,13 @@ public class EmbeddedOpcUaServer {
             securityConfigurations = EndpointSecurityConfiguration.ALL;
         }
         Set<EndpointConfiguration> result = new HashSet<>();
-        for (var hostname : getRelevantHostnames(certificate)) {
+        for (var hostname: getRelevantHostnames(certificate)) {
             EndpointConfiguration.Builder builder = EndpointConfiguration.newBuilder()
                     .setBindAddress("0.0.0.0")
                     .setHostname(hostname)
                     .setPath(config.getPath())
                     .setCertificate(certificate);
-            for (var securityConfiguration : securityConfigurations) {
+            for (var securityConfiguration: securityConfigurations) {
                 result.add(applyEndpointSecurityConfiguration(builder, securityConfiguration).build());
             }
 
@@ -329,13 +349,16 @@ public class EmbeddedOpcUaServer {
         return result;
     }
 
+
     public OpcUaServer getServer() {
         return server;
     }
 
+
     public void startup() throws InterruptedException, ExecutionException {
         server.startup().get();
     }
+
 
     public void shutdown() throws InterruptedException, ExecutionException {
         shutdownNamespaces();

@@ -235,11 +235,22 @@ public class OpcUaHelper {
                                     config.getSecurityMode())));
         }
         catch (InterruptedException | ExecutionException e) {
-            throw new AssetConnectionException(String.format(
-                    "Unable to fetch available endpoints (host: %s)",
-                    config.getHost(),
-                    config.getSecurityPolicy(),
-                    config.getSecurityMode()), e);
+            if (!config.getHost().endsWith("/discovery")) {
+                StringBuilder discoveryUrl = new StringBuilder(config.getHost());
+                if (!config.getHost().endsWith("/")) {
+                    discoveryUrl.append("/");
+                }
+                discoveryUrl.append("discovery");
+                config.setHost(discoveryUrl.toString());
+                return findBestMatchingEndpoint(config);
+            }
+            else {
+                throw new AssetConnectionException(String.format(
+                        "Unable to fetch available endpoints (host: %s)",
+                        config.getHost(),
+                        config.getSecurityPolicy(),
+                        config.getSecurityMode()), e);
+            }
         }
     }
 

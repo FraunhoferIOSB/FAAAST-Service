@@ -140,6 +140,7 @@ public class OpcUaAssetConnectionTest {
                 EmbeddedOpcUaServerConfig.builder()
                         .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_TCP)
                         .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_HTTPS)
+                        .applicationCertificate(loadServerApplicationCertificate())
                         .allowedCredential(username, password)
                         .build());
         try {
@@ -298,7 +299,8 @@ public class OpcUaAssetConnectionTest {
                                      OpcUaAssetConnectionConfig config,
                                      Consumer<OpcUaAssetConnectionConfig> beforeConnect)
             throws ValueFormatException, ConfigurationInitializationException, AssetConnectionException, IOException, GeneralSecurityException {
-        Path clientBaseSecurityDir = Paths.get("C:\\Users\\jab\\AppData\\Local\\Temp\\client");
+
+        Path clientBaseSecurityDir = Paths.get(Files.createTempDirectory("client").toString(), "client");
         try {
             Files.createDirectories(clientBaseSecurityDir);
             Files.copy(
@@ -420,7 +422,7 @@ public class OpcUaAssetConnectionTest {
     public void testReconnect()
             throws AssetConnectionException, InterruptedException, ValueFormatException, ExecutionException, UaException, ConfigurationInitializationException, Exception {
         EmbeddedOpcUaServer server = startDefaultServer();
-        server.startup();
+        var serverConfig = server.getConfig();
         Thread.sleep(5000);
         final Predicate<LoggingEvent> logConnectionLost = x -> x.getLevel() == Level.WARN && x.getMessage().startsWith("OPC UA asset connection lost");
         String nodeId = "ns=2;s=HelloWorld/ScalarTypes/Double";
@@ -477,9 +479,7 @@ public class OpcUaAssetConnectionTest {
         server.shutdown();
         await().atMost(5, TimeUnit.SECONDS)
                 .until(() -> logger.getAllLoggingEvents().stream().anyMatch(logConnectionLost));
-        server = new EmbeddedOpcUaServer(EmbeddedOpcUaServerConfig.builder()
-                .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_TCP)
-                .build());
+        server = new EmbeddedOpcUaServer(serverConfig);
         server.startup();
         connection.getValueProviders().get(reference).setValue(expected);
         Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", getWaitTime(), TimeUnit.MILLISECONDS),

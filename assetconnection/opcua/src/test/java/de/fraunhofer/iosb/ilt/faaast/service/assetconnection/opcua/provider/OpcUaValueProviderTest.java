@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.EmbeddedOpcUaServer;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.EmbeddedOpcUaServerConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.EndpointSecurityConfiguration;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.Protocol;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
@@ -26,7 +27,8 @@ public class OpcUaValueProviderTest {
 
     @Test
     public void testEquals() throws Exception {
-        EmbeddedOpcUaServer server = new EmbeddedOpcUaServer(EmbeddedOpcUaServerConfig.builder().build());
+        EmbeddedOpcUaServer server = new EmbeddedOpcUaServer(
+                EmbeddedOpcUaServerConfig.builder().endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_TCP).build());
         server.startup();
         try {
             OpcUaClient client1 = OpcUaClient.create(server.getEndpoint(Protocol.TCP));

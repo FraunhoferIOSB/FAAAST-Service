@@ -53,6 +53,9 @@ public class EmbeddedOpcUaServerConfig {
         this.allowedClientCertificates = Collections.synchronizedList(new ArrayList<>());
         this.endpointSecurityConfigurations = new ArrayList<>();
         this.protocolPorts = new HashMap<>();
+        this.allowedCredentials = new HashMap<>();
+        // for discovery it's necessary that TCP is always enabled
+        this.protocolPorts.put(Protocol.TCP, findFreePort());
         try {
             this.securityBaseDir = Files.createTempDirectory("embedded-opcua-server");
         }
