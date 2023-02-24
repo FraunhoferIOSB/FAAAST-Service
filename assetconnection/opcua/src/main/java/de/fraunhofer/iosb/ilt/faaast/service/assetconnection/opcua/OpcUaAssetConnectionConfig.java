@@ -27,6 +27,7 @@ import java.util.Objects;
 import org.eclipse.milo.opcua.stack.core.security.SecurityPolicy;
 import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.MessageSecurityMode;
+import org.eclipse.milo.opcua.stack.core.types.enumerated.UserTokenType;
 
 
 /**
@@ -44,6 +45,7 @@ public class OpcUaAssetConnectionConfig
     public static final File DEFAULT_APPLICATION_CERTIFICATE_FILE = new File("application.p12");
     public static final File DEFAULT_AUTHENTICATION_CERTIFICATE_FILE = new File("authentication.p12");
     public static final TransportProfile DEFAULT_TRANSPORT_PROFILE = TransportProfile.TCP_UASC_UABINARY;
+    public static final UserTokenType DEFAULT_USER_TOKEN = UserTokenType.Anonymous;
 
     private String host;
     private String username;
@@ -59,6 +61,7 @@ public class OpcUaAssetConnectionConfig
     private File authenticationCertificateFile;
     private String authenticationCertificatePassword;
     private TransportProfile transportProfile;
+    private UserTokenType userTokenType;
 
     public OpcUaAssetConnectionConfig() {
         this.requestTimeout = DEFAULT_REQUEST_TIMEOUT;
@@ -70,6 +73,7 @@ public class OpcUaAssetConnectionConfig
         this.applicationCertificateFile = DEFAULT_APPLICATION_CERTIFICATE_FILE;
         this.authenticationCertificateFile = DEFAULT_AUTHENTICATION_CERTIFICATE_FILE;
         this.transportProfile = DEFAULT_TRANSPORT_PROFILE;
+        this.userTokenType = DEFAULT_USER_TOKEN;
     }
 
 
@@ -96,7 +100,8 @@ public class OpcUaAssetConnectionConfig
                 && Objects.equals(applicationCertificatePassword, that.applicationCertificatePassword)
                 && Objects.equals(authenticationCertificateFile, that.authenticationCertificateFile)
                 && Objects.equals(authenticationCertificatePassword, that.authenticationCertificatePassword)
-                && Objects.equals(transportProfile, that.transportProfile);
+                && Objects.equals(transportProfile, that.transportProfile)
+                && Objects.equals(userTokenType, that.userTokenType);
     }
 
 
@@ -240,6 +245,16 @@ public class OpcUaAssetConnectionConfig
     }
 
 
+    public UserTokenType getUserTokenType() {
+        return userTokenType;
+    }
+
+
+    public void setUserTokenType(UserTokenType userTokenType) {
+        this.userTokenType = userTokenType;
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(),
@@ -256,7 +271,8 @@ public class OpcUaAssetConnectionConfig
                 applicationCertificatePassword,
                 authenticationCertificateFile,
                 authenticationCertificatePassword,
-                transportProfile);
+                transportProfile,
+                userTokenType);
     }
 
 
@@ -285,6 +301,7 @@ public class OpcUaAssetConnectionConfig
             securityPolicy(other.securityPolicy);
             username(other.username);
             transportProfile(other.transportProfile);
+            userTokenType(other.userTokenType);
             return getSelf();
         }
 
@@ -372,6 +389,11 @@ public class OpcUaAssetConnectionConfig
             return getSelf();
         }
 
+
+        public B userTokenType(UserTokenType value) {
+            getBuildingInstance().setUserTokenType(value);
+            return getSelf();
+        }
     }
 
     public static class Builder extends AbstractBuilder<OpcUaAssetConnectionConfig, Builder> {

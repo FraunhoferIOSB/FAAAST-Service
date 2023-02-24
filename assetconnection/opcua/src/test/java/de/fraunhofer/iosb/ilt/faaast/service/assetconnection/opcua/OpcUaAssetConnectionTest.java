@@ -77,6 +77,7 @@ import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
+import org.eclipse.milo.opcua.stack.core.types.enumerated.UserTokenType;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -141,6 +142,31 @@ public class OpcUaAssetConnectionTest {
         try {
             assertConnectSecureUsernamePassword(server, EndpointSecurityConfiguration.NONE_NONE_TCP, username, password);
             assertConnectSecureUsernamePassword(server, EndpointSecurityConfiguration.NONE_NONE_HTTPS, username, password);
+        }
+        finally {
+            server.shutdown();
+        }
+    }
+
+
+    @Test
+    public void testConnectNoSecurityInvalidUsernamePassword() throws Exception {
+        final String usernameServer = "username-test";
+        final String passwordServer = "password-test";
+        final String usernameClient = "foo";
+        final String passwordClient = "bar";
+        EmbeddedOpcUaServer server = startServer(
+                EmbeddedOpcUaServerConfig.builder()
+                        .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_TCP)
+                        .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_HTTPS)
+                        .applicationCertificate(loadServerApplicationCertificate())
+                        .allowedCredential(usernameServer, passwordServer)
+                        .build());
+        try {
+            Assert.assertThrows(ConfigurationInitializationException.class,
+                    () -> assertConnectSecureUsernamePassword(server, EndpointSecurityConfiguration.NONE_NONE_TCP, usernameClient, passwordClient));
+            Assert.assertThrows(ConfigurationInitializationException.class,
+                    () -> assertConnectSecureUsernamePassword(server, EndpointSecurityConfiguration.NONE_NONE_HTTPS, usernameClient, passwordClient));
         }
         finally {
             server.shutdown();
@@ -240,22 +266,23 @@ public class OpcUaAssetConnectionTest {
                 server,
                 securityConfiguration,
                 OpcUaAssetConnectionConfig.builder()
+                        .userTokenType(UserTokenType.UserName)
                         .username(username)
                         .password(password)
                         .build(),
                 null);
     }
 
-
-    private void assertConnectUsernamePassword(EmbeddedOpcUaServer server, String username, String password)
-            throws ValueFormatException, ConfigurationInitializationException, AssetConnectionException, IOException, GeneralSecurityException {
-        assertConnect(
-                server,
-                OpcUaAssetConnectionConfig.builder()
-                        .username(username)
-                        .password(password)
-                        .build());
-    }
+    //    private void assertConnectUsernamePassword(EmbeddedOpcUaServer server, String username, String password)
+    //            throws ValueFormatException, ConfigurationInitializationException, AssetConnectionException, IOException, GeneralSecurityException {
+    //        assertConnect(
+    //                server,
+    //                OpcUaAssetConnectionConfig.builder()
+    //                        .userTokenType(UserTokenType.UserName)
+    //                        .username(username)
+    //                        .password(password)
+    //                        .build());
+    //    }
 
 
     private void assertConnectSecureCertificate(
@@ -275,6 +302,7 @@ public class OpcUaAssetConnectionTest {
                                 .getCertificate();
                         server.allowClient(certificate);
                         clientCertificate.add(certificate);
+                        x.setUserTokenType(UserTokenType.Certificate);
                         x.setAuthenticationCertificateFile(new File(CLIENT_AUTHENTICATION_CERTIFICATE_FILE));
                         x.setAuthenticationCertificatePassword(CLIENT_AUTHENTICATION_CERTIFICATE_PASSWORD);
                     }));
@@ -361,8 +389,8 @@ public class OpcUaAssetConnectionTest {
                                         .nodeId(nodeId)
                                         .build())
                         // TODO remove
-                        .requestTimeout(config.getRequestTimeout())
-                        .acknowledgeTimeout(config.getAcknowledgeTimeout())
+                        //.requestTimeout(config.getRequestTimeout())
+                        //.acknowledgeTimeout(config.getAcknowledgeTimeout())
                         .host(server.getEndpoint(config.getTransportProfile()))
                         .build(),
                 serviceContext);

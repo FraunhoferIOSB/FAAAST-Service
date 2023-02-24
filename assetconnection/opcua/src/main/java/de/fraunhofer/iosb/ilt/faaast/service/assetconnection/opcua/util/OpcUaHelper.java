@@ -172,30 +172,56 @@ public class OpcUaHelper {
 
 
     private static IdentityProvider getIdentityProvider(OpcUaAssetConnectionConfig config) throws ConfigurationInitializationException {
-        // TODO depend on UserTokenType   
-        if (Objects.nonNull(config.getAuthenticationCertificateFile())) {
-            File authenticationCertificateFile = config.getAuthenticationCertificateFile();
-            if (!authenticationCertificateFile.exists()) {
-                authenticationCertificateFile = config.getSecurityBaseDir().resolve(authenticationCertificateFile.toPath()).toFile();
-            }
-            if (authenticationCertificateFile.exists()) {
-                try {
-                    CertificateData certificateData = KeystoreHelper.loadOrCreate(authenticationCertificateFile, config.getAuthenticationCertificatePassword(),
-                            OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
-                    return new X509IdentityProvider(certificateData.getCertificate(), certificateData.getKeyPair().getPrivate());
+        IdentityProvider retval;
+        switch (config.getUserTokenType()) {
+            case Certificate:
+                if (Objects.nonNull(config.getAuthenticationCertificateFile())) {
+                    File authenticationCertificateFile = config.getAuthenticationCertificateFile();
+                    if (!authenticationCertificateFile.exists()) {
+                        authenticationCertificateFile = config.getSecurityBaseDir().resolve(authenticationCertificateFile.toPath()).toFile();
+                    }
+                    if (authenticationCertificateFile.exists()) {
+                        try {
+                            CertificateData certificateData = KeystoreHelper.loadOrCreate(authenticationCertificateFile, config.getAuthenticationCertificatePassword(),
+                                    OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
+                            retval = new X509IdentityProvider(certificateData.getCertificate(), certificateData.getKeyPair().getPrivate());
+                        }
+                        catch (IOException | GeneralSecurityException e) {
+                            throw new ConfigurationInitializationException(String.format(
+                                    "error loading OPC UA client authentication certificate file (file: %s)",
+                                    config.getAuthenticationCertificateFile()),
+                                    e);
+                        }
+                    }
+                    else {
+                        throw new ConfigurationInitializationException(String.format(
+                                "OPC UA client authentication certificate file not found (file: %s)",
+                                config.getAuthenticationCertificateFile()));
+                    }
                 }
-                catch (IOException | GeneralSecurityException e) {
-                    throw new ConfigurationInitializationException(String.format(
-                            "error loading OPC UA client authentication certificate file (file: %s)",
-                            config.getAuthenticationCertificateFile()),
-                            e);
+                else {
+                    throw new ConfigurationInitializationException("no authentication certificate specified!");
                 }
-            }
+                break;
+
+            case UserName:
+                if (!StringHelper.isBlank(config.getUsername())) {
+                    retval = new UsernameProvider(config.getUsername(), config.getPassword());
+                }
+                else {
+                    throw new ConfigurationInitializationException("no user name specified!");
+                }
+                break;
+
+            case Anonymous:
+                retval = AnonymousProvider.INSTANCE;
+                break;
+
+            default:
+                throw new ConfigurationInitializationException(String.format("UserTokenType %s not supported", config.getUserTokenType().toString()));
         }
-        if (!StringHelper.isBlank(config.getUsername())) {
-            return new UsernameProvider(config.getUsername(), config.getPassword());
-        }
-        return AnonymousProvider.INSTANCE;
+
+        return retval;
     }
 
 
