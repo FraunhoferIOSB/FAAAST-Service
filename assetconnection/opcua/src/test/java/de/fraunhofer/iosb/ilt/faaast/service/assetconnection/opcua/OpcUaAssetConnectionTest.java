@@ -18,9 +18,6 @@ import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.github.valfirst.slf4jtest.LoggingEvent;
-import com.github.valfirst.slf4jtest.TestLogger;
-import com.github.valfirst.slf4jtest.TestLoggerFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.ArgumentMapping;
@@ -76,7 +73,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
@@ -84,7 +80,6 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import uk.org.lidalia.slf4jext.Level;
 
 
 public class OpcUaAssetConnectionTest {
@@ -424,13 +419,11 @@ public class OpcUaAssetConnectionTest {
         EmbeddedOpcUaServer server = startDefaultServer();
         var serverConfig = server.getConfig();
         Thread.sleep(5000);
-        final Predicate<LoggingEvent> logConnectionLost = x -> x.getLevel() == Level.WARN && x.getMessage().startsWith("OPC UA asset connection lost");
         String nodeId = "ns=2;s=HelloWorld/ScalarTypes/Double";
         PropertyValue expected = PropertyValue.of(Datatype.DOUBLE, "0.1");
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         long interval = 1000;
         ServiceContext serviceContext = mock(ServiceContext.class);
-        TestLogger logger = TestLoggerFactory.getTestLogger(OpcUaAssetConnection.class);
         TypeInfo infoExample = ElementValueTypeInfo.builder()
                 .type(PropertyValue.class)
                 .datatype(expected.getValue().getDataType())
@@ -478,7 +471,7 @@ public class OpcUaAssetConnectionTest {
         });
         server.shutdown();
         await().atMost(5, TimeUnit.SECONDS)
-                .until(() -> logger.getAllLoggingEvents().stream().anyMatch(logConnectionLost));
+                .until(() -> !connection.isConnected());
         server = new EmbeddedOpcUaServer(serverConfig);
         server.startup();
         connection.getValueProviders().get(reference).setValue(expected);

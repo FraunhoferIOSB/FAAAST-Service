@@ -61,9 +61,11 @@ public class OpcUaAssetConnection extends
 
     private OpcUaClient client;
     private ManagedSubscription opcUaSubscription;
+    private boolean connected;
 
     public OpcUaAssetConnection() {
 
+        connected = false;
     }
 
 
@@ -89,6 +91,11 @@ public class OpcUaAssetConnection extends
                 throw new AssetConnectionException("error closing OPC UA asset connection", e);
             }
         }
+    }
+
+
+    public boolean isConnected() {
+        return connected;
     }
 
 
@@ -174,12 +181,14 @@ public class OpcUaAssetConnection extends
         client = OpcUaHelper.connect(config, x -> x.addSessionActivityListener(new SessionActivityListener() {
             @Override
             public void onSessionActive(UaSession session) {
+                connected = true;
                 LOGGER.info("OPC UA asset connection established (host: {})", config.getHost());
             }
 
 
             @Override
             public void onSessionInactive(UaSession session) {
+                connected = false;
                 LOGGER.warn("OPC UA asset connection lost (host: {})", config.getHost());
             }
         }));
