@@ -22,12 +22,20 @@ import java.nio.file.Path;
  */
 public class SecurityPathHelper {
 
-    public static final String CERTS = "certs";
-    public static final String CRL = "crl";
-    public static final String PKI = "pki";
-    public static final String ISSUERS = "issuers";
-    public static final String REJECTED = "rejected";
-    public static final String TRUSTED = "trusted";
+    private static final String CERTS = "certs";
+    private static final String CRL = "crl";
+    private static final String PKI = "pki";
+    private static final String ISSUERS = "issuers";
+    private static final String REJECTED = "rejected";
+    private static final String TRUSTED = "trusted";
+
+    /**
+     * Hide the implicit public constructor.
+     */
+    private SecurityPathHelper() {
+
+    }
+
 
     /**
      * Gets the "PKI" path relative to the base security path.
@@ -57,7 +65,7 @@ public class SecurityPathHelper {
      * @param base the base security bath to use
      * @return the path storing certificates of allowed issuers relative to the base security path
      */
-    public static Path issuers_allowed(Path base) {
+    public static Path issuersAllowed(Path base) {
         return issuers(base).resolve(CERTS);
     }
 
@@ -68,7 +76,7 @@ public class SecurityPathHelper {
      * @param base the base security bath to use
      * @return the path storing revoked issuers certificates relative to the base security path
      */
-    public static Path issuers_revoked(Path base) {
+    public static Path issuersRevoked(Path base) {
         return issuers(base).resolve(CRL);
     }
 
@@ -101,7 +109,7 @@ public class SecurityPathHelper {
      * @param base the base security bath to use
      * @return the path storing allowed trusted certificates relative to the base security path
      */
-    public static Path trusted_allowed(Path base) {
+    public static Path trustedAllowed(Path base) {
         return trusted(base).resolve(CERTS);
     }
 
@@ -112,7 +120,7 @@ public class SecurityPathHelper {
      * @param base the base security bath to use
      * @return the path storing revoked trusted certificates relative to the base security path
      */
-    public static Path trusted_revoked(Path base) {
+    public static Path trustedRevoked(Path base) {
         return trusted(base).resolve(CRL);
     }
 }

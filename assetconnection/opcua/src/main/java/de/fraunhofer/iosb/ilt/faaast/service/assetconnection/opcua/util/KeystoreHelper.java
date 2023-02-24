@@ -100,8 +100,8 @@ public class KeystoreHelper {
                 .setLocalityName(certificateInformation.getLocalityName())
                 .setCountryCode(certificateInformation.getCountryCode())
                 .setApplicationUri(certificateInformation.getApplicationUri());
-        certificateInformation.getDnsNames().forEach(x -> builder.addDnsName(x));
-        certificateInformation.getIpAddresses().forEach(x -> builder.addIpAddress(x));
+        certificateInformation.getDnsNames().forEach(builder::addDnsName);
+        certificateInformation.getIpAddresses().forEach(builder::addIpAddress);
 
         // if no DNS & IP info available use localhost & 127.0.0.1
         if (certificateInformation.getDnsNames().isEmpty() && certificateInformation.getIpAddresses().isEmpty()) {

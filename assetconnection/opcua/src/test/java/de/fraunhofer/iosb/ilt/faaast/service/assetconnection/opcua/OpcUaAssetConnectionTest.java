@@ -800,9 +800,9 @@ public class OpcUaAssetConnectionTest {
 
     private void exchangeCertificates(EmbeddedOpcUaServer server, Path clientSecurityBaseDir) throws IOException, GeneralSecurityException {
         // copy server certificate to client
-        Files.createDirectories(SecurityPathHelper.trusted_allowed(clientSecurityBaseDir));
+        Files.createDirectories(SecurityPathHelper.trustedAllowed(clientSecurityBaseDir));
         Files.write(
-                SecurityPathHelper.trusted_allowed(clientSecurityBaseDir).resolve("server.cer"),
+                SecurityPathHelper.trustedAllowed(clientSecurityBaseDir).resolve("server.cer"),
                 server.getConfig().getApplicationCertificate()
                         .getCertificate()
                         .getEncoded());
@@ -815,9 +815,9 @@ public class OpcUaAssetConnectionTest {
         //                .getCertificate());
 
         // copy client certificate to server
-        Files.createDirectories(SecurityPathHelper.trusted_allowed(server.getConfig().getSecurityBaseDir()));
+        Files.createDirectories(SecurityPathHelper.trustedAllowed(server.getConfig().getSecurityBaseDir()));
         Files.write(
-                SecurityPathHelper.trusted_allowed(server.getConfig().getSecurityBaseDir()).resolve("client.cer"),
+                SecurityPathHelper.trustedAllowed(server.getConfig().getSecurityBaseDir()).resolve("client.cer"),
                 KeystoreHelper
                         .loadOrDefault(
                                 Thread.currentThread().getContextClassLoader().getResourceAsStream(CLIENT_APPLICATION_CERTIFICATE_FILE),

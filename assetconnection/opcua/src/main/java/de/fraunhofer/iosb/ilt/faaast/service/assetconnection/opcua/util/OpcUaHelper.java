@@ -343,7 +343,6 @@ public class OpcUaHelper {
             }
             catch (InterruptedException | ExecutionException e) {
                 // ignore
-                e.printStackTrace();
                 if (count >= retries) {
                     throw new AssetConnectionException(String.format(
                             "error opening OPC UA connection (host: %s)",
