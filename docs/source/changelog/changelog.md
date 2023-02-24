@@ -29,6 +29,9 @@
 	*   Major code refactoring
 *   Persistence
 	*   Major code refactoring
+*   Asset Connection
+	*   OPC UA
+		*   fixed deserialization error when using operation provider with argument mappings
 *   Miscellaneous
 	*   Now using dockerfile to build docker container instead of jib maven plugin
 
