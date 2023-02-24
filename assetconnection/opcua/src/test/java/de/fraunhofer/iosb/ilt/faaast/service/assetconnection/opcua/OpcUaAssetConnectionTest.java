@@ -893,7 +893,7 @@ public class OpcUaAssetConnectionTest {
 
 
     @Test
-    //@Ignore("Helper method for generating resources")
+    @Ignore("Helper method for generating resources")
     public void generateClientAuthenticationCertificateStoreForTesting() throws IOException, GeneralSecurityException, URISyntaxException {
         generateCertificateStoreForTesting(
                 CLIENT_AUTHENTICATION_CERTIFICATE_FILE,
