@@ -175,33 +175,7 @@ public class OpcUaHelper {
         IdentityProvider retval;
         switch (config.getUserTokenType()) {
             case Certificate:
-                if (Objects.nonNull(config.getAuthenticationCertificateFile())) {
-                    File authenticationCertificateFile = config.getAuthenticationCertificateFile();
-                    if (!authenticationCertificateFile.exists()) {
-                        authenticationCertificateFile = config.getSecurityBaseDir().resolve(authenticationCertificateFile.toPath()).toFile();
-                    }
-                    if (authenticationCertificateFile.exists()) {
-                        try {
-                            CertificateData certificateData = KeystoreHelper.loadOrCreate(authenticationCertificateFile, config.getAuthenticationCertificatePassword(),
-                                    OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
-                            retval = new X509IdentityProvider(certificateData.getCertificate(), certificateData.getKeyPair().getPrivate());
-                        }
-                        catch (IOException | GeneralSecurityException e) {
-                            throw new ConfigurationInitializationException(String.format(
-                                    "error loading OPC UA client authentication certificate file (file: %s)",
-                                    config.getAuthenticationCertificateFile()),
-                                    e);
-                        }
-                    }
-                    else {
-                        throw new ConfigurationInitializationException(String.format(
-                                "OPC UA client authentication certificate file not found (file: %s)",
-                                config.getAuthenticationCertificateFile()));
-                    }
-                }
-                else {
-                    throw new ConfigurationInitializationException("no authentication certificate specified!");
-                }
+                retval = getIdentityProviderCertificate(config);
                 break;
 
             case UserName:
@@ -221,6 +195,40 @@ public class OpcUaHelper {
                 throw new ConfigurationInitializationException(String.format("UserTokenType %s not supported", config.getUserTokenType().toString()));
         }
 
+        return retval;
+    }
+
+
+    private static IdentityProvider getIdentityProviderCertificate(OpcUaAssetConnectionConfig config)
+            throws ConfigurationInitializationException {
+        IdentityProvider retval;
+        if (Objects.nonNull(config.getAuthenticationCertificateFile())) {
+            File authenticationCertificateFile = config.getAuthenticationCertificateFile();
+            if (!authenticationCertificateFile.exists()) {
+                authenticationCertificateFile = config.getSecurityBaseDir().resolve(authenticationCertificateFile.toPath()).toFile();
+            }
+            if (authenticationCertificateFile.exists()) {
+                try {
+                    CertificateData certificateData = KeystoreHelper.loadOrCreate(authenticationCertificateFile, config.getAuthenticationCertificatePassword(),
+                            OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
+                    retval = new X509IdentityProvider(certificateData.getCertificate(), certificateData.getKeyPair().getPrivate());
+                }
+                catch (IOException | GeneralSecurityException e) {
+                    throw new ConfigurationInitializationException(String.format(
+                            "error loading OPC UA client authentication certificate file (file: %s)",
+                            config.getAuthenticationCertificateFile()),
+                            e);
+                }
+            }
+            else {
+                throw new ConfigurationInitializationException(String.format(
+                        "OPC UA client authentication certificate file not found (file: %s)",
+                        config.getAuthenticationCertificateFile()));
+            }
+        }
+        else {
+            throw new ConfigurationInitializationException("no authentication certificate specified!");
+        }
         return retval;
     }
 
