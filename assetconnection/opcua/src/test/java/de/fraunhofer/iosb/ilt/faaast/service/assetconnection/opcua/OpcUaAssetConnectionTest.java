@@ -408,7 +408,10 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 null,
                 null,
                 Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")),
-                List.of(new ArgumentMapping("x_aas", "x")),
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_aas")
+                        .argumentName("x")
+                        .build()),
                 null);
         assertInvokeOperation(nodeIdSqrt,
                 false,
@@ -417,7 +420,10 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 null,
                 Map.of("x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
                 null,
-                List.of(new ArgumentMapping("x_sqrt_aas", "x_sqrt")));
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_sqrt_aas")
+                        .argumentName("x_sqrt")
+                        .build()));
         assertInvokeOperation(nodeIdSqrt,
                 true,
                 null,
@@ -426,8 +432,14 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 Map.of("x_aas", PropertyValue.of(Datatype.DOUBLE, "4.0"),
                         "x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
                 Map.of("x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
-                List.of(new ArgumentMapping("x_aas", "x")),
-                List.of(new ArgumentMapping("x_sqrt_aas", "x_sqrt")));
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_aas")
+                        .argumentName("x")
+                        .build()),
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_sqrt_aas")
+                        .argumentName("x_sqrt")
+                        .build()));
         assertInvokeOperation(nodeIdSqrt,
                 false,
                 null,
@@ -436,8 +448,14 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 Map.of("x_aas", PropertyValue.of(Datatype.DOUBLE, "4.0"),
                         "x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
                 Map.of("x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
-                List.of(new ArgumentMapping("x_aas", "x")),
-                List.of(new ArgumentMapping("x_sqrt_aas", "x_sqrt")));
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_aas")
+                        .argumentName("x")
+                        .build()),
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_sqrt_aas")
+                        .argumentName("x_sqrt")
+                        .build()));
     }
 
 }
