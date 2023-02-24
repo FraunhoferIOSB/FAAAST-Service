@@ -58,7 +58,9 @@ public class SetSubmodelElementValueByPathRequestHandler
         ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
         ElementValue newValue = request.getValueParser().parse(request.getRawValue(), oldValue.getClass());
         ElementValueMapper.setValue(submodelElement, newValue);
-        assetConnectionManager.setValue(reference, newValue);
+        if (!request.isInternal()) {
+            assetConnectionManager.setValue(reference, newValue);
+        }
         try {
             persistence.put(null, reference, submodelElement);
         }
