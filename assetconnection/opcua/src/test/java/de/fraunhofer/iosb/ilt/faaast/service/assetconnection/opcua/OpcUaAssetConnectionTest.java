@@ -151,7 +151,6 @@ public class OpcUaAssetConnectionTest {
     @Test
     public void testConnectBasic256Sha256Anonymous() throws Exception {
         List<EndpointSecurityConfiguration> configurations = EndpointSecurityConfiguration.POLICY_BASIC256SHA256;
-        configurations = List.of(EndpointSecurityConfiguration.BASIC256SHA256_SIGN_HTTPS);
         EmbeddedOpcUaServer server = startServer(
                 EmbeddedOpcUaServerConfig.builder()
                         .endpointSecurityConfigurations(configurations)
@@ -857,8 +856,7 @@ public class OpcUaAssetConnectionTest {
 
     @Test
     @Ignore("Helper method for generating resources")
-    public void generateClientCertificateStoreForTesting() throws IOException, GeneralSecurityException, URISyntaxException {
-        // TODO generate client-authentication.p12
+    public void generateClientApplicationCertificateStoreForTesting() throws IOException, GeneralSecurityException, URISyntaxException {
         generateCertificateStoreForTesting(
                 CLIENT_APPLICATION_CERTIFICATE_FILE,
                 OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO,
@@ -866,15 +864,27 @@ public class OpcUaAssetConnectionTest {
     }
 
 
+    @Test
+    //@Ignore("Helper method for generating resources")
+    public void generateClientAuthenticationCertificateStoreForTesting() throws IOException, GeneralSecurityException, URISyntaxException {
+        generateCertificateStoreForTesting(
+                CLIENT_AUTHENTICATION_CERTIFICATE_FILE,
+                OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO,
+                CLIENT_AUTHENTICATION_CERTIFICATE_PASSWORD);
+    }
+
+
     private void generateCertificateStoreForTesting(String filename, CertificateInformation certificateInformation, String password)
             throws IOException, GeneralSecurityException, URISyntaxException {
+        File file = Path.of(Thread.currentThread().getContextClassLoader().getResource("").toURI())
+                .resolve("../../src/test/resources/")
+                .resolve(filename)
+                .toFile();
         KeystoreHelper.save(
-                Path.of(Thread.currentThread().getContextClassLoader().getResource("").toURI())
-                        .resolve("../../src/test/resources/")
-                        .resolve(filename)
-                        .toFile(),
+                file,
                 KeystoreHelper.generateSelfSigned(certificateInformation),
                 password);
+        Assert.assertTrue(file.exists());
     }
 
 }
