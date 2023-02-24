@@ -29,6 +29,10 @@
 	*   Major code refactoring
 *   Persistence
 	*   Major code refactoring
+*   Asset Connection
+	*   Fixed endless feedback loop when adding a subscription provider and value provider to the same element
+	*   OPC UA
+		*   fixed deserialization error when using operation provider with argument mappings
 *   Miscellaneous
 	*   Now using dockerfile to build docker container instead of jib maven plugin
 

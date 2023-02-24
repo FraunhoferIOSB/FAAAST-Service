@@ -761,7 +761,10 @@ public class OpcUaAssetConnectionTest {
                 null,
                 null,
                 Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")),
-                List.of(new ArgumentMapping("x_aas", "x")),
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_aas")
+                        .argumentName("x")
+                        .build()),
                 null);
         assertInvokeOperation(server,
                 nodeIdSqrt,
@@ -771,7 +774,10 @@ public class OpcUaAssetConnectionTest {
                 null,
                 Map.of("x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
                 null,
-                List.of(new ArgumentMapping("x_sqrt_aas", "x_sqrt")));
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_sqrt_aas")
+                        .argumentName("x_sqrt")
+                        .build()));
         assertInvokeOperation(server,
                 nodeIdSqrt,
                 true,
@@ -781,8 +787,14 @@ public class OpcUaAssetConnectionTest {
                 Map.of("x_aas", PropertyValue.of(Datatype.DOUBLE, "4.0"),
                         "x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
                 Map.of("x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
-                List.of(new ArgumentMapping("x_aas", "x")),
-                List.of(new ArgumentMapping("x_sqrt_aas", "x_sqrt")));
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_aas")
+                        .argumentName("x")
+                        .build()),
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_sqrt_aas")
+                        .argumentName("x_sqrt")
+                        .build()));
         assertInvokeOperation(server,
                 nodeIdSqrt,
                 false,
@@ -792,8 +804,14 @@ public class OpcUaAssetConnectionTest {
                 Map.of("x_aas", PropertyValue.of(Datatype.DOUBLE, "4.0"),
                         "x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
                 Map.of("x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
-                List.of(new ArgumentMapping("x_aas", "x")),
-                List.of(new ArgumentMapping("x_sqrt_aas", "x_sqrt")));
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_aas")
+                        .argumentName("x")
+                        .build()),
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_sqrt_aas")
+                        .argumentName("x_sqrt")
+                        .build()));
         server.shutdown();
     }
 
