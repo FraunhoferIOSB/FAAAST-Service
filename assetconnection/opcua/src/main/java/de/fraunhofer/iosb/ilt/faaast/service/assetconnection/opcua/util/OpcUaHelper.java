@@ -40,7 +40,6 @@ import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.IdentityProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.sdk.client.api.identity.X509IdentityProvider;
-import org.eclipse.milo.opcua.stack.client.DiscoveryClient;
 import org.eclipse.milo.opcua.stack.client.security.ClientCertificateValidator;
 import org.eclipse.milo.opcua.stack.client.security.DefaultClientCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
@@ -53,7 +52,6 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
-import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 import org.eclipse.milo.opcua.stack.core.util.CertificateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -220,41 +218,6 @@ public class OpcUaHelper {
     }
 
 
-    private static EndpointDescription findBestMatchingEndpoint(OpcUaAssetConnectionConfig config) throws AssetConnectionException {
-        try {
-            return DiscoveryClient.getEndpoints(config.getHost()).get().stream()
-                    .filter(e -> e.getSecurityPolicyUri().equals(config.getSecurityPolicy().getUri()))
-                    .filter(e -> e.getSecurityMode() == config.getSecurityMode())
-                    .filter(e -> Objects.equals(config.getTransportProfile().getUri(), e.getTransportProfileUri()))
-                    .findFirst()
-                    .orElseThrow(() -> new AssetConnectionException(
-                            String.format(
-                                    "No matching endpoint found (host: %s, security policy: %s, security mode: %s)",
-                                    config.getHost(),
-                                    config.getSecurityPolicy(),
-                                    config.getSecurityMode())));
-        }
-        catch (InterruptedException | ExecutionException e) {
-            if (!config.getHost().endsWith("/discovery")) {
-                StringBuilder discoveryUrl = new StringBuilder(config.getHost());
-                if (!config.getHost().endsWith("/")) {
-                    discoveryUrl.append("/");
-                }
-                discoveryUrl.append("discovery");
-                config.setHost(discoveryUrl.toString());
-                return findBestMatchingEndpoint(config);
-            }
-            else {
-                throw new AssetConnectionException(String.format(
-                        "Unable to fetch available endpoints (host: %s)",
-                        config.getHost(),
-                        config.getSecurityPolicy(),
-                        config.getSecurityMode()), e);
-            }
-        }
-    }
-
-
     private static Optional<CertificateData> loadCertificate(File file, String password) {
         try {
             return Optional.of(KeystoreHelper.load(file, password));
@@ -340,15 +303,15 @@ public class OpcUaHelper {
         catch (IOException e) {
             throw new ConfigurationInitializationException("unable to initialize OPC UA client security", e);
         }
-        EndpointDescription endpoint = findBestMatchingEndpoint(config);
-        LOGGER.debug("using endpoint: {}", endpoint);
 
         IdentityProvider identityProvider = getIdentityProvider(config);
         try {
             return OpcUaClient.create(
                     config.getHost(),
                     endpoints -> endpoints.stream()
-                            .filter(e -> Objects.equals(endpoint, e))
+                            .filter(e -> e.getSecurityPolicyUri().equals(config.getSecurityPolicy().getUri()))
+                            .filter(e -> e.getSecurityMode() == config.getSecurityMode())
+                            .filter(e -> Objects.equals(config.getTransportProfile().getUri(), e.getTransportProfileUri()))
                             .findFirst(),
                     configBuilder -> configBuilder
                             .setApplicationName(LocalizedText.english(OpcUaConstants.CERTIFICATE_APPLICATION_NAME))
