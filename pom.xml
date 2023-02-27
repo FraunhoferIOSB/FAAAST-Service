@@ -96,7 +96,7 @@
         <maven.plugin.assembly.version>3.5.0</maven.plugin.assembly.version>
         <maven.plugin.buildhelper.version>3.3.0</maven.plugin.buildhelper.version>
         <maven.plugin.checkstyle.version>3.2.1</maven.plugin.checkstyle.version>
-        <maven.plugin.compiler.version>3.10.1</maven.plugin.compiler.version>
+        <maven.plugin.compiler.version>3.11.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.5.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.0.0-M9</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>5.0.0</maven.plugin.git.commit.id.version>
