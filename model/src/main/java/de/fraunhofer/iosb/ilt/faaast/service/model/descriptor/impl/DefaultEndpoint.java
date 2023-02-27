@@ -84,6 +84,13 @@ public class DefaultEndpoint implements Endpoint {
 
     public abstract static class AbstractBuilder<T extends DefaultEndpoint, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
+        public B from(Endpoint other) {
+            interfaceInformation(other.getInterfaceInformation());
+            protocolInformation(other.getProtocolInformation());
+            return getSelf();
+        }
+
+
         public B interfaceInformation(String value) {
             getBuildingInstance().setInterfaceInformation(value);
             return getSelf();

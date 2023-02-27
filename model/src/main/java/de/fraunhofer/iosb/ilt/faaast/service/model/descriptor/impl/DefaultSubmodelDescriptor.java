@@ -77,6 +77,19 @@ public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor im
         }
 
 
+        public B from(SubmodelDescriptor other) {
+            if (other != null) {
+                idShort(other.getIdShort());
+                endpoints(other.getEndpoints());
+                administration(other.getAdministration());
+                descriptions(other.getDescriptions());
+                identification(other.getIdentification());
+                semanticId(other.getSemanticId());
+            }
+            return getSelf();
+        }
+
+
         public B from(Submodel parent) {
             if (parent != null) {
                 idShort(parent.getIdShort());
