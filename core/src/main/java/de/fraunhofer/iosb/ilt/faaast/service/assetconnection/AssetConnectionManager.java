@@ -62,6 +62,7 @@ public class AssetConnectionManager {
                                     .idType(IdentifierType.IRI)
                                     .build())
                             .path(subscriptionInfo.getKey().getKeys().subList(1, subscriptionInfo.getKey().getKeys().size()))
+                            .internal()
                             .value(data)
                             .build());
                 });

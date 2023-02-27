@@ -91,9 +91,10 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
      *
      * @param config the provided configuration to use for this connection
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException if initializations
-     *             fails
+     *             fails because of wrong configuration
+     * @throws AssetConnectionException if initialization fails because of underlying asset connection
      */
-    protected abstract void initConnection(C config) throws ConfigurationInitializationException;
+    protected abstract void initConnection(C config) throws ConfigurationInitializationException, AssetConnectionException;
 
 
     @Override
@@ -103,8 +104,8 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         this.config = config;
         this.serviceContext = serviceContext;
-        initConnection(config);
         try {
+            initConnection(config);
             for (var providerConfig: config.getValueProviders().entrySet()) {
                 registerValueProvider(providerConfig.getKey(), providerConfig.getValue());
             }

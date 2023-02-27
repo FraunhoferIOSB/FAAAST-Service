@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config;
 
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
@@ -24,12 +25,6 @@ public class ArgumentMapping {
 
     private String idShort;
     private String argumentName;
-
-    public ArgumentMapping(String idShort, String argumentName) {
-        this.idShort = idShort;
-        this.argumentName = argumentName;
-    }
-
 
     public String getIdShort() {
         return idShort;
@@ -68,5 +63,37 @@ public class ArgumentMapping {
     @Override
     public int hashCode() {
         return Objects.hash(idShort, argumentName);
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder extends ExtendableBuilder<ArgumentMapping, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected ArgumentMapping newBuildingInstance() {
+            return new ArgumentMapping();
+        }
+
+
+        public Builder idShort(String value) {
+            getBuildingInstance().setIdShort(value);
+            return getSelf();
+        }
+
+
+        public Builder argumentName(String value) {
+            getBuildingInstance().setArgumentName(value);
+            return getSelf();
+        }
+
     }
 }

@@ -22,6 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.Va
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.ArgumentMapping;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -76,7 +77,7 @@ public class OpcUaOperationProvider extends AbstractOpcUaProvider<OpcUaOperation
             OpcUaClient client,
             Reference reference,
             OpcUaOperationProviderConfig providerConfig,
-            ValueConverter valueConverter) throws AssetConnectionException {
+            ValueConverter valueConverter) throws AssetConnectionException, InvalidConfigurationException {
         super(serviceContext, client, reference, providerConfig, valueConverter);
         init();
     }

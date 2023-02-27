@@ -23,7 +23,6 @@ import com.github.valfirst.slf4jtest.TestLogger;
 import com.github.valfirst.slf4jtest.TestLoggerFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.ArgumentMapping;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
@@ -55,7 +54,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
-import org.eclipse.milo.opcua.sdk.client.api.identity.AnonymousProvider;
 import org.eclipse.milo.opcua.sdk.server.identity.AnonymousIdentityValidator;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
@@ -67,9 +65,16 @@ import uk.org.lidalia.slf4jext.Level;
 public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
 
     @Test
-    public void testSubscriptionProvider()
+    public void testSubscriptionProviderWithScalarValues()
             throws AssetConnectionException, InterruptedException, ValueFormatException, ExecutionException, UaException, ConfigurationInitializationException, Exception {
-        assertSubscribe("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "0.1"));
+        assertSubscribe("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "0.1"), null);
+    }
+
+
+    @Test
+    public void testSubscriptionProviderWithArrayValues()
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ExecutionException, UaException, ConfigurationInitializationException, Exception {
+        assertSubscribe("ns=2;s=HelloWorld/MatrixTypes/DoubleArray", PropertyValue.of(Datatype.DOUBLE, "5.3"), "[3][2]");
     }
 
 
@@ -95,51 +100,44 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 .build();
         doReturn(infoExample).when(serviceContext).getTypeInfo(reference);
         OpcUaAssetConnection connection = new OpcUaAssetConnection();
+        OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
+                .host(localServerUrl)
+                .subscriptionProvider(reference, OpcUaSubscriptionProviderConfig.builder()
+                        .nodeId(nodeId)
+                        .interval(interval)
+                        .build())
+                .valueProvider(reference,
+                        OpcUaValueProviderConfig.builder()
+                                .nodeId(nodeId)
+                                .build())
+                .build();
         connection.init(
                 CoreConfig.builder()
                         .build(),
-                OpcUaAssetConnectionConfig.builder()
-                        .host(localServerUrl)
-                        .subscriptionProvider(reference, OpcUaSubscriptionProviderConfig.builder()
-                                .nodeId(nodeId)
-                                .interval(interval)
-                                .build())
-                        .valueProvider(reference,
-                                OpcUaValueProviderConfig.builder()
-                                        .nodeId(nodeId)
-                                        .build())
-                        .build(),
+                config,
                 serviceContext);
-        long waitTime = 5 * interval;
-        TimeUnit waitTimeUnit = isDebugging() ? TimeUnit.SECONDS : TimeUnit.MILLISECONDS;
         // first value should always be the current value
-        OpcUaClient client = OpcUaHelper.createClient(localServerUrl, AnonymousProvider.INSTANCE);
+        OpcUaClient client = OpcUaHelper.connect(config);
         client.connect().get();
         DataValue originalValue = OpcUaHelper.readValue(client, nodeId);
         client.disconnect().get();
         final AtomicReference<DataElementValue> originalValueResponse = new AtomicReference<>();
         CountDownLatch conditionOriginalValue = new CountDownLatch(1);
-        connection.getSubscriptionProviders().get(reference).addNewDataListener(new NewDataListener() {
-            @Override
-            public void newDataReceived(DataElementValue data) {
-                originalValueResponse.set(data);
-                conditionOriginalValue.countDown();
-            }
+        connection.getSubscriptionProviders().get(reference).addNewDataListener((DataElementValue data) -> {
+            originalValueResponse.set(data);
+            conditionOriginalValue.countDown();
         });
-        Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", waitTime, waitTimeUnit),
-                conditionOriginalValue.await(waitTime, waitTimeUnit));
+        Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", getWaitTime(), TimeUnit.MILLISECONDS),
+                conditionOriginalValue.await(getWaitTime(), TimeUnit.MILLISECONDS));
         Assert.assertEquals(
                 PropertyValue.of(expected.getValue().getDataType(), originalValue.getValue().getValue().toString()),
                 originalValueResponse.get());
         // second value should be new value
         final AtomicReference<DataElementValue> newValueResponse = new AtomicReference<>();
         CountDownLatch conditionNewValue = new CountDownLatch(1);
-        connection.getSubscriptionProviders().get(reference).addNewDataListener(new NewDataListener() {
-            @Override
-            public void newDataReceived(DataElementValue data) {
-                newValueResponse.set(data);
-                conditionNewValue.countDown();
-            }
+        connection.getSubscriptionProviders().get(reference).addNewDataListener((DataElementValue data) -> {
+            newValueResponse.set(data);
+            conditionNewValue.countDown();
         });
         localServer.shutdown().get();
         await().atMost(5, TimeUnit.SECONDS)
@@ -147,14 +145,14 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
         localServer = new EmbeddedOpcUaServer(AnonymousIdentityValidator.INSTANCE, localTcpPort, localHttpsPort);
         localServer.startup().get();
         connection.getValueProviders().get(reference).setValue(expected);
-        Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", waitTime, waitTimeUnit),
-                conditionNewValue.await(waitTime, waitTimeUnit));
+        Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", getWaitTime(), TimeUnit.MILLISECONDS),
+                conditionNewValue.await(getWaitTime(), TimeUnit.MILLISECONDS));
         Assert.assertEquals(expected, newValueResponse.get());
         localServer.shutdown().get();
     }
 
 
-    private void assertSubscribe(String nodeId, PropertyValue expected)
+    private void assertSubscribe(String nodeId, PropertyValue expected, String elementIndex)
             throws AssetConnectionException, InterruptedException, ExecutionException, UaException, ConfigurationInitializationException, Exception {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         long interval = 1000;
@@ -165,65 +163,57 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 .build();
         doReturn(infoExample).when(serviceContext).getTypeInfo(reference);
         OpcUaAssetConnection connection = new OpcUaAssetConnection();
+        OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
+                .host(serverUrl)
+                .subscriptionProvider(reference, OpcUaSubscriptionProviderConfig.builder()
+                        .nodeId(nodeId)
+                        .interval(interval)
+                        .arrayIndex(elementIndex)
+                        .build())
+                .valueProvider(reference,
+                        OpcUaValueProviderConfig.builder()
+                                .nodeId(nodeId)
+                                .arrayIndex(elementIndex)
+                                .build())
+                .build();
         connection.init(
                 CoreConfig.builder()
                         .build(),
-                OpcUaAssetConnectionConfig.builder()
-                        .host(serverUrl)
-                        .subscriptionProvider(reference, OpcUaSubscriptionProviderConfig.builder()
-                                .nodeId(nodeId)
-                                .interval(interval)
-                                .build())
-                        .valueProvider(reference,
-                                OpcUaValueProviderConfig.builder()
-                                        .nodeId(nodeId)
-                                        .build())
-                        .build(),
+                config,
                 serviceContext);
-        long waitTime = 5 * interval;
-        TimeUnit waitTimeUnit = isDebugging() ? TimeUnit.SECONDS : TimeUnit.MILLISECONDS;
         // first value should always be the current value
-        OpcUaClient client = OpcUaHelper.createClient(serverUrl, AnonymousProvider.INSTANCE);
-        client.connect().get();
+        OpcUaClient client = OpcUaHelper.connect(config);
         DataValue originalValue = OpcUaHelper.readValue(client, nodeId);
         client.disconnect().get();
         final AtomicReference<DataElementValue> originalValueResponse = new AtomicReference<>();
         CountDownLatch conditionOriginalValue = new CountDownLatch(1);
-        connection.getSubscriptionProviders().get(reference).addNewDataListener(new NewDataListener() {
-            @Override
-            public void newDataReceived(DataElementValue data) {
-                originalValueResponse.set(data);
-                conditionOriginalValue.countDown();
-            }
+        connection.getSubscriptionProviders().get(reference).addNewDataListener((DataElementValue data) -> {
+            originalValueResponse.set(data);
+            conditionOriginalValue.countDown();
         });
-        Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", waitTime, waitTimeUnit),
-                conditionOriginalValue.await(waitTime, waitTimeUnit));
-        Assert.assertEquals(
-                PropertyValue.of(expected.getValue().getDataType(), originalValue.getValue().getValue().toString()),
-                originalValueResponse.get());
+        Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", getWaitTime(), TimeUnit.MILLISECONDS),
+                conditionOriginalValue.await(getWaitTime(), TimeUnit.MILLISECONDS));
+        if ((elementIndex == null) || elementIndex.equals("")) {
+            Assert.assertEquals(
+                    PropertyValue.of(expected.getValue().getDataType(), originalValue.getValue().getValue().toString()),
+                    originalValueResponse.get());
+        }
         // second value should be new value
         final AtomicReference<DataElementValue> newValueResponse = new AtomicReference<>();
         CountDownLatch conditionNewValue = new CountDownLatch(1);
-        connection.getSubscriptionProviders().get(reference).addNewDataListener(new NewDataListener() {
-            @Override
-            public void newDataReceived(DataElementValue data) {
-                newValueResponse.set(data);
-                conditionNewValue.countDown();
-            }
+        connection.getSubscriptionProviders().get(reference).addNewDataListener((DataElementValue data) -> {
+            newValueResponse.set(data);
+            conditionNewValue.countDown();
         });
         connection.getValueProviders().get(reference).setValue(expected);
-        Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", waitTime, waitTimeUnit),
-                conditionNewValue.await(waitTime, waitTimeUnit));
+        Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", getWaitTime(), TimeUnit.MILLISECONDS),
+                conditionNewValue.await(getWaitTime(), TimeUnit.MILLISECONDS));
         Assert.assertEquals(expected, newValueResponse.get());
     }
 
 
-    private static boolean isDebugging() {
-        return java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
-    }
-
-
-    private void assertWriteReadValue(String nodeId, PropertyValue expected) throws AssetConnectionException, InterruptedException, ConfigurationInitializationException {
+    private void assertWriteReadValue(String nodeId, PropertyValue expected, String arrayIndex)
+            throws AssetConnectionException, InterruptedException, ConfigurationInitializationException {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
@@ -239,6 +229,7 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                         .valueProvider(reference,
                                 OpcUaValueProviderConfig.builder()
                                         .nodeId(nodeId)
+                                        .arrayIndex(arrayIndex)
                                         .build())
                         .host(serverUrl)
                         .build(),
@@ -251,17 +242,28 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
 
 
     @Test
-    public void testValueProvider() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
-        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "3.3"));
-        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/String", PropertyValue.of(Datatype.STRING, "hello world!"));
-        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Integer", PropertyValue.of(Datatype.INTEGER, "42"));
-        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Boolean", PropertyValue.of(Datatype.BOOLEAN, "true"));
+    public void testValueProviderWithScalarValues() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
+        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Double", PropertyValue.of(Datatype.DOUBLE, "3.3"), null);
+        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/String", PropertyValue.of(Datatype.STRING, "hello world!"), null);
+        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Integer", PropertyValue.of(Datatype.INTEGER, "42"), null);
+        assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/Boolean", PropertyValue.of(Datatype.BOOLEAN, "true"), null);
         assertWriteReadValue("ns=2;s=HelloWorld/ScalarTypes/DateTime",
-                PropertyValue.of(Datatype.DATE_TIME, ZonedDateTime.of(2022, 11, 28, 14, 12, 35, 0, ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE)).toString()));
+                PropertyValue.of(Datatype.DATE_TIME, ZonedDateTime.of(2022, 11, 28, 14, 12, 35, 0, ZoneId.of(DateTimeValue.DEFAULT_TIMEZONE)).toString()), null);
     }
 
 
-    private void assertInvokeOperation(String nodeId,
+    @Test
+    public void testValueProviderWithArrayValues() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
+        assertWriteReadValue("ns=2;s=HelloWorld/ArrayTypes/Int32Array", PropertyValue.of(Datatype.INT, "78"), "[2]");
+        assertWriteReadValue("ns=2;s=HelloWorld/ArrayTypes/FloatArray", PropertyValue.of(Datatype.FLOAT, "24.5"), "[1]");
+        assertWriteReadValue("ns=2;s=HelloWorld/ArrayTypes/StringArray", PropertyValue.of(Datatype.STRING, "new test value"), "[3]");
+        assertWriteReadValue("ns=2;s=HelloWorld/MatrixTypes/DoubleArray", PropertyValue.of(Datatype.DOUBLE, "789.5"), "[2][4]");
+        assertWriteReadValue("ns=2;s=HelloWorld/MatrixTypes/BooleanArray", PropertyValue.of(Datatype.BOOLEAN, "true"), "[1][0]");
+    }
+
+
+    private void assertInvokeOperation(
+                                       String nodeId,
                                        boolean sync,
                                        Map<String, PropertyValue> input,
                                        Map<String, PropertyValue> inoutput,
@@ -406,7 +408,10 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 null,
                 null,
                 Map.of("x_sqrt", PropertyValue.of(Datatype.DOUBLE, "2.0")),
-                List.of(new ArgumentMapping("x_aas", "x")),
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_aas")
+                        .argumentName("x")
+                        .build()),
                 null);
         assertInvokeOperation(nodeIdSqrt,
                 false,
@@ -415,7 +420,10 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 null,
                 Map.of("x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
                 null,
-                List.of(new ArgumentMapping("x_sqrt_aas", "x_sqrt")));
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_sqrt_aas")
+                        .argumentName("x_sqrt")
+                        .build()));
         assertInvokeOperation(nodeIdSqrt,
                 true,
                 null,
@@ -424,8 +432,14 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 Map.of("x_aas", PropertyValue.of(Datatype.DOUBLE, "4.0"),
                         "x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
                 Map.of("x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
-                List.of(new ArgumentMapping("x_aas", "x")),
-                List.of(new ArgumentMapping("x_sqrt_aas", "x_sqrt")));
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_aas")
+                        .argumentName("x")
+                        .build()),
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_sqrt_aas")
+                        .argumentName("x_sqrt")
+                        .build()));
         assertInvokeOperation(nodeIdSqrt,
                 false,
                 null,
@@ -434,7 +448,14 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 Map.of("x_aas", PropertyValue.of(Datatype.DOUBLE, "4.0"),
                         "x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
                 Map.of("x_sqrt_aas", PropertyValue.of(Datatype.DOUBLE, "2.0")),
-                List.of(new ArgumentMapping("x_aas", "x")),
-                List.of(new ArgumentMapping("x_sqrt_aas", "x_sqrt")));
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_aas")
+                        .argumentName("x")
+                        .build()),
+                List.of(ArgumentMapping.builder()
+                        .idShort("x_sqrt_aas")
+                        .argumentName("x_sqrt")
+                        .build()));
     }
+
 }
