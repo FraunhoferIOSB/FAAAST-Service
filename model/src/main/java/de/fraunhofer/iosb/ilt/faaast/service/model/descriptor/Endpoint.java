@@ -14,13 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
-import java.io.Serializable;
-
-
 /**
  * Registry Descriptor for Endpoint.
  */
-public interface Endpoint extends Serializable {
+public interface Endpoint {
 
     public String getInterfaceInformation();
 

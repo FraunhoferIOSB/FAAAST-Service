@@ -14,13 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor;
 
-import java.io.Serializable;
-
-
 /**
  * Registry Descriptor for ProtocolInformation.
  */
-public interface ProtocolInformation extends Serializable {
+public interface ProtocolInformation {
 
     public String getEndpointAddress();
 

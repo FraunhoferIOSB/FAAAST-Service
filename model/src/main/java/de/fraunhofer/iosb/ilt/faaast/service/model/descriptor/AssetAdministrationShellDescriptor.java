@@ -19,14 +19,13 @@ import io.adminshell.aas.v3.model.Identifier;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.Reference;
-import java.io.Serializable;
 import java.util.List;
 
 
 /**
  * Registry Descriptor interface for AssetAdministrationShell.
  */
-public interface AssetAdministrationShellDescriptor extends Serializable {
+public interface AssetAdministrationShellDescriptor {
 
     public String getIdShort();
 
