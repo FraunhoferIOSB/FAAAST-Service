@@ -178,7 +178,7 @@ public abstract class AbstractInfluxLinkedSegmentProvider<T extends AbstractInfl
      * @return the parse value
      * @throws ValueFormatException if parsign fails
      */
-    protected static TypedValue<?> parseValue(Object value, Datatype datatype) throws ValueFormatException {
+    protected static TypedValue parseValue(Object value, Datatype datatype) throws ValueFormatException {
         Object valuePreprocessed = value;
         switch (datatype) {
             case BYTE:

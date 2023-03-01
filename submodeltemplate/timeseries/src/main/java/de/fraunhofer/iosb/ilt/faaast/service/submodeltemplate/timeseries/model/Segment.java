@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.ZonedDateTimeComparator;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
@@ -141,7 +140,7 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
             x -> new IntervalWithUnit(Long.parseLong(x.getValue()), TimeUnitHelper.fromSemanticId(x.getSemanticId())));
 
     @JsonIgnore
-    private Wrapper<ZonedDateTime, Property> start = new ValueWrapper<ZonedDateTime, Property>(
+    private Wrapper<ZonedDateTime, Property> start = new ValueWrapper<>(
             values,
             null,
             true,
@@ -343,10 +342,9 @@ public abstract class Segment extends ExtendableSubmodelElementCollection {
      * @param smc the {@link io.adminshell.aas.v3.model.SubmodelElementCollection} to parse
      * @return the parsed {@link io.adminshell.aas.v3.model.SubmodelElementCollection} as {@link Segment}, or null if
      *         input is null
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException if parsing values fails
      * @throws IllegalArgumentException if segment type is not supported
      */
-    public static Segment of(SubmodelElementCollection smc) throws ValueFormatException {
+    public static Segment of(SubmodelElementCollection smc) {
         if (smc == null) {
             return null;
         }

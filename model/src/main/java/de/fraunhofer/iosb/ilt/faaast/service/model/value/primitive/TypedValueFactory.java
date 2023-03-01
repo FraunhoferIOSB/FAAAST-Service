@@ -34,7 +34,7 @@ public class TypedValueFactory {
      * @return typed value representation
      * @throws ValueFormatException if value cannot be converted to datatype
      */
-    public static TypedValue<?> create(String datatypeName, String value) throws ValueFormatException {
+    public static TypedValue create(String datatypeName, String value) throws ValueFormatException {
         return create(Datatype.fromName(datatypeName), value);
     }
 
@@ -47,7 +47,7 @@ public class TypedValueFactory {
      * @param value value in string representation
      * @return typed value representation
      */
-    public static TypedValue<?> createSafe(String datatypeName, String value) {
+    public static TypedValue createSafe(String datatypeName, String value) {
         return createSafe(Datatype.fromName(datatypeName), value);
     }
 
@@ -62,7 +62,7 @@ public class TypedValueFactory {
      * @throws IllegalArgumentException if datatype is null
      * @throws RuntimeException if instantiating new class fails
      */
-    public static TypedValue<?> createSafe(Datatype datatype, String value) {
+    public static TypedValue createSafe(Datatype datatype, String value) {
         try {
             return create(datatype, value);
         }
@@ -82,7 +82,7 @@ public class TypedValueFactory {
      * @throws ValueFormatException if value cannot be converted to datatype
      * @throws RuntimeException if instantiating new class fails
      */
-    public static TypedValue<?> create(Datatype datatype, String value) throws ValueFormatException {
+    public static TypedValue create(Datatype datatype, String value) throws ValueFormatException {
         Ensure.requireNonNull(datatype, "datatype must be non-null");
         try {
             Constructor<? extends TypedValue> constructor = datatype.getImplementation().getConstructor();

@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodel;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.ExtendableSubmodelElementCollection;
@@ -114,14 +113,7 @@ public class TimeSeries extends ExtendableSubmodel {
                 SubmodelElementCollection.class,
                 x -> x,
                 x -> Constants.SEGMENTS_SEMANTIC_IDS.contains(x.getSemanticId()),
-                x -> {
-                    try {
-                        return Segment.of(x);
-                    }
-                    catch (ValueFormatException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                x -> Segment.of(x));
         segmentsList.withAdditionalValues(segments);
         submodelElements.add(segmentsList);
         this.idShort = Constants.TIMESERIES_SUBMODEL_ID_SHORT;
