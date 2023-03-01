@@ -33,6 +33,8 @@
 	*   Fixed endless feedback loop when adding a subscription provider and value provider to the same element
 	*   OPC UA
 		*   fixed deserialization error when using operation provider with argument mappings
+	*   HTTP
+		*   subscription provider now only fires when then value has changed (before that it fired with any read)
 *   Miscellaneous
 	*   Now using dockerfile to build docker container instead of jib maven plugin
 

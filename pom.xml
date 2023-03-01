@@ -72,21 +72,21 @@
         <aas.dataformat.version>1.2.0</aas.dataformat.version>
         <aas.model.version>1.2.0</aas.model.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <checkstyle.version>10.7.0</checkstyle.version>
-        <classgraph.version>4.8.154</classgraph.version>
+        <checkstyle.version>10.8.0</checkstyle.version>
+        <classgraph.version>4.8.155</classgraph.version>
         <commons.codec.version>1.15</commons.codec.version>
         <commons.io.version>2.11.0</commons.io.version>
         <commons.lang3.version>3.12.0</commons.lang3.version>
         <container.image.name>fraunhoferiosb/faaast-service</container.image.name>
         <container.image.tag>latest</container.image.tag>
-        <equalsverifier.version>3.13.2</equalsverifier.version>
+        <equalsverifier.version>3.14</equalsverifier.version>
         <guava.version>31.1-jre</guava.version>
         <jackson.databind.version>2.14.2</jackson.databind.version>
         <jackson.version>2.14.2</jackson.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <janino.version>3.1.9</janino.version>
         <jena.version>4.7.0</jena.version>
-        <jetty.version>11.0.13</jetty.version>
+        <jetty.version>11.0.14</jetty.version>
         <jsonassert.version>1.5.1</jsonassert.version>
         <jsonpath.version>2.7.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
@@ -96,7 +96,7 @@
         <maven.plugin.assembly.version>3.5.0</maven.plugin.assembly.version>
         <maven.plugin.buildhelper.version>3.3.0</maven.plugin.buildhelper.version>
         <maven.plugin.checkstyle.version>3.2.1</maven.plugin.checkstyle.version>
-        <maven.plugin.compiler.version>3.10.1</maven.plugin.compiler.version>
+        <maven.plugin.compiler.version>3.11.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.5.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.0.0-M9</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>5.0.0</maven.plugin.git.commit.id.version>
@@ -106,14 +106,14 @@
         <maven.plugin.javadoc.version>3.5.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>8.1.0</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>8.1.2</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.6.3</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>4.10.0-37</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.4.1</maven.plugin.shade.version>
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
-        <maven.plugin.spotless.version>2.33.0</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>2.34.0</maven.plugin.spotless.version>
         <milo.version>0.6.8</milo.version>
         <mockito.version>5.1.1</mockito.version>
         <moquette.version>0.15.1</moquette.version>
