@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -108,19 +109,13 @@ public class ValueConverter {
      * @throws ValueConversionException if value or targetType are null or conversion fails
      */
     public TypedValue<?> convert(Variant value, Datatype targetType) throws ValueConversionException {
-        if (value == null) {
-            throw new ValueConversionException("value must be non-null");
-        }
-        if (targetType == null) {
-            throw new ValueConversionException("targetType value must be non-null");
-        }
-        if (value.getDataType().isEmpty()) {
-            throw new ValueConversionException(String.format("unabled to determine datatype of OPC UA value (value: %s)", value));
-        }
+        Ensure.requireNonNull(value, new ValueConversionException("value must be non-null"));
+        Ensure.requireNonNull(targetType, new ValueConversionException("targetType value must be non-null"));
+        Ensure.require(value.getDataType().isPresent(), new ValueConversionException(String.format("unable to determine datatype of OPC UA value (value: %s)", value)));
+
         Optional<NodeId> valueDatatype = value.getDataType().get().toNodeId(null);
-        if (valueDatatype.isEmpty()) {
-            throw new ValueConversionException(String.format("unabled to determine nodeId of datatype of OPC UA value (datatype: %s)", value.getDataType().get()));
-        }
+        Ensure.require(valueDatatype.isPresent(),
+                new ValueConversionException(String.format("unable to determine nodeId of datatype of OPC UA value (datatype: %s)", value.getDataType().get())));
         OpcUaToAasValueConverter converter = opcUaToAasConverters.getOrDefault(
                 new ConversionTypeInfo(targetType, valueDatatype.get()),
                 new DefaultConverter());

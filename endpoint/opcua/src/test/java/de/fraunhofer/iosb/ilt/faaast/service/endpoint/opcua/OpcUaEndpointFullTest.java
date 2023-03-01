@@ -65,6 +65,8 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import opc.i4aas.AASEntityType;
 import opc.i4aas.AASIdentifierTypeDataType;
 import opc.i4aas.AASKeyDataType;
@@ -84,8 +86,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Test class for the general OPC UA Endpoint test with the full example
- *
- * @author Tino Bischoff
  */
 public class OpcUaEndpointFullTest {
 
@@ -99,17 +99,16 @@ public class OpcUaEndpointFullTest {
     private static TestService service;
     private static int aasns;
 
-    /**
-     * Initialize and start the test.
-     *
-     * @throws Exception If the operation fails
-     */
     @BeforeClass
     public static void startTest() throws Exception {
 
         OpcUaEndpointConfig config = new OpcUaEndpointConfig();
         config.setTcpPort(OPC_TCP_PORT);
         config.setSecondsTillShutdown(0);
+        config.setAllowAnonymous(true);
+        config.setServerCertificateBasePath(TestConstants.SERVER_CERT_PATH);
+        config.setUserCertificateBasePath(TestConstants.USER_CERT_PATH);
+        config.setDiscoveryServerUrl(null);
 
         TestAssetConnectionConfig assetConnectionConfig = new TestAssetConnectionConfig();
 
@@ -120,20 +119,30 @@ public class OpcUaEndpointFullTest {
         Reference ref = new DefaultReference.Builder().keys(keys).build();
         List<OperationVariable> outputArgs = new ArrayList<>();
         outputArgs.add(new DefaultOperationVariable.Builder().value(new DefaultProperty.Builder().idShort("Test Output 1").valueType("string").value("XYZ1").build()).build());
+
+        // register another Operation 
+        keys = new ArrayList<>();
+        keys.add(new DefaultKey.Builder().type(KeyElements.SUBMODEL).idType(KeyType.IRI).value("https://acplt.org/Test_Submodel_Mandatory").build());
+        keys.add(new DefaultKey.Builder().type(KeyElements.OPERATION).idType(KeyType.ID_SHORT).value("ExampleOperation").build());
+        Reference ref2 = new DefaultReference.Builder().keys(keys).build();
+
         assetConnectionConfig.setOperationProviders(new HashMap<Reference, TestOperationProviderConfig>() {
             {
                 put(ref, new TestOperationProviderConfig(outputArgs));
+                put(ref2, new TestOperationProviderConfig(null));
             }
         });
 
+        //assetConnection.registerOperationProvider(ref2, new TestOperationProviderConfig(null));
+
+        //        endpoint = new OpcUaEndpoint();
+        //        service = new TestService(endpoint, assetConnection, true);
+        //        endpoint.init(coreConfig, config, service);
         service = new TestService(config, assetConnectionConfig, true);
         service.start();
     }
 
 
-    /**
-     * Stop the test.
-     */
     @AfterClass
     public static void stopTest() {
         LOGGER.trace("stopTest");
@@ -144,12 +153,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for testing the OPC UA Endpoint
-     *
-     * @throws InterruptedException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
     public void testOpcUaEndpointFull() throws InterruptedException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -207,17 +210,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for writing a RelationshipElement. Writes the property in the OPC UA Server and checks the new value
-     * in the server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteRelationshipElementValue() throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -266,17 +258,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for writing a Value of a SubmodelElementCollection. Writes the property in the OPC UA Server and
-     * checks the new value in the server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteSubmodelElementCollectionValue()
             throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
@@ -320,17 +301,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for writing a Value of a SubmodelElementCollection. Writes the property in the OPC UA Server and
-     * checks the new value in the server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteSubmodelElementCollectionValue2()
             throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
@@ -369,17 +339,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for writing a Value of a SubmodelElementCollection. Writes the property in the OPC UA Server and
-     * checks the new value in the server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteSubmodelElementCollectionValue3()
             throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
@@ -423,17 +382,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for writing a GlobalAssetId of an Entity. Writes the property in the OPC UA Server and checks the new
-     * value in the server.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws StatusException If the operation fails
-     * @throws InterruptedException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
     @Test
     public void testWriteEntityGlobalAssetId()
             throws SecureIdentityException, IOException, ServiceException, StatusException, InterruptedException, ServiceResultException {
@@ -478,15 +426,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for successfully calling an operation.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws MethodCallStatusException If the operation fails
-     */
     @Test
     public void testCallOperationSuccess() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -543,15 +482,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for calling an operation with not enough arguments.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws MethodCallStatusException If the operation fails
-     */
     @Test
     public void testCallOperationArgsMissing() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -607,16 +537,7 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for adding a new property to an existing SubmodelElementCollection.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
-    @SuppressWarnings("java:S2925")
     public void testAddProperty() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
@@ -644,6 +565,7 @@ public class OpcUaEndpointFullTest {
         Assert.assertTrue("testAddProperty Browse Result Bad", bpres[0].getStatusCode().isBad());
 
         // Send event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementCreateEventMessage msg = new ElementCreateEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("https://acplt.org/Test_Submodel3").build())
@@ -658,7 +580,7 @@ public class OpcUaEndpointFullTest {
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the element is there now
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -671,16 +593,7 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for deleting a complete submodel.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
-    @SuppressWarnings("java:S2925")
     public void testDeleteSubmodel() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
@@ -709,13 +622,14 @@ public class OpcUaEndpointFullTest {
         Assert.assertTrue("testDeleteSubmodel Browse Result 2 Good", bpres[1].getStatusCode().isGood());
 
         // Send event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("https://acplt.org/Test_Submodel2_Mandatory").build())
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the element is not there anymore
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -729,16 +643,7 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for deleting a Capability.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws Exception If the operation fails
-     */
     @Test
-    @SuppressWarnings("java:S2925")
     public void testDeleteCapability() throws SecureIdentityException, IOException, ServiceException, Exception {
         UaClient client = new UaClient(ENDPOINT_URL);
         client.setSecurityMode(SecurityMode.NONE);
@@ -767,6 +672,7 @@ public class OpcUaEndpointFullTest {
         Assert.assertTrue("testDeleteCapability Browse Result 2 Good", bpres[1].getStatusCode().isGood());
 
         // Send event to MessageBus
+        CountDownLatch condition = new CountDownLatch(1);
         ElementDeleteEventMessage msg = new ElementDeleteEventMessage();
         msg.setElement(new DefaultReference.Builder()
                 .key(new DefaultKey.Builder().idType(KeyType.IRI).type(KeyElements.SUBMODEL).value("https://acplt.org/Test_Submodel_Template").build())
@@ -774,7 +680,7 @@ public class OpcUaEndpointFullTest {
                 .build());
         service.getMessageBus().publish(msg);
 
-        Thread.sleep(DEFAULT_TIMEOUT);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         // check that the element is not there anymore
         bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
@@ -788,15 +694,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for an OrderedSubmodelElementCollection.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     */
     @Test
     public void testOrderedSubmodelElementCollection() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -834,15 +731,6 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Test method for an UnorderedSubmodelElementCollection.
-     *
-     * @throws SecureIdentityException If the operation fails
-     * @throws IOException If the operation fails
-     * @throws ServiceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     */
     @Test
     public void testUnorderedSubmodelElementCollection() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, AddressSpaceException {
         UaClient client = new UaClient(ENDPOINT_URL);
@@ -939,15 +827,59 @@ public class OpcUaEndpointFullTest {
     }
 
 
-    /**
-     * Tests the submodel 1 (Identification).
-     *
-     * @param client The OPC UA Client.
-     * @param submodelNode The desired Submodel
-     * @throws ServiceException If the operation fails
-     * @throws AddressSpaceException If the operation fails
-     * @throws ServiceResultException If the operation fails
-     */
+    @Test
+    public void testCallOperationNoArgs() throws SecureIdentityException, IOException, ServiceException, ServiceResultException, MethodCallStatusException {
+        UaClient client = new UaClient(ENDPOINT_URL);
+        client.setSecurityMode(SecurityMode.NONE);
+        TestUtils.initialize(client);
+        client.connect();
+        System.out.println("client connected");
+
+        aasns = client.getAddressSpace().getNamespaceTable().getIndex(VariableIds.AASAssetAdministrationShellType_AssetInformation_AssetKind.getNamespaceUri());
+        int serverns = client.getAddressSpace().getNamespaceTable().getIndex(AasServiceNodeManager.NAMESPACE_URI);
+
+        List<RelativePath> relPath = new ArrayList<>();
+        List<RelativePathElement> browsePath = new ArrayList<>();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_OPERATION_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        browsePath.clear();
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.AAS_ENVIRONMENT_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_SUBMODEL_4_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(aasns, TestConstants.FULL_OPERATION_NAME)));
+        browsePath.add(new RelativePathElement(Identifiers.HierarchicalReferences, false, true, new QualifiedName(serverns, TestConstants.FULL_OPERATION_NAME)));
+        relPath.add(new RelativePath(browsePath.toArray(RelativePathElement[]::new)));
+
+        BrowsePathResult[] bpres = client.getAddressSpace().translateBrowsePathsToNodeIds(Identifiers.ObjectsFolder, relPath.toArray(RelativePath[]::new));
+        Assert.assertNotNull("testCallOperationNoArgs Browse Result Null", bpres);
+        Assert.assertEquals("testCallOperationNoArgs Browse Result: size doesn't match", 2, bpres.length);
+        Assert.assertTrue("testCallOperationNoArgs Browse Result Good", bpres[0].getStatusCode().isGood());
+
+        BrowsePathTarget[] targets = bpres[0].getTargets();
+        Assert.assertNotNull("testCallOperationNoArgs Object Targets Null", targets);
+        Assert.assertTrue("testCallOperationNoArgs Object Targets empty", targets.length > 0);
+
+        NodeId objectNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        Assert.assertNotNull("testCallOperationNoArgs objectNode Null", objectNode);
+
+        targets = bpres[1].getTargets();
+        Assert.assertNotNull("testCallOperationNoArgs Method Targets Null", targets);
+        Assert.assertTrue("testCallOperationNoArgs Method Targets empty", targets.length > 0);
+
+        NodeId methodNode = client.getAddressSpace().getNamespaceTable().toNodeId(targets[0].getTargetId());
+        Assert.assertNotNull("testCallOperationNoArgs methodNode Null", methodNode);
+
+        Variant[] outputs = client.call(objectNode, methodNode);
+        Assert.assertNotNull("testCallOperationNoArgs output Arguments Null", outputs);
+        Assert.assertEquals("testCallOperationNoArgs output Arguments length not equal", 0, outputs.length);
+
+        System.out.println("disconnect client");
+        client.disconnect();
+    }
+
+
     private void testSubmodel1(UaClient client, NodeId submodelNode) throws ServiceException, AddressSpaceException, ServiceResultException, StatusException {
         TestUtils.checkDisplayName(client, submodelNode, "Submodel:" + TestConstants.FULL_SUBMODEL_1_NAME);
         TestUtils.checkType(client, submodelNode, new NodeId(aasns, TestConstants.AAS_SUBMODEL_TYPE_ID));

@@ -159,7 +159,7 @@ public class HttpEndpointIT {
                         .requestHandlerThreadPoolSize(2)
                         .build())
                 .persistence(PersistenceInMemoryConfig.builder()
-                        .environment(environment)
+                        .initialModel(DeepCopyHelper.deepCopy(environment))
                         .build())
                 .endpoints(List.of(HttpEndpointConfig.builder()
                         .port(PORT)
@@ -352,6 +352,19 @@ public class HttpEndpointIT {
                                 null,
                                 expected,
                                 AssetAdministrationShell.class)));
+    }
+
+
+    @Test
+    public void testAASRepositoryGetAssetAdministrationShellUsingSubmodelIdReturnsResourceNotFound()
+            throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException, MessageBusException {
+        String submodelId = environment.getSubmodels().get(1).getIdentification().getIdentifier();
+        assertExecuteSingle(HttpMethod.GET,
+                API_PATHS.aasRepository().assetAdministrationShell(submodelId),
+                StatusCode.CLIENT_ERROR_RESOURCE_NOT_FOUND,
+                null,
+                null,
+                AssetAdministrationShell.class);
     }
 
 
@@ -850,7 +863,7 @@ public class HttpEndpointIT {
                         x -> assertExecute(
                                 HttpMethod.DELETE,
                                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElement(expected),
-                                StatusCode.SUCCESS)));
+                                StatusCode.SUCCESS_NO_CONTENT)));
         List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.submodelRepository().submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
@@ -1126,7 +1139,7 @@ public class HttpEndpointIT {
                         x -> assertExecute(
                                 HttpMethod.DELETE,
                                 API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElement(expected),
-                                StatusCode.SUCCESS)));
+                                StatusCode.SUCCESS_NO_CONTENT)));
         List<SubmodelElement> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.aasInterface(aas).submodelInterface(submodel).submodelElements(),
                 SubmodelElement.class);
@@ -1385,7 +1398,7 @@ public class HttpEndpointIT {
                 LambdaExceptionHelper.wrap(
                         x -> assertExecute(HttpMethod.DELETE,
                                 API_PATHS.submodelRepository().submodel(expected),
-                                StatusCode.SUCCESS)));
+                                StatusCode.SUCCESS_NO_CONTENT)));
         List<Submodel> actual = HttpHelper.getWithMultipleResult(
                 API_PATHS.submodelRepository().submodels(),
                 Submodel.class);

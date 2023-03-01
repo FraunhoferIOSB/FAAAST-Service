@@ -328,6 +328,58 @@ public class ExampleNamespace extends ManagedNamespaceWithLifecycle {
         addDynamicNodes(rootNode);
         addDataAccessNodes(rootNode);
         addWriteOnlyNodes(rootNode);
+        addMatrixNodes(rootNode);
+    }
+
+
+    private void addMatrixNodes(UaFolderNode rootNode) {
+        UaFolderNode arrayTypesFolder = new UaFolderNode(
+                getNodeContext(),
+                newNodeId("HelloWorld/MatrixTypes"),
+                newQualifiedName("MatrixTypes"),
+                LocalizedText.english("MatrixTypes"));
+
+        getNodeManager().addNode(arrayTypesFolder);
+        rootNode.addOrganizes(arrayTypesFolder);
+
+        for (Object[] os: STATIC_ARRAY_NODES) {
+            String name = (String) os[0];
+            NodeId typeId = (NodeId) os[1];
+            Object value = os[2];
+            Object[][] array = (Object[][]) Array.newInstance(value.getClass(), 5, 5);
+            for (int i = 0; i < 5; i++) {
+                for (int j = 0; j < 5; j++) {
+                    //Array.set(array, i, value);
+                    array[i][j] = value;
+                }
+            }
+            Variant variant = new Variant(array);
+
+            UaVariableNode.build(getNodeContext(), builder -> {
+                builder.setNodeId(newNodeId("HelloWorld/MatrixTypes/" + name));
+                builder.setAccessLevel(AccessLevel.READ_WRITE);
+                builder.setUserAccessLevel(AccessLevel.READ_WRITE);
+                builder.setBrowseName(newQualifiedName(name));
+                builder.setDisplayName(LocalizedText.english(name));
+                builder.setDataType(typeId);
+                builder.setTypeDefinition(Identifiers.BaseDataVariableType);
+                builder.setValueRank(ValueRank.OneOrMoreDimensions.getValue());
+                builder.setArrayDimensions(new UInteger[] {
+                        uint(0),
+                        uint(0)
+                });
+                builder.setValue(new DataValue(variant));
+
+                builder.addReference(new Reference(
+                        builder.getNodeId(),
+                        Identifiers.Organizes,
+                        arrayTypesFolder.getNodeId().expanded(),
+                        Reference.Direction.INVERSE));
+
+                return builder.buildAndAdd();
+            });
+        }
+
     }
 
 

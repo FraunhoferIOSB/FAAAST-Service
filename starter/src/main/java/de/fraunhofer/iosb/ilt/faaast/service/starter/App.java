@@ -186,6 +186,7 @@ public class App implements Runnable {
         });
         CommandLine commandLine = new CommandLine(new App())
                 .registerConverter(Level.class, new LogLevelTypeConverter())
+                .setExecutionExceptionHandler(new ExecutionExceptionHandler())
                 .setCaseInsensitiveEnumValuesAllowed(true);
         try {
             CommandLine.ParseResult result = commandLine.parseArgs(args);
@@ -235,22 +236,21 @@ public class App implements Runnable {
     }
 
 
-    private boolean validateModelIfRequired(ServiceConfig config) {
+    private void validateModelIfRequired(ServiceConfig config) {
         if (validateModel) {
             try {
-                AssetAdministrationShellEnvironment model = config.getPersistence().getEnvironment() == null
-                        ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModel()).getEnvironment()
-                        : config.getPersistence().getEnvironment();
-                return validate(model);
+                AssetAdministrationShellEnvironment model = config.getPersistence().getInitialModel() == null
+                        ? EnvironmentSerializationManager.deserialize(config.getPersistence().getInitialModelFile()).getEnvironment()
+                        : config.getPersistence().getInitialModel();
+                validate(model);
             }
             catch (IOException e) {
-                LOGGER.error("Unexpected exception with validating model", e);
+                throw new InitializationException("Unexpected exception while validating model", e);
             }
             catch (DeserializationException e) {
-                LOGGER.error("Error loading model file", e);
+                throw new InitializationException("Error loading model file", e);
             }
         }
-        return true;
     }
 
 
@@ -291,13 +291,10 @@ public class App implements Runnable {
             config = getConfig();
         }
         catch (IOException e) {
-            LOGGER.error("Error loading config file", e);
-            return;
+            throw new InitializationException("Error loading config file", e);
         }
         withModel(config);
-        if (!validateModelIfRequired(config)) {
-            return;
-        }
+        validateModelIfRequired(config);
         if (autoCompleteConfiguration) {
             ServiceConfigHelper.autoComplete(config);
         }
@@ -308,15 +305,13 @@ public class App implements Runnable {
                     .collect(Collectors.toList()));
         }
         catch (InvalidConfigurationException | ReflectiveOperationException e) {
-            LOGGER.error("Adding endpoints to config failed", e);
-            return;
+            throw new InitializationException("Adding endpoints to config failed", e);
         }
         try {
             config = ServiceConfigHelper.withProperties(config, getConfigOverrides());
         }
         catch (JsonProcessingException e) {
-            LOGGER.error("Overriding config properties failed", e);
-            return;
+            throw new InitializationException("Overriding config properties failed", e);
         }
         if (!dryRun) {
             runService(config);
@@ -401,40 +396,40 @@ public class App implements Runnable {
         if (spec.commandLine().getParseResult().hasMatchedOption(COMMAND_MODEL)) {
             try {
                 LOGGER.info("Model: {} (CLI)", modelFile.getCanonicalFile());
-                if (config.getPersistence().getInitialModel() != null) {
+                if (config.getPersistence().getInitialModelFile() != null) {
                     LOGGER.info("Overriding Model Path {} set in Config File with {}",
-                            config.getPersistence().getInitialModel(),
+                            config.getPersistence().getInitialModelFile(),
                             modelFile.getCanonicalFile());
                 }
             }
             catch (IOException e) {
                 LOGGER.info("Retrieving path of model file failed with {}", e.getMessage());
             }
-            config.getPersistence().setInitialModel(modelFile);
+            config.getPersistence().setInitialModelFile(modelFile);
             return;
 
         }
         if (System.getenv(ENV_MODEL_FILE_PATH) != null && !System.getenv(ENV_MODEL_FILE_PATH).isBlank()) {
             LOGGER.info("Model: {} (ENV)", System.getenv(ENV_MODEL_FILE_PATH));
-            if (config.getPersistence().getInitialModel() != null) {
+            if (config.getPersistence().getInitialModelFile() != null) {
                 LOGGER.info("Overriding model path {} set in Config File with {}",
-                        config.getPersistence().getInitialModel(),
+                        config.getPersistence().getInitialModelFile(),
                         System.getenv(ENV_MODEL_FILE_PATH));
             }
-            config.getPersistence().setInitialModel(new File(System.getenv(ENV_MODEL_FILE_PATH)));
+            config.getPersistence().setInitialModelFile(new File(System.getenv(ENV_MODEL_FILE_PATH)));
             modelFile = new File(System.getenv(ENV_MODEL_FILE_PATH));
             return;
         }
 
-        if (config.getPersistence().getInitialModel() != null) {
-            LOGGER.info("Model: {} (CONFIG)", config.getPersistence().getInitialModel());
+        if (config.getPersistence().getInitialModelFile() != null) {
+            LOGGER.info("Model: {} (CONFIG)", config.getPersistence().getInitialModelFile());
             return;
         }
 
         Optional<File> defaultModel = findDefaultModel();
         if (defaultModel.isPresent()) {
             LOGGER.info("Model: {} (default location)", defaultModel.get().getAbsoluteFile());
-            config.getPersistence().setInitialModel(defaultModel.get());
+            config.getPersistence().setInitialModelFile(defaultModel.get());
             modelFile = new File(defaultModel.get().getAbsolutePath());
             return;
         }
@@ -446,7 +441,7 @@ public class App implements Runnable {
         }
         LOGGER.info("Model validation is disabled when using empty model");
         validateModel = false;
-        config.getPersistence().setEnvironment(new DefaultAssetAdministrationShellEnvironment.Builder().build());
+        config.getPersistence().setInitialModel(new DefaultAssetAdministrationShellEnvironment.Builder().build());
     }
 
 
@@ -497,30 +492,28 @@ public class App implements Runnable {
     }
 
 
-    private boolean validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
-        boolean result = true;
+    private void validate(AssetAdministrationShellEnvironment aasEnv) throws IOException {
         LOGGER.debug("Validating model...");
         try {
             ValueTypeValidator.validate(aasEnv);
         }
         catch (ValidationException e) {
-            LOGGER.info("Model type validation failed with the following error(s):{}{}", System.lineSeparator(), e.getMessage());
-            result = false;
+            throw new InitializationException(
+                    String.format("Model type validation failed with the following error(s):%s%s",
+                            System.lineSeparator(),
+                            e.getMessage()));
         }
         ShaclValidator shaclValidator = ShaclValidator.getInstance();
         ValidationReport report = shaclValidator.validateGetReport(aasEnv);
         if (!report.conforms()) {
             ByteArrayOutputStream validationResultStream = new ByteArrayOutputStream();
             ShLib.printReport(validationResultStream, report);
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Detailed model validation failed with the following error(s):{}{}", System.lineSeparator(), validationResultStream);
-            }
-            result = false;
+            throw new InitializationException(
+                    String.format("Detailed model validation failed with the following error(s):%s%s",
+                            System.lineSeparator(),
+                            validationResultStream));
         }
-        if (result) {
-            LOGGER.info("Model successfully validated");
-        }
-        return result;
+        LOGGER.info("Model successfully validated");
     }
 
 

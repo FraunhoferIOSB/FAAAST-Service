@@ -43,7 +43,7 @@ public class PutAssetInformationRequestHandler extends AbstractRequestHandler<Pu
     @Override
     public PutAssetInformationResponse process(PutAssetInformationRequest request) throws ResourceNotFoundException, MessageBusException {
         PutAssetInformationResponse response = new PutAssetInformationResponse();
-        AssetAdministrationShell shell = (AssetAdministrationShell) persistence.get(request.getId(), new QueryModifier());
+        AssetAdministrationShell shell = persistence.get(request.getId(), QueryModifier.DEFAULT, AssetAdministrationShell.class);
         shell.setAssetInformation(request.getAssetInformation());
         persistence.put(shell);
         response.setStatusCode(StatusCode.SUCCESS_NO_CONTENT);

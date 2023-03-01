@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConversionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.conversion.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.ArrayHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -135,7 +136,7 @@ public class SubscriptionMultiplexer {
 
     private void notify(DataValue value) {
         try {
-            DataElementValue newValue = new PropertyValue(valueConverter.convert(value.getValue(), datatype));
+            DataElementValue newValue = new PropertyValue(valueConverter.convert(ArrayHelper.unwrapValue(value, providerConfig.getArrayIndex()), datatype));
             listeners.forEach(x -> {
                 try {
                     x.newDataReceived(newValue);

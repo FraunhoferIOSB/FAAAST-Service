@@ -17,9 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnect
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionConfig;
 
 
-/**
- * @author Tino Bischoff
- */
 public class TestAssetConnectionConfig extends AssetConnectionConfig<TestAssetConnection, TestValueProviderConfig, TestOperationProviderConfig, TestSubscriptionProviderConfig> {
 
 }

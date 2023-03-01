@@ -17,9 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatSubscriptionProvider;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.util.MultiFormatReadWriteHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
@@ -30,6 +32,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -53,6 +57,7 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
     private final HttpAssetConnectionConfig connectionConfig;
     private ScheduledExecutorService executor;
     private ScheduledFuture<?> executorHandler;
+    private Optional<DataElementValue> lastValue;
 
     public HttpSubscriptionProvider(
             ServiceContext serviceContext,
@@ -69,6 +74,7 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
         this.reference = reference;
         this.client = client;
         this.connectionConfig = connectionConfig;
+        this.lastValue = Optional.empty();
     }
 
 
@@ -109,6 +115,23 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
                     LOGGER.error("error subscribing to asset connection (reference: {})", AasUtils.asString(reference), e);
                 }
             }, 0, Math.max(MINIMUM_INTERVAL, config.getInterval()), TimeUnit.MILLISECONDS);
+        }
+    }
+
+
+    @Override
+    protected void fireNewDataReceived(byte[] value) {
+        try {
+            DataElementValue newValue = MultiFormatReadWriteHelper.convertForRead(config, value, getTypeInfo());
+            if (lastValue.isEmpty() || !Objects.equals(lastValue.get(), newValue)) {
+                lastValue = Optional.ofNullable(newValue);
+                super.fireNewDataReceived(value);
+            }
+        }
+        catch (AssetConnectionException e) {
+            LOGGER.error("error deserializing message (received message: {})",
+                    new String(value),
+                    e);
         }
     }
 

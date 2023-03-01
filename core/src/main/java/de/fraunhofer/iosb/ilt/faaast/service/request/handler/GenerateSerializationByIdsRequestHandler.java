@@ -58,10 +58,10 @@ public class GenerateSerializationByIdsRequestHandler extends AbstractRequestHan
                 .payload(new DefaultAssetAdministrationShellEnvironment.Builder()
                         .assetAdministrationShells(
                                 request.getAasIds().stream()
-                                        .map(LambdaExceptionHelper.rethrowFunction(x -> (AssetAdministrationShell) persistence.get(x, OUTPUT_MODIFIER)))
+                                        .map(LambdaExceptionHelper.rethrowFunction(x -> persistence.get(x, OUTPUT_MODIFIER, AssetAdministrationShell.class)))
                                         .collect(Collectors.toList()))
                         .submodels(request.getSubmodelIds().stream()
-                                .map(LambdaExceptionHelper.rethrowFunction(x -> (Submodel) persistence.get(x, OUTPUT_MODIFIER)))
+                                .map(LambdaExceptionHelper.rethrowFunction(x -> persistence.get(x, OUTPUT_MODIFIER, Submodel.class)))
                                 .collect(Collectors.toList()))
                         .conceptDescriptions(request.getIncludeConceptDescriptions()
                                 ? persistence.getEnvironment().getConceptDescriptions()

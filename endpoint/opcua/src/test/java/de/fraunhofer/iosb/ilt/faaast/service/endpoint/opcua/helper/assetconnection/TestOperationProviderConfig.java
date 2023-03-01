@@ -20,9 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * @author Tino Bischoff
- */
 public class TestOperationProviderConfig implements AssetOperationProviderConfig {
 
     private final List<OperationVariable> outputArgs;

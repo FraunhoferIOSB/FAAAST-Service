@@ -28,6 +28,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManage
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data.SubmodelElementData;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.OperationVariable;
 import java.util.List;
@@ -37,10 +38,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class for listening method calls from a UaCallable node.
- *
- * @author Tino Bischoff
  */
-@SuppressWarnings("java:S2139")
 public class AasServiceMethodManagerListener implements CallableListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AasServiceMethodManagerListener.class);
@@ -51,31 +49,16 @@ public class AasServiceMethodManagerListener implements CallableListener {
     /**
      * Creates a new instance of AasServiceMethodManagerListener
      *
-     * @param ep the associated endpoint
-     * @param nodeMan the associated NodeManager
+     * @param endpoint the associated endpoint
+     * @param nodeManager the associated NodeManager
      */
-    public AasServiceMethodManagerListener(OpcUaEndpoint ep, AasServiceNodeManager nodeMan) {
-        endpoint = ep;
-        nodeManager = nodeMan;
+    public AasServiceMethodManagerListener(OpcUaEndpoint endpoint, AasServiceNodeManager nodeManager) {
+        this.endpoint = endpoint;
+        Ensure.requireNonNull(endpoint, "endpoint must not be null");
+        this.nodeManager = nodeManager;
     }
 
 
-    /**
-     * Callback method when a method was called
-     *
-     * @param serviceContext the current service context
-     * @param objectId the ID of the node whose method is being called
-     * @param object the object node whose method is being called, if available
-     * @param methodId the ID of the method being called
-     * @param method the method node being called, if available
-     * @param inputArguments input argument values
-     * @param inputArgumentResults argument errors. If errors in the values are encountered.
-     * @param inputArgumentDiagnosticInfos diagnostic info, in case of errors.
-     * @param outputs output values. The array is pre-created, just fill in the values.
-     * @return true if you handle the call, which prevents any other handler being called.
-     * @throws StatusException if there are errors in the method handling. For example, if you set inputArgumentResults,
-     *             you should throw a StatusException with StatusCodes.Bad_InvalidArgument
-     */
     @Override
     public boolean onCall(ServiceContext serviceContext, NodeId objectId, UaNode object, NodeId methodId, UaMethod method, Variant[] inputArguments,
                           StatusCode[] inputArgumentResults, DiagnosticInfo[] inputArgumentDiagnosticInfos, Variant[] outputs)
@@ -83,36 +66,28 @@ public class AasServiceMethodManagerListener implements CallableListener {
 
         boolean retval = false;
 
-        // Handle method calls
         // Note that the outputs array is already allocated
-        LOGGER.info("onCall: method {}: called. InputArguments: {}", methodId, inputArguments);
+        LOGGER.trace("onCall: method {}: called. InputArguments: {}", methodId, inputArguments);
 
         try {
-            if (endpoint == null) {
-                LOGGER.warn("onCall: no Endpoint available");
+            SubmodelElementData data = nodeManager.getAasData(objectId);
+            Operation aasOper = (Operation) data.getSubmodelElement();
+            if (aasOper != null) {
+                List<OperationVariable> inputVariables = aasOper.getInputVariables();
+                ValueConverter.setOperationValues(inputVariables, inputArguments);
+                List<OperationVariable> outputVariables = endpoint.callOperation(aasOper, inputVariables, data.getSubmodel(), data.getReference());
+
+                ValueConverter.setOutputArguments(outputVariables, outputs);
+                retval = true;
             }
             else {
-                SubmodelElementData data = nodeManager.getAasData(objectId);
-                Operation aasOper = (Operation) data.getSubmodelElement();
-                if (aasOper != null) {
-                    List<OperationVariable> inputVariables = aasOper.getInputVariables();
-                    ValueConverter.setOperationValues(inputVariables, inputArguments);
-                    List<OperationVariable> outputVariables = endpoint.callOperation(aasOper, inputVariables, data.getSubmodel(), data.getReference());
-
-                    ValueConverter.setOutputArguments(outputVariables, outputs);
-                    retval = true;
-                }
-                else {
-                    LOGGER.info("onCall: Property for {} not found", objectId);
-                }
+                LOGGER.info("onCall: Property for {} not found", objectId);
             }
         }
         catch (StatusException se) {
-            LOGGER.error("onCall StatusException", se);
             throw se;
         }
         catch (Exception ex) {
-            LOGGER.error("onCall Exception", ex);
             throw new StatusException(ex.getMessage(), StatusCodes.Bad_UnexpectedError);
         }
 

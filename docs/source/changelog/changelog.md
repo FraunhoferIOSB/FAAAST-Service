@@ -2,6 +2,42 @@
 <!--start:changelog-header-->
 ## Current development version (0.5.0-SNAPSHOT)<!--end:changelog-header-->
 
+**New Features & Major Changes**
+*   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
+*   OPC UA Endpoint
+	*   Additional parameters available in configuration
+*   Docker container now runs using a non-root user
+*   Base persistence configuration updated
+	*   changed `initialModel` from filename to `AASEnvironment` object
+	*   added  `initialModelFile`
+	*   removed `decoupleEnvironment` property. To achieve previous behavior you need to manually decouple the model by making a deep copy, e.g. via `DeepCopyHelper.deepCopy(...)`
+*   Asset Connection
+	*   OPC UA
+		*   Support mapping to specific element in (multi-dimensional) array/vector
+		*   Additional parameters available in configuration: requestTimeout, acknowledgeTimeout, retries
+
+**Internal changes & bugfixes**
+*   HTTP Endpoint
+	*   DELETE requests now correctly return HTTP status code `204 No Content`. The following URL patterns are affected:
+		*   /submodels/{submodelIdentifier}
+		*   /submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+		*   /shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}
+	*   Using not allowed HTTP methods not correctly returns `405 Method Not Allowed` instead of `500 Internal Server Error`
+	*   Unsupported URLS (valid URLs with additional path elements) now correctly return `400 Bad Request` instead of `405 Method not allowed`
+	*   GET /shells/{aasIdentifier} now correctly returns status code `404 Not Found` when called with an existing ID that is not an AAS (instead of `500 Internal Server Error`)
+*   OPC UA Endpoint
+	*   Major code refactoring
+*   Persistence
+	*   Major code refactoring
+*   Asset Connection
+	*   Fixed endless feedback loop when adding a subscription provider and value provider to the same element
+	*   OPC UA
+		*   fixed deserialization error when using operation provider with argument mappings
+	*   HTTP
+		*   subscription provider now only fires when then value has changed (before that it fired with any read)
+*   Miscellaneous
+	*   Now using dockerfile to build docker container instead of jib maven plugin
+
 ## Release version 0.4.0
 
 **New Features**
