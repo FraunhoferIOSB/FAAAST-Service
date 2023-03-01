@@ -119,9 +119,26 @@ public class InfluxV1LinkedSegmentProvider extends AbstractInfluxLinkedSegmentPr
 
     @Override
     protected List<Record> getRecords(Metadata metadata, String query) throws SegmentProviderException {
-        InfluxDB influxDB = InfluxDBFactory.connect(config.getEndpoint(), config.getUsername(), config.getPassword());
-        influxDB.setDatabase(config.getDatabase());
-        return toRecords(metadata, query, influxDB.query(new Query(query)));
+        return toRecords(metadata, query, executeQuery(query));
+    }
+
+
+    private QueryResult executeQuery(String query) throws SegmentProviderException {
+        try {
+            InfluxDB influxDB = InfluxDBFactory.connect(config.getEndpoint(), config.getUsername(), config.getPassword());
+            influxDB.setDatabase(config.getDatabase());
+            return influxDB.query(new Query(query));
+        }
+        catch (Exception e) {
+            throw new SegmentProviderException(String.format(
+                    "error fetching data from database for SMT Time Series Data (endpoint: %s, database: %s, user: %s, password: %s, query: %s)",
+                    config.getEndpoint(),
+                    config.getDatabase(),
+                    config.getUsername(),
+                    config.getPassword(),
+                    query),
+                    e);
+        }
     }
 
 
