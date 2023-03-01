@@ -1,0 +1,177 @@
+
+{
+	"idShort": "Submodel1",
+	"identification":
+	{
+		"idType": "Iri",
+		"id": "urn:faaast:test:submodel:1"
+	},
+	"semanticId":
+	{
+		"keys": [
+			{
+				"type": "GlobalReference",
+				"value": "https://admin-shell.io/idta/timeseries/1/1/Submodel",
+				"idType": "Iri"
+			}
+		]
+	},
+	"kind": "Instance",
+	"modelType":
+	{
+		"name": "Submodel"
+	},
+	"submodelElements": [
+		{
+			"idShort": "Metadata",
+			"semanticId":
+			{
+				"keys": [
+					{
+						"type": "GlobalReference",
+						"value": "https://admin-shell.io/idta/timeseries/Metadata/1/1",
+						"idType": "Iri"
+					}
+				]
+			},
+			"modelType":
+			{
+				"name": "SubmodelElementCollection"
+			},
+			"value": [
+
+				{
+					"idShort": "RecordMetadata",
+					"semanticId":
+					{
+						"keys": [
+							{
+								"type": "GlobalReference",
+								"value": "https://admin-shell.io/idta/timeseries/Record/1/1",
+								"idType": "Iri"
+							}
+						]
+					},
+					"modelType":
+					{
+						"name": "SubmodelElementCollection"
+					},
+					"value": [
+
+						{
+							"idShort": "foo",
+							"valueType": "int",
+							"modelType":
+							{
+								"name": "Property"
+							}
+						},
+						{
+							"idShort": "bar",
+							"valueType": "double",
+							"modelType":
+							{
+								"name": "Property"
+							}
+						}
+					]
+				}
+
+			]
+		},
+		{
+			"idShort": "Segments",
+			"modelType":
+			{
+				"name": "SubmodelElementCollection"
+			},
+			"value": [
+				{
+					"idShort": "InternalSegment01",
+					"semanticId":
+					{
+						"keys": [
+							{
+								"type": "GlobalReference",
+								"value": "https://admin-shell.io/idta/timeseries/Segments/InternalSegment/1/1",
+								"idType": "Iri"
+							}
+						]
+					},
+					"modelType":
+					{
+						"name": "SubmodelElementCollection"
+					},
+					"value": [
+						{
+							"idShort": "Records",
+							"modelType":
+							{
+								"name": "SubmodelElementCollection"
+							},
+							"value": [
+								{
+									"idShort": "Record01",
+									"semanticId":
+									{
+										"keys": [
+											{
+												"type": "GlobalReference",
+												"value": "https://admin-shell.io/idta/timeseries/Record/1/1",
+												"idType": "Iri"
+											}
+										]
+									},
+									"modelType":
+									{
+										"name": "SubmodelElementCollection"
+									},
+									"value": [
+										{
+											"idShort": "Time",
+											"valueType": "datetime",
+											"value": "2022-01-01T00:00:00Z",
+											"modelType":
+											{
+												"name": "Property"
+											},
+											"semanticId":
+											{
+												"keys": [
+													{
+														"type": "GlobalReference",
+														"value": "https://admin-shell.io/idta/timeseries/UtcTime/1/1",
+														"idType": "Iri"
+													}
+												]
+											}
+										},
+										{
+											"idShort": "foo",
+											"valueType": "int",
+											"value": "0",
+											"modelType":
+											{
+												"name": "Property"
+											}
+										},
+										{
+											"idShort": "bar",
+											"valueType": "double",
+											"value": "0.0",
+											"modelType":
+											{
+												"name": "Property"
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+
+}

@@ -26,7 +26,6 @@ import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.builder.SubmodelElementCollectionBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,10 +43,7 @@ public class Metadata extends ExtendableSubmodelElementCollection {
             new RecordMetadata(),
             false,
             SubmodelElementCollection.class,
-            x -> new DefaultSubmodelElementCollection.Builder()
-                    .idShort(Constants.METADATA_RECORD_METADATA_ID_SHORT)
-                    .values(x.getValues())
-                    .build(),
+            x -> x,
             x -> Objects.equals(Constants.METADATA_RECORD_METADATA_ID_SHORT, x.getIdShort()),
             x -> ExtendableSubmodelElementCollection.genericOf(new RecordMetadata(), x));
 
@@ -96,12 +92,7 @@ public class Metadata extends ExtendableSubmodelElementCollection {
     }
 
 
-    /**
-     * Sets the record metadata.
-     *
-     * @param recordMetadata the record metadata
-     */
-    public void setRecordMetadata(Map<String, Datatype> recordMetadata) {
+    void setRecordMetadata(Map<String, Datatype> recordMetadata) {
         this.recordMetadata.getValue().variables.setValue(recordMetadata);
     }
 
@@ -124,6 +115,7 @@ public class Metadata extends ExtendableSubmodelElementCollection {
         RecordMetadata() {
             withAdditionalValues(variables);
             this.idShort = Constants.METADATA_RECORD_METADATA_ID_SHORT;
+            this.semanticId = ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID);
         }
 
 

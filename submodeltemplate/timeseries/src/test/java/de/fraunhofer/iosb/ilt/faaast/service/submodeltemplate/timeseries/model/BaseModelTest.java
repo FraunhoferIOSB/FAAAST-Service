@@ -56,7 +56,7 @@ public abstract class BaseModelTest {
             .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
             .valueType(Datatype.DATE_TIME.getName())
             .value(TIME.toString())
-            .idShort("time")
+            .idShort(Constants.RECORD_TIME_ID_SHORT)
             .build();
 
     protected static final SubmodelElement ADDITIONAL_ELEMENT = new DefaultSubmodelElementCollection.Builder()

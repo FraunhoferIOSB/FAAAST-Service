@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.w
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.model.wrapper.Wrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
+import io.adminshell.aas.v3.model.ModelingKind;
 import io.adminshell.aas.v3.model.Submodel;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import io.adminshell.aas.v3.model.builder.SubmodelBuilder;
@@ -124,6 +125,7 @@ public class TimeSeries extends ExtendableSubmodel {
         segmentsList.withAdditionalValues(segments);
         submodelElements.add(segmentsList);
         this.idShort = Constants.TIMESERIES_SUBMODEL_ID_SHORT;
+        this.kind = ModelingKind.INSTANCE;
         this.semanticId = ReferenceHelper.globalReference(Constants.TIMESERIES_SUBMODEL_SEMANTIC_ID);
     }
 

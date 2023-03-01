@@ -50,7 +50,7 @@ public class Record extends ExtendableSubmodelElementCollection {
             Property.class,
             x -> Objects.nonNull(x)
                     ? new DefaultProperty.Builder()
-                            .idShort("time")
+                            .idShort(Constants.RECORD_TIME_ID_SHORT)
                             .semanticId(ReferenceHelper.globalReference(Constants.TIME_UTC))
                             .valueType(Datatype.DATE_TIME.getName())
                             .value(x.toString())

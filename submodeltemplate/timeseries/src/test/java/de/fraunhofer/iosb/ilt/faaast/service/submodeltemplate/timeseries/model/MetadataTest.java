@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.submodeltemplate.timeseries.TimeSeriesData;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.SerializationException;
 import io.adminshell.aas.v3.model.LangString;
 import io.adminshell.aas.v3.model.ModelingKind;
@@ -32,10 +33,12 @@ public class MetadataTest extends BaseModelTest {
 
     private static final SubmodelElementCollection METADATA_RECORD_EMPTY = new DefaultSubmodelElementCollection.Builder()
             .idShort(Constants.METADATA_RECORD_METADATA_ID_SHORT)
+            .semanticId(ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID))
             .build();
 
     private static final SubmodelElementCollection METADATA_RECORD_FIELD1 = new DefaultSubmodelElementCollection.Builder()
             .idShort(Constants.METADATA_RECORD_METADATA_ID_SHORT)
+            .semanticId(ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID))
             .value(new DefaultProperty.Builder()
                     .idShort(TimeSeriesData.FIELD_1)
                     .valueType(Datatype.INT.getName())
@@ -44,6 +47,7 @@ public class MetadataTest extends BaseModelTest {
 
     private static final SubmodelElementCollection METADATA_RECORD_FIELD2 = new DefaultSubmodelElementCollection.Builder()
             .idShort(Constants.METADATA_RECORD_METADATA_ID_SHORT)
+            .semanticId(ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID))
             .value(new DefaultProperty.Builder()
                     .idShort(TimeSeriesData.FIELD_2)
                     .valueType(Datatype.DOUBLE.getName())
@@ -52,6 +56,7 @@ public class MetadataTest extends BaseModelTest {
 
     private static final SubmodelElementCollection METADATA_RECORD_FIELD1_FIELD2 = new DefaultSubmodelElementCollection.Builder()
             .idShort(Constants.METADATA_RECORD_METADATA_ID_SHORT)
+            .semanticId(ReferenceHelper.globalReference(Constants.RECORD_SEMANTIC_ID))
             .value(new DefaultProperty.Builder()
                     .idShort(TimeSeriesData.FIELD_1)
                     .valueType(Datatype.INT.getName())
