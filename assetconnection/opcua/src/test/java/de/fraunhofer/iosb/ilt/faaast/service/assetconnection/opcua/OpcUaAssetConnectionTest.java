@@ -214,6 +214,24 @@ public class OpcUaAssetConnectionTest {
     }
 
 
+    @Test
+    public void testConnectCertificate() throws Exception {
+        EmbeddedOpcUaServer server = startServer(
+                EmbeddedOpcUaServerConfig.builder()
+                        .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_TCP)
+                        .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_HTTPS)
+                        .applicationCertificate(loadServerApplicationCertificate())
+                        .build());
+        try {
+            assertConnectSecureCertificate(server, EndpointSecurityConfiguration.NONE_NONE_TCP);
+            assertConnectSecureCertificate(server, EndpointSecurityConfiguration.NONE_NONE_HTTPS);
+        }
+        finally {
+            server.shutdown();
+        }
+    }
+
+
     //    @Test
     //    public void testConnectBasic256() throws ValueFormatException, ConfigurationInitializationException, AssetConnectionException, IOException, GeneralSecurityException {
     //        assertConnectSecure(EndpointSecurityConfiguration.BASIC256_SIGN_TCP);

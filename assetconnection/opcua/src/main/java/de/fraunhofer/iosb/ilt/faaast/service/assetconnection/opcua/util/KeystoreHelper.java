@@ -56,7 +56,7 @@ public class KeystoreHelper {
 
 
     /**
-     * TODO.
+     * Save the given file to the key store.
      *
      * @param file
      * @param certificateData
@@ -82,7 +82,7 @@ public class KeystoreHelper {
 
 
     /**
-     * Generates a self-signed ertificate.
+     * Generates a self-signed certificate.
      *
      * @param certificateInformation the certificate informatino to use
      * @return a self-signed certificate
