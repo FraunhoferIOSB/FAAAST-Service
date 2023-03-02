@@ -182,31 +182,60 @@ public class OpcUaAssetConnectionTest {
                         .endpointSecurityConfigurations(configurations)
                         .applicationCertificate(loadServerApplicationCertificate())
                         .build());
-        Path clientSecurityBaseDir = Files.createTempDirectory("client");
-        Files.createDirectories(clientSecurityBaseDir);
-        Files.copy(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream(CLIENT_APPLICATION_CERTIFICATE_FILE),
-                clientSecurityBaseDir.resolve(CLIENT_APPLICATION_CERTIFICATE_FILE),
-                StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream(CLIENT_AUTHENTICATION_CERTIFICATE_FILE),
-                clientSecurityBaseDir.resolve(CLIENT_AUTHENTICATION_CERTIFICATE_FILE),
-                StandardCopyOption.REPLACE_EXISTING);
-        exchangeCertificates(server, clientSecurityBaseDir);
         try {
             configurations.forEach(
                     LambdaExceptionHelper.rethrowConsumer(
-                            x -> assertConnect(
+                            x -> assertConnectSecure(
                                     server,
-                                    OpcUaAssetConnectionConfig.builder()
-                                            .securityBaseDir(clientSecurityBaseDir)
-                                            .securityMode(x.getSecurityMode())
-                                            .securityPolicy(x.getPolicy())
-                                            .host(server.getEndpoint(x.getProtocol()))
-                                            .transportProfile(EmbeddedOpcUaServer.getTransportProfile(x.getProtocol()))
-                                            .applicationCertificateFile(clientSecurityBaseDir.resolve(CLIENT_APPLICATION_CERTIFICATE_FILE).toFile())
-                                            .applicationCertificatePassword(CLIENT_APPLICATION_CERTIFICATE_PASSWORD)
-                                            .build())));
+                                    x,
+                                    OpcUaAssetConnectionConfig.builder().build(),
+                                    null)));
+        }
+        finally {
+            server.shutdown();
+        }
+    }
+
+
+    @Test
+    public void testConnectAes128Anonymous() throws Exception {
+        List<EndpointSecurityConfiguration> configurations = EndpointSecurityConfiguration.POLICY_AES128_SHA256_RSAOAEP;
+        EmbeddedOpcUaServer server = startServer(
+                EmbeddedOpcUaServerConfig.builder()
+                        .endpointSecurityConfigurations(configurations)
+                        .applicationCertificate(loadServerApplicationCertificate())
+                        .build());
+        try {
+            configurations.forEach(
+                    LambdaExceptionHelper.rethrowConsumer(
+                            x -> assertConnectSecure(
+                                    server,
+                                    x,
+                                    OpcUaAssetConnectionConfig.builder().build(),
+                                    null)));
+        }
+        finally {
+            server.shutdown();
+        }
+    }
+
+
+    @Test
+    public void testConnectAes256Anonymous() throws Exception {
+        List<EndpointSecurityConfiguration> configurations = EndpointSecurityConfiguration.POLICY_AES256_SHA256_RSAPSS;
+        EmbeddedOpcUaServer server = startServer(
+                EmbeddedOpcUaServerConfig.builder()
+                        .endpointSecurityConfigurations(configurations)
+                        .applicationCertificate(loadServerApplicationCertificate())
+                        .build());
+        try {
+            configurations.forEach(
+                    LambdaExceptionHelper.rethrowConsumer(
+                            x -> assertConnectSecure(
+                                    server,
+                                    x,
+                                    OpcUaAssetConnectionConfig.builder().build(),
+                                    null)));
         }
         finally {
             server.shutdown();
@@ -231,7 +260,6 @@ public class OpcUaAssetConnectionTest {
         }
     }
 
-
     //    @Test
     //    public void testConnectBasic256() throws ValueFormatException, ConfigurationInitializationException, AssetConnectionException, IOException, GeneralSecurityException {
     //        assertConnectSecure(EndpointSecurityConfiguration.BASIC256_SIGN_TCP);
@@ -239,41 +267,8 @@ public class OpcUaAssetConnectionTest {
     //        assertConnectSecure(EndpointSecurityConfiguration.BASIC256_SIGN_ENCRYPT_TCP);
     //        assertConnectSecure(EndpointSecurityConfiguration.BASIC256_SIGN_ENCRYPT_HTTPS);
     //    }
-    //    @Test
-    //    public void testConnectBasic256UsernamePassword()
-    //            throws ValueFormatException, ConfigurationInitializationException, AssetConnectionException, IOException, GeneralSecurityException {
-    //        assertConnectSecureUsernamePassword(EndpointSecurityConfiguration.BASIC256_SIGN_TCP, USERNAME, PASSWORD);
-    //        assertConnectSecureUsernamePassword(EndpointSecurityConfiguration.BASIC256_SIGN_HTTPS, USERNAME, PASSWORD);
-    //        assertConnectSecureUsernamePassword(EndpointSecurityConfiguration.BASIC256_SIGN_ENCRYPT_TCP, USERNAME, PASSWORD);
-    //        assertConnectSecureUsernamePassword(EndpointSecurityConfiguration.BASIC256_SIGN_ENCRYPT_HTTPS, USERNAME, PASSWORD);
-    //    }
-    //
-    //    @Test
-    //    public void testConnectBasic256Certificate()
-    //            throws ValueFormatException, ConfigurationInitializationException, AssetConnectionException, IOException, GeneralSecurityException {
-    //        assertConnectSecureCertificate(EndpointSecurityConfiguration.BASIC256_SIGN_TCP);
-    //        assertConnectSecureCertificate(EndpointSecurityConfiguration.BASIC256_SIGN_HTTPS);
-    //        assertConnectSecureCertificate(EndpointSecurityConfiguration.BASIC256_SIGN_ENCRYPT_TCP);
-    //        assertConnectSecureCertificate(EndpointSecurityConfiguration.BASIC256_SIGN_ENCRYPT_HTTPS);
-    //    }
-    //    @Test
-    //    public void testConnectBasic256InvalidUsernamePassword()
-    //            throws ValueFormatException, ConfigurationInitializationException, AssetConnectionException, IOException, GeneralSecurityException {
-    //        String username = "foo";
-    //        String password = "bar";
-    //
-    //        Assert.assertThrows(ConfigurationInitializationException.class,
-    //                () -> assertConnectSecureUsernamePassword(EndpointSecurityConfiguration.BASIC256_SIGN_TCP, username, password));
-    //
-    //        Assert.assertThrows(ConfigurationInitializationException.class,
-    //                () -> assertConnectSecureUsernamePassword(EndpointSecurityConfiguration.BASIC256_SIGN_HTTPS, username, password));
-    //
-    //        Assert.assertThrows(ConfigurationInitializationException.class,
-    //                () -> assertConnectSecureUsernamePassword(EndpointSecurityConfiguration.BASIC256_SIGN_ENCRYPT_TCP, username, password));
-    //
-    //        Assert.assertThrows(ConfigurationInitializationException.class,
-    //                () -> assertConnectSecureUsernamePassword(EndpointSecurityConfiguration.BASIC256_SIGN_ENCRYPT_HTTPS, username, password));
-    //    }
+
+
     private void assertConnectSecureUsernamePassword(
                                                      EmbeddedOpcUaServer server,
                                                      EndpointSecurityConfiguration securityConfiguration,
@@ -290,17 +285,6 @@ public class OpcUaAssetConnectionTest {
                         .build(),
                 null);
     }
-
-    //    private void assertConnectUsernamePassword(EmbeddedOpcUaServer server, String username, String password)
-    //            throws ValueFormatException, ConfigurationInitializationException, AssetConnectionException, IOException, GeneralSecurityException {
-    //        assertConnect(
-    //                server,
-    //                OpcUaAssetConnectionConfig.builder()
-    //                        .userTokenType(UserTokenType.UserName)
-    //                        .username(username)
-    //                        .password(password)
-    //                        .build());
-    //    }
 
 
     private void assertConnectSecureCertificate(
@@ -884,7 +868,7 @@ public class OpcUaAssetConnectionTest {
                 KeystoreHelper
                         .loadOrDefault(
                                 Thread.currentThread().getContextClassLoader().getResourceAsStream(CLIENT_APPLICATION_CERTIFICATE_FILE),
-                                "",
+                                CLIENT_APPLICATION_CERTIFICATE_PASSWORD,
                                 CertificateInformation.builder().build())
                         .getCertificate()
                         .getEncoded());
