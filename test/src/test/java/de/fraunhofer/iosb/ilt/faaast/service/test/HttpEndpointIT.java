@@ -47,6 +47,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMem
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.Path;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.test.util.SocketHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendHelper;
@@ -78,7 +79,6 @@ import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ServerSocket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -135,18 +135,9 @@ public class HttpEndpointIT {
     }
 
 
-    private static int findFreePort() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            return serverSocket.getLocalPort();
-        }
-    }
-
-
     @BeforeClass
     public static void initClass() throws IOException {
-        PORT = findFreePort();
+        PORT = SocketHelper.findFreePort();
         API_PATHS = new ApiPaths(HOST, PORT);
     }
 

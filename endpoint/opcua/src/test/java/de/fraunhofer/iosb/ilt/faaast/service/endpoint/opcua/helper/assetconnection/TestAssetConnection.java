@@ -90,6 +90,16 @@ public class TestAssetConnection implements
 
 
     @Override
+    public void disconnect() throws AssetConnectionException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean isConnected() {
+        return false;
+    }
+
+    @Override
     public Map<Reference, AssetOperationProvider> getOperationProviders() {
         return this.operationProviders;
     }
@@ -113,7 +123,6 @@ public class TestAssetConnection implements
     }
 
 
-    @Override
     public void close() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

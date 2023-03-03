@@ -22,6 +22,8 @@ import io.adminshell.aas.v3.model.Reference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,6 +43,7 @@ import java.util.Objects;
 public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V, OC, O, SC, S>, C extends AssetConnectionConfig<T, VC, OC, SC>, VC extends AssetValueProviderConfig, V extends AssetValueProvider, OC extends AssetOperationProviderConfig, O extends AssetOperationProvider, SC extends AssetSubscriptionProviderConfig, S extends AssetSubscriptionProvider>
         implements AssetConnection<C, VC, V, OC, O, SC, S> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAssetConnection.class);
     protected static final String ERROR_MSG_REFERENCE_NOT_NULL = "reference must be non-null";
     protected static final String ERROR_MSG_PROVIDER_CONFIG_NOT_NULL = "providerConfig must be non-null";
     protected C config;
@@ -48,6 +51,8 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     protected ServiceContext serviceContext;
     protected final Map<Reference, S> subscriptionProviders;
     protected final Map<Reference, V> valueProviders;
+
+    private volatile boolean connected = false;
 
     protected AbstractAssetConnection() {
         valueProviders = new HashMap<>();
@@ -59,6 +64,17 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     protected AbstractAssetConnection(CoreConfig coreConfig, C config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this();
         init(coreConfig, config, serviceContext);
+    }
+
+
+    @Override
+    public boolean isConnected() {
+        return connected;
+    }
+
+
+    public void setConnected(boolean connected) {
+        this.connected = connected;
     }
 
 
@@ -97,6 +113,82 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     protected abstract void initConnection(C config) throws ConfigurationInitializationException, AssetConnectionException;
 
 
+    private void initConnectionAsync(C config) {
+        Thread initConnectionThread = new Thread(() -> {
+            Thread initializerThread = new Thread(() -> {
+                try {
+                    initConnection(config);
+                }
+                catch (Exception ex) {
+                    try {
+                        LOGGER.debug(ex.getMessage(), ex);
+                        Thread.currentThread().join(1000);
+                    }
+                    catch (InterruptedException ignored1) {}
+                }
+            });
+
+            while (!isConnected()) {
+                LOGGER.debug("Try to initialize Asset Connection " + config.getClass().getName());
+                initializerThread.start();
+                try {
+                    initializerThread.join();
+                    setConnected(true);
+                }
+                catch (Exception ignored) {}
+            }
+            try {
+                registerProviders(config);
+            }
+            catch (AssetConnectionException ex) {
+                LOGGER.debug("Error initializing Asset Connection " + config.getClass().getName(), ex);
+            }
+        });
+        initConnectionThread.start();
+    }
+
+
+    /**
+     * Gracefully closes the asset connection.
+     *
+     */
+    public abstract void close() throws AssetConnectionException;
+
+
+    @Override
+    public void disconnect() throws AssetConnectionException {
+        close();
+        unregisterProviders(config);
+        setConnected(false);
+    }
+
+
+    private void unregisterProviders(C config) throws AssetConnectionException {
+        for (var providerConfig: config.getValueProviders().entrySet()) {
+            unregisterValueProvider(providerConfig.getKey());
+        }
+        for (var providerConfig: config.getOperationProviders().entrySet()) {
+            unregisterOperationProvider(providerConfig.getKey());
+        }
+        for (var providerConfig: config.getSubscriptionProviders().entrySet()) {
+            unregisterSubscriptionProvider(providerConfig.getKey());
+        }
+    }
+
+
+    private void registerProviders(C config) throws AssetConnectionException {
+        for (var providerConfig: config.getValueProviders().entrySet()) {
+            registerValueProvider(providerConfig.getKey(), providerConfig.getValue());
+        }
+        for (var providerConfig: config.getOperationProviders().entrySet()) {
+            registerOperationProvider(providerConfig.getKey(), providerConfig.getValue());
+        }
+        for (var providerConfig: config.getSubscriptionProviders().entrySet()) {
+            registerSubscriptionProvider(providerConfig.getKey(), providerConfig.getValue());
+        }
+    }
+
+
     @Override
     public void init(CoreConfig coreConfig, C config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         Ensure.requireNonNull(coreConfig, "coreConfig must be non-null");
@@ -104,22 +196,7 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         this.config = config;
         this.serviceContext = serviceContext;
-        try {
-            initConnection(config);
-            for (var providerConfig: config.getValueProviders().entrySet()) {
-                registerValueProvider(providerConfig.getKey(), providerConfig.getValue());
-            }
-            for (var providerConfig: config.getOperationProviders().entrySet()) {
-                registerOperationProvider(providerConfig.getKey(), providerConfig.getValue());
-            }
-            for (var providerConfig: config.getSubscriptionProviders().entrySet()) {
-                registerSubscriptionProvider(providerConfig.getKey(), providerConfig.getValue());
-            }
-
-        }
-        catch (AssetConnectionException e) {
-            throw new ConfigurationInitializationException("initializing asset connection failed", e);
-        }
+        initConnectionAsync(config);
     }
 
 

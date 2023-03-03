@@ -257,6 +257,7 @@ public class MqttAssetConnectionTest {
                         .serverUri("tcp://" + LOCALHOST + ":" + port)
                         .build(),
                 mock(ServiceContext.class));
+        Thread.sleep(2000);
         localServer.stopServer();
         await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
                 .until(() -> logger.getAllLoggingEvents().stream()
@@ -435,6 +436,12 @@ public class MqttAssetConnectionTest {
             doReturn(expectedTypeInfo).when(serviceContext).getTypeInfo(reference);
         }
         result.init(CoreConfig.builder().build(), config, serviceContext);
+        try {
+            Thread.sleep(2000);
+        }
+        catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return result;
     }
 

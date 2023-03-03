@@ -44,7 +44,10 @@ public interface AssetConnection<T extends AssetConnectionConfig, VC extends Ass
      *
      * @throws AssetConnectionException if closing fails
      */
-    public void close() throws AssetConnectionException;
+    public void disconnect() throws AssetConnectionException;
+
+
+    public boolean isConnected();
 
 
     public Map<Reference, O> getOperationProviders();

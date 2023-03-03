@@ -116,6 +116,7 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                         .build(),
                 config,
                 serviceContext);
+        Thread.sleep(2000);
         // first value should always be the current value
         OpcUaClient client = OpcUaHelper.connect(config);
         client.connect().get();
@@ -181,6 +182,7 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                         .build(),
                 config,
                 serviceContext);
+        Thread.sleep(2000);
         // first value should always be the current value
         OpcUaClient client = OpcUaHelper.connect(config);
         DataValue originalValue = OpcUaHelper.readValue(client, nodeId);
@@ -234,6 +236,7 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                         .host(serverUrl)
                         .build(),
                 serviceContext);
+        Thread.sleep(2000);
         connection.getValueProviders().get(reference).setValue(expected);
         DataElementValue actual = connection.getValueProviders().get(reference).getValue();
         connection.close();
@@ -342,6 +345,7 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 .when(serviceContext)
                 .getOperationOutputVariables(reference);
         OpcUaAssetConnection connection = new OpcUaAssetConnection(CoreConfig.builder().build(), config, serviceContext);
+        Thread.sleep(2000);
         OperationVariable[] actual;
         if (sync) {
             actual = connection.getOperationProviders().get(reference).invoke(inputVariables, inoutputVariables);

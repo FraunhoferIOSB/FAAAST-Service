@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.config.fixtures;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
@@ -37,9 +38,22 @@ public class DummyAssetConnection
     private String host;
     private int port;
 
-    @Override
+    private volatile boolean connected = false;
+
     public void close() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+
+    @Override
+    public void disconnect() throws AssetConnectionException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+
+    @Override
+    public boolean isConnected() {
+        return connected;
     }
 
 
