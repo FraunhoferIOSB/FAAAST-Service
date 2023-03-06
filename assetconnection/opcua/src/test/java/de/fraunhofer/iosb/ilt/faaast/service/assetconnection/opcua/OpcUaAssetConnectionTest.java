@@ -260,14 +260,6 @@ public class OpcUaAssetConnectionTest {
         }
     }
 
-    //    @Test
-    //    public void testConnectBasic256() throws ValueFormatException, ConfigurationInitializationException, AssetConnectionException, IOException, GeneralSecurityException {
-    //        assertConnectSecure(EndpointSecurityConfiguration.BASIC256_SIGN_TCP);
-    //        assertConnectSecure(EndpointSecurityConfiguration.BASIC256_SIGN_HTTPS);
-    //        assertConnectSecure(EndpointSecurityConfiguration.BASIC256_SIGN_ENCRYPT_TCP);
-    //        assertConnectSecure(EndpointSecurityConfiguration.BASIC256_SIGN_ENCRYPT_HTTPS);
-    //    }
-
 
     private void assertConnectSecureUsernamePassword(
                                                      EmbeddedOpcUaServer server,
@@ -390,9 +382,6 @@ public class OpcUaAssetConnectionTest {
                                 OpcUaValueProviderConfig.builder()
                                         .nodeId(nodeId)
                                         .build())
-                        // TODO remove
-                        //.requestTimeout(config.getRequestTimeout())
-                        //.acknowledgeTimeout(config.getAcknowledgeTimeout())
                         .host(server.getEndpoint(config.getTransportProfile()))
                         .build(),
                 serviceContext);
@@ -853,13 +842,6 @@ public class OpcUaAssetConnectionTest {
                 server.getConfig().getApplicationCertificate()
                         .getCertificate()
                         .getEncoded());
-        // load directly into server
-        //        server.getServer().getConfig().getTrustListManager().addTrustedCertificate(KeystoreHelper
-        //                .loadOrDefault(
-        //                        Thread.currentThread().getContextClassLoader().getResourceAsStream(CLIENT_APPLICATION_CERTIFICATE_FILE),
-        //                        CLIENT_APPLICATION_CERTIFICATE_PASSWORD,
-        //                        OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO)
-        //                .getCertificate());
 
         // copy client certificate to server
         Files.createDirectories(SecurityPathHelper.trustedAllowed(server.getConfig().getSecurityBaseDir()));
