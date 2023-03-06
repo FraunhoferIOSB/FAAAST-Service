@@ -308,20 +308,18 @@ public class OpcUaHelper {
                 try {
                     // if still empty, generate
                     result = Optional.of(KeystoreHelper.generateSelfSigned(OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO));
-                    if (result.isPresent()) {
-                        // save generated certificate
-                        File newFile;
-                        if (certificateFile.isAbsolute()) {
-                            newFile = certificateFile;
-                        }
-                        else {
-                            newFile = securityBaseDir.resolve(certificateFile.toPath()).toFile();
-                        }
-                        KeystoreHelper.save(
-                                newFile,
-                                result.get(),
-                                certificatePassword);
+                    // save generated certificate
+                    File newFile;
+                    if (certificateFile.isAbsolute()) {
+                        newFile = certificateFile;
                     }
+                    else {
+                        newFile = securityBaseDir.resolve(certificateFile.toPath()).toFile();
+                    }
+                    KeystoreHelper.save(
+                            newFile,
+                            result.get(),
+                            certificatePassword);
                 }
                 catch (IOException | GeneralSecurityException e) {
                     throw new ConfigurationInitializationException(String.format("error generating OPC UA client %s certificate", name), e);
