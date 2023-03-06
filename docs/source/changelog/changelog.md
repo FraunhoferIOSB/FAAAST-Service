@@ -14,7 +14,7 @@
 *   Asset Connection
 	*   OPC UA
 		*   Support mapping to specific element in (multi-dimensional) array/vector
-		*   Additional parameters available in configuration: requestTimeout, acknowledgeTimeout, retries, securityPolicy
+		*   Additional parameters available in configuration: requestTimeout, acknowledgeTimeout, retries, securityPolicy, securityMode, securityBaseDir, transportProfile, userTokenType, applicationCertificateFile, applicationCertificatePassword, authenticationCertificateFile, authenticationCertificatePassword
 
 **Internal changes & bugfixes**
 *   HTTP Endpoint

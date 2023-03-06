@@ -15,24 +15,31 @@
 | Name | Allowed Value | Description |
 |:--| -- | -- |
 | host | String | URL of the OPC UA server, e.g. _opc.tcp://localhost:4840_ |
-| username | String | _optional_ Username for connecting to the OPC UA server |
-| password | String | _optional_ Password for connecting to the OPC UA server |
+| userTokenType | Enum | _optional_ User Token Type for connecting to the OPC UA server. Possible values are: Anonymous, UserName, Certificate. Default value is Anonymous |
+| username | String | _optional_ Username for connecting to the OPC UA server. This value is required if userTokenType UserName is selected. |
+| password | String | _optional_ Password for connecting to the OPC UA server. This value is required if userTokenType UserName is selected. |
 | requestTimeout | int | _optional_ Timeout for requests (in ms), default: 3000 |
 | acknowledgeTimeout | int | _optional_ Timeout for acknowledgement (in ms), default: 10000 |
 | retries | int | _optional_ Number of times a request/connection should be retried after failing, default: 1 |
 | securityPolicy | Enum | _optional_ Desired Security Policy for the connection to the OPC UA server. Possible values are: None, Basic256Sha256, Aes128_Sha256_RsaOaep and Aes256_Sha256_RsaPss. Default value is None. |
+| securityMode | Enum | _optional_ Security Mode for the connection to the OPC UA server. Possible values are: None, Sign and SignAndEncrypt. Default value is None. |
+| transportProfile | Enum | _optional_ Transport Profile for the connection to the OPC UA server. Possible values are: TCP_UASC_UABINARY, HTTPS_UABINARY, HTTPS_UAXML, HTTPS_UAJSON, WSS_UASC_UABINARY, WSS_UAJSON. Default value is TCP_UASC_UABINARY |
+| securityBaseDir | String | _optional_ Base directory for the certificate handling. Default value is the current directory ("."). |
+| applicationCertificateFile | File | _optional_ File name for the application certificate file. The format must be PKCS12. The file must contain exaxctly one alias. Default value is "application.p12". |
+| applicationCertificatePassword | String | _optional_ Password for the application certificate file. Default value is an empty string ("") |
+| authenticationCertificateFile | File | _optional_ File name for the authentication certificate file. The format must be PKCS12. This value is required if userTokenType Certificate is selected |
+| authenticationCertificatePassword | String | _optional_ Password for the authentication certificate file. Default value is an empty string (""). This value is required if userTokenType Certificate is selected |
 
-Please be aware, that when the Security Policy is set to a value other than "None", you must take care of the certificate management.
+Please be aware, that when the Security Mode is set to a value other than "None", you must take care of the certificate management.
 On the one hand, you must trust the certificate of the Asset Connection Client in the OPC UA server.
 On the other hand, you must trust the certificate of the OPC UA server in the Asset Connection.
-By default the certificates of the Asset Connection are stored in a subdirectory of the current directory.
-You can change this directory by specifying a different directory in the environment variable FA3ST_ASSET_CONN_PKI.
-Below this directory you can find the certificate of the Asset Connection in the file "client\security\fa3st-client.pfx".
-In the directory "client\security\pki\rejected" the certificates of unknown or rejected servers are saved, the certificates of trusted servers are saved in the directory "client\security\pki\trusted\certs". You can also use this directory to trust certificates of a certificate authority, for the corresponding certificate revocation list (CRL) use the directory "client\security\pki\trusted\crl".
-Alternatively you can also trust certificates of a certificate authority using the directory "client\security\pki\issuers\certs" for the certificate and "client\security\pki\issuers\crl" for the CRL.
+The certificates of the Asset Connection are stored in the securityBaseDir.
+The certificate of the Asset Connection is specified in applicationCertificateFile. If no certificate is provided, a self-signed certificate is created on startup.
+In the subdirectory "pki\rejected" of the securityBaseDir the certificates of unknown or rejected servers are saved, the certificates of trusted servers are saved in the subdirectory "pki\trusted\certs". You can also use this directory to trust certificates of a certificate authority, for the corresponding certificate revocation list (CRL) use the directory "pki\trusted\crl".
+Alternatively you can also trust certificates of a certificate authority using the directory "pki\issuers\certs" for the certificate and "pki\issuers\crl" for the CRL.
 
-As already said, when you first connect to an OPC UA Server using a Security Policy like Basic256Sha256, you have to make sure, that the OPC UA Server trusts the certificate of the Asset Connection Client. Afterwards, when you try to connect to the server, the certificate of the server will be rejected initially and saved in the directory for the rejected certificates ("client\security\pki\rejected").
-To trust the server, move the corresponding certificate file from the rejected directory to the trusted directory (client\security\pki\trusted\certs").
+As already said, when you first connect to an OPC UA Server using a Security Policy like Basic256Sha256, you have to make sure, that the OPC UA Server trusts the certificate of the Asset Connection Client. Afterwards, when you try to connect to the server, the certificate of the server will be rejected initially and saved in the directory for the rejected certificates ("pki\rejected" in the securityBaseDir).
+To trust the server, move the corresponding certificate file from the rejected directory to the trusted directory ("pki\trusted\certs" in the securityBaseDir).
 
 ### Value Provider
 
@@ -125,6 +132,7 @@ A complete example for OPC UA asset connection could look like this
 	"@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection",
 	"host": "opc.tcp://localhost:4840",
 	"securityPolicy": "None",
+	"securityMode" : "None",
 	"valueProviders":
 	{
 		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property1":
