@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -310,8 +308,22 @@ public class OpcUaHelper {
                 try {
                     // if still empty, generate
                     result = Optional.of(KeystoreHelper.generateSelfSigned(OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO));
+                    if (result.isPresent()) {
+                        // save generated certificate
+                        File newFile;
+                        if (certificateFile.isAbsolute()) {
+                            newFile = certificateFile;
+                        }
+                        else {
+                            newFile = securityBaseDir.resolve(certificateFile.toPath()).toFile();
+                        }
+                        KeystoreHelper.save(
+                                newFile,
+                                result.get(),
+                                certificatePassword);
+                    }
                 }
-                catch (KeyStoreException | NoSuchAlgorithmException e) {
+                catch (IOException | GeneralSecurityException e) {
                     throw new ConfigurationInitializationException(String.format("error generating OPC UA client %s certificate", name), e);
                 }
                 LOGGER.debug("Generating new OPC UA client {} certificate", name);
