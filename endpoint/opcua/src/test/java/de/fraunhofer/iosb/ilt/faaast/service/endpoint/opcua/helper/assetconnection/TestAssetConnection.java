@@ -94,10 +94,12 @@ public class TestAssetConnection implements
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+
     @Override
     public boolean isConnected() {
         return false;
     }
+
 
     @Override
     public Map<Reference, AssetOperationProvider> getOperationProviders() {
