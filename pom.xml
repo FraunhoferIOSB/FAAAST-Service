@@ -121,7 +121,7 @@
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.7.1</picocli.version>
         <poi.ooxml.version>5.2.3</poi.ooxml.version>
-        <proguard.core.version>9.0.7</proguard.core.version>
+        <proguard.core.version>9.0.8</proguard.core.version>
         <proguard.version>7.3.1</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>4.10.4-14</prosys.sdk.version>
