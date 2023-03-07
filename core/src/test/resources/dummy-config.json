@@ -15,7 +15,8 @@
                                 }
                     },
             "host": "tcp://localhost",
-            "port": 1234
+            "port": 1234,
+          "initializationInterval" : 10000
         }
     ]
 }

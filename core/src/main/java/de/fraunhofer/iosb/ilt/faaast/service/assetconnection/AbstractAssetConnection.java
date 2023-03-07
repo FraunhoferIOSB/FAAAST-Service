@@ -112,38 +112,44 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
      */
     protected abstract void initConnection(C config) throws ConfigurationInitializationException, AssetConnectionException;
 
+    private Thread initializerThread = new Thread(() -> {
+        boolean connected = false;
+        while (!connected) {
+            try {
+                initConnection(config);
+                connected = true;
+            }
+            catch (Exception ex) {
+                try {
+                    LOGGER.debug(ex.getMessage(), ex);
+                    Thread.currentThread().join(config.getInitializationInterval());
+                }
+                catch (InterruptedException ignored1) {}
+            }
+        }
+    });
 
     private void initConnectionAsync(C config) {
         Thread initConnectionThread = new Thread(() -> {
-            Thread initializerThread = new Thread(() -> {
-                try {
-                    initConnection(config);
-                }
-                catch (Exception ex) {
-                    try {
-                        LOGGER.debug(ex.getMessage(), ex);
-                        Thread.currentThread().join(1000);
-                    }
-                    catch (InterruptedException ignored1) {}
-                }
-            });
-
             while (!isConnected()) {
                 LOGGER.debug("Try to initialize Asset Connection " + config.getClass().getName());
                 initializerThread.start();
                 try {
                     initializerThread.join();
+                    LOGGER.info("Initialize Asset Connection " + config.getClass().getName());
                     setConnected(true);
                 }
                 catch (Exception ignored) {}
             }
+
             try {
                 registerProviders(config);
             }
             catch (AssetConnectionException ex) {
-                LOGGER.debug("Error initializing Asset Connection " + config.getClass().getName(), ex);
+                LOGGER.warn("Error initializing Asset Connection " + config.getClass().getName(), ex);
             }
         });
+
         initConnectionThread.start();
     }
 

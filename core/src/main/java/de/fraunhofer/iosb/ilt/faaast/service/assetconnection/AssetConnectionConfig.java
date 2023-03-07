@@ -49,10 +49,15 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
     @JsonDeserialize(keyUsing = ReferenceDeserializer.class)
     protected Map<Reference, V> valueProviders;
 
+    private static final int DEFAULT_INITIALIZATION_INTERVAL = 10000;
+
+    protected int initializationInterval;
+
     public AssetConnectionConfig() {
         operationProviders = new HashMap<>();
         subscriptionProviders = new HashMap<>();
         valueProviders = new HashMap<>();
+        initializationInterval = DEFAULT_INITIALIZATION_INTERVAL;
     }
 
 
@@ -116,6 +121,26 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
     }
 
 
+    /**
+     * Gets the asset connection initialization interval.
+     *
+     * @return interval in milliseconds
+     */
+    public int getInitializationInterval() {
+        return initializationInterval;
+    }
+
+
+    /**
+     * Sets the asset connection initialization interval.
+     *
+     * @param initializationInterval in milliseconds
+     */
+    public void setInitializationInterval(int initializationInterval) {
+        this.initializationInterval = initializationInterval;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -127,13 +152,14 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
         AssetConnectionConfig<?, ?, ?, ?> that = (AssetConnectionConfig<?, ?, ?, ?>) o;
         return Objects.equals(valueProviders, that.valueProviders)
                 && Objects.equals(operationProviders, that.operationProviders)
-                && Objects.equals(subscriptionProviders, that.subscriptionProviders);
+                && Objects.equals(subscriptionProviders, that.subscriptionProviders)
+                && Objects.equals(initializationInterval, that.initializationInterval);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(valueProviders, operationProviders, subscriptionProviders);
+        return Objects.hash(valueProviders, operationProviders, subscriptionProviders, initializationInterval);
     }
 
     /**
@@ -184,6 +210,12 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
 
         public B subscriptionProvider(Reference key, SC value) {
             getBuildingInstance().getSubscriptionProviders().put(key, value);
+            return getSelf();
+        }
+
+
+        public B initializationInverval(int value) {
+            getBuildingInstance().setInitializationInterval(value);
             return getSelf();
         }
 
