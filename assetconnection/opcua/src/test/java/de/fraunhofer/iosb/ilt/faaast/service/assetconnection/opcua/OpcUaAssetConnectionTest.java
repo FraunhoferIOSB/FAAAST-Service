@@ -116,7 +116,7 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                         .build(),
                 config,
                 serviceContext);
-        Thread.sleep(5000);
+        Thread.sleep(7000);
         // first value should always be the current value
         OpcUaClient client = OpcUaHelper.connect(config);
         client.connect().get();
