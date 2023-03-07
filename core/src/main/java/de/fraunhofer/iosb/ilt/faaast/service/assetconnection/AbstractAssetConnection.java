@@ -54,6 +54,23 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
 
     private volatile boolean connected = false;
 
+    private final Thread initializerThread = new Thread(() -> {
+        boolean connected = false;
+        while (!connected) {
+            try {
+                initConnection(config);
+                connected = true;
+            }
+            catch (Exception ex) {
+                try {
+                    LOGGER.debug(ex.getMessage(), ex);
+                    Thread.currentThread().join(config.getInitializationInterval());
+                }
+                catch (InterruptedException ignored1) {}
+            }
+        }
+    });
+
     protected AbstractAssetConnection() {
         valueProviders = new HashMap<>();
         operationProviders = new HashMap<>();
@@ -112,22 +129,6 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
      */
     protected abstract void initConnection(C config) throws ConfigurationInitializationException, AssetConnectionException;
 
-    private Thread initializerThread = new Thread(() -> {
-        boolean connected = false;
-        while (!connected) {
-            try {
-                initConnection(config);
-                connected = true;
-            }
-            catch (Exception ex) {
-                try {
-                    LOGGER.debug(ex.getMessage(), ex);
-                    Thread.currentThread().join(config.getInitializationInterval());
-                }
-                catch (InterruptedException ignored1) {}
-            }
-        }
-    });
 
     private void initConnectionAsync(C config) {
         Thread initConnectionThread = new Thread(() -> {

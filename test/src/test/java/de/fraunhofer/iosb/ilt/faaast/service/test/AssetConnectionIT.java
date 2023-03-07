@@ -117,7 +117,7 @@ public class AssetConnectionIT {
 
 
     @Test
-    public void test_serviceStart_InvalidAssetConnection() throws Exception {
+    public void testServiceStartInvalidAssetConnection() throws Exception {
         service = new Service(serviceConfig("invalid", PORT2, PORT2, PORT1));
         service.start();
         Thread.sleep(5000);
@@ -126,7 +126,7 @@ public class AssetConnectionIT {
 
 
     @Test
-    public void test_serviceStart_ValidAssetConnection() throws Exception {
+    public void testServiceStartValidAssetConnection() throws Exception {
         service = new Service(serviceConfig("ns=3;s=3.Value", PORT2, PORT2, PORT1));
         service.start();
         Thread.sleep(5000);
@@ -136,7 +136,7 @@ public class AssetConnectionIT {
 
 
     @Test
-    public void test_serviceStart_ValidAssetConnectionOffset() throws Exception {
+    public void testServiceStartValidAssetConnectionOffset() throws Exception {
         service = new Service(serviceConfig("ns=3;s=3.Value", PORT2, PORT3, PORT1));
         service.start();
         Thread.sleep(5000);
