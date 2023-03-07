@@ -66,7 +66,10 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
                     LOGGER.debug(ex.getMessage(), ex);
                     Thread.currentThread().join(config.getInitializationInterval());
                 }
-                catch (InterruptedException ignored1) {}
+                catch (InterruptedException e) {
+                    LOGGER.warn("Initializer Thread was interrupted", e);
+                    Thread.currentThread().interrupt();
+                }
             }
         }
     });
@@ -140,7 +143,10 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
                     LOGGER.info("Initialize Asset Connection " + config.getClass().getName());
                     setConnected(true);
                 }
-                catch (Exception ignored) {}
+                catch (Exception ex) {
+                    LOGGER.warn("Initialize Asset Connection Thread was interrupted", ex);
+                    Thread.currentThread().interrupt();
+                }
             }
 
             try {
