@@ -55,11 +55,11 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     private volatile boolean connected = false;
 
     private final Thread initializerThread = new Thread(() -> {
-        boolean connected = false;
-        while (!connected) {
+        boolean success = false;
+        while (!success) {
             try {
                 initConnection(config);
-                connected = true;
+                success = true;
             }
             catch (Exception ex) {
                 try {
@@ -136,11 +136,11 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     private void initConnectionAsync(C config) {
         Thread initConnectionThread = new Thread(() -> {
             while (!isConnected()) {
-                LOGGER.debug("Try to initialize Asset Connection " + config.getClass().getName());
+                LOGGER.debug(String.format("Try to initialize Asset Connection %s", config.getClass().getName()));
                 initializerThread.start();
                 try {
                     initializerThread.join();
-                    LOGGER.info("Initialize Asset Connection " + config.getClass().getName());
+                    LOGGER.info(String.format("Initialize Asset Connection %s", config.getClass().getName()));
                     setConnected(true);
                 }
                 catch (Exception ex) {
@@ -153,7 +153,7 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
                 registerProviders(config);
             }
             catch (AssetConnectionException ex) {
-                LOGGER.warn("Error initializing Asset Connection " + config.getClass().getName(), ex);
+                LOGGER.warn(String.format("Error initializing Asset Connection %s", config.getClass().getName()), ex);
             }
         });
 
@@ -176,7 +176,7 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     }
 
 
-    private void unregisterProviders(C config) throws AssetConnectionException {
+    private void unregisterProviders(C config) {
         for (var providerConfig: config.getValueProviders().entrySet()) {
             unregisterValueProvider(providerConfig.getKey());
         }
