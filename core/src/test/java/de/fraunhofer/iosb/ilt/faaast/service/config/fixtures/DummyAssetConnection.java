@@ -46,8 +46,20 @@ public class DummyAssetConnection
 
 
     @Override
+    public void connect() throws AssetConnectionException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+
+    @Override
     public void disconnect() throws AssetConnectionException {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+
+    @Override
+    public String getEndpointInformation() {
+        return "";
     }
 
 

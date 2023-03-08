@@ -44,6 +44,7 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
         implements AssetConnection<C, VC, V, OC, O, SC, S> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAssetConnection.class);
+    private volatile boolean connected;
     protected static final String ERROR_MSG_REFERENCE_NOT_NULL = "reference must be non-null";
     protected static final String ERROR_MSG_PROVIDER_CONFIG_NOT_NULL = "providerConfig must be non-null";
     protected C config;
@@ -52,29 +53,8 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     protected final Map<Reference, S> subscriptionProviders;
     protected final Map<Reference, V> valueProviders;
 
-    private volatile boolean connected = false;
-
-    private final Thread initializerThread = new Thread(() -> {
-        boolean success = false;
-        while (!success) {
-            try {
-                initConnection(config);
-                success = true;
-            }
-            catch (Exception ex) {
-                try {
-                    LOGGER.debug(ex.getMessage(), ex);
-                    Thread.currentThread().join(config.getInitializationInterval());
-                }
-                catch (InterruptedException e) {
-                    LOGGER.warn("Initializer Thread was interrupted", e);
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }
-    });
-
     protected AbstractAssetConnection() {
+        connected = false;
         valueProviders = new HashMap<>();
         operationProviders = new HashMap<>();
         subscriptionProviders = new HashMap<>();
@@ -123,60 +103,38 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
 
 
     /**
-     * Initializes the connection.
+     * Connects to the asset.
      *
-     * @param config the provided configuration to use for this connection
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException if initializations
-     *             fails because of wrong configuration
-     * @throws AssetConnectionException if initialization fails because of underlying asset connection
+     * @throws AssetConnectionException if connecting fails
      */
-    protected abstract void initConnection(C config) throws ConfigurationInitializationException, AssetConnectionException;
-
-
-    private void initConnectionAsync(C config) {
-        Thread initConnectionThread = new Thread(() -> {
-            while (!isConnected()) {
-                LOGGER.debug(String.format("Try to initialize Asset Connection %s", config.getClass().getName()));
-                initializerThread.start();
-                try {
-                    initializerThread.join();
-                    LOGGER.info(String.format("Initialize Asset Connection %s", config.getClass().getName()));
-                    setConnected(true);
-                }
-                catch (Exception ex) {
-                    LOGGER.warn("Initialize Asset Connection Thread was interrupted", ex);
-                    Thread.currentThread().interrupt();
-                }
-            }
-
-            try {
-                registerProviders(config);
-            }
-            catch (AssetConnectionException ex) {
-                LOGGER.warn(String.format("Error initializing Asset Connection %s", config.getClass().getName()), ex);
-            }
-        });
-
-        initConnectionThread.start();
-    }
+    protected abstract void doConnect() throws AssetConnectionException;
 
 
     /**
-     * Gracefully closes the asset connection.
+     * Closes the asset connection.
      *
+     * @throws AssetConnectionException if closing fails
      */
-    public abstract void close() throws AssetConnectionException;
+    protected abstract void doDisconnect() throws AssetConnectionException;
+
+
+    @Override
+    public void connect() throws AssetConnectionException {
+        doConnect();
+        connected = true;
+        registerProviders();
+    }
 
 
     @Override
     public void disconnect() throws AssetConnectionException {
-        close();
-        unregisterProviders(config);
-        setConnected(false);
+        doDisconnect();
+        unregisterProviders();
+        connected = false;
     }
 
 
-    private void unregisterProviders(C config) {
+    private void unregisterProviders() {
         for (var providerConfig: config.getValueProviders().entrySet()) {
             unregisterValueProvider(providerConfig.getKey());
         }
@@ -189,7 +147,7 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     }
 
 
-    private void registerProviders(C config) throws AssetConnectionException {
+    private void registerProviders() throws AssetConnectionException {
         for (var providerConfig: config.getValueProviders().entrySet()) {
             registerValueProvider(providerConfig.getKey(), providerConfig.getValue());
         }
@@ -209,7 +167,6 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         this.config = config;
         this.serviceContext = serviceContext;
-        initConnectionAsync(config);
     }
 
 

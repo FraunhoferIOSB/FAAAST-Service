@@ -56,8 +56,8 @@ or
 |:--| -- | -- |
 | nodeId | String | nodeId of the OPC UA method to call in ExpandedNodeId format |
 | parentNodeId | String | _optional_ nodeId of the OPC UA object in ExpandedNodeId format, in which the method is contained. When no parentNodeId is given here, the parent object of the method is used |
-| inputArgumentMapping | List&lt;ArgumentMapping&gt; | _optional_ list of mappings for input arguments between the idShort of a SubmodelElement and an argument name
-| outputArgumentMapping | List&lt;ArgumentMapping&gt; | _optional_ list of mappings for output arguments between the idShort of a SubmodelElement and an argument name
+| inputArgumentMapping | List&lt;ArgumentMapping&gt; | _optional_ list of mappings for input arguments between the idShort of a SubmodelElement and an argument name |
+| outputArgumentMapping | List&lt;ArgumentMapping&gt; | _optional_ list of mappings for output arguments between the idShort of a SubmodelElement and an argument name |
 
 #### Example
 
@@ -87,7 +87,7 @@ or
 | Name | Allowed Value | Description |
 |:--| -- | -- |
 | nodeId | String | NodeId of the the OPC UA node to read/write in ExpandedNodeId format |
-| interval | long | Interval to poll the server for changes (in ms) _currently not used_
+| interval | long | Interval to poll the server for changes (in ms) _currently not used_ |
 | arrayIndex | String | _optional_ Index of the desired array element if the value is an array |
 
 If the value is an array, it's possible to reference a specific element of the array. The index of the desired element is specified with square brackets, e.g. "[2]".  If the value is multi-dimensional array, multiple indizes can be specified, e.g. "&#091;1&#093;&#091;3&#093;".

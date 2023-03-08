@@ -189,6 +189,7 @@ public class Service implements ServiceContext {
     public void stop() {
         LOGGER.info("Get command for stopping FA³ST Service");
         messageBus.stop();
+        assetConnectionManager.stop();
         endpoints.forEach(Endpoint::stop);
     }
 

@@ -73,22 +73,8 @@ public class OpcUaAssetConnection extends
 
 
     @Override
-    public void close() throws AssetConnectionException {
-        if (client != null) {
-            try {
-                subscriptionProviders.values().stream().forEach(LambdaExceptionHelper.rethrowConsumer(OpcUaSubscriptionProvider::close));
-            }
-            catch (AssetConnectionException e) {
-                LOGGER.info("unsubscribing from OPC UA asset connection on connection closing failed", e);
-            }
-            try {
-                client.disconnect().get();
-            }
-            catch (InterruptedException | ExecutionException e) {
-                Thread.currentThread().interrupt();
-                throw new AssetConnectionException("error closing OPC UA asset connection", e);
-            }
-        }
+    public String getEndpointInformation() {
+        return config.getHost();
     }
 
 
@@ -170,7 +156,7 @@ public class OpcUaAssetConnection extends
 
 
     @Override
-    protected void initConnection(OpcUaAssetConnectionConfig config) throws AssetConnectionException {
+    protected void doConnect() throws AssetConnectionException {
         client = OpcUaHelper.connect(config, x -> x.addSessionActivityListener(new SessionActivityListener() {
             @Override
             public void onSessionActive(UaSession session) {
@@ -189,6 +175,26 @@ public class OpcUaAssetConnection extends
         catch (UaException e) {
             Thread.currentThread().interrupt();
             throw new AssetConnectionException(String.format("creating OPC UA subscription failed (host: %s)", config.getHost()), e);
+        }
+    }
+
+
+    @Override
+    protected void doDisconnect() throws AssetConnectionException {
+        if (client != null) {
+            try {
+                subscriptionProviders.values().stream().forEach(LambdaExceptionHelper.rethrowConsumer(OpcUaSubscriptionProvider::close));
+            }
+            catch (AssetConnectionException e) {
+                LOGGER.info("unsubscribing from OPC UA asset connection on connection closing failed", e);
+            }
+            try {
+                client.disconnect().get();
+            }
+            catch (InterruptedException | ExecutionException e) {
+                Thread.currentThread().interrupt();
+                throw new AssetConnectionException("error closing OPC UA asset connection", e);
+            }
         }
     }
 

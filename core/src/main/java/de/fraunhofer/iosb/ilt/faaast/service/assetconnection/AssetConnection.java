@@ -40,11 +40,19 @@ public interface AssetConnection<T extends AssetConnectionConfig, VC extends Ass
         extends Configurable<T> {
 
     /**
-     * Gracefully closes the asset connection.
+     * Closes the asset connection.
      *
      * @throws AssetConnectionException if closing fails
      */
     public void disconnect() throws AssetConnectionException;
+
+
+    /**
+     * Connects to the asset.
+     *
+     * @throws AssetConnectionException if connecting fails
+     */
+    public void connect() throws AssetConnectionException;
 
 
     public boolean isConnected();
@@ -57,6 +65,14 @@ public interface AssetConnection<T extends AssetConnectionConfig, VC extends Ass
 
 
     public Map<Reference, V> getValueProviders();
+
+
+    /**
+     * Gets information about the endpoint of the connection used for proper error reporting.
+     *
+     * @return information about the endpoint of the connection
+     */
+    public String getEndpointInformation();
 
 
     /**

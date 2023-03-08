@@ -65,7 +65,6 @@ public class ConfigTest {
     public void testSerialization() throws JsonProcessingException, IOException, JSONException {
         String expected = Files.readString(CONFIG_FILE.toPath());
         String actual = mapper.writeValueAsString(config);
-        System.out.println(actual);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 

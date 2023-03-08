@@ -225,6 +225,7 @@ public class HttpAssetConnectionTest {
                         .baseUrl(baseUrl)
                         .build(),
                 serviceContext);
+        connection.connect();
         Thread.sleep(2000);
         try {
             if (customAssert != null) {
@@ -237,7 +238,7 @@ public class HttpAssetConnectionTest {
             verify(exactly(1), verifier);
         }
         finally {
-            connection.close();
+            connection.disconnect();
         }
     }
 
@@ -339,6 +340,7 @@ public class HttpAssetConnectionTest {
                         .baseUrl(baseUrl)
                         .build(),
                 serviceContext);
+        connection.connect();
         Thread.sleep(2000);
         NewDataListener listener = null;
         try {
@@ -363,7 +365,7 @@ public class HttpAssetConnectionTest {
             verify(exactly(httpResponseBodies.size()), verifier);
         }
         finally {
-            connection.close();
+            connection.disconnect();
         }
     }
 
@@ -507,6 +509,7 @@ public class HttpAssetConnectionTest {
                         .baseUrl(baseUrl)
                         .build(),
                 serviceContext);
+        connection.connect();
         Thread.sleep(2000);
         try {
             OperationVariable[] actualInput = toOperationVariables(input);
@@ -525,7 +528,7 @@ public class HttpAssetConnectionTest {
             verify(exactly(1), verifier);
         }
         finally {
-            connection.close();
+            connection.disconnect();
         }
     }
 

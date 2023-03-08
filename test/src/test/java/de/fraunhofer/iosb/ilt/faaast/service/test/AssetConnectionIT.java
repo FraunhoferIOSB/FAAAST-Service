@@ -106,7 +106,6 @@ public class AssetConnectionIT {
                         .build())
                 .assetConnection(OpcUaAssetConnectionConfig.builder()
                         .host("opc.tcp://" + "localhost:" + opcuaAssetConnectionPort)
-                        .initializationInverval(1000)
                         .valueProvider(AasUtils.toReference(AasUtils.toReference(submodel), target),
                                 OpcUaValueProviderConfig.builder()
                                         .nodeId(nodeId)

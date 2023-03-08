@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttV
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.Reference;
 import org.apache.commons.lang3.StringUtils;
@@ -65,23 +64,8 @@ public class MqttAssetConnection extends
     private MqttClient client;
 
     @Override
-    public void close() {
-        if (client != null) {
-            if (client.isConnected()) {
-                try {
-                    client.disconnect();
-                }
-                catch (MqttException e) {
-                    LOGGER.debug("MQTT connection could not be properly closed", e);
-                }
-            }
-            try {
-                client.close(true);
-            }
-            catch (MqttException e) {
-                LOGGER.debug("MQTT connection could not be properly closed", e);
-            }
-        }
+    public String getEndpointInformation() {
+        return config.getServerUri();
     }
 
 
@@ -104,7 +88,7 @@ public class MqttAssetConnection extends
 
 
     @Override
-    protected void initConnection(MqttAssetConnectionConfig config) throws ConfigurationInitializationException {
+    protected void doConnect() throws AssetConnectionException {
         try {
             client = new MqttClient(config.getServerUri(), config.getClientId(), new MemoryPersistence());
             client.setCallback(new MqttCallbackExtended() {
@@ -158,7 +142,28 @@ public class MqttAssetConnection extends
 
         }
         catch (MqttException e) {
-            throw new ConfigurationInitializationException("initializaing MQTT asset connection failed", e);
+            throw new AssetConnectionException("initializaing MQTT asset connection failed", e);
+        }
+    }
+
+
+    @Override
+    protected void doDisconnect() throws AssetConnectionException {
+        if (client != null) {
+            if (client.isConnected()) {
+                try {
+                    client.disconnect();
+                }
+                catch (MqttException e) {
+                    LOGGER.debug("MQTT connection could not be properly closed", e);
+                }
+            }
+            try {
+                client.close(true);
+            }
+            catch (MqttException e) {
+                LOGGER.debug("MQTT connection could not be properly closed", e);
+            }
         }
     }
 

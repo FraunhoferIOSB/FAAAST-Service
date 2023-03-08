@@ -2,7 +2,8 @@
 {
     "core":
             {
-                "requestHandlerThreadPoolSize": 2
+                "requestHandlerThreadPoolSize": 2,
+                "assetConnectionRetryInterval": 1000
             },
     "assetConnections": [
         {
@@ -15,8 +16,7 @@
                                 }
                     },
             "host": "tcp://localhost",
-            "port": 1234,
-          "initializationInterval" : 10000
+            "port": 1234
         }
     ]
 }

@@ -30,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.confi
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
@@ -240,23 +241,25 @@ public class MqttAssetConnectionTest {
         }
         finally {
             assetConnection.getSubscriptionProviders().get(DEFAULT_REFERENCE).removeNewDataListener(listener);
-            assetConnection.close();
+            assetConnection.disconnect();
         }
     }
 
 
     @Test
     public void testSubscriptionProviderConnectionLost()
-            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException {
+            throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ConfigurationException {
         int port = findFreePort();
         Server localServer = startMqttServer(port);
         TestLogger logger = TestLoggerFactory.getTestLogger(MqttAssetConnection.class);
-        new MqttAssetConnection().init(CoreConfig.builder()
-                .build(),
-                MqttAssetConnectionConfig.builder()
-                        .serverUri("tcp://" + LOCALHOST + ":" + port)
-                        .build(),
-                mock(ServiceContext.class));
+
+        MqttAssetConnection connection = MqttAssetConnectionConfig.builder()
+                .serverUri("tcp://" + LOCALHOST + ":" + port)
+                .build()
+                .newInstance(
+                        CoreConfig.DEFAULT,
+                        mock(ServiceContext.class));
+        connection.connect();
         Thread.sleep(2000);
         localServer.stopServer();
         await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
@@ -315,7 +318,7 @@ public class MqttAssetConnectionTest {
         }
         finally {
             assetConnection.getSubscriptionProviders().get(DEFAULT_REFERENCE).removeNewDataListener(listener);
-            assetConnection.close();
+            assetConnection.disconnect();
             localMqttServer.stopServer();
         }
     }
@@ -384,13 +387,13 @@ public class MqttAssetConnectionTest {
     }
 
 
-    private MqttAssetConnection newConnection(MqttValueProviderConfig valueProvider) throws ConfigurationInitializationException {
+    private MqttAssetConnection newConnection(MqttValueProviderConfig valueProvider) throws ConfigurationInitializationException, AssetConnectionException {
         return newConnection(DEFAULT_REFERENCE, null, valueProvider, null, null);
     }
 
 
     private MqttAssetConnection newConnection(TypeInfo expectedTypeInfo, MqttSubscriptionProviderConfig subscriptionProvider)
-            throws ConfigurationInitializationException {
+            throws ConfigurationInitializationException, AssetConnectionException {
         return newConnection(DEFAULT_REFERENCE, expectedTypeInfo, null, null, subscriptionProvider);
     }
 
@@ -400,7 +403,7 @@ public class MqttAssetConnectionTest {
                                               MqttValueProviderConfig valueProvider,
                                               MqttOperationProviderConfig operationProvider,
                                               MqttSubscriptionProviderConfig subscriptionProvider)
-            throws ConfigurationInitializationException {
+            throws ConfigurationInitializationException, AssetConnectionException {
         return newConnection(mqttServerUri, reference, expectedTypeInfo, valueProvider, operationProvider, subscriptionProvider);
     }
 
@@ -411,7 +414,7 @@ public class MqttAssetConnectionTest {
                                               MqttValueProviderConfig valueProvider,
                                               MqttOperationProviderConfig operationProvider,
                                               MqttSubscriptionProviderConfig subscriptionProvider)
-            throws ConfigurationInitializationException {
+            throws ConfigurationInitializationException, AssetConnectionException {
         MqttAssetConnectionConfig config = MqttAssetConnectionConfig.builder()
                 .serverUri(url)
                 .build();
@@ -436,6 +439,7 @@ public class MqttAssetConnectionTest {
             doReturn(expectedTypeInfo).when(serviceContext).getTypeInfo(reference);
         }
         result.init(CoreConfig.builder().build(), config, serviceContext);
+        result.connect();
         try {
             Thread.sleep(2000);
         }
