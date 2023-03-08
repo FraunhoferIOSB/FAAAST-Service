@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.test;
 
 import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.util.HttpHelper.toHttpStatusCode;
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
@@ -51,6 +52,7 @@ import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
+import java.util.concurrent.TimeUnit;
 import org.json.JSONException;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -162,6 +164,7 @@ public class AssetConnectionIT {
                         NODE_ID_SOURCE,
                         opcua));
         service.start();
+        awaitAssetConnected(service);
         assertAvailability(http);
         assertTargetValue(http, SOURCE_VALUE);
     }
@@ -182,7 +185,7 @@ public class AssetConnectionIT {
         assertTargetValue(http, TARGET_VALUE);
         Service service2 = new Service(serviceConfig(http2, opcua2));
         service2.start();
-        Thread.sleep(config.getCore().getAssetConnectionRetryInterval() * 2);
+        awaitAssetConnected(service);
         assertTargetValue(http, SOURCE_VALUE);
         service2.stop();
     }
@@ -203,6 +206,14 @@ public class AssetConnectionIT {
                 null,
                 expected,
                 AssetAdministrationShell.class);
+    }
+
+
+    private void awaitAssetConnected(Service service) {
+        await().atMost(30, TimeUnit.SECONDS)
+                .with()
+                .pollInterval(1, TimeUnit.SECONDS)
+                .until(() -> service.getAssetConnectionManager().getConnections().get(0).isConnected());
     }
 
 

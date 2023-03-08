@@ -51,8 +51,8 @@ import org.slf4j.LoggerFactory;
 public class Service implements ServiceContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Service.class);
+    private final ServiceConfig config;
     private AssetConnectionManager assetConnectionManager;
-    private ServiceConfig config;
     private List<Endpoint> endpoints;
     private MessageBus messageBus;
     private Persistence persistence;
@@ -162,6 +162,11 @@ public class Service implements ServiceContext {
     @Override
     public MessageBus getMessageBus() {
         return messageBus;
+    }
+
+
+    public AssetConnectionManager getAssetConnectionManager() {
+        return assetConnectionManager;
     }
 
 
