@@ -36,7 +36,6 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -44,7 +43,6 @@ import org.slf4j.LoggerFactory;
  */
 public class OpcUaHelper {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OpcUaHelper.class);
     public static final String NODE_ID_SEPARATOR = ";";
     public static final String APPLICATION_URI = "urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:opcua";
     public static final String APPLICATION_NAME = "FA³ST Asset Connection";
