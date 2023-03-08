@@ -194,7 +194,7 @@ public class Service implements ServiceContext {
     }
 
 
-    private void init() throws ConfigurationException, AssetConnectionException {
+    private void init() throws ConfigurationException {
         if (config.getPersistence() == null) {
             throw new InvalidConfigurationException("config.persistence must be non-null");
         }

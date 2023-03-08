@@ -19,7 +19,7 @@ import java.net.ServerSocket;
 import org.junit.Assert;
 
 
-public class SocketHelper {
+public class PortHelper {
 
     public static int findFreePort() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(0)) {

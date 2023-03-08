@@ -28,23 +28,29 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.model.AASFull;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMemoryConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.test.util.SocketHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.test.util.PortHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.AssetAdministrationShell;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.IdentifierType;
+import io.adminshell.aas.v3.model.ModelingKind;
+import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
+import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShell;
+import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
+import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
-import java.util.List;
 import org.json.JSONException;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -55,96 +61,138 @@ import org.skyscreamer.jsonassert.JSONAssert;
 public class AssetConnectionIT {
 
     private static final String HOST = "http://localhost";
-    private static int PORT1;
-    private static int PORT2;
-    private static int PORT3;
-    private static int PORT4;
-    private static ApiPaths API_PATHS;
     private static AssetAdministrationShellEnvironment environment;
     private static Service service;
 
+    private static final int SOURCE_VALUE = 42;
+    private static final int TARGET_VALUE = 0;
+    private static final String NODE_ID_SOURCE = "ns=3;s=1.Value";
+    private static final String NODE_ID_TARGET = "ns=3;s=2.Value";
     private static Submodel submodel;
-    private static SubmodelElement source;
-    private static SubmodelElement target;
+    private static Property source;
+    private static Property target;
 
     @BeforeClass
     public static void initClass() throws IOException {
-        PORT1 = SocketHelper.findFreePort();
-        while (PORT2 == 0 || PORT2 == PORT1) {
-            PORT2 = SocketHelper.findFreePort();
-        }
-        while (PORT3 == 0 || PORT3 == PORT2 || PORT3 == PORT1) {
-            PORT3 = SocketHelper.findFreePort();
-        }
-        while (PORT4 == 0 || PORT4 == PORT1 || PORT4 == PORT2 || PORT4 == PORT3) {
-            PORT4 = SocketHelper.findFreePort();
-        }
-        API_PATHS = new ApiPaths(HOST, PORT1);
-        environment = AASFull.createEnvironment();
-        submodel = environment.getSubmodels().get(0);
-        source = submodel.getSubmodelElements().get(1);
-        target = submodel.getSubmodelElements().get(0);
+        source = new DefaultProperty.Builder()
+                .idShort("source")
+                .value(Integer.toString(SOURCE_VALUE))
+                .valueType("integer")
+                .build();
+        target = new DefaultProperty.Builder()
+                .idShort("target")
+                .value(Integer.toString(TARGET_VALUE))
+                .valueType("integer")
+                .build();
+        submodel = new DefaultSubmodel.Builder()
+                .idShort("Submodel1")
+                .identification(new DefaultIdentifier.Builder()
+                        .idType(IdentifierType.IRI)
+                        .identifier("http://example.org/submodel/1")
+                        .build())
+                .kind(ModelingKind.INSTANCE)
+                .submodelElement(source)
+                .submodelElement(target)
+                .build();
+        environment = new DefaultAssetAdministrationShellEnvironment.Builder()
+                .assetAdministrationShells(new DefaultAssetAdministrationShell.Builder()
+                        .idShort("AAS1")
+                        .identification(new DefaultIdentifier.Builder()
+                                .idType(IdentifierType.IRI)
+                                .identifier("https://example.org/aas/1")
+                                .build())
+                        .submodel(ReferenceHelper.toReference(submodel.getIdentification(), Submodel.class))
+                        .build())
+                .submodels(submodel)
+                .build();
     }
 
 
-    private static ServiceConfig serviceConfig(String nodeId, int opcuaEndpointPort, int opcuaAssetConnectionPort, int httpEndpointPort) {
+    private static ServiceConfig serviceConfig(int portHttp, int portOpcUa) {
         return ServiceConfig.builder()
-                .core(CoreConfig.builder()
-                        .requestHandlerThreadPoolSize(2)
-                        .build())
+                .core(CoreConfig.DEFAULT)
                 .persistence(PersistenceInMemoryConfig.builder()
                         .initialModel(DeepCopyHelper.deepCopy(environment))
                         .build())
-                .endpoints(List.of(OpcUaEndpointConfig.builder()
-                        .tcpPort(opcuaEndpointPort)
+                .endpoint(OpcUaEndpointConfig.builder()
+                        .tcpPort(portOpcUa)
                         .allowAnonymous(true)
-                        .build(),
-                        HttpEndpointConfig.builder()
-                                .port(httpEndpointPort)
-                                .build()))
+                        .build())
+                .endpoint(HttpEndpointConfig.builder()
+                        .port(portHttp)
+                        .build())
                 .messageBus(MessageBusInternalConfig.builder()
                         .build())
-                .assetConnection(OpcUaAssetConnectionConfig.builder()
-                        .host("opc.tcp://" + "localhost:" + opcuaAssetConnectionPort)
-                        .valueProvider(AasUtils.toReference(AasUtils.toReference(submodel), target),
-                                OpcUaValueProviderConfig.builder()
-                                        .nodeId(nodeId)
-                                        .build())
-                        .build())
+                //                .assetConnection(OpcUaAssetConnectionConfig.builder()
+                //                        .host("opc.tcp://" + "localhost:" + opcuaAssetConnectionPort)
+                //                        .valueProvider(AasUtils.toReference(AasUtils.toReference(submodel), target),
+                //                                OpcUaValueProviderConfig.builder()
+                //                                        .nodeId(nodeId)
+                //                                        .build())
+                //                        .build())
                 .build();
+    }
+
+
+    private static ServiceConfig withAssetConnection(ServiceConfig config, String nodeIdSource, int port) {
+        config.getAssetConnections().add(OpcUaAssetConnectionConfig.builder()
+                .host("opc.tcp://" + "localhost:" + port)
+                .valueProvider(AasUtils.toReference(AasUtils.toReference(submodel), target),
+                        OpcUaValueProviderConfig.builder()
+                                .nodeId(nodeIdSource)
+                                .build())
+                .build());
+        return config;
     }
 
 
     @Test
     public void testServiceStartInvalidAssetConnection() throws Exception {
-        service = new Service(serviceConfig("invalid", PORT2, PORT2, PORT1));
+        int http = PortHelper.findFreePort();
+        int opcua = PortHelper.findFreePort();
+        service = new Service(
+                withAssetConnection(
+                        serviceConfig(http, opcua),
+                        "invalid",
+                        opcua));
         service.start();
-        Thread.sleep(5000);
-        assertAvailability();
+        assertAvailability(http);
     }
 
 
     @Test
     public void testServiceStartValidAssetConnection() throws Exception {
-        service = new Service(serviceConfig("ns=3;s=3.Value", PORT2, PORT2, PORT1));
+        int http = PortHelper.findFreePort();
+        int opcua = PortHelper.findFreePort();
+        service = new Service(
+                withAssetConnection(
+                        serviceConfig(http, opcua),
+                        NODE_ID_SOURCE,
+                        opcua));
         service.start();
-        Thread.sleep(5000);
-        assertAvailability();
-        assertValue(submodel, target, "{\"ManufacturerName\": \"" + ((DefaultProperty) source).getValue() + "\"}");
+        assertAvailability(http);
+        assertTargetValue(http, SOURCE_VALUE);
     }
 
 
     @Test
     public void testServiceStartValidAssetConnectionOffset() throws Exception {
-        service = new Service(serviceConfig("ns=3;s=3.Value", PORT2, PORT3, PORT1));
+        int http = PortHelper.findFreePort();
+        int opcua = PortHelper.findFreePort();
+        int http2 = PortHelper.findFreePort();
+        int opcua2 = PortHelper.findFreePort();
+        ServiceConfig config = withAssetConnection(serviceConfig(http, opcua),
+                NODE_ID_SOURCE,
+                opcua2);
+        service = new Service(config);
         service.start();
-        Thread.sleep(5000);
-        assertAvailability();
-        assertValue(submodel, target, "{\"ManufacturerName\": \"" + ((DefaultProperty) target).getValue() + "\"}");
-        Service targetService = new Service(serviceConfig("noMatter", PORT3, 0, PORT4));
-        targetService.start();
-        Thread.sleep(5000);
-        assertValue(submodel, target, "{\"ManufacturerName\": \"" + ((DefaultProperty) source).getValue() + "\"}");
+        assertAvailability(http);
+        assertTargetValue(http, TARGET_VALUE);
+        Service service2 = new Service(serviceConfig(http2, opcua2));
+        service2.start();
+        Thread.sleep(config.getCore().getAssetConnectionRetryInterval() * 2);
+        assertTargetValue(http, SOURCE_VALUE);
+        service2.stop();
     }
 
 
@@ -154,11 +202,11 @@ public class AssetConnectionIT {
     }
 
 
-    public void assertAvailability() throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+    public void assertAvailability(int port) throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         Object expected = environment.getAssetAdministrationShells();
         assertExecuteMultiple(
                 HttpMethod.GET,
-                API_PATHS.aasRepository().assetAdministrationShells(),
+                new ApiPaths(HOST, port).aasRepository().assetAdministrationShells(),
                 StatusCode.SUCCESS,
                 null,
                 expected,
@@ -177,11 +225,16 @@ public class AssetConnectionIT {
     }
 
 
-    public void assertValue(Submodel parent, SubmodelElement submodelElement, String expectedValue)
+    public void assertTargetValue(int port, int expectedValue)
             throws IOException, InterruptedException, URISyntaxException, JSONException {
-        HttpResponse<String> response = HttpHelper.get(API_PATHS.submodelRepository().submodelInterface(parent).submodelElement(submodelElement) + "?content=value");
+        HttpResponse<String> response = HttpHelper.get(
+                new ApiPaths(HOST, port)
+                        .submodelRepository()
+                        .submodelInterface(submodel)
+                        .submodelElement(target, Content.VALUE));
         assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
-        JSONAssert.assertEquals(expectedValue, response.body(), false);
+        String expected = String.format("{\"target\": %d}", expectedValue);
+        JSONAssert.assertEquals(expected, response.body(), false);
     }
 
 }

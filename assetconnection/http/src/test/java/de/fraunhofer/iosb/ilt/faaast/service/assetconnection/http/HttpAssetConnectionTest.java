@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -24,6 +25,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
@@ -186,6 +188,22 @@ public class HttpAssetConnectionTest {
     }
 
 
+    private void awaitConnection(AssetConnection connection) {
+        await().atMost(30, TimeUnit.SECONDS)
+                .with()
+                .pollInterval(1, TimeUnit.SECONDS)
+                .until(() -> {
+                    try {
+                        connection.connect();
+                    }
+                    catch (AssetConnectionException e) {
+                        // do nothing
+                    }
+                    return connection.isConnected();
+                });
+    }
+
+
     private void assertValueProviderPropertyJson(Datatype datatype,
                                                  RequestMethod method,
                                                  Map<String, String> connectionHeaders,
@@ -225,8 +243,7 @@ public class HttpAssetConnectionTest {
                         .baseUrl(baseUrl)
                         .build(),
                 serviceContext);
-        connection.connect();
-        Thread.sleep(2000);
+        awaitConnection(connection);
         try {
             if (customAssert != null) {
                 customAssert.accept(connection.getValueProviders().get(REFERENCE));
@@ -340,8 +357,7 @@ public class HttpAssetConnectionTest {
                         .baseUrl(baseUrl)
                         .build(),
                 serviceContext);
-        connection.connect();
-        Thread.sleep(2000);
+        awaitConnection(connection);
         NewDataListener listener = null;
         try {
             CountDownLatch condition = new CountDownLatch(expected.length);
@@ -509,8 +525,7 @@ public class HttpAssetConnectionTest {
                         .baseUrl(baseUrl)
                         .build(),
                 serviceContext);
-        connection.connect();
-        Thread.sleep(2000);
+        awaitConnection(connection);
         try {
             OperationVariable[] actualInput = toOperationVariables(input);
             OperationVariable[] actualInoutput = toOperationVariables(inoutput);

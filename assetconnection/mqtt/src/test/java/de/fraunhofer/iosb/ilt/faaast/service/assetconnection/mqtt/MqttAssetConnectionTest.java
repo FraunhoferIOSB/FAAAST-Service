@@ -23,6 +23,7 @@ import com.github.valfirst.slf4jtest.LoggingEvent;
 import com.github.valfirst.slf4jtest.TestLogger;
 import com.github.valfirst.slf4jtest.TestLoggerFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatSubscriptionProvider;
@@ -246,6 +247,22 @@ public class MqttAssetConnectionTest {
     }
 
 
+    private void awaitConnection(AssetConnection connection) {
+        await().atMost(30, TimeUnit.SECONDS)
+                .with()
+                .pollInterval(1, TimeUnit.SECONDS)
+                .until(() -> {
+                    try {
+                        connection.connect();
+                    }
+                    catch (AssetConnectionException e) {
+                        // do nothing
+                    }
+                    return connection.isConnected();
+                });
+    }
+
+
     @Test
     public void testSubscriptionProviderConnectionLost()
             throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ConfigurationException {
@@ -259,8 +276,7 @@ public class MqttAssetConnectionTest {
                 .newInstance(
                         CoreConfig.DEFAULT,
                         mock(ServiceContext.class));
-        connection.connect();
-        Thread.sleep(2000);
+        awaitConnection(connection);
         localServer.stopServer();
         await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
                 .until(() -> logger.getAllLoggingEvents().stream()
@@ -439,13 +455,7 @@ public class MqttAssetConnectionTest {
             doReturn(expectedTypeInfo).when(serviceContext).getTypeInfo(reference);
         }
         result.init(CoreConfig.builder().build(), config, serviceContext);
-        result.connect();
-        try {
-            Thread.sleep(2000);
-        }
-        catch (InterruptedException e) {
-            return null;
-        }
+        awaitConnection(result);
         return result;
     }
 

@@ -22,6 +22,7 @@ import com.github.valfirst.slf4jtest.LoggingEvent;
 import com.github.valfirst.slf4jtest.TestLogger;
 import com.github.valfirst.slf4jtest.TestLoggerFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.ArgumentMapping;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
@@ -149,6 +150,22 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
     }
 
 
+    private void awaitConnection(AssetConnection connection) {
+        await().atMost(30, TimeUnit.SECONDS)
+                .with()
+                .pollInterval(1, TimeUnit.SECONDS)
+                .until(() -> {
+                    try {
+                        connection.connect();
+                    }
+                    catch (AssetConnectionException e) {
+                        // do nothing
+                    }
+                    return connection.isConnected();
+                });
+    }
+
+
     private void assertSubscribe(String nodeId, PropertyValue expected, String elementIndex)
             throws AssetConnectionException, InterruptedException, ExecutionException, UaException, ConfigurationInitializationException, Exception {
         Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
@@ -177,7 +194,7 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 CoreConfig.builder()
                         .build(),
                 serviceContext);
-        connection.connect();
+        awaitConnection(connection);
         // first value should always be the current value
         OpcUaClient client = OpcUaHelper.connect(config);
         DataValue originalValue = OpcUaHelper.readValue(client, nodeId);
@@ -228,7 +245,7 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 .host(serverUrl)
                 .build();
         OpcUaAssetConnection connection = config.newInstance(CoreConfig.DEFAULT, serviceContext);
-        connection.connect();
+        awaitConnection(connection);
         connection.getValueProviders().get(reference).setValue(expected);
         DataElementValue actual = connection.getValueProviders().get(reference).getValue();
         connection.disconnect();
@@ -339,7 +356,7 @@ public class OpcUaAssetConnectionTest extends AbstractOpcUaBasedTest {
                 .when(serviceContext)
                 .getOperationOutputVariables(reference);
         OpcUaAssetConnection connection = config.newInstance(CoreConfig.DEFAULT, serviceContext);
-        connection.connect();
+        awaitConnection(connection);
         OperationVariable[] actual;
         if (sync) {
             actual = connection.getOperationProviders().get(reference).invoke(inputVariables, inoutputVariables);

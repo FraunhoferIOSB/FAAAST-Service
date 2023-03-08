@@ -47,7 +47,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.persistence.memory.PersistenceInMem
 import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.Path;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.ApiPaths;
 import de.fraunhofer.iosb.ilt.faaast.service.test.util.HttpHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.test.util.SocketHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.test.util.PortHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ExtendHelper;
@@ -137,7 +137,7 @@ public class HttpEndpointIT {
 
     @BeforeClass
     public static void initClass() throws IOException {
-        PORT = SocketHelper.findFreePort();
+        PORT = PortHelper.findFreePort();
         API_PATHS = new ApiPaths(HOST, PORT);
     }
 

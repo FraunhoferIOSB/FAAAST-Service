@@ -19,7 +19,6 @@
 | password | String | _optional_ Password for connecting to the OPC UA server |
 | requestTimeout | int | _optional_ Timeout for requests (in ms), default: 3000 |
 | acknowledgeTimeout | int | _optional_ Timeout for acknowledgement (in ms), default: 10000 |
-| retries | int | _optional_ Number of times a request/connection should be retried after failing, default: 1 |
 
 ### Value Provider
 
