@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V, OC, O, SC, S>, C extends AssetConnectionConfig<T, VC, OC, SC>, VC extends AssetValueProviderConfig, V extends AssetValueProvider, OC extends AssetOperationProviderConfig, O extends AssetOperationProvider, SC extends AssetSubscriptionProviderConfig, S extends AssetSubscriptionProvider>
         implements AssetConnection<C, VC, V, OC, O, SC, S> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAssetConnection.class);
     private volatile boolean connected;
     protected static final String ERROR_MSG_REFERENCE_NOT_NULL = "reference must be non-null";
     protected static final String ERROR_MSG_PROVIDER_CONFIG_NOT_NULL = "providerConfig must be non-null";

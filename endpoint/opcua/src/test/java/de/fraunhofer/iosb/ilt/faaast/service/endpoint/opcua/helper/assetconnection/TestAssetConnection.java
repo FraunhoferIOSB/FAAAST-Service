@@ -47,6 +47,18 @@ public class TestAssetConnection implements
 
 
     @Override
+    public void connect() throws AssetConnectionException {
+        // nothing to do here
+    }
+
+
+    @Override
+    public String getEndpointInformation() {
+        return TestAssetConnection.class.getName();
+    }
+
+
+    @Override
     public void registerValueProvider(Reference reference, TestValueProviderConfig valueProvider) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -91,13 +103,13 @@ public class TestAssetConnection implements
 
     @Override
     public void disconnect() throws AssetConnectionException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // nothing to do here
     }
 
 
     @Override
     public boolean isConnected() {
-        return false;
+        return true;
     }
 
 
