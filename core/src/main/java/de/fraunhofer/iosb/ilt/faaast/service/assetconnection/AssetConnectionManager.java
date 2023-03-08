@@ -110,6 +110,7 @@ public class AssetConnectionManager {
                 }
                 catch (InterruptedException e2) {
                     LOGGER.error("Error while establishing asset connection (endpoint: {})", connection.getEndpointInformation(), e2);
+                    Thread.currentThread().interrupt();
                 }
             }
         }
@@ -211,6 +212,7 @@ public class AssetConnectionManager {
         }
         catch (InterruptedException ex) {
             scheduledExecutorService.shutdownNow();
+            Thread.currentThread().interrupt();
         }
         connections.stream()
                 .filter(AssetConnection::isConnected)

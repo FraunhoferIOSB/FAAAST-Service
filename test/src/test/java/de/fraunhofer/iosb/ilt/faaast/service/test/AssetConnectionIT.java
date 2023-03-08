@@ -67,7 +67,6 @@ public class AssetConnectionIT {
     private static final int SOURCE_VALUE = 42;
     private static final int TARGET_VALUE = 0;
     private static final String NODE_ID_SOURCE = "ns=3;s=1.Value";
-    private static final String NODE_ID_TARGET = "ns=3;s=2.Value";
     private static Submodel submodel;
     private static Property source;
     private static Property target;
@@ -123,13 +122,6 @@ public class AssetConnectionIT {
                         .build())
                 .messageBus(MessageBusInternalConfig.builder()
                         .build())
-                //                .assetConnection(OpcUaAssetConnectionConfig.builder()
-                //                        .host("opc.tcp://" + "localhost:" + opcuaAssetConnectionPort)
-                //                        .valueProvider(AasUtils.toReference(AasUtils.toReference(submodel), target),
-                //                                OpcUaValueProviderConfig.builder()
-                //                                        .nodeId(nodeId)
-                //                                        .build())
-                //                        .build())
                 .build();
     }
 
