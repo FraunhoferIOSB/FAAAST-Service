@@ -75,7 +75,7 @@ public abstract class AbstractOpcUaProvider<T extends AbstractOpcUaProviderConfi
                             baseErrorMsg,
                             providerConfig.getNodeId())));
         }
-        catch (UaException e) {
+        catch (IllegalArgumentException | UaException e) {
             throw new InvalidConfigurationException(
                     String.format("%s - could not parse nodeId (nodeId: %s)",
                             baseErrorMsg,
