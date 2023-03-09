@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AbstractAssetConnection;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpSubscriptionProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpValueProvider;
@@ -68,8 +69,8 @@ public class HttpAssetConnection extends
 
 
     @Override
-    public void close() {
-        // no need to close a HTTP connection
+    public String getEndpointInformation() {
+        return config.getBaseUrl().toString();
     }
 
 
@@ -92,7 +93,7 @@ public class HttpAssetConnection extends
 
 
     @Override
-    protected void initConnection(HttpAssetConnectionConfig config) {
+    protected void doConnect() throws AssetConnectionException {
         HttpClient.Builder builder = HttpClient.newBuilder();
         if (StringUtils.isNotBlank(config.getUsername())) {
             builder = builder.authenticator(new Authenticator() {
@@ -107,6 +108,12 @@ public class HttpAssetConnection extends
             });
         }
         client = builder.build();
+    }
+
+
+    @Override
+    protected void doDisconnect() throws AssetConnectionException {
+        // no need to close a HTTP connection
     }
 
 }

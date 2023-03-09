@@ -12,20 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.starter.logging;
+package de.fraunhofer.iosb.ilt.faaast.service.test.util;
 
-import ch.qos.logback.core.PropertyDefinerBase;
-import de.fraunhofer.iosb.ilt.faaast.service.starter.App;
+import java.io.IOException;
+import java.net.ServerSocket;
+import org.junit.Assert;
 
 
-/**
- * Provide the namespace of the starter package to the logging configuration.
- */
-public class StarterPackageNameProvider extends PropertyDefinerBase {
+public class PortHelper {
 
-    @Override
-    public String getPropertyValue() {
-        return App.class.getPackageName();
+    public static int findFreePort() throws IOException {
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
+            Assert.assertNotNull(serverSocket);
+            Assert.assertTrue(serverSocket.getLocalPort() > 0);
+            return serverSocket.getLocalPort();
+        }
     }
-
 }

@@ -2,7 +2,8 @@
 {
     "core":
             {
-                "requestHandlerThreadPoolSize": 2
+                "requestHandlerThreadPoolSize": 2,
+                "assetConnectionRetryInterval": 1000
             },
     "assetConnections": [
         {

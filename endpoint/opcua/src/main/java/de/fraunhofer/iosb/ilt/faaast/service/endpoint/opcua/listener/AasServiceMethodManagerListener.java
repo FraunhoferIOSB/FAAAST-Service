@@ -81,7 +81,7 @@ public class AasServiceMethodManagerListener implements CallableListener {
                 retval = true;
             }
             else {
-                LOGGER.info("onCall: Property for {} not found", objectId);
+                LOGGER.debug("onCall: Property for {} not found", objectId);
             }
         }
         catch (StatusException se) {

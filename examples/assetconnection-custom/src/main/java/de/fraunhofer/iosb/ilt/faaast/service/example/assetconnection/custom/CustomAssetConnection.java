@@ -32,8 +32,14 @@ public class CustomAssetConnection extends
         AbstractAssetConnection<CustomAssetConnection, CustomAssetConnectionConfig, CustomValueProviderConfig, CustomValueProvider, CustomOperationProviderConfig, CustomOperationProvider, CustomSubscriptionProviderConfig, CustomSubscriptionProvider> {
 
     @Override
-    public void close() throws AssetConnectionException {
+    public void doDisconnect() throws AssetConnectionException {
         // nothing to do here
+    }
+
+
+    @Override
+    public String getEndpointInformation() {
+        return "This is my custom asset connection";
     }
 
 
@@ -71,7 +77,7 @@ public class CustomAssetConnection extends
 
 
     @Override
-    protected void initConnection(CustomAssetConnectionConfig config) throws ConfigurationInitializationException {
+    protected void doConnect() {
         // nothing to do here
     }
 

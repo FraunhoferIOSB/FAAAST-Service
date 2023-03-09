@@ -45,7 +45,7 @@ public class CustomValueProvider implements AssetValueProvider {
         AasHelper.ensureType(reference, Property.class, serviceContext);
         this.reference = reference;
         this.datatype = AasHelper.getDatatype(reference, serviceContext);
-        LOGGER.info(String.format("custom property 'note' of 'CustomValueProvider': %s", config.getNote()));
+        LOGGER.debug(String.format("custom property 'note' of 'CustomValueProvider': %s", config.getNote()));
     }
 
 

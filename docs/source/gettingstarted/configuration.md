@@ -7,7 +7,8 @@ The basic structure of a configuration is the following
 ```json
 {
 	"core" : {
-		"requestHandlerThreadPoolSize" : "number"
+		"requestHandlerThreadPoolSize": 2,      // how many threads are used for executing requests
+		"assetConnectionRetryInterval": 1000    // interval in ms in which to retry establishing asset connections
 	},
 	"endpoints" : [
 		// endpoint configurations, multiple allowed

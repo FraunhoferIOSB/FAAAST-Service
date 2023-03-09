@@ -186,7 +186,6 @@ public class AssetConnectionConfig<T extends AssetConnection, V extends AssetVal
             getBuildingInstance().getSubscriptionProviders().put(key, value);
             return getSelf();
         }
-
     }
 
     /**
