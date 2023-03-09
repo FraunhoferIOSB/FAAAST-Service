@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.SetSubmodelElementValueByPathRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
@@ -34,8 +35,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -43,20 +50,92 @@ import java.util.stream.Stream;
  */
 public class AssetConnectionManager {
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AssetConnectionManager.class);
     private final List<AssetConnection> connections;
     private final CoreConfig coreConfig;
     private final ServiceContext serviceContext;
+    private final ScheduledExecutorService scheduledExecutorService;
+    private volatile boolean active;
 
-    public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections, ServiceContext context) throws ConfigurationException, AssetConnectionException {
+    public AssetConnectionManager(CoreConfig coreConfig, List<AssetConnection> connections, ServiceContext context) throws ConfigurationException {
+        this.active = true;
         this.coreConfig = coreConfig;
         this.connections = connections != null ? connections : new ArrayList<>();
         this.serviceContext = context;
         validateConnections();
-        for (var assetConnection: connections) {
-            final Map<Reference, AssetSubscriptionProvider> subscriptionProviders = assetConnection.getSubscriptionProviders();
-            for (var subscriptionInfo: subscriptionProviders.entrySet()) {
+        ThreadFactory threadFactory = new ThreadFactory() {
+            AtomicLong count = new AtomicLong(0);
+
+            @Override
+            public Thread newThread(Runnable target) {
+                return new Thread(target, String.format("asset connection establisher - %d", count.getAndIncrement()));
+            }
+        };
+        scheduledExecutorService = Executors.newScheduledThreadPool(connections.size(), threadFactory);
+    }
+
+
+    /**
+     * Starts the AssetConnectionManager and tries to establish asset connections.
+     */
+    public void start() {
+        if (!connections.isEmpty()) {
+            LOGGER.info("Connecting to assets...");
+        }
+        for (var connection: connections) {
+            try {
+                // try to connect in synchronized way, if that fails keep trying to connect async
+                tryConnecting(connection);
+                setupSubscriptions(connection);
+            }
+            catch (AssetConnectionException e) {
+                LOGGER.info(
+                        "Establishing asset connection failed on initial attempt (endpoint: {}). Connecting will be retried every {}ms but no more messages about failures will be shown.",
+                        connection.getEndpointInformation(),
+                        coreConfig.getAssetConnectionRetryInterval());
+                setupConnectionAsync(connection);
+            }
+        }
+    }
+
+
+    private void tryConnecting(AssetConnection connection) throws AssetConnectionException {
+        connection.connect();
+        LOGGER.info("Asset connection established (endpoint: {})", connection.getEndpointInformation());
+    }
+
+
+    private void tryConnectingUntilSuccess(AssetConnection connection) {
+        while (active && !connection.isConnected()) {
+            try {
+                tryConnecting(connection);
+            }
+            catch (AssetConnectionException e) {
+                try {
+                    LOGGER.trace("Establishing asset connection failed (endpoint: {})",
+                            connection.getEndpointInformation(),
+                            e);
+
+                    Thread.sleep(coreConfig.getAssetConnectionRetryInterval());
+                }
+                catch (InterruptedException e2) {
+                    LOGGER.error("Error while establishing asset connection (endpoint: {})", connection.getEndpointInformation(), e2);
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
+
+    private void setupSubscriptions(AssetConnection connection) {
+        if (!active) {
+            return;
+        }
+        final Map<Reference, AssetSubscriptionProvider> subscriptionProviders = connection.getSubscriptionProviders();
+        for (var subscriptionInfo: subscriptionProviders.entrySet()) {
+            try {
                 subscriptionInfo.getValue().addNewDataListener((DataElementValue data) -> {
-                    serviceContext.execute(SetSubmodelElementValueByPathRequest.builder()
+                    Response response = serviceContext.execute(SetSubmodelElementValueByPathRequest.builder()
                             .submodelId(new DefaultIdentifier.Builder()
                                     .identifier(subscriptionInfo.getKey().getKeys().get(0).getValue())
                                     .idType(IdentifierType.IRI)
@@ -65,9 +144,32 @@ public class AssetConnectionManager {
                             .internal()
                             .value(data)
                             .build());
+                    if (!response.getStatusCode().isSuccess()) {
+                        LOGGER.atInfo().log("Error updating value from asset connection subscription (reference: {})",
+                                AasUtils.asString(subscriptionInfo.getKey()));
+                        LOGGER.debug("Error updating value from asset connection subscription (reference: {}, reason: {})",
+                                AasUtils.asString(subscriptionInfo.getKey()),
+                                response.getResult().getMessages());
+                    }
                 });
             }
+            catch (AssetConnectionException e) {
+                LOGGER.warn("Subscribing to asset connection failed (reference: {})",
+                        AasUtils.asString(subscriptionInfo.getKey()),
+                        e);
+            }
         }
+    }
+
+
+    private void setupConnectionAsync(AssetConnection connection) {
+        scheduledExecutorService.schedule(
+                () -> {
+                    tryConnectingUntilSuccess(connection);
+                    setupSubscriptions(connection);
+                },
+                0,
+                TimeUnit.MILLISECONDS);
     }
 
 
@@ -107,6 +209,34 @@ public class AssetConnectionManager {
      */
     public List<AssetConnection> getConnections() {
         return connections;
+    }
+
+
+    /**
+     * Stops all connection attempts and disconnects all connected assets.
+     */
+    public void stop() {
+        active = false;
+        try {
+            scheduledExecutorService.awaitTermination(coreConfig.getAssetConnectionRetryInterval() * 2, TimeUnit.MILLISECONDS);
+        }
+        catch (InterruptedException ex) {
+            scheduledExecutorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+        connections.stream()
+                .filter(AssetConnection::isConnected)
+                .forEach(x -> {
+                    try {
+                        x.disconnect();
+                    }
+                    catch (AssetConnectionException e) {
+                        LOGGER.trace("Error closing asset connection (endpoint: {})",
+                                x.getEndpointInformation(),
+                                e);
+                    }
+
+                });
     }
 
 

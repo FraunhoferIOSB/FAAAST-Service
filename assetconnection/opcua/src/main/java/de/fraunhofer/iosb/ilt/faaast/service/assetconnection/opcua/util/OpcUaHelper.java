@@ -35,8 +35,8 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.ExpandedNodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
+import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
  */
 public class OpcUaHelper {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OpcUaHelper.class);
     public static final String NODE_ID_SEPARATOR = ";";
     public static final String APPLICATION_URI = "urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:opcua";
     public static final String APPLICATION_NAME = "FA³ST Asset Connection";
@@ -117,6 +116,26 @@ public class OpcUaHelper {
 
 
     /**
+     * Writes a value via OPC UA.
+     *
+     * @param client the OPC UA client to use
+     * @param nodeId string representation of the node to write to
+     * @param value the value to write
+     * @return the status code
+     * @throws UaException if parsing node fails
+     * @throws InterruptedException if writing fails
+     * @throws ExecutionException if writing fails
+     */
+    public static StatusCode writeValue(OpcUaClient client, String nodeId, Object value) throws UaException, InterruptedException, ExecutionException {
+        return client.writeValue(
+                client.getAddressSpace().getVariableNode(OpcUaHelper.parseNodeId(client, nodeId))
+                        .getNodeId(),
+                new DataValue(new Variant(value)))
+                .get();
+    }
+
+
+    /**
      * Connect to a OPC UA server. This method already respects all configuration properties like credentials and
      * numbers of retries.
      *
@@ -130,20 +149,19 @@ public class OpcUaHelper {
         if (Objects.nonNull(clientModifier)) {
             clientModifier.accept(client);
         }
-        return connect(client, config.getRetries());
+        return connect(client);
     }
 
 
     /**
-     * Connect to a OPC UA server. This method already respects all configuration properties like credentials and
-     * numbers of retries.
+     * Connect to a OPC UA server. This method already respects all configuration properties.
      *
      * @param config the configuration to use
      * @return new OPC UA client instance that is already connected to the server
      * @throws AssetConnectionException if connecting fails
      */
     public static OpcUaClient connect(OpcUaAssetConnectionConfig config) throws AssetConnectionException {
-        return connect(createClient(config), config.getRetries());
+        return connect(createClient(config));
     }
 
 
@@ -173,37 +191,16 @@ public class OpcUaHelper {
     }
 
 
-    private static OpcUaClient connect(OpcUaClient client, int retries) throws AssetConnectionException {
-        boolean success = false;
-        int count = 0;
-        do {
-            try {
-                client.connect().get();
-                success = true;
-            }
-            catch (InterruptedException | ExecutionException e) {
-                // ignore
-                if (count >= retries) {
-                    throw new AssetConnectionException(String.format(
-                            "error opening OPC UA connection (host: %s)",
-                            client.getConfig().getEndpoint().getEndpointUrl()),
-                            e);
-                }
-                else {
-                    LOGGER.debug("Opening OPC UA connection failed on try {}/{} (host: {})",
-                            count + 1,
-                            retries + 1,
-                            client.getConfig().getEndpoint().getEndpointUrl());
-                    if (InterruptedException.class.isAssignableFrom(e.getClass())) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
-            }
-            finally {
-                count++;
-            }
-        } while (!success && count <= retries);
+    private static OpcUaClient connect(OpcUaClient client) throws AssetConnectionException {
+        try {
+            client.connect().get();
+        }
+        catch (InterruptedException | ExecutionException e) {
+            throw new AssetConnectionException(String.format(
+                    "error opening OPC UA connection (host: %s)",
+                    client.getConfig().getEndpoint().getEndpointUrl()),
+                    e);
+        }
         return client;
     }
-
 }

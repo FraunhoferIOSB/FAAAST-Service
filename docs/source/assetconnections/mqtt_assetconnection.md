@@ -25,7 +25,7 @@
 |:--| -- | -- |
 | format | JSON\|XML | Content format of payload |
 | topic | String | MQTT topic to use |
-| template | String | _optional_ Template used to format payload
+| template | String | _optional_ Template used to format payload |
 
 #### Example
 
@@ -43,7 +43,7 @@
 |:--| -- | -- |
 | format | JSON\|XML | Content format of payload |
 | topic | String | MQTT topic to use |
-| query | String | _optional_ Additional information how to extract actual value from received messages, depends on `format`, e.g. for JSON this is a JSON Path expression.
+| query | String | _optional_ Additional information how to extract actual value from received messages, depends on `format`, e.g. for JSON this is a JSON Path expression. |
 
 #### Example
 

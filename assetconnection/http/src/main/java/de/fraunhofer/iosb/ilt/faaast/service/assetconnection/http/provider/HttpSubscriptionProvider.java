@@ -112,7 +112,7 @@ public class HttpSubscriptionProvider extends MultiFormatSubscriptionProvider<Ht
                     fireNewDataReceived(readRawValue());
                 }
                 catch (AssetConnectionException e) {
-                    LOGGER.error("error subscribing to asset connection (reference: {})", AasUtils.asString(reference), e);
+                    LOGGER.debug("error subscribing to asset connection (reference: {})", AasUtils.asString(reference), e);
                 }
             }, 0, Math.max(MINIMUM_INTERVAL, config.getInterval()), TimeUnit.MILLISECONDS);
         }

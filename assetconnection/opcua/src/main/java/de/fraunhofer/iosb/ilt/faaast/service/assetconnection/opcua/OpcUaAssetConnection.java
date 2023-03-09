@@ -31,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.InvalidConfigurationExcep
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.SessionActivityListener;
@@ -61,9 +62,12 @@ public class OpcUaAssetConnection extends
 
     private OpcUaClient client;
     private ManagedSubscription opcUaSubscription;
+    private volatile boolean isConnecting;
+    private volatile boolean isDisconnecting;
 
     public OpcUaAssetConnection() {
-
+        isConnecting = false;
+        isDisconnecting = false;
     }
 
 
@@ -73,22 +77,8 @@ public class OpcUaAssetConnection extends
 
 
     @Override
-    public void close() throws AssetConnectionException {
-        if (client != null) {
-            try {
-                subscriptionProviders.values().stream().forEach(LambdaExceptionHelper.rethrowConsumer(OpcUaSubscriptionProvider::close));
-            }
-            catch (AssetConnectionException e) {
-                LOGGER.info("unsubscribing from OPC UA asset connection on connection closing failed", e);
-            }
-            try {
-                client.disconnect().get();
-            }
-            catch (InterruptedException | ExecutionException e) {
-                Thread.currentThread().interrupt();
-                throw new AssetConnectionException("error closing OPC UA asset connection", e);
-            }
-        }
+    public String getEndpointInformation() {
+        return config.getHost();
     }
 
 
@@ -169,26 +159,73 @@ public class OpcUaAssetConnection extends
     }
 
 
-    @Override
-    protected void initConnection(OpcUaAssetConnectionConfig config) throws AssetConnectionException {
+    private void createClient() throws AssetConnectionException {
         client = OpcUaHelper.connect(config, x -> x.addSessionActivityListener(new SessionActivityListener() {
             @Override
             public void onSessionActive(UaSession session) {
-                LOGGER.info("OPC UA asset connection established (host: {})", config.getHost());
+                if (!isConnecting) {
+                    connected = true;
+                    LOGGER.info("OPC UA asset connection reconnected (endpoint: {})", getEndpointInformation());
+                }
             }
 
 
             @Override
             public void onSessionInactive(UaSession session) {
-                LOGGER.warn("OPC UA asset connection lost (host: {})", config.getHost());
+                if (!isDisconnecting) {
+                    connected = false;
+                    LOGGER.warn("OPC UA asset connection lost (host: {})", config.getHost());
+                }
             }
         }));
+    }
+
+
+    @Override
+    protected void doConnect() throws AssetConnectionException {
+        isConnecting = true;
         try {
-            createNewSubscription();
+            createClient();
+            try {
+                createNewSubscription();
+            }
+            catch (UaException e) {
+                Thread.currentThread().interrupt();
+                throw new AssetConnectionException(String.format("creating OPC UA subscription failed (host: %s)", config.getHost()), e);
+            }
         }
-        catch (UaException e) {
+        finally {
+            isConnecting = false;
+        }
+    }
+
+
+    private void closeSubscriptions() {
+        try {
+            subscriptionProviders.values().stream().forEach(LambdaExceptionHelper.rethrowConsumer(OpcUaSubscriptionProvider::close));
+        }
+        catch (AssetConnectionException e) {
+            LOGGER.debug("unsubscribing from OPC UA asset connection on connection closing failed", e);
+        }
+    }
+
+
+    @Override
+    protected void doDisconnect() throws AssetConnectionException {
+        if (Objects.isNull(client)) {
+            return;
+        }
+        isDisconnecting = true;
+        try {
+            closeSubscriptions();
+            client.disconnect().get();
+        }
+        catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();
-            throw new AssetConnectionException(String.format("creating OPC UA subscription failed (host: %s)", config.getHost()), e);
+            throw new AssetConnectionException("error closing OPC UA asset connection", e);
+        }
+        finally {
+            isDisconnecting = false;
         }
     }
 

@@ -17,6 +17,8 @@
 		*   Additional parameters available in configuration: requestTimeout, acknowledgeTimeout, retries
 
 **Internal changes & bugfixes**
+*   General
+	*   Improved startup process & console ouput
 *   HTTP Endpoint
 	*   DELETE requests now correctly return HTTP status code `204 No Content`. The following URL patterns are affected:
 		*   /submodels/{submodelIdentifier}

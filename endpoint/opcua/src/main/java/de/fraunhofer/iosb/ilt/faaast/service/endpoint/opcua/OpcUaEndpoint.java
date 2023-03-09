@@ -97,7 +97,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     @Override
     public void start() throws EndpointException {
         if (server != null && server.isRunning()) {
-            LOGGER.info("OPC UA Endpoint already started");
+            LOGGER.debug("OPC UA Endpoint already started");
             return;
         }
 
@@ -107,7 +107,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         try {
             server = new Server(currentConfig.getTcpPort(), aasEnvironment, this);
             server.startup();
-            LOGGER.info("server started");
+            LOGGER.debug("server started");
         }
         catch (Exception e) {
             throw new EndpointException("OPC UA server could not be started", e);
@@ -119,7 +119,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
     public void stop() {
         try {
             if (server != null) {
-                LOGGER.info("stop server. Currently running: {}", server.isRunning());
+                LOGGER.debug("stop server. Currently running: {}", server.isRunning());
                 server.shutdown(currentConfig.getSecondsTillShutdown());
             }
         }
@@ -219,7 +219,7 @@ public class OpcUaEndpoint implements Endpoint<OpcUaEndpointConfig> {
         InvokeOperationSyncResponse response = (InvokeOperationSyncResponse) service.execute(request);
         if (response.getStatusCode().isSuccess()) {
             if (response.getPayload().getExecutionState() == ExecutionState.COMPLETED) {
-                LOGGER.info("callOperation: Operation {} executed successfully", operation.getIdShort());
+                LOGGER.debug("callOperation: Operation {} executed successfully", operation.getIdShort());
             }
             else {
                 LOGGER.warn(CALL_OPERATION_ERROR_TXT, operation.getIdShort(), response.getPayload().getExecutionState());

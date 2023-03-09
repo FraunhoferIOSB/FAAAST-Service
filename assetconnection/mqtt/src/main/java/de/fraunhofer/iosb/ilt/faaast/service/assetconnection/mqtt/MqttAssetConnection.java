@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.MqttV
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttValueProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.Reference;
 import org.apache.commons.lang3.StringUtils;
@@ -65,23 +64,8 @@ public class MqttAssetConnection extends
     private MqttClient client;
 
     @Override
-    public void close() {
-        if (client != null) {
-            if (client.isConnected()) {
-                try {
-                    client.disconnect();
-                }
-                catch (MqttException e) {
-                    LOGGER.debug("MQTT connection could not be properly closed", e);
-                }
-            }
-            try {
-                client.close(true);
-            }
-            catch (MqttException e) {
-                LOGGER.debug("MQTT connection could not be properly closed", e);
-            }
-        }
+    public String getEndpointInformation() {
+        return config.getServerUri();
     }
 
 
@@ -104,15 +88,15 @@ public class MqttAssetConnection extends
 
 
     @Override
-    protected void initConnection(MqttAssetConnectionConfig config) throws ConfigurationInitializationException {
+    protected void doConnect() throws AssetConnectionException {
         try {
             client = new MqttClient(config.getServerUri(), config.getClientId(), new MemoryPersistence());
             client.setCallback(new MqttCallbackExtended() {
                 @Override
                 public void connectionLost(Throwable throwable) {
-                    LOGGER.warn("MQTT asset connection lost (host: {}, reason: {})",
+                    connected = false;
+                    LOGGER.warn("MQTT asset connection lost (host: {})",
                             config.getServerUri(),
-                            throwable.getMessage(),
                             throwable);
                 }
 
@@ -133,10 +117,11 @@ public class MqttAssetConnection extends
                 @Override
                 public void connectComplete(boolean reconnect, String serverURI) {
                     if (reconnect) {
+                        connected = true;
                         try {
                             // restore lost subscriptions
                             subscriptionProviders.values().forEach(LambdaExceptionHelper.rethrowConsumer(MqttSubscriptionProvider::subscribe));
-                            LOGGER.info("MQTT asset connection established (host: {})", serverURI);
+                            LOGGER.info("MQTT asset connection reconnected (endpoint: {})", getEndpointInformation());
                         }
                         catch (AssetConnectionException e) {
                             LOGGER.warn("error restoring MQTT subscriptions after connection loss", e);
@@ -158,7 +143,28 @@ public class MqttAssetConnection extends
 
         }
         catch (MqttException e) {
-            throw new ConfigurationInitializationException("initializaing MQTT asset connection failed", e);
+            throw new AssetConnectionException("initializaing MQTT asset connection failed", e);
+        }
+    }
+
+
+    @Override
+    protected void doDisconnect() throws AssetConnectionException {
+        if (client != null) {
+            if (client.isConnected()) {
+                try {
+                    client.disconnect();
+                }
+                catch (MqttException e) {
+                    LOGGER.debug("MQTT connection could not be properly closed", e);
+                }
+            }
+            try {
+                client.close(true);
+            }
+            catch (MqttException e) {
+                LOGGER.debug("MQTT connection could not be properly closed", e);
+            }
         }
     }
 

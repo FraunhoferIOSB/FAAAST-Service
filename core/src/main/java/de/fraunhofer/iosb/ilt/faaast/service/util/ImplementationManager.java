@@ -20,6 +20,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Objects;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
@@ -29,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ImplementationManager {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ImplementationManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImplementationManager.class);
     private static ClassLoader classLoader = ImplementationManager.class.getClassLoader();
     private static boolean isInitialized = false;
 
@@ -42,9 +43,7 @@ public class ImplementationManager {
      * @return the {@link java.lang.ClassLoader} that contains all the dynamically loaded JAR files
      */
     public static ClassLoader getClassLoader() {
-        if (!isInitialized) {
-            init();
-        }
+        init();
         return classLoader;
     }
 
@@ -58,7 +57,14 @@ public class ImplementationManager {
     }
 
 
-    private static synchronized void init() {
+    /**
+     * Initializes the ImplementationManager by scanning current directory for additional *.jar files and
+     * loading them.
+     */
+    public static synchronized void init() {
+        if (isInitialized) {
+            return;
+        }
         File temp;
         try {
             temp = new File(JarFilePathHelper.getJarFilePath(getMainClass()));
