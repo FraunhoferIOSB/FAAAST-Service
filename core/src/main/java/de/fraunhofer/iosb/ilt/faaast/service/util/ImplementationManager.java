@@ -57,6 +57,10 @@ public class ImplementationManager {
     }
 
 
+    /**
+     * Initializes the ImplementationManager by scanning current directory for additional *.jar files and
+     * loading them.
+     */
     public static synchronized void init() {
         if (isInitialized) {
             return;

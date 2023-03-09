@@ -75,6 +75,9 @@ public class AssetConnectionManager {
     }
 
 
+    /**
+     * Starts the AssetConnectionManager and tries to establish asset connections.
+     */
     public void start() {
         if (!connections.isEmpty()) {
             LOGGER.info("Connecting to assets...");
