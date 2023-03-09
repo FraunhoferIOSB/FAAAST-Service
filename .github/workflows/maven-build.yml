@@ -78,7 +78,7 @@ jobs:
         echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE  --yes --batch --import
         echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE  --yes --batch --import-ownertrust
 
-    - name: Deploy endpoint-opcua SNAPSHOT
+    - name: Deploy SNAPSHOTS
       if:  ${{ endsWith(env.VERSION, '-SNAPSHOT') }}
       env:
         GPG_EXECUTABLE: gpg
