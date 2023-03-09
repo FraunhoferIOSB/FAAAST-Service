@@ -73,7 +73,7 @@
         <aas.model.version>1.2.0</aas.model.version>
         <awaitility.version>4.2.0</awaitility.version>
         <checkstyle.version>10.8.0</checkstyle.version>
-        <classgraph.version>4.8.156</classgraph.version>
+        <classgraph.version>4.8.157</classgraph.version>
         <commons.codec.version>1.15</commons.codec.version>
         <commons.io.version>2.11.0</commons.io.version>
         <commons.lang3.version>3.12.0</commons.lang3.version>
