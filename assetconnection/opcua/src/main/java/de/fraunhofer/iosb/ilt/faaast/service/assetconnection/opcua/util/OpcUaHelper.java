@@ -35,6 +35,7 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.ExpandedNodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
+import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
 
 
@@ -110,6 +111,26 @@ public class OpcUaHelper {
                 TimestampsToReturn.Neither,
                 client.getAddressSpace().getVariableNode(OpcUaHelper.parseNodeId(client, nodeId))
                         .getNodeId())
+                .get();
+    }
+
+
+    /**
+     * Writes a value via OPC UA.
+     *
+     * @param client the OPC UA client to use
+     * @param nodeId string representation of the node to write to
+     * @param value the value to write
+     * @return the status code
+     * @throws UaException if parsing node fails
+     * @throws InterruptedException if writing fails
+     * @throws ExecutionException if writing fails
+     */
+    public static StatusCode writeValue(OpcUaClient client, String nodeId, Object value) throws UaException, InterruptedException, ExecutionException {
+        return client.writeValue(
+                client.getAddressSpace().getVariableNode(OpcUaHelper.parseNodeId(client, nodeId))
+                        .getNodeId(),
+                new DataValue(new Variant(value)))
                 .get();
     }
 

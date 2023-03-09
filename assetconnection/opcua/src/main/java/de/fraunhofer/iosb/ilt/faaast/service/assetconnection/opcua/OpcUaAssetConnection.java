@@ -164,6 +164,7 @@ public class OpcUaAssetConnection extends
             @Override
             public void onSessionActive(UaSession session) {
                 if (!isConnecting) {
+                    connected = true;
                     LOGGER.info("OPC UA asset connection reconnected (endpoint: {})", getEndpointInformation());
                 }
             }
@@ -172,6 +173,7 @@ public class OpcUaAssetConnection extends
             @Override
             public void onSessionInactive(UaSession session) {
                 if (!isDisconnecting) {
+                    connected = false;
                     LOGGER.warn("OPC UA asset connection lost (host: {})", config.getHost());
                 }
             }
