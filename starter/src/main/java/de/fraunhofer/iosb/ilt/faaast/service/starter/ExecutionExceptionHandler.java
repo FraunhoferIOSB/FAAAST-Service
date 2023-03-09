@@ -26,7 +26,18 @@ public class ExecutionExceptionHandler implements IExecutionExceptionHandler {
 
     @Override
     public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
-        cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
+        Throwable thrown = ex;
+        int indent = 0;
+        while (thrown != null) {
+            String msg = thrown.getMessage();
+            String className = thrown.getClass().getSimpleName();
+            String info = msg != null
+                    ? String.format("%s (%s)", msg, className)
+                    : className;
+            cmd.getErr().println(cmd.getColorScheme().errorText("  ".repeat(indent) + info));
+            thrown = thrown.getCause();
+            indent++;
+        }
         return cmd.getExitCodeExceptionMapper() != null
                 ? cmd.getExitCodeExceptionMapper().getExitCode(ex)
                 : cmd.getCommandSpec().exitCodeOnExecutionException();
