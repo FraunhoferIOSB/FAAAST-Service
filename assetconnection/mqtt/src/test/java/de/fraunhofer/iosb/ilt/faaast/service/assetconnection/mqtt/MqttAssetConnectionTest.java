@@ -300,7 +300,7 @@ public class MqttAssetConnectionTest {
         PropertyValue expected = PropertyValue.of(Datatype.INT, message);
         TestLogger logger = TestLoggerFactory.getTestLogger(MqttAssetConnection.class);
         final Predicate<LoggingEvent> logConnectionLost = x -> x.getLevel() == Level.WARN && x.getMessage().startsWith("MQTT asset connection lost");
-        final Predicate<LoggingEvent> logConnectionEstablished = x -> x.getLevel() == Level.INFO && x.getMessage().startsWith("MQTT asset connection established");
+        final Predicate<LoggingEvent> logConnectionEstablished = x -> x.getLevel() == Level.INFO && x.getMessage().startsWith("MQTT asset connection reconnected");
         MqttAssetConnection assetConnection = newConnection(localMqttServerUri, DEFAULT_REFERENCE, ElementValueTypeInfo.builder()
                 .datatype(expected.getValue().getDataType())
                 .type(expected.getClass())
