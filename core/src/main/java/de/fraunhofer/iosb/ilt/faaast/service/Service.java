@@ -178,13 +178,17 @@ public class Service implements ServiceContext {
      * @throws IllegalArgumentException if AAS environment is null/has not been properly initialized
      */
     public void start() throws MessageBusException, EndpointException {
-        LOGGER.info("Get command for starting FA³ST Service");
+        LOGGER.debug("Get command for starting FA³ST Service");
         messageBus.start();
+        if (!endpoints.isEmpty()) {
+            LOGGER.info("Starting endpoints...");
+        }
         for (Endpoint endpoint: endpoints) {
-            LOGGER.info("Starting endpoint {}", endpoint.getClass().getSimpleName());
+            LOGGER.debug("Starting endpoint {}", endpoint.getClass().getSimpleName());
             endpoint.start();
         }
-        LOGGER.info("FA³ST Service is running!");
+        assetConnectionManager.start();
+        LOGGER.debug("FA³ST Service is running!");
     }
 
 
@@ -192,7 +196,7 @@ public class Service implements ServiceContext {
      * Stop the service. This includes stopping the message bus and all endpoints.
      */
     public void stop() {
-        LOGGER.info("Get command for stopping FA³ST Service");
+        LOGGER.debug("Get command for stopping FA³ST Service");
         messageBus.stop();
         assetConnectionManager.stop();
         endpoints.forEach(Endpoint::stop);

@@ -164,7 +164,7 @@ public class OpcUaAssetConnection extends
             @Override
             public void onSessionActive(UaSession session) {
                 if (!isConnecting) {
-                    LOGGER.info("OPC UA asset connection established (host: {})", config.getHost());
+                    LOGGER.info("OPC UA asset connection reconnected (endpoint: {})", getEndpointInformation());
                 }
             }
 
@@ -203,7 +203,7 @@ public class OpcUaAssetConnection extends
             subscriptionProviders.values().stream().forEach(LambdaExceptionHelper.rethrowConsumer(OpcUaSubscriptionProvider::close));
         }
         catch (AssetConnectionException e) {
-            LOGGER.info("unsubscribing from OPC UA asset connection on connection closing failed", e);
+            LOGGER.debug("unsubscribing from OPC UA asset connection on connection closing failed", e);
         }
     }
 

@@ -72,6 +72,13 @@ public class AssetConnectionManager {
             }
         };
         scheduledExecutorService = Executors.newScheduledThreadPool(connections.size(), threadFactory);
+    }
+
+
+    public void start() {
+        if (!connections.isEmpty()) {
+            LOGGER.info("Connecting to assets...");
+        }
         for (var connection: connections) {
             try {
                 // try to connect in synchronized way, if that fails keep trying to connect async
@@ -144,7 +151,7 @@ public class AssetConnectionManager {
                 });
             }
             catch (AssetConnectionException e) {
-                LOGGER.info("Subscribing to asset connection failed (reference: {})",
+                LOGGER.warn("Subscribing to asset connection failed (reference: {})",
                         AasUtils.asString(subscriptionInfo.getKey()),
                         e);
             }

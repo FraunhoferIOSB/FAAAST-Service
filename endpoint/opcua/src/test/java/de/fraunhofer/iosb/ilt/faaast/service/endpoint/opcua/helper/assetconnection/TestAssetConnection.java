@@ -70,7 +70,7 @@ public class TestAssetConnection implements
             operationProviders.put(reference, new AssetOperationProvider() {
                 @Override
                 public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-                    LOGGER.info("method invoked!");
+                    LOGGER.trace("method invoked!");
                     return operationProvider.getOutputArgs().toArray(OperationVariable[]::new);
                     //return new OperationVariable[0];
                 }
@@ -162,7 +162,7 @@ public class TestAssetConnection implements
 
     @Override
     public void init(CoreConfig coreConfig, TestAssetConnectionConfig config, ServiceContext context) {
-        LOGGER.info("init called");
+        LOGGER.trace("init called");
         for (var provider: config.getValueProviders().entrySet()) {
             registerValueProvider(provider.getKey(), provider.getValue());
         }

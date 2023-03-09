@@ -94,9 +94,8 @@ public class MqttAssetConnection extends
             client.setCallback(new MqttCallbackExtended() {
                 @Override
                 public void connectionLost(Throwable throwable) {
-                    LOGGER.warn("MQTT asset connection lost (host: {}, reason: {})",
+                    LOGGER.warn("MQTT asset connection lost (host: {})",
                             config.getServerUri(),
-                            throwable.getMessage(),
                             throwable);
                 }
 
@@ -120,7 +119,7 @@ public class MqttAssetConnection extends
                         try {
                             // restore lost subscriptions
                             subscriptionProviders.values().forEach(LambdaExceptionHelper.rethrowConsumer(MqttSubscriptionProvider::subscribe));
-                            LOGGER.info("MQTT asset connection established (host: {})", serverURI);
+                            LOGGER.info("MQTT asset connection reconnected (endpoint: {})", getEndpointInformation());
                         }
                         catch (AssetConnectionException e) {
                             LOGGER.warn("error restoring MQTT subscriptions after connection loss", e);
