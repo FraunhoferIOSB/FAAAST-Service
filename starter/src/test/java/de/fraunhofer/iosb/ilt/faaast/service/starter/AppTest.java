@@ -94,6 +94,12 @@ public class AppTest {
     }
 
 
+    private void executeAssertSuccess(String... args) {
+        int ret = cmd.execute(args);
+        Assert.assertEquals(0, ret);
+    }
+
+
     @Test
     public void testGetConfigOverrides() throws Exception {
         Map<String, String> cliProperties = new HashMap<>();
@@ -108,6 +114,7 @@ public class AppTest {
                 .map(x -> String.format("%s=%s", x.getKey(), x.getValue()))
                 .toArray(String[]::new);
         Map<String, String> actual = withEnv(envProperties).execute(() -> {
+            // TODO: Fix test and use executeAssertSuccess here as well
             new CommandLine(application).execute(args);
             return application.getConfigOverrides();
         });
@@ -117,14 +124,14 @@ public class AppTest {
 
     @Test
     public void testConfigFileCLI() {
-        cmd.execute("-c", CONFIG);
+        executeAssertSuccess("-c", CONFIG);
         Assert.assertEquals(new File(CONFIG), application.configFile);
     }
 
 
     @Test
     public void testConfigFileCLIDefault() {
-        cmd.execute();
+        executeAssertSuccess();
         Assert.assertEquals(new File(App.CONFIG_FILENAME_DEFAULT), application.configFile);
     }
 
@@ -133,7 +140,7 @@ public class AppTest {
     public void testConfigFileENV() throws Exception {
         File actual = withEnv(App.ENV_CONFIG_FILE_PATH, CONFIG)
                 .execute(() -> {
-                    new CommandLine(application).execute();
+                    executeAssertSuccess();
                     return application.configFile;
                 });
         Assert.assertEquals(new File(CONFIG), actual);
@@ -142,7 +149,7 @@ public class AppTest {
 
     @Test
     public void testModelFileCLI() {
-        cmd.execute("-m", modelPath.toString());
+        executeAssertSuccess("-m", modelPath.toString());
         Assert.assertEquals(modelPath.toFile(), application.modelFile);
     }
 
@@ -151,7 +158,7 @@ public class AppTest {
     public void testModelFileENV() throws Exception {
         File actual = withEnv(App.ENV_MODEL_FILE_PATH, modelPath.toString())
                 .execute(() -> {
-                    new CommandLine(application).execute();
+                    executeAssertSuccess();
                     return application.modelFile;
                 });
         Assert.assertEquals(modelPath.toFile(), actual);
@@ -162,7 +169,7 @@ public class AppTest {
     public void testModelFilePrio() throws Exception {
         File actual = withEnv(App.ENV_MODEL_FILE_PATH, "env.json")
                 .execute(() -> {
-                    new CommandLine(application).execute("-m", modelPath.toString());
+                    executeAssertSuccess("-m", modelPath.toString());
                     return application.modelFile;
                 });
         Assert.assertEquals(modelPath.toFile(), actual);
@@ -171,42 +178,42 @@ public class AppTest {
 
     @Test
     public void testUseEmptyModelCLI() {
-        cmd.execute("--emptyModel");
+        executeAssertSuccess("--emptyModel");
         Assert.assertTrue(application.useEmptyModel);
     }
 
 
     @Test
     public void testUseEmptyModelCLIDefault() {
-        cmd.execute();
+        executeAssertSuccess();
         Assert.assertFalse(application.useEmptyModel);
     }
 
 
     @Test
     public void testAutoCompleteConfigurationCLI() {
-        cmd.execute("--no-autoCompleteConfig");
+        executeAssertSuccess("--no-autoCompleteConfig");
         Assert.assertFalse(application.autoCompleteConfiguration);
     }
 
 
     @Test
     public void testAutoCompleteConfigurationCLIDefault() {
-        cmd.execute();
+        executeAssertSuccess();
         Assert.assertTrue(application.autoCompleteConfiguration);
     }
 
 
     @Test
     public void testModelValidationCLI() {
-        cmd.execute("--no-modelValidation");
+        executeAssertSuccess("--no-modelValidation");
         Assert.assertFalse(application.validateModel);
     }
 
 
     @Test
     public void testModelValidationCLIDefault() {
-        cmd.execute("-m", modelPath.toString());
+        executeAssertSuccess("-m", modelPath.toString());
         Assert.assertTrue(application.validateModel);
     }
 
@@ -215,10 +222,10 @@ public class AppTest {
     public void testEndpointsCLI() {
         var expected = List.of(EndpointType.HTTP, EndpointType.OPCUA);
 
-        cmd.execute("--endpoint", "http", "--endpoint", "opcua");
+        executeAssertSuccess("--endpoint", "http", "--endpoint", "opcua");
         Assert.assertEquals(expected, application.endpoints);
 
-        cmd.execute("--endpoint", "http,opcua");
+        executeAssertSuccess("--endpoint", "http,opcua");
         Assert.assertEquals(expected, application.endpoints);
     }
 }
