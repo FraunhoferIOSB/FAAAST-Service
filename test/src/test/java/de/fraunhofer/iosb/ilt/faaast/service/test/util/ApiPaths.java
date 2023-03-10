@@ -280,6 +280,16 @@ public class ApiPaths {
 
         private final String root;
 
+        private String level(Level level) {
+            return String.format("level=%s", level.name().toLowerCase());
+        }
+
+
+        private String content(Content content) {
+            return String.format("content=%s", content.name().toLowerCase());
+        }
+
+
         private SubmodelInterface(String root) {
             this.root = root;
         }
@@ -291,23 +301,52 @@ public class ApiPaths {
 
 
         public String submodel(Level level) {
-            return String.format("%s/submodel?level=%s", root, level.name().toLowerCase());
+            return String.format("%s/submodel?%s",
+                    root,
+                    level(level));
         }
 
 
         public String submodel(Level level, Content content) {
-            return String.format("%s/submodel?level=%s&content=%s", root, level.name().toLowerCase(), content.name().toLowerCase());
+            return String.format("%s/submodel?%s&%s",
+                    root,
+                    level(level),
+                    content(content));
         }
 
 
         public String submodel(Content content) {
-            return String.format("%s/submodel?content=%s", root, content.name().toLowerCase());
+            return String.format("%s/submodel?%s",
+                    root,
+                    content(content));
         }
 
 
         public String submodelElements() {
             return String.format("%s/submodel-elements",
                     submodel());
+        }
+
+
+        public String submodelElements(Level level) {
+            return String.format("%s?%s",
+                    submodelElements(),
+                    level(level));
+        }
+
+
+        public String submodelElements(Level level, Content content) {
+            return String.format("%s?%s&%s",
+                    submodelElements(),
+                    level(level),
+                    content(content));
+        }
+
+
+        public String submodelElements(Content content) {
+            return String.format("%s?%s",
+                    submodelElements(),
+                    content(content));
         }
 
 
@@ -318,8 +357,45 @@ public class ApiPaths {
         }
 
 
+        public String submodelElement(String idShortPath, Level level) {
+            return String.format("%s?%s",
+                    submodelElement(idShortPath),
+                    level(level));
+        }
+
+
+        public String submodelElement(String idShortPath, Content content) {
+            return String.format("%s?%s",
+                    submodelElement(idShortPath),
+                    content(content));
+        }
+
+
+        public String submodelElement(String idShortPath, Level level, Content content) {
+            return String.format("%s?%s&%s",
+                    submodelElement(idShortPath),
+                    level(level),
+                    content(content));
+        }
+
+
         public String submodelElement(SubmodelElement submodelElement) {
             return submodelElement(submodelElement.getIdShort());
+        }
+
+
+        public String submodelElement(SubmodelElement submodelElement, Level level) {
+            return submodelElement(submodelElement.getIdShort(), level);
+        }
+
+
+        public String submodelElement(SubmodelElement submodelElement, Content content) {
+            return submodelElement(submodelElement.getIdShort(), content);
+        }
+
+
+        public String submodelElement(SubmodelElement submodelElement, Level level, Content content) {
+            return submodelElement(submodelElement.getIdShort(), level, content);
         }
 
 

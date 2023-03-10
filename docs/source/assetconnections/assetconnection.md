@@ -42,6 +42,7 @@ A concrete example for OPC UA asset connection could look like this
 {
 	"@class": "de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnection",
 	"host": "opc.tcp://localhost:4840",
+	"initializationInterval" : 10000,
 	"valueProviders":
 	{
 		"(Submodel)[IRI]urn:aas:id:example:submodel:1,(Property)[ID_SHORT]Property1":
@@ -70,3 +71,14 @@ A concrete example for OPC UA asset connection could look like this
 	}
 }
 ```
+
+Initialization of the asset connection occurs asynchronously during startup and is established as soon as the asset can be reached. This functionality allows the FA³ST service to start before the assets do. The `initializationInterval` attribute can be used to set the retry time in milliseconds. The default value is `10000`.
+
+```json
+{
+	"@class": "...",
+	"initializationInterval" : 10000,
+	"valueProviders":{...}
+}
+```
+

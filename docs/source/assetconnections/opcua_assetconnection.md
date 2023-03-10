@@ -20,7 +20,6 @@
 | password | String | _optional_ Password for connecting to the OPC UA server. This value is required if userTokenType UserName is selected. |
 | requestTimeout | int | _optional_ Timeout for requests (in ms), default: 3000 |
 | acknowledgeTimeout | int | _optional_ Timeout for acknowledgement (in ms), default: 10000 |
-| retries | int | _optional_ Number of times a request/connection should be retried after failing, default: 1 |
 | securityPolicy | Enum | _optional_ Desired Security Policy for the connection to the OPC UA server. Possible values are: None, Basic256Sha256, Aes128_Sha256_RsaOaep and Aes256_Sha256_RsaPss. Default value is None. |
 | securityMode | Enum | _optional_ Security Mode for the connection to the OPC UA server. Possible values are: None, Sign and SignAndEncrypt. Default value is None. |
 | transportProfile | Enum | _optional_ Transport Profile for the connection to the OPC UA server. Possible values are: TCP_UASC_UABINARY, HTTPS_UABINARY, HTTPS_UAXML, HTTPS_UAJSON, WSS_UASC_UABINARY, WSS_UAJSON. Default value is TCP_UASC_UABINARY |
@@ -76,8 +75,8 @@ or
 |:--| -- | -- |
 | nodeId | String | nodeId of the OPC UA method to call in ExpandedNodeId format |
 | parentNodeId | String | _optional_ nodeId of the OPC UA object in ExpandedNodeId format, in which the method is contained. When no parentNodeId is given here, the parent object of the method is used |
-| inputArgumentMapping | List&lt;ArgumentMapping&gt; | _optional_ list of mappings for input arguments between the idShort of a SubmodelElement and an argument name
-| outputArgumentMapping | List&lt;ArgumentMapping&gt; | _optional_ list of mappings for output arguments between the idShort of a SubmodelElement and an argument name
+| inputArgumentMapping | List&lt;ArgumentMapping&gt; | _optional_ list of mappings for input arguments between the idShort of a SubmodelElement and an argument name |
+| outputArgumentMapping | List&lt;ArgumentMapping&gt; | _optional_ list of mappings for output arguments between the idShort of a SubmodelElement and an argument name |
 
 #### Example
 
@@ -107,7 +106,7 @@ or
 | Name | Allowed Value | Description |
 |:--| -- | -- |
 | nodeId | String | NodeId of the the OPC UA node to read/write in ExpandedNodeId format |
-| interval | long | Interval to poll the server for changes (in ms) _currently not used_
+| interval | long | Interval to poll the server for changes (in ms), default: 1000, _currently not used_ |
 | arrayIndex | String | _optional_ Index of the desired array element if the value is an array |
 
 If the value is an array, it's possible to reference a specific element of the array. The index of the desired element is specified with square brackets, e.g. "[2]".  If the value is multi-dimensional array, multiple indizes can be specified, e.g. "&#091;1&#093;&#091;3&#093;".

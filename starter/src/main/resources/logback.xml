@@ -1,8 +1,10 @@
 <configuration scan="true">
     <variable name="LOG_DIR" value="logs/app.log"/>
-    <variable name="PATTERN" value="%date{yyyy-MM-dd HH:mm:ss} [%level] %msg \(%logger\)%n"/>
-    <define name="PACKAGE_STARTER" class="de.fraunhofer.iosb.ilt.faaast.service.starter.logging.StarterPackageNameProvider"/>
-    <appender name="SDTOUT_STARTER" class="ch.qos.logback.core.ConsoleAppender">
+    <variable name="PATTERN_STDOUT" value="%date{yyyy-MM-dd HH:mm:ss} [%level] %msg \(%logger\)%nopex%n"/>
+    <variable name="PATTERN_STDOUT_FAAAST" value="%date{yyyy-MM-dd HH:mm:ss} %msg%nopex%n"/>
+    <variable name="PATTERN_LOG" value="%date{yyyy-MM-dd HH:mm:ss} [%level] %msg \(%logger\)%n"/>
+    <variable name="PACKAGE_FAAAST" value="de.fraunhofer.iosb.ilt.faaast.service"/>
+    <appender name="STDOUT_STARTER" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>INFO</level>
             <onMatch>NEUTRAL</onMatch>
@@ -10,19 +12,19 @@
         </filter>
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
             <evaluator>
-                <expression>logger.startsWith("${PACKAGE_STARTER}")</expression>
+                <expression>logger.startsWith("${PACKAGE_FAAAST}")</expression>
             </evaluator>
             <OnMismatch>DENY</OnMismatch>
             <OnMatch>ACCEPT</OnMatch>
         </filter>
         <encoder>
-            <pattern>%date{yyyy-MM-dd HH:mm:ss} %msg%n</pattern>
+            <pattern>${PATTERN_STDOUT_FAAAST}</pattern>
         </encoder>
     </appender>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter"/>
         <encoder>
-            <pattern>${PATTERN}</pattern>
+            <pattern>${PATTERN_STDOUT}</pattern>
         </encoder>
     </appender>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -37,11 +39,11 @@
             <maxHistory>60</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>${PATTERN}</pattern>
+            <pattern>${PATTERN_LOG}</pattern>
         </encoder>
     </appender>
     <root level="TRACE">
-        <appender-ref ref="SDTOUT_STARTER"/>
+        <appender-ref ref="STDOUT_STARTER"/>
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
     </root>

@@ -42,6 +42,7 @@ import org.eclipse.milo.opcua.stack.client.security.ClientCertificateValidator;
 import org.eclipse.milo.opcua.stack.client.security.DefaultClientCertificateValidator;
 import org.eclipse.milo.opcua.stack.core.StatusCodes;
 import org.eclipse.milo.opcua.stack.core.UaException;
+import org.eclipse.milo.opcua.stack.core.UaServiceFaultException;
 import org.eclipse.milo.opcua.stack.core.security.DefaultTrustListManager;
 import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
@@ -49,6 +50,7 @@ import org.eclipse.milo.opcua.stack.core.types.builtin.ExpandedNodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
+import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.TimestampsToReturn;
 import org.eclipse.milo.opcua.stack.core.util.CertificateUtil;
 import org.slf4j.Logger;
@@ -60,6 +62,9 @@ import org.slf4j.LoggerFactory;
  */
 public class OpcUaHelper {
 
+    public static final String NODE_ID_SEPARATOR = ";";
+    public static final String APPLICATION_URI = "urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:opcua";
+    public static final String APPLICATION_NAME = "FA³ST Asset Connection";
     private static final Logger LOGGER = LoggerFactory.getLogger(OpcUaHelper.class);
     private static final List<TransportProfile> SUPPORTED_TRANSPORT_SCHEMES = List.of(
             TransportProfile.TCP_UASC_UABINARY,
@@ -134,6 +139,26 @@ public class OpcUaHelper {
 
 
     /**
+     * Writes a value via OPC UA.
+     *
+     * @param client the OPC UA client to use
+     * @param nodeId string representation of the node to write to
+     * @param value the value to write
+     * @return the status code
+     * @throws UaException if parsing node fails
+     * @throws InterruptedException if writing fails
+     * @throws ExecutionException if writing fails
+     */
+    public static StatusCode writeValue(OpcUaClient client, String nodeId, Object value) throws UaException, InterruptedException, ExecutionException {
+        return client.writeValue(
+                client.getAddressSpace().getVariableNode(OpcUaHelper.parseNodeId(client, nodeId))
+                        .getNodeId(),
+                new DataValue(new Variant(value)))
+                .get();
+    }
+
+
+    /**
      * Connect to a OPC UA server. This method already respects all configuration properties like credentials and
      * numbers of retries.
      *
@@ -141,8 +166,7 @@ public class OpcUaHelper {
      * @param clientModifier optional way to modify client before connecting, e.g. for adding listeners
      * @return new OPC UA client instance that is already connected to the server
      * @throws AssetConnectionException if connecting fails
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException if configuration is
-     *             invalid
+     * @throws ConfigurationInitializationException if configuration is invalid
      */
     public static OpcUaClient connect(OpcUaAssetConnectionConfig config, Consumer<OpcUaClient> clientModifier)
             throws AssetConnectionException, ConfigurationInitializationException {
@@ -150,13 +174,12 @@ public class OpcUaHelper {
         if (Objects.nonNull(clientModifier)) {
             clientModifier.accept(client);
         }
-        return connect(client, config.getRetries());
+        return connect(client);
     }
 
 
     /**
-     * Connect to a OPC UA server.This method already respects all configuration properties like credentials and numbers
-     * of retries.
+     * Connect to a OPC UA server. This method already respects all configuration properties.
      *
      * @param config the configuration to use
      * @return new OPC UA client instance that is already connected to the server
@@ -165,7 +188,7 @@ public class OpcUaHelper {
      *             invalid
      */
     public static OpcUaClient connect(OpcUaAssetConnectionConfig config) throws AssetConnectionException, ConfigurationInitializationException {
-        return connect(createClient(config), config.getRetries());
+        return connect(createClient(config));
     }
 
 
@@ -350,7 +373,8 @@ public class OpcUaHelper {
 
         IdentityProvider identityProvider = getIdentityProvider(config);
         try {
-            return OpcUaClient.create(
+            long time = System.currentTimeMillis();
+            OpcUaClient retval = OpcUaClient.create(
                     config.getHost(),
                     endpoints -> endpoints.stream()
                             .filter(e -> e.getSecurityPolicyUri().equals(config.getSecurityPolicy().getUri()))
@@ -370,6 +394,11 @@ public class OpcUaHelper {
                             .setCertificateChain(applicationCertificate.getCertificateChain())
                             .setCertificateValidator(certificateValidator)
                             .build());
+            time = System.currentTimeMillis() - time;
+            if (time >= 1000) {
+                LOGGER.info("create Client Dauer: {} sec", time / 1000);
+            }
+            return retval;
         }
         catch (UaException e) {
             throw new AssetConnectionException(String.format("error creating OPC UA client (host: %s)", config.getHost()), e);
@@ -377,37 +406,37 @@ public class OpcUaHelper {
     }
 
 
-    private static OpcUaClient connect(OpcUaClient client, int retries) throws AssetConnectionException {
-        boolean success = false;
-        int count = 0;
-        do {
-            try {
-                client.connect().get();
-                success = true;
+    private static OpcUaClient connect(OpcUaClient client) throws AssetConnectionException {
+        long time = System.currentTimeMillis();
+        try {
+            LOGGER.info("connect Start: EndpointUrl: {}; SecurityMode: {}; SecurityPolicyUri: {}", client.getConfig().getEndpoint().getEndpointUrl(),
+                    client.getConfig().getEndpoint().getSecurityMode(), client.getConfig().getEndpoint().getSecurityPolicyUri());
+            client.connect().get();
+            time = System.currentTimeMillis() - time;
+            LOGGER.info("connect Dauer: {} msec", time);
+        }
+        catch (InterruptedException | ExecutionException e) {
+            time = System.currentTimeMillis() - time;
+            LOGGER.error("error in connect; Dauer: " + time, e);
+            if (e instanceof UaServiceFaultException) {
+                checkUserIdentityError((UaServiceFaultException) e, client.getConfig().getEndpoint().getEndpointUrl());
             }
-            catch (InterruptedException | ExecutionException e) {
-                // ignore
-                if (count >= retries) {
-                    throw new AssetConnectionException(String.format(
-                            "error opening OPC UA connection (host: %s)",
-                            client.getConfig().getEndpoint().getEndpointUrl()),
-                            e);
-                }
-                else {
-                    LOGGER.debug("Opening OPC UA connection failed on try {}/{} (host: {})",
-                            count + 1,
-                            retries + 1,
-                            client.getConfig().getEndpoint().getEndpointUrl());
-                    if (InterruptedException.class.isAssignableFrom(e.getClass())) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
+            else if (e.getCause() instanceof UaServiceFaultException) {
+                checkUserIdentityError((UaServiceFaultException) e.getCause(), client.getConfig().getEndpoint().getEndpointUrl());
             }
-            finally {
-                count++;
-            }
-        } while (!success && count <= retries);
+            throw new AssetConnectionException(String.format(
+                    "error opening OPC UA connection (host: %s)",
+                    client.getConfig().getEndpoint().getEndpointUrl()),
+                    e);
+        }
         return client;
     }
 
+
+    private static void checkUserIdentityError(UaServiceFaultException exception, String endpointUrl) {
+        if ((exception.getStatusCode().getValue() == StatusCodes.Bad_IdentityTokenRejected)
+                || (exception.getStatusCode().getValue() == StatusCodes.Bad_IdentityTokenInvalid)) {
+            throw new IllegalArgumentException(String.format("Identity Token invalid (host: %s)", endpointUrl));
+        }
+    }
 }
