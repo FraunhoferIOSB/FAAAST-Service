@@ -21,6 +21,7 @@ import static org.mockito.Mockito.mock;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.ArgumentMapping;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
@@ -441,72 +442,69 @@ public class OpcUaAssetConnectionTest {
         client.disconnect().get();
     }
 
-    //    @Test
-    //    public void testReconnect() throws Exception {
-    //        int assetTcpPort = findFreePort();
-    //        int assetHttpsPort = findFreePort();
-    //        double initialValue = 1.0;
-    //        double updatedValue = 2.2;
-    //        String assetEndpoint = "opc.tcp://localhost:" + assetTcpPort + "/milo";
-    //        String nodeId = "ns=2;s=HelloWorld/ScalarTypes/Double";
-    //        PropertyValue expectedInitial = PropertyValue.of(Datatype.DOUBLE, Double.toString(initialValue));
-    //        PropertyValue expectedUpdated = PropertyValue.of(Datatype.DOUBLE, Double.toString(updatedValue));
-    //        Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
-    //        ServiceContext serviceContext = mock(ServiceContext.class);
-    //        TypeInfo infoExample = ElementValueTypeInfo.builder()
-    //                .type(PropertyValue.class)
-    //                .datatype(Datatype.DOUBLE)
-    //                .build();
-    //        doReturn(infoExample).when(serviceContext).getTypeInfo(reference);
-    //        OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
-    //                .host(assetEndpoint)
-    //                .subscriptionProvider(reference, OpcUaSubscriptionProviderConfig.builder()
-    //                        .nodeId(nodeId)
-    //                        .build())
-    //                .build();
-    //        // start asset
-    //        EmbeddedOpcUaServer asset = new EmbeddedOpcUaServer(AnonymousIdentityValidator.INSTANCE, assetTcpPort, assetHttpsPort);
-    //        asset.startup().get();
-    //        // set asset value to initial value
-    //        setOpcUaValue(config, nodeId, initialValue);
-    //        // start asset connection & wait for initial value
-    //        OpcUaAssetConnection connection = config.newInstance(CoreConfig.DEFAULT, serviceContext);
-    //        connection.connect();
-    //        final AtomicReference<DataElementValue> initialResponse = new AtomicReference<>();
-    //        CountDownLatch conditionOriginalValue = new CountDownLatch(1);
-    //        NewDataListener initialListener = (DataElementValue data) -> {
-    //            initialResponse.set(data);
-    //            conditionOriginalValue.countDown();
-    //        };
-    //        connection.getSubscriptionProviders().get(reference).addNewDataListener(initialListener);
-    //        Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", getWaitTime(), TimeUnit.MILLISECONDS),
-    //                conditionOriginalValue.await(getWaitTime(), TimeUnit.MILLISECONDS));
-    //        Assert.assertEquals(expectedInitial, initialResponse.get());
-    //        connection.getSubscriptionProviders().get(reference).removeNewDataListener(initialListener);
-    //        // stop asset
-    //        asset.shutdown().get();
-    //        await().atMost(30, TimeUnit.SECONDS)
-    //                .until(() -> !connection.isConnected());
-    //        // restart asset
-    //        asset = new EmbeddedOpcUaServer(AnonymousIdentityValidator.INSTANCE, assetTcpPort, assetHttpsPort);
-    //        asset.startup().get();
-    //        await().atMost(30, TimeUnit.SECONDS)
-    //                .until(() -> connection.isConnected());
-    //        // set value on asset to updated value
-    //        setOpcUaValue(config, nodeId, updatedValue);
-    //        // wait for updated value from asset connection
-    //        final AtomicReference<DataElementValue> updatedResponse = new AtomicReference<>();
-    //        CountDownLatch conditionUpdated = new CountDownLatch(1);
-    //        NewDataListener updatedListener = (DataElementValue data) -> {
-    //            updatedResponse.set(data);
-    //            conditionUpdated.countDown();
-    //        };
-    //        connection.getSubscriptionProviders().get(reference).addNewDataListener(updatedListener);
-    //        Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", getWaitTime(), TimeUnit.MILLISECONDS),
-    //                conditionUpdated.await(getWaitTime(), TimeUnit.MILLISECONDS));
-    //        Assert.assertEquals(expectedUpdated, updatedResponse.get());
-    //        asset.shutdown().get();
-    //    }
+
+    @Test
+    public void testReconnect() throws Exception {
+        EmbeddedOpcUaServer server = startDefaultServer();
+        var serverConfig = server.getConfig();
+        double initialValue = 1.0;
+        double updatedValue = 2.2;
+        String nodeId = "ns=2;s=HelloWorld/ScalarTypes/Double";
+        PropertyValue expectedInitial = PropertyValue.of(Datatype.DOUBLE, Double.toString(initialValue));
+        PropertyValue expectedUpdated = PropertyValue.of(Datatype.DOUBLE, Double.toString(updatedValue));
+        Reference reference = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
+        ServiceContext serviceContext = mock(ServiceContext.class);
+        TypeInfo infoExample = ElementValueTypeInfo.builder()
+                .type(PropertyValue.class)
+                .datatype(Datatype.DOUBLE)
+                .build();
+        doReturn(infoExample).when(serviceContext).getTypeInfo(reference);
+        OpcUaAssetConnectionConfig config = OpcUaAssetConnectionConfig.builder()
+                .host(server.getEndpoint(Protocol.TCP))
+                .subscriptionProvider(reference, OpcUaSubscriptionProviderConfig.builder()
+                        .nodeId(nodeId)
+                        .build())
+                .build();
+        // set asset value to initial value
+        setOpcUaValue(config, nodeId, initialValue);
+        // start asset connection & wait for initial value
+        OpcUaAssetConnection connection = config.newInstance(CoreConfig.DEFAULT, serviceContext);
+        connection.connect();
+        final AtomicReference<DataElementValue> initialResponse = new AtomicReference<>();
+        CountDownLatch conditionOriginalValue = new CountDownLatch(1);
+        NewDataListener initialListener = (DataElementValue data) -> {
+            initialResponse.set(data);
+            conditionOriginalValue.countDown();
+        };
+        connection.getSubscriptionProviders().get(reference).addNewDataListener(initialListener);
+        Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", getWaitTime(), TimeUnit.MILLISECONDS),
+                conditionOriginalValue.await(getWaitTime(), TimeUnit.MILLISECONDS));
+        Assert.assertEquals(expectedInitial, initialResponse.get());
+        connection.getSubscriptionProviders().get(reference).removeNewDataListener(initialListener);
+        // stop asset
+        server.shutdown();
+        await().atMost(10, TimeUnit.SECONDS)
+                .until(() -> !connection.isConnected());
+        // restart asset
+        server = new EmbeddedOpcUaServer(serverConfig);
+        server.startup();
+        await().atMost(30, TimeUnit.SECONDS)
+                .until(() -> connection.isConnected());
+        // set value on asset to updated value
+        setOpcUaValue(config, nodeId, updatedValue);
+        // wait for updated value from asset connection
+        final AtomicReference<DataElementValue> updatedResponse = new AtomicReference<>();
+        CountDownLatch conditionUpdated = new CountDownLatch(1);
+        NewDataListener updatedListener = (DataElementValue data) -> {
+            updatedResponse.set(data);
+            conditionUpdated.countDown();
+        };
+        connection.getSubscriptionProviders().get(reference).addNewDataListener(updatedListener);
+        Assert.assertTrue(String.format("test failed because there was no response within defined time (%d %s)", getWaitTime(), TimeUnit.MILLISECONDS),
+                conditionUpdated.await(getWaitTime(), TimeUnit.MILLISECONDS));
+        Assert.assertEquals(expectedUpdated, updatedResponse.get());
+        server.shutdown();
+    }
 
 
     private void awaitConnection(AssetConnection connection) {
