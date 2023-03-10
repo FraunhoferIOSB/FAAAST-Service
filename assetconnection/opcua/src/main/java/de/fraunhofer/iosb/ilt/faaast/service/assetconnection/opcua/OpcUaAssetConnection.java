@@ -81,10 +81,6 @@ public class OpcUaAssetConnection extends
         return config.getHost();
     }
 
-    //public boolean isConnected() {
-    //    return connected;
-    //}
-
 
     private void createNewSubscription() throws UaException {
         opcUaSubscription = ManagedSubscription.create(client);
@@ -190,19 +186,24 @@ public class OpcUaAssetConnection extends
         isConnecting = true;
         try {
             createClient();
-            try {
-                createNewSubscription();
-            }
-            catch (UaException e) {
-                Thread.currentThread().interrupt();
-                throw new AssetConnectionException(String.format("creating OPC UA subscription failed (host: %s)", config.getHost()), e);
-            }
+            doCreateSubscription();
         }
         catch (ConfigurationInitializationException ciex) {
             throw new AssetConnectionException(ciex.getMessage());
         }
         finally {
             isConnecting = false;
+        }
+    }
+
+
+    private void doCreateSubscription() throws AssetConnectionException {
+        try {
+            createNewSubscription();
+        }
+        catch (UaException e) {
+            Thread.currentThread().interrupt();
+            throw new AssetConnectionException(String.format("creating OPC UA subscription failed (host: %s)", config.getHost()), e);
         }
     }
 

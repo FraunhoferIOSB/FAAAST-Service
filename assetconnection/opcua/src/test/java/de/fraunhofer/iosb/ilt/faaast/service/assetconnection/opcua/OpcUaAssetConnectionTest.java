@@ -180,7 +180,6 @@ public class OpcUaAssetConnectionTest {
     @Test
     public void testConnectBasic256Sha256Anonymous() throws Exception {
         List<EndpointSecurityConfiguration> configurations = EndpointSecurityConfiguration.POLICY_BASIC256SHA256;
-        //List<EndpointSecurityConfiguration> configurations = List.of(EndpointSecurityConfiguration.BASIC256_SIGN_ENCRYPT_TCP);
         EmbeddedOpcUaServer server = startServer(
                 EmbeddedOpcUaServerConfig.builder()
                         .endpointSecurityConfigurations(configurations)
@@ -227,7 +226,6 @@ public class OpcUaAssetConnectionTest {
     @Test
     public void testConnectAes256Anonymous() throws Exception {
         List<EndpointSecurityConfiguration> configurations = EndpointSecurityConfiguration.POLICY_AES256_SHA256_RSAPSS;
-        //List<EndpointSecurityConfiguration> configurations = List.of(EndpointSecurityConfiguration.AES256_SHA256_RSAPSS_SIGN_ENCRYPT_TCP);
         EmbeddedOpcUaServer server = startServer(
                 EmbeddedOpcUaServerConfig.builder()
                         .endpointSecurityConfigurations(configurations)
@@ -389,17 +387,6 @@ public class OpcUaAssetConnectionTest {
                 .build();
         OpcUaAssetConnection connection = assetConnConfig.newInstance(CoreConfig.DEFAULT, serviceContext);
         awaitConnection(connection);
-        //        OpcUaAssetConnection connection = new OpcUaAssetConnection(
-        //                CoreConfig.builder().build(),
-        //                OpcUaAssetConnectionConfig.builder()
-        //                        .of(config)
-        //                        .valueProvider(reference,
-        //                                OpcUaValueProviderConfig.builder()
-        //                                        .nodeId(nodeId)
-        //                                        .build())
-        //                        .host(server.getEndpoint(config.getTransportProfile()))
-        //                        .build(),
-        //                serviceContext);
         connection.getValueProviders().get(reference).setValue(expected);
         DataElementValue actual = connection.getValueProviders().get(reference).getValue();
         connection.disconnect();

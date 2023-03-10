@@ -373,8 +373,7 @@ public class OpcUaHelper {
 
         IdentityProvider identityProvider = getIdentityProvider(config);
         try {
-            long time = System.currentTimeMillis();
-            OpcUaClient retval = OpcUaClient.create(
+            return OpcUaClient.create(
                     config.getHost(),
                     endpoints -> endpoints.stream()
                             .filter(e -> e.getSecurityPolicyUri().equals(config.getSecurityPolicy().getUri()))
@@ -385,7 +384,7 @@ public class OpcUaHelper {
                             .setApplicationName(LocalizedText.english(OpcUaConstants.CERTIFICATE_APPLICATION_NAME))
                             .setApplicationUri(CertificateUtil.getSanUri(applicationCertificate.getCertificate())
                                     .orElse(OpcUaConstants.CERTIFICATE_APPLICATION_URI))
-                            //                            .setProductUri("urn:de:fraunhofer:iosb:ilt:faast:asset-connection")
+                            //.setProductUri("urn:de:fraunhofer:iosb:ilt:faast:asset-connection")
                             .setIdentityProvider(identityProvider)
                             .setRequestTimeout(uint(config.getRequestTimeout()))
                             .setAcknowledgeTimeout(uint(config.getAcknowledgeTimeout()))
@@ -394,11 +393,6 @@ public class OpcUaHelper {
                             .setCertificateChain(applicationCertificate.getCertificateChain())
                             .setCertificateValidator(certificateValidator)
                             .build());
-            time = System.currentTimeMillis() - time;
-            if (time >= 1000) {
-                LOGGER.info("create Client Dauer: {} sec", time / 1000);
-            }
-            return retval;
         }
         catch (UaException e) {
             throw new AssetConnectionException(String.format("error creating OPC UA client (host: %s)", config.getHost()), e);
@@ -407,17 +401,10 @@ public class OpcUaHelper {
 
 
     private static OpcUaClient connect(OpcUaClient client) throws AssetConnectionException {
-        long time = System.currentTimeMillis();
         try {
-            LOGGER.info("connect Start: EndpointUrl: {}; SecurityMode: {}; SecurityPolicyUri: {}", client.getConfig().getEndpoint().getEndpointUrl(),
-                    client.getConfig().getEndpoint().getSecurityMode(), client.getConfig().getEndpoint().getSecurityPolicyUri());
             client.connect().get();
-            time = System.currentTimeMillis() - time;
-            LOGGER.info("connect Dauer: {} msec", time);
         }
         catch (InterruptedException | ExecutionException e) {
-            time = System.currentTimeMillis() - time;
-            LOGGER.error("error in connect; Dauer: " + time, e);
             if (e instanceof UaServiceFaultException) {
                 checkUserIdentityError((UaServiceFaultException) e, client.getConfig().getEndpoint().getEndpointUrl());
             }
