@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.persistence;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.config.Config;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentSerializationManager;
@@ -37,6 +38,7 @@ public abstract class PersistenceConfig<T extends Persistence> extends Config<T>
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceConfig.class);
     protected File initialModelFile;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION, defaultImpl = DefaultAssetAdministrationShellEnvironment.class)
     protected AssetAdministrationShellEnvironment initialModel;
 
     public File getInitialModelFile() {
