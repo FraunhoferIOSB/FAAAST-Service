@@ -219,8 +219,6 @@ public class EmbeddedOpcUaServer {
                 .setIdentityValidator(buildIdentityValidator(config))
                 .setProductUri(BUILD_INFO.getProductUri())
                 .build());
-        //server.getEndpointDescriptions().stream()
-        //        .forEach(e -> LOGGER.debug("EndpointUrl: {}; SecurityPolicyUri: {}; SecurityMode: {}", e.getEndpointUrl(), e.getSecurityPolicyUri(), e.getSecurityMode()));
         namespaces.add(new ExampleNamespace(server));
         startupNamespaces();
     }
