@@ -35,6 +35,12 @@ public class EndpointSecurityConfiguration {
 
     private static final List<UserTokenType> SUPPORTED_USER_TOKEN_POLICIES = List.of(UserTokenType.Anonymous, UserTokenType.UserName, UserTokenType.Certificate);
 
+    public static final EndpointSecurityConfiguration NO_SECURITY_ANONYMOUS = new EndpointSecurityConfiguration(
+            SecurityPolicy.None,
+            MessageSecurityMode.None,
+            Protocol.TCP,
+            UserTokenType.Anonymous);
+
     public static final EndpointSecurityConfiguration NONE_NONE_TCP = new EndpointSecurityConfiguration(
             SecurityPolicy.None,
             MessageSecurityMode.None,

@@ -406,10 +406,10 @@ public class OpcUaHelper {
         }
         catch (InterruptedException | ExecutionException e) {
             if (e instanceof UaServiceFaultException) {
-                checkUserIdentityError((UaServiceFaultException) e, client.getConfig().getEndpoint().getEndpointUrl());
+                checkUserAuthenticationError((UaServiceFaultException) e, client.getConfig().getEndpoint().getEndpointUrl());
             }
             else if (e.getCause() instanceof UaServiceFaultException) {
-                checkUserIdentityError((UaServiceFaultException) e.getCause(), client.getConfig().getEndpoint().getEndpointUrl());
+                checkUserAuthenticationError((UaServiceFaultException) e.getCause(), client.getConfig().getEndpoint().getEndpointUrl());
             }
             throw new AssetConnectionException(String.format(
                     "error opening OPC UA connection (host: %s)",
@@ -420,10 +420,14 @@ public class OpcUaHelper {
     }
 
 
-    private static void checkUserIdentityError(UaServiceFaultException exception, String endpointUrl) {
+    private static void checkUserAuthenticationError(UaServiceFaultException exception, String endpointUrl) {
         if ((exception.getStatusCode().getValue() == StatusCodes.Bad_IdentityTokenRejected)
                 || (exception.getStatusCode().getValue() == StatusCodes.Bad_IdentityTokenInvalid)) {
             throw new IllegalArgumentException(String.format("Identity Token invalid (host: %s)", endpointUrl));
+        }
+        if ((exception.getStatusCode().getValue() == StatusCodes.Bad_UserAccessDenied)
+                || (exception.getStatusCode().getValue() == StatusCodes.Bad_IdentityTokenInvalid)) {
+            throw new IllegalArgumentException(String.format("Access Denied (host: %s)", endpointUrl));
         }
     }
 }

@@ -28,7 +28,7 @@ public class OpcUaValueProviderTest {
     @Test
     public void testEquals() throws Exception {
         EmbeddedOpcUaServer server = new EmbeddedOpcUaServer(
-                EmbeddedOpcUaServerConfig.builder().endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_TCP).build());
+                EmbeddedOpcUaServerConfig.builder().endpointSecurityConfiguration(EndpointSecurityConfiguration.NO_SECURITY_ANONYMOUS).build());
         server.startup();
         try {
             OpcUaClient client1 = OpcUaClient.create(server.getEndpoint(Protocol.TCP));

@@ -67,7 +67,9 @@ import java.security.cert.X509Certificate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -76,6 +78,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
@@ -108,11 +111,23 @@ public class OpcUaAssetConnectionTest {
     }
 
 
+    private List<EndpointSecurityConfiguration> withTokenPolicy(List<EndpointSecurityConfiguration> securityConfigurations, UserTokenType... tokenPolicies) {
+        return securityConfigurations.stream()
+                .map(x -> EndpointSecurityConfiguration.builder()
+                        .policy(x.getPolicy())
+                        .protocol(x.getProtocol())
+                        .securityMode(x.getSecurityMode())
+                        .tokenPolicies(new HashSet<>(Arrays.asList(tokenPolicies)))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+
     @Test
     public void testConnectAnonymous() throws Exception {
         EmbeddedOpcUaServer server = startServer(
                 EmbeddedOpcUaServerConfig.builder()
-                        .endpointSecurityConfigurations(EndpointSecurityConfiguration.ALL)
+                        .endpointSecurityConfigurations(withTokenPolicy(EndpointSecurityConfiguration.ALL, UserTokenType.Anonymous))
                         .applicationCertificate(loadServerApplicationCertificate())
                         .build());
         try {
@@ -136,7 +151,7 @@ public class OpcUaAssetConnectionTest {
         final String password = "password-test";
         EmbeddedOpcUaServer server = startServer(
                 EmbeddedOpcUaServerConfig.builder()
-                        .endpointSecurityConfigurations(EndpointSecurityConfiguration.ALL)
+                        .endpointSecurityConfigurations(withTokenPolicy(EndpointSecurityConfiguration.ALL, UserTokenType.UserName))
                         .applicationCertificate(loadServerApplicationCertificate())
                         .allowedCredential(username, password)
                         .build());
@@ -161,7 +176,7 @@ public class OpcUaAssetConnectionTest {
         final String password = "password-test";
         EmbeddedOpcUaServer server = startServer(
                 EmbeddedOpcUaServerConfig.builder()
-                        .endpointSecurityConfigurations(EndpointSecurityConfiguration.ALL)
+                        .endpointSecurityConfigurations(withTokenPolicy(EndpointSecurityConfiguration.ALL, UserTokenType.UserName))
                         .applicationCertificate(loadServerApplicationCertificate())
                         .allowedCredential(username, password)
                         .build());
@@ -183,7 +198,7 @@ public class OpcUaAssetConnectionTest {
     public void testConnectCertificate() throws Exception {
         EmbeddedOpcUaServer server = startServer(
                 EmbeddedOpcUaServerConfig.builder()
-                        .endpointSecurityConfigurations(EndpointSecurityConfiguration.ALL)
+                        .endpointSecurityConfigurations(withTokenPolicy(EndpointSecurityConfiguration.ALL, UserTokenType.Certificate))
                         .applicationCertificate(loadServerApplicationCertificate())
                         .build());
         try {
@@ -340,7 +355,7 @@ public class OpcUaAssetConnectionTest {
 
     private static EmbeddedOpcUaServer startDefaultServer() throws Exception {
         return startServer(EmbeddedOpcUaServerConfig.builder()
-                .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_TCP)
+                .endpointSecurityConfiguration(EndpointSecurityConfiguration.NO_SECURITY_ANONYMOUS)
                 .build());
     }
 
