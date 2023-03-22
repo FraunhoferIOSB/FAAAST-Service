@@ -23,8 +23,19 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ValueReadEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementChangeEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +79,6 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
         try {
             Class<? extends EventMessage> messageType = message.getClass();
             JsonApiSerializer serializer = new JsonApiSerializer();
-            String test = serializer.write(message);
             client.publish("events/" + message.getClass().getSimpleName(), serializer.write(message));
         }
         catch (Exception e) {
@@ -98,19 +108,77 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     @Override
     public SubscriptionId subscribe(SubscriptionInfo subscriptionInfo) {
         Ensure.requireNonNull(subscriptionInfo, "subscriptionInfo must be non-null");
-        for (Class e: subscriptionInfo.getSubscribedEvents()) {
-            client.subscribe("events/" + e.getSimpleName(), (t, message) -> {
-                // deserialize
-                EventMessage event = new JsonApiDeserializer().read(message.toString(), EventMessage.class);
-                // filter
-                if (subscriptionInfo.getFilter().test(event.getElement())) {
+        subscriptionInfo.getSubscribedEvents().stream().forEach((a) -> {
+            //get all events corresponding to abstract events
+            determineEvents((Class<? extends EventMessage>) a).stream().forEach((e) -> {
+                //subscribe to each event
+                client.subscribe("events/" + e.getSimpleName(), (t, message) -> {
+                    // deserialize
+                    EventMessage event = new JsonApiDeserializer().read(message.toString(), EventMessage.class);
                     subscriptionInfo.getHandler().accept(event);
-                }
+                    // filter
+                    if (subscriptionInfo.getFilter().test(event.getElement())) {
+
+                    }
+                });
             });
-        }
+        });
+
         SubscriptionId subscriptionId = new SubscriptionId();
         subscriptions.put(subscriptionId, subscriptionInfo);
         return subscriptionId;
+    }
+
+
+    private Set<Class<? extends EventMessage>> determineEvents(Class<? extends EventMessage> messageType) {
+        Set<Class<? extends EventMessage>> set = new HashSet<>();
+        String test = messageType.getSimpleName();
+        switch (messageType.getSimpleName()) {
+            //abstracts access
+            case ("ReadEventMessage"):
+                set.add(ElementReadEventMessage.class);
+                set.add(ValueReadEventMessage.class);
+                break;
+            case ("AccessEventMessage"):
+                set.add(OperationFinishEventMessage.class);
+                set.add(OperationInvokeEventMessage.class);
+                set.add(ElementReadEventMessage.class);
+                set.add(ValueReadEventMessage.class);
+                break;
+            case ("ExecuteEventMessage"):
+                set.add(OperationFinishEventMessage.class);
+                set.add(OperationInvokeEventMessage.class);
+                break;
+            //abstracts change
+            case ("ChangeEventMessage"):
+                set.add(ElementReadEventMessage.class);
+                set.add(ElementChangeEventMessage.class);
+                set.add(ElementDeleteEventMessage.class);
+                set.add(ElementCreateEventMessage.class);
+                set.add(ValueChangeEventMessage.class);
+                break;
+            case ("ElementChangeEventMessage"):
+                set.add(ElementReadEventMessage.class);
+                set.add(ElementChangeEventMessage.class);
+                set.add(ElementDeleteEventMessage.class);
+                break;
+            case ("EventMessage"):
+                set.add(OperationFinishEventMessage.class);
+                set.add(OperationInvokeEventMessage.class);
+                set.add(ElementReadEventMessage.class);
+                set.add(ElementChangeEventMessage.class);
+                set.add(ElementCreateEventMessage.class);
+                set.add(ElementDeleteEventMessage.class);
+                set.add(ValueReadEventMessage.class);
+                set.add(ValueChangeEventMessage.class);
+                set.add(ErrorEventMessage.class);
+                break;
+            //all other events
+            default:
+                set.add(messageType);
+                break;
+        }
+        return set;
     }
 
 
@@ -118,9 +186,13 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     public void unsubscribe(SubscriptionId id) {
         SubscriptionInfo info = subscriptions.get(id);
         Ensure.requireNonNull(info.getSubscribedEvents(), "subscriptionInfo must be non-null");
-        for (Class e: subscriptions.get(id).getSubscribedEvents()) {
-            client.unsubscribe("events/" + e.getSimpleName());
-            subscriptions.remove(id);
-        }
+        subscriptions.get(id).getSubscribedEvents().stream().forEach((a) -> {
+            //find all events for given abstract or event
+            determineEvents((Class<? extends EventMessage>) a).stream().forEach((e) -> {
+                //unsubscribe from all events
+                client.unsubscribe("events/" + e.getSimpleName());
+            });
+        });
+        subscriptions.remove(id);
     }
 }

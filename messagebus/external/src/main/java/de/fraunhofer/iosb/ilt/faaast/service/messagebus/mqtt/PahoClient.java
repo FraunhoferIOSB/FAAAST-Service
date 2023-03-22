@@ -59,7 +59,7 @@ public class PahoClient {
     }
 
 
-    private synchronized void mqttConnect() {
+    private void mqttConnect() {
         String endpoint = messageBusMqttConfig.getHost() + ":" + messageBusMqttConfig.getPort();
         if (!endpoint.startsWith(PROTOCOL_PREFIX)) {
             endpoint = PROTOCOL_PREFIX + endpoint;
@@ -74,11 +74,38 @@ public class PahoClient {
                     endpoint,
                     clientId,
                     new MemoryPersistence());
+            mqttClient.setCallback(new MqttCallbackExtended() {
+                @Override
+                public void connectionLost(Throwable throwable) {
+                    logger.warn("MQTT message bus connection lost");
+                }
+
+
+                @Override
+                public void deliveryComplete(IMqttDeliveryToken imdt) {
+                    // intentionally left empty
+                }
+
+
+                @Override
+                public void messageArrived(String string, MqttMessage mm) throws Exception {
+                    // intentionally left empty
+
+                }
+
+
+                @Override
+                public void connectComplete(boolean reconnect, String serverURI) {
+                    logger.info("MQTT MessageBus Client connected to broker.");
+
+                }
+
+            });
             logger.trace("connecting to MQTT broker: {}", endpoint);
             mqttClient.connect(options);
             logger.info("connected to MQTT broker: {}", endpoint);
         }
-        catch (MqttException ex) {
+        catch (Exception ex) {
             logger.error("failed to connect to MQTT broker", ex);
         }
     }
@@ -126,6 +153,12 @@ public class PahoClient {
     }
 
 
+    /**
+     * subscribe to a mqtt topic.
+     *
+     * @param topic
+     * @param listener
+     */
     public void subscribe(String topic, IMqttMessageListener listener) {
         try {
             mqttClient.subscribe(topic, listener);
@@ -136,6 +169,11 @@ public class PahoClient {
     }
 
 
+    /**
+     * unsubscribe from a mqtt topic.
+     *
+     * @param topic
+     */
     public void unsubscribe(String topic) {
         if (mqttClient != null && mqttClient.isConnected()) {
             try {

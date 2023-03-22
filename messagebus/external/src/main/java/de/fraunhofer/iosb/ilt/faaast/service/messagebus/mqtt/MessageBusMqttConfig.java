@@ -25,7 +25,7 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     private boolean internalBroker = true;
     private Integer port = 1883;
     private Integer sslPort = 1884;
-    private String host = "0.0.0.0";
+    private String host = "127.0.0.1";
     private Integer websocketPort = 1885;
     private Integer sslWebsocketPort = 1886;
     private String keystorePass;
