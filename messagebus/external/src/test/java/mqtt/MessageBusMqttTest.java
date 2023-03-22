@@ -108,14 +108,14 @@ public class MessageBusMqttTest {
         CountDownLatch condition = new CountDownLatch(1);
         final AtomicReference<EventMessage> response = new AtomicReference<>();
         messageBus.subscribe(SubscriptionInfo.create(
-                ValueChangeEventMessage.class,
+                ElementCreateEventMessage.class,
                 x -> {
                     response.set(x);
                     condition.countDown();
                 }));
-        messageBus.publish(valueChangeMessage);
+        messageBus.publish(elementCreateMessage);
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(valueChangeMessage, response.get());
+        Assert.assertEquals(elementCreateMessage, response.get());
         messageBus.stop();
     }
 
@@ -166,7 +166,7 @@ public class MessageBusMqttTest {
         }
         messageBus.start();
         Map<Class<? extends EventMessage>, Set<EventMessage>> messages = Map.of(
-                ChangeEventMessage.class, Set.of(valueChangeMessage),
+                ChangeEventMessage.class, Set.of(elementCreateMessage),
                 ErrorEventMessage.class, Set.of(errorMessage));
         Map<Class<? extends EventMessage>, Set<EventMessage>> responses = Collections.synchronizedMap(Map.of(
                 ChangeEventMessage.class, new HashSet<>(),
@@ -192,6 +192,43 @@ public class MessageBusMqttTest {
         messageBus.stop();
     }
 
+    /*
+    @Test
+    public void testValueChangeTypeSubscription() throws InterruptedException {
+        MessageBusMqtt messageBus = new MessageBusMqtt();
+        try {
+            messageBus.init(CoreConfig.builder().build(), MessageBusMqttConfig.builder().internal(true).build(), SERVICE_CONTEXT);
+        }
+        catch (ConfigurationInitializationException e) {
+            throw new RuntimeException(e);
+        }
+        messageBus.start();
+        Map<Class<? extends EventMessage>, Set<EventMessage>> messages = Map.of(
+                ChangeEventMessage.class, Set.of(valueChangeMessage),
+                ErrorEventMessage.class, Set.of(errorMessage));
+        Map<Class<? extends EventMessage>, Set<EventMessage>> responses = Collections.synchronizedMap(Map.of(
+                ChangeEventMessage.class, new HashSet<>(),
+                ErrorEventMessage.class, new HashSet<>()));
+        CountDownLatch condition = new CountDownLatch(messages.values().stream().mapToInt(x -> x.size()).sum());
+        responses.entrySet().forEach(entry -> messageBus.subscribe(
+                SubscriptionInfo.create(
+                        entry.getKey(),
+                        x -> {
+                            entry.getValue().add(x);
+                            condition.countDown();
+                        })));
+        messages.values().stream().flatMap(x -> x.stream()).forEach(x -> {
+            try {
+                messageBus.publish(x);
+            }
+            catch (Exception e) {
+                Assert.fail();
+            }
+        });
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+        Assert.assertEquals(messages, responses);
+        messageBus.stop();
+    }*/
 
     @Test
     public void testNotMatchingSubscription() throws InterruptedException {

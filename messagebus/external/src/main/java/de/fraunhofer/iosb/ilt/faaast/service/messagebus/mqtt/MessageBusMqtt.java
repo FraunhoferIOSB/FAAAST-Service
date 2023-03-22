@@ -26,6 +26,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
+
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -100,17 +103,16 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     @Override
     public SubscriptionId subscribe(SubscriptionInfo subscriptionInfo) {
         Ensure.requireNonNull(subscriptionInfo, "subscriptionInfo must be non-null");
-        subscriptionInfo.getSubscribedEvents().stream().forEach((a) -> {
+        subscriptionInfo.getSubscribedEvents().forEach((a) -> {
             //get all events corresponding to abstract events
             determineEvents((Class<? extends EventMessage>) a).stream().forEach((e) -> {
                 //subscribe to each event
                 client.subscribe("events/" + e.getSimpleName(), (t, message) -> {
                     // deserialize
                     EventMessage event = new JsonApiDeserializer().read(message.toString(), e);
-                    subscriptionInfo.getHandler().accept(event);
                     // filter
                     if (subscriptionInfo.getFilter().test(event.getElement())) {
-
+                        subscriptionInfo.getHandler().accept(event);
                     }
                 });
             });
@@ -125,10 +127,16 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     private List<Class<EventMessage>> determineEvents(Class<? extends EventMessage> messageType) {
         try (ScanResult scanResult = new ClassGraph().acceptPackages("de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event")
                 .enableClassInfo().scan()) {
-            return scanResult
-                    .getSubclasses(messageType.getName())
-                    .filter(x -> !x.isAbstract())
-                    .loadClasses(EventMessage.class);
+            if(Modifier.isAbstract(messageType.getModifiers())) {
+                return scanResult
+                        .getSubclasses(messageType.getName())
+                        .filter(x -> !x.isAbstract())
+                        .loadClasses(EventMessage.class);
+            } else {
+                List<Class<EventMessage>> list = new ArrayList<>();
+                list.add((Class<EventMessage>) messageType);
+                return list;
+            }
         }
     }
 
