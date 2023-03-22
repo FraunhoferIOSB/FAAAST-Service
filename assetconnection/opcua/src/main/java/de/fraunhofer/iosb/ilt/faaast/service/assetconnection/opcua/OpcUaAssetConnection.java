@@ -159,7 +159,7 @@ public class OpcUaAssetConnection extends
     }
 
 
-    private void createClient() throws AssetConnectionException {
+    private void createClient() throws AssetConnectionException, ConfigurationInitializationException {
         client = OpcUaHelper.connect(config, x -> x.addSessionActivityListener(new SessionActivityListener() {
             @Override
             public void onSessionActive(UaSession session) {
@@ -186,16 +186,24 @@ public class OpcUaAssetConnection extends
         isConnecting = true;
         try {
             createClient();
-            try {
-                createNewSubscription();
-            }
-            catch (UaException e) {
-                Thread.currentThread().interrupt();
-                throw new AssetConnectionException(String.format("creating OPC UA subscription failed (host: %s)", config.getHost()), e);
-            }
+            doCreateSubscription();
+        }
+        catch (ConfigurationInitializationException e) {
+            throw new AssetConnectionException("creating asset connection failed", e);
         }
         finally {
             isConnecting = false;
+        }
+    }
+
+
+    private void doCreateSubscription() throws AssetConnectionException {
+        try {
+            createNewSubscription();
+        }
+        catch (UaException e) {
+            Thread.currentThread().interrupt();
+            throw new AssetConnectionException(String.format("creating OPC UA subscription failed (host: %s)", config.getHost()), e);
         }
     }
 
