@@ -26,19 +26,43 @@
 | securityBaseDir | String | _optional_ Base directory for the certificate handling. Default value is the current directory ("."). |
 | applicationCertificateFile | File | _optional_ File name for the application certificate file. The format must be PKCS12. The file must contain exaxctly one alias. Default value is "application.p12". |
 | applicationCertificatePassword | String | _optional_ Password for the application certificate file. Default value is an empty string ("") |
-| authenticationCertificateFile | File | _optional_ File name for the authentication certificate file. The format must be PKCS12. This value is required if userTokenType Certificate is selected |
+| authenticationCertificateFile | File | _optional_ File name for the authentication certificate file. The format must be PKCS12. This value is required if userTokenType Certificate is selected. Default value is "authentication.p12" |
 | authenticationCertificatePassword | String | _optional_ Password for the authentication certificate file. Default value is an empty string (""). This value is required if userTokenType Certificate is selected |
 
-Please be aware, that when the Security Mode is set to a value other than "None", you must take care of the certificate management.
-On the one hand, you must trust the certificate of the Asset Connection Client in the OPC UA server.
-On the other hand, you must trust the certificate of the OPC UA server in the Asset Connection.
-The certificates of the Asset Connection are stored in the securityBaseDir.
-The certificate of the Asset Connection is specified in applicationCertificateFile. If no certificate is provided, a self-signed certificate is created on startup.
-In the subdirectory "pki\rejected" of the securityBaseDir the certificates of unknown or rejected servers are saved, the certificates of trusted servers are saved in the subdirectory "pki\trusted\certs". You can also use this directory to trust certificates of a certificate authority, for the corresponding certificate revocation list (CRL) use the directory "pki\trusted\crl".
-Alternatively you can also trust certificates of a certificate authority using the directory "pki\issuers\certs" for the certificate and "pki\issuers\crl" for the CRL.
+#### Remarks on certificate management
+In OPC UA , certificates can be used for two purposes:
+- encryption & signing of messages, and
+- authentication of a client.
 
-As already said, when you first connect to an OPC UA Server using a Security Policy like Basic256Sha256, you have to make sure, that the OPC UA Server trusts the certificate of the Asset Connection Client. Afterwards, when you try to connect to the server, the certificate of the server will be rejected initially and saved in the directory for the rejected certificates ("pki\rejected" in the securityBaseDir).
-To trust the server, move the corresponding certificate file from the rejected directory to the trusted directory ("pki\trusted\certs" in the securityBaseDir).
+We call the certificate used of encryption _application certificate_ and the one used for authenticating a client _authentication certificate_.
+You can choose to use only one of these options or both.
+If using both, you can use different or the same certificates.
+
+#### Application Certificate
+An application certificate is required if the property `securityMode` is set to `Sign` or `SignAndEncrypt`.
+
+Which application certificate to use is determined by the following steps:
+- `applicationCertificateFile` if it is an absolute file path and the file exists (default: application.p12)
+- `{securityBaseDir}/{applicationCertificateFile}` if the file exists (default: `./{applicationCertificateFile}`)
+- otherwise generate self-signed certificate and store it at `applicationCertificateFile` (if `applicationCertificateFile` is an absolute file path) or else `{securityBaseDir}/{applicationCertificateFile}`. The generated keystore will not be password protected.
+
+You also need to make sure that the OPC UA client (which in this case is the FA³ST Service OPC UA asset connection) knwos and trusts the server certificate and vice versa.
+
+For the client to trust the server you need to either put the server certificate in the directory `{securityBaseDir}/pki/trusted/certs` is your server uses a self-signed certificate or if your server uses a certificate issued by a CA put the CA root certificate in `{securityBaseDir}/pki/issuers/certs` and the corresponding certificate revocation list (CRL) in `{securityBaseDir}/pki/issuers/crl`.
+
+If you don't have the server certificate at hand you can start FA³ST Service without providing/trusting the server certificate.
+On start-up FA³ST Service will try to connect to the server which will fail because the server certificate is not trusted yet.
+Afer that you will find the relevant files at `{securityBaseDir}/pki/rejected`.
+Copy them to the respective directories as described above.
+Once FA³ST Service tries to reconnect the connection should be established successfully.
+
+For the server to trust your client application certificate please refer to the documentation of your OPC UA server.
+
+#### Authentication Certificate
+Which authentification certificate is used is determined by a similar logic as for the application certificate besides that this certificate is not auto-generated if not present:
+- `authenticationCertificateFile` if it is an absolute file path and the file exists (default: application.p12)
+- `{securityBaseDir}/{authenticationCertificateFile}` if the file exists (default: `./{authenticationCertificateFile}`)
+
 
 ### Value Provider
 
