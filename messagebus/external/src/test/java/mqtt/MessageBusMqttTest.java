@@ -23,16 +23,21 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt.MessageBusMqttConfi
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ChangeEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorLevel;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
+import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -49,10 +54,17 @@ import org.mockito.*;
 public class MessageBusMqttTest {
 
     private static ValueChangeEventMessage valueChangeMessage;
+    private static ElementCreateEventMessage elementCreateMessage;
     private static final ServiceContext SERVICE_CONTEXT = Mockito.mock(ServiceContext.class);
     private static ErrorEventMessage errorMessage;
     // default timeout in milliseconds
     private static final long DEFAULT_TIMEOUT = 1000;
+
+    private static final Property property1 = new DefaultProperty.Builder()
+            .idShort("foo")
+            .valueType(Datatype.STRING.getName())
+            .value("bar")
+            .build();
 
     private static final Reference property1Reference = new DefaultReference.Builder()
             .key(new DefaultKey.Builder()
@@ -70,6 +82,11 @@ public class MessageBusMqttTest {
         valueChangeMessage.setOldValue(propertyValue);
         propertyValue.setValue(new IntValue(123));
         valueChangeMessage.setNewValue(propertyValue);
+
+        elementCreateMessage = ElementCreateEventMessage.builder()
+                .element(property1Reference)
+                .value(property1)
+                .build();
 
         errorMessage = new ErrorEventMessage();
         errorMessage.setElement(property1Reference);
@@ -113,7 +130,7 @@ public class MessageBusMqttTest {
             throw new RuntimeException(e);
         }
         messageBus.start();
-        Set<EventMessage> messages = Set.of(valueChangeMessage, errorMessage);
+        Set<EventMessage> messages = Set.of(elementCreateMessage, errorMessage);
         Set<EventMessage> responses = Collections.synchronizedSet(new HashSet<>());
         CountDownLatch condition = new CountDownLatch(messages.size());
         messageBus.subscribe(SubscriptionInfo.create(
@@ -131,8 +148,10 @@ public class MessageBusMqttTest {
             }
         });
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(messages, responses);
+        ArrayList<EventMessage> expected = new ArrayList<>(messages);
+        ArrayList<EventMessage> actual = new ArrayList<>(responses);
         messageBus.stop();
+        Assert.assertTrue(expected.size() == actual.size() && expected.containsAll(actual) && actual.containsAll(expected));
     }
 
 

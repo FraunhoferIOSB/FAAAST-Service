@@ -23,19 +23,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ValueReadEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementChangeEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.util.HashSet;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +106,7 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
                 //subscribe to each event
                 client.subscribe("events/" + e.getSimpleName(), (t, message) -> {
                     // deserialize
-                    EventMessage event = new JsonApiDeserializer().read(message.toString(), EventMessage.class);
+                    EventMessage event = new JsonApiDeserializer().read(message.toString(), e);
                     subscriptionInfo.getHandler().accept(event);
                     // filter
                     if (subscriptionInfo.getFilter().test(event.getElement())) {
@@ -130,55 +122,14 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     }
 
 
-    private Set<Class<? extends EventMessage>> determineEvents(Class<? extends EventMessage> messageType) {
-        Set<Class<? extends EventMessage>> set = new HashSet<>();
-        String test = messageType.getSimpleName();
-        switch (messageType.getSimpleName()) {
-            //abstracts access
-            case ("ReadEventMessage"):
-                set.add(ElementReadEventMessage.class);
-                set.add(ValueReadEventMessage.class);
-                break;
-            case ("AccessEventMessage"):
-                set.add(OperationFinishEventMessage.class);
-                set.add(OperationInvokeEventMessage.class);
-                set.add(ElementReadEventMessage.class);
-                set.add(ValueReadEventMessage.class);
-                break;
-            case ("ExecuteEventMessage"):
-                set.add(OperationFinishEventMessage.class);
-                set.add(OperationInvokeEventMessage.class);
-                break;
-            //abstracts change
-            case ("ChangeEventMessage"):
-                set.add(ElementReadEventMessage.class);
-                set.add(ElementChangeEventMessage.class);
-                set.add(ElementDeleteEventMessage.class);
-                set.add(ElementCreateEventMessage.class);
-                set.add(ValueChangeEventMessage.class);
-                break;
-            case ("ElementChangeEventMessage"):
-                set.add(ElementReadEventMessage.class);
-                set.add(ElementChangeEventMessage.class);
-                set.add(ElementDeleteEventMessage.class);
-                break;
-            case ("EventMessage"):
-                set.add(OperationFinishEventMessage.class);
-                set.add(OperationInvokeEventMessage.class);
-                set.add(ElementReadEventMessage.class);
-                set.add(ElementChangeEventMessage.class);
-                set.add(ElementCreateEventMessage.class);
-                set.add(ElementDeleteEventMessage.class);
-                set.add(ValueReadEventMessage.class);
-                set.add(ValueChangeEventMessage.class);
-                set.add(ErrorEventMessage.class);
-                break;
-            //all other events
-            default:
-                set.add(messageType);
-                break;
+    private List<Class<EventMessage>> determineEvents(Class<? extends EventMessage> messageType) {
+        try (ScanResult scanResult = new ClassGraph().acceptPackages("de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event")
+                .enableClassInfo().scan()) {
+            return scanResult
+                    .getSubclasses(messageType.getName())
+                    .filter(x -> !x.isAbstract())
+                    .loadClasses(EventMessage.class);
         }
-        return set;
     }
 
 
