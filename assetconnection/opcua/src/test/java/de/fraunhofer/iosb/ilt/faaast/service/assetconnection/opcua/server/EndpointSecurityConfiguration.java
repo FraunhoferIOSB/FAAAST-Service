@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server;
 
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -220,7 +221,7 @@ public class EndpointSecurityConfiguration {
         this.policy = policy;
         this.securityMode = securityMode;
         this.protocol = protocol;
-        this.tokenPolicies = new HashSet<>(SUPPORTED_USER_TOKEN_POLICIES);
+        this.tokenPolicies = new HashSet<>(Objects.nonNull(tokenPolicies) ? Arrays.asList(tokenPolicies) : SUPPORTED_USER_TOKEN_POLICIES);
     }
 
 

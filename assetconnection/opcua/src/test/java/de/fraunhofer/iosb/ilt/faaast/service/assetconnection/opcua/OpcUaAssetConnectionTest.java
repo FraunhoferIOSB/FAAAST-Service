@@ -78,7 +78,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.stack.core.UaException;
-import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.StatusCode;
 import org.eclipse.milo.opcua.stack.core.types.enumerated.UserTokenType;
@@ -110,21 +109,20 @@ public class OpcUaAssetConnectionTest {
 
 
     @Test
-    public void testConnectNoSecurity() throws Exception {
+    public void testConnectAnonymous() throws Exception {
         EmbeddedOpcUaServer server = startServer(
                 EmbeddedOpcUaServerConfig.builder()
-                        .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_TCP)
-                        .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_HTTPS)
+                        .endpointSecurityConfigurations(EndpointSecurityConfiguration.ALL)
+                        .applicationCertificate(loadServerApplicationCertificate())
                         .build());
         try {
-            assertConnect(server,
-                    OpcUaAssetConnectionConfig.builder()
-                            .transportProfile(TransportProfile.TCP_UASC_UABINARY)
-                            .build());
-            assertConnect(server,
-                    OpcUaAssetConnectionConfig.builder()
-                            .transportProfile(TransportProfile.HTTPS_UABINARY)
-                            .build());
+            EndpointSecurityConfiguration.ALL.forEach(
+                    LambdaExceptionHelper.rethrowConsumer(
+                            x -> assertConnectSecure(
+                                    server,
+                                    x,
+                                    OpcUaAssetConnectionConfig.builder().build(),
+                                    null)));
         }
         finally {
             server.shutdown();
@@ -133,67 +131,23 @@ public class OpcUaAssetConnectionTest {
 
 
     @Test
-    public void testConnectNoSecurityUsernamePassword() throws Exception {
+    public void testConnectUsernamePassword() throws Exception {
         final String username = "username-test";
         final String password = "password-test";
         EmbeddedOpcUaServer server = startServer(
                 EmbeddedOpcUaServerConfig.builder()
-                        .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_TCP)
-                        .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_HTTPS)
+                        .endpointSecurityConfigurations(EndpointSecurityConfiguration.ALL)
                         .applicationCertificate(loadServerApplicationCertificate())
                         .allowedCredential(username, password)
                         .build());
         try {
-            assertConnectSecureUsernamePassword(server, EndpointSecurityConfiguration.NONE_NONE_TCP, username, password);
-            assertConnectSecureUsernamePassword(server, EndpointSecurityConfiguration.NONE_NONE_HTTPS, username, password);
-        }
-        finally {
-            server.shutdown();
-        }
-    }
-
-
-    @Test
-    public void testConnectNoSecurityInvalidUsernamePassword() throws Exception {
-        final String usernameServer = "username-test";
-        final String passwordServer = "password-test";
-        final String usernameClient = "foo";
-        final String passwordClient = "bar";
-        EmbeddedOpcUaServer server = startServer(
-                EmbeddedOpcUaServerConfig.builder()
-                        .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_TCP)
-                        .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_HTTPS)
-                        .applicationCertificate(loadServerApplicationCertificate())
-                        .allowedCredential(usernameServer, passwordServer)
-                        .build());
-        try {
-            Assert.assertThrows(IllegalArgumentException.class,
-                    () -> assertConnectSecureUsernamePassword(server, EndpointSecurityConfiguration.NONE_NONE_TCP, usernameClient, passwordClient));
-            Assert.assertThrows(IllegalArgumentException.class,
-                    () -> assertConnectSecureUsernamePassword(server, EndpointSecurityConfiguration.NONE_NONE_HTTPS, usernameClient, passwordClient));
-        }
-        finally {
-            server.shutdown();
-        }
-    }
-
-
-    @Test
-    public void testConnectBasic256Sha256Anonymous() throws Exception {
-        List<EndpointSecurityConfiguration> configurations = EndpointSecurityConfiguration.POLICY_BASIC256SHA256;
-        EmbeddedOpcUaServer server = startServer(
-                EmbeddedOpcUaServerConfig.builder()
-                        .endpointSecurityConfigurations(configurations)
-                        .applicationCertificate(loadServerApplicationCertificate())
-                        .build());
-        try {
-            configurations.forEach(
+            EndpointSecurityConfiguration.ALL.forEach(
                     LambdaExceptionHelper.rethrowConsumer(
-                            x -> assertConnectSecure(
+                            x -> assertConnectSecureUsernamePassword(
                                     server,
                                     x,
-                                    OpcUaAssetConnectionConfig.builder().build(),
-                                    null)));
+                                    username,
+                                    password)));
         }
         finally {
             server.shutdown();
@@ -202,44 +156,22 @@ public class OpcUaAssetConnectionTest {
 
 
     @Test
-    public void testConnectAes128Anonymous() throws Exception {
-        List<EndpointSecurityConfiguration> configurations = EndpointSecurityConfiguration.POLICY_AES128_SHA256_RSAOAEP;
+    public void testConnectInvalidUsernamePassword() throws Exception {
+        final String username = "username-test";
+        final String password = "password-test";
         EmbeddedOpcUaServer server = startServer(
                 EmbeddedOpcUaServerConfig.builder()
-                        .endpointSecurityConfigurations(configurations)
+                        .endpointSecurityConfigurations(EndpointSecurityConfiguration.ALL)
                         .applicationCertificate(loadServerApplicationCertificate())
+                        .allowedCredential(username, password)
                         .build());
         try {
-            configurations.forEach(
-                    LambdaExceptionHelper.rethrowConsumer(
-                            x -> assertConnectSecure(
-                                    server,
-                                    x,
-                                    OpcUaAssetConnectionConfig.builder().build(),
-                                    null)));
-        }
-        finally {
-            server.shutdown();
-        }
-    }
-
-
-    @Test
-    public void testConnectAes256Anonymous() throws Exception {
-        List<EndpointSecurityConfiguration> configurations = EndpointSecurityConfiguration.POLICY_AES256_SHA256_RSAPSS;
-        EmbeddedOpcUaServer server = startServer(
-                EmbeddedOpcUaServerConfig.builder()
-                        .endpointSecurityConfigurations(configurations)
-                        .applicationCertificate(loadServerApplicationCertificate())
-                        .build());
-        try {
-            configurations.forEach(
-                    LambdaExceptionHelper.rethrowConsumer(
-                            x -> assertConnectSecure(
-                                    server,
-                                    x,
-                                    OpcUaAssetConnectionConfig.builder().build(),
-                                    null)));
+            EndpointSecurityConfiguration.ALL.forEach(x -> Assert.assertThrows(IllegalArgumentException.class,
+                    () -> assertConnectSecureUsernamePassword(
+                            server,
+                            x,
+                            username,
+                            "the wrong password")));
         }
         finally {
             server.shutdown();
@@ -251,13 +183,15 @@ public class OpcUaAssetConnectionTest {
     public void testConnectCertificate() throws Exception {
         EmbeddedOpcUaServer server = startServer(
                 EmbeddedOpcUaServerConfig.builder()
-                        .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_TCP)
-                        .endpointSecurityConfiguration(EndpointSecurityConfiguration.NONE_NONE_HTTPS)
+                        .endpointSecurityConfigurations(EndpointSecurityConfiguration.ALL)
                         .applicationCertificate(loadServerApplicationCertificate())
                         .build());
         try {
-            assertConnectSecureCertificate(server, EndpointSecurityConfiguration.NONE_NONE_TCP);
-            assertConnectSecureCertificate(server, EndpointSecurityConfiguration.NONE_NONE_HTTPS);
+            EndpointSecurityConfiguration.ALL.forEach(
+                    LambdaExceptionHelper.rethrowConsumer(
+                            x -> assertConnectSecureCertificate(
+                                    server,
+                                    x)));
         }
         finally {
             server.shutdown();

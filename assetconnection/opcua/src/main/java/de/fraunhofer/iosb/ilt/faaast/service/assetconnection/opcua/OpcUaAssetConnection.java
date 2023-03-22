@@ -188,8 +188,8 @@ public class OpcUaAssetConnection extends
             createClient();
             doCreateSubscription();
         }
-        catch (ConfigurationInitializationException ciex) {
-            throw new AssetConnectionException(ciex.getMessage());
+        catch (ConfigurationInitializationException e) {
+            throw new AssetConnectionException("creating asset connection failed", e);
         }
         finally {
             isConnecting = false;
