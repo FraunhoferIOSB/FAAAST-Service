@@ -35,6 +35,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.validation.ValueTypeValidator
 import de.fraunhofer.iosb.ilt.faaast.service.starter.cli.LogLevelTypeConverter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.logging.FaaastFilter;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.util.ImplementationManager;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import io.adminshell.aas.v3.model.impl.DefaultAssetAdministrationShellEnvironment;
@@ -286,6 +287,7 @@ public class App implements Runnable {
     public void run() {
         configureLogging();
         printHeader();
+        ImplementationManager.init();
         ServiceConfig config = null;
         try {
             config = getConfig();

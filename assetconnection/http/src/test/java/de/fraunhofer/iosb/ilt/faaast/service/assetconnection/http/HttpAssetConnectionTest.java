@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -24,6 +25,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnection;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetValueProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.NewDataListener;
@@ -84,7 +86,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertyGetValueJSON() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+    public void testValueProviderPropertyGetValueJSON() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertValueProviderPropertyReadJson(
                 PropertyValue.of(Datatype.INT, "5"),
                 "5",
@@ -93,7 +95,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderWithHeaders() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+    public void testValueProviderWithHeaders() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertValueProviderHeaders(Map.of(), Map.of(), Map.of());
         assertValueProviderHeaders(Map.of("foo", "bar"), Map.of(), Map.of("foo", "bar"));
         assertValueProviderHeaders(Map.of("foo", "bar"), Map.of("foo", "bar"), Map.of("foo", "bar"));
@@ -103,7 +105,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertyGetValueWithQueryJSON() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+    public void testValueProviderPropertyGetValueWithQueryJSON() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertValueProviderPropertyReadJson(
                 PropertyValue.of(Datatype.INT, "5"),
                 "{\"foo\" : [1, 2, 5]}",
@@ -112,7 +114,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertySetValueJSON() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+    public void testValueProviderPropertySetValueJSON() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertValueProviderPropertyWriteJson(
                 PropertyValue.of(Datatype.INT, "5"),
                 null,
@@ -121,7 +123,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testValueProviderPropertySetValueWithTemplateJSON() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+    public void testValueProviderPropertySetValueWithTemplateJSON()
+            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         String template = "{\"foo\" : \"${value}\", \"bar\": [1, 2, 3]}";
         String value = "5";
         assertValueProviderPropertyWriteJson(
@@ -132,7 +135,7 @@ public class HttpAssetConnectionTest {
 
 
     private void assertValueProviderPropertyReadJson(PropertyValue expected, String httpResponseBody, String query)
-            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertValueProviderPropertyJson(
                 expected.getValue().getDataType(),
                 RequestMethod.GET,
@@ -147,7 +150,7 @@ public class HttpAssetConnectionTest {
 
 
     private void assertValueProviderHeaders(Map<String, String> connectionHeaders, Map<String, String> providerHeaders, Map<String, String> expectedHeaders)
-            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         PropertyValue value = PropertyValue.of(Datatype.INT, "5");
         assertValueProviderPropertyJson(
                 value.getValue().getDataType(),
@@ -171,7 +174,7 @@ public class HttpAssetConnectionTest {
 
 
     private void assertValueProviderPropertyWriteJson(PropertyValue newValue, String template, String expectedResponseBody)
-            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertValueProviderPropertyJson(
                 newValue.getValue().getDataType(),
                 RequestMethod.PUT,
@@ -185,6 +188,22 @@ public class HttpAssetConnectionTest {
     }
 
 
+    private void awaitConnection(AssetConnection connection) {
+        await().atMost(30, TimeUnit.SECONDS)
+                .with()
+                .pollInterval(1, TimeUnit.SECONDS)
+                .until(() -> {
+                    try {
+                        connection.connect();
+                    }
+                    catch (AssetConnectionException e) {
+                        // do nothing
+                    }
+                    return connection.isConnected();
+                });
+    }
+
+
     private void assertValueProviderPropertyJson(Datatype datatype,
                                                  RequestMethod method,
                                                  Map<String, String> connectionHeaders,
@@ -194,7 +213,7 @@ public class HttpAssetConnectionTest {
                                                  String template,
                                                  Function<RequestPatternBuilder, RequestPatternBuilder> verifierModifier,
                                                  Consumer<AssetValueProvider> customAssert)
-            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
                 .type(PropertyValue.class)
@@ -224,6 +243,7 @@ public class HttpAssetConnectionTest {
                         .baseUrl(baseUrl)
                         .build(),
                 serviceContext);
+        awaitConnection(connection);
         try {
             if (customAssert != null) {
                 customAssert.accept(connection.getValueProviders().get(REFERENCE));
@@ -235,7 +255,7 @@ public class HttpAssetConnectionTest {
             verify(exactly(1), verifier);
         }
         finally {
-            connection.close();
+            connection.disconnect();
         }
     }
 
@@ -337,6 +357,7 @@ public class HttpAssetConnectionTest {
                         .baseUrl(baseUrl)
                         .build(),
                 serviceContext);
+        awaitConnection(connection);
         NewDataListener listener = null;
         try {
             CountDownLatch condition = new CountDownLatch(expected.length);
@@ -360,13 +381,14 @@ public class HttpAssetConnectionTest {
             verify(exactly(httpResponseBodies.size()), verifier);
         }
         finally {
-            connection.close();
+            connection.disconnect();
         }
     }
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOSTNoParameters() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+    public void testOperationProviderPropertyJsonPOSTNoParameters()
+            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 null,
@@ -381,7 +403,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOSTInputOnly() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+    public void testOperationProviderPropertyJsonPOSTInputOnly() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1} }}",
@@ -396,7 +418,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOSTOutputOnly() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+    public void testOperationProviderPropertyJsonPOSTOutputOnly()
+            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 null,
@@ -411,7 +434,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOSTInputOutputOnly() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+    public void testOperationProviderPropertyJsonPOSTInputOutputOnly()
+            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1}, \"in2\": ${in2} }}",
@@ -427,7 +451,8 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOSTInoutputOnly() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+    public void testOperationProviderPropertyJsonPOSTInoutputOnly()
+            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"inout1\": ${inout1}}}",
@@ -442,7 +467,7 @@ public class HttpAssetConnectionTest {
 
 
     @Test
-    public void testOperationProviderPropertyJsonPOST() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+    public void testOperationProviderPropertyJsonPOST() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertOperationProviderPropertyJson(
                 RequestMethod.POST,
                 "{ \"parameters\": { \"in1\": ${in1}, \"inout1\": ${inout1} }}",
@@ -467,7 +492,7 @@ public class HttpAssetConnectionTest {
                                                      Map<String, TypedValue> inoutput,
                                                      Map<String, TypedValue> expectedOutput,
                                                      Map<String, TypedValue> expectedInoutput)
-            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException {
+            throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         ServiceContext serviceContext = mock(ServiceContext.class);
         OperationVariable[] output = toOperationVariables(expectedOutput);
         doReturn(output)
@@ -500,6 +525,7 @@ public class HttpAssetConnectionTest {
                         .baseUrl(baseUrl)
                         .build(),
                 serviceContext);
+        awaitConnection(connection);
         try {
             OperationVariable[] actualInput = toOperationVariables(input);
             OperationVariable[] actualInoutput = toOperationVariables(inoutput);
@@ -517,7 +543,7 @@ public class HttpAssetConnectionTest {
             verify(exactly(1), verifier);
         }
         finally {
-            connection.close();
+            connection.disconnect();
         }
     }
 

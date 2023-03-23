@@ -18,7 +18,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.spi.FilterReply;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.starter.App;
 
 
 /**
@@ -27,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.starter.App;
 public class FaaastFilter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
 
     private static final String PACKAGE_FAAAST = Service.class.getPackageName();
-    private static final String PACKAGE_STARTER = App.class.getPackageName();
     private static Level levelFaaast = Level.WARN;
     private static Level levelExternal = Level.WARN;
 
@@ -53,9 +51,6 @@ public class FaaastFilter extends ch.qos.logback.core.filter.Filter<ILoggingEven
 
     @Override
     public FilterReply decide(ILoggingEvent e) {
-        if (e.getLoggerName().startsWith(PACKAGE_STARTER) && e.getLevel().equals(Level.INFO)) {
-            return FilterReply.DENY;
-        }
         if (e.getLoggerName().startsWith(PACKAGE_FAAAST) && e.getLevel().isGreaterOrEqual(levelFaaast)) {
             return FilterReply.ACCEPT;
         }

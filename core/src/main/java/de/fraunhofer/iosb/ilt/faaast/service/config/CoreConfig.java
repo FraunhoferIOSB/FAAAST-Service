@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.config;
 
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
@@ -25,33 +26,38 @@ public class CoreConfig {
 
     public static final CoreConfig DEFAULT = builder().build();
 
+    private static final long DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL = 1000;
+    private static final int DEFAULT_REQUEST_HANDLER_THREADPOOL_SIZE = 1;
+
+    private long assetConnectionRetryInterval;
     private int requestHandlerThreadPoolSize;
 
-    /**
-     * Returns a new builder for this class.
-     *
-     * @return a new builder for this class
-     */
+    public CoreConfig() {
+        this.assetConnectionRetryInterval = DEFAULT_ASSET_CONNECTION_RETRY_INTERVAL;
+        this.requestHandlerThreadPoolSize = DEFAULT_REQUEST_HANDLER_THREADPOOL_SIZE;
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
 
 
-    /**
-     * Gets the number of threads used for executing async requests.
-     *
-     * @return the the number of threads used for executing async requests
-     */
+    public long getAssetConnectionRetryInterval() {
+        return assetConnectionRetryInterval;
+    }
+
+
+    public void setAssetConnectionRetryInterval(long assetConnectionRetryInterval) {
+        this.assetConnectionRetryInterval = assetConnectionRetryInterval;
+    }
+
+
     public int getRequestHandlerThreadPoolSize() {
         return requestHandlerThreadPoolSize;
     }
 
 
-    /**
-     * Sets the number of threads used for executing async requests.
-     *
-     * @param requestHandlerThreadPoolSize the number of threads used for executing async requests
-     */
     public void setRequestHandlerThreadPoolSize(int requestHandlerThreadPoolSize) {
         this.requestHandlerThreadPoolSize = requestHandlerThreadPoolSize;
     }
@@ -59,9 +65,7 @@ public class CoreConfig {
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 41 * hash + Objects.hashCode(this.requestHandlerThreadPoolSize);
-        return hash;
+        return Objects.hash(assetConnectionRetryInterval, requestHandlerThreadPoolSize);
     }
 
 
@@ -77,37 +81,33 @@ public class CoreConfig {
             return false;
         }
         final CoreConfig other = (CoreConfig) obj;
-        return Objects.equals(this.requestHandlerThreadPoolSize, other.requestHandlerThreadPoolSize);
+        return Objects.equals(this.assetConnectionRetryInterval, other.assetConnectionRetryInterval)
+                && Objects.equals(this.requestHandlerThreadPoolSize, other.requestHandlerThreadPoolSize);
     }
 
-    /**
-     * Builder for CoreConfig class.
-     */
-    public static class Builder {
+    public static class Builder extends ExtendableBuilder<CoreConfig, Builder> {
 
-        private int requestHandlerThreadPoolSize = 1;
-
-        /**
-         * Sets the number of threads used for executing async requests.
-         *
-         * @param value the number of threads used for executing async requests
-         * @return the builder
-         */
         public Builder requestHandlerThreadPoolSize(int value) {
-            this.requestHandlerThreadPoolSize = value;
+            getBuildingInstance().setRequestHandlerThreadPoolSize(value);
+            return getSelf();
+        }
+
+
+        public Builder assetConnectionRetryInterval(long value) {
+            getBuildingInstance().setAssetConnectionRetryInterval(value);
+            return getSelf();
+        }
+
+
+        @Override
+        protected Builder getSelf() {
             return this;
         }
 
 
-        /**
-         * Builds a new instance of CoreConfig as defined by the builder.
-         *
-         * @return a new instance of CoreConfig as defined by the builder
-         */
-        public CoreConfig build() {
-            CoreConfig result = new CoreConfig();
-            result.setRequestHandlerThreadPoolSize(requestHandlerThreadPoolSize);
-            return result;
+        @Override
+        protected CoreConfig newBuildingInstance() {
+            return new CoreConfig();
         }
     }
 

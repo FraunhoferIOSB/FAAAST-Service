@@ -23,7 +23,13 @@ import java.util.Objects;
  */
 public class OpcUaSubscriptionProviderConfig extends AbstractOpcUaProviderWithArrayConfig implements AssetSubscriptionProviderConfig {
 
+    public static final long DEFAULT_INTERVAL = 1000;
     private long interval;
+
+    public OpcUaSubscriptionProviderConfig() {
+        this.interval = DEFAULT_INTERVAL;
+    }
+
 
     @Override
     public boolean equals(Object o) {

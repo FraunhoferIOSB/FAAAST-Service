@@ -47,6 +47,18 @@ public class TestAssetConnection implements
 
 
     @Override
+    public void connect() throws AssetConnectionException {
+        // nothing to do here
+    }
+
+
+    @Override
+    public String getEndpointInformation() {
+        return TestAssetConnection.class.getName();
+    }
+
+
+    @Override
     public void registerValueProvider(Reference reference, TestValueProviderConfig valueProvider) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -58,7 +70,7 @@ public class TestAssetConnection implements
             operationProviders.put(reference, new AssetOperationProvider() {
                 @Override
                 public OperationVariable[] invoke(OperationVariable[] input, OperationVariable[] inoutput) throws AssetConnectionException {
-                    LOGGER.info("method invoked!");
+                    LOGGER.trace("method invoked!");
                     return operationProvider.getOutputArgs().toArray(OperationVariable[]::new);
                     //return new OperationVariable[0];
                 }
@@ -90,6 +102,18 @@ public class TestAssetConnection implements
 
 
     @Override
+    public void disconnect() throws AssetConnectionException {
+        // nothing to do here
+    }
+
+
+    @Override
+    public boolean isConnected() {
+        return true;
+    }
+
+
+    @Override
     public Map<Reference, AssetOperationProvider> getOperationProviders() {
         return this.operationProviders;
     }
@@ -113,7 +137,6 @@ public class TestAssetConnection implements
     }
 
 
-    @Override
     public void close() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -139,7 +162,7 @@ public class TestAssetConnection implements
 
     @Override
     public void init(CoreConfig coreConfig, TestAssetConnectionConfig config, ServiceContext context) {
-        LOGGER.info("init called");
+        LOGGER.trace("init called");
         for (var provider: config.getValueProviders().entrySet()) {
             registerValueProvider(provider.getKey(), provider.getValue());
         }

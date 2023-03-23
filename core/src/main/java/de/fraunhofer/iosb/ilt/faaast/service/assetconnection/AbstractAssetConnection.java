@@ -41,6 +41,7 @@ import java.util.Objects;
 public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V, OC, O, SC, S>, C extends AssetConnectionConfig<T, VC, OC, SC>, VC extends AssetValueProviderConfig, V extends AssetValueProvider, OC extends AssetOperationProviderConfig, O extends AssetOperationProvider, SC extends AssetSubscriptionProviderConfig, S extends AssetSubscriptionProvider>
         implements AssetConnection<C, VC, V, OC, O, SC, S> {
 
+    protected volatile boolean connected;
     protected static final String ERROR_MSG_REFERENCE_NOT_NULL = "reference must be non-null";
     protected static final String ERROR_MSG_PROVIDER_CONFIG_NOT_NULL = "providerConfig must be non-null";
     protected C config;
@@ -50,6 +51,7 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     protected final Map<Reference, V> valueProviders;
 
     protected AbstractAssetConnection() {
+        connected = false;
         valueProviders = new HashMap<>();
         operationProviders = new HashMap<>();
         subscriptionProviders = new HashMap<>();
@@ -59,6 +61,17 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
     protected AbstractAssetConnection(CoreConfig coreConfig, C config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this();
         init(coreConfig, config, serviceContext);
+    }
+
+
+    @Override
+    public boolean isConnected() {
+        return connected;
+    }
+
+
+    public void setConnected(boolean connected) {
+        this.connected = connected;
     }
 
 
@@ -87,14 +100,61 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
 
 
     /**
-     * Initializes the connection.
+     * Connects to the asset.
      *
-     * @param config the provided configuration to use for this connection
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException if initializations
-     *             fails because of wrong configuration
-     * @throws AssetConnectionException if initialization fails because of underlying asset connection
+     * @throws AssetConnectionException if connecting fails
      */
-    protected abstract void initConnection(C config) throws ConfigurationInitializationException, AssetConnectionException;
+    protected abstract void doConnect() throws AssetConnectionException;
+
+
+    /**
+     * Closes the asset connection.
+     *
+     * @throws AssetConnectionException if closing fails
+     */
+    protected abstract void doDisconnect() throws AssetConnectionException;
+
+
+    @Override
+    public void connect() throws AssetConnectionException {
+        doConnect();
+        connected = true;
+        registerProviders();
+    }
+
+
+    @Override
+    public void disconnect() throws AssetConnectionException {
+        doDisconnect();
+        unregisterProviders();
+        connected = false;
+    }
+
+
+    private void unregisterProviders() {
+        for (var providerConfig: config.getValueProviders().entrySet()) {
+            unregisterValueProvider(providerConfig.getKey());
+        }
+        for (var providerConfig: config.getOperationProviders().entrySet()) {
+            unregisterOperationProvider(providerConfig.getKey());
+        }
+        for (var providerConfig: config.getSubscriptionProviders().entrySet()) {
+            unregisterSubscriptionProvider(providerConfig.getKey());
+        }
+    }
+
+
+    private void registerProviders() throws AssetConnectionException {
+        for (var providerConfig: config.getValueProviders().entrySet()) {
+            registerValueProvider(providerConfig.getKey(), providerConfig.getValue());
+        }
+        for (var providerConfig: config.getOperationProviders().entrySet()) {
+            registerOperationProvider(providerConfig.getKey(), providerConfig.getValue());
+        }
+        for (var providerConfig: config.getSubscriptionProviders().entrySet()) {
+            registerSubscriptionProvider(providerConfig.getKey(), providerConfig.getValue());
+        }
+    }
 
 
     @Override
@@ -104,22 +164,6 @@ public abstract class AbstractAssetConnection<T extends AssetConnection<C, VC, V
         Ensure.requireNonNull(serviceContext, "serviceContext must be non-null");
         this.config = config;
         this.serviceContext = serviceContext;
-        try {
-            initConnection(config);
-            for (var providerConfig: config.getValueProviders().entrySet()) {
-                registerValueProvider(providerConfig.getKey(), providerConfig.getValue());
-            }
-            for (var providerConfig: config.getOperationProviders().entrySet()) {
-                registerOperationProvider(providerConfig.getKey(), providerConfig.getValue());
-            }
-            for (var providerConfig: config.getSubscriptionProviders().entrySet()) {
-                registerSubscriptionProvider(providerConfig.getKey(), providerConfig.getValue());
-            }
-
-        }
-        catch (AssetConnectionException e) {
-            throw new ConfigurationInitializationException("initializing asset connection failed", e);
-        }
     }
 
 

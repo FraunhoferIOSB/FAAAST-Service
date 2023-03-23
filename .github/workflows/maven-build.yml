@@ -78,7 +78,7 @@ jobs:
         echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE  --yes --batch --import
         echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE  --yes --batch --import-ownertrust
 
-    - name: Deploy endpoint-opcua SNAPSHOT
+    - name: Deploy SNAPSHOTS
       if:  ${{ endsWith(env.VERSION, '-SNAPSHOT') }}
       env:
         GPG_EXECUTABLE: gpg
@@ -100,7 +100,7 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
 
     - name: Build and push docker image - starter
-      uses: docker/build-push-action@v3
+      uses: docker/build-push-action@v4
       with:
         platforms: linux/amd64,linux/arm64
         context: "./starter"

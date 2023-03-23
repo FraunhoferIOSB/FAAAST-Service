@@ -29,5 +29,7 @@
 *.pyc binary
 *.pdf binary
 *.xlsx binary
+*.p12 binary
+*.pfx binary
 # exclude generated XML file as this is known to cause problems with git detecting the file as changed
 documentation/third_party_licenses_report/licenses-generated.xml binary

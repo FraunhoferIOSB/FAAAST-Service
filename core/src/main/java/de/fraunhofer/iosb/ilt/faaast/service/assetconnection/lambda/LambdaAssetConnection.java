@@ -69,12 +69,15 @@ public class LambdaAssetConnection extends
                             x -> LambdaSubscriptionProviderConfig.builder().implementation(x.getValue()).build())));
         }
         init(coreConfig, config, serviceContext);
+        valueProviders.values().forEach(x -> x.init(serviceContext));
+        operationProviders.values().forEach(x -> x.init(serviceContext));
+        subscriptionProviders.values().forEach(x -> x.init(serviceContext));
     }
 
 
     @Override
-    public void close() throws AssetConnectionException {
-        // intentionally left empty
+    public String getEndpointInformation() {
+        return "lambda";
     }
 
 
@@ -100,10 +103,14 @@ public class LambdaAssetConnection extends
 
 
     @Override
-    protected void initConnection(LambdaAssetConnectionConfig config) throws ConfigurationInitializationException {
-        valueProviders.values().forEach(x -> x.init(serviceContext));
-        operationProviders.values().forEach(x -> x.init(serviceContext));
-        subscriptionProviders.values().forEach(x -> x.init(serviceContext));
+    protected void doConnect() throws AssetConnectionException {
+        // intentionally left empty
+    }
+
+
+    @Override
+    protected void doDisconnect() throws AssetConnectionException {
+        // intentionally left empty
     }
 
 }

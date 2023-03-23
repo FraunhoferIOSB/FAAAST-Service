@@ -95,7 +95,7 @@ public class PersistenceFileConfig extends PersistenceConfig<PersistenceFile> {
         if (Objects.isNull(filename)) {
             filename = DEFAULT_FILENAME_PREFIX + "." + dataformat.toString().toLowerCase();
         }
-        LOGGER.info("File Persistence uses file {}", getFilePath().toAbsolutePath());
+        LOGGER.debug("File Persistence uses file {}", getFilePath().toAbsolutePath());
     }
 
 

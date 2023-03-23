@@ -1,6 +1,7 @@
 # Changelog
 <!--start:changelog-header-->
-## Current development version (0.5.0-SNAPSHOT)<!--end:changelog-header-->
+## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
+## Release version 0.5.0
 
 **New Features & Major Changes**
 *   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
@@ -14,9 +15,11 @@
 *   Asset Connection
 	*   OPC UA
 		*   Support mapping to specific element in (multi-dimensional) array/vector
-		*   Additional parameters available in configuration: requestTimeout, acknowledgeTimeout, retries
+		*   Additional parameters available in configuration: requestTimeout, acknowledgeTimeout, retries, securityPolicy, securityMode, securityBaseDir, transportProfile, userTokenType, applicationCertificateFile, applicationCertificatePassword, authenticationCertificateFile, authenticationCertificatePassword
 
 **Internal changes & bugfixes**
+*   General
+	*   Improved startup process & console ouput
 *   HTTP Endpoint
 	*   DELETE requests now correctly return HTTP status code `204 No Content`. The following URL patterns are affected:
 		*   /submodels/{submodelIdentifier}
