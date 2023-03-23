@@ -1,6 +1,7 @@
 # Changelog
 <!--start:changelog-header-->
-## Current development version (0.5.0-SNAPSHOT)<!--end:changelog-header-->
+## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
+## Release version 0.5.0
 
 **New Features & Major Changes**
 *   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1

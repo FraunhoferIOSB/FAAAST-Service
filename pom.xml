@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
     <artifactId>service</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.6.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>service</name>
     <description>An implementation of the Asset Administration Shell</description>
@@ -107,7 +107,7 @@
         <maven.plugin.javadoc.version>3.5.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>8.1.2</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>8.2.0</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.1</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>4.10.0-37</maven.plugin.prosys.codegen.version>
@@ -129,7 +129,7 @@
         <protobuf.version>3.22.2</protobuf.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
-        <slf4j.test.version>2.8.1</slf4j.test.version>
+        <slf4j.test.version>2.9.0</slf4j.test.version>
         <slf4j.version>2.0.7</slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
