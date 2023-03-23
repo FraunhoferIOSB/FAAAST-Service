@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AssetConnectionManager {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(AssetConnectionManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssetConnectionManager.class);
     private final List<AssetConnection> connections;
     private final CoreConfig coreConfig;
     private final ServiceContext serviceContext;
