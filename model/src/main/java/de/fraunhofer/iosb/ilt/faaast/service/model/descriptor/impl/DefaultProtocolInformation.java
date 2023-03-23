@@ -144,6 +144,17 @@ public class DefaultProtocolInformation implements ProtocolInformation {
 
     public abstract static class AbstractBuilder<T extends DefaultProtocolInformation, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
+        public B from(ProtocolInformation other) {
+            endpointAddress(other.getEndpointAddress());
+            endpointProtocol(other.getEndpointProtocol());
+            endpointProtocolVersion(other.getEndpointProtocolVersion());
+            subprotocol(other.getSubprotocol());
+            subprotocolBody(other.getSubprotocolBody());
+            subprotocolBodyEncoding(other.getSubprotocolBodyEncoding());
+            return getSelf();
+        }
+
+
         public B endpointAddress(String value) {
             getBuildingInstance().setEndpointAddress(value);
             return getSelf();
