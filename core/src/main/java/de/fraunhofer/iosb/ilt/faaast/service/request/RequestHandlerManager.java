@@ -139,6 +139,7 @@ public class RequestHandlerManager {
      * @param <O> type of response/output
      * @param request the request to execute
      * @return the reponse to this request
+     * @throws java.lang.Exception if executing the request fails
      * @throws TypeInstantiationException if response class could not be instantiated
      * @throws IllegalArgumentException if request is null
      */

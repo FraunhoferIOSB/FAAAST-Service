@@ -480,6 +480,8 @@
                         <inherited>false</inherited>
                         <configuration>
                             <quiet>true</quiet>
+                            <sourceFileExcludes>**/generated-sources/*</sourceFileExcludes>
+                            <sourcepath>${project.basedir}/target</sourcepath>
                         </configuration>
                         <executions>
                             <execution>
