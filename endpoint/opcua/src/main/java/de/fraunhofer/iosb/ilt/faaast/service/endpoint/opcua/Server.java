@@ -89,12 +89,12 @@ public class Server {
 
 
     /**
-     * Starts the server
+     * Starts the server.
      *
      * @throws UaServerException If an error occurs
      * @throws IOException If an error occurs
      * @throws SecureIdentityException If an error occurs
-     * @throws java.net.URISyntaxException
+     * @throws java.net.URISyntaxException if endpoint URL is invalid
      */
     public void startup() throws UaServerException, IOException, SecureIdentityException, URISyntaxException {
         String hostName;

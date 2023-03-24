@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Abstract base class for invoke operation requests mappings. Supports the following HTTP-POST-Request paths
  * 
- * <p><ul>
+ * <ul>
  * <li>submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke</li>
  * <li>shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke</li>
  * </ul>
