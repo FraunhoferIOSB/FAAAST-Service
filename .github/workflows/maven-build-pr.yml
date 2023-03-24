@@ -41,6 +41,13 @@ jobs:
       run: |
         mvn test-compile -P build-ci --settings maven-ci-settings.xml -B
 
+    - name: TestJavaDoc
+      env:
+        ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+        ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+      run: |
+        mvn javadoc:aggregate-jar -P release --settings maven-ci-settings.xml -B
+
     - name: Test with Coverage
       if: ${{ github.event.pull_request.head.repo.fork == false }}
       env:
