@@ -227,7 +227,7 @@ public class AssetConnectionIT {
                 .host("opc.tcp://" + "localhost:" + port)
                 .build());
         DataValue value = OpcUaHelper.readValue(client, NODE_ID_SOURCE);
-        Assert.assertEquals(SOURCE_VALUE, Integer.parseInt(value.getValue().getValue().toString()));
+        assertEquals(SOURCE_VALUE, Integer.parseInt(value.getValue().getValue().toString()));
     }
 
 
