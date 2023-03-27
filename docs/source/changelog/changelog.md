@@ -1,6 +1,12 @@
 # Changelog
 <!--start:changelog-header-->
 ## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
+
+**Internal changes & bugfixes**
+*   Asset Connection
+	*   OPC UA
+		*   Unit tests no longer create temp files in source folders
+
 ## Release version 0.5.0
 
 **Internal changes & bugfixes**
