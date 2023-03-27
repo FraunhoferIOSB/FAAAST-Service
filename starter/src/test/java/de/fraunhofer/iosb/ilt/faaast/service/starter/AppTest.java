@@ -17,13 +17,23 @@ package de.fraunhofer.iosb.ilt.faaast.service.starter;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ParameterConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import picocli.CommandLine;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 
@@ -108,7 +118,7 @@ public class AppTest {
                 .map(x -> String.format("%s=%s", x.getKey(), x.getValue()))
                 .toArray(String[]::new);
         Map<String, String> actual = withEnv(envProperties).execute(() -> {
-            new CommandLine(application).execute(args);
+            executeAssertSuccess(args);
             return application.getConfigOverrides();
         });
         Assert.assertEquals(expected, actual);
@@ -117,14 +127,14 @@ public class AppTest {
 
     @Test
     public void testConfigFileCLI() {
-        cmd.execute("-c", CONFIG);
+        executeAssertSuccess("-c", CONFIG);
         Assert.assertEquals(new File(CONFIG), application.configFile);
     }
 
 
     @Test
     public void testConfigFileCLIDefault() {
-        cmd.execute();
+        executeAssertSuccess();
         Assert.assertEquals(new File(App.CONFIG_FILENAME_DEFAULT), application.configFile);
     }
 
@@ -133,7 +143,7 @@ public class AppTest {
     public void testConfigFileENV() throws Exception {
         File actual = withEnv(App.ENV_CONFIG_FILE_PATH, CONFIG)
                 .execute(() -> {
-                    new CommandLine(application).execute();
+                    executeAssertSuccess();
                     return application.configFile;
                 });
         Assert.assertEquals(new File(CONFIG), actual);
@@ -142,7 +152,7 @@ public class AppTest {
 
     @Test
     public void testModelFileCLI() {
-        cmd.execute("-m", modelPath.toString());
+        executeAssertSuccess("-m", modelPath.toString());
         Assert.assertEquals(modelPath.toFile(), application.modelFile);
     }
 
@@ -171,42 +181,42 @@ public class AppTest {
 
     @Test
     public void testUseEmptyModelCLI() {
-        cmd.execute("--emptyModel");
+        executeAssertSuccess("--emptyModel");
         Assert.assertTrue(application.useEmptyModel);
     }
 
 
     @Test
     public void testUseEmptyModelCLIDefault() {
-        cmd.execute();
+        executeAssertSuccess();
         Assert.assertFalse(application.useEmptyModel);
     }
 
 
     @Test
     public void testAutoCompleteConfigurationCLI() {
-        cmd.execute("--no-autoCompleteConfig");
+        executeAssertSuccess("--no-autoCompleteConfig");
         Assert.assertFalse(application.autoCompleteConfiguration);
     }
 
 
     @Test
     public void testAutoCompleteConfigurationCLIDefault() {
-        cmd.execute();
+        executeAssertSuccess();
         Assert.assertTrue(application.autoCompleteConfiguration);
     }
 
 
     @Test
     public void testModelValidationCLI() {
-        cmd.execute("--no-modelValidation");
+        executeAssertSuccess("--no-modelValidation");
         Assert.assertFalse(application.validateModel);
     }
 
 
     @Test
     public void testModelValidationCLIDefault() {
-        cmd.execute("-m", modelPath.toString());
+        executeAssertSuccess("-m", modelPath.toString());
         Assert.assertTrue(application.validateModel);
     }
 
@@ -215,10 +225,16 @@ public class AppTest {
     public void testEndpointsCLI() {
         var expected = List.of(EndpointType.HTTP, EndpointType.OPCUA);
 
-        cmd.execute("--endpoint", "http", "--endpoint", "opcua");
+        executeAssertSuccess("--endpoint", "http", "--endpoint", "opcua");
         Assert.assertEquals(expected, application.endpoints);
 
-        cmd.execute("--endpoint", "http,opcua");
+        executeAssertSuccess("--endpoint", "http,opcua");
         Assert.assertEquals(expected, application.endpoints);
+    }
+
+
+    private void executeAssertSuccess(String... args) {
+        int result = cmd.execute(args);
+        Assert.assertEquals(0, result);
     }
 }
