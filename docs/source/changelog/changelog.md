@@ -3,6 +3,10 @@
 ## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
 ## Release version 0.5.0
 
+**Internal changes & bugfixes**
+*   Starter
+	*   Improved error logging
+
 **New Features & Major Changes**
 *   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
 *   OPC UA Endpoint

@@ -118,7 +118,7 @@ public class AppTest {
                 .map(x -> String.format("%s=%s", x.getKey(), x.getValue()))
                 .toArray(String[]::new);
         Map<String, String> actual = withEnv(envProperties).execute(() -> {
-            executeAssertSuccess(args);
+            new CommandLine(application).execute(args);
             return application.getConfigOverrides();
         });
         Assert.assertEquals(expected, actual);
