@@ -19,8 +19,10 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -28,6 +30,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SerializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.HttpEndpointConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpMethod;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpointConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.internal.MessageBusInternalConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.StatusCode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
@@ -52,9 +55,15 @@ import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
+import org.eclipse.milo.opcua.stack.core.UaException;
+import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.json.JSONException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -63,14 +72,14 @@ import org.skyscreamer.jsonassert.JSONAssert;
 public class AssetConnectionIT {
 
     private static final String HOST = "http://localhost";
-    private static AssetAdministrationShellEnvironment environment;
-    private static Service service;
+    private static final String NODE_ID_SOURCE = "ns=3;s=1.Value";
 
     private static final int SOURCE_VALUE = 42;
     private static final int TARGET_VALUE = 0;
-    private static final String NODE_ID_SOURCE = "ns=3;s=1.Value";
-    private static Submodel submodel;
+    private static AssetAdministrationShellEnvironment environment;
+    private static Service service;
     private static Property source;
+    private static Submodel submodel;
     private static Property target;
 
     @BeforeClass
@@ -109,6 +118,64 @@ public class AssetConnectionIT {
     }
 
 
+    @After
+    public void shutdown() {
+        service.stop();
+    }
+
+
+    @Test
+    public void testServiceStartInvalidAssetConnection() throws Exception {
+        int http = PortHelper.findFreePort();
+        int opcua = PortHelper.findFreePort();
+        service = new Service(
+                withAssetConnection(
+                        serviceConfig(http, opcua),
+                        "invalid",
+                        opcua));
+        service.start();
+        assertServiceAvailabilityHttp(http);
+    }
+
+
+    @Test
+    public void testServiceStartValidAssetConnection() throws Exception {
+        int http = PortHelper.findFreePort();
+        int opcua = PortHelper.findFreePort();
+        service = new Service(
+                withAssetConnection(
+                        serviceConfig(http, opcua),
+                        NODE_ID_SOURCE,
+                        opcua));
+        service.start();
+        awaitAssetConnected(service);
+        assertServiceAvailabilityHttp(http);
+        assertTargetValue(http, SOURCE_VALUE);
+    }
+
+
+    @Test
+    public void testServiceStartValidAssetConnectionDelayed() throws Exception {
+        int http = PortHelper.findFreePort();
+        int opcua = PortHelper.findFreePort();
+        int http2 = PortHelper.findFreePort();
+        int opcua2 = PortHelper.findFreePort();
+        ServiceConfig config = withAssetConnection(serviceConfig(http, opcua),
+                NODE_ID_SOURCE,
+                opcua2);
+        service = new Service(config);
+        service.start();
+        assertServiceAvailabilityHttp(http);
+        assertTargetValue(http, TARGET_VALUE);
+        Service service2 = new Service(serviceConfig(http2, opcua2));
+        service2.start();
+        assertServiceAvailabilityOpcUa(opcua2);
+        awaitAssetConnected(service);
+        assertTargetValue(http, SOURCE_VALUE);
+        service2.stop();
+    }
+
+
     private static ServiceConfig serviceConfig(int portHttp, int portOpcUa) {
         return ServiceConfig.builder()
                 .core(CoreConfig.DEFAULT)
@@ -128,9 +195,10 @@ public class AssetConnectionIT {
     }
 
 
-    private static ServiceConfig withAssetConnection(ServiceConfig config, String nodeIdSource, int port) {
+    private static ServiceConfig withAssetConnection(ServiceConfig config, String nodeIdSource, int port) throws IOException {
         config.getAssetConnections().add(OpcUaAssetConnectionConfig.builder()
                 .host("opc.tcp://" + "localhost:" + port)
+                .securityBaseDir(Files.createTempDirectory("asset-connection"))
                 .valueProvider(AasUtils.toReference(AasUtils.toReference(submodel), target),
                         OpcUaValueProviderConfig.builder()
                                 .nodeId(nodeIdSource)
@@ -140,64 +208,7 @@ public class AssetConnectionIT {
     }
 
 
-    @Test
-    public void testServiceStartInvalidAssetConnection() throws Exception {
-        int http = PortHelper.findFreePort();
-        int opcua = PortHelper.findFreePort();
-        service = new Service(
-                withAssetConnection(
-                        serviceConfig(http, opcua),
-                        "invalid",
-                        opcua));
-        service.start();
-        assertAvailability(http);
-    }
-
-
-    @Test
-    public void testServiceStartValidAssetConnection() throws Exception {
-        int http = PortHelper.findFreePort();
-        int opcua = PortHelper.findFreePort();
-        service = new Service(
-                withAssetConnection(
-                        serviceConfig(http, opcua),
-                        NODE_ID_SOURCE,
-                        opcua));
-        service.start();
-        awaitAssetConnected(service);
-        assertAvailability(http);
-        assertTargetValue(http, SOURCE_VALUE);
-    }
-
-
-    @Test
-    public void testServiceStartValidAssetConnectionOffset() throws Exception {
-        int http = PortHelper.findFreePort();
-        int opcua = PortHelper.findFreePort();
-        int http2 = PortHelper.findFreePort();
-        int opcua2 = PortHelper.findFreePort();
-        ServiceConfig config = withAssetConnection(serviceConfig(http, opcua),
-                NODE_ID_SOURCE,
-                opcua2);
-        service = new Service(config);
-        service.start();
-        assertAvailability(http);
-        assertTargetValue(http, TARGET_VALUE);
-        Service service2 = new Service(serviceConfig(http2, opcua2));
-        service2.start();
-        awaitAssetConnected(service);
-        assertTargetValue(http, SOURCE_VALUE);
-        service2.stop();
-    }
-
-
-    @After
-    public void shutdown() {
-        service.stop();
-    }
-
-
-    public void assertAvailability(int port) throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
+    private void assertServiceAvailabilityHttp(int port) throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException {
         Object expected = environment.getAssetAdministrationShells();
         assertExecuteMultiple(
                 HttpMethod.GET,
@@ -209,11 +220,27 @@ public class AssetConnectionIT {
     }
 
 
-    private void awaitAssetConnected(Service service) {
-        await().atMost(30, TimeUnit.SECONDS)
-                .with()
-                .pollInterval(1, TimeUnit.SECONDS)
-                .until(() -> service.getAssetConnectionManager().getConnections().get(0).isConnected());
+    private void assertServiceAvailabilityOpcUa(int port) throws IOException, DeserializationException, InterruptedException, URISyntaxException, SerializationException,
+            AssetConnectionException, ConfigurationInitializationException, UaException, ExecutionException {
+        OpcUaClient client = OpcUaHelper.connect(OpcUaAssetConnectionConfig.builder()
+                .securityBaseDir(Files.createTempDirectory("asset-connection"))
+                .host("opc.tcp://" + "localhost:" + port)
+                .build());
+        DataValue value = OpcUaHelper.readValue(client, NODE_ID_SOURCE);
+        Assert.assertEquals(SOURCE_VALUE, Integer.parseInt(value.getValue().getValue().toString()));
+    }
+
+
+    private void assertTargetValue(int port, int expectedValue)
+            throws IOException, InterruptedException, URISyntaxException, JSONException {
+        HttpResponse<String> response = HttpHelper.get(
+                new ApiPaths(HOST, port)
+                        .submodelRepository()
+                        .submodelInterface(submodel)
+                        .submodelElement(target, Content.VALUE));
+        assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
+        String expected = String.format("{\"target\": %d}", expectedValue);
+        JSONAssert.assertEquals(expected, response.body(), false);
     }
 
 
@@ -228,16 +255,11 @@ public class AssetConnectionIT {
     }
 
 
-    public void assertTargetValue(int port, int expectedValue)
-            throws IOException, InterruptedException, URISyntaxException, JSONException {
-        HttpResponse<String> response = HttpHelper.get(
-                new ApiPaths(HOST, port)
-                        .submodelRepository()
-                        .submodelInterface(submodel)
-                        .submodelElement(target, Content.VALUE));
-        assertEquals(toHttpStatusCode(StatusCode.SUCCESS), response.statusCode());
-        String expected = String.format("{\"target\": %d}", expectedValue);
-        JSONAssert.assertEquals(expected, response.body(), false);
+    private void awaitAssetConnected(Service service) {
+        await().atMost(30, TimeUnit.SECONDS)
+                .with()
+                .pollInterval(1, TimeUnit.SECONDS)
+                .until(() -> service.getAssetConnectionManager().getConnections().get(0).isConnected());
     }
 
 }
