@@ -58,18 +58,17 @@ public class KeystoreHelper {
     /**
      * Save the given file to the key store.
      *
-     * @param file
-     * @param certificateData
-     * @param password
-     * @throws IOException
-     * @throws GeneralSecurityException
+     * @param file the file to write to
+     * @param certificateData the certificate data
+     * @param password the password to set
+     * @throws IOException if writing to the file fails
+     * @throws GeneralSecurityException if generating the certificate fails
      */
     public static void save(File file, CertificateData certificateData, String password) throws IOException, GeneralSecurityException {
         KeyStore keystore = KeyStore.getInstance(KEYSTORE_TYPE);
         keystore.load(null, passwordToChar(password));
         keystore.setCertificateEntry(DEFAULT_ALIAS, certificateData.getCertificate());
         keystore.setKeyEntry(DEFAULT_ALIAS, certificateData.getKeyPair().getPrivate(), passwordToChar(password), certificateData.getCertificateChain());
-
         try (OutputStream out = new FileOutputStream(file)) {
             keystore.store(out, passwordToChar(password));
         }

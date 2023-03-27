@@ -80,7 +80,7 @@ public class TypedValueFactory {
      * @return typed value representation
      * @throws IllegalArgumentException if datatype is null
      * @throws ValueFormatException if value cannot be converted to datatype
-     * @throws RuntimeException if instantiating new class fails
+     * @throws TypeInstantiationException if instantiating new class fails
      */
     public static TypedValue create(Datatype datatype, String value) throws ValueFormatException {
         Ensure.requireNonNull(datatype, "datatype must be non-null");

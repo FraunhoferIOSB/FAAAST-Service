@@ -9,6 +9,10 @@
             <property name="scope" value="protected"/>
             <property name="allowMissingPropertyJavadoc" value="true"/>
         </module>
+        <module name="JavadocMethod">
+            <property name="accessModifiers" value="public,protected"/>
+            <property name="allowMissingParamTags" value="false"/>
+        </module>
         <module name="ExtendedMissingJavadocType">
             <property name="scope" value="protected"/>
         </module>

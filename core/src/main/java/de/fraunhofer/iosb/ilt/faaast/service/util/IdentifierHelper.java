@@ -52,6 +52,7 @@ public class IdentifierHelper {
     /**
      * Generates a random id with based on UUID without '-' with the pattern '[prefix]_[random id]'.
      *
+     * @param prefix the prefix to use
      * @return a random id
      */
     public static String randomId(String prefix) {

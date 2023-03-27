@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.IExecutionExceptionHandler;
 import picocli.CommandLine.ParseResult;
@@ -24,9 +26,11 @@ import picocli.CommandLine.ParseResult;
  */
 public class ExecutionExceptionHandler implements IExecutionExceptionHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionExceptionHandler.class);
+
     @Override
     public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
-        cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
+        LOGGER.error(ex.getMessage(), ex);
         return cmd.getExitCodeExceptionMapper() != null
                 ? cmd.getExitCodeExceptionMapper().getExitCode(ex)
                 : cmd.getCommandSpec().exitCodeOnExecutionException();

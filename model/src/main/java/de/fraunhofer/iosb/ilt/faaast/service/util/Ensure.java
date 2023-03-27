@@ -88,6 +88,7 @@ public class Ensure {
      *
      * @param condition condition to check
      * @param message message for exception
+     * @throws IllegalArgumentException if condition is not fulfilled
      */
     public static void require(boolean condition, String message) {
         if (!condition) {

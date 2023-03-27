@@ -30,6 +30,7 @@ public class JarFilePathHelper {
     /**
      * Find JAR file path for a given class.
      *
+     * @param <T> type of the class to find
      * @param clazz the class to find the JAR file path for
      * @return the file path of the JAR containing the class if available
      * @throws RuntimeException if path could not be resolved or class is not starter from a JAR file
