@@ -295,11 +295,11 @@ public class App implements Runnable {
         catch (IOException e) {
             throw new InitializationException("Error loading config file", e);
         }
-        withModel(config);
-        validateModelIfRequired(config);
         if (autoCompleteConfiguration) {
             ServiceConfigHelper.autoComplete(config);
         }
+        withModel(config);
+        validateModelIfRequired(config);
         try {
             ServiceConfigHelper.apply(config, endpoints.stream()
                     .map(LambdaExceptionHelper.rethrowFunction(
