@@ -6,12 +6,10 @@
 *   Asset Connection
 	*   OPC UA
 		*   Unit tests no longer create temp files in source folders
-
-## Release version 0.5.0
-
-**Internal changes & bugfixes**
 *   Starter
 	*   Improved error logging
+
+## Release version 0.5.0
 
 **New Features & Major Changes**
 *   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
