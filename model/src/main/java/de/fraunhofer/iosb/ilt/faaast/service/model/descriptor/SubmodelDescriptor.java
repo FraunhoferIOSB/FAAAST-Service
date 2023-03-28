@@ -50,6 +50,12 @@ public interface SubmodelDescriptor {
     public void setDescriptions(List<LangString> descriptions);
 
 
+    public List<LangString> getDisplayNames();
+
+
+    public void setDisplayNames(List<LangString> displayNames);
+
+
     public Identifier getIdentification();
 
 
