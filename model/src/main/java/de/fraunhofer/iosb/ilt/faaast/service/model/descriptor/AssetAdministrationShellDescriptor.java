@@ -51,6 +51,12 @@ public interface AssetAdministrationShellDescriptor {
     public void setDescriptions(List<LangString> descriptions);
 
 
+    public List<LangString> getDisplayNames();
+
+
+    public void setDisplayNames(List<LangString> displayNames);
+
+
     public Reference getGlobalAssetId();
 
 
