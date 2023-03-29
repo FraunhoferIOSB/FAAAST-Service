@@ -90,8 +90,7 @@ public class MessageBusMqttTest {
 
         errorMessage = new ErrorEventMessage();
         errorMessage.setElement(property1Reference);
-        errorMessage.setErrorLevel(ErrorLevel.ERROR);
-        errorMessage.setThrowingSource(MessageBusMqttTest.class);
+        errorMessage.setLevel(ErrorLevel.ERROR);
     }
 
 
@@ -193,42 +192,45 @@ public class MessageBusMqttTest {
     }
 
     /*
-    @Test
-    public void testValueChangeTypeSubscription() throws InterruptedException {
-        MessageBusMqtt messageBus = new MessageBusMqtt();
-        try {
-            messageBus.init(CoreConfig.builder().build(), MessageBusMqttConfig.builder().internal(true).build(), SERVICE_CONTEXT);
-        }
-        catch (ConfigurationInitializationException e) {
-            throw new RuntimeException(e);
-        }
-        messageBus.start();
-        Map<Class<? extends EventMessage>, Set<EventMessage>> messages = Map.of(
-                ChangeEventMessage.class, Set.of(valueChangeMessage),
-                ErrorEventMessage.class, Set.of(errorMessage));
-        Map<Class<? extends EventMessage>, Set<EventMessage>> responses = Collections.synchronizedMap(Map.of(
-                ChangeEventMessage.class, new HashSet<>(),
-                ErrorEventMessage.class, new HashSet<>()));
-        CountDownLatch condition = new CountDownLatch(messages.values().stream().mapToInt(x -> x.size()).sum());
-        responses.entrySet().forEach(entry -> messageBus.subscribe(
-                SubscriptionInfo.create(
-                        entry.getKey(),
-                        x -> {
-                            entry.getValue().add(x);
-                            condition.countDown();
-                        })));
-        messages.values().stream().flatMap(x -> x.stream()).forEach(x -> {
-            try {
-                messageBus.publish(x);
-            }
-            catch (Exception e) {
-                Assert.fail();
-            }
-        });
-        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(messages, responses);
-        messageBus.stop();
-    }*/
+     * @Test
+     * public void testValueChangeTypeSubscription() throws InterruptedException {
+     * MessageBusMqtt messageBus = new MessageBusMqtt();
+     * try {
+     * messageBus.init(CoreConfig.builder().build(), MessageBusMqttConfig.builder().internal(true).build(),
+     * SERVICE_CONTEXT);
+     * }
+     * catch (ConfigurationInitializationException e) {
+     * throw new RuntimeException(e);
+     * }
+     * messageBus.start();
+     * Map<Class<? extends EventMessage>, Set<EventMessage>> messages = Map.of(
+     * ChangeEventMessage.class, Set.of(valueChangeMessage),
+     * ErrorEventMessage.class, Set.of(errorMessage));
+     * Map<Class<? extends EventMessage>, Set<EventMessage>> responses = Collections.synchronizedMap(Map.of(
+     * ChangeEventMessage.class, new HashSet<>(),
+     * ErrorEventMessage.class, new HashSet<>()));
+     * CountDownLatch condition = new CountDownLatch(messages.values().stream().mapToInt(x -> x.size()).sum());
+     * responses.entrySet().forEach(entry -> messageBus.subscribe(
+     * SubscriptionInfo.create(
+     * entry.getKey(),
+     * x -> {
+     * entry.getValue().add(x);
+     * condition.countDown();
+     * })));
+     * messages.values().stream().flatMap(x -> x.stream()).forEach(x -> {
+     * try {
+     * messageBus.publish(x);
+     * }
+     * catch (Exception e) {
+     * Assert.fail();
+     * }
+     * });
+     * condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+     * Assert.assertEquals(messages, responses);
+     * messageBus.stop();
+     * }
+     */
+
 
     @Test
     public void testNotMatchingSubscription() throws InterruptedException {

@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonEventDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonEventSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
@@ -26,7 +26,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
-
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +72,7 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     public void publish(EventMessage message) {
         try {
             Class<? extends EventMessage> messageType = message.getClass();
-            JsonApiSerializer serializer = new JsonApiSerializer();
+            JsonEventSerializer serializer = new JsonEventSerializer();
             client.publish("events/" + message.getClass().getSimpleName(), serializer.write(message));
         }
         catch (Exception e) {
@@ -109,7 +108,7 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
                 //subscribe to each event
                 client.subscribe("events/" + e.getSimpleName(), (t, message) -> {
                     // deserialize
-                    EventMessage event = new JsonApiDeserializer().read(message.toString(), e);
+                    EventMessage event = new JsonEventDeserializer().read(message.toString(), e);
                     // filter
                     if (subscriptionInfo.getFilter().test(event.getElement())) {
                         subscriptionInfo.getHandler().accept(event);
@@ -127,12 +126,13 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     private List<Class<EventMessage>> determineEvents(Class<? extends EventMessage> messageType) {
         try (ScanResult scanResult = new ClassGraph().acceptPackages("de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event")
                 .enableClassInfo().scan()) {
-            if(Modifier.isAbstract(messageType.getModifiers())) {
+            if (Modifier.isAbstract(messageType.getModifiers())) {
                 return scanResult
                         .getSubclasses(messageType.getName())
                         .filter(x -> !x.isAbstract())
                         .loadClasses(EventMessage.class);
-            } else {
+            }
+            else {
                 List<Class<EventMessage>> list = new ArrayList<>();
                 list.add((Class<EventMessage>) messageType);
                 return list;
