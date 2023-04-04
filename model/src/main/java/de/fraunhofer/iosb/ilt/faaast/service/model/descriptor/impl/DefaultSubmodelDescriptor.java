@@ -83,6 +83,7 @@ public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor im
                 endpoints(other.getEndpoints());
                 administration(other.getAdministration());
                 descriptions(other.getDescriptions());
+                displayNames(other.getDisplayNames());
                 identification(other.getIdentification());
                 semanticId(other.getSemanticId());
             }
@@ -96,6 +97,7 @@ public class DefaultSubmodelDescriptor extends AbstractIdentifiableDescriptor im
                 identification(parent.getIdentification());
                 administration(parent.getAdministration());
                 descriptions(parent.getDescriptions());
+                displayNames(parent.getDisplayNames());
                 semanticId(parent.getSemanticId());
             }
             return getSelf();

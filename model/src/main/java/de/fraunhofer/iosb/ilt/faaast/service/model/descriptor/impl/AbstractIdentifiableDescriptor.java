@@ -33,6 +33,7 @@ public abstract class AbstractIdentifiableDescriptor {
     private List<Endpoint> endpoints;
     private AdministrativeInformation administration;
     private List<LangString> descriptions;
+    private List<LangString> displayNames;
     private Identifier identification;
 
     protected AbstractIdentifiableDescriptor() {
@@ -40,6 +41,7 @@ public abstract class AbstractIdentifiableDescriptor {
         endpoints = new ArrayList<>();
         administration = null;
         descriptions = new ArrayList<>();
+        displayNames = new ArrayList<>();
         identification = null;
     }
 
@@ -98,6 +100,16 @@ public abstract class AbstractIdentifiableDescriptor {
     }
 
 
+    public List<LangString> getDisplayNames() {
+        return displayNames;
+    }
+
+
+    public void setDisplayNames(List<LangString> displayNames) {
+        this.displayNames = displayNames;
+    }
+
+
     public Identifier getIdentification() {
         return identification;
     }
@@ -121,13 +133,14 @@ public abstract class AbstractIdentifiableDescriptor {
                 && Objects.equals(endpoints, that.endpoints)
                 && Objects.equals(administration, that.administration)
                 && Objects.equals(descriptions, that.descriptions)
+                && Objects.equals(displayNames, that.displayNames)
                 && Objects.equals(identification, that.identification);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(idShort, endpoints, administration, descriptions, identification);
+        return Objects.hash(idShort, endpoints, administration, descriptions, displayNames, identification);
     }
 
     public abstract static class AbstractBuilder<T extends AbstractIdentifiableDescriptor, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
@@ -164,6 +177,18 @@ public abstract class AbstractIdentifiableDescriptor {
 
         public B description(LangString value) {
             getBuildingInstance().getDescriptions().add(value);
+            return getSelf();
+        }
+
+
+        public B displayNames(List<LangString> value) {
+            getBuildingInstance().setDisplayNames(value);
+            return getSelf();
+        }
+
+
+        public B displayName(LangString value) {
+            getBuildingInstance().getDisplayNames().add(value);
             return getSelf();
         }
 

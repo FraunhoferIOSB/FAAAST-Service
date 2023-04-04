@@ -144,6 +144,7 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
                 endpoints(other.getEndpoints());
                 administration(other.getAdministration());
                 descriptions(other.getDescriptions());
+                displayNames(other.getDisplayNames());
                 identification(other.getIdentification());
                 globalAssetId(other.getGlobalAssetId());
                 specificAssetIds(other.getSpecificAssetIds());
@@ -158,6 +159,7 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
                 idShort(parent.getIdShort());
                 administration(parent.getAdministration());
                 descriptions(parent.getDescriptions());
+                displayNames(parent.getDisplayNames());
                 identification(parent.getIdentification());
                 if (parent.getAssetInformation() != null) {
                     globalAssetId(parent.getAssetInformation().getGlobalAssetId());

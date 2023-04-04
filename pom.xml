@@ -74,7 +74,7 @@
         <aas.dataformat.version>1.2.0</aas.dataformat.version>
         <aas.model.version>1.2.0</aas.model.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <checkstyle.version>10.9.2</checkstyle.version>
+        <checkstyle.version>10.9.3</checkstyle.version>
         <classgraph.version>4.8.157</classgraph.version>
         <commons.codec.version>1.15</commons.codec.version>
         <commons.io.version>2.11.0</commons.io.version>
@@ -95,7 +95,7 @@
         <jetty.version>11.0.14</jetty.version>
         <json-smart.version>2.4.10</json-smart.version>
         <jsonassert.version>1.5.1</jsonassert.version>
-        <jsonpath.version>2.7.0</jsonpath.version>
+        <jsonpath.version>2.8.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <kotlin.version>1.6.20</kotlin.version>
         <logback.version>1.4.6</logback.version>
@@ -109,7 +109,7 @@
         <maven.plugin.failsafe.version>3.0.0</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>5.0.0</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.0.1</maven.plugin.gpg.version>
-        <maven.plugin.jacoco.version>0.8.8</maven.plugin.jacoco.version>
+        <maven.plugin.jacoco.version>0.8.9</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.5.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
