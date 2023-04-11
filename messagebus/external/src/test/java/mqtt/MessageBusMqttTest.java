@@ -90,7 +90,7 @@ public class MessageBusMqttTest {
 
         errorMessage = new ErrorEventMessage();
         errorMessage.setElement(property1Reference);
-        errorMessage.setLevel(ErrorLevel.ERROR);
+        errorMessage.setErrorLevel(ErrorLevel.ERROR);
     }
 
 

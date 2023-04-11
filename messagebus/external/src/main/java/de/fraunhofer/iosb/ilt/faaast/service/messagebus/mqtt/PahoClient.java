@@ -14,7 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.util.Objects;
 import java.util.UUID;
+import javax.net.ssl.*;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
@@ -29,6 +34,7 @@ import org.slf4j.LoggerFactory;
 public class PahoClient {
 
     private static final String PROTOCOL_PREFIX = "tcp://";
+    private static final String PROTOCOL_PREFIX_SSL = "ssl://";
     private static final Logger logger = LoggerFactory.getLogger(MqttClient.class);
     private MqttClient mqttClient;
     private MessageBusMqttConfig messageBusMqttConfig;
@@ -60,13 +66,32 @@ public class PahoClient {
 
 
     private void mqttConnect() {
-        String endpoint = messageBusMqttConfig.getHost() + ":" + messageBusMqttConfig.getPort();
-        if (!endpoint.startsWith(PROTOCOL_PREFIX)) {
-            endpoint = PROTOCOL_PREFIX + endpoint;
+        String endpoint;
+        if (messageBusMqttConfig.getKeystorePath().isEmpty()) {
+            endpoint = messageBusMqttConfig.getHost() + ":" + messageBusMqttConfig.getPort();
+            if (!endpoint.startsWith(PROTOCOL_PREFIX)) {
+                endpoint = PROTOCOL_PREFIX + endpoint;
+            }
+        }
+        else {
+            endpoint = messageBusMqttConfig.getHost() + ":" + messageBusMqttConfig.getSslPort();
+            if (!endpoint.startsWith(PROTOCOL_PREFIX_SSL)) {
+                endpoint = PROTOCOL_PREFIX_SSL + endpoint;
+            }
         }
         String clientId = "FA³ST MQTT MessageBus Client " + UUID.randomUUID().toString().replace("-", "");
         clientId = clientId.substring(0, 20); // MQTTv2 limited to 23 characters
         MqttConnectOptions options = new MqttConnectOptions();
+        SSLSocketFactory ssl = getSSLSocketFactory(messageBusMqttConfig.getKeystorePath(), messageBusMqttConfig.getKeystorePass());
+        if (!Objects.isNull(ssl)) {
+            options.setSocketFactory(ssl);
+        }
+        if (!Objects.isNull(messageBusMqttConfig.getUsername())) {
+            options.setUserName(messageBusMqttConfig.getUsername());
+            options.setPassword(messageBusMqttConfig.getPassword() != null
+                    ? messageBusMqttConfig.getPassword().toCharArray()
+                    : new char[0]);
+        }
         options.setAutomaticReconnect(true);
         options.setCleanSession(false);
         try {
@@ -108,6 +133,33 @@ public class PahoClient {
         catch (Exception ex) {
             logger.error("failed to connect to MQTT broker", ex);
         }
+    }
+
+
+    public SSLSocketFactory getSSLSocketFactory(String keyStorePath, String password) {
+        try {
+            KeyStore ks = KeyStore.getInstance("JKS");
+            InputStream jksInputStream = new FileInputStream(keyStorePath);
+            ks.load(jksInputStream, password.toCharArray());
+
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(ks, password.toCharArray());
+
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(ks);
+
+            SSLContext sc = SSLContext.getInstance("TLS");
+            TrustManager[] trustManagers = tmf.getTrustManagers();
+            sc.init(kmf.getKeyManagers(), trustManagers, null);
+
+            SSLSocketFactory ssf = sc.getSocketFactory();
+            return ssf;
+        }
+        catch (Exception e) {
+            logger.error("MqttMessagebus SSL init error.");
+            return null;
+        }
+
     }
 
 

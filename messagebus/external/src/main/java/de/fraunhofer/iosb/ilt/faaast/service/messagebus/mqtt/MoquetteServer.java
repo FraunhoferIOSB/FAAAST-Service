@@ -82,13 +82,12 @@ public class MoquetteServer {
         mqttBroker = new Server();
         IConfig config = new MemoryConfig(new Properties());
         // Ensure the immediate_flush property has a default of true.
-        config.setProperty(BrokerConstants.IMMEDIATE_BUFFER_FLUSH_PROPERTY_NAME, "true");
+        config.setProperty(BrokerConstants.IMMEDIATE_BUFFER_FLUSH_PROPERTY_NAME, String.valueOf(messageBusMqttConfig.isInternalBroker()));
         config.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(messageBusMqttConfig.getPort()));
         config.setProperty(BrokerConstants.HOST_PROPERTY_NAME, messageBusMqttConfig.getHost());
         config.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.TRUE.toString());
         config.setProperty(BrokerConstants.WEB_SOCKET_PORT_PROPERTY_NAME, Integer.toString(messageBusMqttConfig.getWebsocketPort()));
-        //String keystorePath = messageBusMqttConfig.getKeystorePath();
-        String keystorePath = "";
+        String keystorePath = messageBusMqttConfig.getKeystorePath();
         if (!keystorePath.isEmpty()) {
             LOGGER.info("Configuring keystore for ssl");
             config.setProperty(BrokerConstants.JKS_PATH_PROPERTY_NAME, keystorePath);
@@ -96,6 +95,10 @@ public class MoquetteServer {
             config.setProperty(BrokerConstants.KEY_MANAGER_PASSWORD_PROPERTY_NAME, messageBusMqttConfig.getKeymanagerPass());
             config.setProperty(BrokerConstants.SSL_PORT_PROPERTY_NAME, Integer.toString(messageBusMqttConfig.getSslPort()));
             config.setProperty(BrokerConstants.WSS_PORT_PROPERTY_NAME, Integer.toString(messageBusMqttConfig.getSslWebsocketPort()));
+        }
+        String passwordPath = messageBusMqttConfig.getKeystorePath();
+        if (!passwordPath.isEmpty()) {
+            config.setProperty(BrokerConstants.PASSWORD_FILE_PROPERTY_NAME, passwordPath);
         }
         try {
             mqttBroker.startServer(config);

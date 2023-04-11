@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonEventDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonEventSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
@@ -72,7 +72,7 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     public void publish(EventMessage message) {
         try {
             Class<? extends EventMessage> messageType = message.getClass();
-            JsonEventSerializer serializer = new JsonEventSerializer();
+            JsonApiSerializer serializer = new JsonApiSerializer();
             client.publish("events/" + message.getClass().getSimpleName(), serializer.write(message));
         }
         catch (Exception e) {
@@ -108,7 +108,7 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
                 //subscribe to each event
                 client.subscribe("events/" + e.getSimpleName(), (t, message) -> {
                     // deserialize
-                    EventMessage event = new JsonEventDeserializer().read(message.toString(), e);
+                    EventMessage event = new JsonApiDeserializer().read(message.toString(), e);
                     // filter
                     if (subscriptionInfo.getFilter().test(event.getElement())) {
                         subscriptionInfo.getHandler().accept(event);

@@ -28,9 +28,12 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     private String host = "127.0.0.1";
     private Integer websocketPort = 1885;
     private Integer sslWebsocketPort = 1886;
-    private String keystorePass;
-    private String keystorePath;
-    private String keymanagerPass;
+    private String keystorePass = "password";
+    private String keystorePath = "";
+    private String keymanagerPass = "password";
+    private String passwordFile;
+    private String username;
+    private String password;
 
     public static Builder builder() {
         return new Builder();
@@ -89,6 +92,24 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
 
         public B keymanagerPass(String value) {
             getBuildingInstance().setKeymanagerPass(value);
+            return getSelf();
+        }
+
+
+        public B username(String value) {
+            getBuildingInstance().setUsername(value);
+            return getSelf();
+        }
+
+
+        public B password(String value) {
+            getBuildingInstance().setPassword(value);
+            return getSelf();
+        }
+
+
+        public B passwordFile(String value) {
+            getBuildingInstance().setPasswordFile(value);
             return getSelf();
         }
 
@@ -196,5 +217,35 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
 
     public void setKeymanagerPass(String keymanagerPass) {
         this.keymanagerPass = keymanagerPass;
+    }
+
+
+    public String getPasswordFile() {
+        return passwordFile;
+    }
+
+
+    public void setPasswordFile(String passwordFile) {
+        this.passwordFile = passwordFile;
+    }
+
+
+    public String getUsername() {
+        return username;
+    }
+
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+
+    public String getPassword() {
+        return password;
+    }
+
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
