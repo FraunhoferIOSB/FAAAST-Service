@@ -51,8 +51,7 @@ public abstract class Config<T extends Configurable> {
      * @param coreConfig the coreConfig to initialize the implementation class with
      * @param context context information about the service
      * @return a new instance of the implementation class that is initialized with this configuration
-     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInstantiationException when creating a new
-     *             instance fails
+     * @throws ConfigurationInstantiationException when creating a new instance fails
      */
     public T newInstance(CoreConfig coreConfig, ServiceContext context) throws ConfigurationException {
         try {

@@ -1,6 +1,15 @@
 # Changelog
 <!--start:changelog-header-->
-## Current development version (0.5.0-SNAPSHOT)<!--end:changelog-header-->
+## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
+
+**Internal changes & bugfixes**
+*   Asset Connection
+	*   OPC UA
+		*   Unit tests no longer create temp files in source folders
+*   Starter
+	*   Improved error logging
+
+## Release version 0.5.0
 
 **New Features & Major Changes**
 *   Improved exception handling in CLI - upon error starter application should now correctly terminate with error code 1
@@ -14,7 +23,7 @@
 *   Asset Connection
 	*   OPC UA
 		*   Support mapping to specific element in (multi-dimensional) array/vector
-		*   Additional parameters available in configuration: requestTimeout, acknowledgeTimeout, retries
+		*   Additional parameters available in configuration: requestTimeout, acknowledgeTimeout, retries, securityPolicy, securityMode, securityBaseDir, transportProfile, userTokenType, applicationCertificateFile, applicationCertificatePassword, authenticationCertificateFile, authenticationCertificatePassword
 
 **Internal changes & bugfixes**
 *   General

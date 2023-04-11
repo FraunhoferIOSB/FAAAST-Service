@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
     <artifactId>service</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.6.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>service</name>
     <description>An implementation of the Asset Administration Shell</description>
@@ -73,7 +73,7 @@
         <aas.dataformat.version>1.2.0</aas.dataformat.version>
         <aas.model.version>1.2.0</aas.model.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <checkstyle.version>10.9.2</checkstyle.version>
+        <checkstyle.version>10.9.3</checkstyle.version>
         <classgraph.version>4.8.157</classgraph.version>
         <commons.codec.version>1.15</commons.codec.version>
         <commons.io.version>2.11.0</commons.io.version>
@@ -90,7 +90,7 @@
         <jetty.version>11.0.14</jetty.version>
         <json-smart.version>2.4.10</json-smart.version>
         <jsonassert.version>1.5.1</jsonassert.version>
-        <jsonpath.version>2.7.0</jsonpath.version>
+        <jsonpath.version>2.8.0</jsonpath.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.4.6</logback.version>
         <maven.compiler.source>11</maven.compiler.source>
@@ -103,25 +103,25 @@
         <maven.plugin.failsafe.version>3.0.0</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>5.0.0</maven.plugin.git.commit.id.version>
         <maven.plugin.gpg.version>3.0.1</maven.plugin.gpg.version>
-        <maven.plugin.jacoco.version>0.8.8</maven.plugin.jacoco.version>
+        <maven.plugin.jacoco.version>0.8.9</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.5.0</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>8.1.2</maven.plugin.owasp.version>
-        <maven.plugin.picocli.version>4.7.1</maven.plugin.picocli.version>
+        <maven.plugin.owasp.version>8.2.1</maven.plugin.owasp.version>
+        <maven.plugin.picocli.version>4.7.2</maven.plugin.picocli.version>
         <maven.plugin.proguard.version>2.6.0</maven.plugin.proguard.version>
         <maven.plugin.prosys.codegen.version>4.10.0-37</maven.plugin.prosys.codegen.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.4.1</maven.plugin.shade.version>
         <maven.plugin.source.version>3.2.1</maven.plugin.source.version>
-        <maven.plugin.spotless.version>2.35.0</maven.plugin.spotless.version>
-        <milo.version>0.6.8</milo.version>
+        <maven.plugin.spotless.version>2.36.0</maven.plugin.spotless.version>
+        <milo.version>0.6.9</milo.version>
         <mockito.version>5.2.0</mockito.version>
         <moquette.version>0.15.1</moquette.version>
-        <netty.version>4.1.90.Final</netty.version>
+        <netty.version>4.1.91.Final</netty.version>
         <paho.version>1.2.5</paho.version>
-        <picocli.version>4.7.1</picocli.version>
+        <picocli.version>4.7.2</picocli.version>
         <poi.ooxml.version>5.2.3</poi.ooxml.version>
         <proguard.core.version>9.0.8</proguard.core.version>
         <proguard.version>7.3.2</proguard.version>
@@ -130,7 +130,7 @@
         <protobuf.version>3.22.2</protobuf.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
-        <slf4j.test.version>2.8.1</slf4j.test.version>
+        <slf4j.test.version>2.9.0</slf4j.test.version>
         <slf4j.version>2.0.7</slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
@@ -481,6 +481,8 @@
                         <inherited>false</inherited>
                         <configuration>
                             <quiet>true</quiet>
+                            <sourceFileExcludes>**/generated-sources/*</sourceFileExcludes>
+                            <sourcepath>${project.basedir}/target</sourcepath>
                         </configuration>
                         <executions>
                             <execution>
