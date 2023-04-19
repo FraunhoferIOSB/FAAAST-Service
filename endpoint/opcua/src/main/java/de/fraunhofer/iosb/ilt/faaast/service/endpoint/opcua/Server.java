@@ -215,6 +215,12 @@ public class Server {
         if (endpoint.asConfig().getEnableAes256Sha256RsaPss()) {
             supportedSecurityPolicies.add(SecurityPolicy.AES256_SHA256_RSAPSS);
         }
+        if (endpoint.asConfig().getEnableBasic256()) {
+            supportedSecurityPolicies.add(SecurityPolicy.BASIC256);
+        }
+        if (endpoint.asConfig().getEnableBasic128Rsa15()) {
+            supportedSecurityPolicies.add(SecurityPolicy.BASIC128RSA15);
+        }
 
         Set<MessageSecurityMode> supportedMessageSecurityModes = new HashSet<>();
         supportedMessageSecurityModes.add(MessageSecurityMode.None);

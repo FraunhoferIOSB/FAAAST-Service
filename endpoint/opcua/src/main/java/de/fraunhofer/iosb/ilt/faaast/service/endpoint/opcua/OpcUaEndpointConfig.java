@@ -39,6 +39,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     private boolean enableBasic256Sha256;
     private boolean enableAes128Sha256RsaOaep;
     private boolean enableAes256Sha256RsaPss;
+    private boolean enableBasic256;
+    private boolean enableBasic128Rsa15;
 
     public OpcUaEndpointConfig() {
         this.tcpPort = DEFAULT_PORT;
@@ -51,6 +53,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         this.enableBasic256Sha256 = true;
         this.enableAes128Sha256RsaOaep = true;
         this.enableAes256Sha256RsaPss = true;
+        this.enableBasic256 = false;
+        this.enableBasic128Rsa15 = false;
     }
 
 
@@ -72,14 +76,16 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
                 && Objects.equals(userCertificateBasePath, that.userCertificateBasePath)
                 && Objects.equals(enableBasic256Sha256, that.enableBasic256Sha256)
                 && Objects.equals(enableAes128Sha256RsaOaep, that.enableAes128Sha256RsaOaep)
-                && Objects.equals(enableAes256Sha256RsaPss, that.enableAes256Sha256RsaPss);
+                && Objects.equals(enableAes256Sha256RsaPss, that.enableAes256Sha256RsaPss)
+                && Objects.equals(enableBasic256, that.enableBasic256)
+                && Objects.equals(enableBasic128Rsa15, that.enableBasic128Rsa15);
     }
 
 
     @Override
     public int hashCode() {
         return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous, discoveryServerUrl, userMap, serverCertificateBasePath, userCertificateBasePath, enableBasic256Sha256,
-                enableAes128Sha256RsaOaep, enableAes256Sha256RsaPss);
+                enableAes128Sha256RsaOaep, enableAes256Sha256RsaPss, enableBasic256, enableBasic128Rsa15);
     }
 
 
@@ -285,6 +291,58 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     }
 
 
+    /**
+     * Gets a value indicating, whether the Security Policy Basic256 is enabled or not.
+     * Please be aware, that SecurityPolicy Basic256 is deprecated since the hash algorithm Sha-1 is not considered secure
+     * anymore.
+     *
+     * @return True if Security Policy Basic256 is enabled, false otherwise.
+     */
+    @Deprecated
+    public boolean getEnableBasic256() {
+        return enableBasic256;
+    }
+
+
+    /**
+     * Sets a value to enable or disable the Security Policy Basic256.
+     * Please be aware, that SecurityPolicy Basic256 is deprecated since the hash algorithm Sha-1 is not considered secure
+     * anymore.
+     * 
+     * @param value True if Security Policy Basic256 should be enabled, false otherwise.
+     */
+    @Deprecated
+    public void setEnableBasic256(boolean value) {
+        enableBasic256 = value;
+    }
+
+
+    /**
+     * Gets a value indicating, whether the Security Policy Basic128Rsa15 is enabled or not.
+     * Please be aware, that SecurityPolicy Basic128Rsa15 is deprecated since the hash algorithm Sha-1 is not considered
+     * secure anymore.
+     *
+     * @return True if Security Policy Basic128Rsa15 is enabled, false otherwise.
+     */
+    @Deprecated
+    public boolean getEnableBasic128Rsa15() {
+        return enableBasic128Rsa15;
+    }
+
+
+    /**
+     * Sets a value to enable or disable the Security Policy Basic256.
+     * Please be aware, that SecurityPolicy Basic128Rsa15 is deprecated since the hash algorithm Sha-1 is not considered
+     * secure anymore.
+     * 
+     * @param value True if Security Policy Basic128Rsa15 should be enabled, false otherwise.
+     */
+    @Deprecated
+    public void setEnableBasic128Rsa15(boolean value) {
+        enableBasic128Rsa15 = value;
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
@@ -347,6 +405,20 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
         public B enableAes256Sha256RsaPss(boolean value) {
             getBuildingInstance().setEnableAes256Sha256RsaPss(value);
+            return getSelf();
+        }
+
+
+        @Deprecated
+        public B enableBasic256(boolean value) {
+            getBuildingInstance().setEnableBasic256(value);
+            return getSelf();
+        }
+
+
+        @Deprecated
+        public B enableBasic128Rsa15(boolean value) {
+            getBuildingInstance().setEnableBasic128Rsa15(value);
             return getSelf();
         }
     }
