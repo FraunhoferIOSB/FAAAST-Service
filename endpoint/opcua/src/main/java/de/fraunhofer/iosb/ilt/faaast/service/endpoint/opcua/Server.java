@@ -205,10 +205,16 @@ public class Server {
     private void setSecurityPolicies() {
         Set<SecurityPolicy> supportedSecurityPolicies = new HashSet<>();
         supportedSecurityPolicies.add(SecurityPolicy.NONE);
-        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_101);
-        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_102);
-        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_103);
-        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_104);
+
+        if (endpoint.asConfig().getEnableBasic256Sha256()) {
+            supportedSecurityPolicies.add(SecurityPolicy.BASIC256SHA256);
+        }
+        if (endpoint.asConfig().getEnableAes128Sha256RsaOaep()) {
+            supportedSecurityPolicies.add(SecurityPolicy.AES128_SHA256_RSAOAEP);
+        }
+        if (endpoint.asConfig().getEnableAes256Sha256RsaPss()) {
+            supportedSecurityPolicies.add(SecurityPolicy.AES256_SHA256_RSAPSS);
+        }
 
         Set<MessageSecurityMode> supportedMessageSecurityModes = new HashSet<>();
         supportedMessageSecurityModes.add(MessageSecurityMode.None);

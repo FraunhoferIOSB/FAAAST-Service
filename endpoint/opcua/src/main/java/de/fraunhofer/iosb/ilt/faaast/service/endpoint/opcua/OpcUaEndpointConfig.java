@@ -36,6 +36,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     private String discoveryServerUrl;
     private String serverCertificateBasePath;
     private String userCertificateBasePath;
+    private boolean enableBasic256Sha256;
+    private boolean enableAes128Sha256RsaOaep;
+    private boolean enableAes256Sha256RsaPss;
 
     public OpcUaEndpointConfig() {
         this.tcpPort = DEFAULT_PORT;
@@ -45,6 +48,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         this.userMap = new HashMap<>();
         this.serverCertificateBasePath = DEFAULT_SERVER_CERT_PATH;
         this.userCertificateBasePath = DEFAULT_USER_CERT_PATH;
+        this.enableBasic256Sha256 = true;
+        this.enableAes128Sha256RsaOaep = true;
+        this.enableAes256Sha256RsaPss = true;
     }
 
 
@@ -63,13 +69,17 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
                 && Objects.equals(discoveryServerUrl, that.discoveryServerUrl)
                 && Objects.equals(userMap, that.userMap)
                 && Objects.equals(serverCertificateBasePath, that.serverCertificateBasePath)
-                && Objects.equals(userCertificateBasePath, that.userCertificateBasePath);
+                && Objects.equals(userCertificateBasePath, that.userCertificateBasePath)
+                && Objects.equals(enableBasic256Sha256, that.enableBasic256Sha256)
+                && Objects.equals(enableAes128Sha256RsaOaep, that.enableAes128Sha256RsaOaep)
+                && Objects.equals(enableAes256Sha256RsaPss, that.enableAes256Sha256RsaPss);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous, discoveryServerUrl, userMap, serverCertificateBasePath, userCertificateBasePath);
+        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous, discoveryServerUrl, userMap, serverCertificateBasePath, userCertificateBasePath, enableBasic256Sha256,
+                enableAes128Sha256RsaOaep, enableAes256Sha256RsaPss);
     }
 
 
@@ -215,6 +225,66 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     }
 
 
+    /**
+     * Gets a value indicating, whether the Security Policy Basic256Sha256 is enabled or not.
+     * 
+     * @return True if Security Policy Basic256Sha256 is enabled, false otherwise.
+     */
+    public boolean getEnableBasic256Sha256() {
+        return enableBasic256Sha256;
+    }
+
+
+    /**
+     * Sets a value to enable or disable the Security Policy Basic256Sha256.
+     * 
+     * @param value True if Security Policy Basic256Sha256 should be enabled, false otherwise.
+     */
+    public void setEnableBasic256Sha256(boolean value) {
+        enableBasic256Sha256 = value;
+    }
+
+
+    /**
+     * Gets a value indicating, whether the Security Policy Aes128-Sha256-RsaOaep is enabled or not.
+     * 
+     * @return True if Security Policy Aes128-Sha256-RsaOaep is enabled, false otherwise.
+     */
+    public boolean getEnableAes128Sha256RsaOaep() {
+        return enableAes128Sha256RsaOaep;
+    }
+
+
+    /**
+     * Sets a value to enable or disable the Security Policy Aes128-Sha256-RsaOaep.
+     * 
+     * @param value True if Security Policy Aes128-Sha256-RsaOaep should be enabled, false otherwise.
+     */
+    public void setEnableAes128Sha256RsaOaep(boolean value) {
+        enableAes128Sha256RsaOaep = value;
+    }
+
+
+    /**
+     * Gets a value indicating, whether the Security Policy Aes256-Sha256-RsaPss is enabled or not.
+     * 
+     * @return True if Security Policy Aes256-Sha256-RsaPss is enabled, false otherwise.
+     */
+    public boolean getEnableAes256Sha256RsaPss() {
+        return enableAes256Sha256RsaPss;
+    }
+
+
+    /**
+     * Sets a value to enable or disable the Security Policy Aes256-Sha256-RsaPss.
+     * 
+     * @param value True if Security Policy Aes256-Sha256-RsaPss should be enabled, false otherwise.
+     */
+    public void setEnableAes256Sha256RsaPss(boolean value) {
+        enableAes256Sha256RsaPss = value;
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
@@ -259,6 +329,24 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
         public B userCertificateBasePath(String value) {
             getBuildingInstance().setUserCertificateBasePath(value);
+            return getSelf();
+        }
+
+
+        public B enableBasic256Sha256(boolean value) {
+            getBuildingInstance().setEnableBasic256Sha256(value);
+            return getSelf();
+        }
+
+
+        public B enableAes128Sha256RsaOaep(boolean value) {
+            getBuildingInstance().setEnableAes128Sha256RsaOaep(value);
+            return getSelf();
+        }
+
+
+        public B enableAes256Sha256RsaPss(boolean value) {
+            getBuildingInstance().setEnableAes256Sha256RsaPss(value);
             return getSelf();
         }
     }
