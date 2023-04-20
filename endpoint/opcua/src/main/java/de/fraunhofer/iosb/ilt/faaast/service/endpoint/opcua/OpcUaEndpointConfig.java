@@ -32,7 +32,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     private int tcpPort;
     private int secondsTillShutdown;
     private Map<String, String> userMap;
-    private boolean allowAnonymous;
+    private boolean enableAnonymousAuthentication;
     private boolean enableCertificateAuthentication;
     private String discoveryServerUrl;
     private String serverCertificateBasePath;
@@ -46,7 +46,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     public OpcUaEndpointConfig() {
         this.tcpPort = DEFAULT_PORT;
         this.secondsTillShutdown = DEFAULT_SECONDS_SHUTDOWN;
-        this.allowAnonymous = true;
+        this.enableAnonymousAuthentication = true;
         this.enableCertificateAuthentication = true;
         this.discoveryServerUrl = "";
         this.userMap = new HashMap<>();
@@ -71,7 +71,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         OpcUaEndpointConfig that = (OpcUaEndpointConfig) o;
         return Objects.equals(tcpPort, that.tcpPort)
                 && Objects.equals(secondsTillShutdown, that.secondsTillShutdown)
-                && Objects.equals(allowAnonymous, that.allowAnonymous)
+                && Objects.equals(enableAnonymousAuthentication, that.enableAnonymousAuthentication)
                 && Objects.equals(enableCertificateAuthentication, that.enableCertificateAuthentication)
                 && Objects.equals(discoveryServerUrl, that.discoveryServerUrl)
                 && Objects.equals(userMap, that.userMap)
@@ -87,7 +87,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(tcpPort, secondsTillShutdown, allowAnonymous, enableCertificateAuthentication, discoveryServerUrl, userMap, serverCertificateBasePath,
+        return Objects.hash(tcpPort, secondsTillShutdown, enableAnonymousAuthentication, enableCertificateAuthentication, discoveryServerUrl, userMap, serverCertificateBasePath,
                 userCertificateBasePath, enableBasic256Sha256, enableAes128Sha256RsaOaep, enableAes256Sha256RsaPss, enableBasic256, enableBasic128Rsa15);
     }
 
@@ -157,8 +157,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
      * 
      * @return True if anonymous access is allowed, false otherwise
      */
-    public boolean getAllowAnonymous() {
-        return allowAnonymous;
+    public boolean getEnableAnonymousAuthentication() {
+        return enableAnonymousAuthentication;
     }
 
 
@@ -167,8 +167,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
      * 
      * @param value True if anonymous access is allowed, false otherwise
      */
-    public void setAllowAnonymous(boolean value) {
-        allowAnonymous = value;
+    public void setEnableAnonymousAuthentication(boolean value) {
+        enableAnonymousAuthentication = value;
     }
 
 
@@ -396,8 +396,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         }
 
 
-        public B allowAnonymous(boolean value) {
-            getBuildingInstance().setAllowAnonymous(value);
+        public B enableAnonymousAuthentication(boolean value) {
+            getBuildingInstance().setEnableAnonymousAuthentication(value);
             return getSelf();
         }
 

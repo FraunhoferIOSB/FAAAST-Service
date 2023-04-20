@@ -138,7 +138,7 @@ public class Server {
         uaServer.getHttpsSettings().setCertificateValidator(applicationCertificateValidator);
 
         // Define the supported user authentication methods
-        if (endpoint.asConfig().getAllowAnonymous()) {
+        if (endpoint.asConfig().getEnableAnonymousAuthentication()) {
             uaServer.addUserTokenPolicy(UserTokenPolicies.ANONYMOUS);
         }
         if ((endpoint.asConfig().getUserMap() != null) && (!endpoint.asConfig().getUserMap().isEmpty())) {
@@ -151,7 +151,7 @@ public class Server {
         uaServer.setUserValidator(new AasUserValidator(
                 userCertificateValidator,
                 endpoint.asConfig().getUserMap(),
-                endpoint.asConfig().getAllowAnonymous(),
+                endpoint.asConfig().getEnableAnonymousAuthentication(),
                 endpoint.asConfig().getEnableCertificateAuthentication()));
 
         registerDiscovery();

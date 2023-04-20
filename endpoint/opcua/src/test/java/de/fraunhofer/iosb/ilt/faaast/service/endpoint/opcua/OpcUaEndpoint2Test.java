@@ -96,7 +96,7 @@ public class OpcUaEndpoint2Test {
         OpcUaEndpointConfig config = new OpcUaEndpointConfig();
         config.setTcpPort(OPC_TCP_PORT);
         config.setSecondsTillShutdown(0);
-        config.setAllowAnonymous(false);
+        config.setEnableAnonymousAuthentication(false);
         Path certPath = Paths.get(TestConstants.SERVER_CERT_PATH);
         if (Files.exists(certPath)) {
             Files.walk(certPath)

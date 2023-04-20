@@ -106,7 +106,7 @@ public class OpcUaEndpointFullTest {
         OpcUaEndpointConfig config = new OpcUaEndpointConfig();
         config.setTcpPort(OPC_TCP_PORT);
         config.setSecondsTillShutdown(0);
-        config.setAllowAnonymous(true);
+        config.setEnableAnonymousAuthentication(true);
         config.setServerCertificateBasePath(TestConstants.SERVER_CERT_PATH);
         config.setUserCertificateBasePath(TestConstants.USER_CERT_PATH);
         config.setDiscoveryServerUrl(null);
