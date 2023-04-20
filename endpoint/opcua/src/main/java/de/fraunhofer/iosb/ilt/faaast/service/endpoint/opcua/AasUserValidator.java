@@ -37,6 +37,7 @@ public class AasUserValidator implements UserValidator {
     private final CertificateValidator validator;
     private final Map<String, String> userMap;
     private final boolean allowAnonymous;
+    private final boolean enableCertificateAuthentication;
 
     /**
      * Creates a new instance of AasUserValidator
@@ -44,13 +45,15 @@ public class AasUserValidator implements UserValidator {
      * @param validator used to validate certificates
      * @param userMap The desired user names (Key) and passwords (Value)
      * @param allowAnonymous True if anonymous access is allowed, false otherwise
+     * @param enableCertificateAuthentication True if authentication with certificates is enabled, false otherwise.
      */
-    public AasUserValidator(CertificateValidator validator, Map<String, String> userMap, boolean allowAnonymous) {
+    public AasUserValidator(CertificateValidator validator, Map<String, String> userMap, boolean allowAnonymous, boolean enableCertificateAuthentication) {
         this.validator = validator;
         this.userMap = userMap != null
                 ? userMap
                 : new HashMap<>();
         this.allowAnonymous = allowAnonymous;
+        this.enableCertificateAuthentication = enableCertificateAuthentication;
     }
 
 
@@ -67,7 +70,7 @@ public class AasUserValidator implements UserValidator {
         if (userIdentity.getType().equals(UserTokenType.Certificate)) {
             // Get StatusCode for the certificate
             // SessionManager will throw Bad_IdentityTokenRejected when this method returns false
-            return this.validator.validateCertificate(userIdentity.getCertificate()).isGood();
+            return enableCertificateAuthentication ? this.validator.validateCertificate(userIdentity.getCertificate()).isGood() : false;
         }
 
         // check anonymous access

@@ -144,12 +144,15 @@ public class Server {
         if ((endpoint.asConfig().getUserMap() != null) && (!endpoint.asConfig().getUserMap().isEmpty())) {
             uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_USERNAME_PASSWORD);
         }
-        uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_CERTIFICATE);
+        if (endpoint.asConfig().getEnableCertificateAuthentication()) {
+            uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_CERTIFICATE);
+        }
 
         uaServer.setUserValidator(new AasUserValidator(
                 userCertificateValidator,
                 endpoint.asConfig().getUserMap(),
-                endpoint.asConfig().getAllowAnonymous()));
+                endpoint.asConfig().getAllowAnonymous(),
+                endpoint.asConfig().getEnableCertificateAuthentication()));
 
         registerDiscovery();
         uaServer.init();
