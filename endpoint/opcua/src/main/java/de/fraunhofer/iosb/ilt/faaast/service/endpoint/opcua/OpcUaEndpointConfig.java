@@ -42,6 +42,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     private boolean enableAes256Sha256RsaPss;
     private boolean enableBasic256;
     private boolean enableBasic128Rsa15;
+    private boolean enableSecurityModeNone;
 
     public OpcUaEndpointConfig() {
         this.tcpPort = DEFAULT_PORT;
@@ -57,6 +58,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         this.enableAes256Sha256RsaPss = true;
         this.enableBasic256 = false;
         this.enableBasic128Rsa15 = false;
+        this.enableSecurityModeNone = true;
     }
 
 
@@ -366,6 +368,26 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     }
 
 
+    /**
+     * Gets a value indicating, whether SecurityMode None is enabled or not.
+     *
+     * @return True if SecurityMode None is enabled, false otherwise.
+     */
+    public boolean getEnableSecurityModeNone() {
+        return enableSecurityModeNone;
+    }
+
+
+    /**
+     * Sets a value to enable or disable SecurityMode None.
+     *
+     * @param value true if SecurityMode None is enabled, false otherwise.
+     */
+    public void setEnableSecurityModeNone(boolean value) {
+        enableSecurityModeNone = value;
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
@@ -448,6 +470,12 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         @Deprecated
         public B enableBasic128Rsa15(boolean value) {
             getBuildingInstance().setEnableBasic128Rsa15(value);
+            return getSelf();
+        }
+
+
+        public B enableSecurityModeNone(boolean value) {
+            getBuildingInstance().setEnableSecurityModeNone(value);
             return getSelf();
         }
     }

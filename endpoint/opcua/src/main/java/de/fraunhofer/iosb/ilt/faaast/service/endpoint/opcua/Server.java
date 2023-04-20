@@ -99,6 +99,7 @@ public class Server {
     public void startup() throws UaServerException, IOException, SecureIdentityException, URISyntaxException {
         String hostName;
         hostName = InetAddress.getLocalHost().getHostName();
+        OpcUaEndpointConfig config = endpoint.asConfig();
 
         ApplicationIdentity.setActualHostName(hostName);
 
@@ -107,8 +108,8 @@ public class Server {
         // currently without IPv6
         uaServer.setEnableIPv6(false);
 
-        final PkiDirectoryCertificateStore applicationCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getServerCertificateBasePath());
-        String issuersPath = endpoint.asConfig().getServerCertificateBasePath();
+        final PkiDirectoryCertificateStore applicationCertificateStore = new PkiDirectoryCertificateStore(config.getServerCertificateBasePath());
+        String issuersPath = config.getServerCertificateBasePath();
         if (!issuersPath.endsWith("/")) {
             issuersPath += "/";
         }
@@ -120,8 +121,8 @@ public class Server {
         applicationCertificateValidator.setValidationListener(validationListener);
 
         // Handle user certificates
-        final PkiDirectoryCertificateStore userCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getUserCertificateBasePath());
-        issuersPath = endpoint.asConfig().getUserCertificateBasePath();
+        final PkiDirectoryCertificateStore userCertificateStore = new PkiDirectoryCertificateStore(config.getUserCertificateBasePath());
+        issuersPath = config.getUserCertificateBasePath();
         if (!issuersPath.endsWith("/")) {
             issuersPath += "/";
         }
@@ -138,21 +139,21 @@ public class Server {
         uaServer.getHttpsSettings().setCertificateValidator(applicationCertificateValidator);
 
         // Define the supported user authentication methods
-        if (endpoint.asConfig().getEnableAnonymousAuthentication()) {
+        if (config.getEnableAnonymousAuthentication()) {
             uaServer.addUserTokenPolicy(UserTokenPolicies.ANONYMOUS);
         }
-        if ((endpoint.asConfig().getUserMap() != null) && (!endpoint.asConfig().getUserMap().isEmpty())) {
+        if ((config.getUserMap() != null) && (!config.getUserMap().isEmpty())) {
             uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_USERNAME_PASSWORD);
         }
-        if (endpoint.asConfig().getEnableCertificateAuthentication()) {
+        if (config.getEnableCertificateAuthentication()) {
             uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_CERTIFICATE);
         }
 
         uaServer.setUserValidator(new AasUserValidator(
                 userCertificateValidator,
-                endpoint.asConfig().getUserMap(),
-                endpoint.asConfig().getEnableAnonymousAuthentication(),
-                endpoint.asConfig().getEnableCertificateAuthentication()));
+                config.getUserMap(),
+                config.getEnableAnonymousAuthentication(),
+                config.getEnableCertificateAuthentication()));
 
         registerDiscovery();
         uaServer.init();
@@ -213,24 +214,27 @@ public class Server {
         Set<SecurityPolicy> supportedSecurityPolicies = new HashSet<>();
         supportedSecurityPolicies.add(SecurityPolicy.NONE);
 
-        if (endpoint.asConfig().getEnableBasic256Sha256()) {
+        OpcUaEndpointConfig config = endpoint.asConfig();
+        if (config.getEnableBasic256Sha256()) {
             supportedSecurityPolicies.add(SecurityPolicy.BASIC256SHA256);
         }
-        if (endpoint.asConfig().getEnableAes128Sha256RsaOaep()) {
+        if (config.getEnableAes128Sha256RsaOaep()) {
             supportedSecurityPolicies.add(SecurityPolicy.AES128_SHA256_RSAOAEP);
         }
-        if (endpoint.asConfig().getEnableAes256Sha256RsaPss()) {
+        if (config.getEnableAes256Sha256RsaPss()) {
             supportedSecurityPolicies.add(SecurityPolicy.AES256_SHA256_RSAPSS);
         }
-        if (endpoint.asConfig().getEnableBasic256()) {
+        if (config.getEnableBasic256()) {
             supportedSecurityPolicies.add(SecurityPolicy.BASIC256);
         }
-        if (endpoint.asConfig().getEnableBasic128Rsa15()) {
+        if (config.getEnableBasic128Rsa15()) {
             supportedSecurityPolicies.add(SecurityPolicy.BASIC128RSA15);
         }
 
         Set<MessageSecurityMode> supportedMessageSecurityModes = new HashSet<>();
-        supportedMessageSecurityModes.add(MessageSecurityMode.None);
+        if (config.getEnableSecurityModeNone()) {
+            supportedMessageSecurityModes.add(MessageSecurityMode.None);
+        }
         supportedMessageSecurityModes.add(MessageSecurityMode.Sign);
         supportedMessageSecurityModes.add(MessageSecurityMode.SignAndEncrypt);
         uaServer.getSecurityModes().addAll(SecurityMode.combinations(supportedMessageSecurityModes, supportedSecurityPolicies));
