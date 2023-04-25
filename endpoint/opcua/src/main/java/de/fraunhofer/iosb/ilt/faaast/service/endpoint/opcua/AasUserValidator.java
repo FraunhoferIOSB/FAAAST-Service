@@ -23,6 +23,7 @@ import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.CertificateValidator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,24 +37,23 @@ public class AasUserValidator implements UserValidator {
 
     private final CertificateValidator validator;
     private final Map<String, String> userMap;
-    private final boolean allowAnonymous;
-    private final boolean enableCertificateAuthentication;
+    //private final boolean allowAnonymous;
+    //private final boolean enableCertificateAuthentication;
+    private Set<UserTokenType> supportedAuthentications;
 
     /**
-     * Creates a new instance of AasUserValidator
+     * Creates a new instance of AasUserValidator.
      *
      * @param validator used to validate certificates
      * @param userMap The desired user names (Key) and passwords (Value)
-     * @param allowAnonymous True if anonymous access is allowed, false otherwise
-     * @param enableCertificateAuthentication True if authentication with certificates is enabled, false otherwise.
+     * @param supportedAuthentications The list of supported authentication types.
      */
-    public AasUserValidator(CertificateValidator validator, Map<String, String> userMap, boolean allowAnonymous, boolean enableCertificateAuthentication) {
+    public AasUserValidator(CertificateValidator validator, Map<String, String> userMap, Set<UserTokenType> supportedAuthentications) {
         this.validator = validator;
         this.userMap = userMap != null
                 ? userMap
                 : new HashMap<>();
-        this.allowAnonymous = allowAnonymous;
-        this.enableCertificateAuthentication = enableCertificateAuthentication;
+        this.supportedAuthentications = supportedAuthentications;
     }
 
 
@@ -70,11 +70,11 @@ public class AasUserValidator implements UserValidator {
         if (userIdentity.getType().equals(UserTokenType.Certificate)) {
             // Get StatusCode for the certificate
             // SessionManager will throw Bad_IdentityTokenRejected when this method returns false
-            return enableCertificateAuthentication ? this.validator.validateCertificate(userIdentity.getCertificate()).isGood() : false;
+            return supportedAuthentications.contains(UserTokenType.Certificate) ? this.validator.validateCertificate(userIdentity.getCertificate()).isGood() : false;
         }
 
         // check anonymous access
-        return allowAnonymous;
+        return supportedAuthentications.contains(UserTokenType.Anonymous);
     }
 
 

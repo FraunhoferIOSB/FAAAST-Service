@@ -14,8 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 
+import com.prosysopc.ua.stack.core.UserTokenType;
+import com.prosysopc.ua.stack.transport.security.SecurityPolicy;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -32,33 +36,21 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     private int tcpPort;
     private int secondsTillShutdown;
     private Map<String, String> userMap;
-    private boolean enableAnonymousAuthentication;
-    private boolean enableCertificateAuthentication;
     private String discoveryServerUrl;
     private String serverCertificateBasePath;
     private String userCertificateBasePath;
-    private boolean enableBasic256Sha256;
-    private boolean enableAes128Sha256RsaOaep;
-    private boolean enableAes256Sha256RsaPss;
-    private boolean enableBasic256;
-    private boolean enableBasic128Rsa15;
-    private boolean enableSecurityModeNone;
+    private List<SecurityPolicy> supportedSecurityPolicies;
+    private List<UserTokenType> supportedAuthentications;
 
     public OpcUaEndpointConfig() {
         this.tcpPort = DEFAULT_PORT;
         this.secondsTillShutdown = DEFAULT_SECONDS_SHUTDOWN;
-        this.enableAnonymousAuthentication = true;
-        this.enableCertificateAuthentication = true;
         this.discoveryServerUrl = "";
         this.userMap = new HashMap<>();
         this.serverCertificateBasePath = DEFAULT_SERVER_CERT_PATH;
         this.userCertificateBasePath = DEFAULT_USER_CERT_PATH;
-        this.enableBasic256Sha256 = true;
-        this.enableAes128Sha256RsaOaep = true;
-        this.enableAes256Sha256RsaPss = true;
-        this.enableBasic256 = false;
-        this.enableBasic128Rsa15 = false;
-        this.enableSecurityModeNone = true;
+        this.supportedSecurityPolicies = new ArrayList<>();
+        this.supportedAuthentications = new ArrayList<>();
     }
 
 
@@ -73,24 +65,19 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         OpcUaEndpointConfig that = (OpcUaEndpointConfig) o;
         return Objects.equals(tcpPort, that.tcpPort)
                 && Objects.equals(secondsTillShutdown, that.secondsTillShutdown)
-                && Objects.equals(enableAnonymousAuthentication, that.enableAnonymousAuthentication)
-                && Objects.equals(enableCertificateAuthentication, that.enableCertificateAuthentication)
                 && Objects.equals(discoveryServerUrl, that.discoveryServerUrl)
                 && Objects.equals(userMap, that.userMap)
                 && Objects.equals(serverCertificateBasePath, that.serverCertificateBasePath)
                 && Objects.equals(userCertificateBasePath, that.userCertificateBasePath)
-                && Objects.equals(enableBasic256Sha256, that.enableBasic256Sha256)
-                && Objects.equals(enableAes128Sha256RsaOaep, that.enableAes128Sha256RsaOaep)
-                && Objects.equals(enableAes256Sha256RsaPss, that.enableAes256Sha256RsaPss)
-                && Objects.equals(enableBasic256, that.enableBasic256)
-                && Objects.equals(enableBasic128Rsa15, that.enableBasic128Rsa15);
+                && Objects.equals(supportedSecurityPolicies, that.supportedSecurityPolicies)
+                && Objects.equals(supportedAuthentications, that.supportedAuthentications);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(tcpPort, secondsTillShutdown, enableAnonymousAuthentication, enableCertificateAuthentication, discoveryServerUrl, userMap, serverCertificateBasePath,
-                userCertificateBasePath, enableBasic256Sha256, enableAes128Sha256RsaOaep, enableAes256Sha256RsaPss, enableBasic256, enableBasic128Rsa15);
+        return Objects.hash(tcpPort, secondsTillShutdown, discoveryServerUrl, userMap, serverCertificateBasePath, userCertificateBasePath, supportedSecurityPolicies,
+                supportedAuthentications);
     }
 
 
@@ -151,46 +138,6 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
      */
     public void setUserMap(Map<String, String> value) {
         userMap = value;
-    }
-
-
-    /**
-     * Gets a value indicating whether anonymous access to the server is allowed
-     * 
-     * @return True if anonymous access is allowed, false otherwise
-     */
-    public boolean getEnableAnonymousAuthentication() {
-        return enableAnonymousAuthentication;
-    }
-
-
-    /**
-     * Sets a value indicating whether anonymous access to the server is allowed
-     * 
-     * @param value True if anonymous access is allowed, false otherwise
-     */
-    public void setEnableAnonymousAuthentication(boolean value) {
-        enableAnonymousAuthentication = value;
-    }
-
-
-    /**
-     * Gets a value indicating whether Authentication with certificates is enabled.
-     *
-     * @return True if authentication with certificates is enabled, false otherwise.
-     */
-    public boolean getEnableCertificateAuthentication() {
-        return enableCertificateAuthentication;
-    }
-
-
-    /**
-     * Sets a value to enable or disable the Authentication with certificates.
-     *
-     * @param value True if authentication with certificates is enabled, false otherwise.
-     */
-    public void setEnableCertificateAuthentication(boolean value) {
-        enableCertificateAuthentication = value;
     }
 
 
@@ -257,134 +204,42 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Gets a value indicating, whether the Security Policy Basic256Sha256 is enabled or not.
-     * 
-     * @return True if Security Policy Basic256Sha256 is enabled, false otherwise.
-     */
-    public boolean getEnableBasic256Sha256() {
-        return enableBasic256Sha256;
-    }
-
-
-    /**
-     * Sets a value to enable or disable the Security Policy Basic256Sha256.
-     * 
-     * @param value True if Security Policy Basic256Sha256 should be enabled, false otherwise.
-     */
-    public void setEnableBasic256Sha256(boolean value) {
-        enableBasic256Sha256 = value;
-    }
-
-
-    /**
-     * Gets a value indicating, whether the Security Policy Aes128-Sha256-RsaOaep is enabled or not.
-     * 
-     * @return True if Security Policy Aes128-Sha256-RsaOaep is enabled, false otherwise.
-     */
-    public boolean getEnableAes128Sha256RsaOaep() {
-        return enableAes128Sha256RsaOaep;
-    }
-
-
-    /**
-     * Sets a value to enable or disable the Security Policy Aes128-Sha256-RsaOaep.
-     * 
-     * @param value True if Security Policy Aes128-Sha256-RsaOaep should be enabled, false otherwise.
-     */
-    public void setEnableAes128Sha256RsaOaep(boolean value) {
-        enableAes128Sha256RsaOaep = value;
-    }
-
-
-    /**
-     * Gets a value indicating, whether the Security Policy Aes256-Sha256-RsaPss is enabled or not.
-     * 
-     * @return True if Security Policy Aes256-Sha256-RsaPss is enabled, false otherwise.
-     */
-    public boolean getEnableAes256Sha256RsaPss() {
-        return enableAes256Sha256RsaPss;
-    }
-
-
-    /**
-     * Sets a value to enable or disable the Security Policy Aes256-Sha256-RsaPss.
-     * 
-     * @param value True if Security Policy Aes256-Sha256-RsaPss should be enabled, false otherwise.
-     */
-    public void setEnableAes256Sha256RsaPss(boolean value) {
-        enableAes256Sha256RsaPss = value;
-    }
-
-
-    /**
-     * Gets a value indicating, whether the Security Policy Basic256 is enabled or not.
-     * Please be aware, that SecurityPolicy Basic256 is deprecated since the hash algorithm Sha-1 is not considered secure
-     * anymore.
+     * Gets the list of supported Security Policies.
      *
-     * @return True if Security Policy Basic256 is enabled, false otherwise.
+     * @return The list of supported Security Policies.
      */
-    @Deprecated
-    public boolean getEnableBasic256() {
-        return enableBasic256;
+    public List<SecurityPolicy> getSupportedSecurityPolicies() {
+        return supportedSecurityPolicies;
     }
 
 
     /**
-     * Sets a value to enable or disable the Security Policy Basic256.
-     * Please be aware, that SecurityPolicy Basic256 is deprecated since the hash algorithm Sha-1 is not considered secure
-     * anymore.
-     * 
-     * @param value True if Security Policy Basic256 should be enabled, false otherwise.
-     */
-    @Deprecated
-    public void setEnableBasic256(boolean value) {
-        enableBasic256 = value;
-    }
-
-
-    /**
-     * Gets a value indicating, whether the Security Policy Basic128Rsa15 is enabled or not.
-     * Please be aware, that SecurityPolicy Basic128Rsa15 is deprecated since the hash algorithm Sha-1 is not considered
-     * secure anymore.
+     * Sets the list of supported Security Policies.
      *
-     * @return True if Security Policy Basic128Rsa15 is enabled, false otherwise.
+     * @param value The list of supported Security Policies.
      */
-    @Deprecated
-    public boolean getEnableBasic128Rsa15() {
-        return enableBasic128Rsa15;
+    public void setSupportedSecurityPolicies(List<SecurityPolicy> value) {
+        supportedSecurityPolicies = value;
     }
 
 
     /**
-     * Sets a value to enable or disable the Security Policy Basic256.
-     * Please be aware, that SecurityPolicy Basic128Rsa15 is deprecated since the hash algorithm Sha-1 is not considered
-     * secure anymore.
-     * 
-     * @param value True if Security Policy Basic128Rsa15 should be enabled, false otherwise.
-     */
-    @Deprecated
-    public void setEnableBasic128Rsa15(boolean value) {
-        enableBasic128Rsa15 = value;
-    }
-
-
-    /**
-     * Gets a value indicating, whether SecurityMode None is enabled or not.
+     * Gets the list of supported Authentication types (e.g. Anonymous, Username / Password, ...).
      *
-     * @return True if SecurityMode None is enabled, false otherwise.
+     * @return The list of supported Authentication types.
      */
-    public boolean getEnableSecurityModeNone() {
-        return enableSecurityModeNone;
+    public List<UserTokenType> getSupportedAuthentications() {
+        return supportedAuthentications;
     }
 
 
     /**
-     * Sets a value to enable or disable SecurityMode None.
+     * Sets the list of supported Authentication types.
      *
-     * @param value true if SecurityMode None is enabled, false otherwise.
+     * @param value The list of supported Authentication types.
      */
-    public void setEnableSecurityModeNone(boolean value) {
-        enableSecurityModeNone = value;
+    public void setSupportedAuthentications(List<UserTokenType> value) {
+        supportedAuthentications = value;
     }
 
 
@@ -418,14 +273,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         }
 
 
-        public B enableAnonymousAuthentication(boolean value) {
-            getBuildingInstance().setEnableAnonymousAuthentication(value);
-            return getSelf();
-        }
-
-
-        public B enableCertificateAuthentication(boolean value) {
-            getBuildingInstance().setEnableCertificateAuthentication(value);
+        public B discoveryServerUrl(String value) {
+            getBuildingInstance().setDiscoveryServerUrl(value);
             return getSelf();
         }
 
@@ -442,40 +291,26 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         }
 
 
-        public B enableBasic256Sha256(boolean value) {
-            getBuildingInstance().setEnableBasic256Sha256(value);
+        public B supportedSecurityPolicies(List<SecurityPolicy> value) {
+            getBuildingInstance().setSupportedSecurityPolicies(value);
             return getSelf();
         }
 
 
-        public B enableAes128Sha256RsaOaep(boolean value) {
-            getBuildingInstance().setEnableAes128Sha256RsaOaep(value);
+        public B supportedSecurityPolicy(SecurityPolicy value) {
+            getBuildingInstance().getSupportedSecurityPolicies().add(value);
             return getSelf();
         }
 
 
-        public B enableAes256Sha256RsaPss(boolean value) {
-            getBuildingInstance().setEnableAes256Sha256RsaPss(value);
+        public B supportedAuthentications(List<UserTokenType> value) {
+            getBuildingInstance().setSupportedAuthentications(value);
             return getSelf();
         }
 
 
-        @Deprecated
-        public B enableBasic256(boolean value) {
-            getBuildingInstance().setEnableBasic256(value);
-            return getSelf();
-        }
-
-
-        @Deprecated
-        public B enableBasic128Rsa15(boolean value) {
-            getBuildingInstance().setEnableBasic128Rsa15(value);
-            return getSelf();
-        }
-
-
-        public B enableSecurityModeNone(boolean value) {
-            getBuildingInstance().setEnableSecurityModeNone(value);
+        public B supportedAuthentication(UserTokenType value) {
+            getBuildingInstance().getSupportedAuthentications().add(value);
             return getSelf();
         }
     }

@@ -30,6 +30,7 @@ import com.prosysopc.ua.stack.cert.PkiDirectoryCertificateStore;
 import com.prosysopc.ua.stack.core.ApplicationDescription;
 import com.prosysopc.ua.stack.core.ApplicationType;
 import com.prosysopc.ua.stack.core.MessageSecurityMode;
+import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.HttpsSecurityPolicy;
 import com.prosysopc.ua.stack.transport.security.KeyPair;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
@@ -138,22 +139,28 @@ public class Server {
 
         uaServer.getHttpsSettings().setCertificateValidator(applicationCertificateValidator);
 
+        Set<UserTokenType> supportedAuthentications = new HashSet<>();
+        supportedAuthentications.addAll(config.getSupportedAuthentications());
+        if (supportedAuthentications.isEmpty()) {
+            LOGGER.info("no User Token Types given - using default.");
+            supportedAuthentications.add(UserTokenType.Anonymous);
+        }
+
         // Define the supported user authentication methods
-        if (config.getEnableAnonymousAuthentication()) {
+        if (supportedAuthentications.contains(UserTokenType.Anonymous)) {
             uaServer.addUserTokenPolicy(UserTokenPolicies.ANONYMOUS);
         }
-        if ((config.getUserMap() != null) && (!config.getUserMap().isEmpty())) {
+        if (supportedAuthentications.contains(UserTokenType.UserName)) {
             uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_USERNAME_PASSWORD);
         }
-        if (config.getEnableCertificateAuthentication()) {
+        if (supportedAuthentications.contains(UserTokenType.Certificate)) {
             uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_CERTIFICATE);
         }
 
         uaServer.setUserValidator(new AasUserValidator(
                 userCertificateValidator,
                 config.getUserMap(),
-                config.getEnableAnonymousAuthentication(),
-                config.getEnableCertificateAuthentication()));
+                supportedAuthentications));
 
         registerDiscovery();
         uaServer.init();
@@ -212,29 +219,15 @@ public class Server {
 
     private void setSecurityPolicies() {
         Set<SecurityPolicy> supportedSecurityPolicies = new HashSet<>();
-        supportedSecurityPolicies.add(SecurityPolicy.NONE);
-
-        OpcUaEndpointConfig config = endpoint.asConfig();
-        if (config.getEnableBasic256Sha256()) {
-            supportedSecurityPolicies.add(SecurityPolicy.BASIC256SHA256);
-        }
-        if (config.getEnableAes128Sha256RsaOaep()) {
-            supportedSecurityPolicies.add(SecurityPolicy.AES128_SHA256_RSAOAEP);
-        }
-        if (config.getEnableAes256Sha256RsaPss()) {
-            supportedSecurityPolicies.add(SecurityPolicy.AES256_SHA256_RSAPSS);
-        }
-        if (config.getEnableBasic256()) {
-            supportedSecurityPolicies.add(SecurityPolicy.BASIC256);
-        }
-        if (config.getEnableBasic128Rsa15()) {
-            supportedSecurityPolicies.add(SecurityPolicy.BASIC128RSA15);
+        supportedSecurityPolicies.addAll(endpoint.asConfig().getSupportedSecurityPolicies());
+        if (supportedSecurityPolicies.isEmpty()) {
+            LOGGER.info("no security policies given in configuration - using default");
+            supportedSecurityPolicies.add(SecurityPolicy.NONE);
+            supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_104);
         }
 
         Set<MessageSecurityMode> supportedMessageSecurityModes = new HashSet<>();
-        if (config.getEnableSecurityModeNone()) {
-            supportedMessageSecurityModes.add(MessageSecurityMode.None);
-        }
+        supportedMessageSecurityModes.add(MessageSecurityMode.None);
         supportedMessageSecurityModes.add(MessageSecurityMode.Sign);
         supportedMessageSecurityModes.add(MessageSecurityMode.SignAndEncrypt);
         uaServer.getSecurityModes().addAll(SecurityMode.combinations(supportedMessageSecurityModes, supportedSecurityPolicies));
