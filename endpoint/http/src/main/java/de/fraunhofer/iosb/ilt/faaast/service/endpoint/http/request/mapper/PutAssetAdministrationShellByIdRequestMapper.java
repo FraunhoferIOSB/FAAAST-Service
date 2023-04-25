@@ -43,7 +43,7 @@ public class PutAssetAdministrationShellByIdRequestMapper extends AbstractReques
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PutAssetAdministrationShellByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(AAS_ID))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID))))
                 .aas(parseBody(httpRequest, AssetAdministrationShell.class))
                 .build();
     }

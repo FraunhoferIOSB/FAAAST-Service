@@ -43,7 +43,7 @@ public class PutSubmodelByIdRequestMapper extends AbstractRequestMapper {
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PutSubmodelByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID))))
                 .submodel(parseBody(httpRequest, Submodel.class))
                 .build();
     }

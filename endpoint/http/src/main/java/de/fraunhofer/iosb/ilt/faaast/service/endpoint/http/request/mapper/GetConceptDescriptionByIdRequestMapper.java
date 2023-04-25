@@ -41,7 +41,7 @@ public class GetConceptDescriptionByIdRequestMapper extends AbstractRequestMappe
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return GetConceptDescriptionByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(CONCEPT_ID))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(CONCEPT_ID))))
                 .build();
     }
 }

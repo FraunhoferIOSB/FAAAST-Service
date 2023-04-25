@@ -41,7 +41,7 @@ public class GetAllAssetLinksByIdRequestMapper extends AbstractRequestMapper {
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return GetAllAssetLinksByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(AAS_ID))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID))))
                 .build();
     }
 }

@@ -40,7 +40,7 @@ public class GetAASXByPackageIdRequestMapper extends AbstractRequestMapper {
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return GetAASXByPackageIdRequest.builder()
-                .packageId(EncodingHelper.base64Decode(urlParameters.get(PACKAGE_ID)))
+                .packageId(EncodingHelper.base64UrlDecode(urlParameters.get(PACKAGE_ID)))
                 .build();
     }
 }
