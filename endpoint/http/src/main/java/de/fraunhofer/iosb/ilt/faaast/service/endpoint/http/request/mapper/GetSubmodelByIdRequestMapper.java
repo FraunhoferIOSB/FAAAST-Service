@@ -42,7 +42,7 @@ public class GetSubmodelByIdRequestMapper extends AbstractRequestMapperWithOutpu
     @Override
     public GetSubmodelByIdRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetSubmodelByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID))))
                 .build();
     }
 }

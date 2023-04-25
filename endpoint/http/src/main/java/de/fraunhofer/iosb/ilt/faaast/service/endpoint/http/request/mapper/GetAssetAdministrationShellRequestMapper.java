@@ -42,7 +42,7 @@ public class GetAssetAdministrationShellRequestMapper extends AbstractRequestMap
     @Override
     public GetAssetAdministrationShellRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAssetAdministrationShellRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(AAS_ID))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(AAS_ID))))
                 .build();
     }
 }

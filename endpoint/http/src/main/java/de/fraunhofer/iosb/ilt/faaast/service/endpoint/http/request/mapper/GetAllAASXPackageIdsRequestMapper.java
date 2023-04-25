@@ -47,7 +47,7 @@ public class GetAllAASXPackageIdsRequestMapper extends AbstractRequestMapper {
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) {
         return GetAllAASXPackageIdsRequest.builder()
-                .aasIds(Stream.of(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QueryParameters.AAS_ID)).split(","))
+                .aasIds(Stream.of(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.AAS_ID)).split(","))
                         .map(x -> IdentifierHelper.parseIdentifier(x))
                         .collect(Collectors.toList()))
                 .build();

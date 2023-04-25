@@ -43,7 +43,7 @@ public class PutConceptDescriptionByIdRequestMapper extends AbstractRequestMappe
     @Override
     public Request doParse(HttpRequest httpRequest, Map<String, String> urlParameters) throws InvalidRequestException {
         return PutConceptDescriptionByIdRequest.builder()
-                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(CONCEPT_ID))))
+                .id(IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(CONCEPT_ID))))
                 .conceptDescription(parseBody(httpRequest, ConceptDescription.class))
                 .build();
     }
