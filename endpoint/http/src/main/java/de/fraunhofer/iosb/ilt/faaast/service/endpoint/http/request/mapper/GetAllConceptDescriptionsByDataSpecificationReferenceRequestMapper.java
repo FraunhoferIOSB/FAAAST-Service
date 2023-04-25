@@ -48,7 +48,7 @@ public class GetAllConceptDescriptionsByDataSpecificationReferenceRequestMapper
     @Override
     public GetAllConceptDescriptionsByDataSpecificationReferenceRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) {
         return GetAllConceptDescriptionsByDataSpecificationReferenceRequest.builder()
-                .dataSpecification(AasUtils.parseReference(EncodingHelper.base64Decode(httpRequest.getQueryParameter(QueryParameters.DATA_SPECIFICATION_REF))))
+                .dataSpecification(AasUtils.parseReference(EncodingHelper.base64UrlDecode(httpRequest.getQueryParameter(QueryParameters.DATA_SPECIFICATION_REF))))
                 .build();
     }
 }

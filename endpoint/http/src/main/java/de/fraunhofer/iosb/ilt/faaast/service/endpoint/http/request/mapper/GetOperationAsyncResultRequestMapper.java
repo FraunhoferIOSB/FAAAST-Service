@@ -49,7 +49,7 @@ public class GetOperationAsyncResultRequestMapper extends AbstractSubmodelInterf
     public GetOperationAsyncResultRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         return GetOperationAsyncResultRequest.builder()
                 .path(ElementPathHelper.toKeys(urlParameters.get(SUBMODEL_ELEMENT_PATH)))
-                .handleId(EncodingHelper.base64Decode(urlParameters.get(HANDLE_ID)))
+                .handleId(EncodingHelper.base64UrlDecode(urlParameters.get(HANDLE_ID)))
                 .build();
     }
 }

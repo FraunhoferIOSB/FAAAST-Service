@@ -3,6 +3,8 @@
 ## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
 
 **Internal changes & bugfixes**
+*   HTTP Endpoint
+	*   Now correctly uses base64URL-encoding for all HTTP requests (instead of base64-encoding for some)
 *   Asset Connection
 	*   OPC UA
 		*   Unit tests no longer create temp files in source folders
