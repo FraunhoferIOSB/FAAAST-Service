@@ -60,7 +60,6 @@ import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultRelationshipElement;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodel;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -99,18 +98,9 @@ public class OpcUaEndpointTest {
     private static TestService service;
     private static int aasns;
 
-    private static int findFreePort() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            return serverSocket.getLocalPort();
-        }
-    }
-
-
     @BeforeClass
     public static void startTest() throws ConfigurationException, Exception {
-        OPC_TCP_PORT = findFreePort();
+        OPC_TCP_PORT = TestUtils.findFreePort();
         ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
 
         OpcUaEndpointConfig config = new OpcUaEndpointConfig.Builder()
