@@ -46,49 +46,52 @@ public class OpcUaEndpointConfigTest {
 
     @Test
     public void testSecurityPolicyOnlyNone() throws ConfigurationException, Exception {
-        testConfig(List.of(SecurityPolicy.NONE), List.of(UserTokenType.Anonymous));
+        Assert.assertTrue(testConfig(List.of(SecurityPolicy.NONE), List.of(UserTokenType.Anonymous)));
     }
 
 
     @Test
     public void testSecurityPolicyBasic256Sha256() throws ConfigurationException, Exception {
-        testConfig(List.of(SecurityPolicy.BASIC256SHA256), List.of(UserTokenType.UserName));
+        Assert.assertTrue(testConfig(List.of(SecurityPolicy.BASIC256SHA256), List.of(UserTokenType.UserName)));
     }
 
 
     @Test
     public void testSecurityPolicyBasic128() throws ConfigurationException, Exception {
-        testConfig(List.of(SecurityPolicy.BASIC128RSA15), List.of(UserTokenType.Anonymous, UserTokenType.Certificate));
+        Assert.assertTrue(testConfig(List.of(SecurityPolicy.BASIC128RSA15), List.of(UserTokenType.Anonymous, UserTokenType.Certificate)));
     }
 
 
     @Test
     public void testSecurityPolicyAllSecure104() throws ConfigurationException, Exception {
-        testConfig(List.of(SecurityPolicy.ALL_SECURE_104.toArray(SecurityPolicy[]::new)), List.of(UserTokenType.Anonymous, UserTokenType.UserName, UserTokenType.Certificate));
+        Assert.assertTrue(testConfig(List.of(SecurityPolicy.ALL_SECURE_104.toArray(SecurityPolicy[]::new)),
+                List.of(UserTokenType.Anonymous, UserTokenType.UserName, UserTokenType.Certificate)));
     }
 
 
     @Test
     public void testSecurityPolicyMultiple1() throws ConfigurationException, Exception {
-        testConfig(List.of(SecurityPolicy.BASIC256SHA256, SecurityPolicy.NONE, SecurityPolicy.BASIC256), List.of(UserTokenType.Anonymous, UserTokenType.Certificate));
+        Assert.assertTrue(
+                testConfig(List.of(SecurityPolicy.BASIC256SHA256, SecurityPolicy.NONE, SecurityPolicy.BASIC256), List.of(UserTokenType.Anonymous, UserTokenType.Certificate)));
     }
 
 
     @Test
     public void testSecurityPolicyMultiple2() throws ConfigurationException, Exception {
-        testConfig(List.of(SecurityPolicy.BASIC256SHA256, SecurityPolicy.AES128_SHA256_RSAOAEP, SecurityPolicy.AES256_SHA256_RSAPSS, SecurityPolicy.BASIC128RSA15),
-                List.of(UserTokenType.UserName, UserTokenType.Certificate));
+        Assert.assertTrue(
+                testConfig(List.of(SecurityPolicy.BASIC256SHA256, SecurityPolicy.AES128_SHA256_RSAOAEP, SecurityPolicy.AES256_SHA256_RSAPSS, SecurityPolicy.BASIC128RSA15),
+                        List.of(UserTokenType.UserName, UserTokenType.Certificate)));
     }
 
 
     @Test
     public void testSecurityPolicyMultiple3() throws ConfigurationException, Exception {
-        testConfig(List.of(SecurityPolicy.NONE, SecurityPolicy.BASIC256SHA256, SecurityPolicy.AES128_SHA256_RSAOAEP, SecurityPolicy.AES256_SHA256_RSAPSS,
-                SecurityPolicy.BASIC128RSA15), List.of(UserTokenType.Certificate, UserTokenType.Anonymous));
+        Assert.assertTrue(testConfig(List.of(SecurityPolicy.NONE, SecurityPolicy.BASIC256SHA256, SecurityPolicy.AES128_SHA256_RSAOAEP, SecurityPolicy.AES256_SHA256_RSAPSS,
+                SecurityPolicy.BASIC128RSA15), List.of(UserTokenType.Certificate, UserTokenType.Anonymous)));
     }
 
 
-    private void testConfig(List<SecurityPolicy> expectedPolicies, List<UserTokenType> expectedUserTokens)
+    private boolean testConfig(List<SecurityPolicy> expectedPolicies, List<UserTokenType> expectedUserTokens)
             throws ConfigurationException, IOException, AssetConnectionException, MessageBusException, EndpointException, SecureIdentityException, ServiceException {
         int port = TestUtils.findFreePort();
         String url = "opc.tcp://localhost:" + port;
@@ -134,5 +137,6 @@ public class OpcUaEndpointConfigTest {
         Assert.assertTrue(
                 expectedUserTokens.size() == currentUserTokens.size() && expectedUserTokens.containsAll(currentUserTokens) && currentUserTokens.containsAll(expectedUserTokens));
         service.stop();
+        return true;
     }
 }
