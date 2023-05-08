@@ -30,6 +30,7 @@ import com.prosysopc.ua.stack.cert.PkiDirectoryCertificateStore;
 import com.prosysopc.ua.stack.core.ApplicationDescription;
 import com.prosysopc.ua.stack.core.ApplicationType;
 import com.prosysopc.ua.stack.core.MessageSecurityMode;
+import com.prosysopc.ua.stack.core.UserTokenPolicy;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.HttpsSecurityPolicy;
 import com.prosysopc.ua.stack.transport.security.KeyPair;
@@ -39,6 +40,7 @@ import com.prosysopc.ua.types.opcua.server.BuildInfoTypeNode;
 import com.prosysopc.ua.types.opcua.server.ServerCapabilitiesTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasCertificateValidationListener;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceIoManagerListener;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
 import java.io.IOException;
@@ -96,7 +98,7 @@ public class Server {
      * @throws UaServerException If an error occurs
      * @throws IOException If an error occurs
      * @throws SecureIdentityException If an error occurs
-     * @throws java.net.URISyntaxException if endpoint URL is invalid
+     * @throws URISyntaxException if endpoint URL is invalid
      */
     public void startup() throws UaServerException, IOException, SecureIdentityException, URISyntaxException {
         String hostName;
@@ -138,16 +140,9 @@ public class Server {
             throw new IllegalArgumentException("no supported authentications available!");
         }
 
-        // Define the supported user authentication methods
-        if (supportedAuthentications.contains(UserTokenType.Anonymous)) {
-            uaServer.addUserTokenPolicy(UserTokenPolicies.ANONYMOUS);
-        }
-        if (supportedAuthentications.contains(UserTokenType.UserName)) {
-            uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_USERNAME_PASSWORD);
-        }
-        if (supportedAuthentications.contains(UserTokenType.Certificate)) {
-            uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_CERTIFICATE);
-        }
+        supportedAuthentications.forEach(LambdaExceptionHelper.rethrowConsumer(a -> {
+            uaServer.addUserTokenPolicy(getUserTokenPolicy(a));
+        }));
 
         uaServer.setUserValidator(new AasUserValidator(
                 userCertificateValidator,
@@ -288,6 +283,32 @@ public class Server {
             c.setTimeInMillis(mfFile.lastModified());
             buildInfo.setBuildDate(new DateTime(c));
         }
+    }
+
+
+    private static UserTokenPolicy getUserTokenPolicy(UserTokenType userTokenType) {
+        UserTokenPolicy retval;
+        switch (userTokenType) {
+            case Anonymous:
+                retval = UserTokenPolicies.ANONYMOUS;
+                break;
+
+            case UserName:
+                retval = UserTokenPolicies.SECURE_USERNAME_PASSWORD;
+                break;
+
+            case Certificate:
+                retval = UserTokenPolicies.SECURE_CERTIFICATE;
+                break;
+
+            case IssuedToken:
+                throw new IllegalArgumentException("UserTokenType IssuedToken not supported");
+
+            default:
+                throw new IllegalArgumentException("invalid UserTokenType");
+        }
+
+        return retval;
     }
 
 
