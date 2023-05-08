@@ -17,11 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.SecurityPolicy;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -49,8 +50,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         this.userMap = new HashMap<>();
         this.serverCertificateBasePath = DEFAULT_SERVER_CERT_PATH;
         this.userCertificateBasePath = DEFAULT_USER_CERT_PATH;
-        this.supportedSecurityPolicies = new ArrayList<>();
-        this.supportedAuthentications = new ArrayList<>();
+        this.supportedSecurityPolicies = Stream.of(SecurityPolicy.NONE).collect(Collectors.toList());
+        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_104);
+        this.supportedAuthentications = Stream.of(UserTokenType.Anonymous).collect(Collectors.toList());
     }
 
 

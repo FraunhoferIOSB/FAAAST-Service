@@ -135,8 +135,7 @@ public class Server {
         Set<UserTokenType> supportedAuthentications = new HashSet<>();
         supportedAuthentications.addAll(config.getSupportedAuthentications());
         if (supportedAuthentications.isEmpty()) {
-            LOGGER.info("no User Token Types given - using default.");
-            supportedAuthentications.add(UserTokenType.Anonymous);
+            throw new IllegalArgumentException("no supported authentications available!");
         }
 
         // Define the supported user authentication methods
@@ -214,9 +213,7 @@ public class Server {
         Set<SecurityPolicy> supportedSecurityPolicies = new HashSet<>();
         supportedSecurityPolicies.addAll(endpoint.asConfig().getSupportedSecurityPolicies());
         if (supportedSecurityPolicies.isEmpty()) {
-            LOGGER.info("no security policies given in configuration - using default");
-            supportedSecurityPolicies.add(SecurityPolicy.NONE);
-            supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_104);
+            throw new IllegalArgumentException("no supported security policies available!");
         }
 
         Set<MessageSecurityMode> supportedMessageSecurityModes = Set.of(MessageSecurityMode.values());

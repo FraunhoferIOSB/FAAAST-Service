@@ -99,7 +99,7 @@ public class OpcUaEndpoint2Test {
         OpcUaEndpointConfig config = new OpcUaEndpointConfig.Builder()
                 .tcpPort(OPC_TCP_PORT)
                 .secondsTillShutdown(0)
-                .supportedAuthentication(UserTokenType.UserName)
+                .supportedAuthentications(List.of(UserTokenType.UserName))
                 .serverCertificateBasePath(TestConstants.SERVER_CERT_PATH)
                 .userCertificateBasePath(TestConstants.USER_CERT_PATH)
                 .discoveryServerUrl(null)
