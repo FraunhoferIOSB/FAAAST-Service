@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -110,12 +111,8 @@ public class Server {
         uaServer.setEnableIPv6(false);
 
         final PkiDirectoryCertificateStore applicationCertificateStore = new PkiDirectoryCertificateStore(config.getServerCertificateBasePath());
-        String issuersPath = config.getServerCertificateBasePath();
-        if (!issuersPath.endsWith("/")) {
-            issuersPath += "/";
-        }
-        issuersPath += ISSUERS_PATH;
-        final PkiDirectoryCertificateStore applicationIssuerCertificateStore = new PkiDirectoryCertificateStore(issuersPath);
+        final PkiDirectoryCertificateStore applicationIssuerCertificateStore = new PkiDirectoryCertificateStore(
+                Paths.get(config.getServerCertificateBasePath(), ISSUERS_PATH).toString());
         final DefaultCertificateValidator applicationCertificateValidator = new DefaultCertificateValidator(applicationCertificateStore, applicationIssuerCertificateStore);
 
         uaServer.setCertificateValidator(applicationCertificateValidator);
@@ -123,12 +120,8 @@ public class Server {
 
         // Handle user certificates
         final PkiDirectoryCertificateStore userCertificateStore = new PkiDirectoryCertificateStore(config.getUserCertificateBasePath());
-        issuersPath = config.getUserCertificateBasePath();
-        if (!issuersPath.endsWith("/")) {
-            issuersPath += "/";
-        }
-        issuersPath += ISSUERS_PATH;
-        final PkiDirectoryCertificateStore userIssuerCertificateStore = new PkiDirectoryCertificateStore(issuersPath);
+        final PkiDirectoryCertificateStore userIssuerCertificateStore = new PkiDirectoryCertificateStore(
+                Paths.get(config.getUserCertificateBasePath(), ISSUERS_PATH).toString());
 
         final DefaultCertificateValidator userCertificateValidator = new DefaultCertificateValidator(userCertificateStore, userIssuerCertificateStore);
         userCertificateValidator.setValidationListener(userCertificateValidationListener);
@@ -226,10 +219,7 @@ public class Server {
             supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_104);
         }
 
-        Set<MessageSecurityMode> supportedMessageSecurityModes = new HashSet<>();
-        supportedMessageSecurityModes.add(MessageSecurityMode.None);
-        supportedMessageSecurityModes.add(MessageSecurityMode.Sign);
-        supportedMessageSecurityModes.add(MessageSecurityMode.SignAndEncrypt);
+        Set<MessageSecurityMode> supportedMessageSecurityModes = Set.of(MessageSecurityMode.values());
         uaServer.getSecurityModes().addAll(SecurityMode.combinations(supportedMessageSecurityModes, supportedSecurityPolicies));
 
         uaServer.getHttpsSecurityModes().addAll(SecurityMode.combinations(EnumSet.of(MessageSecurityMode.None, MessageSecurityMode.Sign), supportedSecurityPolicies));

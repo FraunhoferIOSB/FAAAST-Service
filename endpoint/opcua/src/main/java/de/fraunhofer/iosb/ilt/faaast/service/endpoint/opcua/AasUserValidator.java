@@ -21,6 +21,7 @@ import com.prosysopc.ua.server.UserValidator;
 import com.prosysopc.ua.stack.core.UserIdentityToken;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.CertificateValidator;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +48,8 @@ public class AasUserValidator implements UserValidator {
      * @param supportedAuthentications The list of supported authentication types.
      */
     public AasUserValidator(CertificateValidator validator, Map<String, String> userMap, Set<UserTokenType> supportedAuthentications) {
+        Ensure.requireNonNull(validator, "validator must be non-null");
+        Ensure.requireNonNull(supportedAuthentications, "supportedAuthentications must be non-null");
         this.validator = validator;
         this.userMap = userMap != null
                 ? userMap
@@ -62,13 +65,15 @@ public class AasUserValidator implements UserValidator {
         // depending on the selected authentication mode (by the client).
         LOGGER.trace("onValidate: userIdentity={}", userIdentity);
         if (userIdentity.getType().equals(UserTokenType.UserName)) {
-            return userMap.containsKey(userIdentity.getName()) && userMap.get(userIdentity.getName()).equals(userIdentity.getPassword());
+            return userMap.containsKey(userIdentity.getName())
+                    && userMap.get(userIdentity.getName()).equals(userIdentity.getPassword());
         }
 
         if (userIdentity.getType().equals(UserTokenType.Certificate)) {
             // Get StatusCode for the certificate
             // SessionManager will throw Bad_IdentityTokenRejected when this method returns false
-            return supportedAuthentications.contains(UserTokenType.Certificate) && this.validator.validateCertificate(userIdentity.getCertificate()).isGood();
+            return supportedAuthentications.contains(UserTokenType.Certificate)
+                    && validator.validateCertificate(userIdentity.getCertificate()).isGood();
         }
 
         // check anonymous access
