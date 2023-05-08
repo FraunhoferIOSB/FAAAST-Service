@@ -99,9 +99,9 @@
         <maven.plugin.checkstyle.version>3.2.2</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.11.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.5.0</maven.plugin.dependency.version>
-        <maven.plugin.failsafe.version>3.0.0</maven.plugin.failsafe.version>
+        <maven.plugin.failsafe.version>3.1.0</maven.plugin.failsafe.version>
         <maven.plugin.git.commit.id.version>5.0.0</maven.plugin.git.commit.id.version>
-        <maven.plugin.gpg.version>3.0.1</maven.plugin.gpg.version>
+        <maven.plugin.gpg.version>3.1.0</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.10</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.5.0</maven.plugin.javadoc.version>
@@ -126,7 +126,7 @@
         <proguard.version>7.3.2</proguard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <prosys.sdk.version>4.10.6-24</prosys.sdk.version>
-        <protobuf.version>3.22.3</protobuf.version>
+        <protobuf.version>3.22.4</protobuf.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.ext.version>1.0.0-jdk6</slf4j.ext.version>
         <slf4j.test.version>2.9.0</slf4j.test.version>
@@ -290,7 +290,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.0.0</version>
+                    <version>2.0.1</version>
                     <configuration>
                         <outputDirectory>${root.basedir}/docs/third_party_licenses_report</outputDirectory>
                         <licenseMerges>
