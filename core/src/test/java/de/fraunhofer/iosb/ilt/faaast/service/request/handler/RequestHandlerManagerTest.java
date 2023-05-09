@@ -160,6 +160,7 @@ import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultRange;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -1154,7 +1155,7 @@ public class RequestHandlerManagerTest {
         Reference prop1Ref = AasUtils.toReference(parentRef, prop1);
         Reference prop2Ref = AasUtils.toReference(AasUtils.toReference(parentRef, collection), prop2);
         Reference rangeRef = AasUtils.toReference(parentRef, range);
-        List<SubmodelElement> submodelElements = List.of(prop1, range, collection);
+        List<SubmodelElement> submodelElements = new ArrayList<>(List.of(prop1, range, collection));
         AssetValueProvider prop1Provider = mock(AssetValueProvider.class);
         AssetValueProvider prop2Provider = mock(AssetValueProvider.class);
         AssetValueProvider rangeProvider = mock(AssetValueProvider.class);
