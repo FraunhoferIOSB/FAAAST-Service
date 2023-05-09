@@ -140,9 +140,7 @@ public class Server {
             throw new IllegalArgumentException("no supported authentications available!");
         }
 
-        supportedAuthentications.forEach(LambdaExceptionHelper.rethrowConsumer(a -> {
-            uaServer.addUserTokenPolicy(getUserTokenPolicy(a));
-        }));
+        supportedAuthentications.forEach(LambdaExceptionHelper.rethrowConsumer(a -> uaServer.addUserTokenPolicy(getUserTokenPolicy(a))));
 
         uaServer.setUserValidator(new AasUserValidator(
                 userCertificateValidator,
