@@ -28,9 +28,11 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     private String host = "127.0.0.1";
     private Integer websocketPort = 1885;
     private Integer sslWebsocketPort = 1886;
-    private String keystorePass = "password";
-    private String keystorePath = "";
-    private String keymanagerPass = "password";
+    private String brokerKeystorePass = "password";
+    private String brokerKeystorePath = "";
+    private String brokerKeymanagerPass = "password";
+    private String clientKeystorePath = "";
+    private String clientKeystorePass = "password";
     private String passwordFile;
     private String username;
     private String password;
@@ -39,8 +41,7 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
         return new Builder();
     }
 
-    private abstract static class AbstractBuilder<T extends MessageBusMqttConfig, B extends AbstractBuilder<T, B>>
-            extends MessageBusConfig.AbstractBuilder<MessageBusMqtt, T, B> {
+    private abstract static class AbstractBuilder<T extends MessageBusMqttConfig, B extends AbstractBuilder<T, B>> extends MessageBusConfig.AbstractBuilder<MessageBusMqtt, T, B> {
 
         public B internal(Boolean value) {
             getBuildingInstance().setInternalBroker(value);
@@ -78,20 +79,32 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
         }
 
 
-        public B keystorePass(String value) {
-            getBuildingInstance().setKeystorePass(value);
+        public B brokerKeystorePass(String value) {
+            getBuildingInstance().setBrokerKeystorePass(value);
             return getSelf();
         }
 
 
-        public B keystorePath(String value) {
-            getBuildingInstance().setKeystorePath(value);
+        public B clientKeystorePass(String value) {
+            getBuildingInstance().setClientKeystorePass(value);
             return getSelf();
         }
 
 
-        public B keymanagerPass(String value) {
-            getBuildingInstance().setKeymanagerPass(value);
+        public B brokerKeystorePath(String value) {
+            getBuildingInstance().setBrokerKeystorePath(value);
+            return getSelf();
+        }
+
+
+        public B clientKeystorePath(String value) {
+            getBuildingInstance().setClientKeystorePath(value);
+            return getSelf();
+        }
+
+
+        public B brokerKeymanagerPass(String value) {
+            getBuildingInstance().setBrokerKeymanagerPass(value);
             return getSelf();
         }
 
@@ -155,8 +168,13 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     }
 
 
-    public String getKeystorePass() {
-        return keystorePass;
+    public String getBrokerKeystorePass() {
+        return brokerKeystorePass;
+    }
+
+
+    public String getClientKeystorePass() {
+        return clientKeystorePass;
     }
 
 
@@ -170,13 +188,18 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     }
 
 
-    public String getKeystorePath() {
-        return keystorePath;
+    public String getBrokerKeystorePath() {
+        return brokerKeystorePath;
     }
 
 
-    public String getKeymanagerPass() {
-        return keymanagerPass;
+    public String getBrokerKeymanagerPass() {
+        return brokerKeymanagerPass;
+    }
+
+
+    public String getClientKeystorePath() {
+        return clientKeystorePath;
     }
 
 
@@ -205,18 +228,28 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     }
 
 
-    public void setKeystorePass(String keystorePass) {
-        this.keystorePass = keystorePass;
+    public void setBrokerKeystorePass(String brokerKeystorePass) {
+        this.brokerKeystorePass = brokerKeystorePass;
     }
 
 
-    public void setKeystorePath(String keystorePath) {
-        this.keystorePath = keystorePath;
+    public void setClientKeystorePass(String clientKeystorePass) {
+        this.clientKeystorePass = clientKeystorePass;
     }
 
 
-    public void setKeymanagerPass(String keymanagerPass) {
-        this.keymanagerPass = keymanagerPass;
+    public void setBrokerKeystorePath(String brokerKeystorePath) {
+        this.brokerKeystorePath = brokerKeystorePath;
+    }
+
+
+    public void setClientKeystorePath(String clientKeystorePath) {
+        this.clientKeystorePath = clientKeystorePath;
+    }
+
+
+    public void setBrokerKeymanagerPass(String brokerKeymanagerPass) {
+        this.brokerKeymanagerPass = brokerKeymanagerPass;
     }
 
 

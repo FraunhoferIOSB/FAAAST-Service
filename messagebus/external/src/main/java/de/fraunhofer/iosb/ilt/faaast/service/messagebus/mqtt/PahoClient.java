@@ -37,7 +37,7 @@ public class PahoClient {
     private static final String PROTOCOL_PREFIX_SSL = "ssl://";
     private static final Logger logger = LoggerFactory.getLogger(MqttClient.class);
     private MqttClient mqttClient;
-    private MessageBusMqttConfig messageBusMqttConfig;
+    private final MessageBusMqttConfig messageBusMqttConfig;
 
     public PahoClient(MessageBusMqttConfig messageBusMqttConfig) {
         this.messageBusMqttConfig = messageBusMqttConfig;
@@ -67,7 +67,7 @@ public class PahoClient {
 
     private void mqttConnect() {
         String endpoint;
-        if (messageBusMqttConfig.getKeystorePath().isEmpty()) {
+        if (messageBusMqttConfig.getClientKeystorePath().isEmpty()) {
             endpoint = messageBusMqttConfig.getHost() + ":" + messageBusMqttConfig.getPort();
             if (!endpoint.startsWith(PROTOCOL_PREFIX)) {
                 endpoint = PROTOCOL_PREFIX + endpoint;
@@ -82,7 +82,7 @@ public class PahoClient {
         String clientId = "FA³ST MQTT MessageBus Client " + UUID.randomUUID().toString().replace("-", "");
         clientId = clientId.substring(0, 20); // MQTTv2 limited to 23 characters
         MqttConnectOptions options = new MqttConnectOptions();
-        SSLSocketFactory ssl = getSSLSocketFactory(messageBusMqttConfig.getKeystorePath(), messageBusMqttConfig.getKeystorePass());
+        SSLSocketFactory ssl = getSSLSocketFactory(messageBusMqttConfig.getClientKeystorePath(), messageBusMqttConfig.getClientKeystorePass());
         if (!Objects.isNull(ssl)) {
             options.setSocketFactory(ssl);
         }
