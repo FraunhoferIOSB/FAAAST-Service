@@ -19,8 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +61,8 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         if (server != null && server.isStarted()) {
             return;
         }
-        server = new Server(config.getPort());
+        server = new Server();
+        configHttpResponseHeader();
         handler = new RequestHandler(serviceContext, config);
         server.setHandler(handler);
         server.setErrorHandler(new HttpErrorHandler());
@@ -72,6 +72,22 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         catch (Exception e) {
             throw new EndpointException("error starting HTTP endpoint", e);
         }
+    }
+
+
+    /**
+     * Hide sever (Jetty) information in the http response header.
+     */
+    public void configHttpResponseHeader() {
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setSendServerVersion(false);
+        httpConfig.setSendDateHeader(false);
+        httpConfig.setSendXPoweredBy(false);
+
+        server = new Server();
+        ServerConnector serverConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        serverConnector.setPort(config.getPort());
+        server.addConnector(serverConnector);
     }
 
 
