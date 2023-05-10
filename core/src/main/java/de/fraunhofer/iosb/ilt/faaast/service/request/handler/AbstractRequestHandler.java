@@ -23,11 +23,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.DeepCopyHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.SubmodelElement;
@@ -111,7 +112,7 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
             Optional<DataElementValue> newValue = assetConnectionManager.readValue(reference);
             if (newValue.isPresent()) {
                 ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
-                if (!Objects.equals(oldValue, newValue)) {
+                if (!Objects.equals(oldValue, newValue.get())) {
                     updatedSubmodelElements.put(submodelElement, newValue.get());
                 }
             }
@@ -119,18 +120,22 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
                 syncWithAsset(reference, ((SubmodelElementCollection) submodelElement).getValues());
             }
         }
+
         for (var update: updatedSubmodelElements.entrySet()) {
             Reference reference = AasUtils.toReference(parent, update.getKey());
             SubmodelElement oldElement = update.getKey();
             SubmodelElement newElement = persistence.put(
                     null,
-                    AasUtils.toReference(parent, oldElement),
-                    ElementValueMapper.setValue(oldElement, update.getValue()));
-            submodelElements.remove(update.getKey());
+                    reference,
+                    ElementValueMapper.setValue(
+                            oldElement,
+                            update.getValue()));
+            submodelElements.remove(oldElement);
             submodelElements.add(newElement);
-            messageBus.publish(ElementUpdateEventMessage.builder()
+            messageBus.publish(ValueChangeEventMessage.builder()
                     .element(reference)
-                    .value(newElement)
+                    .oldValue(ElementValueMapper.toValue(oldElement))
+                    .newValue(ElementValueMapper.toValue(newElement))
                     .build());
         }
     }
