@@ -67,7 +67,7 @@ public class SetSubmodelElementValueByPathRequestMapper
     @Override
     public SetSubmodelElementValueByPathRequest doParse(HttpRequest httpRequest, Map<String, String> urlParameters, OutputModifier outputModifier) throws InvalidRequestException {
         final List<Key> path = ElementPathHelper.toKeys(EncodingHelper.urlDecode(urlParameters.get(SUBMODEL_ELEMENT_PATH)));
-        final Identifier identifier = IdentifierHelper.parseIdentifier(EncodingHelper.base64Decode(urlParameters.get(SUBMODEL_ID)));
+        final Identifier identifier = IdentifierHelper.parseIdentifier(EncodingHelper.base64UrlDecode(urlParameters.get(SUBMODEL_ID)));
         return SetSubmodelElementValueByPathRequest.builder()
                 .path(path)
                 .value(httpRequest.getBody())
