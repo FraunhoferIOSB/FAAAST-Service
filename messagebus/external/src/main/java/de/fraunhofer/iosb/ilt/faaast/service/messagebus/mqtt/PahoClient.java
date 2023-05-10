@@ -136,7 +136,7 @@ public class PahoClient {
     }
 
 
-    public SSLSocketFactory getSSLSocketFactory(String keyStorePath, String password) {
+    private SSLSocketFactory getSSLSocketFactory(String keyStorePath, String password) {
         try {
             KeyStore ks = KeyStore.getInstance("JKS");
             InputStream jksInputStream = new FileInputStream(keyStorePath);
