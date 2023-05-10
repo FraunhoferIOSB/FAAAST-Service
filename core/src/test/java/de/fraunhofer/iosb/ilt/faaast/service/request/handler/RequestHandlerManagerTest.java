@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -1115,70 +1116,71 @@ public class RequestHandlerManagerTest {
                         .type(KeyElements.SUBMODEL)
                         .build())
                 .build();
-        SubmodelElement prop1 = new DefaultProperty.Builder()
-                .idShort("prop1")
+        SubmodelElement propertyUpdated = new DefaultProperty.Builder()
+                .idShort("propertyUpdated")
                 .value("test")
                 .valueType("string")
                 .build();
-        SubmodelElement range = new DefaultRange.Builder()
-                .idShort("range1")
+        SubmodelElement rangeUpdated = new DefaultRange.Builder()
+                .idShort("rangeUpdated")
                 .max("1.0")
                 .min("0.0")
                 .valueType("double")
                 .build();
-        SubmodelElement prop2 = new DefaultProperty.Builder()
-                .idShort("prop2")
+        SubmodelElement propertyStatic = new DefaultProperty.Builder()
+                .idShort("propertyStatic")
                 .value("test")
                 .valueType("string")
                 .build();
         SubmodelElementCollection collection = new DefaultSubmodelElementCollection.Builder()
                 .idShort("col1")
-                .value(prop2)
+                .value(propertyStatic)
                 .build();
 
-        SubmodelElement prop1Expected = new DefaultProperty.Builder()
-                .idShort("prop1")
+        SubmodelElement propertyExpected = new DefaultProperty.Builder()
+                .idShort("propertyUpdated")
                 .value("testNew")
                 .valueType("string")
                 .build();
         SubmodelElement rangeExpected = new DefaultRange.Builder()
-                .idShort("range1")
-                .max("1.0")
+                .idShort("rangeUpdated")
+                .max("2.0")
                 .min("0.0")
                 .valueType("double")
                 .build();
-        SubmodelElement prop2Expected = new DefaultProperty.Builder()
-                .idShort("prop2")
-                .value("testNew")
-                .valueType("string")
-                .build();
-        Reference prop1Ref = AasUtils.toReference(parentRef, prop1);
-        Reference prop2Ref = AasUtils.toReference(AasUtils.toReference(parentRef, collection), prop2);
-        Reference rangeRef = AasUtils.toReference(parentRef, range);
-        List<SubmodelElement> submodelElements = new ArrayList<>(List.of(prop1, range, collection));
-        AssetValueProvider prop1Provider = mock(AssetValueProvider.class);
-        AssetValueProvider prop2Provider = mock(AssetValueProvider.class);
-        AssetValueProvider rangeProvider = mock(AssetValueProvider.class);
-        when(assetConnectionManager.hasValueProvider(prop1Ref)).thenReturn(true);
-        when(assetConnectionManager.hasValueProvider(prop2Ref)).thenReturn(true);
-        when(assetConnectionManager.hasValueProvider(rangeRef)).thenReturn(true);
 
-        when(assetConnectionManager.getValueProvider(prop1Ref)).thenReturn(prop1Provider);
-        when(prop1Provider.getValue()).thenReturn(ElementValueMapper.toValue(prop1Expected));
+        Reference propertyUpdatedRef = AasUtils.toReference(parentRef, propertyUpdated);
+        Reference propertyStaticRef = AasUtils.toReference(AasUtils.toReference(parentRef, collection), propertyStatic);
+        Reference rangeUpdatedRef = AasUtils.toReference(parentRef, rangeUpdated);
+        List<SubmodelElement> submodelElements = new ArrayList<>(List.of(propertyUpdated, rangeUpdated, collection));
+        AssetValueProvider propertyUpdatedProvider = mock(AssetValueProvider.class);
+        AssetValueProvider propertyStaticProvider = mock(AssetValueProvider.class);
+        AssetValueProvider rangeUpdatedProvider = mock(AssetValueProvider.class);
+        when(assetConnectionManager.hasValueProvider(propertyUpdatedRef)).thenReturn(true);
+        when(assetConnectionManager.hasValueProvider(propertyStaticRef)).thenReturn(true);
+        when(assetConnectionManager.hasValueProvider(rangeUpdatedRef)).thenReturn(true);
 
-        when(assetConnectionManager.getValueProvider(prop2Ref)).thenReturn(prop2Provider);
-        when(prop2Provider.getValue()).thenReturn(ElementValueMapper.toValue(prop2Expected));
+        when(assetConnectionManager.getValueProvider(propertyUpdatedRef)).thenReturn(propertyUpdatedProvider);
+        when(propertyUpdatedProvider.getValue()).thenReturn(ElementValueMapper.toValue(propertyExpected));
 
-        when(assetConnectionManager.getValueProvider(rangeRef)).thenReturn(rangeProvider);
-        when(rangeProvider.getValue()).thenReturn(ElementValueMapper.toValue(rangeExpected));
+        when(assetConnectionManager.getValueProvider(propertyStaticRef)).thenReturn(propertyStaticProvider);
+        when(propertyStaticProvider.getValue()).thenReturn(ElementValueMapper.toValue(propertyStatic));
+
+        when(assetConnectionManager.getValueProvider(rangeUpdatedRef)).thenReturn(rangeUpdatedProvider);
+        when(rangeUpdatedProvider.getValue()).thenReturn(ElementValueMapper.toValue(rangeExpected));
+
+        when(persistence.put(null, propertyUpdatedRef, propertyExpected)).thenReturn(propertyExpected);
+        when(persistence.put(null, propertyStaticRef, propertyStatic)).thenReturn(propertyStatic);
+        when(persistence.put(null, rangeUpdatedRef, rangeExpected)).thenReturn(rangeExpected);
 
         requestHandler.syncWithAsset(parentRef, submodelElements);
-        verify(persistence).put(null, prop1Ref, prop1Expected);
-        verify(persistence).put(null, prop2Ref, prop2Expected);
-        verify(persistence).put(null, rangeRef, rangeExpected);
-        Assert.assertEquals(prop1Expected, prop1);
-        Assert.assertEquals(prop2Expected, prop2);
-        Assert.assertEquals(rangeExpected, range);
+        verify(persistence).put(null, propertyUpdatedRef, propertyExpected);
+        verify(persistence).put(null, rangeUpdatedRef, rangeExpected);
+        verify(persistence, times(0)).put(null, propertyStaticRef, propertyStatic);
+
+        Assert.assertEquals(propertyExpected, propertyUpdated);
+        Assert.assertEquals(rangeExpected, rangeUpdated);
+        Assert.assertEquals(propertyStatic, propertyStatic);
     }
 
 }
