@@ -5,6 +5,7 @@
 **Internal changes & bugfixes**
 *   HTTP Endpoint
 	*   Now correctly uses base64URL-encoding for all HTTP requests (instead of base64-encoding for some)
+    *   Configured http response header to hide the server information
 *   Asset Connection
 	*   OPC UA
 		*   Unit tests no longer create temp files in source folders
@@ -154,7 +155,7 @@
 
 *   Add builder classes for event messages & config classes
 
-*   Replace AASEnvironmentHelper with methods of EnvironmentSerialization 
+*   Replace AASEnvironmentHelper with methods of EnvironmentSerialization
 
 ## Release version 0.1.0
 
