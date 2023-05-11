@@ -39,6 +39,14 @@
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>com.librato.metrics</groupId>
+                    <artifactId>librato-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.bugsnag</groupId>
                     <artifactId>bugsnag</artifactId>
                 </exclusion>

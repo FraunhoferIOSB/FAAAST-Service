@@ -35,7 +35,7 @@ public class PahoClient {
 
     private static final String PROTOCOL_PREFIX = "tcp://";
     private static final String PROTOCOL_PREFIX_SSL = "ssl://";
-    private static final Logger logger = LoggerFactory.getLogger(MqttClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(PahoClient.class);
     private MqttClient mqttClient;
     private final MessageBusMqttConfig messageBusMqttConfig;
 
@@ -141,6 +141,7 @@ public class PahoClient {
             KeyStore ks = KeyStore.getInstance("JKS");
             InputStream jksInputStream = new FileInputStream(keyStorePath);
             ks.load(jksInputStream, password.toCharArray());
+            jksInputStream.close();
 
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             kmf.init(ks, password.toCharArray());
@@ -159,7 +160,6 @@ public class PahoClient {
             logger.error("MqttMessagebus SSL init error.");
             return null;
         }
-
     }
 
 

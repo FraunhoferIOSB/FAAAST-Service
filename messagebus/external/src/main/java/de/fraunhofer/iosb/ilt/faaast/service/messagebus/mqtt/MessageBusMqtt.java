@@ -46,6 +46,7 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     private MessageBusMqttConfig config;
     private MoquetteServer server;
     private PahoClient client;
+    private String eventsPrefix = "events/";
 
     public MessageBusMqtt() {
         subscriptions = new ConcurrentHashMap<>();
@@ -73,7 +74,7 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
         try {
             Class<? extends EventMessage> messageType = message.getClass();
             JsonApiSerializer serializer = new JsonApiSerializer();
-            client.publish("events/" + message.getClass().getSimpleName(), serializer.write(message));
+            client.publish(eventsPrefix + messageType.getSimpleName(), serializer.write(message));
         }
         catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -106,7 +107,7 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
             //get all events corresponding to abstract events
             determineEvents((Class<? extends EventMessage>) a).stream().forEach((e) -> {
                 //subscribe to each event
-                client.subscribe("events/" + e.getSimpleName(), (t, message) -> {
+                client.subscribe(eventsPrefix + e.getSimpleName(), (t, message) -> {
                     // deserialize
                     EventMessage event = new JsonApiDeserializer().read(message.toString(), e);
                     // filter
@@ -145,13 +146,11 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     public void unsubscribe(SubscriptionId id) {
         SubscriptionInfo info = subscriptions.get(id);
         Ensure.requireNonNull(info.getSubscribedEvents(), "subscriptionInfo must be non-null");
-        subscriptions.get(id).getSubscribedEvents().stream().forEach((a) -> {
-            //find all events for given abstract or event
-            determineEvents((Class<? extends EventMessage>) a).stream().forEach((e) -> {
-                //unsubscribe from all events
-                client.unsubscribe("events/" + e.getSimpleName());
-            });
-        });
+        subscriptions.get(id).getSubscribedEvents().stream().forEach(a ->
+        //find all events for given abstract or event
+        determineEvents((Class<? extends EventMessage>) a).stream().forEach(e ->
+        //unsubscribe from all events
+        client.unsubscribe(eventsPrefix + e.getSimpleName())));
         subscriptions.remove(id);
     }
 }
