@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.Objects;
@@ -138,10 +137,8 @@ public class PahoClient {
 
 
     private SSLSocketFactory getSSLSocketFactory(String keyStorePath, String password) {
-        InputStream jksInputStream = null;
-        try {
+        try (InputStream jksInputStream = new FileInputStream(keyStorePath)) {
             KeyStore ks = KeyStore.getInstance("JKS");
-            jksInputStream = new FileInputStream(keyStorePath);
             ks.load(jksInputStream, password.toCharArray());
 
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -160,15 +157,6 @@ public class PahoClient {
         catch (Exception e) {
             logger.error("MqttMessagebus SSL init error.");
             return null;
-        }
-        finally {
-            try {
-                jksInputStream.close();
-            }
-            catch (IOException e) {
-                logger.error("MqttMessagebus SSL init error.");
-                return null;
-            }
         }
     }
 
