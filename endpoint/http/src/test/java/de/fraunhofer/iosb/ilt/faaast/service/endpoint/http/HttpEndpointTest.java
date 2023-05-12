@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -71,8 +73,11 @@ import java.util.stream.Stream;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.StringRequestContent;
+import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -101,6 +106,7 @@ public class HttpEndpointTest {
     private static Service service;
     private static Persistence persistence;
     private static HttpJsonApiDeserializer deserializer;
+    private static Server server;
 
     @BeforeClass
     public static void init() throws Exception {
@@ -112,6 +118,7 @@ public class HttpEndpointTest {
         deserializer = new HttpJsonApiDeserializer();
         persistence = mock(Persistence.class);
         endpoint = new HttpEndpoint();
+        server = new Server();
         service = spy(new Service(CoreConfig.DEFAULT, persistence, mock(MessageBus.class), List.of(endpoint), List.of()));
         endpoint.init(
                 CoreConfig.DEFAULT,
@@ -120,6 +127,8 @@ public class HttpEndpointTest {
                         .cors(true)
                         .build(),
                 service);
+        endpoint.configHttpResponseHeader();
+        server.start();
         service.start();
         client = new HttpClient();
         client.start();
@@ -149,6 +158,14 @@ public class HttpEndpointTest {
             }
             catch (Exception e) {
                 LOGGER.info("error stopping HTTP endpoint", e);
+            }
+            if (server != null) {
+                try {
+                    server.stop();
+                }
+                catch (Exception e) {
+                    LOGGER.info("error stopping HTTP Server", e);
+                }
             }
         }
     }
@@ -219,6 +236,24 @@ public class HttpEndpointTest {
         Assert.assertEquals("*", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER));
         Assert.assertEquals("true", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER));
         Assert.assertEquals("Content-Type", response.getHeaders().get(CrossOriginFilter.ACCESS_CONTROL_ALLOW_HEADERS_HEADER));
+    }
+
+
+    @Test
+    public void testConfigHttpResponseHeader() throws Exception {
+        ContentResponse response = client.newRequest(HOST, port).method(HttpMethod.GET).send();
+        HttpFields headers = response.getHeaders();
+
+        boolean serverHeaderFound = false;
+
+        for (HttpField header: headers) {
+            if (header.getName().equalsIgnoreCase("version")) {
+                assertTrue(serverHeaderFound = true);
+                break;
+            }
+        }
+        assertFalse("Server Header should be hidden", serverHeaderFound);
+
     }
 
 
