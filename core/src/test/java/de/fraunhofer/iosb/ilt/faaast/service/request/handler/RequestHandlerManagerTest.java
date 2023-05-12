@@ -1180,7 +1180,6 @@ public class RequestHandlerManagerTest {
 
         Assert.assertEquals(propertyExpected, propertyUpdated);
         Assert.assertEquals(rangeExpected, rangeUpdated);
-        Assert.assertEquals(propertyStatic, propertyStatic);
     }
 
 }
