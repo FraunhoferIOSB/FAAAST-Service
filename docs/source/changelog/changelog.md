@@ -3,6 +3,8 @@
 ## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
 
 **Internal changes & bugfixes**
+*   General
+	*   Fixed a `ConcurrentModificationException` that could occur when accessing a submodel with subscription-based asset connection via HTTP endpoint
 *   HTTP Endpoint
 	*   Now correctly uses base64URL-encoding for all HTTP requests (instead of base64-encoding for some)
 *   Asset Connection
