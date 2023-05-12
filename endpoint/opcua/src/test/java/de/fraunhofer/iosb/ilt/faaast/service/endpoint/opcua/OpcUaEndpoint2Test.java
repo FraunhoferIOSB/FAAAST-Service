@@ -60,6 +60,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import opc.i4aas.AASKeyDataType;
@@ -99,7 +100,7 @@ public class OpcUaEndpoint2Test {
         OpcUaEndpointConfig config = new OpcUaEndpointConfig.Builder()
                 .tcpPort(OPC_TCP_PORT)
                 .secondsTillShutdown(0)
-                .supportedAuthentications(List.of(UserTokenType.UserName))
+                .supportedAuthentications(Set.of(UserTokenType.UserName))
                 .serverCertificateBasePath(TestConstants.SERVER_CERT_PATH)
                 .userCertificateBasePath(TestConstants.USER_CERT_PATH)
                 .discoveryServerUrl(null)

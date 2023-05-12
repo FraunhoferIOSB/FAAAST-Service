@@ -24,6 +24,7 @@ import com.prosysopc.ua.stack.transport.security.CertificateValidator;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public class AasUserValidator implements UserValidator {
         LOGGER.trace("onValidate: userIdentity={}", userIdentity);
         if (userIdentity.getType().equals(UserTokenType.UserName)) {
             return userMap.containsKey(userIdentity.getName())
-                    && userMap.get(userIdentity.getName()).equals(userIdentity.getPassword());
+                    && Objects.equals(userMap.get(userIdentity.getName()), userIdentity.getPassword());
         }
 
         if (userIdentity.getType().equals(UserTokenType.Certificate)) {

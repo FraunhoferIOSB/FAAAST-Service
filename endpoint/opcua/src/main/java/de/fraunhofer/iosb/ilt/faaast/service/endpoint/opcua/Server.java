@@ -35,11 +35,11 @@ import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.HttpsSecurityPolicy;
 import com.prosysopc.ua.stack.transport.security.KeyPair;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
-import com.prosysopc.ua.stack.transport.security.SecurityPolicy;
 import com.prosysopc.ua.types.opcua.server.BuildInfoTypeNode;
 import com.prosysopc.ua.types.opcua.server.ServerCapabilitiesTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasCertificateValidationListener;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceIoManagerListener;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
@@ -48,10 +48,10 @@ import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +71,7 @@ public class Server {
     private final int tcpPort;
     private final AssetAdministrationShellEnvironment aasEnvironment;
     private final OpcUaEndpoint endpoint;
+    private final OpcUaEndpointConfig config;
 
     private UaServer uaServer;
     private boolean running;
@@ -84,11 +85,16 @@ public class Server {
      * @param portTcp The desired port for the opc.tcp endpoint
      * @param environment The AAS environment
      * @param endpoint the associated endpoint
+     * @throws IllegalArgumentException if environment is null
+     * @throws IllegalArgumentException if endpoint is null
      */
     public Server(int portTcp, AssetAdministrationShellEnvironment environment, OpcUaEndpoint endpoint) {
+        Ensure.requireNonNull(environment, "environment most be non-null");
+        Ensure.requireNonNull(endpoint, "endpoint most be non-null");
         this.tcpPort = portTcp;
         this.aasEnvironment = environment;
         this.endpoint = endpoint;
+        this.config = endpoint.asConfig();
     }
 
 
@@ -103,7 +109,6 @@ public class Server {
     public void startup() throws UaServerException, IOException, SecureIdentityException, URISyntaxException {
         String hostName;
         hostName = InetAddress.getLocalHost().getHostName();
-        OpcUaEndpointConfig config = endpoint.asConfig();
 
         ApplicationIdentity.setActualHostName(hostName);
 
@@ -134,18 +139,16 @@ public class Server {
 
         uaServer.getHttpsSettings().setCertificateValidator(applicationCertificateValidator);
 
-        Set<UserTokenType> supportedAuthentications = new HashSet<>();
-        supportedAuthentications.addAll(config.getSupportedAuthentications());
-        if (supportedAuthentications.isEmpty()) {
+        if (Objects.isNull(config.getSupportedAuthentications()) || config.getSupportedAuthentications().isEmpty()) {
             throw new IllegalArgumentException("no supported authentications available!");
         }
 
-        supportedAuthentications.forEach(LambdaExceptionHelper.rethrowConsumer(a -> uaServer.addUserTokenPolicy(getUserTokenPolicy(a))));
+        config.getSupportedAuthentications().forEach(LambdaExceptionHelper.rethrowConsumer(a -> uaServer.addUserTokenPolicy(getUserTokenPolicy(a))));
 
         uaServer.setUserValidator(new AasUserValidator(
                 userCertificateValidator,
                 config.getUserMap(),
-                supportedAuthentications));
+                config.getSupportedAuthentications()));
 
         registerDiscovery();
         uaServer.init();
@@ -203,16 +206,20 @@ public class Server {
 
 
     private void setSecurityPolicies() {
-        Set<SecurityPolicy> supportedSecurityPolicies = new HashSet<>();
-        supportedSecurityPolicies.addAll(endpoint.asConfig().getSupportedSecurityPolicies());
-        if (supportedSecurityPolicies.isEmpty()) {
+
+        if (Objects.isNull(config.getSupportedSecurityPolicies()) || config.getSupportedSecurityPolicies().isEmpty()) {
             throw new IllegalArgumentException("no supported security policies available!");
         }
 
-        Set<MessageSecurityMode> supportedMessageSecurityModes = Set.of(MessageSecurityMode.values());
-        uaServer.getSecurityModes().addAll(SecurityMode.combinations(supportedMessageSecurityModes, supportedSecurityPolicies));
+        uaServer.getSecurityModes().addAll(
+                SecurityMode.combinations(
+                        Set.of(MessageSecurityMode.values()),
+                        config.getSupportedSecurityPolicies()));
 
-        uaServer.getHttpsSecurityModes().addAll(SecurityMode.combinations(EnumSet.of(MessageSecurityMode.None, MessageSecurityMode.Sign), supportedSecurityPolicies));
+        uaServer.getHttpsSecurityModes().addAll(
+                SecurityMode.combinations(
+                        Set.of(MessageSecurityMode.None, MessageSecurityMode.Sign),
+                        config.getSupportedSecurityPolicies()));
 
         Set<HttpsSecurityPolicy> supportedHttpsSecurityPolicies = new HashSet<>();
         supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_102);
@@ -285,28 +292,16 @@ public class Server {
 
 
     private static UserTokenPolicy getUserTokenPolicy(UserTokenType userTokenType) {
-        UserTokenPolicy retval;
         switch (userTokenType) {
             case Anonymous:
-                retval = UserTokenPolicies.ANONYMOUS;
-                break;
-
+                return UserTokenPolicies.ANONYMOUS;
             case UserName:
-                retval = UserTokenPolicies.SECURE_USERNAME_PASSWORD;
-                break;
-
+                return UserTokenPolicies.SECURE_USERNAME_PASSWORD;
             case Certificate:
-                retval = UserTokenPolicies.SECURE_CERTIFICATE;
-                break;
-
-            case IssuedToken:
-                throw new IllegalArgumentException("UserTokenType IssuedToken not supported");
-
+                return UserTokenPolicies.SECURE_CERTIFICATE;
             default:
-                throw new IllegalArgumentException("invalid UserTokenType");
+                throw new IllegalArgumentException(String.format("unsupported UserTokenType '%s'", userTokenType));
         }
-
-        return retval;
     }
 
 

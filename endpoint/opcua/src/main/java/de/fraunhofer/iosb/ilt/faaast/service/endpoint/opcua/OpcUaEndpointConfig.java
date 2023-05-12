@@ -17,12 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.SecurityPolicy;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.EndpointConfig;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Set;
 
 
 /**
@@ -40,8 +40,8 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
     private String discoveryServerUrl;
     private String serverCertificateBasePath;
     private String userCertificateBasePath;
-    private List<SecurityPolicy> supportedSecurityPolicies;
-    private List<UserTokenType> supportedAuthentications;
+    private Set<SecurityPolicy> supportedSecurityPolicies;
+    private Set<UserTokenType> supportedAuthentications;
 
     public OpcUaEndpointConfig() {
         this.tcpPort = DEFAULT_PORT;
@@ -50,9 +50,9 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         this.userMap = new HashMap<>();
         this.serverCertificateBasePath = DEFAULT_SERVER_CERT_PATH;
         this.userCertificateBasePath = DEFAULT_USER_CERT_PATH;
-        this.supportedSecurityPolicies = Stream.of(SecurityPolicy.NONE).collect(Collectors.toList());
-        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_104);
-        this.supportedAuthentications = Stream.of(UserTokenType.Anonymous).collect(Collectors.toList());
+        this.supportedSecurityPolicies = new HashSet<>(SecurityPolicy.ALL_SECURE_104);
+        this.supportedSecurityPolicies.add(SecurityPolicy.NONE);
+        this.supportedAuthentications = new HashSet(Arrays.asList(UserTokenType.Anonymous));
     }
 
 
@@ -206,31 +206,31 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
 
 
     /**
-     * Gets the list of supported Security Policies.
+     * Gets the set of supported Security Policies.
      *
-     * @return The list of supported Security Policies.
+     * @return The set of supported Security Policies.
      */
-    public List<SecurityPolicy> getSupportedSecurityPolicies() {
+    public Set<SecurityPolicy> getSupportedSecurityPolicies() {
         return supportedSecurityPolicies;
     }
 
 
     /**
-     * Sets the list of supported Security Policies.
+     * Sets the set of supported Security Policies.
      *
-     * @param value The list of supported Security Policies.
+     * @param value The set of supported Security Policies.
      */
-    public void setSupportedSecurityPolicies(List<SecurityPolicy> value) {
+    public void setSupportedSecurityPolicies(Set<SecurityPolicy> value) {
         supportedSecurityPolicies = value;
     }
 
 
     /**
-     * Gets the list of supported Authentication types (e.g. Anonymous, Username / Password, ...).
+     * Gets the set of supported Authentication types (e.g. Anonymous, Username / Password, ...).
      *
-     * @return The list of supported Authentication types.
+     * @return The set of supported Authentication types.
      */
-    public List<UserTokenType> getSupportedAuthentications() {
+    public Set<UserTokenType> getSupportedAuthentications() {
         return supportedAuthentications;
     }
 
@@ -240,7 +240,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
      *
      * @param value The list of supported Authentication types.
      */
-    public void setSupportedAuthentications(List<UserTokenType> value) {
+    public void setSupportedAuthentications(Set<UserTokenType> value) {
         supportedAuthentications = value;
     }
 
@@ -293,7 +293,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         }
 
 
-        public B supportedSecurityPolicies(List<SecurityPolicy> value) {
+        public B supportedSecurityPolicies(Set<SecurityPolicy> value) {
             getBuildingInstance().setSupportedSecurityPolicies(value);
             return getSelf();
         }
@@ -305,7 +305,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         }
 
 
-        public B supportedAuthentications(List<UserTokenType> value) {
+        public B supportedAuthentications(Set<UserTokenType> value) {
             getBuildingInstance().setSupportedAuthentications(value);
             return getSelf();
         }
