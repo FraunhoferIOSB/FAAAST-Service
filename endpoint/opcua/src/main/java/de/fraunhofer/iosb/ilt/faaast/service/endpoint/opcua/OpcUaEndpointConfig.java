@@ -52,7 +52,7 @@ public class OpcUaEndpointConfig extends EndpointConfig<OpcUaEndpoint> {
         this.userCertificateBasePath = DEFAULT_USER_CERT_PATH;
         this.supportedSecurityPolicies = new HashSet<>(SecurityPolicy.ALL_SECURE_104);
         this.supportedSecurityPolicies.add(SecurityPolicy.NONE);
-        this.supportedAuthentications = new HashSet(Arrays.asList(UserTokenType.Anonymous));
+        this.supportedAuthentications = new HashSet<>(Arrays.asList(UserTokenType.Anonymous));
     }
 
 
