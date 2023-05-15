@@ -94,7 +94,7 @@
         <logback.version>1.4.7</logback.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <maven.plugin.assembly.version>3.5.0</maven.plugin.assembly.version>
+        <maven.plugin.assembly.version>3.6.0</maven.plugin.assembly.version>
         <maven.plugin.buildhelper.version>3.4.0</maven.plugin.buildhelper.version>
         <maven.plugin.checkstyle.version>3.2.2</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.11.0</maven.plugin.compiler.version>
