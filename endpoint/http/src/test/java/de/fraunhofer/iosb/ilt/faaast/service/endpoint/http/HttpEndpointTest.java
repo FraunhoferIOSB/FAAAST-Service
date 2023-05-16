@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -73,8 +72,6 @@ import java.util.stream.Stream;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.StringRequestContent;
-import org.eclipse.jetty.http.HttpField;
-import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Server;
@@ -127,7 +124,6 @@ public class HttpEndpointTest {
                         .cors(true)
                         .build(),
                 service);
-        endpoint.configHttpResponseHeader();
         server.start();
         service.start();
         client = new HttpClient();
@@ -240,19 +236,12 @@ public class HttpEndpointTest {
 
 
     @Test
-    public void testConfigHttpResponseHeader() throws Exception {
-        ContentResponse response = client.newRequest(HOST, port).method(HttpMethod.GET).send();
-        HttpFields headers = response.getHeaders();
-
-        boolean serverHeaderFound = false;
-
-        for (HttpField header: headers) {
-            if (header.getName().equalsIgnoreCase("version")) {
-                assertTrue(serverHeaderFound = true);
-                break;
-            }
-        }
-        assertFalse("Server Header should be hidden", serverHeaderFound);
+    public void testConfigHttpResponseHeaderServerVersionNotFound() throws Exception {
+        assertFalse(client.newRequest(HOST, port)
+                .method(HttpMethod.GET)
+                .send().getContent()
+                .toString()
+                .contains("version"));
 
     }
 
