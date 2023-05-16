@@ -1,6 +1,9 @@
 # Changelog
 <!--start:changelog-header-->
 ## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
+**New Features & Major Changes**
+*   OPC UA Endpoint
+	*   Now supports configuring supported security policies (`NONE`, `BASIC128RSA15`, `BASIC256`, `BASIC256SHA256`, `AES128_SHA256_RSAOAEP`, `AES256_SHA256_RSAPSS`) and authentication methods (`Anonymous`, `UserName`, `Certificate`)
 
 **Internal changes & bugfixes**
 *   HTTP Endpoint
