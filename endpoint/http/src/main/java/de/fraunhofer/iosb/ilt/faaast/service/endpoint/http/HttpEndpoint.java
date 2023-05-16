@@ -78,7 +78,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
     /**
      * Hide sever (Jetty) information in the http response header.
      */
-    public void configHttpResponseHeader() {
+    private void configHttpResponseHeader() {
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setSendServerVersion(false);
         httpConfig.setSendDateHeader(false);
