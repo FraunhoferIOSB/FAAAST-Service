@@ -23,7 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.DataElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
@@ -34,6 +34,8 @@ import io.adminshell.aas.v3.model.SubmodelElement;
 import io.adminshell.aas.v3.model.SubmodelElementCollection;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
@@ -103,22 +105,37 @@ public abstract class AbstractRequestHandler<I extends Request<O>, O extends Res
         if (parent == null || submodelElements == null) {
             return;
         }
+        Map<SubmodelElement, ElementValue> updatedSubmodelElements = new HashMap<>();
         for (SubmodelElement submodelElement: submodelElements) {
             Reference reference = AasUtils.toReference(parent, submodelElement);
             Optional<DataElementValue> newValue = assetConnectionManager.readValue(reference);
             if (newValue.isPresent()) {
                 ElementValue oldValue = ElementValueMapper.toValue(submodelElement);
-                if (!Objects.equals(oldValue, newValue)) {
-                    submodelElement = persistence.put(null, reference, ElementValueMapper.setValue(submodelElement, newValue.get()));
-                    messageBus.publish(ElementUpdateEventMessage.builder()
-                            .element(AasUtils.toReference(parent, submodelElement))
-                            .value(submodelElement)
-                            .build());
+                if (!Objects.equals(oldValue, newValue.get())) {
+                    updatedSubmodelElements.put(submodelElement, newValue.get());
                 }
             }
             else if (SubmodelElementCollection.class.isAssignableFrom(submodelElement.getClass())) {
                 syncWithAsset(reference, ((SubmodelElementCollection) submodelElement).getValues());
             }
+        }
+
+        for (var update: updatedSubmodelElements.entrySet()) {
+            Reference reference = AasUtils.toReference(parent, update.getKey());
+            SubmodelElement oldElement = update.getKey();
+            SubmodelElement newElement = persistence.put(
+                    null,
+                    reference,
+                    ElementValueMapper.setValue(
+                            oldElement,
+                            update.getValue()));
+            submodelElements.remove(oldElement);
+            submodelElements.add(newElement);
+            messageBus.publish(ValueChangeEventMessage.builder()
+                    .element(reference)
+                    .oldValue(ElementValueMapper.toValue(oldElement))
+                    .newValue(ElementValueMapper.toValue(newElement))
+                    .build());
         }
     }
 }

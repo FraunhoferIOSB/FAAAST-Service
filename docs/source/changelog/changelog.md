@@ -6,6 +6,8 @@
 	*   Now supports configuring supported security policies (`NONE`, `BASIC128RSA15`, `BASIC256`, `BASIC256SHA256`, `AES128_SHA256_RSAOAEP`, `AES256_SHA256_RSAPSS`) and authentication methods (`Anonymous`, `UserName`, `Certificate`)
 
 **Internal changes & bugfixes**
+*   General
+	*   Fixed a `ConcurrentModificationException` that could occur when accessing a submodel with subscription-based asset connection via HTTP endpoint
 *   HTTP Endpoint
 	*   Now correctly uses base64URL-encoding for all HTTP requests (instead of base64-encoding for some)
 *   Asset Connection
