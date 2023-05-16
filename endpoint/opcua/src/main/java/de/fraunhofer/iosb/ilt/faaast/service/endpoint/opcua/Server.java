@@ -30,24 +30,28 @@ import com.prosysopc.ua.stack.cert.PkiDirectoryCertificateStore;
 import com.prosysopc.ua.stack.core.ApplicationDescription;
 import com.prosysopc.ua.stack.core.ApplicationType;
 import com.prosysopc.ua.stack.core.MessageSecurityMode;
+import com.prosysopc.ua.stack.core.UserTokenPolicy;
+import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.HttpsSecurityPolicy;
 import com.prosysopc.ua.stack.transport.security.KeyPair;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
-import com.prosysopc.ua.stack.transport.security.SecurityPolicy;
 import com.prosysopc.ua.types.opcua.server.BuildInfoTypeNode;
 import com.prosysopc.ua.types.opcua.server.ServerCapabilitiesTypeNode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasCertificateValidationListener;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.listener.AasServiceIoManagerListener;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.EnumSet;
+import java.nio.file.Paths;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +71,7 @@ public class Server {
     private final int tcpPort;
     private final AssetAdministrationShellEnvironment aasEnvironment;
     private final OpcUaEndpoint endpoint;
+    private final OpcUaEndpointConfig config;
 
     private UaServer uaServer;
     private boolean running;
@@ -80,11 +85,16 @@ public class Server {
      * @param portTcp The desired port for the opc.tcp endpoint
      * @param environment The AAS environment
      * @param endpoint the associated endpoint
+     * @throws IllegalArgumentException if environment is null
+     * @throws IllegalArgumentException if endpoint is null
      */
     public Server(int portTcp, AssetAdministrationShellEnvironment environment, OpcUaEndpoint endpoint) {
+        Ensure.requireNonNull(environment, "environment most be non-null");
+        Ensure.requireNonNull(endpoint, "endpoint most be non-null");
         this.tcpPort = portTcp;
         this.aasEnvironment = environment;
         this.endpoint = endpoint;
+        this.config = endpoint.asConfig();
     }
 
 
@@ -94,7 +104,7 @@ public class Server {
      * @throws UaServerException If an error occurs
      * @throws IOException If an error occurs
      * @throws SecureIdentityException If an error occurs
-     * @throws java.net.URISyntaxException if endpoint URL is invalid
+     * @throws URISyntaxException if endpoint URL is invalid
      */
     public void startup() throws UaServerException, IOException, SecureIdentityException, URISyntaxException {
         String hostName;
@@ -107,26 +117,18 @@ public class Server {
         // currently without IPv6
         uaServer.setEnableIPv6(false);
 
-        final PkiDirectoryCertificateStore applicationCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getServerCertificateBasePath());
-        String issuersPath = endpoint.asConfig().getServerCertificateBasePath();
-        if (!issuersPath.endsWith("/")) {
-            issuersPath += "/";
-        }
-        issuersPath += ISSUERS_PATH;
-        final PkiDirectoryCertificateStore applicationIssuerCertificateStore = new PkiDirectoryCertificateStore(issuersPath);
+        final PkiDirectoryCertificateStore applicationCertificateStore = new PkiDirectoryCertificateStore(config.getServerCertificateBasePath());
+        final PkiDirectoryCertificateStore applicationIssuerCertificateStore = new PkiDirectoryCertificateStore(
+                Paths.get(config.getServerCertificateBasePath(), ISSUERS_PATH).toString());
         final DefaultCertificateValidator applicationCertificateValidator = new DefaultCertificateValidator(applicationCertificateStore, applicationIssuerCertificateStore);
 
         uaServer.setCertificateValidator(applicationCertificateValidator);
         applicationCertificateValidator.setValidationListener(validationListener);
 
         // Handle user certificates
-        final PkiDirectoryCertificateStore userCertificateStore = new PkiDirectoryCertificateStore(endpoint.asConfig().getUserCertificateBasePath());
-        issuersPath = endpoint.asConfig().getUserCertificateBasePath();
-        if (!issuersPath.endsWith("/")) {
-            issuersPath += "/";
-        }
-        issuersPath += ISSUERS_PATH;
-        final PkiDirectoryCertificateStore userIssuerCertificateStore = new PkiDirectoryCertificateStore(issuersPath);
+        final PkiDirectoryCertificateStore userCertificateStore = new PkiDirectoryCertificateStore(config.getUserCertificateBasePath());
+        final PkiDirectoryCertificateStore userIssuerCertificateStore = new PkiDirectoryCertificateStore(
+                Paths.get(config.getUserCertificateBasePath(), ISSUERS_PATH).toString());
 
         final DefaultCertificateValidator userCertificateValidator = new DefaultCertificateValidator(userCertificateStore, userIssuerCertificateStore);
         userCertificateValidator.setValidationListener(userCertificateValidationListener);
@@ -137,15 +139,16 @@ public class Server {
 
         uaServer.getHttpsSettings().setCertificateValidator(applicationCertificateValidator);
 
-        // Define the supported user authentication methods
-        uaServer.addUserTokenPolicy(UserTokenPolicies.ANONYMOUS);
-        uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_USERNAME_PASSWORD);
-        uaServer.addUserTokenPolicy(UserTokenPolicies.SECURE_CERTIFICATE);
+        if (Objects.isNull(config.getSupportedAuthentications()) || config.getSupportedAuthentications().isEmpty()) {
+            throw new IllegalArgumentException("no supported authentications available!");
+        }
+
+        config.getSupportedAuthentications().forEach(LambdaExceptionHelper.rethrowConsumer(a -> uaServer.addUserTokenPolicy(getUserTokenPolicy(a))));
 
         uaServer.setUserValidator(new AasUserValidator(
                 userCertificateValidator,
-                endpoint.asConfig().getUserMap(),
-                endpoint.asConfig().getAllowAnonymous()));
+                config.getUserMap(),
+                config.getSupportedAuthentications()));
 
         registerDiscovery();
         uaServer.init();
@@ -203,20 +206,20 @@ public class Server {
 
 
     private void setSecurityPolicies() {
-        Set<SecurityPolicy> supportedSecurityPolicies = new HashSet<>();
-        supportedSecurityPolicies.add(SecurityPolicy.NONE);
-        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_101);
-        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_102);
-        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_103);
-        supportedSecurityPolicies.addAll(SecurityPolicy.ALL_SECURE_104);
 
-        Set<MessageSecurityMode> supportedMessageSecurityModes = new HashSet<>();
-        supportedMessageSecurityModes.add(MessageSecurityMode.None);
-        supportedMessageSecurityModes.add(MessageSecurityMode.Sign);
-        supportedMessageSecurityModes.add(MessageSecurityMode.SignAndEncrypt);
-        uaServer.getSecurityModes().addAll(SecurityMode.combinations(supportedMessageSecurityModes, supportedSecurityPolicies));
+        if (Objects.isNull(config.getSupportedSecurityPolicies()) || config.getSupportedSecurityPolicies().isEmpty()) {
+            throw new IllegalArgumentException("no supported security policies available!");
+        }
 
-        uaServer.getHttpsSecurityModes().addAll(SecurityMode.combinations(EnumSet.of(MessageSecurityMode.None, MessageSecurityMode.Sign), supportedSecurityPolicies));
+        uaServer.getSecurityModes().addAll(
+                SecurityMode.combinations(
+                        Set.of(MessageSecurityMode.values()),
+                        config.getSupportedSecurityPolicies()));
+
+        uaServer.getHttpsSecurityModes().addAll(
+                SecurityMode.combinations(
+                        Set.of(MessageSecurityMode.None, MessageSecurityMode.Sign),
+                        config.getSupportedSecurityPolicies()));
 
         Set<HttpsSecurityPolicy> supportedHttpsSecurityPolicies = new HashSet<>();
         supportedHttpsSecurityPolicies.addAll(HttpsSecurityPolicy.ALL_102);
@@ -284,6 +287,20 @@ public class Server {
             GregorianCalendar c = new GregorianCalendar();
             c.setTimeInMillis(mfFile.lastModified());
             buildInfo.setBuildDate(new DateTime(c));
+        }
+    }
+
+
+    private static UserTokenPolicy getUserTokenPolicy(UserTokenType userTokenType) {
+        switch (userTokenType) {
+            case Anonymous:
+                return UserTokenPolicies.ANONYMOUS;
+            case UserName:
+                return UserTokenPolicies.SECURE_USERNAME_PASSWORD;
+            case Certificate:
+                return UserTokenPolicies.SECURE_CERTIFICATE;
+            default:
+                throw new IllegalArgumentException(String.format("unsupported UserTokenType '%s'", userTokenType));
         }
     }
 

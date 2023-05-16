@@ -28,6 +28,7 @@ import com.prosysopc.ua.stack.core.BrowsePathTarget;
 import com.prosysopc.ua.stack.core.Identifiers;
 import com.prosysopc.ua.stack.core.RelativePath;
 import com.prosysopc.ua.stack.core.RelativePathElement;
+import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.SecurityMode;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.TestService;
@@ -59,6 +60,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import opc.i4aas.AASKeyDataType;
@@ -93,10 +95,17 @@ public class OpcUaEndpoint2Test {
     public static void startTest() throws ConfigurationException, Exception {
         LOGGER.trace("startTest");
 
-        OpcUaEndpointConfig config = new OpcUaEndpointConfig();
-        config.setTcpPort(OPC_TCP_PORT);
-        config.setSecondsTillShutdown(0);
-        config.setAllowAnonymous(false);
+        Map<String, String> users = new HashMap<>();
+        users.put(USERNAME, PASSWORD);
+        OpcUaEndpointConfig config = new OpcUaEndpointConfig.Builder()
+                .tcpPort(OPC_TCP_PORT)
+                .secondsTillShutdown(0)
+                .supportedAuthentications(Set.of(UserTokenType.UserName))
+                .serverCertificateBasePath(TestConstants.SERVER_CERT_PATH)
+                .userCertificateBasePath(TestConstants.USER_CERT_PATH)
+                .discoveryServerUrl(null)
+                .userMap(users)
+                .build();
         Path certPath = Paths.get(TestConstants.SERVER_CERT_PATH);
         if (Files.exists(certPath)) {
             Files.walk(certPath)
@@ -111,12 +120,6 @@ public class OpcUaEndpoint2Test {
                     .map(Path::toFile)
                     .forEach(File::delete);
         }
-        config.setServerCertificateBasePath(TestConstants.SERVER_CERT_PATH);
-        config.setUserCertificateBasePath(TestConstants.USER_CERT_PATH);
-        config.setDiscoveryServerUrl(null);
-        Map<String, String> users = new HashMap<>();
-        users.put(USERNAME, PASSWORD);
-        config.setUserMap(users);
 
         service = new TestService(config, null, false);
         service.start();

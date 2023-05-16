@@ -21,8 +21,11 @@ import com.prosysopc.ua.server.UserValidator;
 import com.prosysopc.ua.stack.core.UserIdentityToken;
 import com.prosysopc.ua.stack.core.UserTokenType;
 import com.prosysopc.ua.stack.transport.security.CertificateValidator;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,21 +39,23 @@ public class AasUserValidator implements UserValidator {
 
     private final CertificateValidator validator;
     private final Map<String, String> userMap;
-    private final boolean allowAnonymous;
+    private final Set<UserTokenType> supportedAuthentications;
 
     /**
-     * Creates a new instance of AasUserValidator
+     * Creates a new instance of AasUserValidator.
      *
      * @param validator used to validate certificates
      * @param userMap The desired user names (Key) and passwords (Value)
-     * @param allowAnonymous True if anonymous access is allowed, false otherwise
+     * @param supportedAuthentications The list of supported authentication types.
      */
-    public AasUserValidator(CertificateValidator validator, Map<String, String> userMap, boolean allowAnonymous) {
+    public AasUserValidator(CertificateValidator validator, Map<String, String> userMap, Set<UserTokenType> supportedAuthentications) {
+        Ensure.requireNonNull(validator, "validator must be non-null");
+        Ensure.requireNonNull(supportedAuthentications, "supportedAuthentications must be non-null");
         this.validator = validator;
         this.userMap = userMap != null
                 ? userMap
                 : new HashMap<>();
-        this.allowAnonymous = allowAnonymous;
+        this.supportedAuthentications = supportedAuthentications;
     }
 
 
@@ -61,17 +66,19 @@ public class AasUserValidator implements UserValidator {
         // depending on the selected authentication mode (by the client).
         LOGGER.trace("onValidate: userIdentity={}", userIdentity);
         if (userIdentity.getType().equals(UserTokenType.UserName)) {
-            return userMap.containsKey(userIdentity.getName()) && userMap.get(userIdentity.getName()).equals(userIdentity.getPassword());
+            return userMap.containsKey(userIdentity.getName())
+                    && Objects.equals(userMap.get(userIdentity.getName()), userIdentity.getPassword());
         }
 
         if (userIdentity.getType().equals(UserTokenType.Certificate)) {
             // Get StatusCode for the certificate
             // SessionManager will throw Bad_IdentityTokenRejected when this method returns false
-            return this.validator.validateCertificate(userIdentity.getCertificate()).isGood();
+            return supportedAuthentications.contains(UserTokenType.Certificate)
+                    && validator.validateCertificate(userIdentity.getCertificate()).isGood();
         }
 
         // check anonymous access
-        return allowAnonymous;
+        return supportedAuthentications.contains(UserTokenType.Anonymous);
     }
 
 
