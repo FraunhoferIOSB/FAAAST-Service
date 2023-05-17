@@ -69,9 +69,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.jena.ext.com.google.common.net.HttpHeaders;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.StringRequestContent;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Server;
@@ -237,11 +239,13 @@ public class HttpEndpointTest {
 
     @Test
     public void testConfigHttpResponseHeaderServerVersionNotFound() throws Exception {
-        assertFalse(client.newRequest(HOST, port)
+        HttpFields headers = client.newRequest(HOST, port)
                 .method(HttpMethod.GET)
-                .send().getHeaders()
-                .contains("version"));
-
+                .send()
+                .getHeaders();
+        assertFalse(headers.contains(HttpHeaders.SERVER));
+        assertFalse(headers.contains(HttpHeaders.DATE));
+        assertFalse(headers.contains(HttpHeaders.X_POWERED_BY));
     }
 
 

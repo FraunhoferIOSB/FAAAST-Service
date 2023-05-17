@@ -1,6 +1,7 @@
 # Changelog
 <!--start:changelog-header-->
 ## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
+
 **New Features & Major Changes**
 *   OPC UA Endpoint
 	*   Now supports configuring supported security policies (`NONE`, `BASIC128RSA15`, `BASIC256`, `BASIC256SHA256`, `AES128_SHA256_RSAOAEP`, `AES256_SHA256_RSAPSS`) and authentication methods (`Anonymous`, `UserName`, `Certificate`)
@@ -10,7 +11,7 @@
 	*   Fixed a `ConcurrentModificationException` that could occur when accessing a submodel with subscription-based asset connection via HTTP endpoint
 *   HTTP Endpoint
 	*   Now correctly uses base64URL-encoding for all HTTP requests (instead of base64-encoding for some)
-    *   Configured http response header to hide the server information
+    *   Now longer leaks sensitive server information in HTTP response headers (such as server version of the HTTP server library)
 *   Asset Connection
 	*   OPC UA
 		*   Unit tests no longer create temp files in source folders
