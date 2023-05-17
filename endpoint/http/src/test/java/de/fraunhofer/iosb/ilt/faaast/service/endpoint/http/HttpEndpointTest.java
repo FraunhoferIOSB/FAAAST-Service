@@ -239,8 +239,7 @@ public class HttpEndpointTest {
     public void testConfigHttpResponseHeaderServerVersionNotFound() throws Exception {
         assertFalse(client.newRequest(HOST, port)
                 .method(HttpMethod.GET)
-                .send().getContent()
-                .toString()
+                .send().getHeaders()
                 .contains("version"));
 
     }
