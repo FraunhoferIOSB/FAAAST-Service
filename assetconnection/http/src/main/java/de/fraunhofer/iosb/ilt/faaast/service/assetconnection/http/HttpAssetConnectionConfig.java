@@ -40,7 +40,6 @@ public class HttpAssetConnectionConfig extends AssetConnectionConfig<HttpAssetCo
 
     public HttpAssetConnectionConfig() {
         this.headers = new HashMap<>();
-        final Class<? super HttpAssetConnection> superclass = this.getImplementationType().getSuperclass();
     }
 
 
