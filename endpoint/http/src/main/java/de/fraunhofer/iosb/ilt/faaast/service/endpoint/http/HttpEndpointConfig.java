@@ -25,6 +25,8 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
     public static final int DEFAULT_PORT = 8080;
     private int port;
+    private String keystorePath;
+    private String keystorePassword;
     private boolean corsEnabled;
 
     public HttpEndpointConfig() {
@@ -39,6 +41,16 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public String getKeystorePath() { return keystorePath; }
+    public void setKeystorePath(String keystorePath) {
+        this.keystorePath = keystorePath;
+    }
+
+    public String getKeystorePassword() { return keystorePassword; }
+    public void setKeystorePassword(String keystorePassword) {
+        this.keystorePassword = keystorePassword;
     }
 
 
@@ -75,6 +87,18 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
         public B cors(boolean value) {
             getBuildingInstance().setCorsEnabled(value);
+            return getSelf();
+        }
+
+
+        public B keystorePath(String value) {
+            getBuildingInstance().setKeystorePath(value);
+            return getSelf();
+        }
+
+
+        public B keystorePassword(String value) {
+            getBuildingInstance().setKeystorePassword(value);
             return getSelf();
         }
     }

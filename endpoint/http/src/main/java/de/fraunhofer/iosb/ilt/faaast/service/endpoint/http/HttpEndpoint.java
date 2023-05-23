@@ -86,8 +86,8 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         HttpConnectionFactory http11 = new HttpConnectionFactory(httpConfig);
 
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setKeyStorePath("endpoint/http/src/main/resources/serverkeystore.jks");
-        sslContextFactory.setKeyStorePassword("password");
+        sslContextFactory.setKeyStorePath(config.getKeystorePath());
+        sslContextFactory.setKeyStorePassword(config.getKeystorePassword());
         SslConnectionFactory tls = new SslConnectionFactory(sslContextFactory, http11.getProtocol());
 
         ServerConnector serverConnector = new ServerConnector(server, tls, http11);
