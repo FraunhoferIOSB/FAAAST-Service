@@ -19,62 +19,52 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.Objects;
 import java.util.UUID;
-import javax.net.ssl.*;
-import org.eclipse.paho.client.mqttv3.*;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * the mqtt client to publish to brokers.
- *
- * @author Michael Jacoby
+ * Wrapper for Eclipse Paho MQTT client.
  */
 public class PahoClient {
 
     private static final String PROTOCOL_PREFIX = "tcp://";
     private static final String PROTOCOL_PREFIX_SSL = "ssl://";
     private static final Logger logger = LoggerFactory.getLogger(PahoClient.class);
+    private final MessageBusMqttConfig config;
     private MqttClient mqttClient;
-    private final MessageBusMqttConfig messageBusMqttConfig;
 
-    public PahoClient(MessageBusMqttConfig messageBusMqttConfig) {
-        this.messageBusMqttConfig = messageBusMqttConfig;
+    public PahoClient(MessageBusMqttConfig config) {
+        this.config = config;
     }
 
 
     /**
-     * starts the client connection.
+     * Starts the client connection.
      */
     public void start() {
-        mqttConnect();
-    }
-
-
-    /**
-     * stops the client connection.
-     */
-    public void stop() {
-        try {
-            mqttDisconnect();
-        }
-        catch (MqttException ex) {
-            logger.debug("error disconnecting MQTT", ex);
-        }
-    }
-
-
-    private void mqttConnect() {
         String endpoint;
-        if (messageBusMqttConfig.getClientKeystorePath().isEmpty()) {
-            endpoint = messageBusMqttConfig.getHost() + ":" + messageBusMqttConfig.getPort();
+        if (config.getClientKeystorePath().isEmpty()) {
+            endpoint = config.getHost() + ":" + config.getPort();
             if (!endpoint.startsWith(PROTOCOL_PREFIX)) {
                 endpoint = PROTOCOL_PREFIX + endpoint;
             }
         }
         else {
-            endpoint = messageBusMqttConfig.getHost() + ":" + messageBusMqttConfig.getSslPort();
+            endpoint = config.getHost() + ":" + config.getSslPort();
             if (!endpoint.startsWith(PROTOCOL_PREFIX_SSL)) {
                 endpoint = PROTOCOL_PREFIX_SSL + endpoint;
             }
@@ -82,14 +72,14 @@ public class PahoClient {
         String clientId = "FA³ST MQTT MessageBus Client " + UUID.randomUUID().toString().replace("-", "");
         clientId = clientId.substring(0, 20); // MQTTv2 limited to 23 characters
         MqttConnectOptions options = new MqttConnectOptions();
-        SSLSocketFactory ssl = getSSLSocketFactory(messageBusMqttConfig.getClientKeystorePath(), messageBusMqttConfig.getClientKeystorePass());
+        SSLSocketFactory ssl = getSSLSocketFactory(config.getClientKeystorePath(), config.getClientKeystorePassword());
         if (!Objects.isNull(ssl)) {
             options.setSocketFactory(ssl);
         }
-        if (!Objects.isNull(messageBusMqttConfig.getUsername())) {
-            options.setUserName(messageBusMqttConfig.getUsername());
-            options.setPassword(messageBusMqttConfig.getPassword() != null
-                    ? messageBusMqttConfig.getPassword().toCharArray()
+        if (!Objects.isNull(config.getUsername())) {
+            options.setUserName(config.getUsername());
+            options.setPassword(config.getPassword() != null
+                    ? config.getPassword().toCharArray()
                     : new char[0]);
         }
         options.setAutomaticReconnect(true);
@@ -121,17 +111,45 @@ public class PahoClient {
 
                 @Override
                 public void connectComplete(boolean reconnect, String serverURI) {
-                    logger.info("MQTT MessageBus Client connected to broker.");
+                    logger.debug("MQTT MessageBus Client connected to broker.");
 
                 }
 
             });
             logger.trace("connecting to MQTT broker: {}", endpoint);
             mqttClient.connect(options);
-            logger.info("connected to MQTT broker: {}", endpoint);
+            logger.debug("connected to MQTT broker: {}", endpoint);
         }
         catch (Exception ex) {
             logger.error("failed to connect to MQTT broker", ex);
+        }
+    }
+
+
+    /**
+     * Stops the client connection.
+     */
+    public void stop() {
+        try {
+            if (mqttClient == null) {
+                return;
+            }
+            if (mqttClient.isConnected()) {
+                logger.trace("disconnecting from MQTT broker...");
+                mqttClient.disconnect();
+                logger.info("disconnected from MQTT broker");
+            }
+            try {
+                logger.trace("closing paho-client");
+                mqttClient.close(true);
+            }
+            catch (MqttException ex) {
+                logger.error("exception closing MQTT client.", ex);
+            }
+            mqttClient = null;
+        }
+        catch (MqttException ex) {
+            logger.debug("error disconnecting MQTT", ex);
         }
     }
 
@@ -161,36 +179,16 @@ public class PahoClient {
     }
 
 
-    private void mqttDisconnect() throws MqttException {
-        if (mqttClient == null) {
-            return;
-        }
-        if (mqttClient.isConnected()) {
-            logger.trace("disconnecting from MQTT broker...");
-            mqttClient.disconnect();
-            logger.info("disconnected from MQTT broker");
-        }
-        try {
-            logger.trace("closing paho-client");
-            mqttClient.close(true);
-        }
-        catch (MqttException ex) {
-            logger.error("exception closing MQTT client.", ex);
-        }
-        mqttClient = null;
-    }
-
-
     /**
-     * publishes the message.
+     * Publishes the message.
      *
-     * @param topic
-     * @param content
+     * @param topic the topic to publish on
+     * @param content the message to publish
      */
     public void publish(String topic, String content) {
         if (!mqttClient.isConnected()) {
-            logger.warn("received data but MQTT connection is closed, trying to connect...");
-            mqttConnect();
+            logger.debug("received data but MQTT connection is closed, trying to connect...");
+            start();
         }
         MqttMessage msg = new MqttMessage(content.getBytes());
         try {
@@ -204,10 +202,10 @@ public class PahoClient {
 
 
     /**
-     * subscribe to a mqtt topic.
+     * Subscribe to a mqtt topic.
      *
-     * @param topic
-     * @param listener
+     * @param topic the topic to subscribe to
+     * @param listener the callback listener
      */
     public void subscribe(String topic, IMqttMessageListener listener) {
         try {
@@ -220,9 +218,9 @@ public class PahoClient {
 
 
     /**
-     * unsubscribe from a mqtt topic.
+     * Unsubscribe from a mqtt topic.
      *
-     * @param topic
+     * @param topic the topic to unsubscribe from
      */
     public void unsubscribe(String topic) {
         if (mqttClient != null && mqttClient.isConnected()) {

@@ -27,94 +27,91 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import java.io.IOException;
-import java.util.*;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
  * The mqtt server based on moquette to publish message bus events.
- *
- * @author jab
  */
 public class MoquetteServer {
-    /**
-     * The logger for this class.
-     */
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MoquetteServer.class);
 
-    private Server mqttBroker;
+    private Server server;
 
     /**
      * The MQTT Id used by FA³ST service to connect to the MQTT broker.
      */
     private final String fastClientId;
-    private final MessageBusMqttConfig messageBusMqttConfig;
+    private final MessageBusMqttConfig config;
 
     public MoquetteServer(MessageBusMqttConfig config) {
         fastClientId = "FA³ST MQTT Server (" + UUID.randomUUID() + ")";
-        this.messageBusMqttConfig = config;
+        this.config = config;
     }
 
 
     /**
-     * publish the message.
+     * Publish a message.
      *
      * @param topic
      * @param message
      * @param qos
      */
     public void publish(String topic, String message, int qos) {
-        if (mqttBroker != null) {
+        if (server != null) {
             final ByteBuf payload = ByteBufUtil.writeUtf8(UnpooledByteBufAllocator.DEFAULT, message);
             MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PUBLISH, false, MqttQoS.valueOf(qos), false, 0);
             MqttPublishVariableHeader varHeader = new MqttPublishVariableHeader(topic, 0);
             MqttPublishMessage mqttPublishMessage = new MqttPublishMessage(fixedHeader, varHeader, payload);
-            mqttBroker.internalPublish(mqttPublishMessage, fastClientId);
+            server.internalPublish(mqttPublishMessage, fastClientId);
         }
     }
 
 
     /**
-     * starts the broker.
+     * Starts the broker.
+     *
+     * @throws java.io.IOException when starting the server fails with an IO error
      */
-    public void start() {
-        mqttBroker = new Server();
-        IConfig config = new MemoryConfig(new Properties());
+    public void start() throws IOException {
+        server = new Server();
+        IConfig serverConfig = new MemoryConfig(new Properties());
         // Ensure the immediate_flush property has a default of true.
-        config.setProperty(BrokerConstants.IMMEDIATE_BUFFER_FLUSH_PROPERTY_NAME, String.valueOf(messageBusMqttConfig.isInternalBroker()));
-        config.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(messageBusMqttConfig.getPort()));
-        config.setProperty(BrokerConstants.HOST_PROPERTY_NAME, messageBusMqttConfig.getHost());
-        config.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.TRUE.toString());
-        config.setProperty(BrokerConstants.WEB_SOCKET_PORT_PROPERTY_NAME, Integer.toString(messageBusMqttConfig.getWebsocketPort()));
-        String keystorePath = messageBusMqttConfig.getBrokerKeystorePath();
+        serverConfig.setProperty(BrokerConstants.IMMEDIATE_BUFFER_FLUSH_PROPERTY_NAME, String.valueOf(true));
+        serverConfig.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(config.getPort()));
+        serverConfig.setProperty(BrokerConstants.HOST_PROPERTY_NAME, config.getHost());
+        serverConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.TRUE.toString());
+        serverConfig.setProperty(BrokerConstants.WEB_SOCKET_PORT_PROPERTY_NAME, Integer.toString(config.getWebsocketPort()));
+        String keystorePath = config.getServerKeystorePath();
         if (!keystorePath.isEmpty()) {
             LOGGER.info("Configuring keystore for ssl");
-            config.setProperty(BrokerConstants.JKS_PATH_PROPERTY_NAME, keystorePath);
-            config.setProperty(BrokerConstants.KEY_STORE_PASSWORD_PROPERTY_NAME, messageBusMqttConfig.getBrokerKeystorePass());
-            config.setProperty(BrokerConstants.KEY_MANAGER_PASSWORD_PROPERTY_NAME, messageBusMqttConfig.getBrokerKeymanagerPass());
-            config.setProperty(BrokerConstants.SSL_PORT_PROPERTY_NAME, Integer.toString(messageBusMqttConfig.getSslPort()));
-            config.setProperty(BrokerConstants.WSS_PORT_PROPERTY_NAME, Integer.toString(messageBusMqttConfig.getSslWebsocketPort()));
+            serverConfig.setProperty(BrokerConstants.JKS_PATH_PROPERTY_NAME, keystorePath);
+            if (Objects.nonNull(config.getServerKeystorePassword())) {
+                serverConfig.setProperty(BrokerConstants.KEY_STORE_PASSWORD_PROPERTY_NAME, config.getServerKeystorePassword());
+                serverConfig.setProperty(BrokerConstants.KEY_MANAGER_PASSWORD_PROPERTY_NAME, config.getServerKeystorePassword());
+            }
+            serverConfig.setProperty(BrokerConstants.SSL_PORT_PROPERTY_NAME, Integer.toString(config.getSslPort()));
+            serverConfig.setProperty(BrokerConstants.WSS_PORT_PROPERTY_NAME, Integer.toString(config.getSslWebsocketPort()));
         }
-        String passwordPath = messageBusMqttConfig.getPasswordFile();
+        String passwordPath = config.getPasswordFile();
         if (!passwordPath.isEmpty()) {
-            config.setProperty(BrokerConstants.PASSWORD_FILE_PROPERTY_NAME, passwordPath);
+            serverConfig.setProperty(BrokerConstants.PASSWORD_FILE_PROPERTY_NAME, passwordPath);
         }
-        try {
-            mqttBroker.startServer(config);
-        }
-        catch (IOException e) {
-            LOGGER.warn("MQTT MessageBus could not be started.");
-        }
+        server.startServer(serverConfig);
     }
 
 
     /**
-     * stops the broker.
+     * Stops the broker.
      */
     public void stop() {
-        if (mqttBroker != null) {
-            mqttBroker.stopServer();
+        if (Objects.nonNull(server)) {
+            server.stopServer();
         }
     }
 }

@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
@@ -26,13 +27,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
+import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,12 +41,11 @@ import org.slf4j.LoggerFactory;
  */
 public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MessageBusMqtt.class);
+    private static final String TOPIC_PREFIX = "events/";
     private final Map<SubscriptionId, SubscriptionInfo> subscriptions;
     private MessageBusMqttConfig config;
     private MoquetteServer server;
     private PahoClient client;
-    private String eventsPrefix = "events/";
 
     public MessageBusMqtt() {
         subscriptions = new ConcurrentHashMap<>();
@@ -62,7 +61,7 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     @Override
     public void init(CoreConfig coreConfig, MessageBusMqttConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
         this.config = config;
-        if (config.isInternalBroker()) {
+        if (config.getUseInternalServer()) {
             server = new MoquetteServer(config);
         }
         client = new PahoClient(config);
@@ -70,22 +69,27 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
 
 
     @Override
-    public void publish(EventMessage message) {
+    public void publish(EventMessage message) throws MessageBusException {
         try {
             Class<? extends EventMessage> messageType = message.getClass();
             JsonApiSerializer serializer = new JsonApiSerializer();
-            client.publish(eventsPrefix + messageType.getSimpleName(), serializer.write(message));
+            client.publish(TOPIC_PREFIX + messageType.getSimpleName(), serializer.write(message));
         }
         catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            throw new MessageBusException("Error publishing event via MQTT message bus", e);
         }
     }
 
 
     @Override
-    public void start() {
-        if (config.isInternalBroker()) {
-            server.start();
+    public void start() throws MessageBusException {
+        if (config.getUseInternalServer()) {
+            try {
+                server.start();
+            }
+            catch (IOException e) {
+                throw new MessageBusException("Error starting MQTT server for message bus", e);
+            }
         }
         client.start();
     }
@@ -93,24 +97,20 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
 
     @Override
     public void stop() {
-        if (config.isInternalBroker()) {
+        client.stop();
+        if (config.getUseInternalServer()) {
             server.stop();
         }
-        client.stop();
     }
 
 
     @Override
     public SubscriptionId subscribe(SubscriptionInfo subscriptionInfo) {
         Ensure.requireNonNull(subscriptionInfo, "subscriptionInfo must be non-null");
-        subscriptionInfo.getSubscribedEvents().forEach((a) -> {
-            //get all events corresponding to abstract events
-            determineEvents((Class<? extends EventMessage>) a).stream().forEach((e) -> {
-                //subscribe to each event
-                client.subscribe(eventsPrefix + e.getSimpleName(), (t, message) -> {
-                    // deserialize
+        subscriptionInfo.getSubscribedEvents().forEach(a -> {
+            determineEvents((Class<? extends EventMessage>) a).stream().forEach(e -> {
+                client.subscribe(TOPIC_PREFIX + e.getSimpleName(), (t, message) -> {
                     EventMessage event = new JsonApiDeserializer().read(message.toString(), e);
-                    // filter
                     if (subscriptionInfo.getFilter().test(event.getElement())) {
                         subscriptionInfo.getHandler().accept(event);
                     }
@@ -146,11 +146,9 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     public void unsubscribe(SubscriptionId id) {
         SubscriptionInfo info = subscriptions.get(id);
         Ensure.requireNonNull(info.getSubscribedEvents(), "subscriptionInfo must be non-null");
-        subscriptions.get(id).getSubscribedEvents().stream().forEach(a ->
-        //find all events for given abstract or event
-        determineEvents((Class<? extends EventMessage>) a).stream().forEach(e ->
-        //unsubscribe from all events
-        client.unsubscribe(eventsPrefix + e.getSimpleName())));
+        subscriptions.get(id).getSubscribedEvents().stream().forEach(a -> //find all events for given abstract or event
+        determineEvents((Class<? extends EventMessage>) a).stream().forEach(e -> //unsubscribe from all events
+        client.unsubscribe(TOPIC_PREFIX + e.getSimpleName())));
         subscriptions.remove(id);
     }
 }

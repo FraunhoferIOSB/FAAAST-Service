@@ -39,7 +39,7 @@
         <module>model</module>
         <module>endpoint/http</module>
         <module>messagebus/internal</module>
-        <module>messagebus/external</module>
+        <module>messagebus/mqtt</module>
         <module>persistence/memory</module>
         <module>assetconnection/common</module>
         <module>persistence/file</module>
