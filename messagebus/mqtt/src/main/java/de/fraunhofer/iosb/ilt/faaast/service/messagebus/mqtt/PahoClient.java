@@ -156,21 +156,20 @@ public class PahoClient {
 
     private SSLSocketFactory getSSLSocketFactory(String keyStorePath, String password) {
         try (InputStream jksInputStream = new FileInputStream(keyStorePath)) {
-            KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(jksInputStream, password.toCharArray());
+            KeyStore keystore = KeyStore.getInstance("JKS");
+            keystore.load(jksInputStream, password.toCharArray());
 
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            kmf.init(ks, password.toCharArray());
+            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            keyManagerFactory.init(keystore, password.toCharArray());
 
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            tmf.init(ks);
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(keystore);
 
-            SSLContext sc = SSLContext.getInstance("TLS");
-            TrustManager[] trustManagers = tmf.getTrustManagers();
-            sc.init(kmf.getKeyManagers(), trustManagers, null);
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
+            sslContext.init(keyManagerFactory.getKeyManagers(), trustManagers, null);
 
-            SSLSocketFactory ssf = sc.getSocketFactory();
-            return ssf;
+            return sslContext.getSocketFactory();
         }
         catch (Exception e) {
             logger.error("MqttMessagebus SSL init error.");

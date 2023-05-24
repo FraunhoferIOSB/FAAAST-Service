@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -51,7 +50,7 @@ public class ElementValueDeserializer extends StdDeserializer<ElementValue> {
         String modelType = root.get(JsonFieldNames.EVENT_MODELTYPE).asText();
         Class<? extends SubmodelElement> aasType = (Class<? extends SubmodelElement>) ReflectionHelper.TYPES_WITH_MODEL_TYPE.stream()
                 .filter(x -> Objects.equals(modelType, x.getSimpleName()))
-                .filter(x -> SubmodelElement.class.isAssignableFrom(x))
+                .filter(SubmodelElement.class::isAssignableFrom)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Missing type information '%s'",
                         JsonFieldNames.EVENT_MODELTYPE)));
@@ -61,7 +60,7 @@ public class ElementValueDeserializer extends StdDeserializer<ElementValue> {
 
 
     @Override
-    public ElementValue deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
+    public ElementValue deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         JsonNode root = parser.readValueAsTree();
         return (ElementValue) context.readTreeAsValue(root, getInlineTypeInfo(root));
     }

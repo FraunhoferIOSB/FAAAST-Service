@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonFieldNames;
@@ -41,7 +40,7 @@ public class ReferenceElementValueDeserializer extends ContextAwareElementValueD
 
 
     @Override
-    public ReferenceElementValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
+    public ReferenceElementValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException {
         final String MISSING_PROPERTY = "missing property '%s'";
         if (node == null) {
             return null;

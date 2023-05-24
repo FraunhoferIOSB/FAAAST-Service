@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.serializer.event;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +37,7 @@ import java.util.Objects;
  */
 public class ElementValueSerializer extends StdSerializer<ElementValue> {
 
-    private final JsonSerializer<Object> defaultSerializer;
+    private final transient JsonSerializer<Object> defaultSerializer;
 
     public ElementValueSerializer(JsonSerializer<Object> defaultSerializer) {
         this(ElementValue.class, defaultSerializer);
@@ -52,7 +51,7 @@ public class ElementValueSerializer extends StdSerializer<ElementValue> {
 
 
     @Override
-    public void serialize(ElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(ElementValue value, JsonGenerator generator, SerializerProvider provider) throws IOException {
         if (value != null) {
             generator.writeStartObject();
             generator.writeStringField(JsonFieldNames.EVENT_MODELTYPE, ElementValueMapper.getElementClass(value.getClass()).getSimpleName());
@@ -63,7 +62,7 @@ public class ElementValueSerializer extends StdSerializer<ElementValue> {
             JsonNode contentNode = new ObjectMapper().readTree(valueJson.toString());
             if (Objects.nonNull(contentNode)) {
                 if (contentNode.isObject()) {
-
+                    // intentionally left empty
                 }
                 else if (contentNode.isArray()) {
                     provider.defaultSerializeField(JsonFieldNames.EVENT_VALUE, contentNode, generator);
@@ -78,7 +77,7 @@ public class ElementValueSerializer extends StdSerializer<ElementValue> {
                     provider.defaultSerializeField(entry.getKey(), entry.getValue(), generator);
                 }
             }
-            else {
+            else if (Objects.nonNull(contentNode)) {
                 for (Iterator<Map.Entry<String, JsonNode>> i = contentNode.fields(); i.hasNext();) {
                     Map.Entry<String, JsonNode> entry = i.next();
                     provider.defaultSerializeField(entry.getKey(), entry.getValue(), generator);

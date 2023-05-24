@@ -107,16 +107,13 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     @Override
     public SubscriptionId subscribe(SubscriptionInfo subscriptionInfo) {
         Ensure.requireNonNull(subscriptionInfo, "subscriptionInfo must be non-null");
-        subscriptionInfo.getSubscribedEvents().forEach(a -> {
-            determineEvents((Class<? extends EventMessage>) a).stream().forEach(e -> {
-                client.subscribe(TOPIC_PREFIX + e.getSimpleName(), (t, message) -> {
+        subscriptionInfo.getSubscribedEvents()
+                .forEach(x -> determineEvents((Class<? extends EventMessage>) x).stream().forEach(e -> client.subscribe(TOPIC_PREFIX + e.getSimpleName(), (t, message) -> {
                     EventMessage event = new JsonApiDeserializer().read(message.toString(), e);
                     if (subscriptionInfo.getFilter().test(event.getElement())) {
                         subscriptionInfo.getHandler().accept(event);
                     }
-                });
-            });
-        });
+                })));
 
         SubscriptionId subscriptionId = new SubscriptionId();
         subscriptions.put(subscriptionId, subscriptionInfo);

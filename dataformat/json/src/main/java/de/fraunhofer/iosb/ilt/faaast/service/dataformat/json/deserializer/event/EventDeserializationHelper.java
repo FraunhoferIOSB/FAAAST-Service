@@ -56,7 +56,7 @@ public class EventDeserializationHelper {
             }
         }
         for (Map.Entry<String, JsonNode> childNode: childNodes.entrySet()) {
-            result.put(childNode.getKey(), (T) context.readTreeAsValue(childNode.getValue(), ElementValue.class));
+            result.put(childNode.getKey(), type.cast(context.readTreeAsValue(childNode.getValue(), ElementValue.class)));
         }
         return result;
     }

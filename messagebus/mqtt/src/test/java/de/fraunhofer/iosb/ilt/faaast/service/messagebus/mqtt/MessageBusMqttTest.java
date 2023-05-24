@@ -101,6 +101,8 @@ public class MessageBusMqttTest {
             .level(ErrorLevel.ERROR)
             .build();
 
+    private MessageBusMqtt messageBus;
+
     private static int findFreePort() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(0)) {
             Assert.assertNotNull(serverSocket);
@@ -118,7 +120,6 @@ public class MessageBusMqttTest {
         CONFIG.setSslWebsocketPort(findFreePort());
     }
 
-    private MessageBusMqtt messageBus;
 
     @Before
     public void startMessageBus() throws ConfigurationInitializationException, MessageBusException {
@@ -202,9 +203,6 @@ public class MessageBusMqttTest {
 
     private void assertMessages(List<Class<? extends EventMessage>> subscribeTo, List<EventMessage> toPublish, Map<Class<? extends EventMessage>, List<EventMessage>> expected)
             throws ConfigurationInitializationException, MessageBusException, InterruptedException {
-        if (Objects.isNull(expected)) {
-            expected = new HashMap<>();
-        }
         CountDownLatch condition = new CountDownLatch(expected.size());
         final Map<Class<? extends EventMessage>, List<EventMessage>> actual = Collections.synchronizedMap(new HashMap<>());
         List<SubscriptionId> subscriptions = subscribeTo.stream()
@@ -221,6 +219,6 @@ public class MessageBusMqttTest {
         }
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         subscriptions.forEach(messageBus::unsubscribe);
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(Objects.isNull(expected) ? Map.of() : expected, actual);
     }
 }

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
+import java.util.Objects;
 
 
 /**
@@ -195,7 +196,48 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
         return new Builder();
     }
 
-    // TODO equals, hashCode
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        MessageBusMqttConfig other = (MessageBusMqttConfig) o;
+        return Objects.equals(useInternalServer, other.useInternalServer)
+                && Objects.equals(port, other.port)
+                && Objects.equals(sslPort, other.sslPort)
+                && Objects.equals(host, other.host)
+                && Objects.equals(websocketPort, other.websocketPort)
+                && Objects.equals(sslWebsocketPort, other.sslWebsocketPort)
+                && Objects.equals(serverKeystorePassword, other.serverKeystorePassword)
+                && Objects.equals(serverKeystorePath, other.serverKeystorePath)
+                && Objects.equals(clientKeystorePath, other.clientKeystorePath)
+                && Objects.equals(clientKeystorePassword, other.clientKeystorePassword)
+                && Objects.equals(passwordFile, other.passwordFile)
+                && Objects.equals(username, other.username)
+                && Objects.equals(password, other.password);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(useInternalServer,
+                port,
+                sslPort,
+                host,
+                websocketPort,
+                sslWebsocketPort,
+                serverKeystorePassword,
+                serverKeystorePath,
+                clientKeystorePath,
+                clientKeystorePassword,
+                passwordFile,
+                username,
+                password);
+    }
 
     private abstract static class AbstractBuilder<T extends MessageBusMqttConfig, B extends AbstractBuilder<T, B>> extends MessageBusConfig.AbstractBuilder<MessageBusMqtt, T, B> {
 

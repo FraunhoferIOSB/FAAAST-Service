@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -58,9 +57,12 @@ public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 
 
     @Override
-    public TypedValue deserialize(JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
+    public TypedValue deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         JsonNode root = parser.readValueAsTree();
         Datatype datatype = getDatatype(root);
+        if (Objects.isNull(datatype)) {
+            throw new IOException("Unable to determine datatype");
+        }
         if (Objects.isNull(root) || root.isEmpty()) {
             return null;
         }
