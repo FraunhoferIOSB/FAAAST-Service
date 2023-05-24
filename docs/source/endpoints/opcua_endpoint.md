@@ -24,13 +24,14 @@ In order to use the OPC UA Endpoint, the configuration settings require to inclu
 			"@class": "de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.OpcUaEndpoint",
 			"tcpPort" : 18123,
 			"secondsTillShutdown" : 5,
-			"allowAnonymous" : true,
 			"discoveryServerUrl" : "opc.tcp://localhost:4840",
 			"userMap" : {
 			  "user1" : "secret"
 			},
 			"serverCertificateBasePath" : "PKI/CA",
-			"userCertificateBasePath" : "USERS_PKI/CA"
+			"userCertificateBasePath" : "USERS_PKI/CA",
+			"supportedSecurityPolicies" : [ "NONE", "BASIC256SHA256", "AES128_SHA256_RSAOAEP" ],
+			"supportedAuthentications" : [ "Anonymous", "UserName" ]
 		}
 	]
 }
@@ -39,11 +40,12 @@ In order to use the OPC UA Endpoint, the configuration settings require to inclu
 OPC UA Endpoint configuration supports the following configuration parameters
 -   `tcpPort` is the desired Port for the OPC UA TCP Protocol (opc.tcp). Default is 4840.
 -   `secondsTillShutdown` is the number of seconds the server waits for clients to disconnect when stopping the Endpoint. When the Endpoint is stopped, the server sends a predefined event to all connected clients, that the OPC UA Server is about to shutdown. Now, the OPC UA Server waits the given number of seconds before he stops, to give the clients the possibility to disconnect from the Server. When `secondsTillShutdown` is 0, the Endpoint doesn't wait and stops immediately. Default is 2.
--   `allowAnonymous` specifies whether anonymous access to the OPC UA Endpoint is enabled (True) or disabled (False). If anonymous access is disabled, only authenticated users have access to the OPC UA Endpoint. Default is True.
 -   `discoveryServerUrl` is the URL which is used for registration with a discovery server. An empty String disables discovery server registration. Default is an empty String.
--   `userMap` is a map with user authentication credentials for the OPC UA Endpoint. The Key is the User Name, the Value is the Password.
--   `serverCertificateBasePath` is the path where the server certificates are stored. Default is "PKI/CA". Below this path, further subdirectories are created. In "private" the certificates and private keys of the OPC UA Endpoint are saved. The filename of the base server certificate is "Fraunhofer IOSB AAS OPC UA Server@ILT808_2048.der", the filename of the corresponding private key is "Fraunhofer IOSB AAS OPC UA Server@ILT808_2048.pem". In "rejected" unknown (rejected) certificates from connecting clients are saved. In "certs" trusted certificates for clients are saved. To trust the certificate of a client, move it from "rejected" to "certs". In "crl" the certificate revocation list for a CA certificate saved in "certs" is saved. In "issuers" the certificates of trusted CAs are saved.
--   `userCertificateBasePath` is the path where the certificates for user authentication are saved. Default is "USERS_PKI/CA". Below this path, further subdirectories are created. In "rejected" certificates from unknown (rejected) users are saved. In "certs" certificates for trusted users are saved. To trust the certificate of a user, move it from "rejected" to "certs". In "crl" the certificate revocation list for a CA certificate saved in "certs" is saved. In "issuers" the certificates of trusted CAs are saved.
+-   `serverCertificateBasePath` is the path where the server application certificates are stored. Default is "PKI/CA". Below this path, further subdirectories are created. In "private" the certificates and private keys of the OPC UA Endpoint are saved. The filename of the base server application certificate is "Fraunhofer IOSB AAS OPC UA Server@ILT808_2048.der", the filename of the corresponding private key is "Fraunhofer IOSB AAS OPC UA Server@ILT808_2048.pem". If this application certificate doesn't exist, a self-signed certificate is automatically created on start. In "rejected" unknown (rejected) certificates from connecting clients are saved. In "certs" trusted certificates for clients are saved. To trust the certificate of a client, move it from "rejected" to "certs". In "crl" the certificate revocation list for a CA certificate saved in "certs" is saved. In "issuers/certs" the certificates of trusted CAs are saved. In "issuers/crl" the certificate revocation lists of the coresponding trusted CA certificates are saved.
+-   `supportedSecurityPolicies` is the list of supported security Policies. The security Policies included in the list will be available in the OPC UA Endpoint. Possible values are: NONE, BASIC128RSA15, BASIC256, BASIC256SHA256, AES128_SHA256_RSAOAEP, AES256_SHA256_RSAPSS. If the list is empty, the default value is "NONE", "BASIC256SHA256", "AES128_SHA256_RSAOAEP" and "AES256_SHA256_RSAPSS". Please note, that BASIC128RSA15 and BASIC256 are deprecated, as they are considered unsafe.
+-   `supportedAuthentications` is the list of supported authentication types. The authentication types included in the list will be available in the OPC UA Endpoint. Possible values are: Anonymous, UserName, Certificate. If the list is empty, the default value is "Anonymous".
+-   `userMap` is a map with user authentication credentials for the OPC UA Endpoint. The Key is the User Name, the Value is the Password. If the Map is empty, authentication with User Name and Password won't be possible. This value is only relevant, when "UserName" is included in `supportedAuthentications`.
+-   `userCertificateBasePath` is the path where the certificates for user authentication are saved. Default is "USERS_PKI/CA". Below this path, further subdirectories are created. In "rejected", certificates from unknown (rejected) users are saved. In "certs" certificates for trusted users are saved. To trust the certificate of a user, move it from "rejected" to "certs". In "crl" the certificate revocation list for a coresponding CA certificate saved in "certs" is saved. In "issuers/certs" the certificates of trusted CAs are saved. In "issuers/crl" the certificate revocation lists of the coresponding trusted CA certificates are saved. This value is only relevant, when "Certificate" is included in `supportedAuthentications`.
 
 To connect to the OPC UA Endpoint, you need an OPC UA Client.
 Here are some examples of OPC UA Clients:
@@ -59,7 +61,7 @@ C#-based sample code from the OPC Foundation.
 -   [Eclipse Milo](https://github.com/eclipse/milo)
 Java-based Open Source SDK for Java.
 
-Here you can see a sample Screenshot with UaExpert.   
+Here you can see a sample Screenshot with UaExpert.
 ![Screenshot with UaExpert](../images/OpcUaEndpoint.png "Screenshot with UaExpert")
 
 ## Supported Functions

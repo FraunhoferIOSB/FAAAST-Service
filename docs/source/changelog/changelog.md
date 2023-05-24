@@ -2,11 +2,16 @@
 <!--start:changelog-header-->
 ## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
 
+**New Features & Major Changes**
+*   OPC UA Endpoint
+	*   Now supports configuring supported security policies (`NONE`, `BASIC128RSA15`, `BASIC256`, `BASIC256SHA256`, `AES128_SHA256_RSAOAEP`, `AES256_SHA256_RSAPSS`) and authentication methods (`Anonymous`, `UserName`, `Certificate`)
+
 **Internal changes & bugfixes**
 *   General
 	*   Fixed a `ConcurrentModificationException` that could occur when accessing a submodel with subscription-based asset connection via HTTP endpoint
 *   HTTP Endpoint
 	*   Now correctly uses base64URL-encoding for all HTTP requests (instead of base64-encoding for some)
+    *   Now longer leaks sensitive server information in HTTP response headers (such as server version of the HTTP server library)
 *   Asset Connection
 	*   OPC UA
 		*   Unit tests no longer create temp files in source folders
@@ -156,7 +161,7 @@
 
 *   Add builder classes for event messages & config classes
 
-*   Replace AASEnvironmentHelper with methods of EnvironmentSerialization 
+*   Replace AASEnvironmentHelper with methods of EnvironmentSerialization
 
 ## Release version 0.1.0
 
