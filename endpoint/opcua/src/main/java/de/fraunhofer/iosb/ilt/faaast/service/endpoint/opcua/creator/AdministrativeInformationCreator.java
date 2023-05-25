@@ -24,7 +24,7 @@ import com.prosysopc.ua.stack.builtintypes.NodeId;
 import com.prosysopc.ua.stack.core.AccessLevelType;
 import com.prosysopc.ua.stack.core.Identifiers;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.AasServiceNodeManager;
-import io.adminshell.aas.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 import opc.i4aas.AASAdministrativeInformationType;
 
 

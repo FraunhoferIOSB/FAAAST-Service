@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.FileValue;
-import io.adminshell.aas.v3.model.File;
+import org.eclipse.digitaltwin.aas4j.v3.model.File;
 
 
 /**
@@ -31,7 +31,7 @@ public class FileValueMapper implements DataValueMapper<File, FileValue> {
         }
         FileValue fileValue = new FileValue();
         fileValue.setValue(submodelElement.getValue());
-        fileValue.setMimeType(submodelElement.getMimeType());
+        fileValue.setContentType(submodelElement.getContentType());
         return fileValue;
     }
 
@@ -40,7 +40,7 @@ public class FileValueMapper implements DataValueMapper<File, FileValue> {
     public File setValue(File submodelElement, FileValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setValue(value.getValue());
-        submodelElement.setMimeType(value.getMimeType());
+        submodelElement.setContentType(value.getContentType());
         return submodelElement;
     }
 }

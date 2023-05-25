@@ -17,14 +17,15 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.Submodel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**
@@ -32,37 +33,77 @@ import java.util.stream.Collectors;
  */
 public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifiableDescriptor implements AssetAdministrationShellDescriptor {
 
-    private Reference globalAssetId;
-    private List<IdentifierKeyValuePair> specificAssetIds;
+    private String globalAssetId;
+    private List<SpecificAssetID> specificAssetIds;
     private List<SubmodelDescriptor> submodels;
+    private List<Extension> extensions;
+    private AssetKind assetKind;
+    private String assetType;
 
     public DefaultAssetAdministrationShellDescriptor() {
-        globalAssetId = null;
         specificAssetIds = new ArrayList<>();
         submodels = new ArrayList<>();
+        extensions = new ArrayList<>();
+        assetKind = AssetKind.NOT_APPLICABLE;
     }
 
 
     @Override
-    public Reference getGlobalAssetId() {
+    public AssetKind getAssetKind() {
+        return assetKind;
+    }
+
+
+    @Override
+    public void setAssetKind(AssetKind assetKind) {
+        this.assetKind = assetKind;
+    }
+
+
+    @Override
+    public String getAssetType() {
+        return assetType;
+    }
+
+
+    @Override
+    public void setAssetType(String assetType) {
+        this.assetType = assetType;
+    }
+
+
+    @Override
+    public List<Extension> getExtensions() {
+        return extensions;
+    }
+
+
+    @Override
+    public void setExtensions(List<Extension> extensions) {
+        this.extensions = extensions;
+    }
+
+
+    @Override
+    public String getGlobalAssetId() {
         return globalAssetId;
     }
 
 
     @Override
-    public void setGlobalAssetId(Reference globalAssetId) {
+    public void setGlobalAssetId(String globalAssetId) {
         this.globalAssetId = globalAssetId;
     }
 
 
     @Override
-    public List<IdentifierKeyValuePair> getSpecificAssetIds() {
+    public List<SpecificAssetID> getSpecificAssetIds() {
         return specificAssetIds;
     }
 
 
     @Override
-    public void setSpecificAssetIds(List<IdentifierKeyValuePair> specificAssetIds) {
+    public void setSpecificAssetIds(List<SpecificAssetID> specificAssetIds) {
         this.specificAssetIds = specificAssetIds;
     }
 
@@ -91,13 +132,16 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
         return super.equals(that)
                 && Objects.equals(globalAssetId, that.globalAssetId)
                 && Objects.equals(specificAssetIds, that.specificAssetIds)
-                && Objects.equals(submodels, that.submodels);
+                && Objects.equals(submodels, that.submodels)
+                && Objects.equals(assetType, that.assetType)
+                && Objects.equals(extensions, that.extensions)
+                && assetKind == that.assetKind;
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), globalAssetId, specificAssetIds, submodels);
+        return Objects.hash(super.hashCode(), globalAssetId, specificAssetIds, submodels, assetKind, assetType, extensions);
     }
 
 
@@ -108,19 +152,19 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
     public abstract static class AbstractBuilder<T extends DefaultAssetAdministrationShellDescriptor, B extends AbstractBuilder<T, B>>
             extends AbstractIdentifiableDescriptor.AbstractBuilder<T, B> {
 
-        public B globalAssetId(Reference value) {
+        public B globalAssetId(String value) {
             getBuildingInstance().setGlobalAssetId(value);
             return getSelf();
         }
 
 
-        public B specificAssetIds(List<IdentifierKeyValuePair> value) {
+        public B specificAssetIds(List<SpecificAssetID> value) {
             getBuildingInstance().setSpecificAssetIds(value);
             return getSelf();
         }
 
 
-        public B specificAssetId(IdentifierKeyValuePair value) {
+        public B specificAssetId(SpecificAssetID value) {
             getBuildingInstance().getSpecificAssetIds().add(value);
             return getSelf();
         }
@@ -138,6 +182,30 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
         }
 
 
+        public B assetType(String value) {
+            getBuildingInstance().setAssetType(value);
+            return getSelf();
+        }
+
+
+        public B assetkind(AssetKind value) {
+            getBuildingInstance().setAssetKind(value);
+            return getSelf();
+        }
+
+
+        public B extension(Extension value) {
+            getBuildingInstance().getExtensions().add(value);
+            return getSelf();
+        }
+
+
+        public B extensions(List<Extension> value) {
+            getBuildingInstance().setExtensions(value);
+            return getSelf();
+        }
+
+
         public B from(AssetAdministrationShellDescriptor other) {
             if (Objects.nonNull(other)) {
                 idShort(other.getIdShort());
@@ -145,10 +213,13 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
                 administration(other.getAdministration());
                 descriptions(other.getDescriptions());
                 displayNames(other.getDisplayNames());
-                identification(other.getIdentification());
+                id(other.getId());
                 globalAssetId(other.getGlobalAssetId());
                 specificAssetIds(other.getSpecificAssetIds());
                 submodels(other.getSubmodels());
+                assetType(other.getAssetType());
+                assetkind(other.getAssetKind());
+                extensions(other.getExtensions());
             }
             return getSelf();
         }
@@ -158,11 +229,11 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
             if (parent != null) {
                 idShort(parent.getIdShort());
                 administration(parent.getAdministration());
-                descriptions(parent.getDescriptions());
-                displayNames(parent.getDisplayNames());
-                identification(parent.getIdentification());
+                descriptions(parent.getDescription());
+                displayNames(parent.getDisplayName());
+                id(parent.getId());
                 if (parent.getAssetInformation() != null) {
-                    globalAssetId(parent.getAssetInformation().getGlobalAssetId());
+                    globalAssetId(parent.getAssetInformation().getGlobalAssetID());
                     specificAssetIds(parent.getAssetInformation().getSpecificAssetIds());
                 }
             }
@@ -177,12 +248,12 @@ public class DefaultAssetAdministrationShellDescriptor extends AbstractIdentifia
             from(aas);
             if (submodels != null) {
                 List<Submodel> submodelsNotPresentInAAS = submodels.stream()
-                        .filter(x -> !aas.getSubmodels().contains(ReferenceHelper.toReference(x.getIdentification(), Submodel.class)))
+                        .filter(x -> !aas.getSubmodels().contains(ReferenceHelper.toReference(x.getId(), Submodel.class)))
                         .collect(Collectors.toList());
                 if (!submodelsNotPresentInAAS.isEmpty()) {
                     throw new IllegalArgumentException(String.format("Submodel(s) not found in AAS (id: %s) ",
                             submodelsNotPresentInAAS.stream()
-                                    .map(x -> x.getIdentification().getIdentifier())
+                                    .map(x -> x.getId())
                                     .collect(Collectors.joining(", "))));
                 }
                 submodels(submodels.stream()

@@ -15,10 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellsByAssetIdResponse;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 
 
 /**
@@ -26,7 +26,7 @@ import java.util.Objects;
  */
 public class GetAllAssetAdministrationShellsByAssetIdRequest extends AbstractRequestWithModifier<GetAllAssetAdministrationShellsByAssetIdResponse> {
 
-    private List<IdentifierKeyValuePair> assetIds;
+    private List<SpecificAssetID> assetIds;
 
     public GetAllAssetAdministrationShellsByAssetIdRequest() {
         super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL);
@@ -54,12 +54,12 @@ public class GetAllAssetAdministrationShellsByAssetIdRequest extends AbstractReq
     }
 
 
-    public List<IdentifierKeyValuePair> getAssetIds() {
+    public List<SpecificAssetID> getAssetIds() {
         return assetIds;
     }
 
 
-    public void setAssetIds(List<IdentifierKeyValuePair> assetIds) {
+    public void setAssetIds(List<SpecificAssetID> assetIds) {
         this.assetIds = assetIds;
     }
 
@@ -71,13 +71,13 @@ public class GetAllAssetAdministrationShellsByAssetIdRequest extends AbstractReq
     public abstract static class AbstractBuilder<T extends GetAllAssetAdministrationShellsByAssetIdRequest, B extends AbstractBuilder<T, B>>
             extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
-        public B assetId(IdentifierKeyValuePair value) {
+        public B assetId(SpecificAssetID value) {
             getBuildingInstance().getAssetIds().add(value);
             return getSelf();
         }
 
 
-        public B assetIds(List<IdentifierKeyValuePair> value) {
+        public B assetIds(List<SpecificAssetID> value) {
             getBuildingInstance().setAssetIds(value);
             return getSelf();
         }

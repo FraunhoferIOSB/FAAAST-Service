@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.Identifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
 
 
 /**

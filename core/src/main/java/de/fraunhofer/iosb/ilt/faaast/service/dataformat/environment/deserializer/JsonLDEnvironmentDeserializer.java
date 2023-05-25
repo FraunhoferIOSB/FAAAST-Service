@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentContext;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.EnvironmentDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.SupportedDataformat;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import io.adminshell.aas.v3.dataformat.rdf.Serializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.rdf.Serializer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;

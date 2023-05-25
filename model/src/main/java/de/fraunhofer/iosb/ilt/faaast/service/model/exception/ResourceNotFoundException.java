@@ -14,10 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.exception;
 
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.Identifiable;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 
 
 /**
@@ -42,12 +41,12 @@ public class ResourceNotFoundException extends Exception {
     }
 
 
-    public ResourceNotFoundException(Identifier id, Class<? extends Identifiable> type, Throwable cause) {
+    public ResourceNotFoundException(String id, Class<? extends Identifiable> type, Throwable cause) {
         this(String.format("%s (id: %s, type: %s)", BASE_MSG, id, type), cause);
     }
 
 
-    public ResourceNotFoundException(Identifier id, Class<? extends Identifiable> type) {
+    public ResourceNotFoundException(String id, Class<? extends Identifiable> type) {
         this(String.format("%s (id: %s, type: %s)", BASE_MSG, id, type));
     }
 

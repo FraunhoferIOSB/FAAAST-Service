@@ -20,9 +20,19 @@
             <version>${guava.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.admin-shell.aas</groupId>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+            <version>${classgraph.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.digitaltwin.aas4j</groupId>
             <artifactId>dataformat-core</artifactId>
-            <version>${aas.dataformat.version}</version>
+            <version>${aas4j.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -35,25 +45,15 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>io.admin-shell.aas</groupId>
+            <groupId>org.eclipse.digitaltwin.aas4j</groupId>
             <artifactId>model</artifactId>
-            <version>${aas.model.version}</version>
+            <version>${aas4j.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>io.github.classgraph</groupId>
-            <artifactId>classgraph</artifactId>
-            <version>${classgraph.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons.lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.common.provider.MultiFormatOperationProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.mqtt.provider.config.MqttOperationProviderConfig;
-import io.adminshell.aas.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import java.util.function.UnaryOperator;
 
 

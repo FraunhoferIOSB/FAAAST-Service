@@ -17,7 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.creator;
 import com.prosysopc.ua.nodes.UaNode;
 import com.prosysopc.ua.stack.builtintypes.LocalizedText;
 import com.prosysopc.ua.stack.core.Argument;
-import io.adminshell.aas.v3.model.LangString;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangString;
 import java.util.List;
 
 

@@ -18,11 +18,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ReferenceElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
-import io.adminshell.aas.v3.model.impl.DefaultReferenceElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReferenceElement;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -88,8 +87,8 @@ public class ReferenceElementValueTest {
 
     private ReferenceElementValue createReferenceElementValue() {
         return ReferenceElementValue.builder()
-                .key(KeyType.IRI, KeyElements.SUBMODEL, "http://example.org/submodel/1")
-                .key(KeyType.ID_SHORT, KeyElements.PROPERTY, "property1")
+                .key(KeyTypes.SUBMODEL, "http://example.org/submodel/1")
+                .key(KeyTypes.PROPERTY, "property1")
                 .build();
     }
 

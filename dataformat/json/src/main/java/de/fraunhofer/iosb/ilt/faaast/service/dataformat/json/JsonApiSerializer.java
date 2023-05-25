@@ -31,7 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.AbstractSubmodelInter
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
-import io.adminshell.aas.v3.dataformat.json.modeltype.ModelTypeProcessor;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.modeltype.ModelTypeProcessor;
 import java.util.List;
 
 

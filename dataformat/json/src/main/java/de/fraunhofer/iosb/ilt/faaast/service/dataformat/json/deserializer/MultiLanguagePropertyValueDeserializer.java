@@ -18,7 +18,7 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
-import io.adminshell.aas.v3.model.LangString;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangString;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;

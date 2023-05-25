@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.TypeInstantiationEx
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
 
 
 /**
@@ -36,6 +37,20 @@ public class TypedValueFactory {
      */
     public static TypedValue<?> create(String datatypeName, String value) throws ValueFormatException {
         return create(Datatype.fromName(datatypeName), value);
+    }
+
+
+    /**
+     * Creates a new {@link TypedValue} instance based on datatype and string-based value. If datatype is unknown, type
+     * defaults to string.
+     *
+     * @param datatype the datatype
+     * @param value value in string representation
+     * @return typed value representation
+     * @throws ValueFormatException if value cannot be converted to datatype
+     */
+    public static TypedValue<?> create(DataTypeDefXSD datatype, String value) throws ValueFormatException {
+        return create(Datatype.fromAas4jDatatype(datatype), value);
     }
 
 

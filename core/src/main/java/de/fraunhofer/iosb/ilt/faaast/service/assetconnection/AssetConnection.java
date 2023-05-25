@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection;
 
 import de.fraunhofer.iosb.ilt.faaast.service.config.Configurable;
-import io.adminshell.aas.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import java.util.Map;
 
 

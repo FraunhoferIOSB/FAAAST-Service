@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**

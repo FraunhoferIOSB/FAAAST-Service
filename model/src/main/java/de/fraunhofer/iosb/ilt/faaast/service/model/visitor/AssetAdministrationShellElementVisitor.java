@@ -14,91 +14,54 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.visitor;
 
-import io.adminshell.aas.v3.model.AccessControl;
-import io.adminshell.aas.v3.model.AccessControlPolicyPoints;
-import io.adminshell.aas.v3.model.AccessPermissionRule;
-import io.adminshell.aas.v3.model.AdministrativeInformation;
-import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
-import io.adminshell.aas.v3.model.Asset;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.AssetInformation;
-import io.adminshell.aas.v3.model.BasicEvent;
-import io.adminshell.aas.v3.model.Blob;
-import io.adminshell.aas.v3.model.BlobCertificate;
-import io.adminshell.aas.v3.model.Capability;
-import io.adminshell.aas.v3.model.Certificate;
-import io.adminshell.aas.v3.model.ConceptDescription;
-import io.adminshell.aas.v3.model.Constraint;
-import io.adminshell.aas.v3.model.DataElement;
-import io.adminshell.aas.v3.model.DataSpecificationContent;
-import io.adminshell.aas.v3.model.DataSpecificationIEC61360;
-import io.adminshell.aas.v3.model.DataSpecificationPhysicalUnit;
-import io.adminshell.aas.v3.model.EmbeddedDataSpecification;
-import io.adminshell.aas.v3.model.Entity;
-import io.adminshell.aas.v3.model.Event;
-import io.adminshell.aas.v3.model.EventElement;
-import io.adminshell.aas.v3.model.EventMessage;
-import io.adminshell.aas.v3.model.Extension;
-import io.adminshell.aas.v3.model.File;
-import io.adminshell.aas.v3.model.Formula;
-import io.adminshell.aas.v3.model.HasDataSpecification;
-import io.adminshell.aas.v3.model.HasExtensions;
-import io.adminshell.aas.v3.model.HasKind;
-import io.adminshell.aas.v3.model.HasSemantics;
-import io.adminshell.aas.v3.model.Identifiable;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.MultiLanguageProperty;
-import io.adminshell.aas.v3.model.ObjectAttributes;
-import io.adminshell.aas.v3.model.Operation;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Permission;
-import io.adminshell.aas.v3.model.PermissionsPerObject;
-import io.adminshell.aas.v3.model.PolicyAdministrationPoint;
-import io.adminshell.aas.v3.model.PolicyDecisionPoint;
-import io.adminshell.aas.v3.model.PolicyEnforcementPoints;
-import io.adminshell.aas.v3.model.PolicyInformationPoints;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Qualifiable;
-import io.adminshell.aas.v3.model.Qualifier;
-import io.adminshell.aas.v3.model.Range;
-import io.adminshell.aas.v3.model.Referable;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.ReferenceElement;
-import io.adminshell.aas.v3.model.RelationshipElement;
-import io.adminshell.aas.v3.model.Security;
-import io.adminshell.aas.v3.model.SubjectAttributes;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.ValueList;
-import io.adminshell.aas.v3.model.ValueReferencePair;
-import io.adminshell.aas.v3.model.View;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationContent;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.EventElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.EventPayload;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
+import org.eclipse.digitaltwin.aas4j.v3.model.File;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasDataSpecification;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasExtensions;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.Range;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.ValueList;
+import org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair;
 
 
 /**
  * Visitor for elements of an {@link io.adminshell.aas.v3.model.AssetAdministrationShell}.
  */
 public interface AssetAdministrationShellElementVisitor {
-
-    /**
-     * Visit certificate.
-     *
-     * @param certificate the certificate
-     */
-    public void visit(Certificate certificate);
-
-
-    /**
-     * Visit constraint.
-     *
-     * @param constraint the constraint
-     */
-    public void visit(Constraint constraint);
-
 
     /**
      * Visit dataElement.
@@ -114,14 +77,6 @@ public interface AssetAdministrationShellElementVisitor {
      * @param dataSpecificationContent the dataSpecificationContent
      */
     public void visit(DataSpecificationContent dataSpecificationContent);
-
-
-    /**
-     * Visit event.
-     *
-     * @param event the event
-     */
-    public void visit(Event event);
 
 
     /**
@@ -193,31 +148,7 @@ public interface AssetAdministrationShellElementVisitor {
      *
      * @param assetAdministrationShellEnvironment the assetAdministrationShellEnvironment
      */
-    public void visit(AssetAdministrationShellEnvironment assetAdministrationShellEnvironment);
-
-
-    /**
-     * Visit accessControl.
-     *
-     * @param accessControl the accessControl
-     */
-    public void visit(AccessControl accessControl);
-
-
-    /**
-     * Visit accessControlPolicyPoints.
-     *
-     * @param accessControlPolicyPoints the accessControlPolicyPoints
-     */
-    public void visit(AccessControlPolicyPoints accessControlPolicyPoints);
-
-
-    /**
-     * Visit accessPermissionRule.
-     *
-     * @param accessPermissionRule the accessPermissionRule
-     */
-    public void visit(AccessPermissionRule accessPermissionRule);
+    public void visit(Environment assetAdministrationShellEnvironment);
 
 
     /**
@@ -234,14 +165,6 @@ public interface AssetAdministrationShellElementVisitor {
      * @param annotatedRelationshipElement the annotatedRelationshipElement
      */
     public void visit(AnnotatedRelationshipElement annotatedRelationshipElement);
-
-
-    /**
-     * Visit asset.
-     *
-     * @param asset the asset
-     */
-    public void visit(Asset asset);
 
 
     /**
@@ -265,7 +188,7 @@ public interface AssetAdministrationShellElementVisitor {
      *
      * @param basicEvent the basicEvent
      */
-    public void visit(BasicEvent basicEvent);
+    public void visit(BasicEventElement basicEvent);
 
 
     /**
@@ -274,14 +197,6 @@ public interface AssetAdministrationShellElementVisitor {
      * @param blob the blob
      */
     public void visit(Blob blob);
-
-
-    /**
-     * Visit blobCertificate.
-     *
-     * @param blobCertificate the blobCertificate
-     */
-    public void visit(BlobCertificate blobCertificate);
 
 
     /**
@@ -301,19 +216,11 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit dataSpecificationIEC61360.
+     * Visit DataSpecificationIec61360.
      *
-     * @param dataSpecificationIEC61360 the dataSpecificationIEC61360
+     * @param dataSpecificationIec61360 the dataSpecificationIec61360
      */
-    public void visit(DataSpecificationIEC61360 dataSpecificationIEC61360);
-
-
-    /**
-     * Visit dataSpecificationPhysicalUnit.
-     *
-     * @param dataSpecificationPhysicalUnit the dataSpecificationPhysicalUnit
-     */
-    public void visit(DataSpecificationPhysicalUnit dataSpecificationPhysicalUnit);
+    public void visit(DataSpecificationIec61360 dataSpecificationIec61360);
 
 
     /**
@@ -341,11 +248,11 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit eventMessage.
+     * Visit eventPayload.
      *
-     * @param eventMessage the eventMessage
+     * @param eventPayload the eventPayload
      */
-    public void visit(EventMessage eventMessage);
+    public void visit(EventPayload eventPayload);
 
 
     /**
@@ -365,27 +272,11 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit formula.
+     * Visit specificAssetID.
      *
-     * @param formula the formula
+     * @param specificAssetID the specificAssetID
      */
-    public void visit(Formula formula);
-
-
-    /**
-     * Visit identifier.
-     *
-     * @param identifier the identifier
-     */
-    public void visit(Identifier identifier);
-
-
-    /**
-     * Visit identifierKeyValuePair.
-     *
-     * @param identifierKeyValuePair the identifierKeyValuePair
-     */
-    public void visit(IdentifierKeyValuePair identifierKeyValuePair);
+    public void visit(SpecificAssetID specificAssetID);
 
 
     /**
@@ -401,7 +292,7 @@ public interface AssetAdministrationShellElementVisitor {
      *
      * @param langString the langString
      */
-    public void visit(LangString langString);
+    public void visit(LangStringTextType langString);
 
 
     /**
@@ -410,14 +301,6 @@ public interface AssetAdministrationShellElementVisitor {
      * @param multiLanguageProperty the multiLanguageProperty
      */
     public void visit(MultiLanguageProperty multiLanguageProperty);
-
-
-    /**
-     * Visit objectAttributes.
-     *
-     * @param objectAttributes the objectAttributes
-     */
-    public void visit(ObjectAttributes objectAttributes);
 
 
     /**
@@ -434,54 +317,6 @@ public interface AssetAdministrationShellElementVisitor {
      * @param operationVariable the operationVariable
      */
     public void visit(OperationVariable operationVariable);
-
-
-    /**
-     * Visit permission.
-     *
-     * @param permission the permission
-     */
-    public void visit(Permission permission);
-
-
-    /**
-     * Visit permissionsPerObject.
-     *
-     * @param permissionsPerObject the permissionsPerObject
-     */
-    public void visit(PermissionsPerObject permissionsPerObject);
-
-
-    /**
-     * Visit policyAdministrationPoint.
-     *
-     * @param policyAdministrationPoint the policyAdministrationPoint
-     */
-    public void visit(PolicyAdministrationPoint policyAdministrationPoint);
-
-
-    /**
-     * Visit policyDecisionPoint.
-     *
-     * @param policyDecisionPoint the policyDecisionPoint
-     */
-    public void visit(PolicyDecisionPoint policyDecisionPoint);
-
-
-    /**
-     * Visit policyEnforcementPoints.
-     *
-     * @param policyEnforcementPoints the policyEnforcementPoints
-     */
-    public void visit(PolicyEnforcementPoints policyEnforcementPoints);
-
-
-    /**
-     * Visit policyInformationPoints.
-     *
-     * @param policyInformationPoints the policyInformationPoints
-     */
-    public void visit(PolicyInformationPoints policyInformationPoints);
 
 
     /**
@@ -533,22 +368,6 @@ public interface AssetAdministrationShellElementVisitor {
 
 
     /**
-     * Visit security.
-     *
-     * @param security the security
-     */
-    public void visit(Security security);
-
-
-    /**
-     * Visit subjectAttributes.
-     *
-     * @param subjectAttributes the subjectAttributes
-     */
-    public void visit(SubjectAttributes subjectAttributes);
-
-
-    /**
      * Visit submodel.
      *
      * @param submodel the submodel
@@ -579,11 +398,4 @@ public interface AssetAdministrationShellElementVisitor {
      */
     public void visit(ValueReferencePair valueReferencePair);
 
-
-    /**
-     * Visit view.
-     *
-     * @param view the view
-     */
-    public void visit(View view);
 }

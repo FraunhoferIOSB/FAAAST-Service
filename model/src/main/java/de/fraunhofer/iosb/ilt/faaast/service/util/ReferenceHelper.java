@@ -15,25 +15,23 @@
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ResourceNotFoundException;
-import io.adminshell.aas.v3.dataformat.core.ReflectionHelper;
-import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.Operation;
-import io.adminshell.aas.v3.model.Referable;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.AasUtils;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 
 
 /**
@@ -84,7 +82,6 @@ public class ReferenceHelper {
     private static Key deepCopyKeyWithoutKeyElement(Key k) {
         return new DefaultKey.Builder()
                 .value(k.getValue())
-                .idType(k.getIdType())
                 .build();
     }
 
@@ -98,43 +95,38 @@ public class ReferenceHelper {
      * @param env the asset administration shell environment which contains the referenced elements
      * @throws ResourceNotFoundException if an element referenced by a key could not be found
      */
-    public static void completeReferenceWithProperKeyElements(Reference reference, AssetAdministrationShellEnvironment env) throws ResourceNotFoundException {
+    public static void completeReferenceWithProperKeyElements(Reference reference, Environment env) throws ResourceNotFoundException {
         if (reference == null) {
             return;
         }
         List<Key> keys = reference.getKeys();
-        if (keys.stream().allMatch(x -> x.getType() != null && x.getType() != KeyElements.SUBMODEL_ELEMENT)) {
+        if (keys.stream().allMatch(x -> x.getType() != null && x.getType() != KeyTypes.SUBMODEL_ELEMENT)) {
             return;
         }
         final Referable[] parent = {
                 null
         };
         for (Key k: keys) {
-            if (env.getAssetAdministrationShells().stream().anyMatch(x -> (x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
+            if (env.getAssetAdministrationShells().stream().anyMatch(x -> (x.getId().equalsIgnoreCase(k.getValue())
                     || x.getIdShort().equalsIgnoreCase(k.getValue())) && parent[0] == null)) {
-                k.setType(KeyElements.ASSET_ADMINISTRATION_SHELL);
+                k.setType(KeyTypes.ASSET_ADMINISTRATION_SHELL);
                 continue;
             }
 
             env.getSubmodels().forEach(x -> {
-                if (x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
+                if (x.getId().equalsIgnoreCase(k.getValue())
                         || x.getIdShort().equalsIgnoreCase(k.getValue())) {
-                    k.setType(KeyElements.SUBMODEL);
+                    k.setType(KeyTypes.SUBMODEL);
                     parent[0] = x;
                 }
             });
-            if (k.getType() != null && k.getType() != KeyElements.SUBMODEL_ELEMENT) {
+            if (k.getType() != null && k.getType() != KeyTypes.SUBMODEL_ELEMENT) {
                 continue;
             }
 
-            if (env.getConceptDescriptions().stream().anyMatch(x -> (x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
+            if (env.getConceptDescriptions().stream().anyMatch(x -> (x.getId().equalsIgnoreCase(k.getValue())
                     || x.getIdShort().equalsIgnoreCase(k.getValue())) && parent[0] == null)) {
-                k.setType(KeyElements.CONCEPT_DESCRIPTION);
-                continue;
-            }
-            if (env.getAssets().stream().anyMatch(x -> (x.getIdentification().getIdentifier().equalsIgnoreCase(k.getValue())
-                    || x.getIdShort().equalsIgnoreCase(k.getValue())) && parent[0] == null)) {
-                k.setType(KeyElements.ASSET);
+                k.setType(KeyTypes.CONCEPT_DESCRIPTION);
                 continue;
             }
             if (parent[0] != null && Submodel.class.isAssignableFrom(parent[0].getClass())) {
@@ -147,7 +139,7 @@ public class ReferenceHelper {
                 });
             }
             else if (SubmodelElementCollection.class.isAssignableFrom(parent[0].getClass())) {
-                ((SubmodelElementCollection) parent[0]).getValues().forEach(x -> {
+                ((SubmodelElementCollection) parent[0]).getValue().forEach(x -> {
                     if (x.getIdShort().equalsIgnoreCase(k.getValue())) {
                         k.setType(AasUtils.referableToKeyType(x));
                         parent[0] = x;
@@ -184,7 +176,7 @@ public class ReferenceHelper {
         return submodelElementRef.getKeys().stream()
                 .filter(x -> SubmodelElement.class.isAssignableFrom(AasUtils.keyTypeToClass(x.getType())))
                 .map(x -> {
-                    x.setType(KeyElements.SUBMODEL_ELEMENT);
+                    x.setType(KeyTypes.SUBMODEL_ELEMENT);
                     return x;
                 })
                 .collect(Collectors.toList());
@@ -212,7 +204,7 @@ public class ReferenceHelper {
      * @param parentClass type of the parent
      * @return the full reference to the child element
      */
-    public static Reference toReference(List<Key> keys, Identifier parentId, Class<?> parentClass) {
+    public static Reference toReference(List<Key> keys, String parentId, Class<?> parentClass) {
         Reference parentReference = toReference(parentId, parentClass);
         Reference childReference = new DefaultReference.Builder()
                 .keys(keys)
@@ -248,31 +240,11 @@ public class ReferenceHelper {
      * @param clazz of the identifiable
      * @return reference of the identifiable
      */
-    public static Reference toReference(Identifier id, Class<?> clazz) {
-        return new DefaultReference.Builder()
-                .keys(List.of(new DefaultKey.Builder()
-                        .value(id.getIdentifier())
-                        .type(referableToKeyType(clazz))
-                        .idType(KeyType.IRI)
-                        .build()))
-                .build();
-    }
-
-
-    /**
-     * Create a reference for an {@link io.adminshell.aas.v3.model.Identifiable}.
-     *
-     * @param id of the identifiable
-     * @param keyType type of the id
-     * @param clazz of the identifiable
-     * @return reference of the identifiable
-     */
-    public static Reference toReference(String id, KeyType keyType, Class<?> clazz) {
+    public static Reference toReference(String id, Class<?> clazz) {
         return new DefaultReference.Builder()
                 .keys(List.of(new DefaultKey.Builder()
                         .value(id)
                         .type(referableToKeyType(clazz))
-                        .idType(keyType)
                         .build()))
                 .build();
     }
@@ -284,9 +256,9 @@ public class ReferenceHelper {
      * @param clazz to convert to a KeyElement
      * @return the corresponding KeyElement of the class
      */
-    public static KeyElements referableToKeyType(Class<?> clazz) {
+    public static KeyTypes referableToKeyType(Class<?> clazz) {
         Class<?> aasInterface = ReflectionHelper.getAasInterface(clazz);
-        return aasInterface != null ? KeyElements.valueOf(AasUtils.deserializeEnumName(aasInterface.getSimpleName())) : null;
+        return aasInterface != null ? KeyTypes.valueOf(AasUtils.deserializeEnumName(aasInterface.getSimpleName())) : null;
     }
 
 
@@ -333,18 +305,15 @@ public class ReferenceHelper {
     public static Reference build(String aasIdentifier, String submodelIdentifier, String... submodelElementIdshorts) {
         List<Key> keyList = new ArrayList<>();
         keyList.add(new DefaultKey.Builder()
-                .idType(KeyType.IRI)
-                .type(KeyElements.ASSET_ADMINISTRATION_SHELL)
+                .type(KeyTypes.ASSET_ADMINISTRATION_SHELL)
                 .value(aasIdentifier)
                 .build());
         keyList.add(new DefaultKey.Builder()
-                .idType(KeyType.IRI)
-                .type(KeyElements.SUBMODEL)
+                .type(KeyTypes.SUBMODEL)
                 .value(submodelIdentifier)
                 .build());
         Stream.of(submodelElementIdshorts).forEach(
                 x -> keyList.add(new DefaultKey.Builder()
-                        .idType(KeyType.ID_SHORT)
                         .type(null)
                         .value(x)
                         .build()));
@@ -364,13 +333,11 @@ public class ReferenceHelper {
     public static Reference buildReferenceToSubmodelElement(String submodelIdentifier, String... submodelElementIdshorts) {
         List<Key> keyList = new ArrayList<>();
         keyList.add(new DefaultKey.Builder()
-                .idType(KeyType.IRI)
-                .type(KeyElements.SUBMODEL)
+                .type(KeyTypes.SUBMODEL)
                 .value(submodelIdentifier)
                 .build());
         Stream.of(submodelElementIdshorts).forEach(
                 x -> keyList.add(new DefaultKey.Builder()
-                        .idType(KeyType.ID_SHORT)
                         .type(null)
                         .value(x)
                         .build()));
@@ -390,13 +357,11 @@ public class ReferenceHelper {
     public static Reference build(String aasIdentifier, String submodelIdentifier) {
         List<Key> keyList = new ArrayList<>();
         keyList.add(new DefaultKey.Builder()
-                .idType(KeyType.IRI)
-                .type(KeyElements.ASSET_ADMINISTRATION_SHELL)
+                .type(KeyTypes.ASSET_ADMINISTRATION_SHELL)
                 .value(aasIdentifier)
                 .build());
         keyList.add(new DefaultKey.Builder()
-                .idType(KeyType.IRI)
-                .type(KeyElements.SUBMODEL)
+                .type(KeyTypes.SUBMODEL)
                 .value(submodelIdentifier)
                 .build());
         return new DefaultReference.Builder()

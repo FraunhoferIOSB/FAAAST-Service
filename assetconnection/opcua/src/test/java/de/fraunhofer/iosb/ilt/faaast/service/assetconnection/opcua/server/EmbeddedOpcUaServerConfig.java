@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.CertificateData;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.nio.file.Files;

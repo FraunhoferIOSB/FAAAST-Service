@@ -27,7 +27,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util.ValueHelper
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeExtractor;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

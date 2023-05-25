@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.typing;
 
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;

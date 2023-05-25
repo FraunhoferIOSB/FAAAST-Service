@@ -17,12 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.Content;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.OperationVariable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 
 
 /**

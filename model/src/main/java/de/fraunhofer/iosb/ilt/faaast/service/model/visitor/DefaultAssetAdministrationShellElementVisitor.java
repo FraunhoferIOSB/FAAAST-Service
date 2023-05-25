@@ -14,69 +14,48 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.visitor;
 
-import io.adminshell.aas.v3.model.AccessControl;
-import io.adminshell.aas.v3.model.AccessControlPolicyPoints;
-import io.adminshell.aas.v3.model.AccessPermissionRule;
-import io.adminshell.aas.v3.model.AdministrativeInformation;
-import io.adminshell.aas.v3.model.AnnotatedRelationshipElement;
-import io.adminshell.aas.v3.model.Asset;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
-import io.adminshell.aas.v3.model.AssetInformation;
-import io.adminshell.aas.v3.model.BasicEvent;
-import io.adminshell.aas.v3.model.Blob;
-import io.adminshell.aas.v3.model.BlobCertificate;
-import io.adminshell.aas.v3.model.Capability;
-import io.adminshell.aas.v3.model.Certificate;
-import io.adminshell.aas.v3.model.ConceptDescription;
-import io.adminshell.aas.v3.model.Constraint;
-import io.adminshell.aas.v3.model.DataElement;
-import io.adminshell.aas.v3.model.DataSpecificationContent;
-import io.adminshell.aas.v3.model.DataSpecificationIEC61360;
-import io.adminshell.aas.v3.model.DataSpecificationPhysicalUnit;
-import io.adminshell.aas.v3.model.EmbeddedDataSpecification;
-import io.adminshell.aas.v3.model.Entity;
-import io.adminshell.aas.v3.model.Event;
-import io.adminshell.aas.v3.model.EventElement;
-import io.adminshell.aas.v3.model.EventMessage;
-import io.adminshell.aas.v3.model.Extension;
-import io.adminshell.aas.v3.model.File;
-import io.adminshell.aas.v3.model.Formula;
-import io.adminshell.aas.v3.model.HasDataSpecification;
-import io.adminshell.aas.v3.model.HasExtensions;
-import io.adminshell.aas.v3.model.HasKind;
-import io.adminshell.aas.v3.model.HasSemantics;
-import io.adminshell.aas.v3.model.Identifiable;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.MultiLanguageProperty;
-import io.adminshell.aas.v3.model.ObjectAttributes;
-import io.adminshell.aas.v3.model.Operation;
-import io.adminshell.aas.v3.model.OperationVariable;
-import io.adminshell.aas.v3.model.Permission;
-import io.adminshell.aas.v3.model.PermissionsPerObject;
-import io.adminshell.aas.v3.model.PolicyAdministrationPoint;
-import io.adminshell.aas.v3.model.PolicyDecisionPoint;
-import io.adminshell.aas.v3.model.PolicyEnforcementPoints;
-import io.adminshell.aas.v3.model.PolicyInformationPoints;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Qualifiable;
-import io.adminshell.aas.v3.model.Qualifier;
-import io.adminshell.aas.v3.model.Range;
-import io.adminshell.aas.v3.model.Referable;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.ReferenceElement;
-import io.adminshell.aas.v3.model.RelationshipElement;
-import io.adminshell.aas.v3.model.Security;
-import io.adminshell.aas.v3.model.SubjectAttributes;
-import io.adminshell.aas.v3.model.Submodel;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.SubmodelElementCollection;
-import io.adminshell.aas.v3.model.ValueList;
-import io.adminshell.aas.v3.model.ValueReferencePair;
-import io.adminshell.aas.v3.model.View;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.Capability;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationContent;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
+import org.eclipse.digitaltwin.aas4j.v3.model.Environment;
+import org.eclipse.digitaltwin.aas4j.v3.model.EventElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.EventPayload;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
+import org.eclipse.digitaltwin.aas4j.v3.model.File;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasDataSpecification;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasExtensions;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.Operation;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.Range;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection;
+import org.eclipse.digitaltwin.aas4j.v3.model.ValueList;
+import org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair;
 
 
 /**
@@ -84,18 +63,6 @@ import io.adminshell.aas.v3.model.View;
  * implementing only few selected methods of the interface.
  */
 public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdministrationShellElementVisitor {
-
-    @Override
-    public default void visit(Certificate certificate) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(Constraint constraint) {
-        // intentionally left empty
-    }
-
 
     @Override
     public default void visit(DataElement dataElement) {
@@ -110,7 +77,7 @@ public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdmi
 
 
     @Override
-    public default void visit(Event event) {
+    public default void visit(EventElement event) {
         // intentionally left empty
     }
 
@@ -164,25 +131,7 @@ public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdmi
 
 
     @Override
-    public default void visit(AssetAdministrationShellEnvironment assetAdministrationShellEnvironment) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(AccessControl accessControl) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(AccessControlPolicyPoints accessControlPolicyPoints) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(AccessPermissionRule accessPermissionRule) {
+    public default void visit(Environment assetAdministrationShellEnvironment) {
         // intentionally left empty
     }
 
@@ -200,12 +149,6 @@ public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdmi
 
 
     @Override
-    public default void visit(Asset asset) {
-        // intentionally left empty
-    }
-
-
-    @Override
     public default void visit(AssetAdministrationShell assetAdministrationShell) {
         // intentionally left empty
     }
@@ -218,19 +161,13 @@ public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdmi
 
 
     @Override
-    public default void visit(BasicEvent basicEvent) {
+    public default void visit(BasicEventElement basicEventElement) {
         // intentionally left empty
     }
 
 
     @Override
     public default void visit(Blob blob) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(BlobCertificate blobCertificate) {
         // intentionally left empty
     }
 
@@ -248,13 +185,7 @@ public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdmi
 
 
     @Override
-    public default void visit(DataSpecificationIEC61360 dataSpecificationIEC61360) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(DataSpecificationPhysicalUnit dataSpecificationPhysicalUnit) {
+    public default void visit(DataSpecificationIec61360 dataSpecificationIec61360) {
         // intentionally left empty
     }
 
@@ -272,13 +203,7 @@ public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdmi
 
 
     @Override
-    public default void visit(EventElement eventElement) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(EventMessage eventMessage) {
+    public default void visit(EventPayload eventPayload) {
         // intentionally left empty
     }
 
@@ -296,19 +221,7 @@ public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdmi
 
 
     @Override
-    public default void visit(Formula formula) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(Identifier identifier) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(IdentifierKeyValuePair identifierKeyValuePair) {
+    public default void visit(SpecificAssetID specificAssetID) {
         // intentionally left empty
     }
 
@@ -320,19 +233,13 @@ public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdmi
 
 
     @Override
-    public default void visit(LangString langString) {
+    public default void visit(LangStringTextType langString) {
         // intentionally left empty
     }
 
 
     @Override
     public default void visit(MultiLanguageProperty multiLanguageProperty) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(ObjectAttributes objectAttributes) {
         // intentionally left empty
     }
 
@@ -345,42 +252,6 @@ public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdmi
 
     @Override
     public default void visit(OperationVariable operationVariable) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(Permission permission) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(PermissionsPerObject permissionsPerObject) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(PolicyAdministrationPoint policyAdministrationPoint) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(PolicyDecisionPoint policyDecisionPoint) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(PolicyEnforcementPoints policyEnforcementPoints) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(PolicyInformationPoints policyInformationPoints) {
         // intentionally left empty
     }
 
@@ -422,18 +293,6 @@ public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdmi
 
 
     @Override
-    public default void visit(Security security) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(SubjectAttributes subjectAttributes) {
-        // intentionally left empty
-    }
-
-
-    @Override
     public default void visit(Submodel submodel) {
         // intentionally left empty
     }
@@ -453,12 +312,6 @@ public interface DefaultAssetAdministrationShellElementVisitor extends AssetAdmi
 
     @Override
     public default void visit(ValueReferencePair valueReferencePair) {
-        // intentionally left empty
-    }
-
-
-    @Override
-    public default void visit(View view) {
         // intentionally left empty
     }
 }

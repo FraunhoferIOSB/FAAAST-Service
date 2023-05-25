@@ -16,10 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutAssetInformationResponse;
-import io.adminshell.aas.v3.model.AssetInformation;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -27,15 +26,15 @@ import java.util.Objects;
  */
 public class PutAssetInformationRequest implements Request<PutAssetInformationResponse> {
 
-    private Identifier id;
+    private String id;
     private AssetInformation assetInfo;
 
-    public Identifier getId() {
+    public String getId() {
         return id;
     }
 
 
-    public void setId(Identifier id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -81,7 +80,7 @@ public class PutAssetInformationRequest implements Request<PutAssetInformationRe
         }
 
 
-        public B id(Identifier value) {
+        public B id(String value) {
             getBuildingInstance().setId(value);
             return getSelf();
         }

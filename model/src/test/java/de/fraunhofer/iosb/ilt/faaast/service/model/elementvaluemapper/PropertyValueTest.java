@@ -21,8 +21,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapp
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ public class PropertyValueTest {
     public void testSetValueMapping() {
         PropertyValue value = new PropertyValue(new StringValue("foo"));
         SubmodelElement expected = new DefaultProperty.Builder()
-                .valueType(value.getValue().getDataType().getName())
+                .valueType(value.getValue().getDataType().getAas4jDatatype())
                 .value(value.getValue().asString())
                 .build();
         SubmodelElement actual = new DefaultProperty.Builder()
@@ -63,7 +63,7 @@ public class PropertyValueTest {
         SubmodelElement input = new DefaultProperty.Builder()
                 .category("Test")
                 .idShort("TestProperty")
-                .valueType(expected.getValue().getDataType().getName())
+                .valueType(expected.getValue().getDataType().getAas4jDatatype())
                 .value(expected.getValue().asString())
                 .build();
         ElementValue actual = ElementValueMapper.toValue(input);

@@ -20,9 +20,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdmin
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.GetAllAssetAdministrationShellIdsByAssetLinkRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
-import io.adminshell.aas.v3.model.Identifiable;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifiable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierKeyValuePair;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;

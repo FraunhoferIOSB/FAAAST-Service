@@ -16,11 +16,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAASXPackageIdsResponse;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -28,19 +27,19 @@ import java.util.Objects;
  */
 public class GetAllAASXPackageIdsRequest implements Request<GetAllAASXPackageIdsResponse> {
 
-    private List<Identifier> aasId;
+    private List<String> aasId;
 
     public GetAllAASXPackageIdsRequest() {
         this.aasId = new ArrayList<>();
     }
 
 
-    public List<Identifier> getAasId() {
+    public List<String> getAasId() {
         return aasId;
     }
 
 
-    public void setAasId(List<Identifier> aasId) {
+    public void setAasId(List<String> aasId) {
         this.aasId = aasId;
     }
 
@@ -70,13 +69,13 @@ public class GetAllAASXPackageIdsRequest implements Request<GetAllAASXPackageIds
 
     public abstract static class AbstractBuilder<T extends GetAllAASXPackageIdsRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B aasId(Identifier value) {
+        public B aasId(String value) {
             getBuildingInstance().getAasId().add(value);
             return getSelf();
         }
 
 
-        public B aasIds(List<Identifier> value) {
+        public B aasIds(List<String> value) {
             getBuildingInstance().setAasId(value);
             return getSelf();
         }

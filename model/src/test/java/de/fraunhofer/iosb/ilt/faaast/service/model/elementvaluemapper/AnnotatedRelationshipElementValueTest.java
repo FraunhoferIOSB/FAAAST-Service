@@ -21,14 +21,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultAnnotatedRelationshipElement;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAnnotatedRelationshipElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,7 +39,7 @@ public class AnnotatedRelationshipElementValueTest {
     @Test
     public void testSetValueMapping() throws ValueFormatException {
         SubmodelElement actual = new DefaultAnnotatedRelationshipElement.Builder()
-                .annotation(new DefaultProperty.Builder()
+                .annotations(new DefaultProperty.Builder()
                         .idShort("property")
                         .build())
                 .build();
@@ -50,9 +51,9 @@ public class AnnotatedRelationshipElementValueTest {
                 .second(new DefaultReference.Builder()
                         .keys(value.getSecond())
                         .build())
-                .annotation(new DefaultProperty.Builder()
+                .annotations(new DefaultProperty.Builder()
                         .idShort(value.getAnnotations().keySet().iterator().next())
-                        .valueType(Datatype.STRING.getName())
+                        .valueType(DataTypeDefXSD.STRING)
                         .value("foo")
                         .build())
                 .build();
@@ -64,15 +65,14 @@ public class AnnotatedRelationshipElementValueTest {
     @Test
     public void testSetValueMappingWithNull() {
         SubmodelElement actual = new DefaultAnnotatedRelationshipElement.Builder()
-                .annotation(null)
+                .annotations((List<DataElement>) null)
                 .first(null)
                 .second(null)
                 .build();
         AnnotatedRelationshipElementValue value = new AnnotatedRelationshipElementValue.Builder()
                 .first(List.of(
                         new DefaultKey.Builder()
-                                .idType(KeyType.IRI)
-                                .type(KeyElements.SUBMODEL)
+                                .type(KeyTypes.SUBMODEL)
                                 .value("http://example.org/submodel/1")
                                 .build()))
                 .second(null)
@@ -82,7 +82,7 @@ public class AnnotatedRelationshipElementValueTest {
                         .keys(value.getFirst())
                         .build())
                 .second(null)
-                .annotation(null)
+                .annotations((List<DataElement>) null)
                 .build();
         ElementValueMapper.setValue(actual, value);
         Assert.assertEquals(expected, actual);
@@ -99,9 +99,9 @@ public class AnnotatedRelationshipElementValueTest {
                 .second(new DefaultReference.Builder()
                         .keys(expected.getSecond())
                         .build())
-                .annotation(new DefaultProperty.Builder()
+                .annotations(new DefaultProperty.Builder()
                         .idShort(expected.getAnnotations().keySet().iterator().next())
-                        .valueType(Datatype.STRING.getName())
+                        .valueType(DataTypeDefXSD.STRING)
                         .value("foo")
                         .build())
                 .build();
@@ -113,7 +113,7 @@ public class AnnotatedRelationshipElementValueTest {
     @Test
     public void testToValueMappingWithNull() throws ValueMappingException {
         SubmodelElement element = new DefaultAnnotatedRelationshipElement.Builder()
-                .annotation(null)
+                .annotations((List<DataElement>) null)
                 .first(null)
                 .second(null)
                 .build();
@@ -130,24 +130,20 @@ public class AnnotatedRelationshipElementValueTest {
         return new AnnotatedRelationshipElementValue.Builder()
                 .first(List.of(
                         new DefaultKey.Builder()
-                                .idType(KeyType.IRI)
-                                .type(KeyElements.SUBMODEL)
+                                .type(KeyTypes.SUBMODEL)
                                 .value("http://example.org/submodel/1")
                                 .build(),
                         new DefaultKey.Builder()
-                                .idType(KeyType.ID_SHORT)
-                                .type(KeyElements.PROPERTY)
+                                .type(KeyTypes.PROPERTY)
                                 .value("property1")
                                 .build()))
                 .second(List.of(
                         new DefaultKey.Builder()
-                                .idType(KeyType.IRI)
-                                .type(KeyElements.SUBMODEL)
+                                .type(KeyTypes.SUBMODEL)
                                 .value("http://example.org/submodel/2")
                                 .build(),
                         new DefaultKey.Builder()
-                                .idType(KeyType.ID_SHORT)
-                                .type(KeyElements.PROPERTY)
+                                .type(KeyTypes.PROPERTY)
                                 .value("property2")
                                 .build()))
                 .annotation("property", PropertyValue.of(Datatype.STRING, "foo"))

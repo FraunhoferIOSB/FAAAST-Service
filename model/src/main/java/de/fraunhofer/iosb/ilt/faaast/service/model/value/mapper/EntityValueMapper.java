@@ -17,12 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.EntityValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
-import io.adminshell.aas.v3.model.Entity;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.Entity;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**
@@ -44,7 +42,8 @@ public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {
                             x -> x != null ? x.getIdShort() : null,
                             LambdaExceptionHelper.rethrowFunction(x -> x != null ? ElementValueMapper.toValue(x) : null))));
         }
-        value.setGlobalAssetId(submodelElement.getGlobalAssetId() != null ? submodelElement.getGlobalAssetId().getKeys() : List.of());
+        value.setGlobalAssetId(submodelElement.getGlobalAssetID());
+        value.setSpecificAssetIds(submodelElement.getSpecificAssetIds());
         return value;
     }
 
@@ -63,12 +62,8 @@ public class EntityValueMapper implements DataValueMapper<Entity, EntityValue> {
             }
 
             submodelElement.setEntityType(value.getEntityType());
-            if (value.getGlobalAssetId() != null && value.getGlobalAssetId().stream().noneMatch(Objects::isNull)) {
-                submodelElement.setGlobalAssetId(new DefaultReference.Builder().keys(value.getGlobalAssetId()).build());
-            }
-            else {
-                submodelElement.setGlobalAssetId(null);
-            }
+            submodelElement.setGlobalAssetID(value.getGlobalAssetId());
+            submodelElement.setSpecificAssetIds(value.getSpecificAssetIds());
         }
         return submodelElement;
     }

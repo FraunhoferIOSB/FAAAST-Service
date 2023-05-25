@@ -14,9 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Arrays;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -24,16 +24,16 @@ import java.util.Objects;
  */
 public class BlobValue extends DataElementValue {
 
-    private String mimeType;
+    private String contentType;
     private byte[] value;
 
-    public String getMimeType() {
-        return mimeType;
+    public String getContentType() {
+        return contentType;
     }
 
 
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
 
@@ -56,13 +56,13 @@ public class BlobValue extends DataElementValue {
             return false;
         }
         BlobValue blobValue = (BlobValue) o;
-        return Objects.equals(mimeType, blobValue.mimeType) && Arrays.equals(value, blobValue.value);
+        return Objects.equals(contentType, blobValue.contentType) && Arrays.equals(value, blobValue.value);
     }
 
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(mimeType);
+        int result = Objects.hash(contentType);
         result = 31 * result + Arrays.hashCode(value);
         return result;
     }
@@ -75,7 +75,7 @@ public class BlobValue extends DataElementValue {
     public abstract static class AbstractBuilder<T extends BlobValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B mimeType(String value) {
-            getBuildingInstance().setMimeType(value);
+            getBuildingInstance().setContentType(value);
             return getSelf();
         }
 

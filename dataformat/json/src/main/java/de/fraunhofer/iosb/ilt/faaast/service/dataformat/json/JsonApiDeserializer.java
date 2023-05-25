@@ -62,7 +62,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.typing.ContainerTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ReflectionHelper;
-import io.adminshell.aas.v3.dataformat.json.modeltype.ModelTypeProcessor;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.modeltype.ModelTypeProcessor;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

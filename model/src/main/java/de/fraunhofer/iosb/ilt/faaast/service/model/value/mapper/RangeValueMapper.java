@@ -18,7 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RangeValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
-import io.adminshell.aas.v3.model.Range;
+import org.eclipse.digitaltwin.aas4j.v3.model.Range;
 
 
 /**
@@ -48,14 +48,14 @@ public class RangeValueMapper implements DataValueMapper<Range, RangeValue> {
     public Range setValue(Range submodelElement, RangeValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
         if (value.getMin() != null && value.getMin().getValue() != null) {
-            submodelElement.setValueType(value.getMin().getDataType().getName());
+            submodelElement.setValueType(value.getMin().getDataType().getAas4jDatatype());
             submodelElement.setMin(value.getMin().asString());
         }
         else {
             submodelElement.setMin(null);
         }
         if (value.getMax() != null && value.getMax().getValue() != null) {
-            submodelElement.setValueType(value.getMax().getDataType().getName());
+            submodelElement.setValueType(value.getMax().getDataType().getAas4jDatatype());
             submodelElement.setMax(value.getMax().asString());
         }
         else {

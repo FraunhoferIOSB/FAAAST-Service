@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetAdministrationShellByIdResponse;
-import io.adminshell.aas.v3.model.Identifier;
 import java.util.Objects;
 
 
@@ -24,19 +23,19 @@ import java.util.Objects;
  */
 public class GetAssetAdministrationShellByIdRequest extends AbstractRequestWithModifier<GetAssetAdministrationShellByIdResponse> {
 
-    private Identifier id;
+    private String id;
 
     public GetAssetAdministrationShellByIdRequest() {
         super(OutputModifierConstraints.ASSET_ADMINISTRATION_SHELL);
     }
 
 
-    public Identifier getId() {
+    public String getId() {
         return id;
     }
 
 
-    public void setId(Identifier id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -68,7 +67,7 @@ public class GetAssetAdministrationShellByIdRequest extends AbstractRequestWithM
     public abstract static class AbstractBuilder<T extends GetAssetAdministrationShellByIdRequest, B extends AbstractBuilder<T, B>>
             extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
-        public B id(Identifier value) {
+        public B id(String value) {
             getBuildingInstance().setId(value);
             return getSelf();
         }

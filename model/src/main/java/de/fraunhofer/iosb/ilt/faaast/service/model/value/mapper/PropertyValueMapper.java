@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
-import io.adminshell.aas.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
 
 
 /**
@@ -49,7 +49,7 @@ public class PropertyValueMapper implements DataValueMapper<Property, PropertyVa
         DataValueMapper.super.setValue(submodelElement, value);
         TypedValue<?> propertyValue = value.getValue();
         if (propertyValue != null) {
-            submodelElement.setValueType(propertyValue.getDataType() != null ? propertyValue.getDataType().getName() : null);
+            submodelElement.setValueType(propertyValue.getDataType() != null ? propertyValue.getDataType().getAas4jDatatype() : null);
             submodelElement.setValue(propertyValue.asString());
         }
         return submodelElement;

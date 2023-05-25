@@ -25,9 +25,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.admin-shell.aas</groupId>
+            <groupId>org.eclipse.digitaltwin.aas4j</groupId>
             <artifactId>model</artifactId>
-            <version>${aas.model.version}</version>
+            <version>${aas4j.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.mycila</groupId>

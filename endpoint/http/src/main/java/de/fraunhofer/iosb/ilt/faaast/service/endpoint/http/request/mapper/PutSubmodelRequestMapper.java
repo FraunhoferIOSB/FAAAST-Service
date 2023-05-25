@@ -21,7 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.model.HttpRequest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.modifier.OutputModifier;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutSubmodelResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutSubmodelRequest;
-import io.adminshell.aas.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 import java.util.Map;
 
 

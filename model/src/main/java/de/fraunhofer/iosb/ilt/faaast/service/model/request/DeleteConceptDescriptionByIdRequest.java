@@ -16,9 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.DeleteConceptDescriptionByIdResponse;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -26,14 +25,14 @@ import java.util.Objects;
  */
 public class DeleteConceptDescriptionByIdRequest implements Request<DeleteConceptDescriptionByIdResponse> {
 
-    private Identifier id;
+    private String id;
 
-    public Identifier getId() {
+    public String getId() {
         return id;
     }
 
 
-    public void setId(Identifier cdIdentifier) {
+    public void setId(String cdIdentifier) {
         this.id = cdIdentifier;
     }
 
@@ -63,7 +62,7 @@ public class DeleteConceptDescriptionByIdRequest implements Request<DeleteConcep
 
     public abstract static class AbstractBuilder<T extends DeleteConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B id(Identifier value) {
+        public B id(String value) {
             getBuildingInstance().setId(value);
             return getSelf();
         }

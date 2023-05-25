@@ -14,13 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 
 
 /**
@@ -28,19 +29,19 @@ import java.util.stream.Stream;
  */
 public class MultiLanguagePropertyValue extends DataElementValue {
 
-    private Set<LangString> langStringSet;
+    private Set<LangStringTextType> langStringSet;
 
     public MultiLanguagePropertyValue() {
         this.langStringSet = new HashSet<>();
     }
 
 
-    public MultiLanguagePropertyValue(Set<LangString> langStringSet) {
+    public MultiLanguagePropertyValue(Set<LangStringTextType> langStringSet) {
         this.langStringSet = langStringSet;
     }
 
 
-    public MultiLanguagePropertyValue(LangString... langStringSet) {
+    public MultiLanguagePropertyValue(LangStringTextType... langStringSet) {
         this.langStringSet = Stream.of(langStringSet).collect(Collectors.toSet());
     }
 
@@ -58,12 +59,12 @@ public class MultiLanguagePropertyValue extends DataElementValue {
     }
 
 
-    public Set<LangString> getLangStringSet() {
+    public Set<LangStringTextType> getLangStringSet() {
         return langStringSet;
     }
 
 
-    public void setLangStringSet(Set<LangString> langStringSet) {
+    public void setLangStringSet(Set<LangStringTextType> langStringSet) {
         this.langStringSet = langStringSet;
     }
 
@@ -80,22 +81,22 @@ public class MultiLanguagePropertyValue extends DataElementValue {
 
     public abstract static class AbstractBuilder<T extends MultiLanguagePropertyValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B values(Set<LangString> value) {
+        public B values(Set<LangStringTextType> value) {
             getBuildingInstance().setLangStringSet(value);
             return getSelf();
         }
 
 
-        public B value(LangString value) {
+        public B value(LangStringTextType value) {
             getBuildingInstance().getLangStringSet().add(value);
             return getSelf();
         }
 
 
         public B value(String language, String value) {
-            LangString langString = new LangString();
+            LangStringTextType langString = new DefaultLangStringTextType();
             langString.setLanguage(language);
-            langString.setValue(value);
+            langString.setText(value);
             getBuildingInstance().getLangStringSet().add(langString);
             return getSelf();
         }

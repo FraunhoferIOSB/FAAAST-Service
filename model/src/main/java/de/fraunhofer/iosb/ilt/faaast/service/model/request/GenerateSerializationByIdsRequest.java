@@ -17,11 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GenerateSerializationByIdsResponse;
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -29,8 +28,8 @@ import java.util.Objects;
  */
 public class GenerateSerializationByIdsRequest implements Request<GenerateSerializationByIdsResponse> {
 
-    private List<Identifier> aasIds;
-    private List<Identifier> submodelIds;
+    private List<String> aasIds;
+    private List<String> submodelIds;
     private boolean includeConceptDescriptions;
     private DataFormat serializationFormat;
 
@@ -42,22 +41,22 @@ public class GenerateSerializationByIdsRequest implements Request<GenerateSerial
     }
 
 
-    public List<Identifier> getAasIds() {
+    public List<String> getAasIds() {
         return aasIds;
     }
 
 
-    public void setAasIds(List<Identifier> aasIds) {
+    public void setAasIds(List<String> aasIds) {
         this.aasIds = aasIds;
     }
 
 
-    public List<Identifier> getSubmodelIds() {
+    public List<String> getSubmodelIds() {
         return submodelIds;
     }
 
 
-    public void setSubmodelIds(List<Identifier> submodelIds) {
+    public void setSubmodelIds(List<String> submodelIds) {
         this.submodelIds = submodelIds;
     }
 
@@ -110,25 +109,25 @@ public class GenerateSerializationByIdsRequest implements Request<GenerateSerial
 
     public abstract static class AbstractBuilder<T extends GenerateSerializationByIdsRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B aasIds(List<Identifier> value) {
+        public B aasIds(List<String> value) {
             getBuildingInstance().setAasIds(value);
             return getSelf();
         }
 
 
-        public B aasId(Identifier value) {
+        public B aasId(String value) {
             getBuildingInstance().getAasIds().add(value);
             return getSelf();
         }
 
 
-        public B submodelIds(List<Identifier> value) {
+        public B submodelIds(List<String> value) {
             getBuildingInstance().setSubmodelIds(value);
             return getSelf();
         }
 
 
-        public B submodelId(Identifier value) {
+        public B submodelId(String value) {
             getBuildingInstance().getSubmodelIds().add(value);
             return getSelf();
         }

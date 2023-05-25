@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.helper.assetconnection;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetOperationProviderConfig;
-import io.adminshell.aas.v3.model.OperationVariable;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable;
 import java.util.ArrayList;
 import java.util.List;
 

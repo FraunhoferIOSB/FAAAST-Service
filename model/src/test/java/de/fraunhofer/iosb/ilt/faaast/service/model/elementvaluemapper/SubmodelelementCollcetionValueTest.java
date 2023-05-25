@@ -20,9 +20,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultSubmodelElementCollection;
+import java.util.Collection;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -60,7 +62,7 @@ public class SubmodelelementCollcetionValueTest {
                 .values(null)
                 .build();
         SubmodelElement input = new DefaultSubmodelElementCollection.Builder()
-                .values(null)
+                .value((Collection<SubmodelElement>) null)
                 .build();
         ElementValue actual = ElementValueMapper.toValue(input);
         Assert.assertEquals(expected, actual);
@@ -89,12 +91,12 @@ public class SubmodelelementCollcetionValueTest {
                 .value(new DefaultProperty.Builder()
                         .idShort("prop1")
                         .value("testValue")
-                        .valueType("string")
+                        .valueType(DataTypeDefXSD.STRING)
                         .build())
                 .value(new DefaultProperty.Builder()
                         .idShort("prop2")
                         .value("testValue2")
-                        .valueType("string")
+                        .valueType(DataTypeDefXSD.STRING)
                         .build())
                 .build();
 
@@ -106,14 +108,14 @@ public class SubmodelelementCollcetionValueTest {
     @Test
     public void testSetValueMappingWithNull() {
         SubmodelElement actual = new DefaultSubmodelElementCollection.Builder()
-                .values(null)
+                .value((Collection<SubmodelElement>) null)
                 .build();
         SubmodelElementCollectionValue value = SubmodelElementCollectionValue.builder()
                 .values(null)
                 .build();
 
         SubmodelElement expected = new DefaultSubmodelElementCollection.Builder()
-                .values(null)
+                .value((Collection<SubmodelElement>) null)
                 .build();
         actual = ElementValueMapper.setValue(actual, value);
         Assert.assertEquals(expected, actual);

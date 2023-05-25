@@ -15,9 +15,9 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.MultiLanguagePropertyValue;
-import io.adminshell.aas.v3.model.MultiLanguageProperty;
 import java.util.ArrayList;
 import java.util.HashSet;
+import org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty;
 
 
 /**
@@ -34,7 +34,7 @@ public class MultiLanguagePropertyValueMapper implements DataValueMapper<MultiLa
         MultiLanguagePropertyValue multiLanguagePropertyValue = new MultiLanguagePropertyValue();
 
         //TODO: Check Why is in AAS Model value a List and in MultilanguagePropertyValue a Set?
-        multiLanguagePropertyValue.setLangStringSet(submodelElement.getValues() != null ? new HashSet<>(submodelElement.getValues()) : new HashSet<>());
+        multiLanguagePropertyValue.setLangStringSet(submodelElement.getValue() != null ? new HashSet<>(submodelElement.getValue()) : new HashSet<>());
         return multiLanguagePropertyValue;
     }
 
@@ -42,7 +42,7 @@ public class MultiLanguagePropertyValueMapper implements DataValueMapper<MultiLa
     @Override
     public MultiLanguageProperty setValue(MultiLanguageProperty submodelElement, MultiLanguagePropertyValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
-        submodelElement.setValues(value.getLangStringSet() != null ? new ArrayList<>(value.getLangStringSet()) : new ArrayList<>());
+        submodelElement.setValue(value.getLangStringSet() != null ? new ArrayList<>(value.getLangStringSet()) : new ArrayList<>());
         return submodelElement;
     }
 }

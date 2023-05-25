@@ -69,8 +69,7 @@
         </snapshotRepository>
     </distributionManagement>
     <properties>
-        <aas.dataformat.version>1.2.0</aas.dataformat.version>
-        <aas.model.version>1.2.0</aas.model.version>
+        <aas4j.version>1.0.0-milestone-03.1</aas4j.version>
         <awaitility.version>4.2.0</awaitility.version>
         <checkstyle.version>10.11.0</checkstyle.version>
         <classgraph.version>4.8.160</classgraph.version>

@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.util;
 
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.IdentifierType;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultIdentifier;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;

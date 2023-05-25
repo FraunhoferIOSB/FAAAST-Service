@@ -18,13 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.RelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
-import io.adminshell.aas.v3.model.impl.DefaultRelationshipElement;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -99,24 +98,20 @@ public class RelationshipElementValueTest {
         return RelationshipElementValue.builder()
                 .first(List.of(
                         new DefaultKey.Builder()
-                                .idType(KeyType.IRI)
-                                .type(KeyElements.SUBMODEL)
+                                .type(KeyTypes.SUBMODEL)
                                 .value("http://example.org/submodel/1")
                                 .build(),
                         new DefaultKey.Builder()
-                                .idType(KeyType.ID_SHORT)
-                                .type(KeyElements.PROPERTY)
+                                .type(KeyTypes.PROPERTY)
                                 .value("property1")
                                 .build()))
                 .second(List.of(
                         new DefaultKey.Builder()
-                                .idType(KeyType.IRI)
-                                .type(KeyElements.SUBMODEL)
+                                .type(KeyTypes.SUBMODEL)
                                 .value("http://example.org/submodel/2")
                                 .build(),
                         new DefaultKey.Builder()
-                                .idType(KeyType.ID_SHORT)
-                                .type(KeyElements.PROPERTY)
+                                .type(KeyTypes.PROPERTY)
                                 .value("property2")
                                 .build()))
                 .build();

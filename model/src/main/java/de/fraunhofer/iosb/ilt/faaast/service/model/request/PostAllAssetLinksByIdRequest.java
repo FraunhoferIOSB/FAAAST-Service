@@ -16,12 +16,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostAllAssetLinksByIdResponse;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -29,30 +28,30 @@ import java.util.Objects;
  */
 public class PostAllAssetLinksByIdRequest implements Request<PostAllAssetLinksByIdResponse> {
 
-    private Identifier id;
-    private List<IdentifierKeyValuePair> assetLinks;
+    private String id;
+    private List<SpecificAssetID> assetLinks;
 
     public PostAllAssetLinksByIdRequest() {
         this.assetLinks = new ArrayList<>();
     }
 
 
-    public Identifier getId() {
+    public String getId() {
         return id;
     }
 
 
-    public void setId(Identifier id) {
+    public void setId(String id) {
         this.id = id;
     }
 
 
-    public List<IdentifierKeyValuePair> getAssetLinks() {
+    public List<SpecificAssetID> getAssetLinks() {
         return assetLinks;
     }
 
 
-    public void setAssetLinks(List<IdentifierKeyValuePair> assetLinks) {
+    public void setAssetLinks(List<SpecificAssetID> assetLinks) {
         this.assetLinks = assetLinks;
     }
 
@@ -83,19 +82,19 @@ public class PostAllAssetLinksByIdRequest implements Request<PostAllAssetLinksBy
 
     public abstract static class AbstractBuilder<T extends PostAllAssetLinksByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B id(Identifier value) {
+        public B id(String value) {
             getBuildingInstance().setId(value);
             return getSelf();
         }
 
 
-        public B assetLink(IdentifierKeyValuePair value) {
+        public B assetLink(SpecificAssetID value) {
             getBuildingInstance().getAssetLinks().add(value);
             return getSelf();
         }
 
 
-        public B assetLinks(List<IdentifierKeyValuePair> value) {
+        public B assetLinks(List<SpecificAssetID> value) {
             getBuildingInstance().setAssetLinks(value);
             return getSelf();
         }

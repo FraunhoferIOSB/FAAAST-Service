@@ -23,7 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutAssetAdministratio
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
-import io.adminshell.aas.v3.model.AssetAdministrationShell;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell;
 import java.util.Map;
 
 

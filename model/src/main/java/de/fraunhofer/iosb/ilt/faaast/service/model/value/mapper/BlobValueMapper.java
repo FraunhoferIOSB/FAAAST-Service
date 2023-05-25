@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
-import io.adminshell.aas.v3.model.Blob;
+import org.eclipse.digitaltwin.aas4j.v3.model.Blob;
 
 
 /**
@@ -31,7 +31,7 @@ public class BlobValueMapper implements DataValueMapper<Blob, BlobValue> {
         }
         BlobValue blobValue = new BlobValue();
         blobValue.setValue(submodelElement.getValue());
-        blobValue.setMimeType(submodelElement.getMimeType());
+        blobValue.setContentType(submodelElement.getContentType());
         return blobValue;
     }
 
@@ -40,7 +40,7 @@ public class BlobValueMapper implements DataValueMapper<Blob, BlobValue> {
     public Blob setValue(Blob submodelElement, BlobValue value) {
         DataValueMapper.super.setValue(submodelElement, value);
         submodelElement.setValue(value.getValue());
-        submodelElement.setMimeType(value.getMimeType());
+        submodelElement.setContentType(value.getContentType());
         return submodelElement;
     }
 }

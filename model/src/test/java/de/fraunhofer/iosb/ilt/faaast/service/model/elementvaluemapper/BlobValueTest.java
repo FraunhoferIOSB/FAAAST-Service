@@ -18,8 +18,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.exception.ValueMappingExcepti
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.BlobValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultBlob;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBlob;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class BlobValueTest {
                 .value("foo")
                 .build();
         SubmodelElement expected = new DefaultBlob.Builder()
-                .mimeType(value.getMimeType())
+                .contentType(value.getContentType())
                 .value(value.getValue())
                 .build();
         ElementValueMapper.setValue(actual, value);
@@ -46,7 +46,7 @@ public class BlobValueTest {
     @Test
     public void testSetValueMappingWithNull() {
         SubmodelElement actual = new DefaultBlob.Builder()
-                .mimeType(null)
+                .contentType(null)
                 .value(null)
                 .build();
         BlobValue value = BlobValue.builder()
@@ -54,7 +54,7 @@ public class BlobValueTest {
                 .value("foo")
                 .build();
         SubmodelElement expected = new DefaultBlob.Builder()
-                .mimeType(null)
+                .contentType(null)
                 .value(value.getValue())
                 .build();
         ElementValueMapper.setValue(actual, value);
@@ -69,7 +69,7 @@ public class BlobValueTest {
                 .value("foo")
                 .build();
         SubmodelElement input = new DefaultBlob.Builder()
-                .mimeType(expected.getMimeType())
+                .contentType(expected.getContentType())
                 .value(expected.getValue())
                 .build();
         ElementValue actual = ElementValueMapper.toValue(input);
@@ -84,7 +84,7 @@ public class BlobValueTest {
                 .value((String) null)
                 .build();
         SubmodelElement input = new DefaultBlob.Builder()
-                .mimeType(null)
+                .contentType(null)
                 .value(null)
                 .build();
         ElementValue actual = ElementValueMapper.toValue(input);

@@ -26,7 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.GenerateSerialization
 import de.fraunhofer.iosb.ilt.faaast.service.model.serialization.DataFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
-import io.adminshell.aas.v3.model.Identifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.Identifier;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;

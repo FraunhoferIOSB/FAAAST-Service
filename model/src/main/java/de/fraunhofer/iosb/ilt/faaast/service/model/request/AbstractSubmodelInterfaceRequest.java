@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Response;
-import io.adminshell.aas.v3.model.Identifier;
 import java.util.Objects;
 
 
@@ -27,8 +26,8 @@ import java.util.Objects;
  */
 public abstract class AbstractSubmodelInterfaceRequest<T extends Response> extends AbstractRequestWithModifier<T> {
 
-    protected Identifier aasId;
-    protected Identifier submodelId;
+    protected String aasId;
+    protected String submodelId;
 
     protected AbstractSubmodelInterfaceRequest() {
         super();
@@ -40,22 +39,22 @@ public abstract class AbstractSubmodelInterfaceRequest<T extends Response> exten
     }
 
 
-    public Identifier getAasId() {
+    public String getAasId() {
         return aasId;
     }
 
 
-    public void setAasId(Identifier aasId) {
+    public void setAasId(String aasId) {
         this.aasId = aasId;
     }
 
 
-    public Identifier getSubmodelId() {
+    public String getSubmodelId() {
         return submodelId;
     }
 
 
-    public void setSubmodelId(Identifier submodelId) {
+    public void setSubmodelId(String submodelId) {
         this.submodelId = submodelId;
     }
 
@@ -83,13 +82,13 @@ public abstract class AbstractSubmodelInterfaceRequest<T extends Response> exten
     public abstract static class AbstractBuilder<T extends AbstractSubmodelInterfaceRequest, B extends AbstractBuilder<T, B>>
             extends AbstractRequestWithModifier.AbstractBuilder<T, B> {
 
-        public B aasId(Identifier value) {
+        public B aasId(String value) {
             getBuildingInstance().setAasId(value);
             return getSelf();
         }
 
 
-        public B submodelId(Identifier value) {
+        public B submodelId(String value) {
             getBuildingInstance().setSubmodelId(value);
             return getSelf();
         }

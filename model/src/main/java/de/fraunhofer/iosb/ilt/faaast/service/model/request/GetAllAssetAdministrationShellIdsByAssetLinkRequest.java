@@ -16,11 +16,11 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAllAssetAdministrationShellIdsByAssetLinkResponse;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -28,19 +28,19 @@ import java.util.Objects;
  */
 public class GetAllAssetAdministrationShellIdsByAssetLinkRequest implements Request<GetAllAssetAdministrationShellIdsByAssetLinkResponse> {
 
-    private List<IdentifierKeyValuePair> assetIdentifierPairs;
+    private List<SpecificAssetID> assetIdentifierPairs;
 
     public GetAllAssetAdministrationShellIdsByAssetLinkRequest() {
         this.assetIdentifierPairs = new ArrayList<>();
     }
 
 
-    public List<IdentifierKeyValuePair> getAssetIdentifierPairs() {
+    public List<SpecificAssetID> getAssetIdentifierPairs() {
         return assetIdentifierPairs;
     }
 
 
-    public void setAssetIdentifierPairs(List<IdentifierKeyValuePair> assetIdentifierPairs) {
+    public void setAssetIdentifierPairs(List<SpecificAssetID> assetIdentifierPairs) {
         this.assetIdentifierPairs = assetIdentifierPairs;
     }
 
@@ -70,13 +70,13 @@ public class GetAllAssetAdministrationShellIdsByAssetLinkRequest implements Requ
 
     public abstract static class AbstractBuilder<T extends GetAllAssetAdministrationShellIdsByAssetLinkRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B assetIdentifierPair(IdentifierKeyValuePair value) {
+        public B assetIdentifierPair(SpecificAssetID value) {
             getBuildingInstance().getAssetIdentifierPairs().add(value);
             return getSelf();
         }
 
 
-        public B assetIdentifierPairs(List<IdentifierKeyValuePair> value) {
+        public B assetIdentifierPairs(List<SpecificAssetID> value) {
             getBuildingInstance().setAssetIdentifierPairs(value);
             return getSelf();
         }

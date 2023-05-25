@@ -21,16 +21,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.mapper.ElementValueMapper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
-import io.adminshell.aas.v3.model.EntityType;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.SubmodelElement;
-import io.adminshell.aas.v3.model.impl.DefaultEntity;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultProperty;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD;
+import org.eclipse.digitaltwin.aas4j.v3.model.EntityType;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEntity;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -40,7 +36,7 @@ public class EntityValueTest {
     @Test
     public void testSetValueMapping() throws ValueFormatException {
         SubmodelElement actual = new DefaultEntity.Builder()
-                .statement(new DefaultProperty.Builder()
+                .statements(new DefaultProperty.Builder()
                         .idShort("property")
                         .build())
                 .build();
@@ -54,7 +50,7 @@ public class EntityValueTest {
     @Test
     public void testEntitySetValueMappingWithNull() throws ValueFormatException {
         SubmodelElement actual = new DefaultEntity.Builder()
-                .statement(new DefaultProperty.Builder()
+                .statements(new DefaultProperty.Builder()
                         .idShort("property")
                         .valueType(null)
                         .value(null)
@@ -66,9 +62,9 @@ public class EntityValueTest {
                 .globalAssetId(null)
                 .build();
         SubmodelElement expected = new DefaultEntity.Builder()
-                .statement(new DefaultProperty.Builder()
+                .statements(new DefaultProperty.Builder()
                         .idShort("property")
-                        .valueType(Datatype.STRING.getName())
+                        .valueType(DataTypeDefXSD.STRING)
                         .value("foo")
                         .build())
                 .entityType(null)
@@ -92,7 +88,7 @@ public class EntityValueTest {
         EntityValue expected = EntityValue.builder()
                 .build();
         SubmodelElement input = new DefaultEntity.Builder()
-                .statement(null)
+                .statements((List<SubmodelElement>) null)
                 .entityType(null)
                 .build();
         ElementValue actual = ElementValueMapper.toValue(input);
@@ -100,17 +96,15 @@ public class EntityValueTest {
     }
 
 
-    private DefaultEntity createEntity(List<Key> globalAssetId, String idShort, EntityType entityType) {
+    private DefaultEntity createEntity(String globalAssetId, String idShort, EntityType entityType) {
         return new DefaultEntity.Builder()
-                .statement(new DefaultProperty.Builder()
+                .statements(new DefaultProperty.Builder()
                         .idShort(idShort)
-                        .valueType(Datatype.STRING.getName())
+                        .valueType(DataTypeDefXSD.STRING)
                         .value("foo")
                         .build())
                 .entityType(entityType)
-                .globalAssetId(new DefaultReference.Builder()
-                        .keys(globalAssetId)
-                        .build())
+                .globalAssetID(globalAssetId)
                 .build();
     }
 
@@ -119,16 +113,7 @@ public class EntityValueTest {
         return EntityValue.builder()
                 .statement("property", PropertyValue.of(Datatype.STRING, "foo"))
                 .entityType(EntityType.SELF_MANAGED_ENTITY)
-                .globalAssetId(List.of(new DefaultKey.Builder()
-                        .idType(KeyType.IRI)
-                        .type(KeyElements.SUBMODEL)
-                        .value("http://example.org/submodel/1")
-                        .build(),
-                        new DefaultKey.Builder()
-                                .idType(KeyType.ID_SHORT)
-                                .type(KeyElements.PROPERTY)
-                                .value("property1")
-                                .build()))
+                .globalAssetId("http://example.org/submodel/1")
                 .build();
     }
 

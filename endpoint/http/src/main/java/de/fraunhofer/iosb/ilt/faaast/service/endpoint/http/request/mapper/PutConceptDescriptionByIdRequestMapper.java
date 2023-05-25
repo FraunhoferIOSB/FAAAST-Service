@@ -23,7 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.request.PutConceptDescription
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.IdentifierHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.RegExHelper;
-import io.adminshell.aas.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
 import java.util.Map;
 
 

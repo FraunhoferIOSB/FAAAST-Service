@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PostSubmodelElementResponse;
-import io.adminshell.aas.v3.model.SubmodelElement;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 
 
 /**

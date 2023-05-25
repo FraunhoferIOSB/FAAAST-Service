@@ -15,8 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.data;
 
 import com.prosysopc.ua.types.opcua.BaseObjectType;
-import io.adminshell.aas.v3.model.Referable;
-import io.adminshell.aas.v3.model.Submodel;
+import org.eclipse.digitaltwin.aas4j.v3.model.Referable;
+import org.eclipse.digitaltwin.aas4j.v3.model.Submodel;
 
 
 /**

@@ -44,10 +44,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.DateTimeValue
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.TypedValueFactory;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.Property;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangString;
+import org.eclipse.digitaltwin.aas4j.v3.model.Property;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -777,7 +777,7 @@ public class AasSubmodelElementHelper {
      * @throws StatusException If the operation fails
      */
     private static void setFilePropertyValue(AASFileType file, FileValue value, NodeManagerUaNode nodeManager) throws StatusException {
-        file.setMimeType(value.getMimeType());
+        file.setMimeType(value.getContentType());
         if (value.getValue() != null) {
             if (file.getValueNode() == null) {
                 addFileValueNode(file, nodeManager);
@@ -798,7 +798,7 @@ public class AasSubmodelElementHelper {
      */
     private static void setBlobValue(AASBlobType blob, BlobValue value, NodeManagerUaNode nodeManager) throws StatusException {
         // MimeType
-        blob.setMimeType(value.getMimeType());
+        blob.setMimeType(value.getContentType());
 
         // Value
         if (value.getValue() != null) {

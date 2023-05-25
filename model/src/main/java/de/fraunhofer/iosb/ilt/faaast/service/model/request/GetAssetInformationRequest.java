@@ -16,9 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.GetAssetInformationResponse;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -26,14 +25,14 @@ import java.util.Objects;
  */
 public class GetAssetInformationRequest implements Request<GetAssetInformationResponse> {
 
-    private Identifier id;
+    private String id;
 
-    public Identifier getId() {
+    public String getId() {
         return id;
     }
 
 
-    public void setId(Identifier id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -59,7 +58,7 @@ public class GetAssetInformationRequest implements Request<GetAssetInformationRe
 
     public abstract static class AbstractBuilder<T extends GetAssetInformationRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B id(Identifier value) {
+        public B id(String value) {
             getBuildingInstance().setId(value);
             return getSelf();
         }

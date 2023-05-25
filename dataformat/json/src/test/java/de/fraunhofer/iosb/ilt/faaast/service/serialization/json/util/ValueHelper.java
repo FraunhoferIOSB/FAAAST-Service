@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.serialization.json.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.adminshell.aas.v3.model.SubmodelElement;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement;
 import java.io.File;
 import java.io.IOException;
 

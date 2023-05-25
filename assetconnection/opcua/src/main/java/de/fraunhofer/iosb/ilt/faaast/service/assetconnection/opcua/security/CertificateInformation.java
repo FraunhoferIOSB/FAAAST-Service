@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security;
 
-import io.adminshell.aas.v3.model.builder.AbstractBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.AbstractBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

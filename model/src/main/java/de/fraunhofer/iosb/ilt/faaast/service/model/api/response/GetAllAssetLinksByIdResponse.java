@@ -15,20 +15,20 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID;
 
 
 /**
  * Response class for GetAllAssetLinksById requests.
  */
-public class GetAllAssetLinksByIdResponse extends AbstractResponseWithPayload<List<IdentifierKeyValuePair>> {
+public class GetAllAssetLinksByIdResponse extends AbstractResponseWithPayload<List<SpecificAssetID>> {
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<List<IdentifierKeyValuePair>, GetAllAssetLinksByIdResponse, Builder> {
+    public static class Builder extends AbstractBuilder<List<SpecificAssetID>, GetAllAssetLinksByIdResponse, Builder> {
 
         @Override
         protected Builder getSelf() {

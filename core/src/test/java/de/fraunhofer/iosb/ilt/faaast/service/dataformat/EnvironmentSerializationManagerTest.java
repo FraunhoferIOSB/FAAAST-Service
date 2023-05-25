@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.dataformat;
 
-import io.adminshell.aas.v3.dataformat.Deserializer;
-import io.adminshell.aas.v3.dataformat.aml.AmlDeserializer;
-import io.adminshell.aas.v3.dataformat.i4aas.I4AASDeserializer;
-import io.adminshell.aas.v3.dataformat.json.JsonDeserializer;
-import io.adminshell.aas.v3.dataformat.xml.XmlDeserializer;
-import io.adminshell.aas.v3.model.AssetAdministrationShellEnvironment;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.Deserializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.aml.AmlDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.i4aas.I4AASDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellEnvironment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

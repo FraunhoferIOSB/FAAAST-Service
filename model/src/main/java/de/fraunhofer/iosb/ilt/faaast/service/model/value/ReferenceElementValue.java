@@ -14,15 +14,14 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 
 
 /**
@@ -94,9 +93,8 @@ public class ReferenceElementValue extends DataElementValue {
         }
 
 
-        public B key(KeyType idType, KeyElements type, String value) {
+        public B key(KeyTypes type, String value) {
             getBuildingInstance().getKeys().add(new DefaultKey.Builder()
-                    .idType(idType)
                     .type(type)
                     .value(value)
                     .build());

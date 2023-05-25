@@ -42,7 +42,7 @@ import com.prosysopc.ua.stack.core.ReferenceDescription;
 import com.prosysopc.ua.stack.core.RelativePath;
 import com.prosysopc.ua.stack.core.RelativePathElement;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
-import io.adminshell.aas.v3.model.Qualifier;
+import org.eclipse.digitaltwin.aas4j.v3.model.Qualifier;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;

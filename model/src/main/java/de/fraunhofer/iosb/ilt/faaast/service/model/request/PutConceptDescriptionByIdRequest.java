@@ -16,10 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.service.model.request;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Request;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.response.PutConceptDescriptionByIdResponse;
-import io.adminshell.aas.v3.model.ConceptDescription;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -27,15 +26,15 @@ import java.util.Objects;
  */
 public class PutConceptDescriptionByIdRequest implements Request<PutConceptDescriptionByIdResponse> {
 
-    private Identifier id;
+    private String id;
     private ConceptDescription conceptDescription;
 
-    public Identifier getId() {
+    public String getId() {
         return id;
     }
 
 
-    public void setId(Identifier cdIdentifier) {
+    public void setId(String cdIdentifier) {
         this.id = cdIdentifier;
     }
 
@@ -76,7 +75,7 @@ public class PutConceptDescriptionByIdRequest implements Request<PutConceptDescr
 
     public abstract static class AbstractBuilder<T extends PutConceptDescriptionByIdRequest, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
-        public B id(Identifier value) {
+        public B id(String value) {
             getBuildingInstance().setId(value);
             return getSelf();
         }

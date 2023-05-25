@@ -14,8 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.model.value;
 
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
@@ -23,14 +23,14 @@ import java.util.Objects;
  */
 public class FileValue extends DataElementValue {
 
-    private String mimeType;
+    private String contentType;
     private String value;
 
     public FileValue() {}
 
 
     public FileValue(String mimeType, String value) {
-        this.mimeType = mimeType;
+        this.contentType = mimeType;
         this.value = value;
     }
 
@@ -44,17 +44,17 @@ public class FileValue extends DataElementValue {
             return false;
         }
         FileValue fileValue = (FileValue) o;
-        return Objects.equals(mimeType, fileValue.mimeType) && Objects.equals(value, fileValue.value);
+        return Objects.equals(contentType, fileValue.contentType) && Objects.equals(value, fileValue.value);
     }
 
 
-    public String getMimeType() {
-        return mimeType;
+    public String getContentType() {
+        return contentType;
     }
 
 
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
 
@@ -70,7 +70,7 @@ public class FileValue extends DataElementValue {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mimeType, value);
+        return Objects.hash(contentType, value);
     }
 
 
@@ -81,7 +81,7 @@ public class FileValue extends DataElementValue {
     public abstract static class AbstractBuilder<T extends FileValue, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B mimeType(String value) {
-            getBuildingInstance().setMimeType(value);
+            getBuildingInstance().setContentType(value);
             return getSelf();
         }
 

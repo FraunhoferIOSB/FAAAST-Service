@@ -15,21 +15,20 @@
 package de.fraunhofer.iosb.ilt.faaast.service.model.api.response;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.AbstractResponseWithPayload;
-import io.adminshell.aas.v3.model.Identifier;
 import java.util.List;
 
 
 /**
  * Response class for GetAllAssetAdministrationShellIdsByAssetLink requests.
  */
-public class GetAllAssetAdministrationShellIdsByAssetLinkResponse extends AbstractResponseWithPayload<List<Identifier>> {
+public class GetAllAssetAdministrationShellIdsByAssetLinkResponse extends AbstractResponseWithPayload<List<String>> {
 
     public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder
-            extends AbstractBuilder<List<Identifier>, GetAllAssetAdministrationShellIdsByAssetLinkResponse, Builder> {
+            extends AbstractBuilder<List<String>, GetAllAssetAdministrationShellIdsByAssetLinkResponse, Builder> {
 
         @Override
         protected Builder getSelf() {
