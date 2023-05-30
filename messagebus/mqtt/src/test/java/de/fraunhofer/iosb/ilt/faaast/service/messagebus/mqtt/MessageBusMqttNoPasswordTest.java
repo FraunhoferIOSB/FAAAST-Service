@@ -21,7 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorEventMessage;
@@ -39,36 +38,26 @@ import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 
 
-public class MessageBusMqttTest {
+public class MessageBusMqttNoPasswordTest {
 
     private static final ServiceContext SERVICE_CONTEXT = Mockito.mock(ServiceContext.class);
     private static final long DEFAULT_TIMEOUT = 1000;
 
     private static final MessageBusMqttConfig CONFIG = MessageBusMqttConfig.builder()
             .internal(true)
-            .useWebsocket(false)
             .serverKeystorePath("src/test/resources/serverkeystore.jks")
             .serverKeystorePassword("password")
-            .passwordFile("src/test/resources/password_file.conf")
-            .username("user")
-            .password("password")
+            .passwordFile("")
+            .username("")
+            .password("")
             .clientKeystorePath("src/test/resources/clientkeystore.jks")
             .clientKeystorePassword("password")
             .build();
@@ -139,44 +128,6 @@ public class MessageBusMqttTest {
     @Test
     public void testExactTypeSubscription() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
         assertMessage(ElementCreateEventMessage.class, ELEMENT_CREATE_MESSAGE, ELEMENT_CREATE_MESSAGE);
-    }
-
-
-    @Test
-    public void testSuperTypeSubscription() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
-        assertMessages(EventMessage.class,
-                List.of(ELEMENT_CREATE_MESSAGE, ERROR_MESSAGE),
-                List.of(ELEMENT_CREATE_MESSAGE, ERROR_MESSAGE));
-    }
-
-
-    @Test
-    public void testDistinctTypesSubscription() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
-        assertMessages(
-                List.of(ChangeEventMessage.class, ErrorEventMessage.class),
-                List.of(ELEMENT_CREATE_MESSAGE, ERROR_MESSAGE),
-                Map.of(
-                        ChangeEventMessage.class, List.of(ELEMENT_CREATE_MESSAGE),
-                        ErrorEventMessage.class, List.of(ERROR_MESSAGE)));
-    }
-
-
-    @Test
-    public void testNotMatchingSubscription() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
-        assertMessage(ErrorEventMessage.class, VALUE_CHANGE_MESSAGE, null);
-    }
-
-
-    @Test
-    public void testSubscribeUnsubscribe() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
-        SubscriptionId subscription = messageBus.subscribe(SubscriptionInfo.create(
-                EventMessage.class,
-                x -> {
-                    Assert.fail();
-                }));
-        messageBus.unsubscribe(subscription);
-        messageBus.publish(VALUE_CHANGE_MESSAGE);
-        Thread.sleep(1000);
     }
 
 

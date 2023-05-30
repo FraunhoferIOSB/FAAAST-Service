@@ -39,31 +39,21 @@ import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 
 
-public class MessageBusMqttTest {
+public class MessageBusMqttWSTest {
 
     private static final ServiceContext SERVICE_CONTEXT = Mockito.mock(ServiceContext.class);
     private static final long DEFAULT_TIMEOUT = 1000;
 
     private static final MessageBusMqttConfig CONFIG = MessageBusMqttConfig.builder()
             .internal(true)
-            .useWebsocket(false)
             .serverKeystorePath("src/test/resources/serverkeystore.jks")
             .serverKeystorePassword("password")
             .passwordFile("src/test/resources/password_file.conf")

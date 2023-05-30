@@ -86,7 +86,9 @@ public class MoquetteServer {
         serverConfig.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(config.getPort()));
         serverConfig.setProperty(BrokerConstants.HOST_PROPERTY_NAME, config.getHost());
         serverConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.TRUE.toString());
-        serverConfig.setProperty(BrokerConstants.WEB_SOCKET_PORT_PROPERTY_NAME, Integer.toString(config.getWebsocketPort()));
+        if (config.getUseWebsocket()) {
+            serverConfig.setProperty(BrokerConstants.WEB_SOCKET_PORT_PROPERTY_NAME, Integer.toString(config.getWebsocketPort()));
+        }
         String keystorePath = config.getServerKeystorePath();
         if (!keystorePath.isEmpty()) {
             LOGGER.info("Configuring keystore for ssl");
@@ -96,11 +98,14 @@ public class MoquetteServer {
                 serverConfig.setProperty(BrokerConstants.KEY_MANAGER_PASSWORD_PROPERTY_NAME, config.getServerKeystorePassword());
             }
             serverConfig.setProperty(BrokerConstants.SSL_PORT_PROPERTY_NAME, Integer.toString(config.getSslPort()));
-            serverConfig.setProperty(BrokerConstants.WSS_PORT_PROPERTY_NAME, Integer.toString(config.getSslWebsocketPort()));
+            if (config.getUseWebsocket()) {
+                serverConfig.setProperty(BrokerConstants.WSS_PORT_PROPERTY_NAME, Integer.toString(config.getSslWebsocketPort()));
+            }
         }
         String passwordPath = config.getPasswordFile();
         if (!passwordPath.isEmpty()) {
             serverConfig.setProperty(BrokerConstants.PASSWORD_FILE_PROPERTY_NAME, passwordPath);
+            serverConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.FALSE.toString());
         }
         server.startServer(serverConfig);
     }

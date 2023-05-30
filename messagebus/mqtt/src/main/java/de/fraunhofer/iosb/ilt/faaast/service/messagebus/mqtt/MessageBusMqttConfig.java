@@ -24,6 +24,7 @@ import java.util.Objects;
 public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
 
     private static final boolean DEFAULT_USE_INTERNAL_SERVER = true;
+    private static final boolean DEFAULT_USE_WEBSOCKETS = true;
     private static final int DEFAULT_PORT = 1883;
     private static final int DEFAULT_SSL_PORT = 1884;
     private static final int DEFAULT_WEBSOCKET_PORT = 80;
@@ -40,6 +41,7 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     private String host;
     private int websocketPort;
     private int sslWebsocketPort;
+    private boolean useWebsocket;
     private String serverKeystorePassword;
     private String serverKeystorePath;
     private String clientKeystorePath;
@@ -59,6 +61,7 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
         this.serverKeystorePath = DEFAULT_SERVER_KEYSTORE_PATH;
         this.clientKeystorePassword = DEFAULT_CLIENT_KEYSTORE_PASSWORD;
         this.clientKeystorePath = DEFAULT_CLIENT_KEYSTORE_PATH;
+        this.useWebsocket = DEFAULT_USE_WEBSOCKETS;
     }
 
 
@@ -192,6 +195,16 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     }
 
 
+    public boolean getUseWebsocket() {
+        return useWebsocket;
+    }
+
+
+    public void setUseWebsocket(boolean useWebsocket) {
+        this.useWebsocket = useWebsocket;
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
@@ -218,7 +231,9 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
                 && Objects.equals(clientKeystorePassword, other.clientKeystorePassword)
                 && Objects.equals(passwordFile, other.passwordFile)
                 && Objects.equals(username, other.username)
-                && Objects.equals(password, other.password);
+                && Objects.equals(password, other.password)
+                && Objects.equals(useWebsocket, other.useWebsocket);
+
     }
 
 
@@ -236,7 +251,8 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
                 clientKeystorePassword,
                 passwordFile,
                 username,
-                password);
+                password,
+                useWebsocket);
     }
 
     private abstract static class AbstractBuilder<T extends MessageBusMqttConfig, B extends AbstractBuilder<T, B>> extends MessageBusConfig.AbstractBuilder<MessageBusMqtt, T, B> {
@@ -273,6 +289,12 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
 
         public B sslWebsocketPort(int value) {
             getBuildingInstance().setSslWebsocketPort(value);
+            return getSelf();
+        }
+
+
+        public B useWebsocket(boolean useWebsocket) {
+            getBuildingInstance().setUseWebsocket(useWebsocket);
             return getSelf();
         }
 

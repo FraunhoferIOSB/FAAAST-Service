@@ -39,36 +39,26 @@ import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.mockito.Mockito;
 
 
-public class MessageBusMqttTest {
+public class MessageBusWrongPasswordTest {
 
     private static final ServiceContext SERVICE_CONTEXT = Mockito.mock(ServiceContext.class);
     private static final long DEFAULT_TIMEOUT = 1000;
 
     private static final MessageBusMqttConfig CONFIG = MessageBusMqttConfig.builder()
             .internal(true)
-            .useWebsocket(false)
             .serverKeystorePath("src/test/resources/serverkeystore.jks")
             .serverKeystorePassword("password")
             .passwordFile("src/test/resources/password_file.conf")
             .username("user")
-            .password("password")
+            .password("passwordd")
             .clientKeystorePath("src/test/resources/clientkeystore.jks")
             .clientKeystorePassword("password")
             .build();
@@ -137,68 +127,14 @@ public class MessageBusMqttTest {
 
 
     @Test
-    public void testExactTypeSubscription() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
-        assertMessage(ElementCreateEventMessage.class, ELEMENT_CREATE_MESSAGE, ELEMENT_CREATE_MESSAGE);
-    }
-
-
-    @Test
-    public void testSuperTypeSubscription() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
-        assertMessages(EventMessage.class,
-                List.of(ELEMENT_CREATE_MESSAGE, ERROR_MESSAGE),
-                List.of(ELEMENT_CREATE_MESSAGE, ERROR_MESSAGE));
-    }
-
-
-    @Test
-    public void testDistinctTypesSubscription() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
+    public void testWrongPassword() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
+        //this fails if the broker allows connections with wrong passwords
         assertMessages(
                 List.of(ChangeEventMessage.class, ErrorEventMessage.class),
                 List.of(ELEMENT_CREATE_MESSAGE, ERROR_MESSAGE),
                 Map.of(
                         ChangeEventMessage.class, List.of(ELEMENT_CREATE_MESSAGE),
                         ErrorEventMessage.class, List.of(ERROR_MESSAGE)));
-    }
-
-
-    @Test
-    public void testNotMatchingSubscription() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
-        assertMessage(ErrorEventMessage.class, VALUE_CHANGE_MESSAGE, null);
-    }
-
-
-    @Test
-    public void testSubscribeUnsubscribe() throws InterruptedException, MessageBusException, ConfigurationInitializationException {
-        SubscriptionId subscription = messageBus.subscribe(SubscriptionInfo.create(
-                EventMessage.class,
-                x -> {
-                    Assert.fail();
-                }));
-        messageBus.unsubscribe(subscription);
-        messageBus.publish(VALUE_CHANGE_MESSAGE);
-        Thread.sleep(1000);
-    }
-
-
-    private void assertMessage(Class<? extends EventMessage> subscribeTo, EventMessage toPublish, EventMessage expected)
-            throws ConfigurationInitializationException, MessageBusException, InterruptedException {
-        assertMessages(
-                subscribeTo,
-                List.of(toPublish),
-                Objects.isNull(expected)
-                        ? List.of()
-                        : List.of(expected));
-    }
-
-
-    private void assertMessages(Class<? extends EventMessage> subscribeTo, List<EventMessage> toPublish, List<EventMessage> expected)
-            throws ConfigurationInitializationException, MessageBusException, InterruptedException {
-        assertMessages(
-                List.of(subscribeTo),
-                toPublish,
-                Objects.isNull(expected) || expected.isEmpty()
-                        ? Map.of()
-                        : Map.of(subscribeTo, expected));
     }
 
 
@@ -220,6 +156,6 @@ public class MessageBusMqttTest {
         }
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         subscriptions.forEach(messageBus::unsubscribe);
-        Assert.assertEquals(Objects.isNull(expected) ? Map.of() : expected, actual);
+        Assert.assertNotEquals(Objects.isNull(expected) ? Map.of() : expected, actual);
     }
 }
