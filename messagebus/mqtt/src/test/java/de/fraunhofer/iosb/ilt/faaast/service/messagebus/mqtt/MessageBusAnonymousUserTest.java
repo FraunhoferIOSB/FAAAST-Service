@@ -132,15 +132,13 @@ public class MessageBusAnonymousUserTest {
         assertMessages(
                 List.of(ChangeEventMessage.class, ErrorEventMessage.class),
                 List.of(ELEMENT_CREATE_MESSAGE, ERROR_MESSAGE),
-                Map.of(
-                        ChangeEventMessage.class, List.of(ELEMENT_CREATE_MESSAGE),
-                        ErrorEventMessage.class, List.of(ERROR_MESSAGE)));
+                Map.of());
     }
 
 
     private void assertMessages(List<Class<? extends EventMessage>> subscribeTo, List<EventMessage> toPublish, Map<Class<? extends EventMessage>, List<EventMessage>> expected)
             throws ConfigurationInitializationException, MessageBusException, InterruptedException {
-        CountDownLatch condition = new CountDownLatch(expected.size());
+        CountDownLatch condition = new CountDownLatch(2);
         final Map<Class<? extends EventMessage>, List<EventMessage>> actual = Collections.synchronizedMap(new HashMap<>());
         List<SubscriptionId> subscriptions = subscribeTo.stream()
                 .map(x -> messageBus.subscribe(SubscriptionInfo.create(x, e -> {
@@ -156,6 +154,6 @@ public class MessageBusAnonymousUserTest {
         }
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         subscriptions.forEach(messageBus::unsubscribe);
-        Assert.assertNotEquals(Objects.isNull(expected) ? Map.of() : expected, actual);
+        Assert.assertEquals(Objects.isNull(expected) ? Map.of() : expected, actual);
     }
 }
