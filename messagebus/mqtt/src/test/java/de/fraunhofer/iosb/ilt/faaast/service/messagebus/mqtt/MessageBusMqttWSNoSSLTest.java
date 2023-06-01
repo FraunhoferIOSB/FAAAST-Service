@@ -22,12 +22,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorEventMessage;
-import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorLevel;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
@@ -76,19 +71,9 @@ public class MessageBusMqttWSNoSSLTest {
                     .build())
             .build();
 
-    private static final ValueChangeEventMessage VALUE_CHANGE_MESSAGE = ValueChangeEventMessage.builder()
-            .oldValue(new PropertyValue(new IntValue(100)))
-            .oldValue(new PropertyValue(new IntValue(123)))
-            .build();
-
     private static final ElementCreateEventMessage ELEMENT_CREATE_MESSAGE = ElementCreateEventMessage.builder()
             .element(PROPERTY_REFERENCE)
             .value(PROPERTY)
-            .build();
-
-    private static final ErrorEventMessage ERROR_MESSAGE = ErrorEventMessage.builder()
-            .element(PROPERTY_REFERENCE)
-            .level(ErrorLevel.ERROR)
             .build();
 
     private MessageBusMqtt messageBus;
