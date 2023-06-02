@@ -82,17 +82,27 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         httpConfig.setSendDateHeader(false);
         httpConfig.setSendXPoweredBy(false);
 
-        httpConfig.addCustomizer(new SecureRequestCustomizer());
         HttpConnectionFactory http11 = new HttpConnectionFactory(httpConfig);
 
+        ServerConnector serverConnector;
+        if (config.getKeystorePath() == null || config.getKeystorePath().equals("")) {
+            serverConnector = new ServerConnector(server, http11);
+        } else {
+            httpConfig.addCustomizer(new SecureRequestCustomizer());
+            serverConnector = buildSSLServerConnector(http11);
+        }
+
+        serverConnector.setPort(config.getPort());
+        server.addConnector(serverConnector);
+    }
+
+    private ServerConnector buildSSLServerConnector(HttpConnectionFactory http11) {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
         sslContextFactory.setKeyStorePath(config.getKeystorePath());
         sslContextFactory.setKeyStorePassword(config.getKeystorePassword());
-        SslConnectionFactory tls = new SslConnectionFactory(sslContextFactory, http11.getProtocol());
 
-        ServerConnector serverConnector = new ServerConnector(server, tls, http11);
-        serverConnector.setPort(config.getPort());
-        server.addConnector(serverConnector);
+        SslConnectionFactory tls = new SslConnectionFactory(sslContextFactory, http11.getProtocol());
+        return new ServerConnector(server, tls, http11);
     }
 
     @Override
