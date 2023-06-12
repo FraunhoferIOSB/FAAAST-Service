@@ -43,12 +43,22 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         this.port = port;
     }
 
-    public String getKeystorePath() { return keystorePath; }
+
+    public String getKeystorePath() {
+        return keystorePath;
+    }
+
+
     public void setKeystorePath(String keystorePath) {
         this.keystorePath = keystorePath;
     }
 
-    public String getKeystorePassword() { return keystorePassword; }
+
+    public String getKeystorePassword() {
+        return keystorePassword;
+    }
+
+
     public void setKeystorePassword(String keystorePassword) {
         this.keystorePassword = keystorePassword;
     }

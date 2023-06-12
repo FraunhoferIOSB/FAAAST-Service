@@ -87,7 +87,8 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         ServerConnector serverConnector;
         if (config.getKeystorePath() == null || config.getKeystorePath().equals("")) {
             serverConnector = new ServerConnector(server, http11);
-        } else {
+        }
+        else {
             httpConfig.addCustomizer(new SecureRequestCustomizer());
             serverConnector = buildSSLServerConnector(http11);
         }
@@ -95,6 +96,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         serverConnector.setPort(config.getPort());
         server.addConnector(serverConnector);
     }
+
 
     private ServerConnector buildSSLServerConnector(HttpConnectionFactory http11) {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
@@ -104,6 +106,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         SslConnectionFactory tls = new SslConnectionFactory(sslContextFactory, http11.getProtocol());
         return new ServerConnector(server, tls, http11);
     }
+
 
     @Override
     public void stop() {
