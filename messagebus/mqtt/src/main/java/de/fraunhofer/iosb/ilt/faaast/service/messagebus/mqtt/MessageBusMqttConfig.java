@@ -24,7 +24,7 @@ import java.util.Objects;
 public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
 
     private static final boolean DEFAULT_USE_INTERNAL_SERVER = true;
-    private static final boolean DEFAULT_USE_WEBSOCKETS = true;
+    private static final boolean DEFAULT_USE_WEBSOCKETS = false;
     private static final int DEFAULT_PORT = 1883;
     private static final int DEFAULT_SSL_PORT = 1884;
     private static final int DEFAULT_WEBSOCKET_PORT = 80;

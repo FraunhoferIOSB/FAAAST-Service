@@ -14,8 +14,11 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
+import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.Objects;
 import java.util.UUID;
@@ -56,8 +59,10 @@ public class PahoClient {
 
     /**
      * Starts the client connection.
+     *
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if message bus fails to start
      */
-    public void start() {
+    public void start() throws MessageBusException {
         String endpoint;
         if (config.getClientKeystorePath().isEmpty()) {
             if (config.getUseWebsocket()) {
@@ -90,9 +95,13 @@ public class PahoClient {
         String clientId = "FA³ST MQTT " + UUID.randomUUID().toString().replace("-", "");
         clientId = clientId.substring(0, 20); // MQTTv2 limited to 23 characters
         MqttConnectOptions options = new MqttConnectOptions();
-        SSLSocketFactory ssl = getSSLSocketFactory(config.getClientKeystorePath(), config.getClientKeystorePassword());
-        if (!Objects.isNull(ssl)) {
-            options.setSocketFactory(ssl);
+        try {
+            if (Objects.nonNull(config.getClientKeystorePath()) && !config.getClientKeystorePath().isEmpty()) {
+                options.setSocketFactory(getSSLSocketFactory(config.getClientKeystorePath(), config.getClientKeystorePassword()));
+            }
+        }
+        catch (GeneralSecurityException | IOException e) {
+            throw new MessageBusException("error setting up SSL for MQTT message bus", e);
         }
         if (!Objects.isNull(config.getUsername())) {
             options.setUserName(config.getUsername());
@@ -138,8 +147,8 @@ public class PahoClient {
             mqttClient.connect(options);
             logger.debug("connected to MQTT broker: {}", endpoint);
         }
-        catch (Exception ex) {
-            logger.error("failed to connect to MQTT broker", ex);
+        catch (MqttException e) {
+            throw new MessageBusException("Failed to connect to MQTT server", e);
         }
     }
 
@@ -166,13 +175,13 @@ public class PahoClient {
             }
             mqttClient = null;
         }
-        catch (MqttException ex) {
-            logger.debug("error disconnecting MQTT", ex);
+        catch (MqttException e) {
+            logger.debug("MQTT message bus did not stop gracefully", e);
         }
     }
 
 
-    private SSLSocketFactory getSSLSocketFactory(String keyStorePath, String password) {
+    private SSLSocketFactory getSSLSocketFactory(String keyStorePath, String password) throws GeneralSecurityException, IOException {
         try (InputStream jksInputStream = new FileInputStream(keyStorePath)) {
             KeyStore keystore = KeyStore.getInstance("JKS");
             keystore.load(jksInputStream, password.toCharArray());
@@ -189,10 +198,6 @@ public class PahoClient {
 
             return sslContext.getSocketFactory();
         }
-        catch (Exception e) {
-            logger.error("MqttMessagebus SSL init error.");
-            return null;
-        }
     }
 
 
@@ -201,8 +206,9 @@ public class PahoClient {
      *
      * @param topic the topic to publish on
      * @param content the message to publish
+     * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if publishing the message fails
      */
-    public void publish(String topic, String content) {
+    public void publish(String topic, String content) throws MessageBusException {
         if (!mqttClient.isConnected()) {
             logger.debug("received data but MQTT connection is closed, trying to connect...");
             start();
@@ -213,7 +219,7 @@ public class PahoClient {
             logger.info("message published - topic: {}, data: {}", topic, content);
         }
         catch (MqttException e) {
-            logger.warn("publishing mqtt message failed.");
+            throw new MessageBusException("publishing message on MQTT message bus failed", e);
         }
     }
 
