@@ -45,4 +45,9 @@
 		<vulnerabilityName>CVE-2020-8908</vulnerabilityName>
 	</suppress>
 	<!-- end: CVE-2020-8908 affected method com.google.common.io.Files#createTempDir not called in productive code including dependencies -->
+	<suppress base="true">
+		<notes><![CDATA[False positive, see https://github.com/FasterXML/woodstox/issues/173]]></notes>
+		<packageUrl regex="true">^pkg:maven/com\.sun\.xml\.bind\.jaxb/isorelax@.*$</packageUrl>
+		<cpe>cpe:/a:xml_library_project:xml_library</cpe>
+	</suppress>
 </suppressions>
