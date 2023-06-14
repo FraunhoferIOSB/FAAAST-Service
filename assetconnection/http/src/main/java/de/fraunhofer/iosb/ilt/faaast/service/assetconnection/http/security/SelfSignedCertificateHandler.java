@@ -27,9 +27,12 @@ import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-/**
- * test.
- */
+
+  /**
+   * Handle self-signed certificates. Identify self-signed certificates by checking the given certificate against a list
+   * of CA's and allow self-signed certificates to be authorized.
+   */
+
 public class SelfSignedCertificateHandler extends HttpClient {
     private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(10);
     public static final String JKS = "JKS";
@@ -188,8 +191,5 @@ public class SelfSignedCertificateHandler extends HttpClient {
                 .sslParameters(sslParameters)
                 .build()
                 .sendAsync(request, responseBodyHandler, pushPromiseHandler);
-    }
-
-    public void initSSLContext(KeyStore loadTrustStore, char[] toCharArray) {
     }
 }
