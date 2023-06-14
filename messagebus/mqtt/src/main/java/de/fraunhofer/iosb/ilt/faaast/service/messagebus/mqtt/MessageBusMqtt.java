@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiDeserializer;
-import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonApiSerializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonEventDeserializer;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.JsonEventSerializer;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
@@ -43,12 +43,16 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
 
     private static final String TOPIC_PREFIX = "events/";
     private final Map<SubscriptionId, SubscriptionInfo> subscriptions;
+    private final JsonEventSerializer serializer;
+    private final JsonEventDeserializer deserializer;
     private MessageBusMqttConfig config;
     private MoquetteServer server;
     private PahoClient client;
 
     public MessageBusMqtt() {
         subscriptions = new ConcurrentHashMap<>();
+        serializer = new JsonEventSerializer();
+        deserializer = new JsonEventDeserializer();
     }
 
 
@@ -72,7 +76,6 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
     public void publish(EventMessage message) throws MessageBusException {
         try {
             Class<? extends EventMessage> messageType = message.getClass();
-            JsonApiSerializer serializer = new JsonApiSerializer();
             client.publish(TOPIC_PREFIX + messageType.getSimpleName(), serializer.write(message));
         }
         catch (Exception e) {
@@ -109,7 +112,7 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
         Ensure.requireNonNull(subscriptionInfo, "subscriptionInfo must be non-null");
         subscriptionInfo.getSubscribedEvents()
                 .forEach(x -> determineEvents((Class<? extends EventMessage>) x).stream().forEach(e -> client.subscribe(TOPIC_PREFIX + e.getSimpleName(), (t, message) -> {
-                    EventMessage event = new JsonApiDeserializer().read(message.toString(), e);
+                    EventMessage event = deserializer.read(message.toString(), e);
                     if (subscriptionInfo.getFilter().test(event.getElement())) {
                         subscriptionInfo.getHandler().accept(event);
                     }

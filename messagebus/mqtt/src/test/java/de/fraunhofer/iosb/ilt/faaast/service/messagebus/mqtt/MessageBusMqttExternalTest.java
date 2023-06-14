@@ -28,9 +28,18 @@ public class MessageBusMqttExternalTest extends AbstractMessageBusMqttTest<Serve
     private static final String LOCALHOST = "127.0.0.1";
 
     @Override
+    protected MessageBusMqttConfig getBaseConfig() {
+        return MessageBusMqttConfig.builder()
+                .internal(false)
+                .build();
+    }
+
+
+    @Override
     protected Server startServer(MessageBusMqttConfig config) throws IOException {
         Server result = new Server();
-        result.startServer(getMqttServerConfig(config), null);
+        MoquetteAuthenticator authenticator = new MoquetteAuthenticator(config);
+        result.startServer(getMqttServerConfig(config), null, null, authenticator, authenticator);
         return result;
     }
 
@@ -45,13 +54,7 @@ public class MessageBusMqttExternalTest extends AbstractMessageBusMqttTest<Serve
         MemoryConfig result = new MemoryConfig(new Properties());
         result.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(config.getPort()));
         result.setProperty(BrokerConstants.HOST_PROPERTY_NAME, LOCALHOST);
-        if (Objects.isNull(config.getPasswordFile())) {
-            result.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(true));
-        }
-        else {
-            result.setProperty(BrokerConstants.PASSWORD_FILE_PROPERTY_NAME, config.getPasswordFile());
-            result.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(false));
-        }
+        result.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(config.getUsers().isEmpty()));
         if (config.getUseWebsocket()) {
             result.setProperty(BrokerConstants.WEB_SOCKET_PORT_PROPERTY_NAME, Integer.toString(config.getWebsocketPort()));
         }
@@ -68,226 +71,6 @@ public class MessageBusMqttExternalTest extends AbstractMessageBusMqttTest<Serve
         }
 
         return result;
-    }
-
-
-    @Override
-    protected int getTcpPort() {
-        return findFreePort();
-    }
-
-
-    @Override
-    protected int getTcpSslPort() {
-        return findFreePort();
-    }
-
-
-    @Override
-    protected int getWebsocketPort() {
-        return findFreePort();
-    }
-
-
-    @Override
-    protected int getWebsocketSslPort() {
-        return findFreePort();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalTcpNoSslAsAnonymousSuccess() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalWebsocketNoSslAsAnonymousSuccess() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .useWebsocket(true)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalTcpWithSslAsAnonymousSuccess() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .serverKeystorePath(SERVER_KEYSTORE_PATH)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalWebsocketWithSslAsAnonymousSuccess() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .useWebsocket(true)
-                .serverKeystorePath(SERVER_KEYSTORE_PATH)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalTcpNoSslAsAnonymousFail() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .passwordFile(PASSWORD_FILE)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalWebsocketNoSslAsAnonymousFail() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .useWebsocket(true)
-                .passwordFile(PASSWORD_FILE)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalTcpWithSslAsAnonymousFail() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .passwordFile(PASSWORD_FILE)
-                .serverKeystorePath(SERVER_KEYSTORE_PATH)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalWebsocketWithSslAsAnonymousFail() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .useWebsocket(true)
-                .passwordFile(PASSWORD_FILE)
-                .serverKeystorePath(SERVER_KEYSTORE_PATH)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalTcpNoSslAsInvalidUser() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .passwordFile(PASSWORD_FILE)
-                .username(USER)
-                .password(USER_PASSWORD_INVALID)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalWebsocketNoSslAsInvalidUser() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .useWebsocket(true)
-                .passwordFile(PASSWORD_FILE)
-                .username(USER)
-                .password(USER_PASSWORD_INVALID)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalTcpWithSslAsInvalidUser() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .passwordFile(PASSWORD_FILE)
-                .username(USER)
-                .password(USER_PASSWORD_INVALID)
-                .serverKeystorePath(SERVER_KEYSTORE_PATH)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalWebsocketWithSslAsInvalidUser() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .useWebsocket(true)
-                .passwordFile(PASSWORD_FILE)
-                .username(USER)
-                .password(USER_PASSWORD_INVALID)
-                .serverKeystorePath(SERVER_KEYSTORE_PATH)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalTcpNoSslAsValidUser() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .passwordFile(PASSWORD_FILE)
-                .username(USER)
-                .password(USER_PASSWORD_VALID)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalWebsocketNoSslAsValidUser() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .useWebsocket(true)
-                .passwordFile(PASSWORD_FILE)
-                .username(USER)
-                .password(USER_PASSWORD_VALID)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalTcpWithSslAsValidUser() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .passwordFile(PASSWORD_FILE)
-                .username(USER)
-                .password(USER_PASSWORD_VALID)
-                .serverKeystorePath(SERVER_KEYSTORE_PATH)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
-                .build();
-    }
-
-
-    @Override
-    protected MessageBusMqttConfig configureInternalWebsocketWithSslAsValidUser() {
-        return MessageBusMqttConfig.builder()
-                .internal(false)
-                .useWebsocket(true)
-                .passwordFile(PASSWORD_FILE)
-                .username(USER)
-                .password(USER_PASSWORD_VALID)
-                .serverKeystorePath(SERVER_KEYSTORE_PATH)
-                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
-                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
-                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
-                .build();
     }
 
 }

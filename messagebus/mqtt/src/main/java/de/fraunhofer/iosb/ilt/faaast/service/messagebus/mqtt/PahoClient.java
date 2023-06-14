@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.Objects;
-import java.util.UUID;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -46,8 +45,8 @@ public class PahoClient {
 
     private static final String PROTOCOL_PREFIX = "tcp://";
     private static final String PROTOCOL_PREFIX_SSL = "ssl://";
-    private static final String PROTOCOL_PREFIX_WSS = "wss://";
-    private static final String PROTOCOL_PREFIX_WS = "ws://";
+    private static final String PROTOCOL_PREFIX_WEBSOCKET_SSL = "wss://";
+    private static final String PROTOCOL_PREFIX_WEBSOCKET = "ws://";
     private static final Logger logger = LoggerFactory.getLogger(PahoClient.class);
     private final MessageBusMqttConfig config;
     private MqttClient mqttClient;
@@ -67,8 +66,8 @@ public class PahoClient {
         if (config.getClientKeystorePath().isEmpty()) {
             if (config.getUseWebsocket()) {
                 endpoint = config.getHost() + ":" + config.getWebsocketPort();
-                if (!endpoint.startsWith(PROTOCOL_PREFIX_WS)) {
-                    endpoint = PROTOCOL_PREFIX_WS + endpoint;
+                if (!endpoint.startsWith(PROTOCOL_PREFIX_WEBSOCKET)) {
+                    endpoint = PROTOCOL_PREFIX_WEBSOCKET + endpoint;
                 }
             }
             else {
@@ -81,8 +80,8 @@ public class PahoClient {
         else {
             if (config.getUseWebsocket()) {
                 endpoint = config.getHost() + ":" + config.getSslWebsocketPort();
-                if (!endpoint.startsWith(PROTOCOL_PREFIX_WSS)) {
-                    endpoint = PROTOCOL_PREFIX_WSS + endpoint;
+                if (!endpoint.startsWith(PROTOCOL_PREFIX_WEBSOCKET_SSL)) {
+                    endpoint = PROTOCOL_PREFIX_WEBSOCKET_SSL + endpoint;
                 }
             }
             else {
@@ -92,8 +91,6 @@ public class PahoClient {
                 }
             }
         }
-        String clientId = "FA³ST MQTT " + UUID.randomUUID().toString().replace("-", "");
-        clientId = clientId.substring(0, 20); // MQTTv2 limited to 23 characters
         MqttConnectOptions options = new MqttConnectOptions();
         try {
             if (Objects.nonNull(config.getClientKeystorePath()) && !config.getClientKeystorePath().isEmpty()) {
@@ -114,7 +111,7 @@ public class PahoClient {
         try {
             mqttClient = new MqttClient(
                     endpoint,
-                    clientId,
+                    config.getClientId(),
                     new MemoryPersistence());
             mqttClient.setCallback(new MqttCallbackExtended() {
                 @Override

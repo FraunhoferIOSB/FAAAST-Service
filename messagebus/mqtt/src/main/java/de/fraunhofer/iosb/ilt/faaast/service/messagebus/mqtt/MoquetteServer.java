@@ -46,11 +46,11 @@ public class MoquetteServer {
     /**
      * The MQTT Id used by FA³ST service to connect to the MQTT broker.
      */
-    private final String fastClientId;
+    private final String clientId;
     private final MessageBusMqttConfig config;
 
     public MoquetteServer(MessageBusMqttConfig config) {
-        fastClientId = "FA³ST MQTT Server (" + UUID.randomUUID() + ")";
+        clientId = "FA³ST MQTT Server (" + UUID.randomUUID() + ")";
         this.config = config;
     }
 
@@ -68,7 +68,7 @@ public class MoquetteServer {
             MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PUBLISH, false, MqttQoS.valueOf(qos), false, 0);
             MqttPublishVariableHeader varHeader = new MqttPublishVariableHeader(topic, 0);
             MqttPublishMessage mqttPublishMessage = new MqttPublishMessage(fixedHeader, varHeader, payload);
-            server.internalPublish(mqttPublishMessage, fastClientId);
+            server.internalPublish(mqttPublishMessage, clientId);
         }
     }
 
@@ -85,7 +85,7 @@ public class MoquetteServer {
         serverConfig.setProperty(BrokerConstants.IMMEDIATE_BUFFER_FLUSH_PROPERTY_NAME, String.valueOf(true));
         serverConfig.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Integer.toString(config.getPort()));
         serverConfig.setProperty(BrokerConstants.HOST_PROPERTY_NAME, config.getHost());
-        serverConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.TRUE.toString());
+        serverConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(config.getUsers().isEmpty()));
         if (config.getUseWebsocket()) {
             serverConfig.setProperty(BrokerConstants.WEB_SOCKET_PORT_PROPERTY_NAME, Integer.toString(config.getWebsocketPort()));
         }
@@ -102,12 +102,8 @@ public class MoquetteServer {
                 serverConfig.setProperty(BrokerConstants.WSS_PORT_PROPERTY_NAME, Integer.toString(config.getSslWebsocketPort()));
             }
         }
-        String passwordFile = config.getPasswordFile();
-        if (Objects.nonNull(passwordFile) && !passwordFile.isEmpty()) {
-            serverConfig.setProperty(BrokerConstants.PASSWORD_FILE_PROPERTY_NAME, passwordFile);
-            serverConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.FALSE.toString());
-        }
-        server.startServer(serverConfig);
+        MoquetteAuthenticator authenticator = new MoquetteAuthenticator(config);
+        server.startServer(serverConfig, null, null, authenticator, authenticator);
     }
 
 

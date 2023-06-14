@@ -21,20 +21,34 @@ import de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.AccessEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ElementReadEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ExecuteEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationFinishEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.OperationInvokeEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ReadEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.access.ValueReadEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ChangeEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementCreateEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementDeleteEventMessage;
+import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ElementUpdateEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.error.ErrorLevel;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.IntValue;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.StringValue;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import io.adminshell.aas.v3.model.KeyElements;
 import io.adminshell.aas.v3.model.KeyType;
+import io.adminshell.aas.v3.model.Operation;
 import io.adminshell.aas.v3.model.Property;
 import io.adminshell.aas.v3.model.Reference;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.impl.DefaultOperation;
+import io.adminshell.aas.v3.model.impl.DefaultOperationVariable;
 import io.adminshell.aas.v3.model.impl.DefaultProperty;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.io.IOException;
@@ -48,6 +62,7 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -73,11 +88,39 @@ public abstract class AbstractMessageBusMqttTest<T> {
             .value("bar")
             .build();
 
+    private static final Property PARAMETER_IN = new DefaultProperty.Builder()
+            .idShort("ParameterIn")
+            .valueType(Datatype.STRING.getName())
+            .build();
+
+    private static final Property PARAMETER_OUT = new DefaultProperty.Builder()
+            .idShort("ParameterOut")
+            .valueType(Datatype.STRING.getName())
+            .build();
+
+    private static final Operation OPERATION = new DefaultOperation.Builder()
+            .idShort("ExampleOperation")
+            .inputVariable(new DefaultOperationVariable.Builder()
+                    .value(PARAMETER_IN)
+                    .build())
+            .outputVariable(new DefaultOperationVariable.Builder()
+                    .value(PARAMETER_OUT)
+                    .build())
+            .build();
+
+    private static final Reference OPERATION_REFERENCE = new DefaultReference.Builder()
+            .key(new DefaultKey.Builder()
+                    .type(KeyElements.OPERATION)
+                    .idType(KeyType.ID_SHORT)
+                    .value(OPERATION.getIdShort())
+                    .build())
+            .build();
+
     private static final Reference PROPERTY_REFERENCE = new DefaultReference.Builder()
             .key(new DefaultKey.Builder()
                     .type(KeyElements.PROPERTY)
                     .idType(KeyType.ID_SHORT)
-                    .value("ExampleProperty")
+                    .value(PROPERTY.getIdShort())
                     .build())
             .build();
 
@@ -86,9 +129,39 @@ public abstract class AbstractMessageBusMqttTest<T> {
             .oldValue(new PropertyValue(new IntValue(123)))
             .build();
 
+    private static final ElementReadEventMessage ELEMENT_READ_MESSAGE = ElementReadEventMessage.builder()
+            .element(PROPERTY_REFERENCE)
+            .value(PROPERTY)
+            .build();
+
+    private static final ValueReadEventMessage VALUE_READ_MESSAGE = ValueReadEventMessage.builder()
+            .element(PROPERTY_REFERENCE)
+            .value(new PropertyValue(new StringValue(PROPERTY.getValue())))
+            .build();
+
     private static final ElementCreateEventMessage ELEMENT_CREATE_MESSAGE = ElementCreateEventMessage.builder()
             .element(PROPERTY_REFERENCE)
             .value(PROPERTY)
+            .build();
+
+    private static final ElementDeleteEventMessage ELEMENT_DELETE_MESSAGE = ElementDeleteEventMessage.builder()
+            .element(PROPERTY_REFERENCE)
+            .value(PROPERTY)
+            .build();
+
+    private static final ElementUpdateEventMessage ELEMENT_UPDATE_MESSAGE = ElementUpdateEventMessage.builder()
+            .element(PROPERTY_REFERENCE)
+            .value(PROPERTY)
+            .build();
+
+    private static final OperationInvokeEventMessage OPERATION_INVOKE_MESSAGE = OperationInvokeEventMessage.builder()
+            .element(OPERATION_REFERENCE)
+            .input(List.of((new PropertyValue(new StringValue("input")))))
+            .build();
+
+    private static final OperationFinishEventMessage OPERATION_FINISH_MESSAGE = OperationFinishEventMessage.builder()
+            .element(OPERATION_REFERENCE)
+            .output(List.of((new PropertyValue(new StringValue("result")))))
             .build();
 
     private static final ErrorEventMessage ERROR_MESSAGE = ErrorEventMessage.builder()
@@ -96,7 +169,321 @@ public abstract class AbstractMessageBusMqttTest<T> {
             .level(ErrorLevel.ERROR)
             .build();
 
-    protected static int findFreePort() {
+    private static final List<EventMessage> ALL_MESSAGES = List.of(
+            VALUE_CHANGE_MESSAGE,
+            ELEMENT_READ_MESSAGE,
+            VALUE_READ_MESSAGE,
+            ELEMENT_CREATE_MESSAGE,
+            ELEMENT_DELETE_MESSAGE,
+            ELEMENT_UPDATE_MESSAGE,
+            OPERATION_INVOKE_MESSAGE,
+            OPERATION_FINISH_MESSAGE,
+            ERROR_MESSAGE);
+    private static final List<EventMessage> EXECUTE_MESSAGES = List.of(
+            OPERATION_INVOKE_MESSAGE,
+            OPERATION_FINISH_MESSAGE);
+
+    private static final List<EventMessage> READ_MESSAGES = List.of(
+            ELEMENT_READ_MESSAGE,
+            VALUE_READ_MESSAGE);
+
+    private static final List<EventMessage> ACCESS_MESSAGES = Stream.concat(EXECUTE_MESSAGES.stream(), READ_MESSAGES.stream())
+            .collect(Collectors.toList());
+
+    private static final List<EventMessage> ELEMENT_CHANGE_MESSAGES = List.of(
+            ELEMENT_CREATE_MESSAGE,
+            ELEMENT_UPDATE_MESSAGE,
+            ELEMENT_DELETE_MESSAGE);
+
+    private static final List<EventMessage> CHANGE_MESSAGES = Stream.concat(ELEMENT_CHANGE_MESSAGES.stream(), Stream.of(VALUE_CHANGE_MESSAGE))
+            .collect(Collectors.toList());
+
+    protected abstract MessageBusMqttConfig getBaseConfig();
+
+
+    protected abstract T startServer(MessageBusMqttConfig config) throws Exception;
+
+
+    protected abstract void stopServer(T server);
+
+
+    @Test
+    public void testAnonymousSuccess() throws Exception {
+        assertMessageBusWorks(configureAnonymousSuccess());
+    }
+
+
+    @Test
+    public void testWebsocketAsAnonymousSuccess() throws Exception {
+        assertMessageBusWorks(configureWebsocketAsAnonymousSuccess());
+    }
+
+
+    @Test
+    public void testWithSslAsAnonymousSuccess() throws Exception {
+        assertMessageBusWorks(configureWithSslAsAnonymousSuccess());
+    }
+
+
+    @Test
+    public void testWebsocketWithSslAsAnonymousSuccess() throws Exception {
+        assertMessageBusWorks(configureWebsocketWithSslAsAnonymousSuccess());
+    }
+
+
+    @Test
+    public void testAsAnonymousFail() throws Exception {
+        assertConnectionFails(configureAsAnonymousFail());
+    }
+
+
+    @Test
+    public void testWebsocketAsAnonymousFail() throws Exception {
+        assertConnectionFails(configureWebsocketAsAnonymousFail());
+    }
+
+
+    @Test
+    public void testWithSslAsAnonymousFail() throws Exception {
+        assertConnectionFails(configureWithSslAsAnonymousFail());
+    }
+
+
+    @Test
+    public void testInternalWebsocketWithSslAsAnonymousFail() throws Exception {
+        assertConnectionFails(configureInternalWebsocketWithSslAsAnonymousFail());
+    }
+
+
+    @Test
+    public void testAsInvalidUser() throws Exception {
+        assertConnectionFails(configureAsInvalidUser());
+    }
+
+
+    @Test
+    public void testWebsocketAsInvalidUser() throws Exception {
+        assertConnectionFails(configureWebsocketAsInvalidUser());
+    }
+
+
+    @Test
+    public void testWithSslAsInvalidUser() throws Exception {
+        assertConnectionFails(configureWithSslAsInvalidUser());
+    }
+
+
+    @Test
+    public void testWebsocketWithSslAsInvalidUser() throws Exception {
+        assertConnectionFails(configureWebsocketWithSslAsInvalidUser());
+    }
+
+
+    @Test
+    public void testAsValidUser() throws Exception {
+        assertMessageBusWorks(configureAsValidUser());
+    }
+
+
+    @Test
+    public void testWebsocketAsValidUser() throws Exception {
+        assertMessageBusWorks(configureWebsocketAsValidUser());
+    }
+
+
+    @Test
+    public void testWithSslAsValidUser() throws Exception {
+        assertMessageBusWorks(configureWithSslAsValidUser());
+    }
+
+
+    @Test
+    public void testWebsocketWithSslAsValidUser() throws Exception {
+        assertMessageBusWorks(configureWebsocketWithSslAsValidUser());
+    }
+
+
+    protected MessageBusMqttConfig configureAnonymousSuccess() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureWebsocketAsAnonymousSuccess() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .useWebsocket(true)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureWithSslAsAnonymousSuccess() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .serverKeystorePath(SERVER_KEYSTORE_PATH)
+                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
+                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
+                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureWebsocketWithSslAsAnonymousSuccess() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .useWebsocket(true)
+                .serverKeystorePath(SERVER_KEYSTORE_PATH)
+                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
+                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
+                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureAsAnonymousFail() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .user(USER, USER_PASSWORD_VALID)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureWebsocketAsAnonymousFail() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .useWebsocket(true)
+                .user(USER, USER_PASSWORD_VALID)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureWithSslAsAnonymousFail() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .user(USER, USER_PASSWORD_VALID)
+                .serverKeystorePath(SERVER_KEYSTORE_PATH)
+                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
+                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
+                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureInternalWebsocketWithSslAsAnonymousFail() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .useWebsocket(true)
+                .user(USER, USER_PASSWORD_VALID)
+                .serverKeystorePath(SERVER_KEYSTORE_PATH)
+                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
+                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
+                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureAsInvalidUser() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .user(USER, USER_PASSWORD_VALID)
+                .username(USER)
+                .password(USER_PASSWORD_INVALID)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureWebsocketAsInvalidUser() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .useWebsocket(true)
+                .user(USER, USER_PASSWORD_VALID)
+                .username(USER)
+                .password(USER_PASSWORD_INVALID)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureWithSslAsInvalidUser() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .user(USER, USER_PASSWORD_VALID)
+                .username(USER)
+                .password(USER_PASSWORD_INVALID)
+                .serverKeystorePath(SERVER_KEYSTORE_PATH)
+                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
+                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
+                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureWebsocketWithSslAsInvalidUser() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .useWebsocket(true)
+                .user(USER, USER_PASSWORD_VALID)
+                .username(USER)
+                .password(USER_PASSWORD_INVALID)
+                .serverKeystorePath(SERVER_KEYSTORE_PATH)
+                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
+                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
+                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureAsValidUser() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .user(USER, USER_PASSWORD_VALID)
+                .username(USER)
+                .password(USER_PASSWORD_VALID)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureWebsocketAsValidUser() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .useWebsocket(true)
+                .user(USER, USER_PASSWORD_VALID)
+                .username(USER)
+                .password(USER_PASSWORD_VALID)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureWithSslAsValidUser() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .user(USER, USER_PASSWORD_VALID)
+                .username(USER)
+                .password(USER_PASSWORD_VALID)
+                .serverKeystorePath(SERVER_KEYSTORE_PATH)
+                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
+                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
+                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .build();
+    }
+
+
+    protected MessageBusMqttConfig configureWebsocketWithSslAsValidUser() {
+        return MessageBusMqttConfig.builder()
+                .from(getBaseConfig())
+                .useWebsocket(true)
+                .user(USER, USER_PASSWORD_VALID)
+                .username(USER)
+                .password(USER_PASSWORD_VALID)
+                .serverKeystorePath(SERVER_KEYSTORE_PATH)
+                .serverKeystorePassword(SERVER_KEYSTORE_PASSWORD)
+                .clientKeystorePath(CLIENT_KEYSTORE_PATH)
+                .clientKeystorePassword(CLIENT_KEYSTORE_PASSWORD)
+                .build();
+    }
+
+
+    private static int findFreePort() {
         try (ServerSocket serverSocket = new ServerSocket(0)) {
             Assert.assertNotNull(serverSocket);
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
@@ -109,173 +496,11 @@ public abstract class AbstractMessageBusMqttTest<T> {
     }
 
 
-    protected abstract MessageBusMqttConfig configureInternalTcpNoSslAsAnonymousSuccess();
-
-
-    protected abstract MessageBusMqttConfig configureInternalWebsocketNoSslAsAnonymousSuccess();
-
-
-    protected abstract MessageBusMqttConfig configureInternalTcpWithSslAsAnonymousSuccess();
-
-
-    protected abstract MessageBusMqttConfig configureInternalWebsocketWithSslAsAnonymousSuccess();
-
-
-    protected abstract MessageBusMqttConfig configureInternalTcpNoSslAsAnonymousFail();
-
-
-    protected abstract MessageBusMqttConfig configureInternalWebsocketNoSslAsAnonymousFail();
-
-
-    protected abstract MessageBusMqttConfig configureInternalTcpWithSslAsAnonymousFail();
-
-
-    protected abstract MessageBusMqttConfig configureInternalWebsocketWithSslAsAnonymousFail();
-
-
-    protected abstract MessageBusMqttConfig configureInternalTcpNoSslAsInvalidUser();
-
-
-    protected abstract MessageBusMqttConfig configureInternalWebsocketNoSslAsInvalidUser();
-
-
-    protected abstract MessageBusMqttConfig configureInternalTcpWithSslAsInvalidUser();
-
-
-    protected abstract MessageBusMqttConfig configureInternalWebsocketWithSslAsInvalidUser();
-
-
-    protected abstract MessageBusMqttConfig configureInternalTcpNoSslAsValidUser();
-
-
-    protected abstract MessageBusMqttConfig configureInternalWebsocketNoSslAsValidUser();
-
-
-    protected abstract MessageBusMqttConfig configureInternalTcpWithSslAsValidUser();
-
-
-    protected abstract MessageBusMqttConfig configureInternalWebsocketWithSslAsValidUser();
-
-
-    @Test
-    public void testInternalTcpNoSslAsAnonymousSuccess() throws Exception {
-        assertMessageBusWorks(configureInternalTcpNoSslAsAnonymousSuccess());
-    }
-
-
-    @Test
-    public void testInternalWebsocketNoSslAsAnonymousSuccess() throws Exception {
-        assertMessageBusWorks(configureInternalWebsocketNoSslAsAnonymousSuccess());
-    }
-
-
-    @Test
-    public void testInternalTcpWithSslAsAnonymousSuccess() throws Exception {
-        assertMessageBusWorks(configureInternalTcpWithSslAsAnonymousSuccess());
-    }
-
-
-    @Test
-    public void testInternalWebsocketWithSslAsAnonymousSuccess() throws Exception {
-        assertMessageBusWorks(configureInternalWebsocketWithSslAsAnonymousSuccess());
-    }
-
-
-    @Test
-    public void testInternalTcpNoSslAsAnonymousFail() throws Exception {
-        assertConnectionFails(configureInternalTcpNoSslAsAnonymousFail());
-    }
-
-
-    @Test
-    public void testInternalWebsocketNoSslAsAnonymousFail() throws Exception {
-        assertConnectionFails(configureInternalWebsocketNoSslAsAnonymousFail());
-    }
-
-
-    @Test
-    public void testInternalTcpWithSslAsAnonymousFail() throws Exception {
-        assertConnectionFails(configureInternalTcpWithSslAsAnonymousFail());
-    }
-
-
-    @Test
-    public void testInternalWebsocketWithSslAsAnonymousFail() throws Exception {
-        assertConnectionFails(configureInternalWebsocketWithSslAsAnonymousFail());
-    }
-
-
-    @Test
-    public void testInternalTcpNoSslAsInvalidUser() throws Exception {
-        assertConnectionFails(configureInternalTcpNoSslAsInvalidUser());
-    }
-
-
-    @Test
-    public void testInternalWebsocketNoSslAsInvalidUser() throws Exception {
-        assertConnectionFails(configureInternalWebsocketNoSslAsInvalidUser());
-    }
-
-
-    @Test
-    public void testInternalTcpWithSslAsInvalidUser() throws Exception {
-        assertConnectionFails(configureInternalTcpWithSslAsInvalidUser());
-    }
-
-
-    @Test
-    public void testInternalWebsocketWithSslAsInvalidUser() throws Exception {
-        assertConnectionFails(configureInternalWebsocketWithSslAsInvalidUser());
-    }
-
-
-    @Test
-    public void testInternalTcpNoSslAsValidUser() throws Exception {
-        assertMessageBusWorks(configureInternalTcpNoSslAsValidUser());
-    }
-
-
-    @Test
-    public void testInternalWebsocketNoSslAsValidUser() throws Exception {
-        assertMessageBusWorks(configureInternalWebsocketNoSslAsValidUser());
-    }
-
-
-    @Test
-    public void testInternalTcpWithSslAsValidUser() throws Exception {
-        assertMessageBusWorks(configureInternalTcpWithSslAsValidUser());
-    }
-
-
-    @Test
-    public void testInternalWebsocketWithSslAsValidUser() throws Exception {
-        assertMessageBusWorks(configureInternalWebsocketWithSslAsValidUser());
-    }
-
-
-    protected abstract int getTcpPort();
-
-
-    protected abstract int getTcpSslPort();
-
-
-    protected abstract int getWebsocketPort();
-
-
-    protected abstract int getWebsocketSslPort();
-
-
-    protected abstract T startServer(MessageBusMqttConfig config) throws Exception;
-
-
-    protected abstract void stopServer(T server);
-
-
     private MessageBusInfo startMessageBus(MessageBusMqttConfig config) throws Exception {
-        config.setPort(getTcpPort());
-        config.setSslPort(getTcpSslPort());
-        config.setWebsocketPort(getWebsocketPort());
-        config.setSslWebsocketPort(getWebsocketSslPort());
+        config.setPort(findFreePort());
+        config.setSslPort(findFreePort());
+        config.setWebsocketPort(findFreePort());
+        config.setSslWebsocketPort(findFreePort());
         T server = startServer(config);
         MessageBusMqtt messageBus = new MessageBusMqtt();
         messageBus.init(CoreConfig.builder().build(), config, SERVICE_CONTEXT);
@@ -294,19 +519,19 @@ public abstract class AbstractMessageBusMqttTest<T> {
 
 
     private void assertExactTypeSubscription(MessageBusMqttConfig config) throws Exception {
-        assertMessage(
-                config,
-                ElementCreateEventMessage.class,
-                ELEMENT_CREATE_MESSAGE, ELEMENT_CREATE_MESSAGE);
+        ALL_MESSAGES.forEach(LambdaExceptionHelper.rethrowConsumer(x -> assertMessage(config, x.getClass(), x, x)));
     }
 
 
     private void assertSuperTypeSubscription(MessageBusMqttConfig config) throws Exception {
-        assertMessages(
-                config,
-                EventMessage.class,
-                List.of(ELEMENT_CREATE_MESSAGE, ERROR_MESSAGE),
-                List.of(ELEMENT_CREATE_MESSAGE, ERROR_MESSAGE));
+        Map<Class<? extends EventMessage>, List<EventMessage>> messageTypes = Map.of(
+                EventMessage.class, ALL_MESSAGES,
+                AccessEventMessage.class, ACCESS_MESSAGES,
+                ExecuteEventMessage.class, EXECUTE_MESSAGES,
+                ReadEventMessage.class, READ_MESSAGES,
+                ChangeEventMessage.class, CHANGE_MESSAGES,
+                ElementChangeEventMessage.class, ELEMENT_CHANGE_MESSAGES);
+        messageTypes.forEach(LambdaExceptionHelper.rethrowBiConsumer((k, v) -> assertMessages(config, k, v, v)));
     }
 
 
@@ -389,12 +614,12 @@ public abstract class AbstractMessageBusMqttTest<T> {
                                 List<EventMessage> toPublish, Map<Class<? extends EventMessage>, List<EventMessage>> expected)
             throws Exception {
         MessageBusInfo messageBusInfo = startMessageBus(config);
-        CountDownLatch condition = new CountDownLatch(expected.size());
+        CountDownLatch condition = new CountDownLatch(expected.values().stream().mapToInt(List::size).sum());
         final Map<Class<? extends EventMessage>, List<EventMessage>> actual = Collections.synchronizedMap(new HashMap<>());
         List<SubscriptionId> subscriptions = subscribeTo.stream()
                 .map(x -> messageBusInfo.messageBus.subscribe(SubscriptionInfo.create(x, e -> {
                     if (!actual.containsKey(x)) {
-                        actual.put(x, new ArrayList<>());
+                        actual.put(x, Collections.synchronizedList(new ArrayList<>()));
                     }
                     actual.get(x).add(e);
                     condition.countDown();

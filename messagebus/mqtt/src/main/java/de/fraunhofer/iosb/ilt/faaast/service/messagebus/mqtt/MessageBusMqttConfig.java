@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.service.messagebus.mqtt;
 
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -34,6 +36,7 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     private static final String DEFAULT_SERVER_KEYSTORE_PATH = "";
     private static final String DEFAULT_CLIENT_KEYSTORE_PASSWORD = "";
     private static final String DEFAULT_CLIENT_KEYSTORE_PATH = "";
+    private static final String DEFAULT_CLIENT_ID = "FAST MQTT MessageBus";
 
     private boolean useInternalServer;
     private int port;
@@ -46,9 +49,10 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     private String serverKeystorePath;
     private String clientKeystorePath;
     private String clientKeystorePassword;
-    private String passwordFile;
+    private Map<String, String> users;
     private String username;
     private String password;
+    private String clientId;
 
     public MessageBusMqttConfig() {
         this.useInternalServer = DEFAULT_USE_INTERNAL_SERVER;
@@ -60,8 +64,10 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
         this.serverKeystorePassword = DEFAULT_SERVER_KEYSTORE_PASSWORD;
         this.serverKeystorePath = DEFAULT_SERVER_KEYSTORE_PATH;
         this.clientKeystorePassword = DEFAULT_CLIENT_KEYSTORE_PASSWORD;
+        this.users = new HashMap<>();
         this.clientKeystorePath = DEFAULT_CLIENT_KEYSTORE_PATH;
         this.useWebsocket = DEFAULT_USE_WEBSOCKETS;
+        this.clientId = DEFAULT_CLIENT_ID;
     }
 
 
@@ -100,8 +106,18 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     }
 
 
+    public Map<String, String> getUsers() {
+        return users;
+    }
+
+
     public boolean getUseInternalServer() {
         return useInternalServer;
+    }
+
+
+    public String getClientId() {
+        return clientId;
     }
 
 
@@ -155,6 +171,11 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     }
 
 
+    public void setUsers(Map<String, String> users) {
+        this.users = users;
+    }
+
+
     public void setServerKeystorePath(String serverKeystorePath) {
         this.serverKeystorePath = serverKeystorePath;
     }
@@ -165,13 +186,8 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     }
 
 
-    public String getPasswordFile() {
-        return passwordFile;
-    }
-
-
-    public void setPasswordFile(String passwordFile) {
-        this.passwordFile = passwordFile;
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
     }
 
 
@@ -229,10 +245,11 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
                 && Objects.equals(serverKeystorePath, other.serverKeystorePath)
                 && Objects.equals(clientKeystorePath, other.clientKeystorePath)
                 && Objects.equals(clientKeystorePassword, other.clientKeystorePassword)
-                && Objects.equals(passwordFile, other.passwordFile)
+                && Objects.equals(users, other.users)
                 && Objects.equals(username, other.username)
                 && Objects.equals(password, other.password)
-                && Objects.equals(useWebsocket, other.useWebsocket);
+                && Objects.equals(useWebsocket, other.useWebsocket)
+                && Objects.equals(clientId, other.clientId);
 
     }
 
@@ -249,13 +266,34 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
                 serverKeystorePath,
                 clientKeystorePath,
                 clientKeystorePassword,
-                passwordFile,
+                users,
                 username,
                 password,
-                useWebsocket);
+                useWebsocket,
+                clientId);
     }
 
     private abstract static class AbstractBuilder<T extends MessageBusMqttConfig, B extends AbstractBuilder<T, B>> extends MessageBusConfig.AbstractBuilder<MessageBusMqtt, T, B> {
+
+        public B from(T base) {
+            getBuildingInstance().setUseInternalServer(base.getUseInternalServer());
+            getBuildingInstance().setPort(base.getPort());
+            getBuildingInstance().setSslPort(base.getSslPort());
+            getBuildingInstance().setHost(base.getHost());
+            getBuildingInstance().setWebsocketPort(base.getWebsocketPort());
+            getBuildingInstance().setSslWebsocketPort(base.getSslWebsocketPort());
+            getBuildingInstance().setUseWebsocket(base.getUseWebsocket());
+            getBuildingInstance().setServerKeystorePassword(base.getServerKeystorePassword());
+            getBuildingInstance().setClientKeystorePassword(base.getClientKeystorePassword());
+            getBuildingInstance().setServerKeystorePath(base.getServerKeystorePath());
+            getBuildingInstance().setClientKeystorePath(base.getClientKeystorePath());
+            getBuildingInstance().setUsername(base.getUsername());
+            getBuildingInstance().setPassword(base.getPassword());
+            getBuildingInstance().setUsers(base.getUsers());
+            getBuildingInstance().setClientId(base.getClientId());
+            return getSelf();
+        }
+
 
         public B internal(boolean value) {
             getBuildingInstance().setUseInternalServer(value);
@@ -335,8 +373,20 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
         }
 
 
-        public B passwordFile(String value) {
-            getBuildingInstance().setPasswordFile(value);
+        public B users(Map<String, String> value) {
+            getBuildingInstance().setUsers(value);
+            return getSelf();
+        }
+
+
+        public B user(String username, String password) {
+            getBuildingInstance().getUsers().put(username, password);
+            return getSelf();
+        }
+
+
+        public B clientId(String value) {
+            getBuildingInstance().setClientId(value);
             return getSelf();
         }
 
