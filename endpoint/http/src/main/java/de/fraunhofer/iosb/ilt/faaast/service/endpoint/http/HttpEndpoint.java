@@ -19,7 +19,13 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,15 +88,16 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
         httpConfig.setSendDateHeader(false);
         httpConfig.setSendXPoweredBy(false);
 
-        HttpConnectionFactory http11 = new HttpConnectionFactory(httpConfig);
+        // The ConnectionFactory for HTTP/1.1.
+        HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
 
         ServerConnector serverConnector;
         if (config.getKeystorePath() == null || config.getKeystorePath().equals("")) {
-            serverConnector = new ServerConnector(server, http11);
+            serverConnector = new ServerConnector(server, httpConnectionFactory);
         }
         else {
             httpConfig.addCustomizer(new SecureRequestCustomizer());
-            serverConnector = buildSSLServerConnector(http11);
+            serverConnector = buildSSLServerConnector(httpConnectionFactory);
         }
 
         serverConnector.setPort(config.getPort());
