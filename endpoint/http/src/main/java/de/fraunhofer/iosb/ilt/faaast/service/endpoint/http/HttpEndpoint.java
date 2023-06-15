@@ -19,11 +19,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.EndpointException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +63,7 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
             return;
         }
         server = new Server();
-        configHttpResponseHeader();
+        configHttpsResponseHeader();
         handler = new RequestHandler(serviceContext, config);
         server.setHandler(handler);
         server.setErrorHandler(new HttpErrorHandler());
@@ -79,16 +76,35 @@ public class HttpEndpoint implements Endpoint<HttpEndpointConfig> {
     }
 
 
-    private void configHttpResponseHeader() {
+    private void configHttpsResponseHeader() {
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setSendServerVersion(false);
         httpConfig.setSendDateHeader(false);
         httpConfig.setSendXPoweredBy(false);
 
-        server = new Server();
-        ServerConnector serverConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        HttpConnectionFactory http11 = new HttpConnectionFactory(httpConfig);
+
+        ServerConnector serverConnector;
+        if (config.getKeystorePath() == null || config.getKeystorePath().equals("")) {
+            serverConnector = new ServerConnector(server, http11);
+        }
+        else {
+            httpConfig.addCustomizer(new SecureRequestCustomizer());
+            serverConnector = buildSSLServerConnector(http11);
+        }
+
         serverConnector.setPort(config.getPort());
         server.addConnector(serverConnector);
+    }
+
+
+    private ServerConnector buildSSLServerConnector(HttpConnectionFactory http11) {
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        sslContextFactory.setKeyStorePath(config.getKeystorePath());
+        sslContextFactory.setKeyStorePassword(config.getKeystorePassword());
+
+        SslConnectionFactory tls = new SslConnectionFactory(sslContextFactory, http11.getProtocol());
+        return new ServerConnector(server, tls, http11);
     }
 
 
