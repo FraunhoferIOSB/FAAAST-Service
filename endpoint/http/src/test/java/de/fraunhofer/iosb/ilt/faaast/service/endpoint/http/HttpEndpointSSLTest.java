@@ -18,7 +18,6 @@ import static org.mockito.Mockito.*;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.AbstractHttpEndpointTest;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import java.util.List;
 import org.eclipse.jetty.client.HttpClient;
