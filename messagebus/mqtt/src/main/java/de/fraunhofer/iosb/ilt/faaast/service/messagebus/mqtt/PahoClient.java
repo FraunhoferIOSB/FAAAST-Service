@@ -57,16 +57,11 @@ public class PahoClient {
 
 
     private String buildEndpoint() {
-        String endpoint;
-        int port;
-        String protocolPrefix;
+        int port = config.getPort();
+        String protocolPrefix = PROTOCOL_PREFIX;
         if (config.getClientKeystorePath().isEmpty() && config.getUseWebsocket()) {
             port = config.getWebsocketPort();
             protocolPrefix = PROTOCOL_PREFIX_WEBSOCKET;
-        }
-        else if (config.getClientKeystorePath().isEmpty() && !config.getUseWebsocket()) {
-            port = config.getPort();
-            protocolPrefix = PROTOCOL_PREFIX;
         }
         else if (!config.getClientKeystorePath().isEmpty() && config.getUseWebsocket()) {
             port = config.getSslWebsocketPort();
