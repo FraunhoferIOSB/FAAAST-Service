@@ -90,7 +90,7 @@ public abstract class AbstractHttpEndpointTest {
 
     @BeforeClass
     public static void init() throws Exception {
-        try (ServerSocket serverSocket = new ServerSocket(8080)) {
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
             Assert.assertNotNull(serverSocket);
             Assert.assertTrue(serverSocket.getLocalPort() > 0);
             port = serverSocket.getLocalPort();
