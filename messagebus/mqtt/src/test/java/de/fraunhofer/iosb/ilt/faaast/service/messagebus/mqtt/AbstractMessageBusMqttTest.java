@@ -572,7 +572,7 @@ public abstract class AbstractMessageBusMqttTest<T> {
 
     private void assertConnectionFails(MessageBusMqttConfig config) throws InterruptedException, MessageBusException, ConfigurationInitializationException, IOException {
         MessageBusException expection = Assert.assertThrows(MessageBusException.class, () -> startMessageBus(config));
-        Assert.assertTrue(expection.getMessage().equals("Failed to connect to MQTT server"));
+        Assert.assertEquals("Failed to connect to MQTT server", expection.getMessage());
     }
 
 

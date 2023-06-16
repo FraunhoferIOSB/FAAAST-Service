@@ -63,7 +63,7 @@ public class TypedValueDeserializer extends StdDeserializer<TypedValue> {
         if (Objects.isNull(datatype)) {
             throw new IOException("Unable to determine datatype");
         }
-        if (Objects.isNull(root) || root.isEmpty()) {
+        if (root.isEmpty()) {
             return null;
         }
         try {

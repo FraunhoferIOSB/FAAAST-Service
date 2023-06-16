@@ -29,6 +29,8 @@ import java.io.IOException;
  */
 public class ReferenceElementValueDeserializer extends ContextAwareElementValueDeserializer<ReferenceElementValue> {
 
+    private static final String MISSING_PROPERTY = "missing property '%s'";
+
     public ReferenceElementValueDeserializer() {
         this(null);
     }
@@ -41,7 +43,6 @@ public class ReferenceElementValueDeserializer extends ContextAwareElementValueD
 
     @Override
     public ReferenceElementValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException {
-        final String MISSING_PROPERTY = "missing property '%s'";
         if (node == null) {
             return null;
         }
@@ -55,19 +56,7 @@ public class ReferenceElementValueDeserializer extends ContextAwareElementValueD
         }
         for (JsonNode element: root) {
             if (element.isObject()) {
-                if (!element.has(JsonFieldNames.REFERENCE_ELEMENT_VALUE_ID_TYPE)) {
-                    throw new IllegalArgumentException(String.format(MISSING_PROPERTY, JsonFieldNames.REFERENCE_ELEMENT_VALUE_ID_TYPE));
-                }
-                if (!element.has(JsonFieldNames.REFERENCE_ELEMENT_VALUE_TYPE)) {
-                    throw new IllegalArgumentException(String.format(MISSING_PROPERTY, JsonFieldNames.REFERENCE_ELEMENT_VALUE_TYPE));
-                }
-                if (!element.has(JsonFieldNames.REFERENCE_ELEMENT_VALUE_VALUE)) {
-                    throw new IllegalArgumentException(String.format(MISSING_PROPERTY, JsonFieldNames.REFERENCE_ELEMENT_VALUE_VALUE));
-                }
-                builder.key(context.readTreeAsValue(
-                        element.get(JsonFieldNames.REFERENCE_ELEMENT_VALUE_ID_TYPE), KeyType.class),
-                        context.readTreeAsValue(element.get(JsonFieldNames.REFERENCE_ELEMENT_VALUE_TYPE), KeyElements.class),
-                        element.get(JsonFieldNames.REFERENCE_ELEMENT_VALUE_VALUE).textValue());
+                handleObject(element, builder, context);
             }
             else if (element.isTextual()) {
                 builder.key(KeyType.IRI, KeyElements.GLOBAL_REFERENCE, element.textValue());
@@ -77,6 +66,23 @@ public class ReferenceElementValueDeserializer extends ContextAwareElementValueD
             }
         }
         return builder.build();
+    }
+
+
+    private void handleObject(JsonNode element, ReferenceElementValue.Builder builder, DeserializationContext context) throws IOException {
+        if (!element.has(JsonFieldNames.REFERENCE_ELEMENT_VALUE_ID_TYPE)) {
+            throw new IllegalArgumentException(String.format(MISSING_PROPERTY, JsonFieldNames.REFERENCE_ELEMENT_VALUE_ID_TYPE));
+        }
+        if (!element.has(JsonFieldNames.REFERENCE_ELEMENT_VALUE_TYPE)) {
+            throw new IllegalArgumentException(String.format(MISSING_PROPERTY, JsonFieldNames.REFERENCE_ELEMENT_VALUE_TYPE));
+        }
+        if (!element.has(JsonFieldNames.REFERENCE_ELEMENT_VALUE_VALUE)) {
+            throw new IllegalArgumentException(String.format(MISSING_PROPERTY, JsonFieldNames.REFERENCE_ELEMENT_VALUE_VALUE));
+        }
+        builder.key(context.readTreeAsValue(
+                element.get(JsonFieldNames.REFERENCE_ELEMENT_VALUE_ID_TYPE), KeyType.class),
+                context.readTreeAsValue(element.get(JsonFieldNames.REFERENCE_ELEMENT_VALUE_TYPE), KeyElements.class),
+                element.get(JsonFieldNames.REFERENCE_ELEMENT_VALUE_VALUE).textValue());
     }
 
 }

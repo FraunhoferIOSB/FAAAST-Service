@@ -56,41 +56,40 @@ public class PahoClient {
     }
 
 
+    private String buildEndpoint() {
+        String endpoint;
+        int port;
+        String protocolPrefix;
+        if (config.getClientKeystorePath().isEmpty() && config.getUseWebsocket()) {
+            port = config.getWebsocketPort();
+            protocolPrefix = PROTOCOL_PREFIX_WEBSOCKET;
+        }
+        else if (config.getClientKeystorePath().isEmpty() && !config.getUseWebsocket()) {
+            port = config.getPort();
+            protocolPrefix = PROTOCOL_PREFIX;
+        }
+        else if (!config.getClientKeystorePath().isEmpty() && config.getUseWebsocket()) {
+            port = config.getSslWebsocketPort();
+            protocolPrefix = PROTOCOL_PREFIX_WEBSOCKET_SSL;
+        }
+        else if (!config.getClientKeystorePath().isEmpty() && !config.getUseWebsocket()) {
+            port = config.getSslPort();
+            protocolPrefix = PROTOCOL_PREFIX_SSL;
+        }
+        else {
+            throw new IllegalStateException("MQTT configuration invalid");
+        }
+        return String.format("%s%s:%s", protocolPrefix, config.getHost(), port);
+    }
+
+
     /**
      * Starts the client connection.
      *
      * @throws de.fraunhofer.iosb.ilt.faaast.service.exception.MessageBusException if message bus fails to start
      */
     public void start() throws MessageBusException {
-        String endpoint;
-        if (config.getClientKeystorePath().isEmpty()) {
-            if (config.getUseWebsocket()) {
-                endpoint = config.getHost() + ":" + config.getWebsocketPort();
-                if (!endpoint.startsWith(PROTOCOL_PREFIX_WEBSOCKET)) {
-                    endpoint = PROTOCOL_PREFIX_WEBSOCKET + endpoint;
-                }
-            }
-            else {
-                endpoint = config.getHost() + ":" + config.getPort();
-                if (!endpoint.startsWith(PROTOCOL_PREFIX)) {
-                    endpoint = PROTOCOL_PREFIX + endpoint;
-                }
-            }
-        }
-        else {
-            if (config.getUseWebsocket()) {
-                endpoint = config.getHost() + ":" + config.getSslWebsocketPort();
-                if (!endpoint.startsWith(PROTOCOL_PREFIX_WEBSOCKET_SSL)) {
-                    endpoint = PROTOCOL_PREFIX_WEBSOCKET_SSL + endpoint;
-                }
-            }
-            else {
-                endpoint = config.getHost() + ":" + config.getSslPort();
-                if (!endpoint.startsWith(PROTOCOL_PREFIX_SSL)) {
-                    endpoint = PROTOCOL_PREFIX_SSL + endpoint;
-                }
-            }
-        }
+        String endpoint = buildEndpoint();
         MqttConnectOptions options = new MqttConnectOptions();
         try {
             if (Objects.nonNull(config.getClientKeystorePath()) && !config.getClientKeystorePath().isEmpty()) {
@@ -154,22 +153,17 @@ public class PahoClient {
      * Stops the client connection.
      */
     public void stop() {
+        if (mqttClient == null) {
+            return;
+        }
         try {
-            if (mqttClient == null) {
-                return;
-            }
             if (mqttClient.isConnected()) {
                 logger.trace("disconnecting from MQTT broker...");
                 mqttClient.disconnect();
                 logger.info("disconnected from MQTT broker");
             }
-            try {
-                logger.trace("closing paho-client");
-                mqttClient.close(true);
-            }
-            catch (MqttException ex) {
-                logger.error("exception closing MQTT client.", ex);
-            }
+            logger.trace("closing paho-client");
+            mqttClient.close(true);
             mqttClient = null;
         }
         catch (MqttException e) {

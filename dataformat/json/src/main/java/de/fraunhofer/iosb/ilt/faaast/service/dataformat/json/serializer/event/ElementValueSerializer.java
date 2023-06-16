@@ -60,13 +60,8 @@ public class ElementValueSerializer extends StdSerializer<ElementValue> {
             defaultSerializer.serialize(value, valueGenerator, provider);
             valueGenerator.flush();
             JsonNode contentNode = new ObjectMapper().readTree(valueJson.toString());
-            if (Objects.nonNull(contentNode)) {
-                if (contentNode.isObject()) {
-                    // intentionally left empty
-                }
-                else if (contentNode.isArray()) {
-                    provider.defaultSerializeField(JsonFieldNames.EVENT_VALUE, contentNode, generator);
-                }
+            if (Objects.nonNull(contentNode) && contentNode.isArray()) {
+                provider.defaultSerializeField(JsonFieldNames.EVENT_VALUE, contentNode, generator);
             }
             if (Objects.nonNull(contentNode)
                     && contentNode.size() == 1
