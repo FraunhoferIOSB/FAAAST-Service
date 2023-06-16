@@ -71,9 +71,6 @@ public class PahoClient {
             port = config.getSslPort();
             protocolPrefix = PROTOCOL_PREFIX_SSL;
         }
-        else {
-            throw new IllegalStateException("MQTT configuration invalid");
-        }
         return String.format("%s%s:%s", protocolPrefix, config.getHost(), port);
     }
 
