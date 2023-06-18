@@ -39,7 +39,7 @@ public class SSCHttpConnectionTest {
     private SSCHttpConnection sscHttpConnection;
     private WireMockServer wireMockServer;
 
-    // dirty fix: change it to @BeforeEach, reinitialising sscHttpConnection and calling copyKeystoreToDestination multiple times
+    // dirty fix: change it to @BeforeAll, reinitialising sscHttpConnection and calling copyKeystoreToDestination multiple times
     // BUT: don't do this, because it should also work without reinitialising
     @BeforeEach
     public void beforeEach() throws IOException {
