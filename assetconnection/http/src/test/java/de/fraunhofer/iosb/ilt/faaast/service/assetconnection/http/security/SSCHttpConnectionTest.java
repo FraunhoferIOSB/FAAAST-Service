@@ -22,13 +22,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
 public class SSCHttpConnectionTest {
-    private static SSCHttpConnection sscHttpConnection;
+    private SSCHttpConnection sscHttpConnection;
     private WireMockServer wireMockServer;
 
     // dirty fix: change it to @BeforeEach, reinitialising sscHttpConnection and calling copyKeystoreToDestination multiple times
     // BUT: don't do this, because it should also work without reinitialising
-    @BeforeAll
-    public static void beforeAll() throws IOException {
+    @BeforeEach
+    public void beforeEach() throws IOException {
         sscHttpConnection = new SSCHttpConnection();
         sscHttpConnection.setTrustStorePassword("changeit".toCharArray());
         copyKeystoreToDestination("certificates/faaast.KEYSTORE.jks", sscHttpConnection.getTrustStorePath());
