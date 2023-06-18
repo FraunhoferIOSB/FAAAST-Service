@@ -1,13 +1,30 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.util;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.slf4j.LoggerFactory;
 
+
+/**
+ * Generate Self Signed Certificates.
+ */
 public class SelfSignedCertificateGenerator {
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AssetConnectionManager.class);
@@ -22,7 +39,24 @@ public class SelfSignedCertificateGenerator {
     private String state;
     private String country;
     private int validityDays;
-    public SelfSignedCertificateGenerator(String keystorePath,String directoryPath, String alias, String keyPassword, String commonName, String organizationUnit, String organization, String city, String state,String country, int validityDays) throws IOException {
+
+    /**
+     * constructor.
+     *
+     * @param keystorePath keystorePath
+     * @param directoryPath directoryPath
+     * @param alias alias
+     * @param keyPassword keyPassword
+     * @param commonName commonName
+     * @param organizationUnit organizationUnit
+     * @param organization organization
+     * @param city city
+     * @param state state
+     * @param country country
+     * @param validityDays validityDays
+     */
+    public SelfSignedCertificateGenerator(String keystorePath, String directoryPath, String alias, String keyPassword, String commonName, String organizationUnit,
+            String organization, String city, String state, String country, int validityDays) throws IOException {
         this.keystorePath = keystorePath;
         this.directoryPath = directoryPath;
         this.alias = alias;
@@ -38,10 +72,11 @@ public class SelfSignedCertificateGenerator {
 
     }
 
-    private void generateSSCertificate(){
+
+    private void generateSSCertificate() {
         try {
             Path directory = Paths.get(directoryPath);
-            if(!Files.exists(directory)) {
+            if (!Files.exists(directory)) {
                 Files.createDirectories(directory);
             }
             ProcessBuilder processBuilder = new ProcessBuilder(
@@ -55,11 +90,10 @@ public class SelfSignedCertificateGenerator {
                     "-storepass", keyPassword,
                     "-keypass", keyPassword,
                     "-dname", "CN=" + commonName + ", OU=" + organizationUnit +
-                    ", O=" + organization + ", L=" + city + ", ST=" + state +
-                    ", C=" + country,
+                            ", O=" + organization + ", L=" + city + ", ST=" + state +
+                            ", C=" + country,
                     "-validity", String.valueOf(validityDays),
-                    "-ext", "SAN=dns:" + commonName
-            );
+                    "-ext", "SAN=dns:" + commonName);
             processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
             processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
 
@@ -71,12 +105,13 @@ public class SelfSignedCertificateGenerator {
                 LOGGER.debug("Keystore: " + keystorePath);
                 LOGGER.debug("Alias: " + alias);
                 LOGGER.debug("Key password: " + keyPassword);
-            } else {
+            }
+            else {
                 LOGGER.warn("Failed to generate self-signed certificate. Exit code: " + exitCode);
             }
-        } catch (IOException | InterruptedException e) {
+        }
+        catch (IOException | InterruptedException e) {
             LOGGER.error("Error occurred while generating self-signed certificate: " + e.getMessage());
         }
     }
 }
-

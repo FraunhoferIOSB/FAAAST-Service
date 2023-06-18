@@ -111,6 +111,7 @@ public class HttpAssetConnection extends
         client = builder.build();
     }
 
+
     @Override
     protected void doDisconnect() throws AssetConnectionException {
         // no need to close a HTTP connection
