@@ -11,17 +11,17 @@ import java.nio.file.Paths;
 public class SelfSignedCertificateGenerator {
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AssetConnectionManager.class);
-    private String keystorePath; //"keystore.jks"
-    private String directoryPath; //"assetconnection/http/src/test/resources/certificates"
-    private String alias; //"selfsigned"
-    private String keyPassword; //"password"
-    private String commonName; //"localhost"
-    private String organizationUnit; //"iosb"
-    private String organization; //"fraunhofer"
-    private String city; //"Karlsruhe"
-    private String state; //"baden-württemberg"
-    private String country; //"deutschland"
-    private int validityDays; //365
+    private String keystorePath;
+    private String directoryPath;
+    private String alias;
+    private String keyPassword;
+    private String commonName;
+    private String organizationUnit;
+    private String organization;
+    private String city;
+    private String state;
+    private String country;
+    private int validityDays;
     public SelfSignedCertificateGenerator(String keystorePath,String directoryPath, String alias, String keyPassword, String commonName, String organizationUnit, String organization, String city, String state,String country, int validityDays) throws IOException {
         this.keystorePath = keystorePath;
         this.directoryPath = directoryPath;
