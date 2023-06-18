@@ -2,11 +2,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.security;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
-import org.junit.Rule;
 import org.junit.jupiter.api.*;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -23,19 +19,10 @@ import java.time.Duration;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 public class SSCHttpConnectionTest {
     private static SSCHttpConnection sscHttpConnection = new SSCHttpConnection();
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SSCHttpConnectionTest.class);
-
-//    @Rule
-//    public WireMockRule wireMockRuleHttp = new WireMockRule(wireMockConfig()
-//            .httpsPort(8443)
-//            .httpDisabled(true)
-//            .caKeystorePath(sscHttpConnection.getTrustStorePath())
-//            .caKeystorePassword("test123")
-//            .caKeystoreType(SSCHttpConnection.JKS));
 
     private WireMockServer wireMockServer;
     private String trustStoreDirectoryPath = "assetconnection/http/src/test/resources/certificates";
@@ -44,8 +31,6 @@ public class SSCHttpConnectionTest {
     public static void setUp() throws IOException {
         copyKeystoreToDestination("certificates/faaast.KEYSTORE.jks", sscHttpConnection.getTrustStorePath());
         sscHttpConnection.setTrustStorePassword("changeit".toCharArray());
-//        wireMockServer = new WireMockServer();
-//        wireMockServer.start();WireMock.configureFor(wireMockServer.port());
     }
 
     @BeforeEach
