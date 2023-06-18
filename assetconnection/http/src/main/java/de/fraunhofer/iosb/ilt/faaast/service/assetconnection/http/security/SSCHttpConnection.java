@@ -19,7 +19,6 @@ public class SSCHttpConnection {
     public static final String JKS = "JKS";
     private String trustStorePath = System.getProperty("java.io.tmpdir") + File.separator + "faaast.keystore";
     private static char[] trustStorePassword = "12345".toCharArray();
-    private static String trustStoreDirectory;
 
     /**
      * create custom SSL context.
@@ -49,29 +48,12 @@ public class SSCHttpConnection {
             trustStore.store(new FileOutputStream(trustStorePath), trustStorePassword);
 
             System.setProperty("javax.net.ssl.trustStore", trustStorePath);
-            System.setProperty("javax.net.ssl.trustStorePassword", new String(trustStorePassword));
+            System.setProperty("javax.net.ssl.trustStorePassword", String.valueOf(trustStorePassword));
             System.setProperty("javax.net.ssl.trustStoreType", JKS);
             return trustStore;
         } catch (CertificateException | IOException | NoSuchAlgorithmException | KeyStoreException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Set the truststore directory.
-     *
-     * @param trustStoreDirectory the truststore directory
-     */
-    public void setTrustStoreDirectory(String trustStoreDirectory) {
-        this.trustStoreDirectory = trustStoreDirectory;
-    }
-    /**
-     * Set the truststore path.
-     *
-     * @param trustStorePath the truststore directory
-     */
-    public void setTrustStorePath(String trustStorePath) {
-        this.trustStorePath = trustStorePath;
     }
 
     public String getTrustStorePath() {
