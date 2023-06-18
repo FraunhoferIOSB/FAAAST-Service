@@ -14,10 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.security;
 
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionManager;
+import org.slf4j.LoggerFactory;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -36,8 +41,9 @@ import java.util.List;
  */
 
 public class SelfSignedCertificateHandler {
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AssetConnectionManager.class);
     public static final String JKS = "JKS";
-    private File truststoreFile;
+    private File trustStoreFile;
 
     /**
      * create custom SSL context.
@@ -112,43 +118,12 @@ public class SelfSignedCertificateHandler {
         }
     }
 
-
-    /**
-     * create trust store.
-     */
-    public void createTruststore() {
-        try {
-            // Create a temporary file to store the truststore
-            File truststoreFile = File.createTempFile("truststore", ".jks");
-
-            try (InputStream inputStream = SelfSignedCertificateHandler.class.getResourceAsStream("/truststore.jks");
-                 OutputStream os = new FileOutputStream(truststoreFile)) {
-                // Copy the truststore resource to the temporary file
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    os.write(buffer, 0, bytesRead);
-                }
-            }
-            // Set the created truststore file as the class member
-            this.truststoreFile = truststoreFile;
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create truststore.", e);
-        }
-
-    }
-
     /**
      * delete trust store file.
      */
-    public void close() throws IOException {
-        // Delete the truststore file
-        deleteTruststore();
-    }
-
     private void deleteTruststore() throws IOException {
-        if (truststoreFile != null && truststoreFile.exists()) {
-            Files.delete(truststoreFile.toPath());
+        if (trustStoreFile != null && trustStoreFile.exists()) {
+            Files.delete(trustStoreFile.toPath());
         }
     }
 }
