@@ -50,4 +50,8 @@
 		<packageUrl regex="true">^pkg:maven/com\.sun\.xml\.bind\.jaxb/isorelax@.*$</packageUrl>
 		<cpe>cpe:/a:xml_library_project:xml_library</cpe>
 	</suppress>
+	<suppress>
+		<notes><![CDATA[This CVE is a false positive according to the Jackson project maintainers. See https://github.com/FasterXML/jackson-databind/issues/3972]]></notes>
+		<cve>CVE-2023-35116</cve>
+</suppress>
 </suppressions>
