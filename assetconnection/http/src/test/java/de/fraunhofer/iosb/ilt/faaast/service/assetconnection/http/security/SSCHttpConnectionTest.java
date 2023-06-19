@@ -32,7 +32,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import javax.net.ssl.SSLHandshakeException;
-import org.junit.jupiter.api.*;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class SSCHttpConnectionTest {
@@ -41,7 +45,7 @@ public class SSCHttpConnectionTest {
 
     // dirty fix: change it to @BeforeAll, reinitialising sscHttpConnection and calling copyKeystoreToDestination multiple times
     // BUT: don't do this, because it should also work without reinitialising
-    @BeforeEach
+    @Before
     public void beforeEach() throws IOException {
         sscHttpConnection = new SSCHttpConnection();
         sscHttpConnection.setTrustStorePassword("changeit".toCharArray());
@@ -49,7 +53,7 @@ public class SSCHttpConnectionTest {
     }
 
 
-    @AfterEach
+    @After
     public void tearDown() {
         wireMockServer.resetAll();
         wireMockServer.stop();
@@ -83,14 +87,14 @@ public class SSCHttpConnectionTest {
         HttpResponse<String> response = sendRequestWithSSLContext(request);
 
         // Perform assertions on the response
-        Assertions.assertEquals(200, response.statusCode());
-        Assertions.assertEquals("Response", response.body());
+        Assert.assertEquals(200, response.statusCode());
+        Assert.assertEquals("Response", response.body());
 
         HttpResponse<String> response2 = sendRequestWithSSLContext(request);
 
         // Perform assertions on the response
-        Assertions.assertEquals(200, response2.statusCode());
-        Assertions.assertEquals("Response", response2.body());
+        Assert.assertEquals(200, response2.statusCode());
+        Assert.assertEquals("Response", response2.body());
     }
 
 
@@ -115,7 +119,7 @@ public class SSCHttpConnectionTest {
                 .build();
 
         // Send the request and expect SSLHandshakeException
-        Assertions.assertThrows(SSLHandshakeException.class, () -> sendRequestWithSSLContext(request));
+        Assert.assertThrows(SSLHandshakeException.class, () -> sendRequestWithSSLContext(request));
     }
 
 
