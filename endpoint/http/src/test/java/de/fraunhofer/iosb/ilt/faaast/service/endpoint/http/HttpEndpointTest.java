@@ -19,17 +19,35 @@ import static org.mockito.Mockito.spy;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import java.net.ServerSocket;
 import java.util.List;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.server.Server;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 
 
 public class HttpEndpointTest extends AbstractHttpEndpointTest {
 
-    @Override
-    protected void startServer() throws Exception {
+    @BeforeClass
+    public static void init() throws Exception {
+        try (ServerSocket serverSocket = new ServerSocket(8080)) {
+            Assert.assertNotNull(serverSocket);
+            Assert.assertTrue(serverSocket.getLocalPort() > 0);
+            port = serverSocket.getLocalPort();
+        }
+        deserializer = new HttpJsonApiDeserializer();
+        persistence = mock(Persistence.class);
+        startServer();
+        startClient();
+    }
+
+
+    private static void startServer() throws Exception {
         scheme = HttpScheme.HTTP.toString();
 
         endpoint = new HttpEndpoint();
@@ -47,8 +65,7 @@ public class HttpEndpointTest extends AbstractHttpEndpointTest {
     }
 
 
-    @Override
-    protected void startClient() throws Exception {
+    private static void startClient() throws Exception {
         client = new HttpClient();
         client.start();
     }

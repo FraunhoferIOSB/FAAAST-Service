@@ -45,7 +45,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.ResponseHelper;
 import io.adminshell.aas.v3.model.*;
 import io.adminshell.aas.v3.model.impl.*;
-import java.net.ServerSocket;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +62,6 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.Customization;
@@ -85,42 +83,11 @@ public abstract class AbstractHttpEndpointTest {
     protected static HttpEndpoint endpoint;
     protected static Service service;
     protected static Persistence persistence;
-    private static HttpJsonApiDeserializer deserializer;
+    protected static HttpJsonApiDeserializer deserializer;
     protected static Server server;
 
-    @BeforeClass
-    public static void init() throws Exception {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            port = serverSocket.getLocalPort();
-        }
-        deserializer = new HttpJsonApiDeserializer();
-        persistence = mock(Persistence.class);
-    }
-
-
-    protected abstract void startServer() throws Exception;
-
-
-    protected abstract void startClient() throws Exception;
-
-
     @Before
-    public void setUp() throws Exception {
-        if (endpoint == null)
-            startServer();
-
-        if (client != null) {
-            try {
-                client.stop();
-            }
-            catch (Exception e) {
-                LOGGER.info("error stopping HTTP client", e);
-            }
-        }
-        startClient();
-
+    public void setUp() {
         reset(persistence);
         reset(service);
     }

@@ -18,7 +18,10 @@ import static org.mockito.Mockito.*;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
+import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import java.net.ServerSocket;
 import java.util.List;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.dynamic.HttpClientTransportDynamic;
@@ -26,12 +29,27 @@ import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.io.ClientConnector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 
 
 public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
 
-    @Override
-    protected void startServer() throws Exception {
+    @BeforeClass
+    public static void init() throws Exception {
+        try (ServerSocket serverSocket = new ServerSocket(8080)) {
+            Assert.assertNotNull(serverSocket);
+            Assert.assertTrue(serverSocket.getLocalPort() > 0);
+            port = serverSocket.getLocalPort();
+        }
+        deserializer = new HttpJsonApiDeserializer();
+        persistence = mock(Persistence.class);
+        startServer();
+        startClient();
+    }
+
+
+    private static void startServer() throws Exception {
         scheme = HttpScheme.HTTPS.toString();
 
         endpoint = new HttpEndpoint();
@@ -51,8 +69,7 @@ public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
     }
 
 
-    @Override
-    protected void startClient() throws Exception {
+    private static void startClient() throws Exception {
         SslContextFactory.Client sslContextFactory = new SslContextFactory.Client();
         sslContextFactory.setKeyStorePath("src/test/resources/clientkeystore.jks");
         sslContextFactory.setKeyStorePassword("password");
