@@ -110,8 +110,16 @@ public abstract class AbstractHttpEndpointTest {
     public void setUp() throws Exception {
         if (endpoint == null)
             startServer();
-        if (client == null)
-            startClient();
+
+        if (client != null) {
+            try {
+                client.stop();
+            }
+            catch (Exception e) {
+                LOGGER.info("error stopping HTTP client", e);
+            }
+        }
+        startClient();
 
         reset(persistence);
         reset(service);
