@@ -100,7 +100,7 @@ public class App implements Runnable {
     protected static final String ENV_MODEL_KEY = "model";
     protected static final String ENV_MODEL_FILE_PATH = envPath(ENV_FAAAST_KEY, ENV_MODEL_KEY);
     // environment
-    protected static final String ENV_PATH_SEPERATOR = ".";
+    protected static final String ENV_PATH_SEPERATOR = "_";
     // model
     protected static final String MODEL_FILENAME_DEFAULT = "aasenvironment.*";
     protected static final String MODEL_FILENAME_PATTERN = "aasenvironment\\..*";
@@ -529,7 +529,7 @@ public class App implements Runnable {
                 .filter(x -> x.getKey().startsWith(ENV_CONFIG_EXTENSION_PREFIX))
                 .filter(x -> !properties.containsKey(x.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length() - 1)))
                 .collect(Collectors.toMap(
-                        x -> x.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length()),
+                        x -> x.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length()).replace(ENV_PATH_SEPERATOR, "."),
                         Entry::getValue));
         Map<String, String> result = new HashMap<>(envParameters);
         for (var property: properties.entrySet()) {
