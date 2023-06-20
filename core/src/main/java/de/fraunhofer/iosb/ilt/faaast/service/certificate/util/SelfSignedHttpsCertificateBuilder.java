@@ -107,10 +107,8 @@ public class SelfSignedHttpsCertificateBuilder {
         // Calculate start and end date based on validity period
         LocalDate now = LocalDate.now();
         LocalDate expiration = now.plus(validityPeriod);
-
         Date notBefore = Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date notAfter = Date.from(expiration.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
         return generator.generateSelfSigned(
                 keyPair,
                 notBefore,

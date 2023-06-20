@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server;
 
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
+import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -55,7 +56,7 @@ public class EmbeddedOpcUaServerConfig {
         this.protocolPorts = new HashMap<>();
         this.allowedCredentials = new HashMap<>();
         // for discovery it's necessary that TCP is always enabled
-        this.protocolPorts.put(Protocol.TCP, findFreePort());
+        this.protocolPorts.put(Protocol.TCP, PortHelper.findFreePort());
         try {
             this.securityBaseDir = Files.createTempDirectory("embedded-opcua-server");
         }
@@ -68,7 +69,7 @@ public class EmbeddedOpcUaServerConfig {
     private void assignFreePorts() {
         protocolPorts.entrySet().stream()
                 .filter(x -> Objects.isNull(x.getValue()))
-                .forEach(x -> protocolPorts.put(x.getKey(), findFreePort()));
+                .forEach(x -> protocolPorts.put(x.getKey(), PortHelper.findFreePort()));
     }
 
 
@@ -158,20 +159,9 @@ public class EmbeddedOpcUaServerConfig {
                 .map(x -> x.getProtocol())
                 .distinct()
                 .filter(x -> !protocolPorts.containsKey(x))
-                .forEach(x -> protocolPorts.put(x, findFreePort()));
+                .forEach(x -> protocolPorts.put(x, PortHelper.findFreePort()));
     }
 
-
-    private static int findFreePort() {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            return serverSocket.getLocalPort();
-        }
-        catch (IOException e) {
-            throw new RuntimeException("error finding free port", e);
-        }
-    }
 
 
     @Override
@@ -289,13 +279,13 @@ public class EmbeddedOpcUaServerConfig {
 
 
         public Builder protocol(TransportProfile value) {
-            getBuildingInstance().getProtocolPorts().put(Protocol.from(value), findFreePort());
+            getBuildingInstance().getProtocolPorts().put(Protocol.from(value), PortHelper.findFreePort());
             return getSelf();
         }
 
 
         public Builder protocol(Protocol value) {
-            getBuildingInstance().getProtocolPorts().put(value, findFreePort());
+            getBuildingInstance().getProtocolPorts().put(value, PortHelper.findFreePort());
             return getSelf();
         }
 

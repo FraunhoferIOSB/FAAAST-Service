@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.endpoint.http;
 
+import static de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.AbstractHttpEndpointTest.port;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -24,8 +25,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
+import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import java.io.File;
-import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.util.List;
 import org.eclipse.jetty.client.HttpClient;
@@ -34,25 +35,10 @@ import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.io.ClientConnector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 
 
 public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
-
-    @BeforeClass
-    public static void init() throws Exception {
-        try (ServerSocket serverSocket = new ServerSocket(8080)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            port = serverSocket.getLocalPort();
-        }
-        deserializer = new HttpJsonApiDeserializer();
-        persistence = mock(Persistence.class);
-        generateCertificate();
-        startServer();
-        startClient();
-    }
 
     private static final CertificateInformation SELFSIGNED_CERTIFICATE_INFORMATION = CertificateInformation.builder()
             .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:endpoint:http:test")
@@ -62,9 +48,19 @@ public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
             .organization("Fraunhofer IOSB")
             .organizationUnit("ILT")
             .build();
-
     private static final String KEYSTORE_PASSWORD = "password";
     private static File keyStoreTempFile;
+
+    @BeforeClass
+    public static void init() throws Exception {
+        port = PortHelper.findFreePort();
+        deserializer = new HttpJsonApiDeserializer();
+        persistence = mock(Persistence.class);
+        generateCertificate();
+        startServer();
+        startClient();
+    }
+
 
     private static void generateCertificate() throws Exception {
         keyStoreTempFile = Files.createTempFile("http-endpoint", "https-cert").toFile();

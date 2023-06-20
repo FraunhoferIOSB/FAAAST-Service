@@ -20,9 +20,9 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +34,11 @@ import org.slf4j.LoggerFactory;
 public class HostnameUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HostnameUtil.class);
+    public static final String LOCALHOST = "localhost";
+    public static final String LOCALHOST_IP = "127.0.0.1";
+
+    private HostnameUtil() {}
+
 
     /**
      * @return the local hostname, if possible. Failure results in "localhost".
@@ -59,6 +64,31 @@ public class HostnameUtil {
     }
 
 
+    private static Set<String> getHostnames(NetworkInterface networkInterface, boolean includeLoopback) {
+        Set<String> result = new HashSet<>();
+        Collections.list(networkInterface.getInetAddresses()).forEach(ia -> {
+            if (ia instanceof Inet4Address && (includeLoopback || !ia.isLoopbackAddress())) {
+                result.add(ia.getHostName());
+                result.add(ia.getHostAddress());
+                result.add(ia.getCanonicalHostName());
+            }
+        });
+        return result;
+    }
+
+
+    private static Set<String> getLocalHostnames(boolean includeLoopback) {
+        try {
+            return Collections.list(NetworkInterface.getNetworkInterfaces()).stream()
+                    .flatMap(x -> getHostnames(x, includeLoopback).stream())
+                    .collect(Collectors.toSet());
+        }
+        catch (SocketException e) {
+            return Set.of();
+        }
+    }
+
+
     /**
      * Given an address resolve it to as many unique addresses or hostnames as can be found.
      *
@@ -67,42 +97,23 @@ public class HostnameUtil {
      * @return the addresses and hostnames that were resolved from {@code address}.
      */
     public static Set<String> getHostnames(String address, boolean includeLoopback) {
-        Set<String> hostnames = new HashSet<>();
-
         try {
             InetAddress inetAddress = InetAddress.getByName(address);
             if (inetAddress.isAnyLocalAddress()) {
-                try {
-                    Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
-                    for (NetworkInterface ni: Collections.list(nis)) {
-                        Collections.list(ni.getInetAddresses()).forEach(ia -> {
-                            if (ia instanceof Inet4Address) {
-                                if (includeLoopback || !ia.isLoopbackAddress()) {
-                                    hostnames.add(ia.getHostName());
-                                    hostnames.add(ia.getHostAddress());
-                                    hostnames.add(ia.getCanonicalHostName());
-                                }
-                            }
-                        });
-                    }
-                }
-                catch (SocketException e) {
-                    LOGGER.warn("Failed to NetworkInterfaces for bind address: {}", address, e);
-                }
+                return getLocalHostnames(includeLoopback);
             }
-            else {
-                if (includeLoopback || !inetAddress.isLoopbackAddress()) {
-                    hostnames.add(inetAddress.getHostName());
-                    hostnames.add(inetAddress.getHostAddress());
-                    hostnames.add(inetAddress.getCanonicalHostName());
-                }
+            if (includeLoopback || !inetAddress.isLoopbackAddress()) {
+                return Set.of(
+                        inetAddress.getHostName(),
+                        inetAddress.getHostAddress(),
+                        inetAddress.getCanonicalHostName());
             }
+            return Set.of();
         }
         catch (UnknownHostException e) {
             LOGGER.warn("Failed to get InetAddress for bind address: {}", address, e);
+            return Set.of();
         }
-
-        return hostnames;
     }
 
 }

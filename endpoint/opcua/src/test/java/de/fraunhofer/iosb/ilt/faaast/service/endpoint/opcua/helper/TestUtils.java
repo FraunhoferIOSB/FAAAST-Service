@@ -858,13 +858,4 @@ public class TestUtils {
             Assert.assertEquals("Qualifier Value not equal", exp.getValue(), curr.getValue());
         }
     }
-
-
-    public static int findFreePort() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            return serverSocket.getLocalPort();
-        }
-    }
 }

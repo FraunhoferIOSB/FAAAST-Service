@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.certificate.util;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.HostnameUtil;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,7 +25,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyStore;
@@ -45,8 +45,6 @@ public class KeyStoreHelper {
 
     public static final String KEYSTORE_TYPE = "PKCS12";
     public static final String DEFAULT_ALIAS = "faaast";
-    public static final String LOCALHOST = "localhost";
-    public static final String LOCALHOST_IP = "127.0.0.1";
 
     /**
      * Hide the implicit public constructor.
@@ -88,9 +86,8 @@ public class KeyStoreHelper {
      * @return a self-signed certificate
      * @throws KeyStoreException if generating certificate failed
      * @throws NoSuchAlgorithmException if generating private/public key pair fails due to missing algorithm
-     * @throws UnknownHostException if localhost cannot be resolved
      */
-    public static CertificateData generateSelfSigned(CertificateInformation certificateInformation) throws KeyStoreException, NoSuchAlgorithmException, UnknownHostException {
+    public static CertificateData generateSelfSigned(CertificateInformation certificateInformation) throws KeyStoreException, NoSuchAlgorithmException {
         Ensure.requireNonNull(certificateInformation, "certificateInformation must be non-null when key store does not exist");
         CertificateData result = new CertificateData();
         result.setKeyPair(SelfSignedCertificateGenerator.generateRsaKeyPair(2048));
@@ -104,8 +101,8 @@ public class KeyStoreHelper {
         // if no DNS & IP info available use localhost & 127.0.0.1
         if (certificateInformation.getDnsNames().isEmpty() && certificateInformation.getIpAddresses().isEmpty()) {
             certificateInformation.autodetectDnsAndIp();
-            builder.addDnsName(LOCALHOST);
-            builder.addIpAddress(LOCALHOST_IP);
+            builder.addDnsName(HostnameUtil.LOCALHOST);
+            builder.addIpAddress(HostnameUtil.LOCALHOST_IP);
         }
         certificateInformation.getDnsNames().forEach(builder::addDnsName);
         certificateInformation.getIpAddresses().forEach(builder::addIpAddress);

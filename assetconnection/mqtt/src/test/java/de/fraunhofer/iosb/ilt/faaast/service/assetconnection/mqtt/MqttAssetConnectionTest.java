@@ -39,6 +39,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.ValueFormatException;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.ElementValueTypeInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.typing.TypeInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import io.adminshell.aas.v3.dataformat.core.util.AasUtils;
 import io.adminshell.aas.v3.model.Reference;
 import io.moquette.BrokerConstants;
@@ -75,7 +76,6 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import uk.org.lidalia.slf4jext.Level;
 
-
 public class MqttAssetConnectionTest {
 
     private static final Reference DEFAULT_REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
@@ -94,33 +94,16 @@ public class MqttAssetConnectionTest {
         mqttServer.stopServer();
     }
 
-
     @BeforeClass
     public static void init() throws IOException {
-        try {
-            mqttPort = findFreePort();
-        }
-        catch (IOException e) {
-            Assert.fail("could not find free port");
-        }
+        mqttPort = PortHelper.findFreePort();
         mqttServer = startMqttServer(mqttPort);
         mqttServerUri = "tcp://" + LOCALHOST + ":" + mqttPort;
     }
 
-
-    private static int findFreePort() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            return serverSocket.getLocalPort();
-        }
-    }
-
-
     private static boolean isDebugging() {
         return java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
     }
-
 
     private static void publishMqtt(String topic, String content) {
         mqttServer.internalPublish(MqttMessageBuilders.publish()
@@ -131,13 +114,11 @@ public class MqttAssetConnectionTest {
                 "unit test " + UUID.randomUUID().toString().replace("-", ""));
     }
 
-
     private static Server startMqttServer(int port) throws IOException {
         Server result = new Server();
         result.startServer(getMqttServerConfig(port), null);
         return result;
     }
-
 
     private static IConfig getMqttServerConfig(int port) {
         MemoryConfig result = new MemoryConfig(new Properties());
@@ -146,7 +127,6 @@ public class MqttAssetConnectionTest {
         result.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(true));
         return result;
     }
-
 
     private String invokeValueProvider(String format, DataElementValue newValue, String template)
             throws AssetConnectionException, InterruptedException, MqttException, ConfigurationInitializationException {
@@ -163,13 +143,11 @@ public class MqttAssetConnectionTest {
                 // intentionally left empty
             }
 
-
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
                 response.set(new String(mqttMessage.getPayload()));
                 condition.countDown();
             }
-
 
             @Override
             public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
@@ -182,12 +160,10 @@ public class MqttAssetConnectionTest {
         return response.get();
     }
 
-
     private void assertSubscriptionProvider(String format, String message, PropertyValue expected)
             throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
         assertSubscriptionProvider(format, message, null, expected);
     }
-
 
     private void assertSubscriptionProvider(String format, String message, String query, PropertyValue expected)
             throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
@@ -201,16 +177,15 @@ public class MqttAssetConnectionTest {
                 expected);
     }
 
-
     private void assertSubscriptionProvider(MqttSubscriptionProviderConfig config, Runnable publisher, Callable<Boolean> waitCondition, PropertyValue... expected)
             throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         MqttAssetConnection assetConnection = newConnection(
                 ArrayUtils.isEmpty(expected)
-                        ? null
-                        : ElementValueTypeInfo.builder()
-                                .datatype(expected[0].getValue().getDataType())
-                                .type(expected[0].getClass())
-                                .build(),
+                ? null
+                : ElementValueTypeInfo.builder()
+                        .datatype(expected[0].getValue().getDataType())
+                        .type(expected[0].getClass())
+                        .build(),
                 config);
         NewDataListener listener = null;
         try {
@@ -226,8 +201,7 @@ public class MqttAssetConnectionTest {
                 publisher.run();
                 condition.await(DEFAULT_TIMEOUT, isDebugging() ? TimeUnit.SECONDS : TimeUnit.MILLISECONDS);
                 Assert.assertArrayEquals(expected, response);
-            }
-            else {
+            } else {
                 listener = (DataElementValue data) -> {
                     // empty on purpose
                 };
@@ -237,13 +211,11 @@ public class MqttAssetConnectionTest {
             if (waitCondition != null) {
                 await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS).until(waitCondition);
             }
-        }
-        finally {
+        } finally {
             assetConnection.getSubscriptionProviders().get(DEFAULT_REFERENCE).removeNewDataListener(listener);
             assetConnection.disconnect();
         }
     }
-
 
     private void awaitConnection(AssetConnection connection) {
         await().atMost(30, TimeUnit.SECONDS)
@@ -252,19 +224,17 @@ public class MqttAssetConnectionTest {
                 .until(() -> {
                     try {
                         connection.connect();
-                    }
-                    catch (AssetConnectionException e) {
+                    } catch (AssetConnectionException e) {
                         // do nothing
                     }
                     return connection.isConnected();
                 });
     }
 
-
     @Test
     public void testSubscriptionProviderConnectionLost()
             throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException, ConfigurationException {
-        int port = findFreePort();
+        int port = PortHelper.findFreePort();
         Server localServer = startMqttServer(port);
 
         MqttAssetConnection connection = MqttAssetConnectionConfig.builder()
@@ -279,17 +249,15 @@ public class MqttAssetConnectionTest {
                 .until(() -> !connection.isConnected());
     }
 
-
     @Test
     public void testSubscriptionProviderJsonProperty() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
         assertSubscriptionProvider(FORMAT_JSON, "7", PropertyValue.of(Datatype.INT, "7"));
         assertSubscriptionProvider(FORMAT_JSON, "\"hello world\"", PropertyValue.of(Datatype.STRING, "hello world"));
     }
 
-
     @Test
     public void testReconnect() throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException, IOException {
-        int assetMqttPort = findFreePort();
+        int assetMqttPort = PortHelper.findFreePort();
         Server localMqttServer = startMqttServer(assetMqttPort);
         String localMqttServerUri = "tcp://" + LOCALHOST + ":" + assetMqttPort;
         String message = "7";
@@ -324,14 +292,12 @@ public class MqttAssetConnectionTest {
                     "unit test " + UUID.randomUUID().toString().replace("-", ""));
             received.await(DEFAULT_TIMEOUT, isDebugging() ? TimeUnit.SECONDS : TimeUnit.MILLISECONDS);
             Assert.assertEquals(expected, response.get());
-        }
-        finally {
+        } finally {
             connection.getSubscriptionProviders().get(DEFAULT_REFERENCE).removeNewDataListener(listener);
             connection.disconnect();
             localMqttServer.stopServer();
         }
     }
-
 
     @Test
     public void testSubscriptionProviderJsonPropertyInvalidMessage()
@@ -351,9 +317,8 @@ public class MqttAssetConnectionTest {
                 expected, expected);
         await().atMost(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
                 .until(() -> logger.getAllLoggingEvents().stream()
-                        .anyMatch(LOG_MSG_DESERIALIZATION_FAILED));
+                .anyMatch(LOG_MSG_DESERIALIZATION_FAILED));
     }
-
 
     @Test
     public void testSubscriptionProviderJsonPropertyWithInvalidQuery()
@@ -368,14 +333,12 @@ public class MqttAssetConnectionTest {
                 () -> logger.getAllLoggingEvents().stream().anyMatch(LOG_MSG_DESERIALIZATION_FAILED));
     }
 
-
     @Test
     public void testSubscriptionProviderJsonPropertyWithQuery()
             throws AssetConnectionException, InterruptedException, ValueFormatException, ConfigurationInitializationException {
         assertSubscriptionProvider(FORMAT_JSON, "{\"foo\": 123, \"bar\": 7}", "$.bar", PropertyValue.of(Datatype.INT, "7"));
         assertSubscriptionProvider(FORMAT_JSON, "{\"foo\": \"hello\", \"bar\": \"world\"}", "$.bar", PropertyValue.of(Datatype.STRING, "world"));
     }
-
 
     @Test
     public void testValueProviderProperty()
@@ -384,7 +347,6 @@ public class MqttAssetConnectionTest {
         String actual = invokeValueProvider(FORMAT_JSON, PropertyValue.of(Datatype.STRING, "hello world"), null);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
-
 
     @Test
     public void testValueProviderPropertyWithTemplate()
@@ -395,34 +357,30 @@ public class MqttAssetConnectionTest {
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
     }
 
-
     private MqttAssetConnection newConnection(MqttValueProviderConfig valueProvider) throws ConfigurationInitializationException, AssetConnectionException {
         return newConnection(DEFAULT_REFERENCE, null, valueProvider, null, null);
     }
-
 
     private MqttAssetConnection newConnection(TypeInfo expectedTypeInfo, MqttSubscriptionProviderConfig subscriptionProvider)
             throws ConfigurationInitializationException, AssetConnectionException {
         return newConnection(DEFAULT_REFERENCE, expectedTypeInfo, null, null, subscriptionProvider);
     }
 
-
     private MqttAssetConnection newConnection(Reference reference,
-                                              TypeInfo expectedTypeInfo,
-                                              MqttValueProviderConfig valueProvider,
-                                              MqttOperationProviderConfig operationProvider,
-                                              MqttSubscriptionProviderConfig subscriptionProvider)
+            TypeInfo expectedTypeInfo,
+            MqttValueProviderConfig valueProvider,
+            MqttOperationProviderConfig operationProvider,
+            MqttSubscriptionProviderConfig subscriptionProvider)
             throws ConfigurationInitializationException, AssetConnectionException {
         return newConnection(mqttServerUri, reference, expectedTypeInfo, valueProvider, operationProvider, subscriptionProvider);
     }
 
-
     private MqttAssetConnection newConnection(String url,
-                                              Reference reference,
-                                              TypeInfo expectedTypeInfo,
-                                              MqttValueProviderConfig valueProvider,
-                                              MqttOperationProviderConfig operationProvider,
-                                              MqttSubscriptionProviderConfig subscriptionProvider)
+            Reference reference,
+            TypeInfo expectedTypeInfo,
+            MqttValueProviderConfig valueProvider,
+            MqttOperationProviderConfig operationProvider,
+            MqttSubscriptionProviderConfig subscriptionProvider)
             throws ConfigurationInitializationException, AssetConnectionException {
         MqttAssetConnectionConfig config = MqttAssetConnectionConfig.builder()
                 .serverUri(url)
@@ -451,7 +409,6 @@ public class MqttAssetConnectionTest {
         awaitConnection(result);
         return result;
     }
-
 
     private MqttClient newMqttClient() throws MqttException {
         MqttClient client = new MqttClient(mqttServerUri, UUID.randomUUID().toString(), new MemoryPersistence());

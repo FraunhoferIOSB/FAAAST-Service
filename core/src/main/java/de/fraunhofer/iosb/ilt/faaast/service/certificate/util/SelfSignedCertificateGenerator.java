@@ -61,7 +61,6 @@ public class SelfSignedCertificateGenerator {
     public static KeyPair generateRsaKeyPair(int length) throws NoSuchAlgorithmException {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(length, new SecureRandom());
-
         return generator.generateKeyPair();
     }
 
@@ -76,7 +75,6 @@ public class SelfSignedCertificateGenerator {
     public static KeyPair generateEcKeyPair(int length) throws NoSuchAlgorithmException {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
         generator.initialize(length, new SecureRandom());
-
         return generator.generateKeyPair();
     }
 
@@ -117,7 +115,6 @@ public class SelfSignedCertificateGenerator {
             throws Exception {
 
         X500NameBuilder nameBuilder = new X500NameBuilder();
-
         if (commonName != null) {
             nameBuilder.addRDN(BCStyle.CN, commonName);
         }
@@ -136,15 +133,11 @@ public class SelfSignedCertificateGenerator {
         if (countryCode != null) {
             nameBuilder.addRDN(BCStyle.C, countryCode);
         }
-
         X500Name name = nameBuilder.build();
-
         // Using the current timestamp as the certificate serial number
         BigInteger certSerialNumber = new BigInteger(Long.toString(System.currentTimeMillis()));
-
         SubjectPublicKeyInfo subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(
                 keyPair.getPublic().getEncoded());
-
         X509v3CertificateBuilder certificateBuilder = new X509v3CertificateBuilder(
                 name,
                 certSerialNumber,
@@ -153,31 +146,22 @@ public class SelfSignedCertificateGenerator {
                 Locale.ENGLISH,
                 name,
                 subjectPublicKeyInfo);
-
         // Explicitly set path length constraint to 0. This constructor also sets cA=true.
         BasicConstraints basicConstraints = new BasicConstraints(0);
-
         // Authority Key Identifier
         addAuthorityKeyIdentifier(certificateBuilder, keyPair);
-
         // Basic Constraints
         addBasicConstraints(certificateBuilder, basicConstraints);
-
         // Key Usage
         addKeyUsage(certificateBuilder);
-
         // Extended Key Usage
         addExtendedKeyUsage(certificateBuilder);
-
         // Subject Alternative Name
         addSubjectAlternativeNames(certificateBuilder, keyPair, applicationUri, dnsNames, ipAddresses);
-
         ContentSigner contentSigner = new JcaContentSignerBuilder(signatureAlgorithm)
                 .setProvider(new BouncyCastleProvider())
                 .build(keyPair.getPrivate());
-
         X509CertificateHolder certificateHolder = certificateBuilder.build(contentSigner);
-
         return new JcaX509CertificateConverter().getCertificate(certificateHolder);
     }
 
@@ -200,28 +184,22 @@ public class SelfSignedCertificateGenerator {
                                               List<String> dnsNames,
                                               List<String> ipAddresses)
             throws CertIOException, NoSuchAlgorithmException {
-
         List<GeneralName> generalNames = new ArrayList<>();
-
         if (applicationUri != null) {
             generalNames.add(new GeneralName(GeneralName.uniformResourceIdentifier, applicationUri));
         }
-
         dnsNames.stream()
                 .distinct()
                 .map(s -> new GeneralName(GeneralName.dNSName, s))
                 .forEach(generalNames::add);
-
         ipAddresses.stream()
                 .distinct()
                 .map(s -> new GeneralName(GeneralName.iPAddress, s))
                 .forEach(generalNames::add);
-
         certificateBuilder.addExtension(
                 Extension.subjectAlternativeName,
                 false,
                 new GeneralNames(generalNames.toArray(new GeneralName[] {})));
-
         // Subject Key Identifier
         certificateBuilder.addExtension(
                 Extension.subjectKeyIdentifier,
@@ -280,7 +258,6 @@ public class SelfSignedCertificateGenerator {
                                        X509v3CertificateBuilder certificateBuilder,
                                        BasicConstraints basicConstraints)
             throws CertIOException {
-
         certificateBuilder.addExtension(
                 Extension.basicConstraints,
                 false,
@@ -300,7 +277,6 @@ public class SelfSignedCertificateGenerator {
                                              X509v3CertificateBuilder certificateBuilder,
                                              KeyPair keyPair)
             throws CertIOException, NoSuchAlgorithmException {
-
         certificateBuilder.addExtension(
                 Extension.authorityKeyIdentifier,
                 false,
