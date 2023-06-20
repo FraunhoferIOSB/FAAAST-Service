@@ -179,6 +179,7 @@ public abstract class AbstractMessageBusMqttTest<T> {
             OPERATION_INVOKE_MESSAGE,
             OPERATION_FINISH_MESSAGE,
             ERROR_MESSAGE);
+
     private static final List<EventMessage> EXECUTE_MESSAGES = List.of(
             OPERATION_INVOKE_MESSAGE,
             OPERATION_FINISH_MESSAGE);
@@ -208,26 +209,39 @@ public abstract class AbstractMessageBusMqttTest<T> {
 
 
     @Test
+    public void testDistinctTypesSubscription() throws Exception {
+        MessageBusMqttConfig config = configureAnonymousSuccess();
+        MessageBusInfo messageBusInfo = startMessageBus(config);
+        assertExactTypeSubscription(messageBusInfo);
+        assertSuperTypeSubscription(messageBusInfo);
+        assertDistinctTypesSubscription(messageBusInfo);
+        assertNotMatchingSubscription(messageBusInfo);
+        assertUnsubscribeWorks(config);
+        stopMessageBus(messageBusInfo);
+    }
+
+
+    @Test
     public void testAnonymousSuccess() throws Exception {
-        assertMessageBusWorks(configureAnonymousSuccess());
+        assertConnectionWorks(configureAnonymousSuccess());
     }
 
 
     @Test
     public void testWebsocketAsAnonymousSuccess() throws Exception {
-        assertMessageBusWorks(configureWebsocketAsAnonymousSuccess());
+        assertConnectionWorks(configureWebsocketAsAnonymousSuccess());
     }
 
 
     @Test
     public void testWithSslAsAnonymousSuccess() throws Exception {
-        assertMessageBusWorks(configureWithSslAsAnonymousSuccess());
+        assertConnectionWorks(configureWithSslAsAnonymousSuccess());
     }
 
 
     @Test
     public void testWebsocketWithSslAsAnonymousSuccess() throws Exception {
-        assertMessageBusWorks(configureWebsocketWithSslAsAnonymousSuccess());
+        assertConnectionWorks(configureWebsocketWithSslAsAnonymousSuccess());
     }
 
 
@@ -281,25 +295,25 @@ public abstract class AbstractMessageBusMqttTest<T> {
 
     @Test
     public void testAsValidUser() throws Exception {
-        assertMessageBusWorks(configureAsValidUser());
+        assertConnectionWorks(configureAsValidUser());
     }
 
 
     @Test
     public void testWebsocketAsValidUser() throws Exception {
-        assertMessageBusWorks(configureWebsocketAsValidUser());
+        assertConnectionWorks(configureWebsocketAsValidUser());
     }
 
 
     @Test
     public void testWithSslAsValidUser() throws Exception {
-        assertMessageBusWorks(configureWithSslAsValidUser());
+        assertConnectionWorks(configureWithSslAsValidUser());
     }
 
 
     @Test
     public void testWebsocketWithSslAsValidUser() throws Exception {
-        assertMessageBusWorks(configureWebsocketWithSslAsValidUser());
+        assertConnectionWorks(configureWebsocketWithSslAsValidUser());
     }
 
 
@@ -509,21 +523,12 @@ public abstract class AbstractMessageBusMqttTest<T> {
     }
 
 
-    private void assertMessageBusWorks(MessageBusMqttConfig config) throws Exception {
-        assertExactTypeSubscription(config);
-        assertSuperTypeSubscription(config);
-        assertDistinctTypesSubscription(config);
-        assertNotMatchingSubscription(config);
-        assertUnsubscribeWorks(config);
+    private void assertExactTypeSubscription(MessageBusInfo messageBusInfo) throws Exception {
+        ALL_MESSAGES.forEach(LambdaExceptionHelper.rethrowConsumer(x -> assertMessage(messageBusInfo, x.getClass(), x, x)));
     }
 
 
-    private void assertExactTypeSubscription(MessageBusMqttConfig config) throws Exception {
-        ALL_MESSAGES.forEach(LambdaExceptionHelper.rethrowConsumer(x -> assertMessage(config, x.getClass(), x, x)));
-    }
-
-
-    private void assertSuperTypeSubscription(MessageBusMqttConfig config) throws Exception {
+    private void assertSuperTypeSubscription(MessageBusInfo messageBusInfo) throws Exception {
         Map<Class<? extends EventMessage>, List<EventMessage>> messageTypes = Map.of(
                 EventMessage.class, ALL_MESSAGES,
                 AccessEventMessage.class, ACCESS_MESSAGES,
@@ -531,13 +536,24 @@ public abstract class AbstractMessageBusMqttTest<T> {
                 ReadEventMessage.class, READ_MESSAGES,
                 ChangeEventMessage.class, CHANGE_MESSAGES,
                 ElementChangeEventMessage.class, ELEMENT_CHANGE_MESSAGES);
-        messageTypes.forEach(LambdaExceptionHelper.rethrowBiConsumer((k, v) -> assertMessages(config, k, v, v)));
+        messageTypes.forEach(LambdaExceptionHelper.rethrowBiConsumer((k, v) -> assertMessages(messageBusInfo, k, v, v)));
     }
 
 
     private void assertDistinctTypesSubscription(MessageBusMqttConfig config) throws Exception {
         assertMessages(
                 config,
+                List.of(ChangeEventMessage.class, ErrorEventMessage.class),
+                List.of(ELEMENT_CREATE_MESSAGE, ERROR_MESSAGE),
+                Map.of(
+                        ChangeEventMessage.class, List.of(ELEMENT_CREATE_MESSAGE),
+                        ErrorEventMessage.class, List.of(ERROR_MESSAGE)));
+    }
+
+
+    private void assertDistinctTypesSubscription(MessageBusInfo messageBusInfo) throws Exception {
+        assertMessages(
+                messageBusInfo,
                 List.of(ChangeEventMessage.class, ErrorEventMessage.class),
                 List.of(ELEMENT_CREATE_MESSAGE, ERROR_MESSAGE),
                 Map.of(
@@ -555,16 +571,32 @@ public abstract class AbstractMessageBusMqttTest<T> {
     }
 
 
+    private void assertNotMatchingSubscription(MessageBusInfo messageBusInfo) throws Exception {
+        assertMessage(
+                messageBusInfo,
+                ErrorEventMessage.class,
+                VALUE_CHANGE_MESSAGE,
+                null);
+    }
+
+
     private void assertUnsubscribeWorks(MessageBusMqttConfig config) throws Exception {
         MessageBusInfo messageBusInfo = startMessageBus(config);
-        SubscriptionId subscription = messageBusInfo.messageBus.subscribe(SubscriptionInfo.create(
-                EventMessage.class,
+        CountDownLatch condition = new CountDownLatch(1);
+        SubscriptionId controlSubscription = messageBusInfo.messageBus.subscribe(SubscriptionInfo.create(
+                ValueChangeEventMessage.class,
+                x -> {
+                    condition.countDown();
+                }));
+        SubscriptionId revokedSubscription = messageBusInfo.messageBus.subscribe(SubscriptionInfo.create(
+                ValueChangeEventMessage.class,
                 x -> {
                     Assert.fail();
                 }));
-        messageBusInfo.messageBus.unsubscribe(subscription);
+        messageBusInfo.messageBus.unsubscribe(revokedSubscription);
         messageBusInfo.messageBus.publish(VALUE_CHANGE_MESSAGE);
-        Thread.sleep(1000);
+        condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+        messageBusInfo.messageBus.unsubscribe(controlSubscription);
         messageBusInfo.messageBus.stop();
         stopServer(messageBusInfo.server);
     }
@@ -576,6 +608,12 @@ public abstract class AbstractMessageBusMqttTest<T> {
     }
 
 
+    private void assertConnectionWorks(MessageBusMqttConfig config) throws Exception {
+        MessageBusInfo messageBusInfo = startMessageBus(config);
+        stopMessageBus(messageBusInfo);
+    }
+
+
     private void assertMessage(
                                MessageBusMqttConfig config,
                                Class<? extends EventMessage> subscribeTo,
@@ -584,6 +622,22 @@ public abstract class AbstractMessageBusMqttTest<T> {
             throws Exception {
         assertMessages(
                 config,
+                subscribeTo,
+                List.of(toPublish),
+                Objects.isNull(expected)
+                        ? List.of()
+                        : List.of(expected));
+    }
+
+
+    private void assertMessage(
+                               MessageBusInfo messageBusInfo,
+                               Class<? extends EventMessage> subscribeTo,
+                               EventMessage toPublish,
+                               EventMessage expected)
+            throws Exception {
+        assertMessages(
+                messageBusInfo,
                 subscribeTo,
                 List.of(toPublish),
                 Objects.isNull(expected)
@@ -609,11 +663,44 @@ public abstract class AbstractMessageBusMqttTest<T> {
 
 
     private void assertMessages(
+                                MessageBusInfo messageBusInfo,
+                                Class<? extends EventMessage> subscribeTo,
+                                List<EventMessage> toPublish,
+                                List<EventMessage> expected)
+            throws Exception {
+        assertMessages(
+                messageBusInfo,
+                List.of(subscribeTo),
+                toPublish,
+                Objects.isNull(expected) || expected.isEmpty()
+                        ? Map.of()
+                        : Map.of(subscribeTo, expected));
+    }
+
+
+    private void assertMessages(
                                 MessageBusMqttConfig config,
                                 List<Class<? extends EventMessage>> subscribeTo,
-                                List<EventMessage> toPublish, Map<Class<? extends EventMessage>, List<EventMessage>> expected)
+                                List<EventMessage> toPublish,
+                                Map<Class<? extends EventMessage>, List<EventMessage>> expected)
             throws Exception {
         MessageBusInfo messageBusInfo = startMessageBus(config);
+        try {
+            assertMessages(messageBusInfo, subscribeTo, toPublish, expected);
+        }
+        finally {
+            messageBusInfo.messageBus.stop();
+            stopServer(messageBusInfo.server);
+        }
+    }
+
+
+    private void assertMessages(
+                                MessageBusInfo messageBusInfo,
+                                List<Class<? extends EventMessage>> subscribeTo,
+                                List<EventMessage> toPublish,
+                                Map<Class<? extends EventMessage>, List<EventMessage>> expected)
+            throws Exception {
         CountDownLatch condition = new CountDownLatch(expected.values().stream().mapToInt(List::size).sum());
         final Map<Class<? extends EventMessage>, List<EventMessage>> actual = Collections.synchronizedMap(new HashMap<>());
         List<SubscriptionId> subscriptions = subscribeTo.stream()
@@ -630,9 +717,13 @@ public abstract class AbstractMessageBusMqttTest<T> {
         }
         condition.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         subscriptions.forEach(messageBusInfo.messageBus::unsubscribe);
+        Assert.assertEquals(Objects.isNull(expected) ? Map.of() : expected, actual);
+    }
+
+
+    private void stopMessageBus(MessageBusInfo messageBusInfo) {
         messageBusInfo.messageBus.stop();
         stopServer(messageBusInfo.server);
-        Assert.assertEquals(Objects.isNull(expected) ? Map.of() : expected, actual);
     }
 
     private class MessageBusInfo {
