@@ -44,7 +44,6 @@ import com.prosysopc.ua.stack.core.RelativePathElement;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import io.adminshell.aas.v3.model.Qualifier;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
