@@ -74,8 +74,8 @@ import org.slf4j.LoggerFactory;
 
 
 public abstract class AbstractHttpEndpointTest {
-    protected static final Logger LOGGER = LoggerFactory.getLogger(HttpEndpointSSLTest.class);
-    protected static final String HOST = "127.0.0.1";
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractHttpEndpointTest.class);
+    protected static final String HOST = "localhost";
     protected static String scheme;
     private static final JSONComparator RESULT_COMPARATOR = new CustomComparator(JSONCompareMode.LENIENT, new Customization("**.timestamp", (o1, o2) -> true));
     protected static int port;

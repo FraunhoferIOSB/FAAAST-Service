@@ -18,15 +18,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
-import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
-import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.http.serialization.HttpJsonApiDeserializer;
 import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBus;
 import de.fraunhofer.iosb.ilt.faaast.service.persistence.Persistence;
-import java.io.File;
 import java.net.ServerSocket;
-import java.nio.file.Files;
 import java.util.List;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.dynamic.HttpClientTransportDynamic;
@@ -38,7 +34,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 
 
-public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
+public class HttpEndpointSSLSelfSignedTest extends AbstractHttpEndpointTest {
 
     @BeforeClass
     public static void init() throws Exception {
@@ -49,30 +45,8 @@ public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
         }
         deserializer = new HttpJsonApiDeserializer();
         persistence = mock(Persistence.class);
-        generateCertificate();
         startServer();
         startClient();
-    }
-
-    private static final CertificateInformation SELFSIGNED_CERTIFICATE_INFORMATION = CertificateInformation.builder()
-            .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:endpoint:http:test")
-            .commonName("FA³ST Service HTTP Endpoint - Unit Test")
-            .countryCode("DE")
-            .localityName("Karlsruhe")
-            .organization("Fraunhofer IOSB")
-            .organizationUnit("ILT")
-            .build();
-
-    private static final String KEYSTORE_PASSWORD = "password";
-    private static File keyStoreTempFile;
-
-    private static void generateCertificate() throws Exception {
-        keyStoreTempFile = Files.createTempFile("http-endpoint", "https-cert").toFile();
-        keyStoreTempFile.deleteOnExit();
-        KeyStoreHelper.save(
-                keyStoreTempFile,
-                KeyStoreHelper.generateSelfSigned(SELFSIGNED_CERTIFICATE_INFORMATION),
-                KEYSTORE_PASSWORD);
     }
 
 
@@ -87,8 +61,6 @@ public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
                         .port(port)
                         .cors(true)
                         .https(true)
-                        .keystorePath(keyStoreTempFile.getAbsolutePath())
-                        .keystorePassword(KEYSTORE_PASSWORD)
                         .build(),
                 service);
         server.start();
@@ -98,8 +70,7 @@ public class HttpEndpointSSLTest extends AbstractHttpEndpointTest {
 
     private static void startClient() throws Exception {
         SslContextFactory.Client sslContextFactory = new SslContextFactory.Client();
-        sslContextFactory.setKeyStorePath(keyStoreTempFile.getAbsolutePath());
-        sslContextFactory.setKeyStorePassword(KEYSTORE_PASSWORD);
+        sslContextFactory.setTrustAll(true);
         ClientConnector clientConnector = new ClientConnector();
         clientConnector.setSslContextFactory(sslContextFactory);
         client = new HttpClient(new HttpClientTransportDynamic(clientConnector));

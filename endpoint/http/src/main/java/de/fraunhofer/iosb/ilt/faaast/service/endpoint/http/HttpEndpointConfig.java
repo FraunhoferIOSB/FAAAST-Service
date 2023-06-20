@@ -25,9 +25,10 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
     public static final int DEFAULT_PORT = 8080;
     private int port;
+    private boolean corsEnabled;
+    private boolean httpsEnabled;
     private String keystorePath;
     private String keystorePassword;
-    private boolean corsEnabled;
 
     public HttpEndpointConfig() {
         this.port = DEFAULT_PORT;
@@ -41,6 +42,26 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+
+    public boolean isCorsEnabled() {
+        return corsEnabled;
+    }
+
+
+    public void setCorsEnabled(boolean corsEnabled) {
+        this.corsEnabled = corsEnabled;
+    }
+
+
+    public boolean isHttpsEnabled() {
+        return httpsEnabled;
+    }
+
+
+    public void setHttpsEnabled(boolean httpsEnabled) {
+        this.httpsEnabled = httpsEnabled;
     }
 
 
@@ -73,13 +94,17 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
             return false;
         }
         HttpEndpointConfig that = (HttpEndpointConfig) o;
-        return Objects.equals(port, that.port);
+        return Objects.equals(port, that.port)
+                && Objects.equals(corsEnabled, that.corsEnabled)
+                && Objects.equals(httpsEnabled, that.httpsEnabled)
+                && Objects.equals(keystorePath, that.keystorePath)
+                && Objects.equals(keystorePassword, that.keystorePassword);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(port);
+        return Objects.hash(port, corsEnabled, httpsEnabled, keystorePath, keystorePassword);
     }
 
 
@@ -97,6 +122,12 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
 
         public B cors(boolean value) {
             getBuildingInstance().setCorsEnabled(value);
+            return getSelf();
+        }
+
+
+        public B https(boolean value) {
+            getBuildingInstance().setHttpsEnabled(value);
             return getSelf();
         }
 
@@ -127,12 +158,4 @@ public class HttpEndpointConfig extends EndpointConfig<HttpEndpoint> {
         }
     }
 
-    public boolean isCorsEnabled() {
-        return corsEnabled;
-    }
-
-
-    public void setCorsEnabled(boolean corsEnabled) {
-        this.corsEnabled = corsEnabled;
-    }
 }
