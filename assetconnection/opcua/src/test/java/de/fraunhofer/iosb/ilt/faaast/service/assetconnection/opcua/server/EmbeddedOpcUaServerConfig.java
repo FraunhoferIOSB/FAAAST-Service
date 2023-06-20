@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
 import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.cert.X509Certificate;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.eclipse.milo.opcua.stack.core.transport.TransportProfile;
-import org.junit.Assert;
 
 
 /**
@@ -161,7 +159,6 @@ public class EmbeddedOpcUaServerConfig {
                 .filter(x -> !protocolPorts.containsKey(x))
                 .forEach(x -> protocolPorts.put(x, PortHelper.findFreePort()));
     }
-
 
 
     @Override
