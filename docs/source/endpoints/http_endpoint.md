@@ -15,8 +15,8 @@ For detailed information on the REST API see
 | port | Integer |  _optional_ The port to use, default: 8080 |
 | corsEnabled | Boolean | _optional_ If Cross-Origin Resource Sharing (CORS) should be enabled, typically required if you want to access the REST interface from any machine other than the one running FA³ST Service, default: false |
 | httpsEnabled | Boolean | _optional_ If true, the endpoint will only be available via HTTPS; if false, it will only be available via HTTP, default: false |
-| keystorePath | String | _optional_ The path to a keystore file to be used for HTTPS. If this value is not set and `httpsEnabled` is true, a self-signed certificate will be generated |
-| keystorePassword | MString | _optional_ The password file the keystore file provided by `keystorePath` |
+| keystorePath | String | _optional_ The path to a keystore file to be used for HTTPS. If this value is not set and `httpsEnabled` is true, a self-signed certificate is generated |
+| keystorePassword | String | _optional_ The password file the keystore file provided by `keystorePath` |
 
 ### Example
 
@@ -29,7 +29,7 @@ In order to use the HTTP Endpoint the configuration settings require to include 
 			"port": 8080,
 			"corsEnabled": true,
 			"httpsEnabled": true,
-			"keystorePath": "\tmp\my_keystore.jks",
+			"keystorePath": "/tmp/my_keystore.jks",
 			"keystorePassword": "my_password"
 		}
 	]
