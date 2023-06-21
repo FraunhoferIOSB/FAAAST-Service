@@ -27,9 +27,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.security.SSCHt
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import io.adminshell.aas.v3.model.Reference;
+import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.http.HttpClient;
+import java.security.GeneralSecurityException;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -95,20 +97,26 @@ public class HttpAssetConnection extends
 
     @Override
     protected void doConnect() throws AssetConnectionException {
-        HttpClient.Builder builder = HttpClient.newBuilder().sslContext(new SSCHttpConnection().createCustomSSLContext());
-        if (StringUtils.isNotBlank(config.getUsername())) {
-            builder = builder.authenticator(new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(
-                            config.getUsername(),
-                            config.getPassword() != null
-                                    ? config.getPassword().toCharArray()
-                                    : new char[0]);
-                }
-            });
+        try {
+            HttpClient.Builder builder = HttpClient.newBuilder()
+                    .sslContext(new SSCHttpConnection().createCustomSSLContext(config));
+            if (StringUtils.isNotBlank(config.getUsername())) {
+                builder = builder.authenticator(new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(
+                                config.getUsername(),
+                                config.getPassword() != null
+                                        ? config.getPassword().toCharArray()
+                                        : new char[0]);
+                    }
+                });
+            }
+            client = builder.build();
         }
-        client = builder.build();
+        catch (IOException | GeneralSecurityException e) {
+            throw new AssetConnectionException("error establishing HTTP asset connection", e);
+        }
     }
 
 
