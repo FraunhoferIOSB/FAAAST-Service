@@ -117,10 +117,10 @@
         <maven.plugin.shade.version>3.5.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.0</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.37.0</maven.plugin.spotless.version>
-        <milo.version>0.6.9</milo.version>
+        <milo.version>0.6.10</milo.version>
         <mockito.version>5.4.0</mockito.version>
         <moquette.version>0.15.2</moquette.version>
-        <netty.version>4.1.93.Final</netty.version>
+        <netty.version>4.1.94.Final</netty.version>
         <paho.version>1.2.5</paho.version>
         <picocli.version>4.7.4</picocli.version>
         <poi.ooxml.version>5.2.3</poi.ooxml.version>
