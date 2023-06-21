@@ -31,6 +31,7 @@ public class MessageBusMqttExternalTest extends AbstractMessageBusMqttTest<Serve
     protected MessageBusMqttConfig getBaseConfig() {
         return MessageBusMqttConfig.builder()
                 .internal(false)
+                .host(LOCALHOST)
                 .build();
     }
 

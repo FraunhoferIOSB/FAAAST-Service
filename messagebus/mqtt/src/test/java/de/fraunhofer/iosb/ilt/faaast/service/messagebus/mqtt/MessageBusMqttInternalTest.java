@@ -20,6 +20,7 @@ public class MessageBusMqttInternalTest extends AbstractMessageBusMqttTest<Void>
     protected MessageBusMqttConfig getBaseConfig() {
         return MessageBusMqttConfig.builder()
                 .internal(true)
+                .host("127.0.0.1")
                 .build();
     }
 
