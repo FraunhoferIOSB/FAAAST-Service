@@ -244,6 +244,8 @@ public class HttpsAssetConnectionTest {
                                         .template(template)
                                         .build())
                         .baseUrl(baseUrl)
+                        .keyStorePath("src/test/resources/certificates/faaast.keystore.jks")
+                        .keyStorePassword("changeit")
                         .build(),
                 serviceContext);
         awaitConnection(connection);
@@ -358,6 +360,8 @@ public class HttpsAssetConnectionTest {
                                         .payload(payload)
                                         .build())
                         .baseUrl(baseUrl)
+                        .keyStorePath("src/test/resources/certificates/faaast.keystore.jks")
+                        .keyStorePassword("changeit")
                         .build(),
                 serviceContext);
         awaitConnection(connection);
@@ -526,6 +530,8 @@ public class HttpsAssetConnectionTest {
                                         .template(template)
                                         .build())
                         .baseUrl(baseUrl)
+                        .keyStorePath("src/test/resources/certificates/faaast.keystore.jks")
+                        .keyStorePassword("changeit")
                         .build(),
                 serviceContext);
         awaitConnection(connection);
