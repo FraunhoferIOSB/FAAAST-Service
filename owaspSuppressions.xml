@@ -45,4 +45,17 @@
 		<vulnerabilityName>CVE-2020-8908</vulnerabilityName>
 	</suppress>
 	<!-- end: CVE-2020-8908 affected method com.google.common.io.Files#createTempDir not called in productive code including dependencies -->
+	<suppress base="true">
+		<notes><![CDATA[False positive, see https://github.com/FasterXML/woodstox/issues/173]]></notes>
+		<packageUrl regex="true">^pkg:maven/com\.sun\.xml\.bind\.jaxb/isorelax@.*$</packageUrl>
+		<cpe>cpe:/a:xml_library_project:xml_library</cpe>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[This CVE is a false positive according to the Jackson project maintainers. See https://github.com/FasterXML/jackson-databind/issues/3972]]></notes>
+		<cve>CVE-2023-35116</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[This CVE is only relevant when allowing creation of self-signed certificates with input from users which is not the case here. See https://github.com/bcgit/bc-java/wiki/CVE-2023-33201]]></notes>
+		<cve>CVE-2023-33201</cve>
+	</suppress>
 </suppressions>

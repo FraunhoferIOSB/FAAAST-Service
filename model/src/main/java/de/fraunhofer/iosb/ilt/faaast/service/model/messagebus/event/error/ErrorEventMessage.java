@@ -23,47 +23,35 @@ import java.util.Objects;
  */
 public class ErrorEventMessage extends EventMessage {
 
-    private Exception exception;
+    private String message;
 
-    private Class<?> throwingSource;
-
-    private ErrorLevel errorLevel;
+    private ErrorLevel level;
 
     /**
-     * Default Constructor creating ErrorEventMessage with errorLevel = Info.
+     * Default Constructor creating ErrorEventMessage with level = Info.
      */
     public ErrorEventMessage() {
-        this.errorLevel = ErrorLevel.INFO;
+        this.level = ErrorLevel.INFO;
     }
 
 
-    public Exception getException() {
-        return exception;
+    public String getMessage() {
+        return message;
     }
 
 
-    public void setException(Exception exception) {
-        this.exception = exception;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
 
-    public Class getThrowingSource() {
-        return throwingSource;
+    public ErrorLevel getLevel() {
+        return level;
     }
 
 
-    public void setThrowingSource(Class<?> throwingSource) {
-        this.throwingSource = throwingSource;
-    }
-
-
-    public ErrorLevel getErrorLevel() {
-        return errorLevel;
-    }
-
-
-    public void setErrorLevel(ErrorLevel errorLevel) {
-        this.errorLevel = errorLevel;
+    public void setLevel(ErrorLevel level) {
+        this.level = level;
     }
 
 
@@ -77,15 +65,14 @@ public class ErrorEventMessage extends EventMessage {
         }
         ErrorEventMessage that = (ErrorEventMessage) o;
         return super.equals(o)
-                && Objects.equals(exception, that.exception)
-                && Objects.equals(throwingSource, that.throwingSource)
-                && Objects.equals(errorLevel, that.errorLevel);
+                && Objects.equals(message, that.message)
+                && Objects.equals(level, that.level);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), exception, throwingSource, errorLevel);
+        return Objects.hash(super.hashCode(), message, level);
     }
 
 
@@ -95,20 +82,14 @@ public class ErrorEventMessage extends EventMessage {
 
     public abstract static class AbstractBuilder<T extends ErrorEventMessage, B extends AbstractBuilder<T, B>> extends EventMessage.AbstractBuilder<T, B> {
 
-        public B exception(Exception value) {
-            getBuildingInstance().setException(value);
-            return getSelf();
-        }
-
-
-        public B source(Class<?> value) {
-            getBuildingInstance().setThrowingSource(value);
+        public B message(String value) {
+            getBuildingInstance().setMessage(value);
             return getSelf();
         }
 
 
         public B level(ErrorLevel value) {
-            getBuildingInstance().setErrorLevel(value);
+            getBuildingInstance().setLevel(value);
             return getSelf();
         }
 
