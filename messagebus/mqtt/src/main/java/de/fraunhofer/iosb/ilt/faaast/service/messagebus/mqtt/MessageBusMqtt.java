@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 /**
  * MessageBusMqtt: Implements the external MessageBus interface subscribe/unsubscribe and publishes/dispatches
  * EventMessages.
@@ -53,10 +54,12 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
         deserializer = new JsonEventDeserializer();
     }
 
+
     @Override
     public MessageBusMqttConfig asConfig() {
         return config;
     }
+
 
     @Override
     public void init(CoreConfig coreConfig, MessageBusMqttConfig config, ServiceContext serviceContext) throws ConfigurationInitializationException {
@@ -67,27 +70,32 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
         client = new PahoClient(config);
     }
 
+
     @Override
     public void publish(EventMessage message) throws MessageBusException {
         try {
             Class<? extends EventMessage> messageType = message.getClass();
             client.publish(config.getTopicPrefix() + messageType.getSimpleName(), serializer.write(message));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new MessageBusException("Error publishing event via MQTT message bus", e);
         }
     }
+
 
     @Override
     public void start() throws MessageBusException {
         if (config.getUseInternalServer()) {
             try {
                 server.start();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 throw new MessageBusException("Error starting MQTT server for message bus", e);
             }
         }
         client.start();
     }
+
 
     @Override
     public void stop() {
@@ -97,21 +105,24 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
         }
     }
 
+
     @Override
     public SubscriptionId subscribe(SubscriptionInfo subscriptionInfo) {
         Ensure.requireNonNull(subscriptionInfo, "subscriptionInfo must be non-null");
         subscriptionInfo.getSubscribedEvents()
-                .forEach(x -> determineEvents((Class<? extends EventMessage>) x).stream().forEach(e -> client.subscribe(config.getTopicPrefix() + e.getSimpleName(), (t, message) -> {
-            EventMessage event = deserializer.read(message.toString(), e);
-            if (subscriptionInfo.getFilter().test(event.getElement())) {
-                subscriptionInfo.getHandler().accept(event);
-            }
-        })));
+                .forEach(x -> determineEvents((Class<? extends EventMessage>) x).stream()
+                        .forEach(e -> client.subscribe(config.getTopicPrefix() + e.getSimpleName(), (t, message) -> {
+                            EventMessage event = deserializer.read(message.toString(), e);
+                            if (subscriptionInfo.getFilter().test(event.getElement())) {
+                                subscriptionInfo.getHandler().accept(event);
+                            }
+                        })));
 
         SubscriptionId subscriptionId = new SubscriptionId();
         subscriptions.put(subscriptionId, subscriptionInfo);
         return subscriptionId;
     }
+
 
     private List<Class<EventMessage>> determineEvents(Class<? extends EventMessage> messageType) {
         try (ScanResult scanResult = new ClassGraph().acceptPackages("de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event")
@@ -121,7 +132,8 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
                         .getSubclasses(messageType.getName())
                         .filter(x -> !x.isAbstract())
                         .loadClasses(EventMessage.class);
-            } else {
+            }
+            else {
                 List<Class<EventMessage>> list = new ArrayList<>();
                 list.add((Class<EventMessage>) messageType);
                 return list;
@@ -129,15 +141,14 @@ public class MessageBusMqtt implements MessageBus<MessageBusMqttConfig> {
         }
     }
 
+
     @Override
     public void unsubscribe(SubscriptionId id) {
         SubscriptionInfo info = subscriptions.get(id);
         Ensure.requireNonNull(info.getSubscribedEvents(), "subscriptionInfo must be non-null");
-        subscriptions.get(id).getSubscribedEvents().stream().forEach(a
-                -> //find all events for given abstract or event
-                determineEvents((Class<? extends EventMessage>) a).stream().forEach(e
-                        -> //unsubscribe from all events
-                        client.unsubscribe(config.getTopicPrefix() + e.getSimpleName())));
+        subscriptions.get(id).getSubscribedEvents().stream().forEach(a -> //find all events for given abstract or event
+        determineEvents((Class<? extends EventMessage>) a).stream().forEach(e -> //unsubscribe from all events
+        client.unsubscribe(config.getTopicPrefix() + e.getSimpleName())));
         subscriptions.remove(id);
     }
 }

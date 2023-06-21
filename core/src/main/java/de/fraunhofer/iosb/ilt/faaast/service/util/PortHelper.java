@@ -12,20 +12,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.test.util;
+package de.fraunhofer.iosb.ilt.faaast.service.util;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import org.junit.Assert;
 
 
+/**
+ * Helps finding a random free port.
+ */
 public class PortHelper {
 
-    public static int findFreePort() throws IOException {
+    private static final String ERROR_MSG_FREE_PORT = "error finding random free port";
+
+    private PortHelper() {}
+
+
+    /**
+     * Returns a random free port.
+     *
+     * @return a free port
+     * @throws IllegalArgumentException if fails
+     */
+    public static int findFreePort() {
         try (ServerSocket serverSocket = new ServerSocket(0)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
+            Ensure.requireNonNull(serverSocket);
+            Ensure.require(serverSocket.getLocalPort() > 0, ERROR_MSG_FREE_PORT);
             return serverSocket.getLocalPort();
+        }
+        catch (IOException e) {
+            throw new IllegalArgumentException(ERROR_MSG_FREE_PORT, e);
         }
     }
 }

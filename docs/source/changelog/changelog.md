@@ -3,6 +3,8 @@
 ## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
 
 **New Features & Major Changes**
+* HTTP Endpoint
+	*   Now supports HTTPS
 *   MQTT-based MessagBus now available that can either start embedded MQTT server or use external one
 *   OPC UA Endpoint
 	*   Now supports configuring supported security policies (`NONE`, `BASIC128RSA15`, `BASIC256`, `BASIC256SHA256`, `AES128_SHA256_RSAOAEP`, `AES256_SHA256_RSAPSS`) and authentication methods (`Anonymous`, `UserName`, `Certificate`)

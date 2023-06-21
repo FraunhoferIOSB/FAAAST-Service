@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+
 /**
  * Configuration class for {@link MessageBusMqtt}.
  */
@@ -41,6 +42,7 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
     public static Builder builder() {
         return new Builder();
     }
+
     private String clientId;
     private String clientKeystorePassword;
     private String clientKeystorePath;
@@ -75,133 +77,166 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
         this.topicPrefix = DEFAULT_TOPIC_PREFIX;
     }
 
+
     public String getClientId() {
         return clientId;
     }
+
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }
 
+
     public String getClientKeystorePassword() {
         return clientKeystorePassword;
     }
+
 
     public void setClientKeystorePassword(String clientKeystorePassword) {
         this.clientKeystorePassword = clientKeystorePassword;
     }
 
+
     public String getClientKeystorePath() {
         return clientKeystorePath;
     }
+
 
     public void setClientKeystorePath(String clientKeystorePath) {
         this.clientKeystorePath = clientKeystorePath;
     }
 
+
     public String getHost() {
         return host;
     }
+
 
     public void setHost(String host) {
         this.host = host;
     }
 
+
     public String getPassword() {
         return password;
     }
+
 
     public void setPassword(String password) {
         this.password = password;
     }
 
+
     public int getPort() {
         return port;
     }
+
 
     public void setPort(int port) {
         this.port = port;
     }
 
+
     public String getServerKeystorePassword() {
         return serverKeystorePassword;
     }
+
 
     public void setServerKeystorePassword(String serverKeystorePassword) {
         this.serverKeystorePassword = serverKeystorePassword;
     }
 
+
     public String getServerKeystorePath() {
         return serverKeystorePath;
     }
+
 
     public void setServerKeystorePath(String serverKeystorePath) {
         this.serverKeystorePath = serverKeystorePath;
     }
 
+
     public int getSslPort() {
         return sslPort;
     }
+
 
     public void setSslPort(int sslPort) {
         this.sslPort = sslPort;
     }
 
+
     public int getSslWebsocketPort() {
         return sslWebsocketPort;
     }
+
 
     public void setSslWebsocketPort(int sslWebsocketPort) {
         this.sslWebsocketPort = sslWebsocketPort;
     }
 
+
     public String getTopicPrefix() {
         return topicPrefix;
     }
+
 
     public void setTopicPrefix(String topicPrefix) {
         this.topicPrefix = topicPrefix;
     }
 
+
     public boolean getUseInternalServer() {
         return useInternalServer;
     }
+
 
     public void setUseInternalServer(boolean useInternalServer) {
         this.useInternalServer = useInternalServer;
     }
 
+
     public boolean getUseWebsocket() {
         return useWebsocket;
     }
+
 
     public void setUseWebsocket(boolean useWebsocket) {
         this.useWebsocket = useWebsocket;
     }
 
+
     public String getUsername() {
         return username;
     }
+
 
     public void setUsername(String username) {
         this.username = username;
     }
 
+
     public Map<String, String> getUsers() {
         return users;
     }
+
 
     public void setUsers(Map<String, String> users) {
         this.users = users;
     }
 
+
     public int getWebsocketPort() {
         return websocketPort;
     }
 
+
     public void setWebsocketPort(int websocketPort) {
         this.websocketPort = websocketPort;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -231,6 +266,7 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
 
     }
 
+
     @Override
     public int hashCode() {
         return Objects.hash(useInternalServer,
@@ -257,6 +293,7 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
         protected Builder getSelf() {
             return this;
         }
+
 
         @Override
         protected MessageBusMqttConfig newBuildingInstance() {
@@ -287,85 +324,102 @@ public class MessageBusMqttConfig extends MessageBusConfig<MessageBusMqtt> {
             return getSelf();
         }
 
+
         public B internal(boolean value) {
             getBuildingInstance().setUseInternalServer(value);
             return getSelf();
         }
+
 
         public B port(int value) {
             getBuildingInstance().setPort(value);
             return getSelf();
         }
 
+
         public B sslPort(int value) {
             getBuildingInstance().setSslPort(value);
             return getSelf();
         }
+
 
         public B host(String value) {
             getBuildingInstance().setHost(value);
             return getSelf();
         }
 
+
         public B websocketPort(int value) {
             getBuildingInstance().setWebsocketPort(value);
             return getSelf();
         }
+
 
         public B sslWebsocketPort(int value) {
             getBuildingInstance().setSslWebsocketPort(value);
             return getSelf();
         }
 
+
         public B useWebsocket(boolean useWebsocket) {
             getBuildingInstance().setUseWebsocket(useWebsocket);
             return getSelf();
         }
+
 
         public B serverKeystorePassword(String value) {
             getBuildingInstance().setServerKeystorePassword(value);
             return getSelf();
         }
 
+
         public B clientKeystorePassword(String value) {
             getBuildingInstance().setClientKeystorePassword(value);
             return getSelf();
         }
+
 
         public B serverKeystorePath(String value) {
             getBuildingInstance().setServerKeystorePath(value);
             return getSelf();
         }
 
+
         public B clientKeystorePath(String value) {
             getBuildingInstance().setClientKeystorePath(value);
             return getSelf();
         }
+
 
         public B username(String value) {
             getBuildingInstance().setUsername(value);
             return getSelf();
         }
 
+
         public B password(String value) {
             getBuildingInstance().setPassword(value);
             return getSelf();
         }
+
 
         public B users(Map<String, String> value) {
             getBuildingInstance().setUsers(value);
             return getSelf();
         }
 
+
         public B user(String username, String password) {
             getBuildingInstance().getUsers().put(username, password);
             return getSelf();
         }
 
+
         public B clientId(String value) {
             getBuildingInstance().setClientId(value);
             return getSelf();
         }
+
 
         public B topicPrefix(String value) {
             getBuildingInstance().setTopicPrefix(value);

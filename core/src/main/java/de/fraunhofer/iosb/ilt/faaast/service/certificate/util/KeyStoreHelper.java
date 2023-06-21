@@ -12,11 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util;
+package de.fraunhofer.iosb.ilt.faaast.service.certificate.util;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.CertificateData;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.CertificateInformation;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.HostnameUtil;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,23 +36,54 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Objects;
-import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateBuilder;
-import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateGenerator;
 
 
 /**
  * Helper class for reading PCKS12 keystores.
  */
-public class KeystoreHelper {
+public class KeyStoreHelper {
 
-    private static final String KEYSTORE_TYPE = "PKCS12";
-    private static final String DEFAULT_ALIAS = "faaast";
+    public static final String KEYSTORE_TYPE = "PKCS12";
+    public static final String DEFAULT_ALIAS = "faaast";
 
     /**
      * Hide the implicit public constructor.
      */
-    private KeystoreHelper() {
+    private KeyStoreHelper() {
 
+    }
+
+
+    /**
+     * Create a key store of type {@code KEYSTORE_TYPE} with the given certificate data.
+     *
+     * @param certificateData the certificate data to use
+     * @param password the password to use
+     * @return a key store containing the given certificate data
+     * @throws IOException if creation of the key store fails
+     * @throws GeneralSecurityException if creation of the key store fails
+     */
+    public static KeyStore createKeyStore(CertificateData certificateData, String password) throws IOException, GeneralSecurityException {
+        return createKeyStore(KEYSTORE_TYPE, certificateData, password);
+    }
+
+
+    /**
+     * Create a key store of given type with the given certificate data.
+     *
+     * @param keyStoreType the type of key store to create
+     * @param certificateData the certificate data to use
+     * @param password the password to use
+     * @return a key store containing the given certificate data
+     * @throws IOException if creation of the key store fails
+     * @throws GeneralSecurityException if creation of the key store fails
+     */
+    public static KeyStore createKeyStore(String keyStoreType, CertificateData certificateData, String password) throws IOException, GeneralSecurityException {
+        KeyStore result = KeyStore.getInstance(keyStoreType);
+        result.load(null, passwordToChar(password));
+        result.setCertificateEntry(DEFAULT_ALIAS, certificateData.getCertificate());
+        result.setKeyEntry(DEFAULT_ALIAS, certificateData.getKeyPair().getPrivate(), passwordToChar(password), certificateData.getCertificateChain());
+        return result;
     }
 
 
@@ -65,12 +97,23 @@ public class KeystoreHelper {
      * @throws GeneralSecurityException if generating the certificate fails
      */
     public static void save(File file, CertificateData certificateData, String password) throws IOException, GeneralSecurityException {
-        KeyStore keystore = KeyStore.getInstance(KEYSTORE_TYPE);
-        keystore.load(null, passwordToChar(password));
-        keystore.setCertificateEntry(DEFAULT_ALIAS, certificateData.getCertificate());
-        keystore.setKeyEntry(DEFAULT_ALIAS, certificateData.getKeyPair().getPrivate(), passwordToChar(password), certificateData.getCertificateChain());
+        save(file, createKeyStore(certificateData, password), password);
+    }
+
+
+    /**
+     * Save the given key store to file.
+     *
+     * @param file the file to write to
+     * @param keyStore the key store to save
+     * @param password the password to set
+     * @throws IOException if writing to the file fails
+     * @throws GeneralSecurityException if generating the certificate fails
+     */
+    public static void save(File file, KeyStore keyStore, String password) throws IOException, GeneralSecurityException {
+        Ensure.requireNonNull(keyStore, "keyStore must be non-null");
         try (OutputStream out = new FileOutputStream(file)) {
-            keystore.store(out, passwordToChar(password));
+            keyStore.store(out, passwordToChar(password));
         }
     }
 
@@ -99,14 +142,14 @@ public class KeystoreHelper {
                 .setLocalityName(certificateInformation.getLocalityName())
                 .setCountryCode(certificateInformation.getCountryCode())
                 .setApplicationUri(certificateInformation.getApplicationUri());
-        certificateInformation.getDnsNames().forEach(builder::addDnsName);
-        certificateInformation.getIpAddresses().forEach(builder::addIpAddress);
-
         // if no DNS & IP info available use localhost & 127.0.0.1
         if (certificateInformation.getDnsNames().isEmpty() && certificateInformation.getIpAddresses().isEmpty()) {
-            builder.addDnsName(OpcUaConstants.DNS_LOCALHOST);
-            builder.addIpAddress(OpcUaConstants.IP_LOCALHOST);
+            certificateInformation.autodetectDnsAndIp();
+            builder.addDnsName(HostnameUtil.LOCALHOST);
+            builder.addIpAddress(HostnameUtil.LOCALHOST_IP);
         }
+        certificateInformation.getDnsNames().forEach(builder::addDnsName);
+        certificateInformation.getIpAddresses().forEach(builder::addIpAddress);
         try {
             X509Certificate certificate = builder.build();
             result.setCertificate(certificate);
