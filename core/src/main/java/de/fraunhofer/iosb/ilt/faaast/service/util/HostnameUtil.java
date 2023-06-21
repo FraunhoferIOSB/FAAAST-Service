@@ -48,7 +48,7 @@ public class HostnameUtil {
             return InetAddress.getLocalHost().getHostName();
         }
         catch (UnknownHostException e) {
-            return "localhost";
+            return LOCALHOST;
         }
     }
 
