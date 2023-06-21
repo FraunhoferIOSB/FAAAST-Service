@@ -26,16 +26,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.conf
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.provider.config.OpcUaValueProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.CertificateData;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.EmbeddedOpcUaServer;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.EmbeddedOpcUaServerConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.EndpointSecurityConfiguration;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.server.Protocol;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.KeystoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaConstants;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.OpcUaHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util.SecurityPathHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationException;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
@@ -449,7 +449,7 @@ public class OpcUaAssetConnectionTest {
 
 
     private static CertificateData loadServerApplicationCertificate() throws IOException, GeneralSecurityException {
-        return KeystoreHelper.load(
+        return KeyStoreHelper.load(
                 Thread.currentThread().getContextClassLoader().getResourceAsStream(SERVER_APPLICATION_CERTIFICATE_FILE),
                 SERVER_APPLICATION_CERTIFICATE_PASSWORD);
     }
@@ -827,9 +827,8 @@ public class OpcUaAssetConnectionTest {
 
         // copy client certificate to server
         Files.createDirectories(SecurityPathHelper.trustedAllowed(server.getConfig().getSecurityBaseDir()));
-        Files.write(
-                SecurityPathHelper.trustedAllowed(server.getConfig().getSecurityBaseDir()).resolve("client.cer"),
-                KeystoreHelper
+        Files.write(SecurityPathHelper.trustedAllowed(server.getConfig().getSecurityBaseDir()).resolve("client.cer"),
+                KeyStoreHelper
                         .loadOrDefault(
                                 Thread.currentThread().getContextClassLoader().getResourceAsStream(CLIENT_APPLICATION_CERTIFICATE_FILE),
                                 CLIENT_APPLICATION_CERTIFICATE_PASSWORD,
@@ -845,9 +844,8 @@ public class OpcUaAssetConnectionTest {
                 .resolve("../../src/test/resources/")
                 .resolve(filename)
                 .toFile();
-        KeystoreHelper.save(
-                file,
-                KeystoreHelper.generateSelfSigned(certificateInformation),
+        KeyStoreHelper.save(file,
+                KeyStoreHelper.generateSelfSigned(certificateInformation),
                 password);
         Assert.assertTrue(file.exists());
     }

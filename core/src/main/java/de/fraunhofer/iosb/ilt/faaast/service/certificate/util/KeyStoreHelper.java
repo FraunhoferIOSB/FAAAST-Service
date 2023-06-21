@@ -12,11 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util;
+package de.fraunhofer.iosb.ilt.faaast.service.certificate.util;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.CertificateData;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.CertificateInformation;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.HostnameUtil;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,22 +36,20 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Objects;
-import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateBuilder;
-import org.eclipse.milo.opcua.stack.core.util.SelfSignedCertificateGenerator;
 
 
 /**
  * Helper class for reading PCKS12 keystores.
  */
-public class KeystoreHelper {
+public class KeyStoreHelper {
 
-    private static final String KEYSTORE_TYPE = "PKCS12";
-    private static final String DEFAULT_ALIAS = "faaast";
+    public static final String KEYSTORE_TYPE = "PKCS12";
+    public static final String DEFAULT_ALIAS = "faaast";
 
     /**
      * Hide the implicit public constructor.
      */
-    private KeystoreHelper() {
+    private KeyStoreHelper() {
 
     }
 
@@ -99,14 +98,14 @@ public class KeystoreHelper {
                 .setLocalityName(certificateInformation.getLocalityName())
                 .setCountryCode(certificateInformation.getCountryCode())
                 .setApplicationUri(certificateInformation.getApplicationUri());
-        certificateInformation.getDnsNames().forEach(builder::addDnsName);
-        certificateInformation.getIpAddresses().forEach(builder::addIpAddress);
-
         // if no DNS & IP info available use localhost & 127.0.0.1
         if (certificateInformation.getDnsNames().isEmpty() && certificateInformation.getIpAddresses().isEmpty()) {
-            builder.addDnsName(OpcUaConstants.DNS_LOCALHOST);
-            builder.addIpAddress(OpcUaConstants.IP_LOCALHOST);
+            certificateInformation.autodetectDnsAndIp();
+            builder.addDnsName(HostnameUtil.LOCALHOST);
+            builder.addIpAddress(HostnameUtil.LOCALHOST_IP);
         }
+        certificateInformation.getDnsNames().forEach(builder::addDnsName);
+        certificateInformation.getIpAddresses().forEach(builder::addIpAddress);
         try {
             X509Certificate certificate = builder.build();
             result.setCertificate(certificate);

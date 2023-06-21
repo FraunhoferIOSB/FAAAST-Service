@@ -41,6 +41,7 @@ General <architecture/architecture.md>
 :hidden:
 :caption: Endpoints
 :maxdepth: 3
+General <endpoints/endpoint.md>
 HTTP <endpoints/http_endpoint.md>
 OPC UA <endpoints/opcua_endpoint.md>
 ```
