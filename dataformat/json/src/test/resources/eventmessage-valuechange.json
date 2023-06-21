@@ -1,0 +1,30 @@
+{
+    "@type": "ValueChangeEvent",
+    "element":
+    {
+        "keys": [
+            {
+                "idType": "Iri",
+                "type": "Submodel",
+                "value": "http://example.org/submodel"
+            },
+            {
+                "idType": "IdShort",
+                "type": "Property",
+                "value": "property"
+            }
+        ]
+    },
+    "oldValue":
+    {
+        "modelType": "Property",
+        "dataType": "int",
+        "value": 1
+    },
+    "newValue":
+    {
+        "modelType": "Property",
+        "dataType": "double",
+        "value": 3.14
+    }
+}

@@ -12,13 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
+package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.*;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import java.io.IOException;
+import java.util.Map;
 
 
 /**
@@ -37,10 +40,16 @@ public class SubmodelElementCollectionValueDeserializer extends ContextAwareElem
 
 
     @Override
-    public SubmodelElementCollectionValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException {
+    public SubmodelElementCollectionValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException, JacksonException {
         return new SubmodelElementCollectionValue.Builder()
                 .values(deserializeChildren(node, context, ElementValue.class))
                 .build();
+    }
+
+
+    @Override
+    protected <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) throws IOException {
+        return EventDeserializationHelper.deserializeChildren(node, context, type);
     }
 
 }

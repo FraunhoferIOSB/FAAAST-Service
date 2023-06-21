@@ -12,35 +12,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer;
+package de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.event;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
+import de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.ElementValue;
-import de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue;
 import java.io.IOException;
+import java.util.Map;
 
 
 /**
- * Deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.SubmodelElementCollectionValue}.
+ * Deserializer for {@link de.fraunhofer.iosb.ilt.faaast.service.model.value.AnnotatedRelationshipElementValue}.
  */
-public class SubmodelElementCollectionValueDeserializer extends ContextAwareElementValueDeserializer<SubmodelElementCollectionValue> {
+public class AnnotatedRelationshipElementValueDeserializer
+        extends de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.deserializer.AnnotatedRelationshipElementValueDeserializer {
 
-    public SubmodelElementCollectionValueDeserializer() {
+    public AnnotatedRelationshipElementValueDeserializer() {
         this(null);
     }
 
 
-    public SubmodelElementCollectionValueDeserializer(Class<SubmodelElementCollectionValue> type) {
+    public AnnotatedRelationshipElementValueDeserializer(Class<AnnotatedRelationshipElementValue> type) {
         super(type);
     }
 
 
     @Override
-    public SubmodelElementCollectionValue deserializeValue(JsonNode node, DeserializationContext context) throws IOException {
-        return new SubmodelElementCollectionValue.Builder()
-                .values(deserializeChildren(node, context, ElementValue.class))
-                .build();
+    protected <T extends ElementValue> Map<String, T> deserializeChildren(JsonNode node, DeserializationContext context, Class<T> type) throws IOException {
+        return EventDeserializationHelper.deserializeChildren(node, context, type);
     }
 
 }

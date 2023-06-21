@@ -7,22 +7,16 @@
         <version>0.6.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
-    <artifactId>assetconnection-mqtt</artifactId>
-    <name>assetconnection-mqtt</name>
-    <description>MQTT Asset Connection implementation of the FA³ST Service.</description>
+    <artifactId>messagebus-mqtt</artifactId>
+    <name>messagebus-mqtt</name>
+    <description>MQTT MessageBus implementation of the FA³ST Service.</description>
     <properties>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>assetconnection-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>dataformat-json</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -31,10 +25,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.valfirst</groupId>
-            <artifactId>slf4j-test</artifactId>
-            <version>${slf4j.test.version}</version>
-            <scope>test</scope>
+            <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.fraunhofer.iosb.io.moquette</groupId>
@@ -65,13 +58,29 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>io.admin-shell.aas</groupId>
-            <artifactId>dataformat-core</artifactId>
-            <version>${aas.dataformat.version}</version>
+            <groupId>de.fraunhofer.iosb.io.moquette</groupId>
+            <artifactId>moquette-broker</artifactId>
+            <version>${moquette.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-simple</artifactId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2-mvstore</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.bugsnag</groupId>
+                    <artifactId>bugsnag</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.librato.metrics</groupId>
+                    <artifactId>librato-java</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -87,51 +96,34 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+            <version>${classgraph.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
             <version>${netty.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
             <version>${netty.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http</artifactId>
             <version>${netty.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-mqtt</artifactId>
             <version>${netty.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-common</artifactId>
             <version>${netty.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>nl.jqno.equalsverifier</groupId>
-            <artifactId>equalsverifier</artifactId>
-            <version>${equalsverifier.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons.lang3.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <version>${awaitility.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.paho</groupId>
@@ -145,36 +137,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.skyscreamer</groupId>
-            <artifactId>jsonassert</artifactId>
-            <version>${jsonassert.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>uk.org.lidalia</groupId>
-            <artifactId>lidalia-slf4j-ext</artifactId>
-            <version>${slf4j.ext.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray</id>
-            <url>https://jcenter.bintray.com</url>
-        </repository>
-    </repositories>
     <build>
         <plugins>
             <plugin>

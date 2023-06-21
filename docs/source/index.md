@@ -67,6 +67,15 @@ File-based <persistences/file_persistence.md>
 
 ```{toctree}
 :hidden:
+:caption: MessageBus
+:maxdepth: 3
+General <messagebus/messagebus.md>
+Internal <messagebus/internal_messagebus.md>
+MQTT <messagebus/mqtt_messagebus.md>
+```
+
+```{toctree}
+:hidden:
 :caption: Examples
 :maxdepth: 3
 Custom Asset Connection <examples/assetconnection-custom.md>
