@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.HostnameUtil;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -33,6 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Objects;
@@ -58,9 +60,9 @@ public class KeyStoreHelper {
      * Create a key store of type {@code KEYSTORE_TYPE} with the given certificate data.
      *
      * @param certificateData the certificate data to use
-     * @param password the password to use
+     * @param password        the password to use
      * @return a key store containing the given certificate data
-     * @throws IOException if creation of the key store fails
+     * @throws IOException              if creation of the key store fails
      * @throws GeneralSecurityException if creation of the key store fails
      */
     public static KeyStore createKeyStore(CertificateData certificateData, String password) throws IOException, GeneralSecurityException {
@@ -71,11 +73,11 @@ public class KeyStoreHelper {
     /**
      * Create a key store of given type with the given certificate data.
      *
-     * @param keyStoreType the type of key store to create
+     * @param keyStoreType    the type of key store to create
      * @param certificateData the certificate data to use
-     * @param password the password to use
+     * @param password        the password to use
      * @return a key store containing the given certificate data
-     * @throws IOException if creation of the key store fails
+     * @throws IOException              if creation of the key store fails
      * @throws GeneralSecurityException if creation of the key store fails
      */
     public static KeyStore createKeyStore(String keyStoreType, CertificateData certificateData, String password) throws IOException, GeneralSecurityException {
@@ -90,10 +92,10 @@ public class KeyStoreHelper {
     /**
      * Save the given file to the key store.
      *
-     * @param file the file to write to
+     * @param file            the file to write to
      * @param certificateData the certificate data
-     * @param password the password to set
-     * @throws IOException if writing to the file fails
+     * @param password        the password to set
+     * @throws IOException              if writing to the file fails
      * @throws GeneralSecurityException if generating the certificate fails
      */
     public static void save(File file, CertificateData certificateData, String password) throws IOException, GeneralSecurityException {
@@ -104,10 +106,10 @@ public class KeyStoreHelper {
     /**
      * Save the given key store to file.
      *
-     * @param file the file to write to
+     * @param file     the file to write to
      * @param keyStore the key store to save
      * @param password the password to set
-     * @throws IOException if writing to the file fails
+     * @throws IOException              if writing to the file fails
      * @throws GeneralSecurityException if generating the certificate fails
      */
     public static void save(File file, KeyStore keyStore, String password) throws IOException, GeneralSecurityException {
@@ -128,7 +130,7 @@ public class KeyStoreHelper {
      *
      * @param certificateInformation the certificate informatino to use
      * @return a self-signed certificate
-     * @throws KeyStoreException if generating certificate failed
+     * @throws KeyStoreException        if generating certificate failed
      * @throws NoSuchAlgorithmException if generating private/public key pair fails due to missing algorithm
      */
     public static CertificateData generateSelfSigned(CertificateInformation certificateInformation) throws KeyStoreException, NoSuchAlgorithmException {
@@ -153,11 +155,10 @@ public class KeyStoreHelper {
         try {
             X509Certificate certificate = builder.build();
             result.setCertificate(certificate);
-            result.setCertificateChain(new X509Certificate[] {
+            result.setCertificateChain(new X509Certificate[]{
                     certificate
             });
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new KeyStoreException("generating certificate failed", e);
         }
         return result;
@@ -167,14 +168,14 @@ public class KeyStoreHelper {
     /**
      * Loads relevant data for OPC UA from a key store or generates new one if it does not exist.
      *
-     * @param file the keystore file
-     * @param password the password to use
+     * @param file                   the keystore file
+     * @param password               the password to use
      * @param certificateInformation certificate information used when creating a new key store
      * @return relevant information from the key store
-     * @throws java.io.IOException if file access fails
+     * @throws java.io.IOException                    if file access fails
      * @throws java.security.GeneralSecurityException if reading/writing/generating certificate information fails
-     * @throws IllegalArgumentException if file or alias is null or file does not exist and certificateInformation is
-     *             null
+     * @throws IllegalArgumentException               if file or alias is null or file does not exist and certificateInformation is
+     *                                                null
      */
     public static CertificateData loadOrCreate(File file, String password, CertificateInformation certificateInformation)
             throws IOException,
@@ -194,13 +195,13 @@ public class KeyStoreHelper {
     /**
      * Loads relevant data for OPC UA from a key store or generates new one if it does not exist.
      *
-     * @param file the keystore file
+     * @param file     the keystore file
      * @param password the password to use
      * @return relevant information from the key store
-     * @throws java.io.IOException if file access fails
+     * @throws java.io.IOException                    if file access fails
      * @throws java.security.GeneralSecurityException if reading/writing/generating certificate information fails
-     * @throws IllegalArgumentException if file or alias is null or file does not exist and certificateInformation is
-     *             null
+     * @throws IllegalArgumentException               if file or alias is null or file does not exist and certificateInformation is
+     *                                                null
      */
     public static CertificateData load(File file, String password)
             throws IOException,
@@ -215,13 +216,31 @@ public class KeyStoreHelper {
     /**
      * Loads certificate data from a PKCS12 keystore.
      *
+     * @param file keystore file
+     * @param password keystore password
+     * @return loaded keyStore
+     * @throws IOException  if accessing the keystore fails
+     * @throws GeneralSecurityException if reading/writing/generating certificate information fails
+     */
+    public static KeyStore loadKeyStore(File file, String password) throws IOException, GeneralSecurityException {
+        try (InputStream inputStream = new FileInputStream(file)) {
+            KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
+            keyStore.load(inputStream, passwordToChar(password));
+            return keyStore;
+        }
+    }
+
+
+    /**
+     * Loads certificate data from a PKCS12 keystore.
+     *
      * @param keystoreInputStream input stream containing the keystore. If it is null, new certificate data willl be
-     *            generated.
-     * @param password the password to use
+     *                            generated.
+     * @param password            the password to use
      * @return certificate data contained in the keystore
-     * @throws java.io.IOException if accessing the keystore fails
+     * @throws java.io.IOException                    if accessing the keystore fails
      * @throws java.security.GeneralSecurityException if reading/writing/generating certificate information fails
-     * @throws IllegalArgumentException input stream of keystore is null
+     * @throws IllegalArgumentException               input stream of keystore is null
      */
     public static CertificateData load(InputStream keystoreInputStream, String password)
             throws IOException,
@@ -258,15 +277,15 @@ public class KeyStoreHelper {
     /**
      * Gets relevant data for OPC UA from a key store or generates new one if it does not exist.
      *
-     * @param keystoreInputStream input stream containing the keystore. If it is null, new certificate data willl be
-     *            generated.
-     * @param password the password to use
+     * @param keystoreInputStream    input stream containing the keystore. If it is null, new certificate data willl be
+     *                               generated.
+     * @param password               the password to use
      * @param certificateInformation certificate information used when creating a new key store
      * @return relevant information from the key store
-     * @throws java.io.IOException if file access fails
+     * @throws java.io.IOException                    if file access fails
      * @throws java.security.GeneralSecurityException if reading/writing/generating certificate information fails
-     * @throws IllegalArgumentException if file or alias is null or file does not exist and certificateInformation is
-     *             null
+     * @throws IllegalArgumentException               if file or alias is null or file does not exist and certificateInformation is
+     *                                                null
      */
     public static CertificateData loadOrDefault(InputStream keystoreInputStream, String password, CertificateInformation certificateInformation)
             throws IOException,
