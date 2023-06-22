@@ -34,7 +34,7 @@ import javax.net.ssl.X509TrustManager;
  * Handle self-signed certificates. Identify self-signed certificates by checking the given certificate against a list
  * of CA's and allow self-signed certificates to be authorized.
  */
-public class SSCHttpConnection {
+public class SelfSignedCertificateHandler {
 
     private final List<X509Certificate> trustedCertificates = new ArrayList<>();
 

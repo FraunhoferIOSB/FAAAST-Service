@@ -23,7 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.HttpV
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpOperationProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpSubscriptionProviderConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.provider.config.HttpValueProviderConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.security.SSCHttpConnection;
+import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.security.SelfSignedCertificateHandler;
 import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import io.adminshell.aas.v3.model.Reference;
@@ -99,7 +99,7 @@ public class HttpAssetConnection extends
     protected void doConnect() throws AssetConnectionException {
         try {
             HttpClient.Builder builder = HttpClient.newBuilder()
-                    .sslContext(new SSCHttpConnection().createCustomSSLContext(config));
+                    .sslContext(new SelfSignedCertificateHandler().createCustomSSLContext(config));
             if (StringUtils.isNotBlank(config.getUsername())) {
                 builder = builder.authenticator(new Authenticator() {
                     @Override
