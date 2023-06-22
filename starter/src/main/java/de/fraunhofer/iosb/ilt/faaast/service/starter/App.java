@@ -21,8 +21,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
+import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import de.fraunhofer.iosb.ilt.faaast.service.Service;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.DeserializationException;
@@ -104,6 +110,12 @@ public class App implements Runnable {
     // model
     protected static final String MODEL_FILENAME_DEFAULT = "aasenvironment.*";
     protected static final String MODEL_FILENAME_PATTERN = "aasenvironment\\..*";
+    private static final Configuration JSON_PATH_CONFIG = Configuration
+            .builder()
+            .mappingProvider(new JacksonMappingProvider())
+            .jsonProvider(new JacksonJsonNodeJsonProvider())
+            .build()
+            .addOptions(com.jayway.jsonpath.Option.SUPPRESS_EXCEPTIONS);
 
     @Option(names = "--no-autoCompleteConfig", negatable = true, description = "Autocompletes the configuration with default values for required configuration sections. True by default")
     public boolean autoCompleteConfiguration = true;
@@ -310,7 +322,7 @@ public class App implements Runnable {
             throw new InitializationException("Adding endpoints to config failed", e);
         }
         try {
-            config = ServiceConfigHelper.withProperties(config, getConfigOverrides());
+            config = ServiceConfigHelper.withProperties(config, getConfigOverrides(config));
         }
         catch (JsonProcessingException e) {
             throw new InitializationException("Overriding config properties failed", e);
@@ -529,7 +541,7 @@ public class App implements Runnable {
                 .filter(x -> x.getKey().startsWith(ENV_CONFIG_EXTENSION_PREFIX))
                 .filter(x -> !properties.containsKey(x.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length() - 1)))
                 .collect(Collectors.toMap(
-                        x -> x.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length()).replace(ENV_PATH_SEPERATOR, "."),
+                        x -> x.getKey().substring(ENV_CONFIG_EXTENSION_PREFIX.length()),
                         Entry::getValue));
         Map<String, String> result = new HashMap<>(envParameters);
         for (var property: properties.entrySet()) {
@@ -556,6 +568,33 @@ public class App implements Runnable {
         }
         return result;
     }
+
+    protected Map<String, String> getConfigOverrides(ServiceConfig config) {
+        return removeSeparators(config, getConfigOverrides());
+    }
+
+    private Map<String, String> removeSeparators(ServiceConfig config, Map<String, String> configOverrides) {
+        Map<String, String> result = new HashMap<String, String>();
+
+        DocumentContext document = JsonPath.using(JSON_PATH_CONFIG).parse(mapper.valueToTree(config));
+        configOverrides.forEach((k, v) -> {
+            String[] pathParts = k.split(ENV_PATH_SEPERATOR);
+            String jsonPath = String.format("$.%s", pathParts[0]);
+            JsonNode node = document.read(jsonPath);
+            boolean lastFailed = node == null;
+            String newKey = pathParts[0];
+            for (int i = 1; i < pathParts.length; i++) {
+                String separator = lastFailed ? "_" : ".";
+                jsonPath = String.format("$.%s%s%s", newKey, separator, pathParts[i]);
+                node = document.read(jsonPath);
+                lastFailed = node == null;
+                newKey += separator + pathParts[i];
+            }
+            result.put(newKey, v);
+        });
+        return result;
+    }
+
 
     /**
      * Provides version information from properies.
