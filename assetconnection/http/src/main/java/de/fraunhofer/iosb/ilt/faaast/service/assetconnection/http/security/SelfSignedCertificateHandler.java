@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.security;
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http.HttpAssetConnectionConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
-
 import java.io.File;
 import java.io.IOException;
 import java.security.*;
@@ -43,18 +42,19 @@ public class SelfSignedCertificateHandler {
      *
      * @param config the configuration
      * @return the SSL contenxt
-     * @throws IOException              if reading keyStore fails
+     * @throws IOException if reading keyStore fails
      * @throws GeneralSecurityException if reading keyStore fails
      */
     public SSLContext createCustomSSLContext(HttpAssetConnectionConfig config) throws IOException, GeneralSecurityException {
         loadTrustedCertificates(config);
         try {
             SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[]{
+            sslContext.init(null, new TrustManager[] {
                     new CustomTrustManager()
             }, new SecureRandom());
             return sslContext;
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+        }
+        catch (NoSuchAlgorithmException | KeyManagementException e) {
             throw new RuntimeException(e);
         }
     }
@@ -99,10 +99,6 @@ public class SelfSignedCertificateHandler {
 
         @Override
         public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            // load truststore from config
-            // check if cert is present in truststore
-            // if not, call default implementation
-
             if (chain.length == 1 && trustedCertificates.contains(chain[0])) {
                 return;
             }
