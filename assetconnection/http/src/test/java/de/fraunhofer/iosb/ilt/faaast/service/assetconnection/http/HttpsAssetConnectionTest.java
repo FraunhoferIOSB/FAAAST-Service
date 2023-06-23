@@ -73,7 +73,7 @@ public class HttpsAssetConnectionTest {
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(options()
             .dynamicHttpsPort()
-            .keystorePath("src/test/resources/certificates/faaast.keystore.jks")
+            .keystorePath("src/test/resources/certificates/faaast.keystore.p12")
             .keystorePassword("changeit"));
 
     private static final long DEFAULT_TIMEOUT = 10000;
@@ -244,7 +244,7 @@ public class HttpsAssetConnectionTest {
                                         .template(template)
                                         .build())
                         .baseUrl(baseUrl)
-                        .keyStorePath("src/test/resources/certificates/faaast.keystore.jks")
+                        .keyStorePath("src/test/resources/certificates/faaast.keystore.p12")
                         .keyStorePassword("changeit")
                         .build(),
                 serviceContext);
@@ -360,7 +360,7 @@ public class HttpsAssetConnectionTest {
                                         .payload(payload)
                                         .build())
                         .baseUrl(baseUrl)
-                        .keyStorePath("src/test/resources/certificates/faaast.keystore.jks")
+                        .keyStorePath("src/test/resources/certificates/faaast.keystore.p12")
                         .keyStorePassword("changeit")
                         .build(),
                 serviceContext);
@@ -530,7 +530,7 @@ public class HttpsAssetConnectionTest {
                                         .template(template)
                                         .build())
                         .baseUrl(baseUrl)
-                        .keyStorePath("src/test/resources/certificates/faaast.keystore.jks")
+                        .keyStorePath("src/test/resources/certificates/faaast.keystore.p12")
                         .keyStorePassword("changeit")
                         .build(),
                 serviceContext);
