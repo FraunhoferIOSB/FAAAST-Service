@@ -44,6 +44,7 @@ import java.util.Objects;
 public class KeyStoreHelper {
 
     public static final String KEYSTORE_TYPE = "PKCS12";
+    public static final String KEYSTORE_TYPE1 = "JKS";
     public static final String DEFAULT_ALIAS = "faaast";
 
     /**
@@ -223,7 +224,7 @@ public class KeyStoreHelper {
      */
     public static KeyStore loadKeyStore(File file, String password) throws IOException, GeneralSecurityException {
         try (InputStream inputStream = new FileInputStream(file)) {
-            KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
+            KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE1);
             keyStore.load(inputStream, passwordToChar(password));
             return keyStore;
         }
