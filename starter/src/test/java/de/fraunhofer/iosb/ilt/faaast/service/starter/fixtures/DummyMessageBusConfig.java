@@ -26,6 +26,11 @@ public class DummyMessageBusConfig extends MessageBusConfig<DummyMessageBus> {
     private int ab;
     private int c_d;
 
+    public DummyMessageBusConfig() {
+        nes_ted = new DummyNestedClass();
+    }
+
+
     public void setAb(int value) {
         ab = value;
     }

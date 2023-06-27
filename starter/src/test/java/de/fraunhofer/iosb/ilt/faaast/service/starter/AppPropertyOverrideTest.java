@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -56,7 +55,6 @@ public class AppPropertyOverrideTest extends AbstractAppTest {
     }
 
 
-    @Ignore
     @Test
     public void testNestedSeperatorReplacement() throws Exception {
         Map<String, String> expected = new HashMap<>();
