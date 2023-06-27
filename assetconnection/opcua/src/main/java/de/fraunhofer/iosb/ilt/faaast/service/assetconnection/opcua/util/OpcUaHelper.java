@@ -18,7 +18,8 @@ import static org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.Unsigned.
 
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.AssetConnectionException;
 import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.OpcUaAssetConnectionConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.CertificateData;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateData;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.util.KeyStoreHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.exception.ConfigurationInitializationException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.StringHelper;
@@ -230,7 +231,7 @@ public class OpcUaHelper {
             }
             if (authenticationCertificateFile.exists()) {
                 try {
-                    CertificateData certificateData = KeystoreHelper.loadOrCreate(authenticationCertificateFile, config.getAuthenticationCertificatePassword(),
+                    CertificateData certificateData = KeyStoreHelper.loadOrCreate(authenticationCertificateFile, config.getAuthenticationCertificatePassword(),
                             OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO);
                     retval = new X509IdentityProvider(certificateData.getCertificate(), certificateData.getKeyPair().getPrivate());
                 }
@@ -275,7 +276,7 @@ public class OpcUaHelper {
 
     private static Optional<CertificateData> loadCertificate(File file, String password) {
         try {
-            return Optional.of(KeystoreHelper.load(file, password));
+            return Optional.of(KeyStoreHelper.load(file, password));
         }
         catch (IOException | GeneralSecurityException e) {
             return Optional.empty();
@@ -330,7 +331,7 @@ public class OpcUaHelper {
             else {
                 try {
                     // if still empty, generate
-                    result = Optional.of(KeystoreHelper.generateSelfSigned(OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO));
+                    result = Optional.of(KeyStoreHelper.generateSelfSigned(OpcUaConstants.DEFAULT_APPLICATION_CERTIFICATE_INFO));
                     // save generated certificate
                     File newFile;
                     if (certificateFile.isAbsolute()) {
@@ -339,7 +340,7 @@ public class OpcUaHelper {
                     else {
                         newFile = securityBaseDir.resolve(certificateFile.toPath()).toFile();
                     }
-                    KeystoreHelper.save(
+                    KeyStoreHelper.save(
                             newFile,
                             result.get(),
                             certificatePassword);

@@ -1,0 +1,25 @@
+{
+    "@type": "ElementReadEvent",
+    "element":
+    {
+        "keys": [
+            {
+                "idType": "Iri",
+                "type": "Submodel",
+                "value": "http://example.org/submodel"
+            },
+            {
+                "idType": "IdShort",
+                "type": "Property",
+                "value": "property"
+            }
+        ]
+    },
+    "value":
+    {
+        "modelType": "Property",
+        "value": "example value",
+        "valueType": "string",
+        "idShort": "PROPERTY_STRING"
+    }
+}
