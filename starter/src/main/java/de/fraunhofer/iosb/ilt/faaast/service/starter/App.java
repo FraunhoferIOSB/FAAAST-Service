@@ -588,7 +588,6 @@ public class App implements Runnable {
      * @param config determines which separators have to be replaced
      *
      * @param configOverrides map of config overrides
-     *
      * @return map of config overrides that can be used in the json of the config
      */
     protected Map<String, String> removeSeparators(ServiceConfig config, Map<String, String> configOverrides) {
