@@ -582,9 +582,10 @@ public class App implements Runnable {
 
 
     /**
-     * Replaces separators in environment parameters to match the json format for the given config
+     * Replaces separators in environment parameters to match the json format for the given config.
      * 
      * @param config determines which separators have to be replaced
+     *
      * @param configOverrides map of config overrides
      * @return map of config overrides that can be used in the json of the config
      */
