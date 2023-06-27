@@ -569,11 +569,13 @@ public class App implements Runnable {
         return result;
     }
 
+
     protected Map<String, String> getConfigOverrides(ServiceConfig config) {
         return removeSeparators(config, getConfigOverrides());
     }
 
-    private Map<String, String> removeSeparators(ServiceConfig config, Map<String, String> configOverrides) {
+
+    protected Map<String, String> removeSeparators(ServiceConfig config, Map<String, String> configOverrides) {
         Map<String, String> result = new HashMap<String, String>();
 
         DocumentContext document = JsonPath.using(JSON_PATH_CONFIG).parse(mapper.valueToTree(config));
@@ -594,7 +596,6 @@ public class App implements Runnable {
         });
         return result;
     }
-
 
     /**
      * Provides version information from properies.
