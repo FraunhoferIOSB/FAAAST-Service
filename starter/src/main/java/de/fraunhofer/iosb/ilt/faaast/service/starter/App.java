@@ -569,12 +569,22 @@ public class App implements Runnable {
         return result;
     }
 
-
+    /**
+     * Collects config overrides from environment and CLI parameters.
+     *
+     * @param config used to replace certain separators
+     * @return map of config overrides
+     */
     protected Map<String, String> getConfigOverrides(ServiceConfig config) {
         return removeSeparators(config, getConfigOverrides());
     }
 
-
+    /**
+     * Replaces separators in environment parameters to match the json format for the given config
+     * @param config determines which separators have to be replaced
+     * @param configOverrides map of config overrides
+     * @return map of config overrides that can be used in the json of the config
+     */
     protected Map<String, String> removeSeparators(ServiceConfig config, Map<String, String> configOverrides) {
         Map<String, String> result = new HashMap<String, String>();
 
