@@ -22,12 +22,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.EventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.SubscriptionInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
-
+ * Dummy implementation for testing the app starter
  */
 public class DummyMessageBus implements MessageBus<DummyMessageBusConfig> {
 
