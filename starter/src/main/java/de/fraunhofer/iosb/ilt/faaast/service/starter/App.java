@@ -569,6 +569,7 @@ public class App implements Runnable {
         return result;
     }
 
+
     /**
      * Collects config overrides from environment and CLI parameters.
      *
@@ -579,8 +580,10 @@ public class App implements Runnable {
         return removeSeparators(config, getConfigOverrides());
     }
 
+
     /**
      * Replaces separators in environment parameters to match the json format for the given config
+     * 
      * @param config determines which separators have to be replaced
      * @param configOverrides map of config overrides
      * @return map of config overrides that can be used in the json of the config
