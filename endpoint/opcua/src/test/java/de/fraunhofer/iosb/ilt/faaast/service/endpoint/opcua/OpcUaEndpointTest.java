@@ -51,6 +51,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.Eleme
 import de.fraunhofer.iosb.ilt.faaast.service.model.messagebus.event.change.ValueChangeEventMessage;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.PropertyValue;
 import de.fraunhofer.iosb.ilt.faaast.service.model.value.primitive.Datatype;
+import de.fraunhofer.iosb.ilt.faaast.service.util.PortHelper;
 import io.adminshell.aas.v3.model.IdentifierType;
 import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.KeyElements;
@@ -107,7 +108,7 @@ public class OpcUaEndpointTest {
 
     @BeforeClass
     public static void startTest() throws ConfigurationException, Exception {
-        OPC_TCP_PORT = TestUtils.findFreePort();
+        OPC_TCP_PORT = PortHelper.findFreePort();
         ENDPOINT_URL = "opc.tcp://localhost:" + OPC_TCP_PORT;
 
         OpcUaEndpointConfig config = new OpcUaEndpointConfig.Builder()
@@ -854,7 +855,7 @@ public class OpcUaEndpointTest {
 
     private boolean testConfig(Set<SecurityPolicy> expectedPolicies, Set<UserTokenType> expectedUserTokens)
             throws ConfigurationException, IOException, AssetConnectionException, MessageBusException, EndpointException, SecureIdentityException, ServiceException {
-        int port = TestUtils.findFreePort();
+        int port = PortHelper.findFreePort();
         String url = "opc.tcp://localhost:" + port;
 
         List<String> expectedPolicyUris = new ArrayList<>();

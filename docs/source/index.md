@@ -41,6 +41,7 @@ General <architecture/architecture.md>
 :hidden:
 :caption: Endpoints
 :maxdepth: 3
+General <endpoints/endpoint.md>
 HTTP <endpoints/http_endpoint.md>
 OPC UA <endpoints/opcua_endpoint.md>
 ```
@@ -62,6 +63,15 @@ OPC UA <assetconnections/opcua_assetconnection.md>
 General <persistences/persistence.md>
 In-Memory <persistences/inmemory_persistence.md>
 File-based <persistences/file_persistence.md>
+```
+
+```{toctree}
+:hidden:
+:caption: MessageBus
+:maxdepth: 3
+General <messagebus/messagebus.md>
+Internal <messagebus/internal_messagebus.md>
+MQTT <messagebus/mqtt_messagebus.md>
 ```
 
 ```{toctree}

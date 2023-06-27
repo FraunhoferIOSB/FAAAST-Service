@@ -44,7 +44,6 @@ import com.prosysopc.ua.stack.core.RelativePathElement;
 import de.fraunhofer.iosb.ilt.faaast.service.endpoint.opcua.ValueConverter;
 import io.adminshell.aas.v3.model.Qualifier;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -856,15 +855,6 @@ public class TestUtils {
             Assert.assertEquals("Qualifier Type not equal", exp.getType(), curr.getType());
             Assert.assertEquals("Qualifier ValueType not equal", ValueConverter.stringToValueType(exp.getValueType()), curr.getValueType());
             Assert.assertEquals("Qualifier Value not equal", exp.getValue(), curr.getValue());
-        }
-    }
-
-
-    public static int findFreePort() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            Assert.assertNotNull(serverSocket);
-            Assert.assertTrue(serverSocket.getLocalPort() > 0);
-            return serverSocket.getLocalPort();
         }
     }
 }

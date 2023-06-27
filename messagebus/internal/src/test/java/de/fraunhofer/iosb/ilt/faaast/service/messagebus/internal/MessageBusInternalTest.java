@@ -66,8 +66,7 @@ public class MessageBusInternalTest {
 
         errorMessage = new ErrorEventMessage();
         errorMessage.setElement(property1Reference);
-        errorMessage.setErrorLevel(ErrorLevel.ERROR);
-        errorMessage.setThrowingSource(MessageBusInternalTest.class);
+        errorMessage.setLevel(ErrorLevel.ERROR);
     }
 
 

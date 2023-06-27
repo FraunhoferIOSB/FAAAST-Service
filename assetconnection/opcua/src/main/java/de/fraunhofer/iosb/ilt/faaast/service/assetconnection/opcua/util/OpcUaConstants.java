@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.util;
 
-import de.fraunhofer.iosb.ilt.faaast.service.assetconnection.opcua.security.CertificateInformation;
+import de.fraunhofer.iosb.ilt.faaast.service.certificate.CertificateInformation;
 
 
 /**
@@ -26,7 +26,7 @@ public class OpcUaConstants {
     public static final String IP_LOCALHOST = "127.0.0.1";
     public static final String DNS_LOCALHOST = "localhost";
     public static final String CERTIFICATE_APPLICATION_URI = "urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:opcua";
-    public static final String CERTIFICATE_APPLICATION_NAME = "FA³ST OPC UA Asset Connection";
+    public static final String CERTIFICATE_APPLICATION_NAME = "FA³ST Service OPC UA Asset Connection";
     public static final String CERTIFICATE_ORGANIZATION = "Fraunhofer IOSB";
     public static final String CERTIFICATE_ORGANIZATION_UNIT = "ILT";
     public static final String CERTIFICATE_LOCALITY = "Karlsruhe";
