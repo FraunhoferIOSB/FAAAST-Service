@@ -574,6 +574,7 @@ public class App implements Runnable {
      * Collects config overrides from environment and CLI parameters.
      *
      * @param config used to replace certain separators
+     *
      * @return map of config overrides
      */
     protected Map<String, String> getConfigOverrides(ServiceConfig config) {
