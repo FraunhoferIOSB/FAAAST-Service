@@ -23,6 +23,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import picocli.CommandLine;
 
 
 public class AppPropertyOverrideTest extends AbstractAppTest {
@@ -46,11 +47,14 @@ public class AppPropertyOverrideTest extends AbstractAppTest {
         expected.put(ParameterConstants.MESSAGEBUS_AFTER_AB, "1");
         expected.put(ParameterConstants.MESSAGEBUS_AFTER_CD, "1");
 
-        Map<String, String> envVariables = new HashMap<>();
-        envVariables.put(ParameterConstants.MESSAGEBUS_BEFORE_AB, "1");
-        envVariables.put(ParameterConstants.MESSAGEBUS_BEFORE_CD, "1");
+        Map<String, String> envProperties = new HashMap<>();
+        envProperties.put(ParameterConstants.MESSAGEBUS_BEFORE_AB, "1");
+        envProperties.put(ParameterConstants.MESSAGEBUS_BEFORE_CD, "1");
 
-        Map<String, String> actual = application.removeSeparators(config, envVariables);
+        Map<String, String> actual = withEnv(envProperties).execute(() -> {
+            new CommandLine(application).execute();
+            return application.getConfigOverrides(config);
+        });
         Assert.assertEquals(expected, actual);
     }
 
@@ -61,11 +65,14 @@ public class AppPropertyOverrideTest extends AbstractAppTest {
         expected.put(ParameterConstants.MESSAGEBUS_AFTER_EF, "1");
         expected.put(ParameterConstants.MESSAGEBUS_AFTER_GH, "1");
 
-        Map<String, String> envVariables = new HashMap<>();
-        envVariables.put(ParameterConstants.MESSAGEBUS_BEFORE_EF, "1");
-        envVariables.put(ParameterConstants.MESSAGEBUS_BEFORE_GH, "1");
+        Map<String, String> envProperties = new HashMap<>();
+        envProperties.put(ParameterConstants.MESSAGEBUS_BEFORE_EF, "1");
+        envProperties.put(ParameterConstants.MESSAGEBUS_BEFORE_GH, "1");
 
-        Map<String, String> actual = application.removeSeparators(config, envVariables);
+        Map<String, String> actual = withEnv(envProperties).execute(() -> {
+            new CommandLine(application).execute();
+            return application.getConfigOverrides(config);
+        });
         Assert.assertEquals(expected, actual);
     }
 }

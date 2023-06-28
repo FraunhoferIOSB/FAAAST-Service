@@ -582,15 +582,7 @@ public class App implements Runnable {
     }
 
 
-    /**
-     * Replaces separators in environment parameters to match the json format for the given config.
-     *
-     * @param config determines which separators have to be replaced
-     *
-     * @param configOverrides map of config overrides
-     * @return map of config overrides that can be used in the json of the config
-     */
-    protected Map<String, String> removeSeparators(ServiceConfig config, Map<String, String> configOverrides) {
+    private Map<String, String> removeSeparators(ServiceConfig config, Map<String, String> configOverrides) {
         Map<String, String> result = new HashMap<String, String>();
 
         DocumentContext document = JsonPath.using(JSON_PATH_CONFIG).parse(mapper.valueToTree(config));
