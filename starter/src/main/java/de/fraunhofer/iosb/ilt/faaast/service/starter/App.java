@@ -52,12 +52,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -584,24 +580,40 @@ public class App implements Runnable {
 
     private Map<String, String> removeSeparators(ServiceConfig config, Map<String, String> configOverrides) {
         Map<String, String> result = new HashMap<String, String>();
-
         DocumentContext document = JsonPath.using(JSON_PATH_CONFIG).parse(mapper.valueToTree(config));
         configOverrides.forEach((k, v) -> {
-            String[] pathParts = k.split(ENV_PATH_SEPERATOR);
-            String jsonPath = String.format("$.%s", pathParts[0]);
-            JsonNode node = document.read(jsonPath);
-            boolean lastFailed = node == null;
-            String newKey = pathParts[0];
-            for (int i = 1; i < pathParts.length; i++) {
-                String separator = lastFailed ? "_" : ".";
-                jsonPath = String.format("$.%s%s%s", newKey, separator, pathParts[i]);
-                node = document.read(jsonPath);
-                lastFailed = node == null;
-                newKey += separator + pathParts[i];
-            }
+            List<String> pathParts = new LinkedList(Arrays.asList(k.split(ENV_PATH_SEPERATOR)));
+            String key = pathParts.get(0);
+            pathParts.remove(0);
+            String newKey = getNewKeyRecursive(document, key, pathParts);
             result.put(newKey, v);
         });
         return result;
+    }
+
+
+    private String getNewKeyRecursive(DocumentContext document, String key, List<String> pathParts) {
+        String jsonPath = String.format("$.%s", key);
+        JsonNode node = document.read(jsonPath);
+
+        if (pathParts.isEmpty()) {
+            return node == null ? "" : key;
+        }
+
+        String nextPart = pathParts.get(0);
+        pathParts.remove(0);
+
+        if (node == null) {
+            return getNewKeyRecursive(document, key + ENV_PATH_SEPERATOR + nextPart, pathParts);
+        }
+        else {
+            String dotKey = getNewKeyRecursive(document, key + "." + nextPart, pathParts);
+            String separatorKey = getNewKeyRecursive(document, key + ENV_PATH_SEPERATOR + nextPart, pathParts);
+            if (!dotKey.equals("") && !separatorKey.equals("")) {
+                throw new InitializationException("Ambiguity in property path");
+            }
+            return dotKey.equals("") ? separatorKey : dotKey;
+        }
     }
 
     /**

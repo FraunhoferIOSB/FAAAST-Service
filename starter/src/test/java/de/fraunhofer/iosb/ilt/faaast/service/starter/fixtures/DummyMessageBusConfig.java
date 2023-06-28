@@ -23,11 +23,15 @@ import de.fraunhofer.iosb.ilt.faaast.service.messagebus.MessageBusConfig;
 public class DummyMessageBusConfig extends MessageBusConfig<DummyMessageBus> {
 
     private DummyNestedClass nes_ted;
+    private DummyNestedClass ambi;
     private int ab;
+    private int c;
     private int c_d;
+    private int ambi_guity;
 
     public DummyMessageBusConfig() {
         nes_ted = new DummyNestedClass();
+        ambi = new DummyNestedClass();
     }
 
 
@@ -38,6 +42,16 @@ public class DummyMessageBusConfig extends MessageBusConfig<DummyMessageBus> {
 
     public int getAb() {
         return ab;
+    }
+
+
+    public void setC(int value) {
+        c = value;
+    }
+
+
+    public int getC() {
+        return c;
     }
 
 
@@ -61,6 +75,26 @@ public class DummyMessageBusConfig extends MessageBusConfig<DummyMessageBus> {
     }
 
 
+    public void setAmbi(DummyNestedClass value) {
+        ambi = value;
+    }
+
+
+    public DummyNestedClass getAmbi() {
+        return ambi;
+    }
+
+
+    public void setAmbi_guity(int value) {
+        ambi_guity = value;
+    }
+
+
+    public int getAmbi_guity() {
+        return ambi_guity;
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }
@@ -74,14 +108,32 @@ public class DummyMessageBusConfig extends MessageBusConfig<DummyMessageBus> {
         }
 
 
+        public B c(int value) {
+            getBuildingInstance().setC(value);
+            return getSelf();
+        }
+
+
         public B c_d(int value) {
             getBuildingInstance().setC_d(value);
             return getSelf();
         }
 
 
+        public B ambi_guity(int value) {
+            getBuildingInstance().setAmbi_guity(value);
+            return getSelf();
+        }
+
+
         public B nes_ted(DummyNestedClass value) {
             getBuildingInstance().setNes_ted(value);
+            return getSelf();
+        }
+
+
+        public B ambi(DummyNestedClass value) {
+            getBuildingInstance().setAmbi(value);
             return getSelf();
         }
     }

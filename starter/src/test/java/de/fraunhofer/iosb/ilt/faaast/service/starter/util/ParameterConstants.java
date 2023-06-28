@@ -20,14 +20,17 @@ public class ParameterConstants {
     public static final String ENDPOINT_0_CLASS = "endpoints[0].@class";
     public static final String ENDPOINT_0_PORT = "endpoints[0].port";
 
-    public static final String MESSAGEBUS_BEFORE_AB = "messageBus_ab";
-    public static final String MESSAGEBUS_BEFORE_CD = "messageBus_c_d";
-    public static final String MESSAGEBUS_BEFORE_EF = "messageBus_nes_ted_ef";
-    public static final String MESSAGEBUS_BEFORE_GH = "messageBus_nes_ted_g_h";
-    public static final String MESSAGEBUS_AFTER_AB = "messageBus.ab";
-    public static final String MESSAGEBUS_AFTER_CD = "messageBus.c_d";
-    public static final String MESSAGEBUS_AFTER_EF = "messageBus.nes_ted.ef";
-    public static final String MESSAGEBUS_AFTER_GH = "messageBus.nes_ted.g_h";
+    public static final String MESSAGEBUS_NO_UNDERSCORE_BEFORE = "messageBus_ab";
+    public static final String MESSAGEBUS_NO_UNDERSCORE_AFTER = "messageBus.ab";
+    public static final String MESSAGEBUS_UNDERSCORE_BEFORE = "messageBus_c_d";
+    public static final String MESSAGEBUS_UNDERSCORE_AFTER = "messageBus.c_d";
+    public static final String MESSAGEBUS_NESTED_NO_UNDERSCORE_BEFORE = "messageBus_nes_ted_ef";
+    public static final String MESSAGEBUS_NESTED_NO_UNDERSCORE_AFTER = "messageBus.nes_ted.ef";
+    public static final String MESSAGEBUS_NESTED_UNDERSCORE_BEFORE = "messageBus_nes_ted_g_h";
+    public static final String MESSAGEBUS_NESTED_UNDERSCORE_AFTER = "messageBus.nes_ted.g_h";
+    public static final String MESSAGEBUS_PRAEFIX_BEFORE = "messageBus_c_d";
+    public static final String MESSAGEBUS_PRAEFIX_AFTER = "messageBus.c_d";
+    public static final String MESSAGEBUS_AMBIGUITY_BEFORE = "messageBus_ambi_guity";
 
     private ParameterConstants() {}
 }

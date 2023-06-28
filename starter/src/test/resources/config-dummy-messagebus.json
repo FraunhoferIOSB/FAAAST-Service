@@ -1,0 +1,9 @@
+{
+    "core":{
+        "assetConnectionRetryInterval":1000,
+        "requestHandlerThreadPoolSize":2
+    },
+    "messageBus":{
+        "@class":"de.fraunhofer.iosb.ilt.faaast.service.starter.fixtures.DummyMessageBus"
+    }
+}

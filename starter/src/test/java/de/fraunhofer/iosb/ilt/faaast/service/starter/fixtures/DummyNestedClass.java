@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.service.starter.fixtures;
 public class DummyNestedClass {
     private int ef;
     private int g_h;
+    private int guity;
 
     public void setEf(int value) {
         ef = value;
@@ -35,5 +36,15 @@ public class DummyNestedClass {
 
     public int getG_h() {
         return g_h;
+    }
+
+
+    public void setGuity(int value) {
+        guity = value;
+    }
+
+
+    public int getGuity() {
+        return guity;
     }
 }

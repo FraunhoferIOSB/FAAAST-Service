@@ -14,42 +14,45 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.service.starter;
 
-import de.fraunhofer.iosb.ilt.faaast.service.config.CoreConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.config.ServiceConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.starter.fixtures.DummyMessageBusConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ParameterConstants;
+import de.fraunhofer.iosb.ilt.faaast.service.starter.util.ServiceConfigHelper;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import picocli.CommandLine;
 
 
 public class AppPropertyOverrideTest extends AbstractAppTest {
     private static ServiceConfig config;
+    private static final String CONFIG = "src/test/resources/config-dummy-messagebus.json";
+
+    Map<String, String> envProperties;
 
     @BeforeClass
-    public static void init() {
-        DummyMessageBusConfig messageBusConfig = new DummyMessageBusConfig();
-        config = ServiceConfig.builder()
-                .core(CoreConfig.builder()
-                        .requestHandlerThreadPoolSize(2)
-                        .build())
-                .messageBus(messageBusConfig)
-                .build();
+    public static void init() throws IOException {
+        config = ServiceConfigHelper.load(new File(CONFIG));
+    }
+
+
+    @Before
+    public void initEnvProperties() {
+        envProperties = new HashMap<>();
+        envProperties.put(App.ENV_CONFIG_FILE_PATH, CONFIG);
     }
 
 
     @Test
-    public void testSeperatorReplacement() throws Exception {
+    public void testSeparatorReplacement() throws Exception {
         Map<String, String> expected = new HashMap<>();
-        expected.put(ParameterConstants.MESSAGEBUS_AFTER_AB, "1");
-        expected.put(ParameterConstants.MESSAGEBUS_AFTER_CD, "1");
+        expected.put(ParameterConstants.MESSAGEBUS_NO_UNDERSCORE_AFTER, "1");
+        expected.put(ParameterConstants.MESSAGEBUS_UNDERSCORE_AFTER, "1");
 
         Map<String, String> envProperties = new HashMap<>();
-        envProperties.put(ParameterConstants.MESSAGEBUS_BEFORE_AB, "1");
-        envProperties.put(ParameterConstants.MESSAGEBUS_BEFORE_CD, "1");
+        envProperties.put(ParameterConstants.MESSAGEBUS_NO_UNDERSCORE_BEFORE, "1");
+        envProperties.put(ParameterConstants.MESSAGEBUS_UNDERSCORE_BEFORE, "1");
 
         Map<String, String> actual = withEnv(envProperties).execute(() -> {
             new CommandLine(application).execute();
@@ -60,19 +63,53 @@ public class AppPropertyOverrideTest extends AbstractAppTest {
 
 
     @Test
-    public void testNestedSeperatorReplacement() throws Exception {
+    public void testNestedSeparatorReplacement() throws Exception {
         Map<String, String> expected = new HashMap<>();
-        expected.put(ParameterConstants.MESSAGEBUS_AFTER_EF, "1");
-        expected.put(ParameterConstants.MESSAGEBUS_AFTER_GH, "1");
+        expected.put(ParameterConstants.MESSAGEBUS_NESTED_NO_UNDERSCORE_AFTER, "1");
+        expected.put(ParameterConstants.MESSAGEBUS_NESTED_UNDERSCORE_AFTER, "1");
 
         Map<String, String> envProperties = new HashMap<>();
-        envProperties.put(ParameterConstants.MESSAGEBUS_BEFORE_EF, "1");
-        envProperties.put(ParameterConstants.MESSAGEBUS_BEFORE_GH, "1");
+        envProperties.put(ParameterConstants.MESSAGEBUS_NESTED_NO_UNDERSCORE_BEFORE, "1");
+        envProperties.put(ParameterConstants.MESSAGEBUS_NESTED_UNDERSCORE_BEFORE, "1");
 
         Map<String, String> actual = withEnv(envProperties).execute(() -> {
             new CommandLine(application).execute();
             return application.getConfigOverrides(config);
         });
         Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testPraefixSeparatorReplacement() throws Exception {
+        Map<String, String> expected = new HashMap<>();
+        expected.put(ParameterConstants.MESSAGEBUS_PRAEFIX_AFTER, "1");
+
+        Map<String, String> envProperties = new HashMap<>();
+        envProperties.put(ParameterConstants.MESSAGEBUS_PRAEFIX_BEFORE, "1");
+
+        Map<String, String> actual = withEnv(envProperties).execute(() -> {
+            new CommandLine(application).execute();
+            return application.getConfigOverrides(config);
+        });
+        Assert.assertEquals(expected, actual);
+    }
+
+
+    @Test
+    public void testAmbiguitySeparatorReplacement() throws Exception {
+        Map<String, String> envProperties = new HashMap<>();
+        envProperties.put(ParameterConstants.MESSAGEBUS_AMBIGUITY_BEFORE, "1");
+
+        try {
+            withEnv(envProperties).execute(() -> {
+                new CommandLine(application).execute();
+                return application.getConfigOverrides(config);
+            });
+            Assert.fail();
+        }
+        catch (InitializationException e) {
+            Assert.assertTrue(true);
+        }
     }
 }
