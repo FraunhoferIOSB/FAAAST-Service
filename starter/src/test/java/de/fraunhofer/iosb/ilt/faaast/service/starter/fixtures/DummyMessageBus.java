@@ -31,11 +31,6 @@ public class DummyMessageBus implements MessageBus<DummyMessageBusConfig> {
 
     private DummyMessageBusConfig config;
 
-    public DummyMessageBus() {
-
-    }
-
-
     @Override
     public DummyMessageBusConfig asConfig() {
         return config;
@@ -50,34 +45,32 @@ public class DummyMessageBus implements MessageBus<DummyMessageBusConfig> {
 
     @Override
     public void publish(EventMessage message) throws MessageBusException {
-
-    }
-
-
-    private void run() {
-
+        //intentional empty
     }
 
 
     @Override
-    public void start() {}
+    public void start() {
+        //intentional empty
+    }
 
 
     @Override
     public void stop() {
-
+        //intentional empty
     }
 
 
     @Override
     public SubscriptionId subscribe(SubscriptionInfo subscriptionInfo) {
         Ensure.requireNonNull(subscriptionInfo, "subscriptionInfo must be non-null");
-        SubscriptionId subscriptionId = new SubscriptionId();
-        return subscriptionId;
+        return new SubscriptionId();
     }
 
 
     @Override
-    public void unsubscribe(SubscriptionId id) {}
+    public void unsubscribe(SubscriptionId id) {
+        //intentional empty
+    }
 
 }
