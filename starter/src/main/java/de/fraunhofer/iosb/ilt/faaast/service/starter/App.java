@@ -52,8 +52,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -574,45 +580,46 @@ public class App implements Runnable {
      * @return map of config overrides
      */
     protected Map<String, String> getConfigOverrides(ServiceConfig config) {
-        return removeSeparators(config, getConfigOverrides());
+        return replaceSeparators(config, getConfigOverrides());
     }
 
 
-    private Map<String, String> removeSeparators(ServiceConfig config, Map<String, String> configOverrides) {
-        Map<String, String> result = new HashMap<String, String>();
+    private Map<String, String> replaceSeparators(ServiceConfig config, Map<String, String> configOverrides) {
+        Map<String, String> result = new HashMap<>();
         DocumentContext document = JsonPath.using(JSON_PATH_CONFIG).parse(mapper.valueToTree(config));
         configOverrides.forEach((k, v) -> {
-            List<String> pathParts = new LinkedList(Arrays.asList(k.split(ENV_PATH_SEPERATOR)));
-            String key = pathParts.get(0);
-            pathParts.remove(0);
-            String newKey = getNewKeyRecursive(document, key, pathParts);
-            result.put(newKey, v);
+            List<String> pathParts = new LinkedList<>(Arrays.asList(k.split(ENV_PATH_SEPERATOR)));
+            String newPath = getNewPathRecursive(document, pathParts.get(0), pathParts, 1);
+            result.put(newPath, v);
         });
         return result;
     }
 
 
-    private String getNewKeyRecursive(DocumentContext document, String key, List<String> pathParts) {
-        String jsonPath = String.format("$.%s", key);
+    private String getNewPathRecursive(DocumentContext document, String currPath, List<String> pathParts, int nextPartIndex) {
+        String jsonPath = String.format("$.%s", currPath);
         JsonNode node = document.read(jsonPath);
 
-        if (pathParts.isEmpty()) {
-            return node == null ? "" : key;
+        if (nextPartIndex >= pathParts.size()) {
+            return node == null ? null : currPath;
         }
 
-        String nextPart = pathParts.get(0);
-        pathParts.remove(0);
+        String nextPart = pathParts.get(nextPartIndex);
 
         if (node == null) {
-            return getNewKeyRecursive(document, key + ENV_PATH_SEPERATOR + nextPart, pathParts);
+            return getNewPathRecursive(document, currPath + ENV_PATH_SEPERATOR + nextPart,
+                    pathParts, nextPartIndex + 1);
         }
         else {
-            String dotKey = getNewKeyRecursive(document, key + "." + nextPart, pathParts);
-            String separatorKey = getNewKeyRecursive(document, key + ENV_PATH_SEPERATOR + nextPart, pathParts);
-            if (!dotKey.equals("") && !separatorKey.equals("")) {
-                throw new InitializationException("Ambiguity in property path");
+            String pathWithDot = getNewPathRecursive(document, currPath + "." + nextPart,
+                    pathParts, nextPartIndex + 1);
+            String pathWithSeparator = getNewPathRecursive(document, currPath + ENV_PATH_SEPERATOR + nextPart,
+                    pathParts, nextPartIndex + 1);
+            if (!(pathWithDot == null) && !(pathWithSeparator == null)) {
+                throw new InitializationException(
+                        String.format("Ambiguity between '%s' and '%s', please set properties through the CLI or a configuration file!", pathWithDot, pathWithSeparator));
             }
-            return dotKey.equals("") ? separatorKey : dotKey;
+            return (pathWithDot == null) ? pathWithSeparator : pathWithDot;
         }
     }
 
