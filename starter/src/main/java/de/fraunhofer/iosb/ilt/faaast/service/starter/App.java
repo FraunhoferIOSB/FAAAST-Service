@@ -615,7 +615,7 @@ public class App implements Runnable {
                     pathParts, nextPartIndex + 1);
             String pathWithSeparator = getNewPathRecursive(document, currPath + ENV_PATH_SEPERATOR + nextPart,
                     pathParts, nextPartIndex + 1);
-            if (!(pathWithDot == null) && !(pathWithSeparator == null)) {
+            if (pathWithDot != null && pathWithSeparator != null) {
                 throw new InitializationException(
                         String.format("Ambiguity between '%s' and '%s', please set properties through the CLI or a configuration file!", pathWithDot, pathWithSeparator));
             }
