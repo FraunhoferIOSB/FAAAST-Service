@@ -64,14 +64,11 @@ public class SelfSignedCertificateHandler {
         if (Objects.nonNull(config.getKeyStorePath()) && !config.getKeyStorePath().isEmpty()) {
             var keyStore = KeyStoreHelper.loadKeyStore(new File(config.getKeyStorePath()), config.getKeyStorePassword());
             Enumeration<String> aliases = keyStore.aliases();
-
             while (aliases.hasMoreElements()) {
                 var alias = aliases.nextElement();
-                if (keyStore.isCertificateEntry(alias)) {
-                    var certificate = (X509Certificate) keyStore.getCertificate(alias);
-                    if (certificate != null) {
-                        trustedCertificates.add(certificate);
-                    }
+                var certificate = keyStore.getCertificate(alias);
+                if (Objects.nonNull(certificate) && X509Certificate.class.isAssignableFrom(certificate.getClass())) {
+                    trustedCertificates.add((X509Certificate) certificate);
                 }
             }
         }

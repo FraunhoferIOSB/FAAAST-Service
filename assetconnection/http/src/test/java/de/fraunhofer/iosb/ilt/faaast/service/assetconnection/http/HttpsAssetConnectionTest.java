@@ -73,13 +73,16 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.*;
 
+
 public class HttpsAssetConnectionTest {
 
     private WireMockServer wireMockServer;
 
     private static final long DEFAULT_TIMEOUT = 10000;
     private static final String KEYSTORE_PASSWORD = "changeit";
-    private static File keyStoreFile;
+    private static final String KEYSTORE_TYPE_SERVER = "JKS";
+    private static File keyStoreFileServer;
+    private static File keyStoreFileClient;
     private static final Reference REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
@@ -96,11 +99,15 @@ public class HttpsAssetConnectionTest {
     private URL baseUrl;
 
     private void generateSelfSignedServerCertificate() throws KeyStoreException, NoSuchAlgorithmException, IOException, GeneralSecurityException {
-        keyStoreFile = Files.createTempFile("faaast-assetconnection-http-server-cert", ".p12").toFile();
-        keyStoreFile.deleteOnExit();
+        keyStoreFileServer = Files.createTempFile("faaast-assetconnection-http-server-cert", ".jks").toFile();
+        keyStoreFileServer.deleteOnExit();
+        keyStoreFileClient = Files.createTempFile("faaast-assetconnection-http-client-cert", ".p12").toFile();
+        keyStoreFileClient.deleteOnExit();
         CertificateData certificateData = KeyStoreHelper.generateSelfSigned(SELF_SIGNED_SERVER_CERTIFICATE_INFO);
-        KeyStoreHelper.save(keyStoreFile, certificateData, KEYSTORE_PASSWORD);
+        KeyStoreHelper.save(KEYSTORE_TYPE_SERVER, keyStoreFileServer, certificateData, KEYSTORE_PASSWORD);
+        KeyStoreHelper.save(keyStoreFileClient, certificateData, KEYSTORE_PASSWORD);
     }
+
 
     @Before
     public void setup() throws MalformedURLException, NoSuchAlgorithmException, IOException, GeneralSecurityException {
@@ -108,27 +115,19 @@ public class HttpsAssetConnectionTest {
         wireMockServer = new WireMockServer(
                 WireMockConfiguration.options()
                         .dynamicHttpsPort()
-                        .keystoreType("JKS")
-                        .keystorePath(keyStoreFile.getAbsolutePath())
+                        .keystoreType(KEYSTORE_TYPE_SERVER)
+                        .keystorePath(keyStoreFileServer.getAbsolutePath())
                         .keystorePassword(KEYSTORE_PASSWORD));
         wireMockServer.start();
         baseUrl = new URL("https", "localhost", wireMockServer.httpsPort(), "");
     }
 
-    @Test
-    public void foobar() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
-        stubFor(request("GET", urlEqualTo("/foo"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                        .withBody("bar" + System.currentTimeMillis())));
-        String t = "";
-    }
 
     @After
     public void teardown() {
         wireMockServer.stop();
     }
+
 
     @Test
     public void testValueProviderPropertyGetValueJSON() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
@@ -137,6 +136,7 @@ public class HttpsAssetConnectionTest {
                 "5",
                 null);
     }
+
 
     @Test
     public void testValueProviderWithHeaders() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
@@ -147,6 +147,7 @@ public class HttpsAssetConnectionTest {
         assertValueProviderHeaders(Map.of("foo", "bar"), Map.of("bar", "foo"), Map.of("foo", "bar", "bar", "foo"));
     }
 
+
     @Test
     public void testValueProviderPropertyGetValueWithQueryJSON() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertValueProviderPropertyReadJson(
@@ -155,6 +156,7 @@ public class HttpsAssetConnectionTest {
                 "$.foo[2]");
     }
 
+
     @Test
     public void testValueProviderPropertySetValueJSON() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertValueProviderPropertyWriteJson(
@@ -162,6 +164,7 @@ public class HttpsAssetConnectionTest {
                 null,
                 "5");
     }
+
 
     @Test
     public void testValueProviderPropertySetValueWithTemplateJSON()
@@ -173,6 +176,7 @@ public class HttpsAssetConnectionTest {
                 template,
                 template.replaceAll("\\$\\{value\\}", value));
     }
+
 
     private void assertValueProviderPropertyReadJson(PropertyValue expected, String httpResponseBody, String query)
             throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
@@ -188,6 +192,7 @@ public class HttpsAssetConnectionTest {
                 LambdaExceptionHelper.rethrowConsumer(x -> Assert.assertEquals(expected, x.getValue())));
     }
 
+
     private void assertValueProviderHeaders(Map<String, String> connectionHeaders, Map<String, String> providerHeaders, Map<String, String> expectedHeaders)
             throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         PropertyValue value = PropertyValue.of(Datatype.INT, "5");
@@ -202,7 +207,7 @@ public class HttpsAssetConnectionTest {
                 x -> {
                     RequestPatternBuilder result = x;
                     if (expectedHeaders != null) {
-                        for (var expectedHeader : expectedHeaders.entrySet()) {
+                        for (var expectedHeader: expectedHeaders.entrySet()) {
                             result = result.withHeader(expectedHeader.getKey(), equalTo(expectedHeader.getValue()));
                         }
                     }
@@ -210,6 +215,7 @@ public class HttpsAssetConnectionTest {
                 },
                 LambdaExceptionHelper.rethrowConsumer(x -> Assert.assertEquals(value, x.getValue())));
     }
+
 
     private void assertValueProviderPropertyWriteJson(PropertyValue newValue, String template, String expectedResponseBody)
             throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
@@ -225,6 +231,7 @@ public class HttpsAssetConnectionTest {
                 LambdaExceptionHelper.rethrowConsumer(x -> x.setValue(newValue)));
     }
 
+
     private void awaitConnection(AssetConnection connection) {
         await().atMost(30, TimeUnit.SECONDS)
                 .with()
@@ -232,30 +239,32 @@ public class HttpsAssetConnectionTest {
                 .until(() -> {
                     try {
                         connection.connect();
-                    } catch (AssetConnectionException e) {
+                    }
+                    catch (AssetConnectionException e) {
                         // do nothing
                     }
                     return connection.isConnected();
                 });
     }
 
+
     private void assertValueProviderPropertyJson(Datatype datatype,
-            RequestMethod method,
-            Map<String, String> connectionHeaders,
-            Map<String, String> providerHeaders,
-            String httpResponseBody,
-            String query,
-            String template,
-            Function<RequestPatternBuilder, RequestPatternBuilder> verifierModifier,
-            Consumer<AssetValueProvider> customAssert)
+                                                 RequestMethod method,
+                                                 Map<String, String> connectionHeaders,
+                                                 Map<String, String> providerHeaders,
+                                                 String httpResponseBody,
+                                                 String query,
+                                                 String template,
+                                                 Function<RequestPatternBuilder, RequestPatternBuilder> verifierModifier,
+                                                 Consumer<AssetValueProvider> customAssert)
             throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
                 .type(PropertyValue.class)
                 .datatype(datatype)
                 .build())
-                .when(serviceContext)
-                .getTypeInfo(REFERENCE);
+                        .when(serviceContext)
+                        .getTypeInfo(REFERENCE);
         String path = String.format("/test/random/%s", UUID.randomUUID());
         stubFor(request(method.getName(), urlEqualTo(path))
                 .willReturn(aResponse()
@@ -276,8 +285,8 @@ public class HttpsAssetConnectionTest {
                                         .template(template)
                                         .build())
                         .baseUrl(baseUrl)
-                        .keyStorePath("src/test/resources/certificates/faaast.keystore.p12")
-                        .keyStorePassword("changeit")
+                        .keyStorePath(keyStoreFileClient.getAbsolutePath())
+                        .keyStorePassword(KEYSTORE_PASSWORD)
                         .build(),
                 serviceContext);
         awaitConnection(connection);
@@ -290,10 +299,12 @@ public class HttpsAssetConnectionTest {
                 verifier = verifierModifier.apply(verifier);
             }
             verify(exactly(1), verifier);
-        } finally {
+        }
+        finally {
             connection.disconnect();
         }
     }
+
 
     @Test
     public void testSubscriptionProviderPropertyJsonGET() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
@@ -307,6 +318,7 @@ public class HttpsAssetConnectionTest {
                 PropertyValue.of(Datatype.INT, "1"),
                 PropertyValue.of(Datatype.INT, "2"));
     }
+
 
     @Test
     public void testSubscriptionProviderPropertyJsonGET2() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
@@ -325,6 +337,7 @@ public class HttpsAssetConnectionTest {
                 PropertyValue.of(Datatype.INT, "42"));
     }
 
+
     @Test
     public void testSubscriptionProviderPropertyJsonPOST() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertSubscriptionProviderPropertyJson(
@@ -338,20 +351,21 @@ public class HttpsAssetConnectionTest {
                 PropertyValue.of(Datatype.INT, "2"));
     }
 
+
     private void assertSubscriptionProviderPropertyJson(Datatype datatype,
-            RequestMethod method,
-            List<String> httpResponseBodies,
-            String query,
-            String payload,
-            PropertyValue... expected)
+                                                        RequestMethod method,
+                                                        List<String> httpResponseBodies,
+                                                        String query,
+                                                        String payload,
+                                                        PropertyValue... expected)
             throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         ServiceContext serviceContext = mock(ServiceContext.class);
         doReturn(ElementValueTypeInfo.builder()
                 .type(PropertyValue.class)
                 .datatype(datatype)
                 .build())
-                .when(serviceContext)
-                .getTypeInfo(REFERENCE);
+                        .when(serviceContext)
+                        .getTypeInfo(REFERENCE);
         String id = UUID.randomUUID().toString();
         String path = String.format("/test/random/%s", id);
         if (httpResponseBodies != null && !httpResponseBodies.isEmpty()) {
@@ -387,8 +401,8 @@ public class HttpsAssetConnectionTest {
                                         .payload(payload)
                                         .build())
                         .baseUrl(baseUrl)
-                        .keyStorePath("src/test/resources/certificates/faaast.keystore.p12")
-                        .keyStorePassword("changeit")
+                        .keyStorePath(keyStoreFileClient.getAbsolutePath())
+                        .keyStorePassword(KEYSTORE_PASSWORD)
                         .build(),
                 serviceContext);
         awaitConnection(connection);
@@ -413,10 +427,12 @@ public class HttpsAssetConnectionTest {
                         .withRequestBody(equalToJson(payload));
             }
             verify(exactly(httpResponseBodies.size()), verifier);
-        } finally {
+        }
+        finally {
             connection.disconnect();
         }
     }
+
 
     @Test
     public void testOperationProviderPropertyJsonPOSTNoParameters()
@@ -433,6 +449,7 @@ public class HttpsAssetConnectionTest {
                 null);
     }
 
+
     @Test
     public void testOperationProviderPropertyJsonPOSTInputOnly() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         assertOperationProviderPropertyJson(
@@ -446,6 +463,7 @@ public class HttpsAssetConnectionTest {
                 null,
                 null);
     }
+
 
     @Test
     public void testOperationProviderPropertyJsonPOSTOutputOnly()
@@ -461,6 +479,7 @@ public class HttpsAssetConnectionTest {
                 Map.of("out1", TypedValueFactory.create(Datatype.DOUBLE, "1.5")),
                 null);
     }
+
 
     @Test
     public void testOperationProviderPropertyJsonPOSTInputOutputOnly()
@@ -478,6 +497,7 @@ public class HttpsAssetConnectionTest {
                 null);
     }
 
+
     @Test
     public void testOperationProviderPropertyJsonPOSTInoutputOnly()
             throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
@@ -492,6 +512,7 @@ public class HttpsAssetConnectionTest {
                 null,
                 Map.of("inout1", TypedValueFactory.create(Datatype.INTEGER, "17")));
     }
+
 
     @Test
     public void testOperationProviderPropertyJsonPOST() throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
@@ -508,16 +529,17 @@ public class HttpsAssetConnectionTest {
                 Map.of("inout1", TypedValueFactory.create(Datatype.INT, "4")));
     }
 
+
     private void assertOperationProviderPropertyJson(
-            RequestMethod method,
-            String template,
-            String expectedRequestToAsset,
-            String assetResponse,
-            Map<String, String> queries,
-            Map<String, TypedValue> input,
-            Map<String, TypedValue> inoutput,
-            Map<String, TypedValue> expectedOutput,
-            Map<String, TypedValue> expectedInoutput)
+                                                     RequestMethod method,
+                                                     String template,
+                                                     String expectedRequestToAsset,
+                                                     String assetResponse,
+                                                     Map<String, String> queries,
+                                                     Map<String, TypedValue> input,
+                                                     Map<String, TypedValue> inoutput,
+                                                     Map<String, TypedValue> expectedOutput,
+                                                     Map<String, TypedValue> expectedInoutput)
             throws AssetConnectionException, ValueFormatException, ConfigurationInitializationException, InterruptedException {
         ServiceContext serviceContext = mock(ServiceContext.class);
         OperationVariable[] output = toOperationVariables(expectedOutput);
@@ -549,8 +571,8 @@ public class HttpsAssetConnectionTest {
                                         .template(template)
                                         .build())
                         .baseUrl(baseUrl)
-                        .keyStorePath("src/test/resources/certificates/faaast.keystore.p12")
-                        .keyStorePassword("changeit")
+                        .keyStorePath(keyStoreFileClient.getAbsolutePath())
+                        .keyStorePassword(KEYSTORE_PASSWORD)
                         .build(),
                 serviceContext);
         awaitConnection(connection);
@@ -569,10 +591,12 @@ public class HttpsAssetConnectionTest {
                         .withRequestBody(equalToJson(expectedRequestToAsset));
             }
             verify(exactly(1), verifier);
-        } finally {
+        }
+        finally {
             connection.disconnect();
         }
     }
+
 
     private OperationVariable[] toOperationVariables(Map<String, TypedValue> values) {
         if (values == null) {
@@ -580,12 +604,12 @@ public class HttpsAssetConnectionTest {
         }
         return values.entrySet().stream()
                 .map(x -> new DefaultOperationVariable.Builder()
-                .value(new DefaultProperty.Builder()
-                        .idShort(x.getKey())
-                        .value(x.getValue().asString())
-                        .valueType(x.getValue().getDataType().getName())
+                        .value(new DefaultProperty.Builder()
+                                .idShort(x.getKey())
+                                .value(x.getValue().asString())
+                                .valueType(x.getValue().getDataType().getName())
+                                .build())
                         .build())
-                .build())
                 .toArray(OperationVariable[]::new);
     }
 

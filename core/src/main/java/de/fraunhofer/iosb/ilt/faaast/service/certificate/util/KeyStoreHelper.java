@@ -102,6 +102,21 @@ public class KeyStoreHelper {
 
 
     /**
+     * Save the given file to the key store.
+     *
+     * @param keyStoreType the type of key store
+     * @param file the file to write to
+     * @param certificateData the certificate data
+     * @param password the password to set
+     * @throws IOException if writing to the file fails
+     * @throws GeneralSecurityException if generating the certificate fails
+     */
+    public static void save(String keyStoreType, File file, CertificateData certificateData, String password) throws IOException, GeneralSecurityException {
+        save(file, createKeyStore(keyStoreType, certificateData, password), password);
+    }
+
+
+    /**
      * Save the given key store to file.
      *
      * @param file the file to write to
