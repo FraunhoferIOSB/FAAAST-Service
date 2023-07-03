@@ -20,6 +20,8 @@ import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
@@ -62,19 +64,17 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
 
 public class HttpsAssetConnectionTest {
-    @Rule
+    private WireMockServer wireMockServer;
+    /*@Rule
     public WireMockRule wireMockRule = new WireMockRule(options()
             .dynamicHttpsPort()
             .keystorePath("src/test/resources/certificates/faaast.keystore.p12")
             .keystorePassword("changeit"));
-
+*/
     private static final long DEFAULT_TIMEOUT = 10000;
     private static final Reference REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
     private static final String CONTENT_TYPE = "Content-Type";
@@ -82,8 +82,21 @@ public class HttpsAssetConnectionTest {
     private URL baseUrl;
 
     @Before
-    public void init() throws MalformedURLException {
-        baseUrl = new URL("https", "127.0.0.1", wireMockRule.httpsPort(), "");
+    public void setup() throws MalformedURLException {
+        wireMockServer = new WireMockServer(
+                WireMockConfiguration.options()
+                        .dynamicHttpsPort()
+                        .keystorePath("src/test/resources/certificates/faaast.keystore.p12")
+                        .keystorePassword("changeit")
+                        .keystoreType("JKS")
+        );
+        wireMockServer.start();
+        baseUrl = new URL("https", "localhost", wireMockServer.httpsPort(), "");
+    }
+
+    @After
+    public void teardown() {
+        wireMockServer.stop();
     }
 
 
