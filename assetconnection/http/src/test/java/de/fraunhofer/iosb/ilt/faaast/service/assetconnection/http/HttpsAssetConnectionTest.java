@@ -69,7 +69,6 @@ import org.junit.Test;
 
 
 public class HttpsAssetConnectionTest {
-
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(options()
             .dynamicHttpsPort()
@@ -84,7 +83,7 @@ public class HttpsAssetConnectionTest {
 
     @Before
     public void init() throws MalformedURLException {
-        baseUrl = new URL("https", "localhost", wireMockRule.httpsPort(), "");
+        baseUrl = new URL("https", "127.0.0.1", wireMockRule.httpsPort(), "");
     }
 
 
