@@ -20,6 +20,7 @@
 		*   Unit tests no longer create temp files in source folders
 *   Starter
 	*   Improved error logging
+    *   Environment variables use "_" as a separator
 
 ## Release version 0.5.0
 
