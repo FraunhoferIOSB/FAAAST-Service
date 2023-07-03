@@ -3,11 +3,13 @@
 ## Current development version (0.6.0-SNAPSHOT)<!--end:changelog-header-->
 
 **New Features & Major Changes**
-* HTTP Endpoint
+*   HTTP Endpoint
 	*   Now supports HTTPS
 *   MQTT-based MessagBus now available that can either start embedded MQTT server or use external one
 *   OPC UA Endpoint
 	*   Now supports configuring supported security policies (`NONE`, `BASIC128RSA15`, `BASIC256`, `BASIC256SHA256`, `AES128_SHA256_RSAOAEP`, `AES256_SHA256_RSAPSS`) and authentication methods (`Anonymous`, `UserName`, `Certificate`)
+*   Other
+    * 	Environment variables use "_" as a separator
 
 **Internal changes & bugfixes**
 *   General
@@ -20,7 +22,6 @@
 		*   Unit tests no longer create temp files in source folders
 *   Starter
 	*   Improved error logging
-    *   Environment variables use "_" as a separator
 
 ## Release version 0.5.0
 
