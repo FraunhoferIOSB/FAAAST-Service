@@ -48,7 +48,7 @@ public class SelfSignedCertificateHandler {
     public SSLContext createCustomSSLContext(HttpAssetConnectionConfig config) throws IOException, GeneralSecurityException {
         loadTrustedCertificates(config);
         try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
+            SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
             sslContext.init(null, new TrustManager[] {
                     new CustomTrustManager()
             }, new SecureRandom());
