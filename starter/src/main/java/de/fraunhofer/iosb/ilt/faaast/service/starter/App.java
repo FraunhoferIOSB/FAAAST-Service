@@ -242,9 +242,6 @@ public class App implements Runnable {
                         : config.getPersistence().getInitialModel();
                 validate(config.getCore(), model);
             }
-            catch (IOException e) {
-                throw new InitializationException("Unexpected exception while validating model", e);
-            }
             catch (DeserializationException e) {
                 throw new InitializationException("Error loading model file", e);
             }
@@ -491,7 +488,7 @@ public class App implements Runnable {
     }
 
 
-    private void validate(CoreConfig coreConfig, AssetAdministrationShellEnvironment aasEnv) throws IOException {
+    private void validate(CoreConfig coreConfig, AssetAdministrationShellEnvironment aasEnv) {
         if (!coreConfig.getValidateOnLoad().isEnabled()) {
             LOGGER.info("ValidateOnLoad is disabled in core config, no validation will be performed.");
             return;
