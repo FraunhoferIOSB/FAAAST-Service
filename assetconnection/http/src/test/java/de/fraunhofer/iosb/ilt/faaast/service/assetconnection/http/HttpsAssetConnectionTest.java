@@ -15,13 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.service.assetconnection.http;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import de.fraunhofer.iosb.ilt.faaast.service.ServiceContext;
@@ -58,8 +58,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,21 +69,25 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class HttpsAssetConnectionTest {
-
-    private WireMockServer wireMockServer;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpsAssetConnectionTest.class);
     private static final long DEFAULT_TIMEOUT = 10000;
     private static final String KEYSTORE_PASSWORD = "changeit";
     private static final String KEYSTORE_TYPE_SERVER = "JKS";
-    private static File keyStoreFileServer;
-    private static File keyStoreFileClient;
+    private static File keyStoreFileServer = null;
+    private static File keyStoreFileClient = null;
     private static final Reference REFERENCE = AasUtils.parseReference("(Property)[ID_SHORT]Temperature");
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
+    private URL baseUrl;
     public static final CertificateInformation SELF_SIGNED_SERVER_CERTIFICATE_INFO = CertificateInformation.builder()
             .applicationUri("urn:de:fraunhofer:iosb:ilt:faaast:service:assetconnection:http:test")
             .commonName("FA³ST Service HTTP Asset Connection Test")
@@ -96,36 +98,47 @@ public class HttpsAssetConnectionTest {
             .ipAddress("127.0.0.1")
             .dnsName("localhost")
             .build();
-    private URL baseUrl;
 
-    private void generateSelfSignedServerCertificate() throws KeyStoreException, NoSuchAlgorithmException, IOException, GeneralSecurityException {
-        keyStoreFileServer = Files.createTempFile("faaast-assetconnection-http-server-cert", ".jks").toFile();
-        keyStoreFileServer.deleteOnExit();
-        keyStoreFileClient = Files.createTempFile("faaast-assetconnection-http-client-cert", ".p12").toFile();
-        keyStoreFileClient.deleteOnExit();
-        CertificateData certificateData = KeyStoreHelper.generateSelfSigned(SELF_SIGNED_SERVER_CERTIFICATE_INFO);
-        KeyStoreHelper.save(KEYSTORE_TYPE_SERVER, keyStoreFileServer, certificateData, KEYSTORE_PASSWORD);
-        KeyStoreHelper.save(keyStoreFileClient, certificateData, KEYSTORE_PASSWORD);
+    private void generateSelfSignedServerCertificate() {
+        try {
+            keyStoreFileServer = Files.createTempFile("faaast-assetconnection-http-server-cert", ".jks").toFile();
+            keyStoreFileClient = Files.createTempFile("faaast-assetconnection-http-client-cert", ".p12").toFile();
+            CertificateData certificateData = KeyStoreHelper.generateSelfSigned(SELF_SIGNED_SERVER_CERTIFICATE_INFO);
+            KeyStoreHelper.save(KEYSTORE_TYPE_SERVER, keyStoreFileServer, certificateData, KEYSTORE_PASSWORD);
+            LOGGER.info("Self-signed cert generated & stored successfully in the server keystore" + SELF_SIGNED_SERVER_CERTIFICATE_INFO);
+            KeyStoreHelper.save(keyStoreFileClient, certificateData, KEYSTORE_PASSWORD);
+            LOGGER.info("Self-signed cert stored successfully in the client keystore" + SELF_SIGNED_SERVER_CERTIFICATE_INFO);
+
+        }
+        catch (GeneralSecurityException | IOException exception) {
+            LOGGER.error("Creating keystore or generating certs not succeeded!", exception);
+        }
+        finally {
+            if (keyStoreFileServer != null) {
+                keyStoreFileServer.deleteOnExit();
+            }
+            if (keyStoreFileClient != null) {
+                keyStoreFileClient.deleteOnExit();
+            }
+        }
+    }
+
+    @Rule
+    public WireMockRule wireMockRule;
+
+    public HttpsAssetConnectionTest() {
+        generateSelfSignedServerCertificate();
+        wireMockRule = new WireMockRule(options()
+                .dynamicHttpsPort()
+                .keystoreType(KEYSTORE_TYPE_SERVER)
+                .keystorePath(keyStoreFileServer.getAbsolutePath())
+                .keystorePassword(KEYSTORE_PASSWORD));
     }
 
 
     @Before
-    public void setup() throws MalformedURLException, NoSuchAlgorithmException, IOException, GeneralSecurityException {
-        generateSelfSignedServerCertificate();
-        wireMockServer = new WireMockServer(
-                WireMockConfiguration.options()
-                        .dynamicHttpsPort()
-                        .keystoreType(KEYSTORE_TYPE_SERVER)
-                        .keystorePath(keyStoreFileServer.getAbsolutePath())
-                        .keystorePassword(KEYSTORE_PASSWORD));
-        wireMockServer.start();
-        baseUrl = new URL("https", "localhost", wireMockServer.httpsPort(), "");
-    }
-
-
-    @After
-    public void teardown() {
-        wireMockServer.stop();
+    public void init() throws MalformedURLException {
+        baseUrl = new URL("https", "localhost", wireMockRule.httpsPort(), "");
     }
 
 
